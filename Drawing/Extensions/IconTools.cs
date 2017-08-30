@@ -759,13 +759,13 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the provided <paramref name="icon"/> to a <see cref="CursorHandle"/>, which can be passed to the
-        /// <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx">Cursor</a> constructor
+        /// <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> constructor
         /// to create a new cursor.
         /// </summary>
         /// <param name="icon">The <see cref="Icon"/>, which should be converted to a cursor.</param>
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor.
         /// <br/>Default value: 0; 0 (top-left corner)</param>
-        /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx">Cursor</a> instance.</returns>
+        /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
         public static CursorHandle ToCursorHandle(this Icon icon, Point cursorHotspot = default(Point))
         {
             if (icon == null)
