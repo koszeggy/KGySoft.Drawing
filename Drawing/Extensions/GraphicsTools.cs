@@ -107,7 +107,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="graphics">The graphics to set the quality.</param>
         /// <param name="quality">Requested quality.</param>
-        /// <param name="useGdiPlusTextRendering"><c>true</c>, when GDI+ is required for text rendering instead of GDI (that is, when <c>UseCompatibleTextRendering</c> is <c>true</c> for a control).</param>
+        /// <param name="useGdiPlusTextRendering"><see langword="true"/>, when GDI+ is required for text rendering instead of GDI (that is, when <c>UseCompatibleTextRendering</c> is <see langword="true"/> for a control).</param>
         public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
         {
             if (graphics == null)
@@ -157,7 +157,7 @@ namespace KGySoft.Drawing
         /// Copies the  <see cref="Graphics"/> object provided in <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> instance to be converted.</param>
-        /// <param name="visibleClipOnly">When <c>true</c>, the result will contain only the area represented by <see cref="Graphics.VisibleClipBounds"/> property. When <c>false</c>, 
+        /// <param name="visibleClipOnly">When <see langword="true"/>, the result will contain only the area represented by <see cref="Graphics.VisibleClipBounds"/> property. When <see langword="false"/>, 
         /// the result will contain the image of the whole container source (when window is found), where the visible clip bounds can be indentified by <see cref="Graphics.VisibleClipBounds"/> in pixels.</param>
         /// <returns>A <see cref="Bitmap"/> object that contains the image content of the source <see cref="Graphics"/> object, or <see langword="null"/>, when the required area of
         /// <paramref name="graphics"/> is empty.</returns>

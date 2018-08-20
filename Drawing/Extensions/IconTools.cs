@@ -279,8 +279,8 @@ namespace KGySoft.Drawing
         /// Extracts every image from an <see cref="Icon" /> instance.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>
         /// An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
         /// </returns>
@@ -295,8 +295,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An array of <see cref="Bitmap"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
         /// <seealso cref="ExtractIcons(Icon,SystemIconSize)"/>
         public static Bitmap[] ExtractBitmaps(this Icon icon, SystemIconSize size, bool keepOriginalFormat)
@@ -312,8 +312,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An array of <see cref="Bitmap"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
         /// <seealso cref="ExtractIcons(Icon,Size)"/>
         public static Bitmap[] ExtractBitmaps(this Icon icon, Size size, bool keepOriginalFormat)
@@ -326,8 +326,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An array of <see cref="Bitmap"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
         /// <seealso cref="ExtractIcons(Icon,PixelFormat)"/>
         public static Bitmap[] ExtractBitmaps(this Icon icon, PixelFormat pixelFormat, bool keepOriginalFormat)
@@ -340,8 +340,8 @@ namespace KGySoft.Drawing
         /// using <see cref="ToAlphaBitmap"/> is faster.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found.</returns>
         /// <seealso cref="ToAlphaBitmap"/>
@@ -355,8 +355,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found of the specified size.</returns>
         /// <seealso cref="ExtractIcon(Icon,SystemIconSize)"/>
@@ -373,8 +373,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found of the specified size.</returns>
         /// <seealso cref="ExtractIcon(Icon,Size)"/>
@@ -389,8 +389,8 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found of the specified size and format.</returns>
         /// <seealso cref="ExtractIcon(Icon,SystemIconSize,PixelFormat)"/>
@@ -405,8 +405,8 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found of the specified size and format.</returns>
         /// <seealso cref="ExtractIcon(Icon,Size,PixelFormat)"/>
@@ -420,8 +420,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="index">The zero-based index of the icon image to retrieve.</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/> if no icon found of the specified size.</returns>
         /// <seealso cref="ExtractIcon(Icon,int)"/>
@@ -444,8 +444,8 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <c>true</c>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <c>false</c>, always returns 32 bpp images with transparency.</param>
+        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
+        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>. If no
         /// icon found of the specified size and format, the nearest image (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
         /// <seealso cref="ExtractNearestIcon(Icon,Size,PixelFormat)"/>

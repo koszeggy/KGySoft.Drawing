@@ -73,14 +73,14 @@ namespace KGySoft.Drawing.WinApi
         /// <param name="nXSrc">The leftmost x-coordinate of the source rectangle (in pixels).</param>
         /// <param name="nYSrc">The topmost y-coordinate of the source rectangle (in pixels).</param>
         /// <param name="dwRop">A raster-operation code.</param>
-        /// <returns><c>true</c> if the operation succeedes, <c>false</c> otherwise. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.</returns>
+        /// <returns><see langword="true"/> if the operation succeedes, <see langword="false"/> otherwise. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.</returns>
         [DllImport("gdi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool BitBlt(IntPtr hdc, int nXDest, int nYDest, int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, TernaryRasterOperations dwRop);
 
         /// <summary>The DeleteDC function deletes the specified device context (DC).</summary>
         /// <param name="hdc">A handle to the device context.</param>
-        /// <returns>If the function succeeds, the return value is <c>true</c>. If the function fails, the return value is <c>false</c>.</returns>
+        /// <returns>If the function succeeds, the return value is <see langword="true"/>. If the function fails, the return value is <see langword="false"/>.</returns>
         /// <remarks>
         /// An application must not delete a DC whose handle was obtained by calling the GetDC function. Instead, it must call the ReleaseDC function to free the DC.
         /// </remarks>

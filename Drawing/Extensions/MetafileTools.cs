@@ -86,8 +86,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
         /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>.</param>
-        /// <param name="antiAliased"><c>true</c> to create an anti-aliased result; otherwise, <c>false</c>.
-        /// <br/>Default value: <c>false</c>.</param>
+        /// <param name="antiAliased"><see langword="true"/> to create an anti-aliased result; otherwise, <see langword="false"/>.
+        /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)
         {
@@ -127,8 +127,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
         /// <param name="stream">The <see cref="Stream"/> into the metafile should be saved.</param>
-        /// <param name="forceWmfFormat">When <c>true</c>, forces to use the Windows Metafile Format (WMF), even if
-        /// the <paramref name="metafile"/> itself is encoded by Enhanced Metafile Format (EMF). When <c>false</c>, uses the appropriate format automatically.</param>
+        /// <param name="forceWmfFormat">When <see langword="true"/>, forces to use the Windows Metafile Format (WMF), even if
+        /// the <paramref name="metafile"/> itself is encoded by Enhanced Metafile Format (EMF). When <see langword="false"/>, uses the appropriate format automatically.</param>
         public static void Save(this Metafile metafile, Stream stream, bool forceWmfFormat)
         {
             if (metafile == null)
