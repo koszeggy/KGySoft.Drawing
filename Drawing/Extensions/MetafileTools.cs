@@ -8,7 +8,7 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Text;
 using KGySoft.Drawing.WinApi;
-using KGySoft.Libraries.Serialization;
+using KGySoft.Serialization;
 
 namespace KGySoft.Drawing
 {

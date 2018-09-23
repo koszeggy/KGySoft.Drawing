@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 using KGySoft.Collections;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Libraries;
-using KGySoft.Libraries.Serialization;
+using KGySoft.Serialization;
 
 #endregion
 
