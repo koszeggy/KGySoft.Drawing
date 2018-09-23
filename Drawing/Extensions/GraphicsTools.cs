@@ -5,7 +5,7 @@ using System.Drawing.Text;
 using System.Reflection;
 
 using KGySoft.Drawing.WinApi;
-using KGySoft.Libraries.Reflection;
+using KGySoft.Reflection;
 
 namespace KGySoft.Drawing
 {

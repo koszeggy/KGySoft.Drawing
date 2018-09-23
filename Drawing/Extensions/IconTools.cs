@@ -11,7 +11,7 @@ using System.Runtime.InteropServices;
 
 using KGySoft.Libraries;
 using KGySoft.Drawing.WinApi;
-using KGySoft.Libraries.Reflection;
+using KGySoft.Reflection;
 
 #endregion
 

@@ -1,7 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
-
-using KGySoft.Libraries.Reflection;
+using KGySoft.Reflection;
 
 namespace KGySoft.ComponentModel
 {

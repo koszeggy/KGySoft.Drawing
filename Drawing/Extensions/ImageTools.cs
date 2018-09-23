@@ -13,7 +13,7 @@ using System.Windows.Forms;
 
 using KGySoft.Drawing.WinApi;
 using KGySoft.Libraries;
-using KGySoft.Libraries.Reflection;
+using KGySoft.Reflection;
 
 #endregion
 
