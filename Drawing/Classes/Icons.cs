@@ -12,6 +12,7 @@ using KGySoft.Libraries;
 
 namespace KGySoft.Drawing
 {
+    using Resources = KGySoft.Drawing.Properties.Resources;
     /// <summary>
     /// Provides general icons in multi resolution. Unlike <see cref="SystemIcons"/>, these icons should be disposed when not used any more.
     /// </summary>

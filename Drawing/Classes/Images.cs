@@ -8,6 +8,7 @@ using KGySoft.Drawing.Properties;
 
 namespace KGySoft.Drawing
 {
+    using Resources = KGySoft.Drawing.Properties.Resources;
     /// <summary>
     /// Provides general images applicable for button icons and for other purposes.
     /// Most of the images have 16x16 size. Members with <c>Large</c> ending have 256x256 size.
