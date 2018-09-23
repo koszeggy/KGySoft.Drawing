@@ -8,10 +8,9 @@ using System.Drawing.Imaging;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
-
+using KGySoft.Collections;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Libraries;
-using KGySoft.Libraries.Collections;
 using KGySoft.Libraries.Serialization;
 
 #endregion
