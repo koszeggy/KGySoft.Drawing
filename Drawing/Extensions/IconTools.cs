@@ -792,7 +792,7 @@ namespace KGySoft.Drawing
         {
             if (iconData == null)
             {
-                iconData = FieldAccessor.GetFieldAccessor(typeof(Icon).GetField("iconData", BindingFlags.Instance | BindingFlags.NonPublic));
+                iconData = FieldAccessor.GetAccessor(typeof(Icon).GetField("iconData", BindingFlags.Instance | BindingFlags.NonPublic));
             }
 
             return iconData.Get(icon) != null;

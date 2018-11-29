@@ -170,7 +170,7 @@ namespace KGySoft.Drawing
                 return null;
 
             if (fieldGraphic_backingImage == null)
-                fieldGraphic_backingImage = FieldAccessor.GetFieldAccessor(typeof(Graphics).GetField("backingImage", BindingFlags.Instance | BindingFlags.NonPublic));
+                fieldGraphic_backingImage = FieldAccessor.GetAccessor(typeof(Graphics).GetField("backingImage", BindingFlags.Instance | BindingFlags.NonPublic));
 
             Bitmap result;
             RectangleF visibleRect;

@@ -208,7 +208,7 @@ namespace KGySoft.Drawing
 
                 Array.Resize(ref truncatedPalette, desiredSize);
                 if (fieldColorPalette_entries == null)
-                    fieldColorPalette_entries = FieldAccessor.GetFieldAccessor(typeof(ColorPalette).GetField("entries", BindingFlags.Instance | BindingFlags.NonPublic));
+                    fieldColorPalette_entries = FieldAccessor.GetAccessor(typeof(ColorPalette).GetField("entries", BindingFlags.Instance | BindingFlags.NonPublic));
 
                 fieldColorPalette_entries.Set(resultPalette, truncatedPalette);
                 resetPalette = true;
