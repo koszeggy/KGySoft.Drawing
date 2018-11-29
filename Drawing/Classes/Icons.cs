@@ -3,10 +3,9 @@
 using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
-
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Properties;
 using KGySoft.Drawing.WinApi;
-using KGySoft.Libraries;
 
 #endregion
 

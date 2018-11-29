@@ -1,5 +1,6 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
+using KGySoft.CoreLibraries;
 using KGySoft.Reflection;
 
 namespace KGySoft.ComponentModel
@@ -10,7 +11,6 @@ namespace KGySoft.ComponentModel
     using System.IO;
 
     using KGySoft.Drawing;
-    using KGySoft.Libraries;
 
     /// <summary>
     /// Represents a class that can be used to convert <see cref="Bitmap"/>, <see cref="Metafile"/> and <see cref="Icon"/>
