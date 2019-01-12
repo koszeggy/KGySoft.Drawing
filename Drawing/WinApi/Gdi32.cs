@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.WinApi
         /// <param name="nXSrc">The leftmost x-coordinate of the source rectangle (in pixels).</param>
         /// <param name="nYSrc">The topmost y-coordinate of the source rectangle (in pixels).</param>
         /// <param name="dwRop">A raster-operation code.</param>
-        /// <returns><see langword="true"/> if the operation succeedes, <see langword="false"/> otherwise. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.</returns>
+        /// <returns><see langword="true"/>&#160;if the operation succeedes, <see langword="false"/>&#160;otherwise. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.</returns>
         [DllImport("gdi32.dll", SetLastError = true)]
         [return: MarshalAs(UnmanagedType.Bool)]
         internal static extern bool BitBlt(IntPtr hdc, int nXDest, int nYDest, int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, TernaryRasterOperations dwRop);

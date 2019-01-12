@@ -107,7 +107,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="graphics">The graphics to set the quality.</param>
         /// <param name="quality">Requested quality.</param>
-        /// <param name="useGdiPlusTextRendering"><see langword="true"/>, when GDI+ is required for text rendering instead of GDI (that is, when <c>UseCompatibleTextRendering</c> is <see langword="true"/> for a control).</param>
+        /// <param name="useGdiPlusTextRendering"><see langword="true"/>, when GDI+ is required for text rendering instead of GDI (that is, when <c>UseCompatibleTextRendering</c> is <see langword="true"/>&#160;for a control).</param>
         public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
         {
             if (graphics == null)

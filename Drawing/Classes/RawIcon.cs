@@ -291,7 +291,7 @@ namespace KGySoft.Drawing
             /// <summary>
             /// Releases unmanaged and - optionally - managed resources.
             /// </summary>
-            /// <param name="disposing"><see langword="true"/> to release both managed and unmanaged resources; <see langword="false"/> to release only unmanaged resources.</param>
+            /// <param name="disposing"><see langword="true"/>&#160;to release both managed and unmanaged resources; <see langword="false"/>&#160;to release only unmanaged resources.</param>
             private void Dispose(bool disposing)
             {
                 if (disposing)

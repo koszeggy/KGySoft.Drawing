@@ -85,7 +85,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
         /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>.</param>
-        /// <param name="antiAliased"><see langword="true"/> to create an anti-aliased result; otherwise, <see langword="false"/>.
+        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)

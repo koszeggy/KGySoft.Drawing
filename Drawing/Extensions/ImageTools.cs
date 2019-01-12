@@ -248,7 +248,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image1">First image instance.</param>
         /// <param name="image2">Second image instance.</param>
-        /// <returns><see langword="true"/> if both images have the same content; otherwise, <see langword="false"/>.</returns>
+        /// <returns><see langword="true"/>&#160;if both images have the same content; otherwise, <see langword="false"/>.</returns>
         /// <remarks>If an image is not a <see cref="Bitmap"/> instance, a temporaly <see cref="Bitmap"/> is created for the check.
         /// <note>This method compares images by raw content. If an images has a padding in each stride (content row), padding content is considered as well.</note></remarks>
         public static bool EqualsByContent(this Image image1, Image image2)
