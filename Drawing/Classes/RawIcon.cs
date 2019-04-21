@@ -239,7 +239,7 @@ namespace KGySoft.Drawing
                     throw new ArgumentException("Bad icon format", "rawData");
 
                 // header
-                bmpHeader = (BITMAPINFOHEADER)BinarySerializer.DeserializeStruct(typeof(BITMAPINFOHEADER), rawData);
+                bmpHeader = (BITMAPINFOHEADER)BinarySerializer.DeserializeValueType(typeof(BITMAPINFOHEADER), rawData);
                 size = new Size(bmpHeader.biWidth, bmpHeader.biHeight >> 1); // height is doubled because of mask
                 int offset = signature;
 
@@ -247,7 +247,7 @@ namespace KGySoft.Drawing
                 int colorCount = PaletteColorCount;
                 if (colorCount > 0)
                 {
-                    palette = BinarySerializer.DeserializeStructArray<RGBQUAD>(rawData, offset, colorCount);
+                    palette = BinarySerializer.DeserializeValueArray<RGBQUAD>(rawData, offset, colorCount);
                     offset += Marshal.SizeOf(typeof(RGBQUAD)) * palette.Length;
                 }
 
@@ -377,7 +377,7 @@ namespace KGySoft.Drawing
                     entry.dwBytesInRes = (uint)rawColor.Length;
                 }
 
-                bw.Write(BinarySerializer.SerializeStruct(entry));
+                bw.Write(BinarySerializer.SerializeValueType(entry));
                 offset += entry.dwBytesInRes;
             }
 
@@ -391,11 +391,11 @@ namespace KGySoft.Drawing
                 }
 
                 // header
-                bw.Write(BinarySerializer.SerializeStruct(bmpHeader));
+                bw.Write(BinarySerializer.SerializeValueType(bmpHeader));
 
                 // Palette
                 if (PaletteColorCount > 0)
-                    bw.Write(BinarySerializer.SerializeStructArray(palette));
+                    bw.Write(BinarySerializer.SerializeValueArray(palette));
 
                 // color image (XOR)
                 bw.Write(rawColor);
@@ -418,7 +418,7 @@ namespace KGySoft.Drawing
                             idCount = 1
                         };
 
-                        bw.Write(BinarySerializer.SerializeStruct(iconDir));
+                        bw.Write(BinarySerializer.SerializeValueType(iconDir));
 
                         // Icon entry
                         uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + Marshal.SizeOf(typeof(ICONDIRENTRY)));
@@ -981,7 +981,7 @@ namespace KGySoft.Drawing
                 idCount = (ushort)iconImages.Count
             };
 
-            bw.Write(BinarySerializer.SerializeStruct(iconDir));
+            bw.Write(BinarySerializer.SerializeValueType(iconDir));
 
             // Icon directory entries
             uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + iconDir.idCount * Marshal.SizeOf(typeof(ICONDIRENTRY)));
@@ -1000,7 +1000,7 @@ namespace KGySoft.Drawing
         private void Load(BinaryReader br, Size? size, int? bpp, int? index)
         {
             byte[] buf = br.ReadBytes(Marshal.SizeOf(typeof(ICONDIR)));
-            ICONDIR iconDir = (ICONDIR)BinarySerializer.DeserializeStruct(typeof(ICONDIR), buf);
+            ICONDIR iconDir = (ICONDIR)BinarySerializer.DeserializeValueType(typeof(ICONDIR), buf);
             if (iconDir.idReserved != 0 || iconDir.idType != 1)
                 throw new ArgumentException("Bad icon format", "br");
 
@@ -1019,7 +1019,7 @@ namespace KGySoft.Drawing
 
                 br.BaseStream.Position = entryOffset;
                 buf = br.ReadBytes(entrySize);
-                ICONDIRENTRY entry = (ICONDIRENTRY)BinarySerializer.DeserializeStruct(typeof(ICONDIRENTRY), buf);
+                ICONDIRENTRY entry = (ICONDIRENTRY)BinarySerializer.DeserializeValueType(typeof(ICONDIRENTRY), buf);
                 if (entry.wBitCount > 32)
                     entry.wBitCount = 32;
                 Size reqSize = size.GetValueOrDefault();

@@ -198,7 +198,7 @@ namespace KGySoft.Drawing
         private static void WriteWmfHeader(Metafile metafile, Stream stream)
         {
             WmfHeader header = new WmfHeader((short)metafile.Width, (short)metafile.Height, (ushort)metafile.HorizontalResolution);
-            byte[] rawHeader = BinarySerializer.SerializeStruct(header);
+            byte[] rawHeader = BinarySerializer.SerializeValueType(header);
             stream.Write(rawHeader, 0, rawHeader.Length);
         }
     }
