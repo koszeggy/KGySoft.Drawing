@@ -19,9 +19,9 @@ namespace KGySoft.Drawing
     using System.ComponentModel;
 
     /// <summary>
-    /// Contains <see cref="Icon"/> related methods.
+    /// Contains <see cref="Icon"/> related methods and extensions for the <see cref="Icon"/> type.
     /// </summary>
-    public static class IconTools
+    public static class IconExtensions
     {
         #region Fields
 

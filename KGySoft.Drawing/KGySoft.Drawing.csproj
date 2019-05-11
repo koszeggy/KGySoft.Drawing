@@ -8,7 +8,7 @@
     <ProjectGuid>{06AEC656-8AE3-409C-AB2E-64C6A3712F8B}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>KGySoft.Drawing</RootNamespace>
+    <RootNamespace>KGySoft</RootNamespace>
     <AssemblyName>KGySoft.Drawing</AssemblyName>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
@@ -70,20 +70,20 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Drawing\Classes\CursorHandle.cs" />
-    <Compile Include="Drawing\Classes\DrawingHelper.cs" />
-    <Compile Include="Drawing\Classes\Icons.cs" />
-    <Compile Include="Drawing\Classes\Images.cs" />
-    <Compile Include="Drawing\Classes\RawIcon.cs" />
+    <Compile Include="Drawing\_Classes\CursorHandle.cs" />
+    <Compile Include="Drawing\_Classes\DrawingHelper.cs" />
+    <Compile Include="Drawing\_Classes\Icons.cs" />
+    <Compile Include="Drawing\_Classes\Images.cs" />
+    <Compile Include="Drawing\_Classes\RawIcon.cs" />
     <Compile Include="ComponentModel\AdvancedImageConverter.cs" />
-    <Compile Include="Drawing\Enums\RenderingQuality.cs" />
-    <Compile Include="Drawing\Enums\SystemIconSize.cs" />
-    <Compile Include="Drawing\Extensions\BitmapTools.cs" />
-    <Compile Include="Drawing\Extensions\GraphicsTools.cs" />
-    <Compile Include="Drawing\Extensions\IconTools.cs" />
-    <Compile Include="Drawing\Extensions\ImageTools.cs" />
-    <Compile Include="Drawing\Extensions\MetafileTools.cs" />
-    <Compile Include="Drawing\Extensions\PixelFormatTools.cs" />
+    <Compile Include="Drawing\_Enums\RenderingQuality.cs" />
+    <Compile Include="Drawing\_Enums\SystemIconSize.cs" />
+    <Compile Include="Drawing\_Extensions\BitmapExtensions.cs" />
+    <Compile Include="Drawing\_Extensions\GraphicsExtensions.cs" />
+    <Compile Include="Drawing\_Extensions\IconExtensions.cs" />
+    <Compile Include="Drawing\_Extensions\ImageExtensions.cs" />
+    <Compile Include="Drawing\_Extensions\MetafileExtensions.cs" />
+    <Compile Include="Drawing\_Extensions\PixelFormatExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

@@ -15,7 +15,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Provides extension methods for <see cref="Metafile"/> class.
     /// </summary>
-    public static class MetafileTools
+    public static class MetafileExtensions
     {
         [StructLayout(LayoutKind.Sequential, Pack = 2)]
         private struct WmfHeader

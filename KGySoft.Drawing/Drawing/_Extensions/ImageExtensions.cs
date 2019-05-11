@@ -21,7 +21,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Provides extension methods and other <see cref="Image"/> routines for <see cref="Image"/> class.
     /// </summary>
-    public static class ImageTools
+    public static class ImageExtensions
     {
         #region Fields
 
@@ -263,10 +263,10 @@ namespace KGySoft.Drawing
         /// <param name="size">The required size of the icon. Must not be larger than 256.</param>
         /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
-        /// <remarks>The result icon will be always square sized. To create a non-square icon, use <see cref="IconTools.Combine(Bitmap[])"/> instead.</remarks>
+        /// <remarks>The result icon will be always square sized. To create a non-square icon, use <see cref="IconExtensions.Combine(Bitmap[])"/> instead.</remarks>
         public static Icon ToIcon(this Image image, int size, bool keepAspectRatio)
         {
-            return IconTools.IconFromImage(image, size, keepAspectRatio);
+            return IconExtensions.IconFromImage(image, size, keepAspectRatio);
         }
 
         /// <summary>
@@ -278,7 +278,7 @@ namespace KGySoft.Drawing
         /// <remarks>The result icon will be always sqaure sized. Original aspect ratio of the image is kept.</remarks>
         public static Icon ToIcon(this Image image, SystemIconSize size)
         {
-            return IconTools.IconFromImage(image, size);
+            return IconExtensions.IconFromImage(image, size);
         }
 
         /// <summary>
@@ -288,7 +288,7 @@ namespace KGySoft.Drawing
         /// <param name="images">The images to save into the TIFF data stream.</param>
         /// <param name="stream">The stream into the TIFF data is saved.</param>
         /// <remarks><para>When <paramref name="images"/> contain multi-page instances, this method takes only the current page. You can extract
-        /// images by <see cref="BitmapTools.ExtractBitmaps"/> method.</para>
+        /// images by <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
         /// <para>Compression mode and bit depth is chosen for each page based on pixel format.</para></remarks>
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {

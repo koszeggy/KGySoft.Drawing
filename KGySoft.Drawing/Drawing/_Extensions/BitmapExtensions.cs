@@ -16,7 +16,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Provides extension methods for <see cref="Bitmap"/> class.
     /// </summary>
-    public static class BitmapTools
+    public static class BitmapExtensions
     {
         #region Fields
 
@@ -271,7 +271,7 @@ namespace KGySoft.Drawing
             IntPtr iconHandle = bitmap.GetHicon();
             try
             {
-                return IconTools.ToCursorHandle(iconHandle, cursorHotspot);
+                return IconExtensions.ToCursorHandle(iconHandle, cursorHotspot);
             }
             finally
             {

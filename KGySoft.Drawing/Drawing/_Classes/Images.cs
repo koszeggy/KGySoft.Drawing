@@ -248,8 +248,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information32.png" alt="Information 32x32"/>
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
         /// </para>
-        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapTools.ExtractBitmaps"/> method.</para>
-        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapTools.Resize"/> method.
+        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
+        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapExtensions.Resize"/> method.
         /// It will always take the best fitting image for the result.</para>
         /// </remarks>
         public static Bitmap InformationMultiSize
@@ -292,8 +292,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error24.png" alt="Error 24x24"/>
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
         /// </para>
-        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapTools.ExtractBitmaps"/> method.</para>
-        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapTools.Resize"/> method.
+        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
+        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapExtensions.Resize"/> method.
         /// It will always take the best fitting image for the result.</para>
         /// </remarks>
         public static Bitmap ErrorMultiSize
@@ -336,8 +336,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question32.png" alt="Question 32x32"/>
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
         /// </para>
-        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapTools.ExtractBitmaps"/> method.</para>
-        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapTools.Resize"/> method.
+        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
+        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapExtensions.Resize"/> method.
         /// It will always take the best fitting image for the result.</para>
         /// </remarks>
         public static Bitmap QuestionMultiSize
@@ -379,8 +379,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32"/>
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
         /// </para>
-        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapTools.ExtractBitmaps"/> method.</para>
-        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapTools.Resize"/> method.
+        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
+        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapExtensions.Resize"/> method.
         /// It will always take the best fitting image for the result.</para>
         /// </remarks>
         public static Bitmap WarningMultiSize
@@ -425,8 +425,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityShield16.png" alt="Security Shield 16x16"/>
         /// <img src="../Help/Images/SecurityShield8.png" alt="Security Shield 8x8"/>
         /// </para>
-        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapTools.ExtractBitmaps"/> method.</para>
-        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapTools.Resize"/> method.
+        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
+        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapExtensions.Resize"/> method.
         /// It will always take the best fitting image for the result.</para>
         /// </remarks>
         public static Bitmap SecurityShieldMultiSize
@@ -471,8 +471,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Shield16.png" alt="Shield 16x16"/>
         /// <img src="../Help/Images/Shield8.png" alt="Shield 8x8"/>
         /// </para>
-        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapTools.ExtractBitmaps"/> method.</para>
-        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapTools.Resize"/> method.
+        /// <para>To obtain the images of a multi-size image, use the <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
+        /// <para>To get a custom sized image from a multi-size image, use the <see cref="BitmapExtensions.Resize"/> method.
         /// It will always take the best fitting image for the result.</para>
         /// </remarks>
         public static Bitmap ShieldMultiSize

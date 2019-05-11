@@ -12,7 +12,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Extension methods for <see cref="Graphics"/> class.
     /// </summary>
-    public static class GraphicsTools
+    public static class GraphicsExtensions
     {
         private static FieldAccessor fieldGraphic_backingImage;
 

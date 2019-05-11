@@ -7,7 +7,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Extension methods and routines for <see cref="PixelFormat"/> enumeration.
     /// </summary>
-    internal static class PixelFormatTools
+    internal static class PixelFormatExtensions
     {
         /// <summary>
         /// Gets the bits per pixel (bpp) value of a <see cref="PixelFormat"/> value.

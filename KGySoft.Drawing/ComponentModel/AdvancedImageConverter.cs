@@ -1,49 +1,71 @@
-﻿using System.Drawing;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: AdvancedImageConverter.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
+using System.ComponentModel;
+using System.Drawing;
 using System.Drawing.Imaging;
+using System.Globalization;
+using System.IO;
+
 using KGySoft.CoreLibraries;
-using KGySoft.Reflection;
+using KGySoft.Drawing;
+
+#endregion
 
 namespace KGySoft.ComponentModel
 {
-    using System;
-    using System.ComponentModel;
-    using System.Globalization;
-    using System.IO;
-
-    using KGySoft.Drawing;
-
     /// <summary>
-    /// Represents a class that can be used to convert <see cref="Bitmap"/>, <see cref="Metafile"/> and <see cref="Icon"/>
-    /// images in a better way than <see cref="ImageConverter"/>, which means that the content and the original format of the <see cref="Image"/> instances
-    /// will be preserved better than by using <see cref="System.Drawing.ImageConverter"/>.
+    /// Represents a class that can preserve the original format of images better than by the <see cref="ImageConverter"/> class when converting <see cref="Bitmap"/>,
+    /// <see cref="Metafile"/> and <see cref="Icon"/> images.
     /// </summary>
-    /// <seealso cref="Reflector.RegisterTypeConverter{T,TC}"/>
-    public class AdvancedImageConverter: ImageConverter
+    public class AdvancedImageConverter : ImageConverter
     {
+        #region Methods
+
         /// <summary>
         /// Converts a specified object to an <see cref="Image" />.
         /// </summary>
-        /// <param name="context">An <see cref="ITypeDescriptorContext" /> that provides a format context.</param>
-        /// <param name="culture">A <see cref="CultureInfo" /> that holds information about a specific culture.</param>
+        /// <param name="context">An <see cref="ITypeDescriptorContext" /> that provides a format context. In this converter this parameter is ignored.</param>
+        /// <param name="culture">A <see cref="CultureInfo" />. In this converter this parameter is ignored.</param>
         /// <param name="value">The <see cref="object" /> to be converted.</param>
-        /// <returns>
-        /// If this method succeeds, it returns the <see cref="Image" /> that it created by converting the specified object. Otherwise, it throws an exception.
-        /// </returns>
+        /// <returns>If this method succeeds, it returns the <see cref="Image" /> that it created by converting the specified object. Otherwise, it throws an exception.</returns>
         public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
-        {
-            // Base calls just icon.ToBitmap() here, which loses information.
-            var icon = value as Icon;
-            return icon != null ? icon.ToMultiResBitmap() : base.ConvertFrom(context, culture, value);
-        }
+            => value is Icon icon
+            ? icon.ToMultiResBitmap() // Base calls just icon.ToBitmap() here, which loses information.
+            : base.ConvertFrom(context, culture, value);
 
+        /// <summary>
+        /// Converts an <see cref="Image" /> (or an object that can be cast to an <see cref="Image" />) to the specified type.
+        /// </summary>
+        /// <param name="context">An <see cref="ITypeDescriptorContext" /> that provides a format context. In this converter this parameter is ignored.</param>
+        /// <param name="culture">A <see cref="CultureInfo" />. In this converter this parameter is ignored.</param>
+        /// <param name="value">The <see cref="Image" /> to convert.</param>
+        /// <param name="destinationType">The <see cref="Type" /> to convert the <see cref="Image" /> to.
+        /// This type converter supports <see cref="Array">byte[]</see> type.</param>
+        /// <returns>An <see cref="object" /> that represents the converted value.</returns>
         public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
         {
             if (destinationType != typeof(byte[]) || !(value is Image))
                 return base.ConvertTo(context, culture, value, destinationType);
 
             // 1.) Metafile: Saving as EMF/WMF (base would save a PNG here)
-            var metafile = value as Metafile;
-            if (metafile != null)
+            if (value is Metafile metafile)
             {
                 using (var ms = new MemoryStream())
                 {
@@ -57,7 +79,7 @@ namespace KGySoft.ComponentModel
             if (bitmap.RawFormat.Guid == ImageFormat.Icon.Guid)
             {
                 Bitmap[] images = bitmap.ExtractBitmaps();
-                using (Icon icon = IconTools.Combine(images))
+                using (Icon icon = IconExtensions.Combine(images))
                 {
                     images.ForEach(i => i.Dispose());
                     using (var ms = new MemoryStream())
@@ -79,10 +101,12 @@ namespace KGySoft.ComponentModel
                 }
             }
 
-            // 4.) GIF: TODO: put a SaveAsGif into the Drawing
+            // 4.) GIF: TODO: put a SaveAsGif into Drawing
 
             // 5.) Any other: base works well.
             return base.ConvertTo(context, culture, value, destinationType);
         }
+
+        #endregion
     }
 }

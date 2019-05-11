@@ -15,7 +15,7 @@ namespace KGySoft.Drawing
     /// </summary>
     /// <remarks>
     /// <para>This class can be created from an <see cref="Icon"/> or <see cref="Bitmap"/> instance by using the
-    /// <see cref="IconTools.ToCursorHandle"/> and <see cref="BitmapTools.ToCursorHandle"/> extension methods.</para>
+    /// <see cref="IconExtensions.ToCursorHandle"/> and <see cref="BitmapExtensions.ToCursorHandle"/> extension methods.</para>
     /// <para>This class can be used to create a custom Windows Forms <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a>.
     /// <note>Do keep a reference to this <see cref="CursorHandle"/> instance until the cursor is in use; otherwise, the cursor resources might be disposed too soon.</note></para>
     /// </remarks>
