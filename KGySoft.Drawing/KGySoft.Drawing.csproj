@@ -60,6 +60,9 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="KGySoft.CoreLibraries, Version=4.5.1.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
+      <HintPath>..\packages\KGySoft.CoreLibraries.4.5.1\lib\net35\KGySoft.CoreLibraries.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Design" />
@@ -109,12 +112,6 @@
     <Compile Include="Drawing\WinApi\WindowsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Libraries\KGySoft.CoreLibraries.csproj">
-      <Project>{D14B4B4A-86C4-45AD-B6F8-86CD878199E0}</Project>
-      <Name>KGySoft.CoreLibraries</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
       <SubType>Designer</SubType>
@@ -127,6 +124,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\Palette.png" />
   </ItemGroup>
   <ItemGroup>
