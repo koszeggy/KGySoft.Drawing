@@ -453,7 +453,7 @@ namespace KGySoft.Drawing
 
             private void AssureRawFormatGenerated()
             {
-                // exeiting, if raw data is already generated
+                // exiting, if raw data is already generated
                 if (rawColor != null)
                     return;
 
@@ -1060,7 +1060,7 @@ namespace KGySoft.Drawing
                         imagesBySize.Clear();
                 }
 
-                // from the same distanes the last occurance will win
+                // from the same distances the last occurrence will win
                 int sizeDistance = Math.Abs(size.Width - iconImage.Size.Width) + Math.Abs(size.Height - iconImage.Size.Height);
                 imagesBySize[sizeDistance] = iconImage;
             }

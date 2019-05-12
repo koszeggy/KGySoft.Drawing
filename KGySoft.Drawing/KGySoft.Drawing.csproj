@@ -73,7 +73,6 @@
     <Compile Include="Drawing\_Classes\CursorHandle.cs" />
     <Compile Include="Drawing\_Classes\DrawingHelper.cs" />
     <Compile Include="Drawing\_Classes\Icons.cs" />
-    <Compile Include="Drawing\_Classes\Images.cs" />
     <Compile Include="Drawing\_Classes\RawIcon.cs" />
     <Compile Include="ComponentModel\AdvancedImageConverter.cs" />
     <Compile Include="Drawing\_Enums\RenderingQuality.cs" />
@@ -85,11 +84,6 @@
     <Compile Include="Drawing\_Extensions\MetafileExtensions.cs" />
     <Compile Include="Drawing\_Extensions\PixelFormatExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
     <Compile Include="Drawing\WinApi\BITMAP.cs" />
     <Compile Include="Drawing\WinApi\BITMAPINFO.cs" />
     <Compile Include="Drawing\WinApi\BITMAPINFOHEADER.cs" />
@@ -112,10 +106,9 @@
     <Compile Include="Drawing\WinApi\WindowsUtils.cs" />
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+    <EmbeddedResource Include="KGySoft.Drawing.Icons.resx">
+      <LogicalName>KGySoft.Drawing.Icons.resources</LogicalName>
       <SubType>Designer</SubType>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -125,60 +118,6 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
-    <None Include="Resources\Palette.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Accept.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Add.png" />
-    <None Include="Resources\All.gif" />
-    <None Include="Resources\ArrowDown.png" />
-    <None Include="Resources\ArrowUp.png" />
-    <None Include="Resources\Book.png" />
-    <None Include="Resources\Box.png" />
-    <None Include="Resources\Browse.png" />
-    <None Include="Resources\Clear.png" />
-    <None Include="Resources\Clock.png" />
-    <None Include="Resources\Copy.png" />
-    <None Include="Resources\Cut.png" />
-    <None Include="Resources\Delete.png" />
-    <None Include="Resources\Edit.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Exit.png" />
-    <None Include="Resources\Find.png" />
-    <None Include="Resources\Gear.png" />
-    <None Include="Resources\Group.png" />
-    <None Include="Resources\History.png" />
-    <None Include="Resources\Hourglass.PNG" />
-    <None Include="Resources\House.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Magnifier.png" />
-    <None Include="Resources\Mail.png" />
-    <None Include="Resources\Merge.png" />
-    <None Include="Resources\MoveFirst.png" />
-    <None Include="Resources\MoveLast.png" />
-    <None Include="Resources\MoveNext.png" />
-    <None Include="Resources\MovePrevious.png" />
-    <None Include="Resources\NavBack.png" />
-    <None Include="Resources\NavForward.png" />
-    <None Include="Resources\New.png" />
-    <None Include="Resources\None.png" />
-    <None Include="Resources\Options.png" />
-    <None Include="Resources\Paste.png" />
-    <None Include="Resources\Pause.png" />
-    <None Include="Resources\Play.png" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Redo.png" />
-    <None Include="Resources\Refresh.png" />
-    <None Include="Resources\Refuse.png" />
-    <None Include="Resources\Save.png" />
-    <None Include="Resources\SaveAll.png" />
-    <None Include="Resources\Stop.png" />
-    <None Include="Resources\Undo.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SecurityShieldIcon.ico" />
