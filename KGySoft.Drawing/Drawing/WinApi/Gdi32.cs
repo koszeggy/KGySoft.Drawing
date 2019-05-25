@@ -32,6 +32,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hObject">A handle to a logical pen, brush, font, bitmap, region, or palette.</param>
             /// <returns>If the function succeeds, the return value is nonzero.</returns>
             [DllImport("gdi32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteObject(IntPtr hObject);
 
             /// <summary>
@@ -93,6 +94,7 @@ namespace KGySoft.Drawing.WinApi
             /// An application must not delete a DC whose handle was obtained by calling the GetDC function. Instead, it must call the ReleaseDC function to free the DC.
             /// </remarks>
             [DllImport("gdi32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteDC(IntPtr hdc);
 
             /// <summary>
@@ -151,6 +153,7 @@ namespace KGySoft.Drawing.WinApi
             /// <returns>If the function succeeds, the return value is nonzero.
             /// If the function fails, the return value is zero.</returns>
             [DllImport("gdi32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteEnhMetaFile(IntPtr hemf);
 
             /// <summary>

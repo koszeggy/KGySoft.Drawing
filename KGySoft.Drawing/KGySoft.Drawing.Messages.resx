@@ -126,15 +126,12 @@
   <data name="General_ArgumentInvalidString" xml:space="preserve">
     <value>Input string contains an invalid value.</value>
   </data>
-  <data name="CursorHandle_InvalidHandle" xml:space="preserve">
-    <value>Invalid cursor handle.</value>
-  </data>
   <data name="General_EnumOutOfRangeFormat" xml:space="preserve">
     <value>Enum instance of '{0}' type must be one of the defined values.</value>
   </data>
-  <data name="General_FlagsEnumOutOfRangeFormat" xml:space="preserve">
+  <!--<data name="General_FlagsEnumOutOfRangeFormat" xml:space="preserve">
     <value>Enum instance of '{0}' type must consist of the defined flags.</value>
-  </data>
+  </data>-->
   <data name="Gdi32_InvalidHandle" xml:space="preserve">
     <value>Invalid GDI object handle.</value>
   </data>

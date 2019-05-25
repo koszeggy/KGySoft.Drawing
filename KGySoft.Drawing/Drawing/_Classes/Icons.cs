@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Globalization;
 using System.Resources;
@@ -400,6 +401,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must be disposed by the caller.")]
         private static Icon GetResourceIcon(IconId id)
         {
             if (!resourceIconsCache.TryGetValue(id, out RawIcon result))
@@ -420,6 +422,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
         /// when no icon found, or Windows version is below Vista.</returns>
         [SecurityCritical]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static RawIcon GetSystemIconById(IconId id)
         {
             if (id < 0 || !WindowsUtils.IsVistaOrLater)
@@ -444,6 +447,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets a multi size version of a system icon provided in <paramref name="icon"/> by generating the small version internally.
         /// </summary>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static RawIcon ToCombinedIcon(Icon icon)
         {
             Bitmap imageLarge = icon.ToAlphaBitmap();

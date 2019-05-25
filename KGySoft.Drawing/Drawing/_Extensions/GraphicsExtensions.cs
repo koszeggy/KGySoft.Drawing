@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
@@ -164,6 +165,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
             if (graphics == null)
@@ -300,6 +302,7 @@ namespace KGySoft.Drawing
         /// <param name="radiusTopRight">Size of the top-right radius.</param>
         /// <param name="radiusBottomRight">Size of the bottom-right radius.</param>
         /// <param name="radiusBottomLeft">Size of the bottom-left radius.</param>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
             Size size = new Size(radiusTopLeft << 1, radiusTopLeft << 1);
@@ -361,6 +364,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
         /// <param name="radius">Size of the corner radius for each corners.</param>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
         {
             int diameter = radius * 2;

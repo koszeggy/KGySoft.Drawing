@@ -18,6 +18,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -38,6 +39,7 @@ namespace KGySoft.Drawing
     /// <para>This class can be used to create a custom Windows Forms <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a>.
     /// <note type="important">Do keep a reference to this <see cref="CursorHandle"/> instance until the cursor is in use; otherwise, the cursor resources might be disposed too soon.</note></para>
     /// </remarks>
+    [SecurityCritical]
     public sealed class CursorHandle : SafeHandle
     {
         #region Properties
@@ -47,9 +49,7 @@ namespace KGySoft.Drawing
         /// </summary>
         public override bool IsInvalid
         {
-#if !NET35
-            [SecuritySafeCritical]
-#endif
+            [SecurityCritical]
             get => handle == IntPtr.Zero;
         }
 
@@ -61,22 +61,17 @@ namespace KGySoft.Drawing
         /// Performs an implicit conversion from <see cref="CursorHandle"/> to <see cref="IntPtr"/>.
         /// </summary>
         /// <param name="cursorHandle">The cursor handle.</param>
-#if !NET35
-        [SecuritySafeCritical]
-#endif
-        public static implicit operator IntPtr(CursorHandle cursorHandle) => cursorHandle.DangerousGetHandle();
+        [SecurityCritical]
+        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "The named alternative method is DangerousGetHandle, which is in the base.")]
+        public static implicit operator IntPtr(CursorHandle cursorHandle) => cursorHandle?.DangerousGetHandle() ?? IntPtr.Zero;
 
         #endregion
 
         #region Constructors
 
-        [SecurityCritical]
-        internal CursorHandle(IntPtr handle) : base(handle, true)
+        internal CursorHandle(IntPtr handle) : base(IntPtr.Zero, true)
         {
-            // a possibly null handle was created by CreateIconIndirect, which sets last error
-            if (handle == IntPtr.Zero)
-                throw new ArgumentException(Res.CursorHandleInvalidHandle, nameof(handle), new Win32Exception(Marshal.GetLastWin32Error()));
-            this.handle = handle;
+            SetHandle(handle);
         }
 
         #endregion
@@ -84,31 +79,13 @@ namespace KGySoft.Drawing
         #region Methods
 
         /// <summary>
-        /// Releases the unmanaged resources used by the <see cref="CursorHandle" /> class.
-        /// </summary>
-        /// <param name="disposing">true for a normal dispose operation; false to finalize the handle.</param>
-#if !NET35
-        [SecuritySafeCritical]
-#endif
-        protected override void Dispose(bool disposing)
-        {
-            if (handle == IntPtr.Zero)
-                return;
-
-            base.Dispose(disposing);
-            handle = IntPtr.Zero;
-        }
-
-        /// <summary>
         /// Free the unmanaged cursor handle.
         /// </summary>
         [SecurityCritical]
         protected override bool ReleaseHandle()
         {
-            if (handle == IntPtr.Zero)
-                return false;
-
-            User32.DestroyCursor(handle);
+            if (handle != IntPtr.Zero)
+                User32.DestroyCursor(handle);
             return true;
         }
 

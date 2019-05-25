@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Globalization;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -32,8 +33,8 @@ namespace KGySoft.Drawing.WinApi
             /// <returns>If the nIconIndex parameter is -1, the phiconLarge parameter is NULL, and the phiconSmall parameter is NULL,
             /// then the return value is the number of icons contained in the specified file.
             /// Otherwise, the return value is the number of icons successfully extracted from the file.</returns>
-            [DllImport("shell32", CharSet = CharSet.Auto)]
-            internal static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPTStr)] string lpszFile, int nIconIndex, IntPtr[] phIconLarge, IntPtr[] phIconSmall, int nIcons);
+            [DllImport("shell32", CharSet = CharSet.Unicode, EntryPoint = "ExtractIconExW")]
+            internal static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPWStr)] string lpszFile, int nIconIndex, IntPtr[] phIconLarge, IntPtr[] phIconSmall, int nIcons);
 
             /// <summary>
             /// Retrieves information about an object in the file system, such as a file, folder, directory, or drive root.
@@ -70,8 +71,8 @@ namespace KGySoft.Drawing.WinApi
             /// 
             /// If uFlags contains the SHGFI_EXETYPE flag, the return value specifies the type of the executable file.
             /// </returns>
-            [DllImport("shell32.dll")]
-            internal static extern IntPtr SHGetFileInfo(string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbSizeFileInfo, SGHFI uFlags);
+            [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "SHGetFileInfoW")]
+            internal static extern IntPtr SHGetFileInfo([MarshalAs(UnmanagedType.LPWStr)] string pszPath, uint dwFileAttributes, ref SHFILEINFO psfi, uint cbSizeFileInfo, SGHFI uFlags);
 
             /// <summary>
             /// Retrieves information about system-defined Shell icons.
@@ -93,8 +94,8 @@ namespace KGySoft.Drawing.WinApi
             IntPtr[] small = size == SystemIconSize.Large ? null : new IntPtr[iconCount];
 
             // extracts the icons by the size that was selected.
-            NativeMethods.ExtractIconEx(fileName, 0, large, small, iconCount);
-
+            if (NativeMethods.ExtractIconEx(fileName, 0, large, small, iconCount) == 0)
+                return new IntPtr[0][];
             IntPtr[][] result = new IntPtr[iconCount][];
             for (int i = 0; i < iconCount; i++)
             {

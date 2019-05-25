@@ -3,6 +3,7 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -10,7 +11,6 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Windows.Forms;
 
 using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
@@ -39,6 +39,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The image to convert to grayscale</param>
         /// <returns>The grayscale version of the original <paramref name="image"/>.</returns>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Image ToGrayscale(this Image image)
         {
             if (image == null)
@@ -48,23 +49,24 @@ namespace KGySoft.Drawing
             Bitmap result = new Bitmap(image.Width, image.Height);
             using (Graphics g = Graphics.FromImage(result))
             {
-
                 //Grayscale Color Matrix
-                ColorMatrix colorMatrix = new ColorMatrix(new float[][]
-                    {
-                    new float[] {0.3f, 0.3f, 0.3f, 0, 0},
-                    new float[] {0.59f, 0.59f, 0.59f, 0, 0},
-                    new float[] {0.11f, 0.11f, 0.11f, 0, 0},
-                    new float[] {0, 0, 0, 1, 0},
-                    new float[] {0, 0, 0, 0, 1}
-                    });
+                var colorMatrix = new ColorMatrix(new float[][]
+                {
+                    new float[] { 0.3f, 0.3f, 0.3f, 0, 0 },
+                    new float[] { 0.59f, 0.59f, 0.59f, 0, 0 },
+                    new float[] { 0.11f, 0.11f, 0.11f, 0, 0 },
+                    new float[] { 0, 0, 0, 1, 0 },
+                    new float[] { 0, 0, 0, 0, 1 }
+                });
 
                 //Create attributes
-                ImageAttributes att = new ImageAttributes();
-                att.SetColorMatrix(colorMatrix);
+                using (var attrs = new ImageAttributes())
+                {
+                    attrs.SetColorMatrix(colorMatrix);
 
-                //Draw the image with the new attributes
-                g.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height), 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, att);
+                    //Draw the image with the new attributes
+                    g.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height), 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, attrs);
+                }
             }
 
             return result;
@@ -88,6 +90,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         public static Image ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette)
         {
             if (image == null)
@@ -117,8 +120,6 @@ namespace KGySoft.Drawing
 
             // 256 color image: when source has more colors and palette is not defined, saving as GIF so palette will be created internally (and image might be dithered)
             //int sourceBpp = sourcePixelFormat.ToBitsPerPixel();
-            int transparentIndex;
-            Bitmap bmp;
             //if (bpp == 8 && palette == null && sourceBpp > 8)
             //{
             //    // because of Image.FromStream, the stream must not be diposed during the image lifetime,
@@ -129,7 +130,7 @@ namespace KGySoft.Drawing
             //    result = (Bitmap)Image.FromStream(ms);
 
             //    // if source may have transparency (32/64 bpp), fixing the target image because GIF encoder fails to do it
-            //    if (sourcePixelFormat.HasTransparency() || image is Metafile)
+            //    if (sourcePixelFormat.HasTransparency() || isMetafile)
             //    {
             //        // finding the transparent color in palette
             //        transparentIndex = Array.FindIndex(result.Palette.Entries, c => c.ToArgb() == 0);
@@ -150,9 +151,11 @@ namespace KGySoft.Drawing
             //}
 
             // indexed colors: using GDI+ natively
-            RGBQUAD[] targetPalette = new RGBQUAD[256];
-            int colorCount = InitPalette(targetPalette, bpp, (image is Bitmap) ? image.Palette : null, palette, out transparentIndex);
-            BITMAPINFO bmi = new BITMAPINFO();
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            bool isMetafile = image is Metafile;
+            var targetPalette = new RGBQUAD[256];
+            int colorCount = InitPalette(targetPalette, bpp, isMetafile ? null : image.Palette, palette, out int transparentIndex);
+            var bmi = new BITMAPINFO();
             bmi.icHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
             bmi.icHeader.biWidth = image.Width;
             bmi.icHeader.biHeight = image.Height;
@@ -165,9 +168,8 @@ namespace KGySoft.Drawing
             bmi.icHeader.biClrUsed = (uint)colorCount;
             bmi.icHeader.biClrImportant = (uint)colorCount;
             bmi.icColors = targetPalette;
-            
-            bmp = (image as Bitmap) ?? new Bitmap(image);
-            sourcePixelFormat = bmp.PixelFormat;
+
+            //PixelFormat sourcePixelFormat = bmp.PixelFormat;
 
             // Creating the indexed bitmap
             IntPtr hbmResult = Gdi32.CreateDibSectionRgb(IntPtr.Zero, ref bmi, out var _);
@@ -227,7 +229,7 @@ namespace KGySoft.Drawing
                     resetPalette = true;
                 }
 
-                if (sourcePixelFormat.HasTransparency() || image is Metafile)
+                if (sourcePixelFormat.HasTransparency() || isMetafile)
                     ToIndexedTransparentByArgb(result, bmp, transparentIndex);
                 else if (sourcePixelFormat.ToBitsPerPixel() <= 8)
                 {

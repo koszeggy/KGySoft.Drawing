@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -32,6 +33,7 @@ namespace KGySoft.Drawing
         /// <param name="newSize">The requested new size.</param>
         /// <param name="keepAspectRatio">Determines whether the source <paramref name="image"/> should keep aspect ratio.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio)
         {
             if (image == null)
@@ -83,7 +85,7 @@ namespace KGySoft.Drawing
         public static Bitmap[] ExtractBitmaps(this Bitmap image)
         {
             if (image == null)
-                throw new ArgumentNullException();
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
 
             // icon
             if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
@@ -131,8 +133,12 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap CloneCurrentFrame(this Bitmap bitmap)
         {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), Res.ArgumentNull);
+
             Bitmap result = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
             ColorPalette palette = bitmap.Palette;
             if (palette.Entries.Length > 0)
@@ -293,6 +299,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Tries to extract the icon images from an image.
         /// </summary>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Non-disposed bitmaps are returned.")]
         private static Bitmap[] ExtractIconImages(Bitmap image)
         {
             Debug.Assert(image.RawFormat.Guid == ImageFormat.Icon.Guid);

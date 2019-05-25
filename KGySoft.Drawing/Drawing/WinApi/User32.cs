@@ -24,6 +24,7 @@ namespace KGySoft.Drawing.WinApi
             /// <returns>If the function succeeds, the return value is nonzero.
             /// If the function fails, the return value is zero. To get extended error information, call GetLastError.</returns>
             [DllImport("user32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DestroyIcon(IntPtr handle);
 
             /// <summary>
@@ -46,6 +47,7 @@ namespace KGySoft.Drawing.WinApi
             /// The application must call the ReleaseDC function for each call to the GetWindowDC function and for each call to the GetDC function that retrieves a common DC.
             /// An application cannot use the ReleaseDC function to release a DC that was created by calling the CreateDC function; instead, it must use the DeleteDC function. ReleaseDC must be called from the same thread that called GetDC.</remarks>
             [DllImport("user32.dll")]
+            [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
             /// <summary>
@@ -55,6 +57,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="piconinfo">A pointer to an ICONINFO structure. The function fills in the structure's members.</param>
             /// <returns>If the function succeeds, the return value is nonzero and the function fills in the members of the specified ICONINFO structure. If the function fails, the return value is zero. To get extended error information, call GetLastError.</returns>
             [DllImport("user32.dll", SetLastError = true)]
+            [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool GetIconInfo(IntPtr hIcon, out ICONINFO piconinfo);
 
             /// <summary>

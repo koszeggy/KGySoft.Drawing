@@ -1,6 +1,7 @@
 ﻿#region Used namespaces
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -211,6 +212,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap ToAlphaBitmap(this Icon icon)
         {
             if (icon == null)
@@ -272,7 +274,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Converts the <paramref name="icon"/> to a <see cref="Bitmap"/> instace, which contains every image of the <paramref name="icon"/>.
+        /// Converts the <paramref name="icon"/> to a <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.
         /// When the returned <see cref="Bitmap"/> is used to create another <see cref="Bitmap"/> or is drawn into a <see cref="Graphics"/>, the best-fitting image is automatically applied.
         /// </summary>
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
@@ -285,6 +287,22 @@ namespace KGySoft.Drawing
             using (RawIcon rawIcon = new RawIcon(icon))
             {
                 return rawIcon.ToBitmap();
+            }
+        }
+
+        /// <summary>
+        /// Gets the number of images in the <paramref name="icon"/>.
+        /// </summary>
+        /// <param name="icon">The icon to check.</param>
+        /// <returns>The number of images in the <paramref name="icon"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static int GetImagesCount(this Icon icon)
+        {
+            using (RawIcon rawIcon = new RawIcon(icon))
+            {
+                return rawIcon.ImageCount;
             }
         }
 
@@ -697,7 +715,7 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon to combine with other images.</param>
         /// <param name="images">The images to be added to the icon. Images can be non-square ones, but cannot be larger than 256x256.</param>
         /// <returns>
-        /// An <see cref="Icon" /> instace that contains every image of the source <paramref name="images" />.
+        /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
         /// </returns>
         /// <remarks><paramref name="icon"/> may already contain multiple icons.</remarks>
 #if !NET35
@@ -742,6 +760,33 @@ namespace KGySoft.Drawing
                     rawIcon.Add(image);
                 }
 
+                return rawIcon.ToIcon();
+            }
+        }
+
+        /// <summary>
+        /// Combines and <see cref="Icon" /> instance with the provided <paramref name="image" /> into a multi-resolution <see cref="Icon" /> instance.
+        /// </summary>
+        /// <param name="icon">The icon to combine with other images.</param>
+        /// <param name="image">The image to be added to the icon. Can be a non-square one, but cannot be larger than 256x256.</param>
+        /// <param name="transparentColor">A color that represents the transparent color in <paramref name="image"/>.</param>
+        /// <returns>
+        /// An <see cref="Icon" /> instance that contains the source <paramref name="image" />.
+        /// </returns>
+        /// <remarks><paramref name="icon"/> may already contain multiple icons.</remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon Combine(this Icon icon, Bitmap image, Color transparentColor)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon));
+            if (image == null)
+                return icon;
+
+            using (RawIcon rawIcon = new RawIcon(icon))
+            {
+                rawIcon.Add(image, transparentColor);
                 return rawIcon.ToIcon();
             }
         }

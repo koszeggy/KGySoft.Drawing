@@ -46,13 +46,6 @@ namespace KGySoft
 
         #endregion
 
-        #region CursorHandle
-
-        /// <summary>Invalid cursor handle.</summary>
-        internal static string CursorHandleInvalidHandle => Get("CursorHandle_InvalidHandle");
-
-        #endregion
-
         #region Gdi32
 
         /// <summary>Invalid GDI object handle.</summary>
@@ -90,8 +83,8 @@ namespace KGySoft
         /// <summary>Enum instance of '{0}' type must be one of the defined values.</summary>
         internal static string EnumOutOfRange<TEnum>(TEnum value = default) where TEnum : struct, IConvertible => Get("General_EnumOutOfRangeFormat", value.GetType().Name);
 
-        /// <summary>Enum instance of '{0}' type must consist of the defined flags.</summary>
-        internal static string FlagsEnumOutOfRange<TEnum>(TEnum value = default) where TEnum : struct, IConvertible => Get("General_FlagsEnumOutOfRangeFormat", value.GetType().Name);
+        ///// <summary>Enum instance of '{0}' type must consist of the defined flags.</summary>
+        //internal static string FlagsEnumOutOfRange<TEnum>(TEnum value = default) where TEnum : struct, IConvertible => Get("General_FlagsEnumOutOfRangeFormat", value.GetType().Name);
 
         #endregion
 

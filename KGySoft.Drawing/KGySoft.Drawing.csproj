@@ -67,9 +67,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Design" />
     <Reference Include="System.Drawing" />
-    <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Drawing\WinApi\_Enums\BitmapCompressionMode.cs" />
@@ -125,6 +123,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
+    <None Include="KGySoft.Drawing.ruleset" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>

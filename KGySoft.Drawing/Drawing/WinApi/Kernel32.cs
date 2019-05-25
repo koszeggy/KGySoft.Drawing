@@ -4,9 +4,9 @@ using System.Security;
 
 namespace KGySoft.Drawing.WinApi
 {
+    [SecurityCritical]
     internal static class Kernel32
     {
-        [SecurityCritical]
         private static class NativeMethods
         {
             /// <summary>

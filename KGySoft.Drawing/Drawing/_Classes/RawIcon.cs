@@ -6,9 +6,11 @@ using System.Drawing;
 using System.Collections.ObjectModel;
 using System.Drawing.Imaging;
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Text;
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
@@ -74,13 +76,13 @@ namespace KGySoft.Drawing
             #region Fields
 
             /// <summary>
-            /// In: Source image if it is already 32 bit ARGB and Color.Transparent is required for transparency
+            /// In: Source image if it is already 32 bit ARGB and Color.Transparent is specified for transparency
             /// Out: Result image of ToBitmap(false)
             /// </summary>
-            private Bitmap bmpComposit;
+            private Bitmap bmpComposite;
 
             /// <summary>
-            /// In: Source image if it is non ARGB or when a transparent color is specified
+            /// In: Source image if it is non ARGB or when a custom transparent color is specified
             /// Out: Result image of ToBitmap(true)
             /// </summary>
             private Bitmap bmpColor;
@@ -107,14 +109,14 @@ namespace KGySoft.Drawing
             /// </summary>
             private RGBQUAD[] palette;
 
-            private bool isPng;
+            private readonly bool isPng;
 
             /// <summary>
             /// The bit count stored by the dir entry. Needed when actual format is PNG.
             /// </summary>
-            private int dirEntryBitCountPng;
+            private readonly int dirEntryBitCountPng;
 
-            private Size size;
+            private readonly Size size;
 
             #endregion
 
@@ -125,18 +127,12 @@ namespace KGySoft.Drawing
             /// <summary>
             /// Gets the bpp from raw data.
             /// </summary>
-            internal int RawBpp
-            {
-                get { return isPng ? dirEntryBitCountPng : bmpHeader.biBitCount; }
-            }
+            internal int RawBpp => isPng ? dirEntryBitCountPng : bmpHeader.biBitCount;
 
             /// <summary>
             /// Gets the size in pixels
             /// </summary>
-            internal Size Size
-            {
-                get { return size; }
-            }
+            internal Size Size => size;
 
             #endregion
 
@@ -157,7 +153,7 @@ namespace KGySoft.Drawing
                     }
 
                     // from source image: when image is indexed, always the maximum palette number will be generated without optimization
-                    Bitmap bmp = bmpColor ?? bmpComposit;
+                    Bitmap bmp = bmpColor ?? bmpComposite;
                     if (bmp != null)
                     {
                         int bpp = bmp.PixelFormat.ToBitsPerPixel();
@@ -182,10 +178,10 @@ namespace KGySoft.Drawing
             internal RawIconImage(Bitmap bmpColor, Color transparentColor)
             {
                 // bitmaps are clones so they can be disposed with the RawIconImage instance
-                if (bmpColor.PixelFormat == PixelFormat.Format32bppArgb &&
-                    (transparentColor == Color.Transparent || transparentColor == Color.Empty))
+                if (bmpColor.PixelFormat == PixelFormat.Format32bppArgb
+                    && (transparentColor == Color.Transparent || transparentColor == Color.Empty))
                 {
-                    bmpComposit = bmpColor;
+                    bmpComposite = bmpColor;
                     this.transparentColor = Color.Transparent;
                 }
                 else
@@ -303,10 +299,10 @@ namespace KGySoft.Drawing
                         bmpColor = null;
                     }
 
-                    if (bmpComposit != null)
+                    if (bmpComposite != null)
                     {
-                        bmpComposit.Dispose();
-                        bmpComposit = null;
+                        bmpComposite.Dispose();
+                        bmpComposite = null;
                     }
 
                     rawColor = null;
@@ -409,11 +405,12 @@ namespace KGySoft.Drawing
             }
 
             [SecurityCritical]
+            [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "False alarm, BinaryWriter leaves the stream open.")]
             internal Icon ToIcon()
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    using (BinaryWriter bw = new BinaryWriter(ms))
+                    using (BinaryWriter bw = new BinaryWriter(ms, Encoding.ASCII, true))
                     {
                         // header
                         ICONDIR iconDir = new ICONDIR
@@ -448,9 +445,9 @@ namespace KGySoft.Drawing
 
                 // When not original format is requested, returning a new bitmap instead of cloning for PNGs,
                 // because for PNG images may couse troubles in some cases (eg. OutOfMemoryException when used as background image)
-                if (bmpComposit.RawFormat.Guid == ImageFormat.Png.Guid)
-                    return new Bitmap(bmpComposit);
-                return (Bitmap)bmpComposit.Clone();
+                if (bmpComposite.RawFormat.Guid == ImageFormat.Png.Guid)
+                    return new Bitmap(bmpComposite);
+                return (Bitmap)bmpComposite.Clone();
             }
 
             #endregion
@@ -465,185 +462,192 @@ namespace KGySoft.Drawing
                     return;
 
                 // if both raw and image data is null, then object is disposed
-                if (bmpColor == null && bmpComposit == null)
+                if (bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(ToString());
 
                 if (isPng)
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
-                        // When PNG, using composit image at the first place
-                        (bmpComposit ?? bmpColor).Save(ms, ImageFormat.Png);
+                        // When PNG, using composite image in the first place
+                        (bmpComposite ?? bmpColor).Save(ms, ImageFormat.Png);
                         rawColor = ms.ToArray();
                         return;
                     }
                 }
 
-                // image should be rotated so cloning
-                Bitmap bmp = (Bitmap)(bmpColor ?? bmpComposit).Clone();
-                Bitmap mask = null;
-                try
+                int bpp;
+                int strideColor;
+                Bitmap bmp = bmpColor ?? bmpComposite;
+
+                // palette
+                bpp = bmp.PixelFormat.ToBitsPerPixel();
+                if (bpp <= 8)
                 {
-                    // rotating
+                    // generating the maximum number of palette entries without optimization
+                    // (so PaletteColorCount can return number of colors before generating the palette)
+                    palette = new RGBQUAD[1 << bpp];
+                    Color[] entries = bmp.Palette.Entries;
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        palette[i].rgbRed = entries[i].R;
+                        palette[i].rgbGreen = entries[i].G;
+                        palette[i].rgbBlue = entries[i].B;
+                    }
+                }
+
+                // header
+                bmpHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
+                bmpHeader.biWidth = bmp.Width;
+                bmpHeader.biHeight = bmp.Height << 1; // because of mask, should be specified as double height image
+                bmpHeader.biPlanes = 1;
+                bmpHeader.biBitCount = (ushort)bmp.PixelFormat.ToBitsPerPixel();
+                bmpHeader.biCompression = BitmapCompressionMode.BI_RGB;
+                bmpHeader.biXPelsPerMeter = 0;
+                bmpHeader.biYPelsPerMeter = 0;
+                bmpHeader.biClrUsed = (uint)PaletteColorCount;
+                bmpHeader.biClrImportant = 0;
+
+                // Color image (XOR): copying from input bitmap
+                using (bmp = (Bitmap)bmp.Clone())
+                {
+                    // TODO: remove clone+using and flip rawColor similarly to the fallback in FlipImageY. See the TODO below this block.
                     FlipImageY(bmp);
 
-                    // palette
-                    int bpp = bmp.PixelFormat.ToBitsPerPixel();
-                    if (bpp <= 8)
-                    {
-                        // generating the maximum number of palette entries without optimization
-                        // (so PaletteColorCount can return number of colors before generating the palette)
-                        palette = new RGBQUAD[1 << bpp];
-                        Color[] entries = bmp.Palette.Entries;
-                        for (int i = 0; i < entries.Length; i++)
-                        {
-                            palette[i].rgbRed = entries[i].R;
-                            palette[i].rgbGreen = entries[i].G;
-                            palette[i].rgbBlue = entries[i].B;
-                        }
-                    }
-
-                    // header
-                    bmpHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
-                    bmpHeader.biWidth = bmp.Width;
-                    bmpHeader.biHeight = bmp.Height << 1; // because of mask, should be specified as double height image
-                    bmpHeader.biPlanes = 1;
-                    bmpHeader.biBitCount = (ushort)bmp.PixelFormat.ToBitsPerPixel();
-                    bmpHeader.biCompression = BitmapCompressionMode.BI_RGB;
-                    bmpHeader.biXPelsPerMeter = 0;
-                    bmpHeader.biYPelsPerMeter = 0;
-                    bmpHeader.biClrUsed = (uint)PaletteColorCount;
-                    bmpHeader.biClrImportant = 0;
-
-                    // Color image (XOR)
                     BitmapData dataColor = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                    IntPtr scanColor = dataColor.Scan0;
-                    rawColor = new byte[Math.Abs(dataColor.Stride) * dataColor.Height];
-                    Marshal.Copy(scanColor, rawColor, 0, rawColor.Length);
-                    bmp.UnlockBits(dataColor);
-                    bmpHeader.biSizeImage = (uint)rawColor.Length;
-
-                    // Mask image (AND): Creting from color image.
-                    mask = new Bitmap(bmp.Width, bmp.Height, PixelFormat.Format1bppIndexed);
-                    BitmapData dataMask = mask.LockBits(new Rectangle(0, 0, mask.Width, mask.Height), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed);
-                    rawMask = new byte[Math.Abs(dataMask.Stride) * dataMask.Height];
-                    int strideColor = Math.Abs(dataColor.Stride);
-                    int strideMask = Math.Abs(dataMask.Stride);
-
-                    // If the image bpp is less than 32, transparent color cannot have transparency
-                    if (bpp < 32)
-                        transparentColor = Color.FromArgb(255, transparentColor.R, transparentColor.G, transparentColor.B);
-
-                    for (int y = 0; y < dataColor.Height; y++)
+                    try
                     {
-                        int posColorY = strideColor * y;
-                        int posMaskY = strideMask * y;
-                        for (int x = 0; x < dataColor.Width; x++)
+                        IntPtr scanColor = dataColor.Scan0;
+                        strideColor = dataColor.Stride;
+                        rawColor = new byte[Math.Abs(strideColor) * dataColor.Height];
+                        Marshal.Copy(scanColor, rawColor, 0, rawColor.Length);
+                    }
+                    finally
+                    {
+                        bmp.UnlockBits(dataColor);
+                    }
+                }
+
+                bmpHeader.biSizeImage = (uint)rawColor.Length;
+                if (strideColor > 0)
+                {
+                    // TODO: Flip rawColor
+                }
+                else
+                    strideColor *= -1;
+
+                // Mask image (AND): Creating from color image and provided transparent color.
+                int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * BitsPerPixel + 31)/32)
+                rawMask = new byte[strideMask * size.Height];
+
+                // If the image bpp is less than 32, transparent color cannot have transparency
+                if (bpp < 32)
+                    transparentColor = Color.FromArgb(255, transparentColor.R, transparentColor.G, transparentColor.B);
+
+                DoGenerateRawData(bpp, strideColor, strideMask);
+            }
+
+            private void DoGenerateRawData(int bpp, int strideColor, int strideMask)
+            {
+                // rawColor now contains the provided bitmap data with the original background, while rawMask is still totally empty
+                for (int y = 0; y < size.Height; y++)
+                {
+                    int posColorY = strideColor * y;
+                    int posMaskY = strideMask * y;
+                    for (int x = 0; x < size.Width; x++)
+                    {
+                        int color;
+                        RGBQUAD paletteColor;
+                        switch (bpp)
                         {
-                            int color;
-                            RGBQUAD paletteColor;
-                            switch (bpp)
-                            {
-                                case 1:
-                                    rawMask[(x >> 3) + posColorY] = rawColor[(x >> 3) + posColorY];
-                                    x += 7; // otherwise, bytes would be set 8 times
-                                    continue;
-                                case 4:
-                                    color = rawColor[(x >> 1) + posColorY];
-                                    paletteColor = palette[(x & 1) == 0 ? color >> 4 : color & 0x0F];
-                                    if (paletteColor.EqualsWithColor(transparentColor))
+                            case 1:
+                                // TODO: the following code if transparentColor is the first palette entry. If the second one, then negate rawMask. If none of them, 0xFF
+                                rawMask[(x >> 3) + posColorY] = rawColor[(x >> 3) + posColorY];
+                                x += 7; // otherwise, bytes would be set 8 times
+                                continue;
+                            case 4:
+                                color = rawColor[(x >> 1) + posColorY];
+                                paletteColor = palette[(x & 1) == 0 ? color >> 4 : color & 0x0F];
+                                if (paletteColor.EqualsWithColor(transparentColor))
+                                {
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
+                                    rawColor[(x >> 1) + posColorY] &= (byte)((x & 1) == 0 ? 0x0F : 0xF0);
+                                }
+
+                                break;
+                            case 8:
+                                color = rawColor[x + posColorY];
+                                paletteColor = palette[color];
+                                if (paletteColor.EqualsWithColor(transparentColor))
+                                {
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
+                                    rawColor[x + posColorY] = 0;
+                                }
+
+                                break;
+                            case 16:
+                            case 48:
+                            case 64:
+                                throw new NotSupportedException("16/48/64 bpp images are not supported for Icons");
+                            case 24:
+                                int posCX = x * 3;
+                                Color pixelColor = Color.FromArgb(0, rawColor[posCX + posColorY + 0],
+                                    rawColor[posCX + posColorY + 1],
+                                    rawColor[posCX + posColorY + 2]);
+                                if (pixelColor == transparentColor)
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
+                                break;
+                            case 32:
+                                if (transparentColor == Color.Transparent)
+                                {
+                                    if (rawColor[(x << 2) + posColorY + 3] == 0)
+                                        rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
+                                }
+                                else
+                                {
+                                    if (transparentColor != Color.Empty &&
+                                        rawColor[(x << 2) + posColorY + 0] == transparentColor.B &&
+                                        rawColor[(x << 2) + posColorY + 1] == transparentColor.G &&
+                                        rawColor[(x << 2) + posColorY + 2] == transparentColor.R)
                                     {
                                         rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                        rawColor[(x >> 1) + posColorY] &= (byte)((x & 1) == 0 ? 0x0F : 0xF0);
-                                    }
-                                    break;
-                                case 8:
-                                    color = rawColor[x + posColorY];
-                                    paletteColor = palette[color];
-                                    if (paletteColor.EqualsWithColor(transparentColor))
-                                    {
-                                        rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                        rawColor[x + posColorY] = 0;
-                                    }
-                                    break;
-                                case 16:
-                                case 48:
-                                case 64:
-                                    throw new NotSupportedException("16/48/64 bpp images are not supported for Icons");
-                                case 24:
-                                    int posCX = x * 3;
-                                    Color pixelColor = Color.FromArgb(0, rawColor[posCX + posColorY + 0],
-                                        rawColor[posCX + posColorY + 1],
-                                        rawColor[posCX + posColorY + 2]);
-                                    if (pixelColor == transparentColor)
-                                        rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                    break;
-                                case 32:
-                                    if (transparentColor == Color.Transparent)
-                                    {
-                                        if (rawColor[(x << 2) + posColorY + 3] == 0)
-                                            rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
+                                        rawColor[(x << 2) + posColorY + 0] = 0;
+                                        rawColor[(x << 2) + posColorY + 1] = 0;
+                                        rawColor[(x << 2) + posColorY + 2] = 0;
                                     }
                                     else
                                     {
-                                        if (transparentColor != Color.Empty &&
-                                            rawColor[(x << 2) + posColorY + 0] == transparentColor.B &&
-                                            rawColor[(x << 2) + posColorY + 1] == transparentColor.G &&
-                                            rawColor[(x << 2) + posColorY + 2] == transparentColor.R)
-                                        {
-                                            rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                            rawColor[(x << 2) + posColorY + 0] = 0;
-                                            rawColor[(x << 2) + posColorY + 1] = 0;
-                                            rawColor[(x << 2) + posColorY + 2] = 0;
-                                        }
-                                        else
-                                        {
-                                            rawColor[(x << 2) + posColorY + 3] = 255;
-                                        }
+                                        rawColor[(x << 2) + posColorY + 3] = 255;
                                     }
-                                    break;
-                            }
+                                }
+
+                                break;
                         }
                     }
-
-                    mask.UnlockBits(dataMask);
-                }
-                finally
-                {
-                    if (bmp != null)
-                        bmp.Dispose();
-                    if (mask != null)
-                        mask.Dispose();
                 }
             }
 
             [SecurityCritical]
+            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The stream must not be disposed if passed to a Bitmap constructor.")]
             private void AssureBitmapsGenerated(bool isCompositRequired)
             {
-                if (rawColor == null && bmpColor == null && bmpComposit == null)
+                if (rawColor == null && bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(ToString());
 
                 // exiting, if the requested bitmap already exists
-                if (isCompositRequired && bmpComposit != null || !isCompositRequired && bmpColor != null)
+                if (isCompositRequired && bmpComposite != null || !isCompositRequired && bmpColor != null)
                     return;
 
                 // PNG format
                 if (isPng)
                 {
-                    Bitmap result = bmpComposit ?? bmpColor;
+                    Bitmap result = bmpComposite ?? bmpColor
+                        // rawColor is available, otherwise, object would be disposed. Note: MemoryStream must not be in a using because that would kill the new bitmap.
+                        ?? new Bitmap(new MemoryStream(rawColor));
 
-                    if (result == null)
-                    {
-                        // raw image is available, otherwise, object would be disposed
-                        using (MemoryStream ms = new MemoryStream(rawColor))
-                        {
-                            result = new Bitmap(ms);
-                        }
-                    }
-
-                    // assignments below will not replace any instace, otherwise, we would have returned above
+                    // assignments below will not replace any instance, otherwise, we would have returned above
                     if (isCompositRequired)
-                        bmpComposit = result;
+                        bmpComposite = result;
                     else
                     {
                         // if png bpp matches the required result
@@ -684,7 +688,7 @@ namespace KGySoft.Drawing
 
                     // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
                     // because bpp is always set well in icondir entry so ToAlphaBitmap is not required here.
-                    bmpComposit = icon.ToBitmap();
+                    bmpComposite = icon.ToBitmap();
                     icon.Dispose();
                     return;
                 }
@@ -743,10 +747,7 @@ namespace KGySoft.Drawing
 
         #region Properties
 
-        internal int ImageCount
-        {
-            get { return iconImages.Count; }
-        }
+        internal int ImageCount => iconImages.Count;
 
         #endregion
 
@@ -764,8 +765,13 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Initializes a new instance of the <see cref="RawIcon"/> class from an <see cref="Icon"/>.
         /// </summary>
-        internal RawIcon(Icon icon, Size? size, int? bpp, int? index)
+        [SecurityCritical]
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "False alarm, BinaryReader leaves the stream open.")]
+        internal RawIcon(Icon icon, Size? size = null, int? bpp = null, int? index = null)
         {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+
             // there is no icon stream - adding by bitmap
             if (!icon.HasRawData())
             {
@@ -790,19 +796,11 @@ namespace KGySoft.Drawing
                 icon.Save(ms);
                 ms.Position = 0L;
 
-                using (BinaryReader br = new BinaryReader(ms))
+                using (BinaryReader br = new BinaryReader(ms, Encoding.ASCII, true))
                 {
                     Load(br, size, bpp, index);
                 }
             }
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="RawIcon"/> class from an <see cref="Icon"/>.
-        /// </summary>
-        internal RawIcon(Icon icon)
-            : this(icon, null, null, null)
-        {
         }
 
         #endregion
@@ -828,14 +826,15 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Adds an icon to the raw icon. <param name="icon"> is deserialized from stream.</param>
         /// </summary>
+        [SecurityCritical]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Disposing the new RawIcon would dispose the added images.")]
         internal void Add(Icon icon)
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon));
 
             // not in using so its images will not be disposed after adding them to self images
-            RawIcon rawIconToAdd = new RawIcon(icon, null, null, null);
-            foreach (RawIconImage image in rawIconToAdd.iconImages)
+            foreach (RawIconImage image in new RawIcon(icon).iconImages)
             {
                 iconImages.Add(image);
             }
@@ -878,6 +877,7 @@ namespace KGySoft.Drawing
         /// Gets the icons of the <see cref="RawIcon"/> instance as a single, combined <see cref="Icon"/>.
         /// </summary>
         [SecurityCritical]
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "False alarm, the BinaryWriter leaves the stream open.")]
         internal Icon ToIcon()
         {
             if (iconImages.Count == 0)
@@ -885,7 +885,7 @@ namespace KGySoft.Drawing
 
             using (MemoryStream ms = new MemoryStream())
             {
-                using (BinaryWriter bw = new BinaryWriter(ms))
+                using (BinaryWriter bw = new BinaryWriter(ms, Encoding.ASCII, true))
                 {
                     Save(bw);
                     ms.Position = 0L;
@@ -898,17 +898,23 @@ namespace KGySoft.Drawing
         /// Gets a <see cref="Bitmap"/> instance, which contains every images of the <see cref="RawIcon"/> instance as a single, multi-resolution <see cref="Bitmap"/>.
         /// </summary>
         [SecurityCritical]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Stream must not be disposed; otherwise, a Generic GDI+ Error will occur when using the result Bitmap.")]
         internal Bitmap ToBitmap()
         {
             if (iconImages.Count == 0)
                 return null;
 
             // not in using because stream must left open during the Bitmap lifetime
-            MemoryStream ms = new MemoryStream();
-            BinaryWriter bw = new BinaryWriter(ms);
-            Save(bw);
-            ms.Position = 0L;
-            return new Bitmap(ms);
+            var ms = new MemoryStream();
+            {
+                using (var bw = new BinaryWriter(ms, Encoding.ASCII, true))
+                {
+                    Save(bw);
+                }
+
+                ms.Position = 0L;
+                return new Bitmap(ms);
+            }
         }
 
         /// <summary>
@@ -1012,6 +1018,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        [SecurityCritical]
         private void Load(BinaryReader br, Size? size, int? bpp, int? index)
         {
             byte[] buf = br.ReadBytes(Marshal.SizeOf(typeof(ICONDIR)));
