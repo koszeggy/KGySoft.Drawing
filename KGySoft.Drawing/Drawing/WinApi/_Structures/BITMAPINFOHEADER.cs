@@ -57,7 +57,7 @@ namespace KGySoft.Drawing.WinApi
         /// <p>BI_JPEG	Indicates that the image is a JPEG image.</p>
         /// <p>BI_PNG	Indicates that the image is a PNG image.</p>
         /// </summary>
-        internal uint biCompression;
+        internal BitmapCompressionMode biCompression;
 
         /// <summary>
         /// The size, in bytes, of the image. This may be set to zero for BI_RGB bitmaps.

@@ -11,6 +11,8 @@ namespace KGySoft.Drawing.WinApi
     /// </remarks>
     internal struct SHFILEINFO
     {
+        private const int MAX_PATH = 260;
+
         /// <summary>
         /// Type: HICON
         /// A handle to the icon that represents the file. You are responsible for destroying this handle with DestroyIcon when you no longer need it.
@@ -33,7 +35,7 @@ namespace KGySoft.Drawing.WinApi
         /// Type: TCHAR[MAX_PATH]
         /// A string that contains the name of the file as it appears in the Windows Shell, or the path and file name of the file that contains the icon representing the file.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = Constants.MAX_PATH)]
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
         public string szDisplayName;
 
         /// <summary>

@@ -9,6 +9,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Windows.Forms;
 
 using KGySoft.Drawing.WinApi;
@@ -41,7 +42,7 @@ namespace KGySoft.Drawing
         public static Image ToGrayscale(this Image image)
         {
             if (image == null)
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
 
             //Set up the drawing surface
             Bitmap result = new Bitmap(image.Width, image.Height);
@@ -84,10 +85,13 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/> and <paramref name="palette"/> is <see langword="null"/>, black and white colors will be used.</para>
         /// <para>If <paramref name="palette"/> contains the transparent color (<see cref="Color.Transparent"/>), and the source pixel format is <see cref="PixelFormat.Format32bppArgb"/>, and the target pixel format is indexed, the result will have transparency.</para>
         /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Image ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette)
         {
             if (image == null)
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
 
             PixelFormat sourcePixelFormat = image.PixelFormat;
             //if (sourcePixelFormat == newPixelFormat)
@@ -154,7 +158,7 @@ namespace KGySoft.Drawing
             bmi.icHeader.biHeight = image.Height;
             bmi.icHeader.biPlanes = 1;
             bmi.icHeader.biBitCount = (ushort)bpp;
-            bmi.icHeader.biCompression = Constants.BI_RGB;
+            bmi.icHeader.biCompression = BitmapCompressionMode.BI_RGB;
             bmi.icHeader.biSizeImage = (uint)(((image.Width + 7) & 0xFFFFFFF8) * image.Height / (8 / bpp));
             bmi.icHeader.biXPelsPerMeter = 0;
             bmi.icHeader.biYPelsPerMeter = 0;
@@ -166,8 +170,7 @@ namespace KGySoft.Drawing
             sourcePixelFormat = bmp.PixelFormat;
 
             // Creating the indexed bitmap
-            IntPtr bits;
-            IntPtr hbmResult = Gdi32.CreateDIBSection(IntPtr.Zero, ref bmi, Constants.DIB_RGB_COLORS, out bits, IntPtr.Zero, 0);
+            IntPtr hbmResult = Gdi32.CreateDibSectionRgb(IntPtr.Zero, ref bmi, out var _);
 
             // Obtaining screen DC
             IntPtr dcScreen = User32.GetDC(IntPtr.Zero);
@@ -182,7 +185,7 @@ namespace KGySoft.Drawing
             Gdi32.SelectObject(dcTarget, hbmResult);
 
             // Copy content
-            Gdi32.BitBlt(dcTarget, 0, 0, image.Width, image.Height, dcSource, 0, 0, TernaryRasterOperations.SRCCOPY);
+            Gdi32.BitBlt(dcTarget, 0, 0, image.Width, image.Height, dcSource, 0, 0);
 
             // obtaining result
             result = Image.FromHbitmap(hbmResult);
@@ -293,9 +296,9 @@ namespace KGySoft.Drawing
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
             if (images == null)
-                throw new ArgumentNullException("images");
+                throw new ArgumentNullException(nameof(images));
             if (stream == null)
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
 
             ImageCodecInfo tiffEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
             if (tiffEncoder == null)
@@ -305,7 +308,7 @@ namespace KGySoft.Drawing
             foreach (Image page in images)
             {
                 if (page == null)
-                    throw new ArgumentException("Collection contains null element", "images");
+                    throw new ArgumentException("Collection contains null element", nameof(images));
 
                 using (EncoderParameters encoderParams = new EncoderParameters(3))
                 {
@@ -347,7 +350,7 @@ namespace KGySoft.Drawing
         public static int GetBitsPerPixel(this Image image)
         {
             if (image == null)
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
 
             return image.PixelFormat.ToBitsPerPixel();
         }
@@ -356,6 +359,9 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         private static bool CompareImages(Image image1, Image image2)
         {
             if (ReferenceEquals(image1, image2))
@@ -385,7 +391,7 @@ namespace KGySoft.Drawing
                         fixed (byte* pbuf1 = ms1.GetBuffer())
                         fixed (byte* pbuf2 = ms2.GetBuffer())
                         {
-                            return msvcrt.memcmp(new IntPtr(pbuf1), new IntPtr(pbuf2), ms1.Length) == 0;
+                            return msvcrt.CompareMemory(new IntPtr(pbuf1), new IntPtr(pbuf2), ms1.Length);
                         }
                     }
                     //GCHandle pbuf1 = GCHandle.Alloc(ms1.GetBuffer(), GCHandleType.Pinned);
@@ -394,7 +400,7 @@ namespace KGySoft.Drawing
                     //    GCHandle pbuf2 = GCHandle.Alloc(ms2.GetBuffer(), GCHandleType.Pinned);
                     //    try
                     //    {
-                    //        return msvcrt.memcmp(pbuf1.AddrOfPinnedObject(), pbuf2.AddrOfPinnedObject(), ms1.Length) == 0;
+                    //        return msvcrt.CompareMemory(pbuf1.AddrOfPinnedObject(), pbuf2.AddrOfPinnedObject(), ms1.Length);
                     //    }
                     //    finally
                     //    {
@@ -421,7 +427,7 @@ namespace KGySoft.Drawing
 
                 // top-down image: can be compared in a whole
                 if (data1.Stride > 0)
-                    return msvcrt.memcmp(data1.Scan0, data2.Scan0, (long)data1.Stride * image1.Height) == 0;
+                    return msvcrt.CompareMemory(data1.Scan0, data2.Scan0, (long)data1.Stride * image1.Height);
 
                 // bottom-up image: line by line
                 int offset = 0;
@@ -429,7 +435,7 @@ namespace KGySoft.Drawing
                 {
                     IntPtr line1 = new IntPtr(data1.Scan0.ToInt64() + offset);
                     IntPtr line2 = new IntPtr(data2.Scan0.ToInt64() + offset);
-                    if (msvcrt.memcmp(line1, line2, -data1.Stride) != 0)
+                    if (!msvcrt.CompareMemory(line1, line2, -data1.Stride))
                         return false;
 
                     offset += data1.Stride;
@@ -499,7 +505,10 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Makes an indexed bitmap transparent based on a non-indexed source
         /// </summary>
-        private unsafe static void ToIndexedTransparentByArgb(Bitmap target, Bitmap source, int transparentIndex)
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        private static unsafe void ToIndexedTransparentByArgb(Bitmap target, Bitmap source, int transparentIndex)
         {
             Debug.Assert(target.Size == source.Size, "Sizes are different in ToIndexedTransparentByArgb");
             int sourceBpp = source.PixelFormat.ToBitsPerPixel();
@@ -573,7 +582,10 @@ namespace KGySoft.Drawing
             }
         }
 
-        private unsafe static void ToIndexedTransparentByIndexed(Bitmap target, Bitmap source, int targetTransparentIndex, int sourceTransparentIndex)
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        private static unsafe void ToIndexedTransparentByIndexed(Bitmap target, Bitmap source, int targetTransparentIndex, int sourceTransparentIndex)
         {
             Debug.Assert(target.Size == source.Size, "Sizes are different in ToIndexedTransparentByIndexed");
             int sourceBpp = source.PixelFormat.ToBitsPerPixel();
@@ -615,7 +627,7 @@ namespace KGySoft.Drawing
                                 transparent = sourceTransparentIndex == 0 ^ (bits & mask) != 0;
                                 break;
                             default:
-                                throw new ArgumentException("Source bitmap is not indexed", "source");
+                                throw new ArgumentException("Source bitmap is not indexed", nameof(source));
                         }
 
                         // transparent pixel found

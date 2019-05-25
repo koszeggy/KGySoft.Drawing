@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Reflection;
-
+using System.Security;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
 
@@ -29,11 +29,11 @@ namespace KGySoft.Drawing
         public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
             if (graphics == null)
-                throw new ArgumentNullException("graphics");
+                throw new ArgumentNullException(nameof(graphics));
             if (pen == null)
-                throw new ArgumentNullException("pen");
+                throw new ArgumentNullException(nameof(pen));
 
-            using (GraphicsPath path = GraphicsPathTools.RoundedRect(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
+            using (GraphicsPath path = CreateRoundedRectangle(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
             {
                 graphics.DrawPath(pen, path);
             }
@@ -49,11 +49,11 @@ namespace KGySoft.Drawing
         public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int cornerRadius)
         {
             if (graphics == null)
-                throw new ArgumentNullException("graphics");
+                throw new ArgumentNullException(nameof(graphics));
             if (pen == null)
-                throw new ArgumentNullException("pen");
+                throw new ArgumentNullException(nameof(pen));
 
-            using (GraphicsPath path = GraphicsPathTools.RoundedRect(bounds, cornerRadius))
+            using (GraphicsPath path = CreateRoundedRectangle(bounds, cornerRadius))
             {
                 graphics.DrawPath(pen, path);
             }
@@ -72,11 +72,11 @@ namespace KGySoft.Drawing
         public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
             if (graphics == null)
-                throw new ArgumentNullException("graphics");
+                throw new ArgumentNullException(nameof(graphics));
             if (brush == null)
-                throw new ArgumentNullException("brush");
+                throw new ArgumentNullException(nameof(brush));
 
-            using (GraphicsPath path = GraphicsPathTools.RoundedRect(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
+            using (GraphicsPath path = CreateRoundedRectangle(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
             {
                 graphics.FillPath(brush, path);
             }
@@ -92,11 +92,11 @@ namespace KGySoft.Drawing
         public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int cornerRadius)
         {
             if (graphics == null)
-                throw new ArgumentNullException("graphics");
+                throw new ArgumentNullException(nameof(graphics));
             if (brush == null)
-                throw new ArgumentNullException("brush");
+                throw new ArgumentNullException(nameof(brush));
 
-            using (GraphicsPath path = GraphicsPathTools.RoundedRect(bounds, cornerRadius))
+            using (GraphicsPath path = CreateRoundedRectangle(bounds, cornerRadius))
             {
                 graphics.FillPath(brush, path);
             }
@@ -111,7 +111,7 @@ namespace KGySoft.Drawing
         public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
         {
             if (graphics == null)
-                throw new ArgumentNullException("graphics");
+                throw new ArgumentNullException(nameof(graphics));
 
             graphics.TextContrast = 4;
             switch (quality)
@@ -149,7 +149,7 @@ namespace KGySoft.Drawing
                     //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException("quality");
+                    throw new ArgumentOutOfRangeException(nameof(quality));
             }
         }
 
@@ -161,10 +161,13 @@ namespace KGySoft.Drawing
         /// the result will contain the image of the whole container source (when window is found), where the visible clip bounds can be indentified by <see cref="Graphics.VisibleClipBounds"/> in pixels.</param>
         /// <returns>A <see cref="Bitmap"/> object that contains the image content of the source <see cref="Graphics"/> object, or <see langword="null"/>, when the required area of
         /// <paramref name="graphics"/> is empty.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
             if (graphics == null)
-                throw new ArgumentNullException("graphics");
+                throw new ArgumentNullException(nameof(graphics));
 
             if (visibleClipOnly && graphics.IsVisibleClipEmpty)
                 return null;
@@ -246,13 +249,12 @@ namespace KGySoft.Drawing
                     //else
 
                     // Show in container control
-                    RECT rect;
-                    User32.GetClientRect(hwnd, out rect);
+                    Rectangle rect = User32.GetClientRect(hwnd);
                     if (rect.Right < visibleRect.Right && rect.Bottom < visibleRect.Bottom)
                     {
                         // Visible rect is larger than client rect: calculating from full size.
                         // This is usually the case when Graphics is created for nonclient area
-                        User32.GetWindowRect(hwnd, out rect);
+                        rect = User32.GetWindowRect(hwnd);
                     }
 
                     targetWidth = rect.Right - rect.Left;
@@ -279,7 +281,7 @@ namespace KGySoft.Drawing
             Gdi32.SelectObject(dcTarget, hbmResult);
 
             // Copy content
-            Gdi32.BitBlt(dcTarget, 0, 0, targetWidth, targetHeight, dcSource, sourceLeft, sourceTop, TernaryRasterOperations.SRCCOPY);
+            Gdi32.BitBlt(dcTarget, 0, 0, targetWidth, targetHeight, dcSource, sourceLeft, sourceTop);
             result = Image.FromHbitmap(hbmResult);
 
             //cleanup
@@ -289,5 +291,107 @@ namespace KGySoft.Drawing
 
             return result;
         }
+
+        /// <summary>
+        /// Returns the path for a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and four corner radius values.
+        /// </summary>
+        /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
+        /// <param name="radiusTopLeft">Size of the top-left radius.</param>
+        /// <param name="radiusTopRight">Size of the top-right radius.</param>
+        /// <param name="radiusBottomRight">Size of the bottom-right radius.</param>
+        /// <param name="radiusBottomLeft">Size of the bottom-left radius.</param>
+        private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
+        {
+            Size size = new Size(radiusTopLeft << 1, radiusTopLeft << 1);
+            Rectangle arc = new Rectangle(bounds.Location, size);
+            GraphicsPath path = new GraphicsPath();
+
+            // top left arc
+            if (radiusTopLeft == 0)
+                path.AddLine(arc.Location, arc.Location);
+            else
+                path.AddArc(arc, 180, 90);
+
+            // top right arc
+            if (radiusTopRight != radiusTopLeft)
+            {
+                size = new Size(radiusTopRight << 1, radiusTopRight << 1);
+                arc.Size = size;
+            }
+
+            arc.X = bounds.Right - size.Width;
+            if (radiusTopRight == 0)
+                path.AddLine(arc.Location, arc.Location);
+            else
+                path.AddArc(arc, 270, 90);
+
+            // bottom right arc  
+            if (radiusTopRight != radiusBottomRight)
+            {
+                size = new Size(radiusBottomRight << 1, radiusBottomRight << 1);
+                arc.X = bounds.Right - size.Width;
+                arc.Size = size;
+            }
+
+            arc.Y = bounds.Bottom - size.Height;
+            if (radiusBottomRight == 0)
+                path.AddLine(arc.Location, arc.Location);
+            else
+                path.AddArc(arc, 0, 90);
+
+            // bottom left arc 
+            if (radiusBottomRight != radiusBottomLeft)
+            {
+                arc.Size = new Size(radiusBottomLeft << 1, radiusBottomLeft << 1);
+                arc.Y = bounds.Bottom - arc.Height;
+            }
+
+            arc.X = bounds.Left;
+            if (radiusBottomLeft == 0)
+                path.AddLine(arc.Location, arc.Location);
+            else
+                path.AddArc(arc, 90, 90);
+
+            path.CloseFigure();
+            return path;
+        }
+
+        /// <summary>
+        /// Returns the path for a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and a common corner radius value for each corners.
+        /// </summary>
+        /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
+        /// <param name="radius">Size of the corner radius for each corners.</param>
+        private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
+        {
+            int diameter = radius * 2;
+            Size size = new Size(diameter, diameter);
+            Rectangle arc = new Rectangle(bounds.Location, size);
+            GraphicsPath path = new GraphicsPath();
+
+            if (radius == 0)
+            {
+                path.AddRectangle(bounds);
+                return path;
+            }
+
+            // top left arc  
+            path.AddArc(arc, 180, 90);
+
+            // top right arc  
+            arc.X = bounds.Right - diameter;
+            path.AddArc(arc, 270, 90);
+
+            // bottom right arc  
+            arc.Y = bounds.Bottom - diameter;
+            path.AddArc(arc, 0, 90);
+
+            // bottom left arc 
+            arc.X = bounds.Left;
+            path.AddArc(arc, 90, 90);
+
+            path.CloseFigure();
+            return path;
+        }
+
     }
 }

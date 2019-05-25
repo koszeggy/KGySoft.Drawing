@@ -8,6 +8,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
+using System.Security;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
@@ -38,66 +39,78 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Extracts icons of the specified <paramref name="size"/> from a file and returns them as separated <see cref="Icon"/> instances.
         /// </summary>
-        public static Icon[] IconsFromFile(string filename, SystemIconSize size)
+        /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file.</param>
+        /// <param name="size">The size of the icons to be extracted.</param>
+        /// <returns>The icons of the specified file, or an empty array if the file does not exist or does not contain any icons.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon[] IconsFromFile(string fileName, SystemIconSize size)
         {
-            int iconCount = Shell32.ExtractIconEx(filename, -1,
-                null, null, 0); //checks how many icons.
-            IntPtr[] iconPtr = new IntPtr[iconCount];
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), Res.ArgumentNull);
+            if (!Enum<SystemIconSize>.IsDefined(size))
+                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
 
-            //extracts the icons by the size that was selected.
-            if (size == SystemIconSize.Small)
-                Shell32.ExtractIconEx(filename, 0, null, iconPtr, iconCount);
-            else
-                Shell32.ExtractIconEx(filename, 0, iconPtr, null, iconCount);
+            IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
+            Icon[] result = new Icon[handles.Length];
 
-            Icon[] iconList = new Icon[iconCount];
+            for (int i = 0; i < handles.Length; i++)
+                result[i] = ToManagedIcon(Icon.FromHandle(handles[i][0]));
 
-            //gets the icons in a list.
-            for (int i = 0; i < iconCount; i++)
-            {
-                iconList[i] = GetManagedIcon(Icon.FromHandle(iconPtr[i]));
-            }
-
-            return iconList;
+            return result;
         }
 
         /// <summary>
-        /// Extracts one selected icon from a file by provided zero-based <paramref name="index"/>.
-        /// Returns null if icon with specified index does not exist.
+        /// Extracts multi resolution icons from a file and returns them as separated <see cref="Icon"/> instances.
         /// </summary>
-        public static Icon IconFromFile(string filename, SystemIconSize size, int index)
+        /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file.</param>
+        /// <returns>The icons of the specified file, or an empty array if the file does not exist or does not contain any icons.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon[] IconsFromFile(string fileName)
         {
-            // Obtaining icon count.
-            int iconCount = Shell32.ExtractIconEx(filename, -1, null, null, 0);
-            if (iconCount <= 0 || index >= iconCount)
-                return null; // no icons were found.
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), Res.ArgumentNull);
 
-            IntPtr[] iconPtr = new IntPtr[1];
+            IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
+            Icon[] result = new Icon[handles.Length];
 
-            //extracts the icon that we want in the selected size.
-            if (size == SystemIconSize.Small)
-                Shell32.ExtractIconEx(filename, index, null, iconPtr, 1);
-            else
-                Shell32.ExtractIconEx(filename, index, iconPtr, null, 1);
+            for (int i = 0; i < handles.Length; i++)
+            {
+                result[i] = Combine(handles[i].Select(Icon.FromHandle).ToArray());
+                foreach (IntPtr handle in handles[i])
+                    User32.DestroyIcon(handle);
+            }
 
-            return GetManagedIcon(Icon.FromHandle(iconPtr[0]));
+            return result;
         }
 
         /// <summary>
         /// Gets the system-associated icon of a file extension.
         /// </summary>
+        /// <param name="extension">A file name (can be a non-existing one) or an extension for which the associated icon is about to be retrieved.</param>
+        /// <param name="size">The size of the icon to be retrieved.</param>
+        /// <returns>The icon of the specified extension.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon IconFromExtension(string extension, SystemIconSize size)
         {
-            //add '.' if nessesry
-            if (extension[0] != '.')
-                extension = '.' + extension;
+            if (extension == null)
+                throw new ArgumentNullException(nameof(extension), Res.ArgumentNull);
+            if (!Enum<SystemIconSize>.IsDefined(size))
+                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
 
-            //temp struct for getting file shell info
-            SHFILEINFO tempFileInfo = new SHFILEINFO();
+            if (!Path.HasExtension(extension))
+                extension = Path.GetFileName(extension) == extension ? '.' + extension : ".";
 
-            Shell32.SHGetFileInfo(extension, 0, ref tempFileInfo, (uint)Marshal.SizeOf(tempFileInfo), Constants.SHGFI_ICON | Constants.SHGFI_USEFILEATTRIBUTES | (uint)size);
+            IntPtr handle = Shell32.GetFileIconHandle(extension, size);
+            if (handle == IntPtr.Zero)
+                throw new ArgumentException(Res.ArgumentInvalidString, nameof(extension));
 
-            return GetManagedIcon(Icon.FromHandle(tempFileInfo.hIcon));
+            return ToManagedIcon(Icon.FromHandle(handle));
         }
 
         /// <summary>
@@ -108,18 +121,21 @@ namespace KGySoft.Drawing
         /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
         /// <remarks>The result icon will be always sqaure sized. To create a non-square icon, use <see cref="Combine(Bitmap[])"/> instead.</remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon IconFromImage(Image image, int size, bool keepAspectRatio)
         {
             if (image == null)
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
 
             if (size < 1 || size > 256)
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             Bitmap bitmap;
             if (size == image.Width && size == image.Height && (bitmap = image as Bitmap) != null)
             {
-                return GetManagedIcon(Icon.FromHandle(bitmap.GetHicon()));
+                return ToManagedIcon(Icon.FromHandle(bitmap.GetHicon()));
             }
 
             using (bitmap = new Bitmap(size, size))
@@ -161,7 +177,7 @@ namespace KGySoft.Drawing
                     g.DrawImage(image, x, y, w, h); // draw image with specified dimensions
                     g.Flush(); // make sure all drawing operations complete before we get the icon
 
-                    return GetManagedIcon(Icon.FromHandle(bitmap.GetHicon()));
+                    return ToManagedIcon(Icon.FromHandle(bitmap.GetHicon()));
                 }
             }
         }
@@ -192,24 +208,20 @@ namespace KGySoft.Drawing
         /// the <paramref name="icon"/> contains a single image only. <see cref="ExtractBitmap(Icon,bool)"/> method works from the
         /// saved icon stream, which is slower than this method.
         /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Bitmap ToAlphaBitmap(this Icon icon)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
 
-            ICONINFO iconInfo;
-            if (!User32.GetIconInfo(icon.Handle, out iconInfo))
-                throw new ArgumentException("Invalid icon", "icon", new Win32Exception(Marshal.GetLastWin32Error()));
-
+            User32.GetIconInfo(icon.Handle, out ICONINFO iconInfo);
             try
             {
-                // getting color depth (FromHbitmap always returns 32 bppRgb format)
-                BITMAP bitmapInfo;
-                if (Gdi32.GetObject(iconInfo.hbmColor, Marshal.SizeOf(typeof(BITMAP)), out bitmapInfo) == 0)
-                    throw new ArgumentException("Invalid icon", "icon");
-
+                // Getting color depth by GDI. (FromHbitmap always returns 32 bppRgb format)
                 // The possible 1 bit transparency is handled by ToBitmap, too. Though GetIconInfo returns always 32 bit image when display settings use 32 bit.
-                if (bitmapInfo.bmBitsPixel < 32)
+                if (Gdi32.GetBitmapColorDepth(iconInfo.hbmColor) < 32)
                     return icon.ToBitmap();
 
                 // The result bitmap has now black pixels where the icon was transparent
@@ -249,8 +261,7 @@ namespace KGySoft.Drawing
                 finally
                 {
                     bmpColor.Dispose();
-                    if (bmpRedirected != null)
-                        bmpRedirected.Dispose();
+                    bmpRedirected?.Dispose();
                 }
             }
             finally
@@ -266,6 +277,9 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Bitmap ToMultiResBitmap(this Icon icon)
         {
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -301,7 +315,7 @@ namespace KGySoft.Drawing
         public static Bitmap[] ExtractBitmaps(this Icon icon, SystemIconSize size, bool keepOriginalFormat)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             return ExtractBitmaps(icon, size == SystemIconSize.Small ? size16 : size32, null, keepOriginalFormat);
         }
@@ -362,7 +376,7 @@ namespace KGySoft.Drawing
         public static Bitmap ExtractBitmap(this Icon icon, SystemIconSize size, bool keepOriginalFormat)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             return ExtractBitmaps(icon, size == SystemIconSize.Small ? size16 : size32, null, keepOriginalFormat).FirstOrDefault();
         }
@@ -424,12 +438,15 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/>&#160;if no icon found of the specified size.</returns>
         /// <seealso cref="ExtractIcon(Icon,int)"/>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Bitmap ExtractBitmap(this Icon icon, int index, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             if (index < 0)
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
 
             using (RawIcon rawIcon = new RawIcon(icon, null, null, index))
             {
@@ -448,10 +465,13 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>. If no
         /// icon found of the specified size and format, the nearest image (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
         /// <seealso cref="ExtractNearestIcon(Icon,Size,PixelFormat)"/>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Bitmap ExtractNearestBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -481,7 +501,7 @@ namespace KGySoft.Drawing
         public static Icon[] ExtractIcons(this Icon icon, SystemIconSize size)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             return ExtractIcons(icon, size == SystemIconSize.Small ? size16 : size32, null);
         }
@@ -522,7 +542,7 @@ namespace KGySoft.Drawing
         public static Icon ExtractIcon(this Icon icon, SystemIconSize size)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException("size");
+                throw new ArgumentOutOfRangeException(nameof(size));
 
             return ExtractIcons(icon, size == SystemIconSize.Small ? size16 : size32, null).FirstOrDefault();
         }
@@ -579,12 +599,15 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found with the specified index.</returns>
         /// <seealso cref="ExtractBitmap(Icon,int,bool)"/>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon ExtractIcon(this Icon icon, int index)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             if (index < 0)
-                throw new ArgumentOutOfRangeException("index");
+                throw new ArgumentOutOfRangeException(nameof(index));
 
             using (RawIcon rawIcon = new RawIcon(icon, null, null, index))
             {
@@ -602,10 +625,13 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image. If no
         /// icon found of the specified size and format, the nearest icon (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -619,10 +645,13 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <returns>An <see cref="Icon"/> instace that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon Combine(this Icon icon, params Icon[] icons)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             if (icons == null || icons.Length == 0)
                 return icon;
 
@@ -643,6 +672,9 @@ namespace KGySoft.Drawing
         /// <param name="icons">The icons to be combined.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon Combine(params Icon[] icons)
         {
             if (icons == null || icons.Length == 0)
@@ -668,10 +700,13 @@ namespace KGySoft.Drawing
         /// An <see cref="Icon" /> instace that contains every image of the source <paramref name="images" />.
         /// </returns>
         /// <remarks><paramref name="icon"/> may already contain multiple icons.</remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon Combine(this Icon icon, params Bitmap[] images)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             if (images == null || images.Length == 0)
                 return icon;
 
@@ -692,6 +727,9 @@ namespace KGySoft.Drawing
         /// <param name="images">The images to be added to the icon. Images can be non-square ones, but cannot be larger than 256x256.
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon Combine(params Bitmap[] images)
         {
             if (images == null || images.Length == 0)
@@ -716,6 +754,9 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon" /> instace that contains every image of the source <paramref name="images" />.
         /// </returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Icon Combine(Bitmap[] images, Color[] transparentColors)
         {
             int imageCount = images == null ? 0 : images.Length;
@@ -743,12 +784,15 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to save</param>
         /// <param name="stream">A stream into which the icon has to be saved.</param>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static void SaveHighQuality(this Icon icon, Stream stream)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
             if (stream == null)
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
 
             using (RawIcon rawIcon = new RawIcon(icon))
             {
@@ -765,10 +809,13 @@ namespace KGySoft.Drawing
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor.
         /// <br/>Default value: 0; 0 (top-left corner)</param>
         /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static CursorHandle ToCursorHandle(this Icon icon, Point cursorHotspot = default(Point))
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
 
             return ToCursorHandle(icon.Handle, cursorHotspot);
         }
@@ -777,11 +824,10 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
+        [SecurityCritical]
         internal static CursorHandle ToCursorHandle(IntPtr iconHandle, Point cursorHotspot)
         {
-            ICONINFO iconInfo;
-            if (!User32.GetIconInfo(iconHandle, out iconInfo))
-                throw new ArgumentException("Invalid icon", "icon", new Win32Exception(Marshal.GetLastWin32Error()));
+            User32.GetIconInfo(iconHandle, out ICONINFO iconInfo);
             iconInfo.xHotspot = cursorHotspot.X;
             iconInfo.yHotspot = cursorHotspot.Y;
             iconInfo.fIcon = false;
@@ -802,7 +848,8 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-        private unsafe static bool IsFullyTransparent(BitmapData data)
+        [SecurityCritical]
+        private static unsafe bool IsFullyTransparent(BitmapData data)
         {
             byte* line = (byte*)data.Scan0;
             for (int y = 0; y < data.Height; y++)
@@ -824,17 +871,23 @@ namespace KGySoft.Drawing
         /// Needed for unmanaged icons returned by winapi methods because <see cref="Icon.FromHandle"/> does not
         /// take ownership of handle and does not dispose the icon.
         /// </summary>
-        private static Icon GetManagedIcon(Icon unmanagedIcon)
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        private static Icon ToManagedIcon(Icon unmanagedIcon)
         {
             Icon managedIcon = (Icon)unmanagedIcon.Clone();
             User32.DestroyIcon(unmanagedIcon.Handle);
             return managedIcon;
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         private static Bitmap[] ExtractBitmaps(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
 
             using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
             {
@@ -842,10 +895,13 @@ namespace KGySoft.Drawing
             }
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         private static Icon[] ExtractIcons(Icon icon, Size? size, int? bpp)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
 
             using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
             {

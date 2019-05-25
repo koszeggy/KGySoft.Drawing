@@ -1,4 +1,6 @@
-﻿using System.Reflection;
+﻿using System;
+using System.Reflection;
+using System.Resources;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -32,12 +34,15 @@ using System.Security;
 //
 // You can specify all the values or you can default the Revision and Build Numbers 
 // by using the '*' as shown below:
-[assembly: AssemblyVersion("1.0.0.0")]
-[assembly: AssemblyFileVersion("1.0.0.0")]
+[assembly: AssemblyVersion("4.6.0.0")]
+[assembly: AssemblyFileVersion("4.6.0.0")]
+[assembly: AssemblyInformationalVersion("4.6.0-alpha.1")]
 
+[assembly: CLSCompliant(true)]
+
+[assembly: NeutralResourcesLanguage("en")]
 [assembly: AllowPartiallyTrustedCallers]
-#if NET40 || NET45
-[assembly: SecurityRules(SecurityRuleSet.Level1)]
-#elif !NET35
-#error .NET version is not set or not supported!
+
+#if !NET35
+[assembly: SecurityRules(SecurityRuleSet.Level2, SkipVerificationInFullTrust = true)]
 #endif

@@ -12,6 +12,8 @@ namespace KGySoft.Drawing.WinApi
     [StructLayoutAttribute(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct SHSTOCKICONINFO
     {
+        private const int MAX_PATH = 260;
+
         /// <summary>
         /// The size of this structure, in bytes.
         /// </summary>
@@ -33,9 +35,10 @@ namespace KGySoft.Drawing.WinApi
         internal int iIcon;
 
         /// <summary>
+        /// Type: TCHAR[MAX_PATH]
         /// When SHGetStockIconInfo is called with the SHGSI_ICONLOCATION flag, this member receives the path of the resource that contains the icon. The index of the icon within the resource is received in iIcon.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = Constants.MAX_PATH)]
+        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
         internal string szPath;
     }
 }

@@ -16,9 +16,11 @@
     <DocumentationFile>bin\$(Configuration)\KGySoft.Drawing.xml</DocumentationFile>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
     <OutputPath>bin\$(Configuration)</OutputPath>
     <PlatformTarget>AnyCPU</PlatformTarget>
+    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <CodeAnalysisRuleSet>KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_NET35|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -70,8 +72,9 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Drawing\WinApi\_Enums\BitmapCompressionMode.cs" />
+    <Compile Include="Drawing\WinApi\_Enums\SGHFI.cs" />
     <Compile Include="Drawing\_Classes\CursorHandle.cs" />
-    <Compile Include="Drawing\_Classes\DrawingHelper.cs" />
     <Compile Include="Drawing\_Classes\Icons.cs" />
     <Compile Include="Drawing\_Classes\RawIcon.cs" />
     <Compile Include="ComponentModel\AdvancedImageConverter.cs" />
@@ -83,31 +86,36 @@
     <Compile Include="Drawing\_Extensions\ImageExtensions.cs" />
     <Compile Include="Drawing\_Extensions\MetafileExtensions.cs" />
     <Compile Include="Drawing\_Extensions\PixelFormatExtensions.cs" />
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Drawing\WinApi\BITMAP.cs" />
-    <Compile Include="Drawing\WinApi\BITMAPINFO.cs" />
-    <Compile Include="Drawing\WinApi\BITMAPINFOHEADER.cs" />
-    <Compile Include="Drawing\WinApi\Constants.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\BITMAP.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\BITMAPINFO.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\BITMAPINFOHEADER.cs" />
     <Compile Include="Drawing\WinApi\Gdi32.cs" />
-    <Compile Include="Drawing\WinApi\ICONDIR.cs" />
-    <Compile Include="Drawing\WinApi\ICONDIRENTRY.cs" />
-    <Compile Include="Drawing\WinApi\ICONINFO.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\ICONDIR.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\ICONDIRENTRY.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\ICONINFO.cs" />
     <Compile Include="Drawing\WinApi\Kernel32.cs" />
-    <Compile Include="Drawing\WinApi\MappingModes.cs" />
+    <Compile Include="Drawing\WinApi\_Enums\MappingModes.cs" />
     <Compile Include="Drawing\WinApi\msvcrt.cs" />
-    <Compile Include="Drawing\WinApi\RECT.cs" />
-    <Compile Include="Drawing\WinApi\RGBQUAD.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\RECT.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\RGBQUAD.cs" />
     <Compile Include="Drawing\WinApi\Shell32.cs" />
-    <Compile Include="Drawing\WinApi\SHFILEINFO.cs" />
-    <Compile Include="Drawing\WinApi\SHGSI.cs" />
-    <Compile Include="Drawing\WinApi\SHSTOCKICONINFO.cs" />
-    <Compile Include="Drawing\WinApi\TernaryRasterOperations.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\SHFILEINFO.cs" />
+    <Compile Include="Drawing\WinApi\_Enums\SHGSI.cs" />
+    <Compile Include="Drawing\WinApi\_Structures\SHSTOCKICONINFO.cs" />
+    <Compile Include="Drawing\WinApi\_Enums\TernaryRasterOperations.cs" />
     <Compile Include="Drawing\WinApi\User32.cs" />
     <Compile Include="Drawing\WinApi\WindowsUtils.cs" />
+    <Compile Include="Res.cs" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="KGySoft.Drawing.Icons.resx">
       <LogicalName>KGySoft.Drawing.Icons.resources</LogicalName>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="KGySoft.Drawing.Messages.resx">
+      <LogicalName>KGySoft.Drawing.Messages.resources</LogicalName>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>

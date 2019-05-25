@@ -5,7 +5,7 @@ using System.Text;
 
 namespace KGySoft.Drawing.WinApi
 {
-    enum MappingModes : int
+    internal enum MappingModes
     {
         MM_TEXT = 1,
         MM_LOMETRIC = 2,

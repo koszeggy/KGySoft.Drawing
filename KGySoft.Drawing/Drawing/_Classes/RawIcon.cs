@@ -8,6 +8,7 @@ using System.Drawing.Imaging;
 using System.Diagnostics;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Security;
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
@@ -236,7 +237,7 @@ namespace KGySoft.Drawing
 
                 // BMP header: size of the BITMAPINFOHEADER structure
                 if (signature != Marshal.SizeOf(typeof(BITMAPINFOHEADER)))
-                    throw new ArgumentException("Bad icon format", "rawData");
+                    throw new ArgumentException("Bad icon format", nameof(rawData));
 
                 // header
                 bmpHeader = (BITMAPINFOHEADER)BinarySerializer.DeserializeValueType(typeof(BITMAPINFOHEADER), rawData);
@@ -322,6 +323,7 @@ namespace KGySoft.Drawing
 
             #region Static Methods
 
+            [SecurityCritical]
             private static void FlipImageY(Bitmap bitmap)
             {
                 if (bitmap.PixelFormat != PixelFormat.Format1bppIndexed)
@@ -352,6 +354,7 @@ namespace KGySoft.Drawing
 
             #region Internal Methods
 
+            [SecurityCritical]
             internal void WriteDirEntry(BinaryWriter bw, ref uint offset)
             {
                 AssureRawFormatGenerated();
@@ -381,6 +384,7 @@ namespace KGySoft.Drawing
                 offset += entry.dwBytesInRes;
             }
 
+            [SecurityCritical]
             internal void WriteRawImage(BinaryWriter bw)
             {
                 AssureRawFormatGenerated();
@@ -404,6 +408,7 @@ namespace KGySoft.Drawing
                 bw.Write(rawMask);
             }
 
+            [SecurityCritical]
             internal Icon ToIcon()
             {
                 using (MemoryStream ms = new MemoryStream())
@@ -434,6 +439,7 @@ namespace KGySoft.Drawing
                 }
             }
 
+            [SecurityCritical]
             internal Bitmap ToBitmap(bool keepOriginalFormat)
             {
                 AssureBitmapsGenerated(!keepOriginalFormat);
@@ -451,6 +457,7 @@ namespace KGySoft.Drawing
 
             #region Private Methods
 
+            [SecurityCritical]
             private void AssureRawFormatGenerated()
             {
                 // exiting, if raw data is already generated
@@ -502,7 +509,7 @@ namespace KGySoft.Drawing
                     bmpHeader.biHeight = bmp.Height << 1; // because of mask, should be specified as double height image
                     bmpHeader.biPlanes = 1;
                     bmpHeader.biBitCount = (ushort)bmp.PixelFormat.ToBitsPerPixel();
-                    bmpHeader.biCompression = Constants.BI_RGB;
+                    bmpHeader.biCompression = BitmapCompressionMode.BI_RGB;
                     bmpHeader.biXPelsPerMeter = 0;
                     bmpHeader.biYPelsPerMeter = 0;
                     bmpHeader.biClrUsed = (uint)PaletteColorCount;
@@ -610,6 +617,7 @@ namespace KGySoft.Drawing
                 }
             }
 
+            [SecurityCritical]
             private void AssureBitmapsGenerated(bool isCompositRequired)
             {
                 if (rawColor == null && bmpColor == null && bmpComposit == null)
@@ -705,8 +713,7 @@ namespace KGySoft.Drawing
 
                 // creating color raw bitmap (XOR)
                 IntPtr dcColor = Gdi32.CreateCompatibleDC(dcScreen);
-                IntPtr bits;
-                IntPtr hbmpColor = Gdi32.CreateDIBSection(dcColor, ref bitmapInfo, Constants.DIB_RGB_COLORS, out bits, IntPtr.Zero, 0);
+                IntPtr hbmpColor = Gdi32.CreateDibSectionRgb(dcColor, ref bitmapInfo, out IntPtr bits);
                 Marshal.Copy(rawColor, 0, bits, rawColor.Length);
 
                 // creating bmpColor
@@ -824,7 +831,7 @@ namespace KGySoft.Drawing
         internal void Add(Icon icon)
         {
             if (icon == null)
-                throw new ArgumentNullException("icon");
+                throw new ArgumentNullException(nameof(icon));
 
             // not in using so its images will not be disposed after adding them to self images
             RawIcon rawIconToAdd = new RawIcon(icon, null, null, null);
@@ -840,7 +847,7 @@ namespace KGySoft.Drawing
         internal void Add(Bitmap image)
         {
             if (image == null)
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
 
             if (image.PixelFormat == PixelFormat.Format32bppArgb || image.PixelFormat == PixelFormat.Format32bppPArgb)
                 Add(image, Color.Transparent);
@@ -854,10 +861,10 @@ namespace KGySoft.Drawing
         internal void Add(Bitmap image, Color transparentColor)
         {
             if (image == null)
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
 
             if (image.Width > 256 || image.Height > 256)
-                throw new ArgumentException("Image is too big", "image");
+                throw new ArgumentException("Image is too big", nameof(image));
 
             int bpp = image.PixelFormat.ToBitsPerPixel();
             if (bpp.In(16, 48, 64))
@@ -870,6 +877,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the icons of the <see cref="RawIcon"/> instance as a single, combined <see cref="Icon"/>.
         /// </summary>
+        [SecurityCritical]
         internal Icon ToIcon()
         {
             if (iconImages.Count == 0)
@@ -889,6 +897,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets a <see cref="Bitmap"/> instance, which contains every images of the <see cref="RawIcon"/> instance as a single, multi-resolution <see cref="Bitmap"/>.
         /// </summary>
+        [SecurityCritical]
         internal Bitmap ToBitmap()
         {
             if (iconImages.Count == 0)
@@ -905,6 +914,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the icon into a stream
         /// </summary>
+        [SecurityCritical]
         internal void Save(Stream stream)
         {
             BinaryWriter bw = new BinaryWriter(stream);
@@ -914,6 +924,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the icons of the <see cref="RawIcon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
+        [SecurityCritical]
         internal Icon[] ExtractIcons()
         {
             Icon[] result = new Icon[iconImages.Count];
@@ -928,6 +939,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the images of the <see cref="RawIcon"/> instance as separated <see cref="Bitmap"/> instances.
         /// </summary>
+        [SecurityCritical]
         internal Bitmap[] ExtractBitmaps(bool keepOriginalFormat)
         {
             Bitmap[] result = new Bitmap[iconImages.Count];
@@ -942,6 +954,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the nearest bitmap to the specified color depth and size. Bpp is matched first.
         /// </summary>
+        [SecurityCritical]
         internal Bitmap ExtractNearestBitmap(int bpp, Size size, bool keepOriginalFormat)
         {
             if (iconImages.Count == 0)
@@ -956,6 +969,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the nearest icon to the specified color depth and size. Bpp is matched first.
         /// </summary>
+        [SecurityCritical]
         internal Icon ExtractNearestIcon(int bpp, Size size)
         {
             if (iconImages.Count == 0)
@@ -971,6 +985,7 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
+        [SecurityCritical]
         private void Save(BinaryWriter bw)
         {
             // Icon header
@@ -1002,7 +1017,7 @@ namespace KGySoft.Drawing
             byte[] buf = br.ReadBytes(Marshal.SizeOf(typeof(ICONDIR)));
             ICONDIR iconDir = (ICONDIR)BinarySerializer.DeserializeValueType(typeof(ICONDIR), buf);
             if (iconDir.idReserved != 0 || iconDir.idType != 1)
-                throw new ArgumentException("Bad icon format", "br");
+                throw new ArgumentException("Bad icon format", nameof(br));
 
             if (index.HasValue && (index.Value < 0 || index.Value >= iconDir.idCount))
                 return;

@@ -6,6 +6,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using System.Text;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Serialization;
@@ -91,10 +92,10 @@ namespace KGySoft.Drawing
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)
         {
             if (metafile == null)
-                throw new ArgumentNullException("metafile");
+                throw new ArgumentNullException(nameof(metafile));
 
             if (requestedSize.Width < 1 || requestedSize.Height < 1)
-                throw new ArgumentOutOfRangeException("requestedSize");
+                throw new ArgumentOutOfRangeException(nameof(requestedSize));
 
             if (!antiAliased)
                 return new Bitmap(metafile, requestedSize);
@@ -114,9 +115,9 @@ namespace KGySoft.Drawing
         public static void Save(this Metafile metafile, Stream stream)
         {
             if (metafile == null)
-                throw new ArgumentNullException("metafile");
+                throw new ArgumentNullException(nameof(metafile));
             if (stream == null)
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
 
             Save(metafile, stream, false);
         }
@@ -128,12 +129,15 @@ namespace KGySoft.Drawing
         /// <param name="stream">The <see cref="Stream"/> into the metafile should be saved.</param>
         /// <param name="forceWmfFormat">When <see langword="true"/>, forces to use the Windows Metafile Format (WMF), even if
         /// the <paramref name="metafile"/> itself is encoded by Enhanced Metafile Format (EMF). When <see langword="false"/>, uses the appropriate format automatically.</param>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static void Save(this Metafile metafile, Stream stream, bool forceWmfFormat)
         {
             if (metafile == null)
-                throw new ArgumentNullException("metafile");
+                throw new ArgumentNullException(nameof(metafile));
             if (stream == null)
-                throw new ArgumentNullException("stream");
+                throw new ArgumentNullException(nameof(stream));
 
             bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid;
             if (isWmf || forceWmfFormat)
@@ -144,49 +148,9 @@ namespace KGySoft.Drawing
             IntPtr handle = metafile.GetHenhmetafile();
             try
             {
-                uint bufSize;
-                byte[] buffer;
-
-                if (isWmf)
-                {
-                    // Saving WMF
-                    bufSize = Gdi32.GetMetaFileBitsEx(handle, 0, null);
-                    buffer = new byte[bufSize];
-                    if (Gdi32.GetMetaFileBitsEx(handle, bufSize, buffer) == 0)
-                        throw new Win32Exception("GetMetaFileBitsEx was unable to retrieve WMF data");
-                }
-                else
-                {
-                    if (forceWmfFormat)
-                    {
-                        // Saving EMF as WMF
-                        using (Graphics g = Graphics.FromHwndInternal(IntPtr.Zero))
-                        {
-                            IntPtr hdc = g.GetHdc();
-                            try
-                            {
-                                bufSize = Gdi32.GetWinMetaFileBits(handle, 0, null, MappingModes.MM_ANISOTROPIC, hdc);
-                                buffer = new byte[bufSize];
-                                if (Gdi32.GetWinMetaFileBits(handle, bufSize, buffer, MappingModes.MM_ANISOTROPIC, hdc) == 0)
-                                    throw new Win32Exception("GetWinMetaFileBits was unable to retrieve WMF data");
-                            }
-                            finally
-                            {
-                                g.ReleaseHdc(hdc);
-                            }
-                        }
-                    }
-                    else
-                    {
-                        // Saving EMF
-                        bufSize = Gdi32.GetEnhMetaFileBits(handle, 0, null);
-                        buffer = new byte[bufSize];
-                        if (Gdi32.GetEnhMetaFileBits(handle, bufSize, buffer) == 0)
-                            throw new Win32Exception("GetEnhMetaFileBits was unable to retrieve EMF data");
-                    }
-                }
-
-                stream.Write(buffer, 0, (int)bufSize);
+                byte[] buffer = isWmf ? Gdi32.GetWmfContent(handle) 
+                    : (forceWmfFormat ? Gdi32.GetWmfContentFromEmf(handle) : Gdi32.GetEmfContent(handle));
+                stream.Write(buffer, 0, buffer.Length);
             }
             finally
             {

@@ -22,7 +22,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Resources;
 using System.Runtime.InteropServices;
-
+using System.Security;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 
@@ -206,7 +206,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Information => GetResourceIcon(IconId.Information).ToIcon();
+        public static Icon Information => GetResourceIcon(IconId.Information);
 
         /// <summary>
         /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
@@ -221,7 +221,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Warning => GetResourceIcon(IconId.Warning).ToIcon();
+        public static Icon Warning => GetResourceIcon(IconId.Warning);
 
         /// <summary>
         /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
@@ -237,7 +237,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Question => GetResourceIcon(IconId.Question).ToIcon();
+        public static Icon Question => GetResourceIcon(IconId.Question);
 
         /// <summary>
         /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
@@ -253,7 +253,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Error => GetResourceIcon(IconId.Error).ToIcon();
+        public static Icon Error => GetResourceIcon(IconId.Error);
 
         /// <summary>
         /// <img src="../Help/Images/Shield16.png" alt="Shield (small version for the summary)"/>
@@ -271,7 +271,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Shield8.png" alt="Security Shield 8x8"/>
         /// </para>
         /// </remarks>
-        public static Icon Shield => GetResourceIcon(IconId.Shield).ToIcon();
+        public static Icon Shield => GetResourceIcon(IconId.Shield);
 
         /// <summary>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Security Shield (small version for the summary)"/>
@@ -289,7 +289,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityShield8.png" alt="Security Shield 8x8"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityShield => GetResourceIcon(IconId.SecurityShield).ToIcon();
+        public static Icon SecurityShield => GetResourceIcon(IconId.SecurityShield);
 
         /// <summary>
         /// <img src="../Help/Images/SecuritySuccess16.png" alt="Security Success (small version for the summary)"/>
@@ -305,7 +305,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecuritySuccess16.png" alt="Security Success 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecuritySuccess => GetResourceIcon(IconId.SecuritySuccess).ToIcon();
+        public static Icon SecuritySuccess => GetResourceIcon(IconId.SecuritySuccess);
 
         /// <summary>
         /// <img src="../Help/Images/SecurityWarning16.png" alt="Security Warning (small version for the summary)"/>
@@ -321,7 +321,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityWarning16.png" alt="Security Warning 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityWarning => GetResourceIcon(IconId.SecurityWarning).ToIcon();
+        public static Icon SecurityWarning => GetResourceIcon(IconId.SecurityWarning);
 
         /// <summary>
         /// <img src="../Help/Images/SecurityQuestion16.png" alt="Security Question (small version for the summary)"/>
@@ -337,7 +337,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityQuestion16.png" alt="Security Question 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityQuestion => GetResourceIcon(IconId.SecurityQuestion).ToIcon();
+        public static Icon SecurityQuestion => GetResourceIcon(IconId.SecurityQuestion);
 
         /// <summary>
         /// <img src="../Help/Images/SecurityError16.png" alt="Security Error (small version for the summary)"/>
@@ -353,7 +353,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityError16.png" alt="Security Error 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityError => GetResourceIcon(IconId.SecurityError).ToIcon();
+        public static Icon SecurityError => GetResourceIcon(IconId.SecurityError);
 
         /// <summary>
         /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
@@ -369,7 +369,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application16.png" alt="Application 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Application => GetResourceIcon(IconId.Application).ToIcon();
+        public static Icon Application => GetResourceIcon(IconId.Application);
 
         #endregion
 
@@ -383,6 +383,9 @@ namespace KGySoft.Drawing
 
         #region Methods
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         private static Icon GetSystemIcon(IconId id, Func<Icon> getLegacyIcon)
         {
             if (!systemIconsCache.TryGetValue(id, out RawIcon result))
@@ -394,14 +397,18 @@ namespace KGySoft.Drawing
             return result.ToIcon();
         }
 
-        private static RawIcon GetResourceIcon(IconId id)
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        private static Icon GetResourceIcon(IconId id)
         {
-            if (resourceIconsCache.TryGetValue(id, out RawIcon result))
-                return result;
+            if (!resourceIconsCache.TryGetValue(id, out RawIcon result))
+            {
+                result = new RawIcon((Icon)ResourceManager.GetObject(Enum<IconId>.ToString(id) + "Icon", CultureInfo.InvariantCulture));
+                resourceIconsCache[id] = result;
+            }
 
-            result = new RawIcon((Icon)ResourceManager.GetObject(Enum<IconId>.ToString(id) + "Icon", CultureInfo.InvariantCulture));
-            resourceIconsCache[id] = result;
-            return result;
+            return result.ToIcon();
         }
 
         /// <summary>
@@ -412,29 +419,25 @@ namespace KGySoft.Drawing
         /// <param name="id">Id of the icon to retrieve.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
         /// when no icon found, or Windows version is below Vista.</returns>
+        [SecurityCritical]
         private static RawIcon GetSystemIconById(IconId id)
         {
             if (id < 0 || !WindowsUtils.IsVistaOrLater)
                 return null;
 
-            SHSTOCKICONINFO iconInfo = new SHSTOCKICONINFO();
-            iconInfo.cbSize = (uint)Marshal.SizeOf(typeof(SHSTOCKICONINFO));
-
-            SHGSI flags = SHGSI.SHGSI_ICON | SHGSI.SHGSI_LARGEICON;
-            if (Shell32.SHGetStockIconInfo((int)id, flags, ref iconInfo) != 0)
+            IntPtr largeHandle = Shell32.GetStockIconHandle((int)id, SystemIconSize.Large);
+            if (largeHandle == IntPtr.Zero)
                 return null;
 
-            Icon icon = Icon.FromHandle(iconInfo.hIcon);
-            var result = new RawIcon(icon);
-            User32.DestroyIcon(iconInfo.hIcon);
+            var result = new RawIcon(Icon.FromHandle(largeHandle));
+            User32.DestroyIcon(largeHandle);
 
-            flags = SHGSI.SHGSI_ICON | SHGSI.SHGSI_SMALLICON;
-            if (Shell32.SHGetStockIconInfo((int)id, flags, ref iconInfo) != 0)
+            IntPtr smallHandle = Shell32.GetStockIconHandle((int)id, SystemIconSize.Small);
+            if (largeHandle == IntPtr.Zero)
                 return result;
 
-            icon = Icon.FromHandle(iconInfo.hIcon);
-            result.Add(icon);
-            User32.DestroyIcon(iconInfo.hIcon);
+            result.Add(Icon.FromHandle(smallHandle));
+            User32.DestroyIcon(smallHandle);
             return result;
         }
 

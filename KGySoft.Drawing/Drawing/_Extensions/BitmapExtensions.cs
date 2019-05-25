@@ -7,6 +7,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Security;
 using KGySoft.Drawing.WinApi;
 
 namespace KGySoft.Drawing
@@ -34,10 +35,10 @@ namespace KGySoft.Drawing
         public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio)
         {
             if (image == null)
-                throw new ArgumentNullException("image");
+                throw new ArgumentNullException(nameof(image));
 
             if (newSize.Width < 1 || newSize.Height < 1)
-                throw new ArgumentOutOfRangeException("newSize");
+                throw new ArgumentOutOfRangeException(nameof(newSize));
 
             Size targetSize = newSize;
             Size sourceSize = image.Size;
@@ -127,6 +128,9 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bitmap">The bitmap to be cloned.</param>
         /// <returns>A single frame <see cref="Bitmap"/> instance that has the same content and has the same pixel format as the current frame of the source bitmap.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Bitmap CloneCurrentFrame(this Bitmap bitmap)
         {
             Bitmap result = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
@@ -178,12 +182,15 @@ namespace KGySoft.Drawing
         /// <param name="maxColors">A limit of the returned maximum entry.</param>
         /// <remarks>The method is optimized for <see cref="PixelFormat.Format32bppRgb"/> and <see cref="PixelFormat.Format32bppArgb"/> formats.</remarks>
         /// <returns>An array of <see cref="Color"/> entries.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static Color[] GetColors(this Bitmap bitmap, int maxColors)
         {
             if (bitmap == null)
-                throw new ArgumentNullException("bitmap");
+                throw new ArgumentNullException(nameof(bitmap));
             if (maxColors < 0)
-                throw new ArgumentOutOfRangeException("maxColors");
+                throw new ArgumentOutOfRangeException(nameof(maxColors));
 
             HashSet<int> colors = new HashSet<int>();
             PixelFormat pixelFormat = bitmap.PixelFormat;
@@ -263,10 +270,13 @@ namespace KGySoft.Drawing
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor.
         /// <br/>Default value: 0; 0 (top-left corner)</param>
         /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default(Point))
         {
             if (bitmap == null)
-                throw new ArgumentNullException("bitmap");
+                throw new ArgumentNullException(nameof(bitmap));
 
             IntPtr iconHandle = bitmap.GetHicon();
             try
