@@ -22,7 +22,7 @@ namespace KGySoft.Drawing
     {
         #region Fields
 
-        private static readonly int[] iconSizes = new[] { 256, 128, 64, 48, 40, 32, 24, 20, 16, 8, 4 };
+        private static readonly int[] iconSizes = { 512, 384, 320, 256, 128, 96, 80, 72, 64, 60, 48, 40, 36, 32, 30, 24, 20, 16, 8, 4 };
 
         #endregion
 
@@ -321,7 +321,7 @@ namespace KGySoft.Drawing
             // second try: guessing by official sizes (every size will be extracted with the same pixel format)
             List<Bitmap> result = new List<Bitmap>();
             int nextSize = iconSizes[0];
-            HashSet<Size> foudSizes = new HashSet<Size>();
+            HashSet<long> foundSizes = new HashSet<long>();
             HashSet<int> testedSizes = new HashSet<int>();
             do
             {
@@ -332,7 +332,7 @@ namespace KGySoft.Drawing
                 iconSize = image.Size;
 
                 // a new resolution has been found
-                if (!foudSizes.Contains(iconSize))
+                if (!foundSizes.Contains((long)iconSize.Width << 32 | (uint)iconSize.Height))
                 {
                     if (testImage.Size != iconSize)
                     {
@@ -341,7 +341,7 @@ namespace KGySoft.Drawing
                     }
 
                     result.Add(testImage);
-                    foudSizes.Add(iconSize);
+                    foundSizes.Add((long)iconSize.Width << 32 | (uint)iconSize.Height);
                 }
                 else
                     testImage.Dispose();

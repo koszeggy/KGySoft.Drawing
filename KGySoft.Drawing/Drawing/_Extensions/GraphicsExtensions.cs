@@ -103,56 +103,56 @@ namespace KGySoft.Drawing
             }
         }
 
-        /// <summary>
-        /// Sets requested <paramref name="quality"/> for a <see cref="Graphics"/> instance.
-        /// </summary>
-        /// <param name="graphics">The graphics to set the quality.</param>
-        /// <param name="quality">Requested quality.</param>
-        /// <param name="useGdiPlusTextRendering"><see langword="true"/>, when GDI+ is required for text rendering instead of GDI (that is, when <c>UseCompatibleTextRendering</c> is <see langword="true"/>&#160;for a control).</param>
-        public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
-        {
-            if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
+        ///// <summary>
+        ///// Sets requested <paramref name="quality"/> for a <see cref="Graphics"/> instance.
+        ///// </summary>
+        ///// <param name="graphics">The graphics to set the quality.</param>
+        ///// <param name="quality">Requested quality.</param>
+        ///// <param name="useGdiPlusTextRendering"><see langword="true"/>, when GDI+ is required for text rendering instead of GDI (that is, when <c>UseCompatibleTextRendering</c> is <see langword="true"/>&#160;for a control).</param>
+        //public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
+        //{
+        //    if (graphics == null)
+        //        throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
 
-            graphics.TextContrast = 4;
-            switch (quality)
-            {
-                case RenderingQuality.SystemDefault:
-                    graphics.SmoothingMode = SmoothingMode.Default;
-                    graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
-                    graphics.InterpolationMode = InterpolationMode.Default;
-                    graphics.CompositingQuality = CompositingQuality.Default;
-                    //graphics.PixelOffsetMode = PixelOffsetMode.Default;
-                    break;
-                case RenderingQuality.Low:
-                    graphics.SmoothingMode = SmoothingMode.None;
-                    // with GDI, SingleBitPerPixelGridFit is replaced by ClearType
-                    graphics.TextRenderingHint = useGdiPlusTextRendering ? TextRenderingHint.SingleBitPerPixelGridFit : TextRenderingHint.AntiAlias;
-                    graphics.TextContrast = 0;
-                    graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-                    graphics.CompositingQuality = CompositingQuality.HighSpeed;
-                    //graphics.PixelOffsetMode = PixelOffsetMode.None;
-                    break;
-                case RenderingQuality.Medium:
-                    graphics.SmoothingMode = SmoothingMode.AntiAlias;
-                    //graphics.TextRenderingHint = useGdiPlusTextRendering ? TextRenderingHint.AntiAlias : TextRenderingHint.ClearTypeGridFit;
-                    graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-                    graphics.InterpolationMode = InterpolationMode.Bilinear;
-                    graphics.CompositingQuality = CompositingQuality.AssumeLinear;
-                    //graphics.PixelOffsetMode = PixelOffsetMode.Half;
-                    break;
-                case RenderingQuality.High:
-                    graphics.SmoothingMode = SmoothingMode.HighQuality;
-                    //graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                    graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-                    graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    graphics.CompositingQuality = CompositingQuality.HighQuality;
-                    //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(quality), Res.EnumOutOfRange(quality));
-            }
-        }
+        //    graphics.TextContrast = 4;
+        //    switch (quality)
+        //    {
+        //        case RenderingQuality.SystemDefault:
+        //            graphics.SmoothingMode = SmoothingMode.Default;
+        //            graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
+        //            graphics.InterpolationMode = InterpolationMode.Default;
+        //            graphics.CompositingQuality = CompositingQuality.Default;
+        //            //graphics.PixelOffsetMode = PixelOffsetMode.Default;
+        //            break;
+        //        case RenderingQuality.Low:
+        //            graphics.SmoothingMode = SmoothingMode.None;
+        //            // with GDI, SingleBitPerPixelGridFit is replaced by ClearType
+        //            graphics.TextRenderingHint = useGdiPlusTextRendering ? TextRenderingHint.SingleBitPerPixelGridFit : TextRenderingHint.AntiAlias;
+        //            graphics.TextContrast = 0;
+        //            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
+        //            graphics.CompositingQuality = CompositingQuality.HighSpeed;
+        //            //graphics.PixelOffsetMode = PixelOffsetMode.None;
+        //            break;
+        //        case RenderingQuality.Medium:
+        //            graphics.SmoothingMode = SmoothingMode.AntiAlias;
+        //            //graphics.TextRenderingHint = useGdiPlusTextRendering ? TextRenderingHint.AntiAlias : TextRenderingHint.ClearTypeGridFit;
+        //            graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
+        //            graphics.InterpolationMode = InterpolationMode.Bilinear;
+        //            graphics.CompositingQuality = CompositingQuality.AssumeLinear;
+        //            //graphics.PixelOffsetMode = PixelOffsetMode.Half;
+        //            break;
+        //        case RenderingQuality.High:
+        //            graphics.SmoothingMode = SmoothingMode.HighQuality;
+        //            //graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+        //            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
+        //            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+        //            graphics.CompositingQuality = CompositingQuality.HighQuality;
+        //            //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+        //            break;
+        //        default:
+        //            throw new ArgumentOutOfRangeException(nameof(quality), Res.EnumOutOfRange(quality));
+        //    }
+        //}
 
         /// <summary>
         /// Copies the  <see cref="Graphics"/> object provided in <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.

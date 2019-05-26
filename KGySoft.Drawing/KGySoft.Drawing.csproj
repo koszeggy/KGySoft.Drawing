@@ -70,13 +70,14 @@
     <Reference Include="System.Drawing" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ComponentModel\__doc\NamespaceDoc.cs" />
     <Compile Include="Drawing\WinApi\_Enums\BitmapCompressionMode.cs" />
     <Compile Include="Drawing\WinApi\_Enums\SGHFI.cs" />
     <Compile Include="Drawing\_Classes\CursorHandle.cs" />
     <Compile Include="Drawing\_Classes\Icons.cs" />
     <Compile Include="Drawing\_Classes\RawIcon.cs" />
     <Compile Include="ComponentModel\AdvancedImageConverter.cs" />
-    <Compile Include="Drawing\_Enums\RenderingQuality.cs" />
+    <Compile Include="Drawing\_Enums\StockIconId.cs" />
     <Compile Include="Drawing\_Enums\SystemIconSize.cs" />
     <Compile Include="Drawing\_Extensions\BitmapExtensions.cs" />
     <Compile Include="Drawing\_Extensions\GraphicsExtensions.cs" />
@@ -84,6 +85,7 @@
     <Compile Include="Drawing\_Extensions\ImageExtensions.cs" />
     <Compile Include="Drawing\_Extensions\MetafileExtensions.cs" />
     <Compile Include="Drawing\_Extensions\PixelFormatExtensions.cs" />
+    <Compile Include="Drawing\__doc\NamespaceDoc.cs" />
     <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Drawing\WinApi\_Structures\BITMAP.cs" />
@@ -127,37 +129,37 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\SecurityShieldIcon.ico" />
+    <None Include="Resources\SecurityShield.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ShieldIcon.ico" />
+    <None Include="Resources\Shield.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\InformationIcon.ico" />
+    <None Include="Resources\Information.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\WarningIcon.ico" />
+    <None Include="Resources\Warning.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\QuestionIcon.ico" />
+    <None Include="Resources\Question.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ErrorIcon.ico" />
+    <None Include="Resources\Error.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\SecurityErrorIcon.ico" />
+    <None Include="Resources\SecurityError.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\SecurityQuestionIcon.ico" />
+    <None Include="Resources\SecurityQuestion.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\SecuritySuccessIcon.ico" />
+    <None Include="Resources\SecuritySuccess.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\SecurityWarningIcon.ico" />
+    <None Include="Resources\SecurityWarning.ico" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\ApplicationIcon.ico" />
+    <None Include="Resources\Application.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

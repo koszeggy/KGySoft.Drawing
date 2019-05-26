@@ -28,8 +28,6 @@ namespace KGySoft.Drawing
         #region Fields
 
         private static FieldAccessor iconData;
-        private static readonly Size size16 = new Size(16, 16);
-        private static readonly Size size32 = new Size(32, 32);
 
         #endregion
 
@@ -322,23 +320,6 @@ namespace KGySoft.Drawing
         /// Extracts every image of specified size from an <see cref="Icon"/> instance.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="size">The required icon size to retrieve</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
-        /// <returns>An array of <see cref="Bitmap"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
-        /// <seealso cref="ExtractIcons(Icon,SystemIconSize)"/>
-        public static Bitmap[] ExtractBitmaps(this Icon icon, SystemIconSize size, bool keepOriginalFormat)
-        {
-            if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
-
-            return ExtractBitmaps(icon, size == SystemIconSize.Small ? size16 : size32, null, keepOriginalFormat);
-        }
-
-        /// <summary>
-        /// Extracts every image of specified size from an <see cref="Icon"/> instance.
-        /// </summary>
-        /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
@@ -382,24 +363,6 @@ namespace KGySoft.Drawing
         /// Extracts the first image of specified size from an <see cref="Icon"/> instance.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="size">The required icon size to retrieve</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
-        /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
-        /// or <see langword="null"/>&#160;if no icon found of the specified size.</returns>
-        /// <seealso cref="ExtractIcon(Icon,SystemIconSize)"/>
-        public static Bitmap ExtractBitmap(this Icon icon, SystemIconSize size, bool keepOriginalFormat)
-        {
-            if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
-
-            return ExtractBitmaps(icon, size == SystemIconSize.Small ? size16 : size32, null, keepOriginalFormat).FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Extracts the first image of specified size from an <see cref="Icon"/> instance.
-        /// </summary>
-        /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
@@ -409,22 +372,6 @@ namespace KGySoft.Drawing
         public static Bitmap ExtractBitmap(this Icon icon, Size size, bool keepOriginalFormat)
         {
             return ExtractBitmaps(icon, size, null, keepOriginalFormat).FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Extracts the image of specified size and pixel format from an <see cref="Icon"/> instance.
-        /// </summary>
-        /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="size">The required icon size to retrieve</param>
-        /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="keepOriginalFormat">If <see langword="true"/>, keeps the original image format. Possible transparent pixels of
-        /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency.</param>
-        /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
-        /// or <see langword="null"/>&#160;if no icon found of the specified size and format.</returns>
-        /// <seealso cref="ExtractIcon(Icon,SystemIconSize,PixelFormat)"/>
-        public static Bitmap ExtractBitmap(this Icon icon, SystemIconSize size, PixelFormat pixelFormat, bool keepOriginalFormat)
-        {
-            return ExtractBitmaps(icon, size == SystemIconSize.Small ? size16 : size32, pixelFormat.ToBitsPerPixel(), keepOriginalFormat).FirstOrDefault();
         }
 
         /// <summary>
@@ -510,21 +457,6 @@ namespace KGySoft.Drawing
         /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="size">The required icon size to retrieve</param>
-        /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
-        /// <seealso cref="ExtractBitmaps(Icon,SystemIconSize,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon, SystemIconSize size)
-        {
-            if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
-
-            return ExtractIcons(icon, size == SystemIconSize.Small ? size16 : size32, null);
-        }
-
-        /// <summary>
-        /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
-        /// </summary>
-        /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
         /// <seealso cref="ExtractBitmaps(Icon,Size,bool)"/>
@@ -550,23 +482,6 @@ namespace KGySoft.Drawing
         /// Unless constructors of <seealso cref="Icon"/> class, this method really works.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="size">The required icon size to retrieve</param>
-        /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if no icon found of the specified size.</returns>
-        /// <seealso cref="ExtractBitmap(Icon,SystemIconSize,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, SystemIconSize size)
-        {
-            if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
-
-            return ExtractIcons(icon, size == SystemIconSize.Small ? size16 : size32, null).FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Extracts the first icon of specified size from an <see cref="Icon"/> instance.
-        /// Unless constructors of <seealso cref="Icon"/> class, this method really works.
-        /// </summary>
-        /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found of the specified size.</returns>
@@ -574,21 +489,6 @@ namespace KGySoft.Drawing
         public static Icon ExtractIcon(this Icon icon, Size size)
         {
             return ExtractIcons(icon, size, null).FirstOrDefault();
-        }
-
-        /// <summary>
-        /// Extracts the icon of specified size and pixel format from an <see cref="Icon"/> instance.
-        /// Unless constructors of <seealso cref="Icon"/> class, this method really works.
-        /// </summary>
-        /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="size">The required icon size to retrieve</param>
-        /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if no icon found of the specified size and format.</returns>
-        /// <seealso cref="ExtractBitmap(Icon,SystemIconSize,PixelFormat,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, SystemIconSize size, PixelFormat pixelFormat)
-        {
-            return ExtractIcons(icon, size == SystemIconSize.Small ? size16 : size32, pixelFormat.ToBitsPerPixel()).FirstOrDefault();
         }
 
         /// <summary>

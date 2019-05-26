@@ -82,7 +82,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="psii">A pointer to a <see cref="SHSTOCKICONINFO"/> structure. When this function is called, the cbSize member of this structure needs to be set to the size of the SHSTOCKICONINFO structure. When this function returns, contains a pointer to a SHSTOCKICONINFO structure that contains the requested information.</param>
             /// <returns>HRESULT</returns>
             [DllImport("Shell32.dll", SetLastError = false)]
-            internal static extern int SHGetStockIconInfo(int siid, SHGSI uFlags, ref SHSTOCKICONINFO psii);
+            internal static extern int SHGetStockIconInfo(StockIconId siid, SHGSI uFlags, ref SHSTOCKICONINFO psii);
         }
 
         internal static IntPtr[][] ExtractIconHandles(string fileName, SystemIconSize? size)
@@ -116,7 +116,7 @@ namespace KGySoft.Drawing.WinApi
             return tempFileInfo.hIcon;
         }
 
-        internal static IntPtr GetStockIconHandle(int id, SystemIconSize size)
+        internal static IntPtr GetStockIconHandle(StockIconId id, SystemIconSize size)
         {
             var iconInfo = new SHSTOCKICONINFO { cbSize = (uint)Marshal.SizeOf(typeof(SHSTOCKICONINFO)) };
             return NativeMethods.SHGetStockIconInfo(id, SHGSI.SHGSI_ICON | (SHGSI)size, ref iconInfo) == 0 ? iconInfo.hIcon : IntPtr.Zero;

@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
@@ -45,7 +44,7 @@ namespace KGySoft.Drawing
         #region Properties
 
         /// <summary>
-        /// Gets a value indicating whether the handle value is invalid.
+        /// Gets whether the handle value is invalid.
         /// </summary>
         public override bool IsInvalid
         {
@@ -61,6 +60,7 @@ namespace KGySoft.Drawing
         /// Performs an implicit conversion from <see cref="CursorHandle"/> to <see cref="IntPtr"/>.
         /// </summary>
         /// <param name="cursorHandle">The cursor handle.</param>
+        /// <returns>An <see cref="IntPtr"/> instance representing the native cursor handle.</returns>
         [SecurityCritical]
         [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "The named alternative method is DangerousGetHandle, which is in the base.")]
         public static implicit operator IntPtr(CursorHandle cursorHandle) => cursorHandle?.DangerousGetHandle() ?? IntPtr.Zero;
@@ -69,10 +69,7 @@ namespace KGySoft.Drawing
 
         #region Constructors
 
-        internal CursorHandle(IntPtr handle) : base(IntPtr.Zero, true)
-        {
-            SetHandle(handle);
-        }
+        internal CursorHandle(IntPtr handle) : base(IntPtr.Zero, true) => SetHandle(handle);
 
         #endregion
 

@@ -22,7 +22,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Globalization;
 using System.Resources;
-using System.Runtime.InteropServices;
 using System.Security;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
@@ -36,30 +35,11 @@ namespace KGySoft.Drawing
     /// </summary>
     public static class Icons
     {
-        #region Enumerations
-
-        private enum IconId
-        {
-            Application = 2,
-            Question = 23,
-            Shield = 77,
-            Warning = 78,
-            Information = 79,
-            Error = 80,
-            SecurityQuestion = -1,
-            SecurityWarning = -2,
-            SecurityError = -3,
-            SecuritySuccess = -4,
-            SecurityShield = -5,
-        }
-
-        #endregion
-
         #region Fields
 
         private static ResourceManager resourceManager;
-        private static readonly Dictionary<IconId, RawIcon> systemIconsCache = new Dictionary<IconId, RawIcon>(EnumComparer<IconId>.Comparer);
-        private static readonly Dictionary<IconId, RawIcon> resourceIconsCache = new Dictionary<IconId, RawIcon>(EnumComparer<IconId>.Comparer);
+        private static readonly Dictionary<StockIconId, RawIcon> systemIconsCache = new Dictionary<StockIconId, RawIcon>(EnumComparer<StockIconId>.Comparer);
+        private static readonly Dictionary<string, RawIcon> resourceIconsCache = new Dictionary<string, RawIcon>();
 
         #endregion
 
@@ -85,7 +65,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/InformationXP16.png" alt="Information Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemInformation => GetSystemIcon(IconId.Information, () => SystemIcons.Information);
+        public static Icon SystemInformation => GetSystemIcon(StockIconId.Information, () => SystemIcons.Information);
 
         /// <summary>
         /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
@@ -105,7 +85,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/WarningXP16.png" alt="Warning Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemWarning => GetSystemIcon(IconId.Warning, () => SystemIcons.Warning);
+        public static Icon SystemWarning => GetSystemIcon(StockIconId.Warning, () => SystemIcons.Warning);
 
         /// <summary>
         /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
@@ -125,7 +105,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ErrorXP16.png" alt="Error Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemError => GetSystemIcon(IconId.Error, () => SystemIcons.Error);
+        public static Icon SystemError => GetSystemIcon(StockIconId.Error, () => SystemIcons.Error);
 
         /// <summary>
         /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
@@ -145,7 +125,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/QuestionXP16.png" alt="Question Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemQuestion => GetSystemIcon(IconId.Question, () => SystemIcons.Question);
+        public static Icon SystemQuestion => GetSystemIcon(StockIconId.Help, () => SystemIcons.Question);
 
         /// <summary>
         /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
@@ -165,7 +145,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ApplicationXP16.png" alt="Application Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemApplication => GetSystemIcon(IconId.Application, () => SystemIcons.Application);
+        public static Icon SystemApplication => GetSystemIcon(StockIconId.Application, () => SystemIcons.Application);
 
         /// <summary>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield (small version for the summary)"/>
@@ -192,7 +172,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ShieldXP16.png" alt="Shield Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemShield => GetSystemIcon(IconId.Shield, () => SystemIcons.Shield);
+        public static Icon SystemShield => GetSystemIcon(StockIconId.Shield, () => SystemIcons.Shield);
 
         /// <summary>
         /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
@@ -207,7 +187,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Information => GetResourceIcon(IconId.Information);
+        public static Icon Information => GetResourceIcon(nameof(Information));
 
         /// <summary>
         /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
@@ -222,7 +202,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Warning => GetResourceIcon(IconId.Warning);
+        public static Icon Warning => GetResourceIcon(nameof(Warning));
 
         /// <summary>
         /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
@@ -238,7 +218,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Question => GetResourceIcon(IconId.Question);
+        public static Icon Question => GetResourceIcon(nameof(Question));
 
         /// <summary>
         /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
@@ -254,7 +234,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Error => GetResourceIcon(IconId.Error);
+        public static Icon Error => GetResourceIcon(nameof(Error));
 
         /// <summary>
         /// <img src="../Help/Images/Shield16.png" alt="Shield (small version for the summary)"/>
@@ -272,7 +252,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Shield8.png" alt="Security Shield 8x8"/>
         /// </para>
         /// </remarks>
-        public static Icon Shield => GetResourceIcon(IconId.Shield);
+        public static Icon Shield => GetResourceIcon(nameof(Shield));
 
         /// <summary>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Security Shield (small version for the summary)"/>
@@ -290,7 +270,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityShield8.png" alt="Security Shield 8x8"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityShield => GetResourceIcon(IconId.SecurityShield);
+        public static Icon SecurityShield => GetResourceIcon(nameof(SecurityShield));
 
         /// <summary>
         /// <img src="../Help/Images/SecuritySuccess16.png" alt="Security Success (small version for the summary)"/>
@@ -306,7 +286,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecuritySuccess16.png" alt="Security Success 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecuritySuccess => GetResourceIcon(IconId.SecuritySuccess);
+        public static Icon SecuritySuccess => GetResourceIcon(nameof(SecuritySuccess));
 
         /// <summary>
         /// <img src="../Help/Images/SecurityWarning16.png" alt="Security Warning (small version for the summary)"/>
@@ -322,7 +302,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityWarning16.png" alt="Security Warning 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityWarning => GetResourceIcon(IconId.SecurityWarning);
+        public static Icon SecurityWarning => GetResourceIcon(nameof(SecurityWarning));
 
         /// <summary>
         /// <img src="../Help/Images/SecurityQuestion16.png" alt="Security Question (small version for the summary)"/>
@@ -338,7 +318,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityQuestion16.png" alt="Security Question 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityQuestion => GetResourceIcon(IconId.SecurityQuestion);
+        public static Icon SecurityQuestion => GetResourceIcon(nameof(SecurityQuestion));
 
         /// <summary>
         /// <img src="../Help/Images/SecurityError16.png" alt="Security Error (small version for the summary)"/>
@@ -354,7 +334,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityError16.png" alt="Security Error 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SecurityError => GetResourceIcon(IconId.SecurityError);
+        public static Icon SecurityError => GetResourceIcon(nameof(SecurityError));
 
         /// <summary>
         /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
@@ -370,7 +350,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application16.png" alt="Application 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon Application => GetResourceIcon(IconId.Application);
+        public static Icon Application => GetResourceIcon(nameof(Application));
 
         #endregion
 
@@ -384,58 +364,77 @@ namespace KGySoft.Drawing
 
         #region Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Tries to get a system stock icon. When there is no icon defined for provided <paramref name="id"/>,
+        /// or Windows version is below Vista, this method returns <see langword="null"/>.
+        /// On Windows XP use the predefined property members to retrieve system icons.
+        /// </summary>
+        /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIconId"/> values are also allowed.</param>
+        /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
+        /// when no icon found, or Windows version is below Vista.</returns>
+        public static Icon GetStockIcon(StockIconId id) => GetSystemIcon(id, null);
+
+        #endregion
+
+        #region Private Methods
+
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        private static Icon GetSystemIcon(IconId id, Func<Icon> getLegacyIcon)
+        private static Icon GetSystemIcon(StockIconId id, Func<Icon> getLegacyIcon)
         {
-            if (!systemIconsCache.TryGetValue(id, out RawIcon result))
+            RawIcon result;
+            lock (systemIconsCache)
             {
-                result = GetSystemIconById(id) ?? ToCombinedIcon(getLegacyIcon.Invoke());
-                systemIconsCache[id] = result;
+                if (!systemIconsCache.TryGetValue(id, out result))
+                {
+                    result = DoGetStockIcon(id);
+                    if (result == null && getLegacyIcon != null)
+                        result = ToCombinedIcon(getLegacyIcon.Invoke());
+                    systemIconsCache[id] = result;
+                }
             }
 
-            return result.ToIcon();
+            return result?.ToIcon();
         }
 
 #if !NET35
         [SecuritySafeCritical]
 #endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must be disposed by the caller.")]
-        private static Icon GetResourceIcon(IconId id)
+        private static Icon GetResourceIcon(string resourceName)
         {
-            if (!resourceIconsCache.TryGetValue(id, out RawIcon result))
+            RawIcon result;
+            lock (resourceIconsCache)
             {
-                result = new RawIcon((Icon)ResourceManager.GetObject(Enum<IconId>.ToString(id) + "Icon", CultureInfo.InvariantCulture));
-                resourceIconsCache[id] = result;
+                if (!resourceIconsCache.TryGetValue(resourceName, out result))
+                {
+                    result = new RawIcon((Icon)ResourceManager.GetObject(resourceName, CultureInfo.InvariantCulture));
+                    resourceIconsCache[resourceName] = result;
+                }
+
             }
 
             return result.ToIcon();
         }
 
-        /// <summary>
-        /// Tries to get the system icon by id. When there is no icon defined for provided <paramref name="id"/>,
-        /// or Windows version is below Vista, this method returns <see langword="null"/>.
-        /// On Windows XP use the predefined property members to retrieve system icons.
-        /// </summary>
-        /// <param name="id">Id of the icon to retrieve.</param>
-        /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
-        /// when no icon found, or Windows version is below Vista.</returns>
         [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
-        private static RawIcon GetSystemIconById(IconId id)
+        private static RawIcon DoGetStockIcon(StockIconId id)
         {
             if (id < 0 || !WindowsUtils.IsVistaOrLater)
                 return null;
 
-            IntPtr largeHandle = Shell32.GetStockIconHandle((int)id, SystemIconSize.Large);
+            IntPtr largeHandle = Shell32.GetStockIconHandle(id, SystemIconSize.Large);
             if (largeHandle == IntPtr.Zero)
                 return null;
 
             var result = new RawIcon(Icon.FromHandle(largeHandle));
             User32.DestroyIcon(largeHandle);
 
-            IntPtr smallHandle = Shell32.GetStockIconHandle((int)id, SystemIconSize.Small);
+            IntPtr smallHandle = Shell32.GetStockIconHandle(id, SystemIconSize.Small);
             if (largeHandle == IntPtr.Zero)
                 return result;
 
@@ -459,6 +458,8 @@ namespace KGySoft.Drawing
             imageSmall.Dispose();
             return result;
         }
+
+        #endregion
 
         #endregion
     }

@@ -31,7 +31,7 @@ using KGySoft.Drawing;
 namespace KGySoft.ComponentModel
 {
     /// <summary>
-    /// Represents a class that can preserve the original format of images better than by the <see cref="ImageConverter"/> class when converting <see cref="Bitmap"/>,
+    /// Provides a converter for <see cref="Image"/> instances that can preserve the original format of images better than the <see cref="ImageConverter"/> class when converting <see cref="Bitmap"/>,
     /// <see cref="Metafile"/> and <see cref="Icon"/> images.
     /// </summary>
     public class AdvancedImageConverter : ImageConverter

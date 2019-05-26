@@ -1,7 +1,6 @@
 ﻿#region Used namespaces
 
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Collections.ObjectModel;
 using System.Drawing.Imaging;
@@ -22,7 +21,7 @@ namespace KGySoft.Drawing
 {
     /// <summary>
     /// Provides low-level support for an icon. This class is internal because it can process and produce <see cref="Icon"/> and <see cref="Bitmap"/>
-    /// instances and every of its functionality is accessible via extensions on these classes.
+    /// instances and every functionality is accessible via extensions for those classes.
     /// </summary>
     internal sealed class RawIcon : IDisposable
     {
