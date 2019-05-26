@@ -30,9 +30,9 @@ namespace KGySoft.Drawing
         public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics));
+                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
             if (pen == null)
-                throw new ArgumentNullException(nameof(pen));
+                throw new ArgumentNullException(nameof(pen), Res.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
             {
@@ -50,9 +50,9 @@ namespace KGySoft.Drawing
         public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int cornerRadius)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics));
+                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
             if (pen == null)
-                throw new ArgumentNullException(nameof(pen));
+                throw new ArgumentNullException(nameof(pen), Res.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, cornerRadius))
             {
@@ -73,9 +73,9 @@ namespace KGySoft.Drawing
         public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics));
+                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
             if (brush == null)
-                throw new ArgumentNullException(nameof(brush));
+                throw new ArgumentNullException(nameof(brush), Res.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
             {
@@ -93,9 +93,9 @@ namespace KGySoft.Drawing
         public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int cornerRadius)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics));
+                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
             if (brush == null)
-                throw new ArgumentNullException(nameof(brush));
+                throw new ArgumentNullException(nameof(brush), Res.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, cornerRadius))
             {
@@ -112,7 +112,7 @@ namespace KGySoft.Drawing
         public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics));
+                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
 
             graphics.TextContrast = 4;
             switch (quality)
@@ -150,7 +150,7 @@ namespace KGySoft.Drawing
                     //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
                     break;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(quality));
+                    throw new ArgumentOutOfRangeException(nameof(quality), Res.EnumOutOfRange(quality));
             }
         }
 
@@ -169,7 +169,7 @@ namespace KGySoft.Drawing
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics));
+                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
 
             if (visibleClipOnly && graphics.IsVisibleClipEmpty)
                 return null;

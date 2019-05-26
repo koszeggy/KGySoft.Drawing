@@ -128,10 +128,7 @@ namespace KGySoft.Drawing
         public static Icon IconFromImage(Image image, int size, bool keepAspectRatio)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image));
-
-            if (size < 1 || size > 256)
-                throw new ArgumentOutOfRangeException(nameof(size));
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
 
             Bitmap bitmap;
             if (size == image.Width && size == image.Height && (bitmap = image as Bitmap) != null)
@@ -216,7 +213,7 @@ namespace KGySoft.Drawing
         public static Bitmap ToAlphaBitmap(this Icon icon)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
 
             User32.GetIconInfo(icon.Handle, out ICONINFO iconInfo);
             try
@@ -333,7 +330,7 @@ namespace KGySoft.Drawing
         public static Bitmap[] ExtractBitmaps(this Icon icon, SystemIconSize size, bool keepOriginalFormat)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size));
+                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
 
             return ExtractBitmaps(icon, size == SystemIconSize.Small ? size16 : size32, null, keepOriginalFormat);
         }
@@ -394,7 +391,7 @@ namespace KGySoft.Drawing
         public static Bitmap ExtractBitmap(this Icon icon, SystemIconSize size, bool keepOriginalFormat)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size));
+                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
 
             return ExtractBitmaps(icon, size == SystemIconSize.Small ? size16 : size32, null, keepOriginalFormat).FirstOrDefault();
         }
@@ -462,9 +459,9 @@ namespace KGySoft.Drawing
         public static Bitmap ExtractBitmap(this Icon icon, int index, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index), Res.ArgumentOutOfRange);
 
             using (RawIcon rawIcon = new RawIcon(icon, null, null, index))
             {
@@ -489,7 +486,7 @@ namespace KGySoft.Drawing
         public static Bitmap ExtractNearestBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -519,7 +516,7 @@ namespace KGySoft.Drawing
         public static Icon[] ExtractIcons(this Icon icon, SystemIconSize size)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size));
+                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
 
             return ExtractIcons(icon, size == SystemIconSize.Small ? size16 : size32, null);
         }
@@ -560,7 +557,7 @@ namespace KGySoft.Drawing
         public static Icon ExtractIcon(this Icon icon, SystemIconSize size)
         {
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size));
+                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
 
             return ExtractIcons(icon, size == SystemIconSize.Small ? size16 : size32, null).FirstOrDefault();
         }
@@ -623,9 +620,9 @@ namespace KGySoft.Drawing
         public static Icon ExtractIcon(this Icon icon, int index)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index));
+                throw new ArgumentOutOfRangeException(nameof(index), Res.ArgumentOutOfRange);
 
             using (RawIcon rawIcon = new RawIcon(icon, null, null, index))
             {
@@ -649,7 +646,7 @@ namespace KGySoft.Drawing
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -661,7 +658,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
-        /// <returns>An <see cref="Icon"/> instace that contains every image of the source <paramref name="icons"/>.</returns>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -669,7 +666,7 @@ namespace KGySoft.Drawing
         public static Icon Combine(this Icon icon, params Icon[] icons)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             if (icons == null || icons.Length == 0)
                 return icon;
 
@@ -724,7 +721,7 @@ namespace KGySoft.Drawing
         public static Icon Combine(this Icon icon, params Bitmap[] images)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             if (images == null || images.Length == 0)
                 return icon;
 
@@ -780,7 +777,7 @@ namespace KGySoft.Drawing
         public static Icon Combine(this Icon icon, Bitmap image, Color transparentColor)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             if (image == null)
                 return icon;
 
@@ -797,17 +794,17 @@ namespace KGySoft.Drawing
         /// <param name="images">The images to be added to the icon. Images can be non-square ones, but cannot be larger than 256x256.</param>
         /// <param name="transparentColors">An array of transparent colors of the images. The array must have as many elements as <paramref name="images"/>.</param>
         /// <returns>
-        /// An <see cref="Icon" /> instace that contains every image of the source <paramref name="images" />.
+        /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
         /// </returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif
         public static Icon Combine(Bitmap[] images, Color[] transparentColors)
         {
-            int imageCount = images == null ? 0 : images.Length;
-            int colorCount = transparentColors == null ? 0 : transparentColors.Length;
+            int imageCount = images?.Length ?? 0;
+            int colorCount = transparentColors?.Length ?? 0;
             if (imageCount != colorCount)
-                throw new ArgumentException("Length of images and transparentColors must be the same");
+                throw new ArgumentException(Res.IconExtensionsImagesColorsDifferentLength);
 
             if (images == null || transparentColors == null || imageCount == 0)
                 return null;
@@ -835,9 +832,9 @@ namespace KGySoft.Drawing
         public static void SaveHighQuality(this Icon icon, Stream stream)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
+                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
 
             using (RawIcon rawIcon = new RawIcon(icon))
             {
@@ -860,7 +857,7 @@ namespace KGySoft.Drawing
         public static CursorHandle ToCursorHandle(this Icon icon, Point cursorHotspot = default(Point))
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
 
             return ToCursorHandle(icon.Handle, cursorHotspot);
         }
@@ -932,7 +929,7 @@ namespace KGySoft.Drawing
         private static Bitmap[] ExtractBitmaps(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
 
             using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
             {

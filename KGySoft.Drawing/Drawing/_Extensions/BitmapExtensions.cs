@@ -37,10 +37,10 @@ namespace KGySoft.Drawing
         public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image));
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
 
             if (newSize.Width < 1 || newSize.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(newSize));
+                throw new ArgumentOutOfRangeException(nameof(newSize), Res.ArgumentOutOfRange);
 
             Size targetSize = newSize;
             Size sourceSize = image.Size;
@@ -185,7 +185,7 @@ namespace KGySoft.Drawing
         /// Gets the colors used in the defined <paramref name="bitmap"/>. A limit can be defined in <paramref name="maxColors"/>.
         /// </summary>
         /// <param name="bitmap">The bitmap to get its colors. When it is indexed, its palette is returned and <paramref name="maxColors"/> is ignored.</param>
-        /// <param name="maxColors">A limit of the returned maximum entry.</param>
+        /// <param name="maxColors">A limit of the returned colors. This parameter is ignored for indexed bitmaps. 0 means no limit.</param>
         /// <remarks>The method is optimized for <see cref="PixelFormat.Format32bppRgb"/> and <see cref="PixelFormat.Format32bppArgb"/> formats.</remarks>
         /// <returns>An array of <see cref="Color"/> entries.</returns>
 #if !NET35
@@ -194,9 +194,11 @@ namespace KGySoft.Drawing
         public static Color[] GetColors(this Bitmap bitmap, int maxColors)
         {
             if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap));
+                throw new ArgumentNullException(nameof(bitmap), Res.ArgumentNull);
             if (maxColors < 0)
-                throw new ArgumentOutOfRangeException(nameof(maxColors));
+                throw new ArgumentOutOfRangeException(nameof(maxColors), Res.ArgumentOutOfRange);
+            if (maxColors == 0)
+                maxColors = Int32.MaxValue;
 
             HashSet<int> colors = new HashSet<int>();
             PixelFormat pixelFormat = bitmap.PixelFormat;
@@ -282,7 +284,7 @@ namespace KGySoft.Drawing
         public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default(Point))
         {
             if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap));
+                throw new ArgumentNullException(nameof(bitmap), Res.ArgumentNull);
 
             IntPtr iconHandle = bitmap.GetHicon();
             try

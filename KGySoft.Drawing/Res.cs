@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Linq;
 using System.Text;
@@ -44,6 +45,15 @@ namespace KGySoft
         /// <summary>Input string contains an invalid value.</summary>
         internal static string ArgumentInvalidString => Get("General_ArgumentInvalidString");
 
+        /// <summary>Specified argument was out of the range of valid values.</summary>
+        internal static string ArgumentOutOfRange => Get("General_ArgumentOutOfRange");
+
+        /// <summary>Specified argument contains a null element.</summary>
+        internal static string ArgumentContainsNull => Get("General_ArgumentContainsNull");
+
+        /// <summary>Cannot access a disposed object.</summary>
+        internal static string ObjectDisposed => Get("General_ObjectDisposed");
+
         #endregion
 
         #region Gdi32
@@ -60,6 +70,33 @@ namespace KGySoft
         /// <summary>Invalid Enhanced Metafile handle.</summary>
         internal static string Gdi32InvalidEmfHandle => Get("Gdi32_InvalidEmfHandle");
 
+        #endregion
+
+        #region IconExtensions
+
+        /// <summary>Length of images and transparentColors must be the same.</summary>
+        internal static string IconExtensionsImagesColorsDifferentLength => Get("IconExtensions_ImagesColorsDifferentLength");
+
+        #endregion
+
+        #region ImageExtensions
+
+        /// <summary>TIFF encoder not found.</summary>
+        internal static string ImageExtensionsNoTiffEncoder => Get("ImageExtensions_NoTiffEncoder");
+
+        #endregion
+
+        #region RawIcon
+
+        /// <summary>Too many images in the icon collection.</summary>
+        internal static string RawIconTooManyImages => Get("RawIcon_TooManyImages");
+
+        /// <summary>Bad icon format.</summary>
+        internal static string RawIconBadIconFormat => Get("RawIcon_BadIconFormat");
+
+        /// <summary>16/48/64 bpp images are not supported for icons.</summary>
+        internal static string RawIconUnsupportedBpp => Get("RawIcon_UnsupportedBpp");
+        
         #endregion
 
         #region User32
@@ -85,6 +122,13 @@ namespace KGySoft
 
         ///// <summary>Enum instance of '{0}' type must consist of the defined flags.</summary>
         //internal static string FlagsEnumOutOfRange<TEnum>(TEnum value = default) where TEnum : struct, IConvertible => Get("General_FlagsEnumOutOfRangeFormat", value.GetType().Name);
+
+        #endregion
+
+        #region ImageExtensions
+
+        /// <summary>Pixel format '{0}' is not supported by GDI+.</summary>
+        internal static string ImageExtensionsPixelFormatNotSupported(PixelFormat pixelFormat) => Get("ImageExtensions_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion
 

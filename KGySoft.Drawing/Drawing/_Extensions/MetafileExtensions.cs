@@ -92,10 +92,10 @@ namespace KGySoft.Drawing
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)
         {
             if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile));
+                throw new ArgumentNullException(nameof(metafile), Res.ArgumentNull);
 
             if (requestedSize.Width < 1 || requestedSize.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(requestedSize));
+                throw new ArgumentOutOfRangeException(nameof(requestedSize), Res.ArgumentOutOfRange);
 
             if (!antiAliased)
                 return new Bitmap(metafile, requestedSize);
@@ -115,9 +115,9 @@ namespace KGySoft.Drawing
         public static void Save(this Metafile metafile, Stream stream)
         {
             if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile));
+                throw new ArgumentNullException(nameof(metafile), Res.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
+                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
 
             Save(metafile, stream, false);
         }
@@ -135,9 +135,9 @@ namespace KGySoft.Drawing
         public static void Save(this Metafile metafile, Stream stream, bool forceWmfFormat)
         {
             if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile));
+                throw new ArgumentNullException(nameof(metafile), Res.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
+                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
 
             bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid;
             if (isWmf || forceWmfFormat)

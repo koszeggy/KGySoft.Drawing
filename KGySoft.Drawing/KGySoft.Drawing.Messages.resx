@@ -126,6 +126,15 @@
   <data name="General_ArgumentInvalidString" xml:space="preserve">
     <value>Input string contains an invalid value.</value>
   </data>
+  <data name="General_ArgumentOutOfRange" xml:space="preserve">
+    <value>Specified argument was out of the range of valid values.</value>
+  </data>
+  <data name="ArgumentContainsNull" xml:space="preserve">
+    <value>Specified argument contains a null element.</value>
+  </data>
+  <data name="General_ObjectDisposed" xml:space="preserve">
+    <value>Cannot access a disposed object.</value>
+  </data>
   <data name="General_EnumOutOfRangeFormat" xml:space="preserve">
     <value>Enum instance of '{0}' type must be one of the defined values.</value>
   </data>
@@ -149,5 +158,23 @@
   </data>
   <data name="User32_CreateIconIndirectFailed" xml:space="preserve">
     <value>Could not create icon or cursor.</value>
+  </data>
+  <data name="RawIcon_TooManyImages" xml:space="preserve">
+    <value>Too many images in the icon collection.</value>
+  </data>
+  <data name="RawIcon_BadIconFormat" xml:space="preserve">
+    <value>Bad icon format.</value>
+  </data>
+  <data name="RawIcon_UnsupportedBpp" xml:space="preserve">
+    <value>16/48/64 bpp images are not supported for icons.</value>
+  </data>
+  <data name="IconExtensions_ImagesColorsDifferentLength" xml:space="preserve">
+    <value>Length of images and transparentColors must be the same.</value>
+  </data>
+  <data name="ImageExtensions_PixelFormatNotSupportedFormat" xml:space="preserve">
+    <value>Pixel format '{0}' is not supported by GDI+.</value>
+  </data>
+  <data name="ImageExtensions_NoTiffEncoder" xml:space="preserve">
+    <value>TIFF encoder not found.</value>
   </data>
 </root>

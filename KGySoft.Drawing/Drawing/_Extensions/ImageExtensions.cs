@@ -11,7 +11,7 @@ using System.Linq;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
-
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
 
@@ -43,7 +43,7 @@ namespace KGySoft.Drawing
         public static Image ToGrayscale(this Image image)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image));
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
 
             //Set up the drawing surface
             Bitmap result = new Bitmap(image.Width, image.Height);
@@ -94,7 +94,9 @@ namespace KGySoft.Drawing
         public static Image ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image));
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+            if (!Enum<PixelFormat>.IsDefined(newPixelFormat))
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.EnumOutOfRange(newPixelFormat));
 
             PixelFormat sourcePixelFormat = image.PixelFormat;
             //if (sourcePixelFormat == newPixelFormat)
@@ -102,7 +104,7 @@ namespace KGySoft.Drawing
 
             int bpp = newPixelFormat.ToBitsPerPixel();
             if (newPixelFormat == PixelFormat.Format16bppArgb1555 || newPixelFormat == PixelFormat.Format16bppGrayScale)
-                throw new NotSupportedException("This pixel format is not supported by GDI+");
+                throw new NotSupportedException(Res.ImageExtensionsPixelFormatNotSupported(newPixelFormat));
 
             Bitmap result;
 
@@ -298,19 +300,19 @@ namespace KGySoft.Drawing
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
             if (images == null)
-                throw new ArgumentNullException(nameof(images));
+                throw new ArgumentNullException(nameof(images), Res.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream));
+                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
 
             ImageCodecInfo tiffEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
             if (tiffEncoder == null)
-                throw new InvalidOperationException("TIFF encoder not found");
+                throw new InvalidOperationException(Res.ImageExtensionsNoTiffEncoder);
 
             Image tiff = null;
             foreach (Image page in images)
             {
                 if (page == null)
-                    throw new ArgumentException("Collection contains null element", nameof(images));
+                    throw new ArgumentException(Res.ArgumentContainsNull, nameof(images));
 
                 using (EncoderParameters encoderParams = new EncoderParameters(3))
                 {
@@ -352,7 +354,7 @@ namespace KGySoft.Drawing
         public static int GetBitsPerPixel(this Image image)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image));
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
 
             return image.PixelFormat.ToBitsPerPixel();
         }
@@ -629,7 +631,8 @@ namespace KGySoft.Drawing
                                 transparent = sourceTransparentIndex == 0 ^ (bits & mask) != 0;
                                 break;
                             default:
-                                throw new ArgumentException("Source bitmap is not indexed", nameof(source));
+                                // internal error, no res is needed
+                                throw new InvalidOperationException("Unexpected bits per pixel");
                         }
 
                         // transparent pixel found

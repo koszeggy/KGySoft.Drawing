@@ -60,7 +60,7 @@ namespace KGySoft.Drawing
             protected override void InsertItem(int index, RawIconImage item)
             {
                 if (Count == UInt16.MaxValue)
-                    throw new NotSupportedException("Too many images in the icon collection");
+                    throw new NotSupportedException(Res.RawIconTooManyImages);
                 base.InsertItem(index, item);
             }
 
@@ -160,7 +160,7 @@ namespace KGySoft.Drawing
                         return bpp > 8 ? 0 : 1 << bpp;
                     }
 
-                    throw new ObjectDisposedException(ToString());
+                    throw new ObjectDisposedException(null, Res.ObjectDisposed);
                 }
             }
 
@@ -233,7 +233,7 @@ namespace KGySoft.Drawing
 
                 // BMP header: size of the BITMAPINFOHEADER structure
                 if (signature != Marshal.SizeOf(typeof(BITMAPINFOHEADER)))
-                    throw new ArgumentException("Bad icon format", nameof(rawData));
+                    throw new ArgumentException(Res.RawIconBadIconFormat, nameof(rawData));
 
                 // header
                 bmpHeader = (BITMAPINFOHEADER)BinarySerializer.DeserializeValueType(typeof(BITMAPINFOHEADER), rawData);
@@ -463,7 +463,7 @@ namespace KGySoft.Drawing
 
                 // if both raw and image data is null, then object is disposed
                 if (bmpColor == null && bmpComposite == null)
-                    throw new ObjectDisposedException(ToString());
+                    throw new ObjectDisposedException(null, Res.ObjectDisposed);
 
                 if (isPng)
                 {
@@ -588,7 +588,7 @@ namespace KGySoft.Drawing
                             case 16:
                             case 48:
                             case 64:
-                                throw new NotSupportedException("16/48/64 bpp images are not supported for Icons");
+                                throw new NotSupportedException(Res.RawIconUnsupportedBpp);
                             case 24:
                                 int posCX = x * 3;
                                 Color pixelColor = Color.FromArgb(0, rawColor[posCX + posColorY + 0],
@@ -632,7 +632,7 @@ namespace KGySoft.Drawing
             private void AssureBitmapsGenerated(bool isCompositRequired)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
-                    throw new ObjectDisposedException(ToString());
+                    throw new ObjectDisposedException(null, Res.ObjectDisposed);
 
                 // exiting, if the requested bitmap already exists
                 if (isCompositRequired && bmpComposite != null || !isCompositRequired && bmpColor != null)
@@ -831,7 +831,7 @@ namespace KGySoft.Drawing
         internal void Add(Icon icon)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon));
+                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
 
             // not in using so its images will not be disposed after adding them to self images
             foreach (RawIconImage image in new RawIcon(icon).iconImages)
@@ -846,12 +846,9 @@ namespace KGySoft.Drawing
         internal void Add(Bitmap image)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image));
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
 
-            if (image.PixelFormat == PixelFormat.Format32bppArgb || image.PixelFormat == PixelFormat.Format32bppPArgb)
-                Add(image, Color.Transparent);
-            else
-                Add(image, image.GetPixel(0, 0));
+            Add(image, image.PixelFormat.In(PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb, PixelFormat.Format64bppArgb, PixelFormat.Format64bppPArgb) ? Color.Transparent : image.GetPixel(0, 0));
         }
 
         /// <summary>
@@ -860,16 +857,15 @@ namespace KGySoft.Drawing
         internal void Add(Bitmap image, Color transparentColor)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image));
-
-            if (image.Width > 256 || image.Height > 256)
-                throw new ArgumentException("Image is too big", nameof(image));
+                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
 
             int bpp = image.PixelFormat.ToBitsPerPixel();
             if (bpp.In(16, 48, 64))
                 image = (Bitmap)image.ConvertPixelFormat(PixelFormat.Format32bppArgb, null);
+            else
+                image = (Bitmap)image.Clone();
 
-            RawIconImage iconImage = new RawIconImage((Bitmap)image.Clone(), transparentColor);
+            RawIconImage iconImage = new RawIconImage(image, transparentColor);
             iconImages.Add(iconImage);
         }
 
@@ -1024,7 +1020,7 @@ namespace KGySoft.Drawing
             byte[] buf = br.ReadBytes(Marshal.SizeOf(typeof(ICONDIR)));
             ICONDIR iconDir = (ICONDIR)BinarySerializer.DeserializeValueType(typeof(ICONDIR), buf);
             if (iconDir.idReserved != 0 || iconDir.idType != 1)
-                throw new ArgumentException("Bad icon format", nameof(br));
+                throw new ArgumentException(Res.RawIconBadIconFormat, nameof(br));
 
             if (index.HasValue && (index.Value < 0 || index.Value >= iconDir.idCount))
                 return;
