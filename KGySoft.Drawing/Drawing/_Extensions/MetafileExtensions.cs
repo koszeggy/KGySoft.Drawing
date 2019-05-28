@@ -14,7 +14,7 @@ using KGySoft.Serialization;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Provides extension methods for <see cref="Metafile"/> class.
+    /// Contains extension methods for the <see cref="Metafile"/> type.
     /// </summary>
     public static class MetafileExtensions
     {
@@ -92,10 +92,10 @@ namespace KGySoft.Drawing
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)
         {
             if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
 
             if (requestedSize.Width < 1 || requestedSize.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(requestedSize), Res.ArgumentOutOfRange);
+                throw new ArgumentOutOfRangeException(nameof(requestedSize), PublicResources.ArgumentOutOfRange);
 
             if (!antiAliased)
                 return new Bitmap(metafile, requestedSize);
@@ -115,9 +115,9 @@ namespace KGySoft.Drawing
         public static void Save(this Metafile metafile, Stream stream)
         {
             if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
             Save(metafile, stream, false);
         }
@@ -135,9 +135,9 @@ namespace KGySoft.Drawing
         public static void Save(this Metafile metafile, Stream stream, bool forceWmfFormat)
         {
             if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
             bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid;
             if (isWmf || forceWmfFormat)
@@ -159,6 +159,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        [SecurityCritical]
         private static void WriteWmfHeader(Metafile metafile, Stream stream)
         {
             WmfHeader header = new WmfHeader((short)metafile.Width, (short)metafile.Height, (ushort)metafile.HorizontalResolution);

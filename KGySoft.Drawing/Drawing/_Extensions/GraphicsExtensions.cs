@@ -2,7 +2,6 @@
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Drawing.Text;
 using System.Reflection;
 using System.Security;
 using KGySoft.Drawing.WinApi;
@@ -11,12 +10,10 @@ using KGySoft.Reflection;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Extension methods for <see cref="Graphics"/> class.
+    /// Contains extension methods for the <see cref="Graphics"/> type.
     /// </summary>
     public static class GraphicsExtensions
     {
-        private static FieldAccessor fieldGraphic_backingImage;
-
         /// <summary>
         /// Draws a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and four corner radius values.
         /// </summary>
@@ -30,9 +27,9 @@ namespace KGySoft.Drawing
         public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
             if (pen == null)
-                throw new ArgumentNullException(nameof(pen), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(pen), PublicResources.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
             {
@@ -50,9 +47,9 @@ namespace KGySoft.Drawing
         public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int cornerRadius)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
             if (pen == null)
-                throw new ArgumentNullException(nameof(pen), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(pen), PublicResources.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, cornerRadius))
             {
@@ -73,9 +70,9 @@ namespace KGySoft.Drawing
         public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
             if (brush == null)
-                throw new ArgumentNullException(nameof(brush), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, radiusTopLeft, radiusTopRight, radiusBottomRight, radiusBottomLeft))
             {
@@ -93,9 +90,9 @@ namespace KGySoft.Drawing
         public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int cornerRadius)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
             if (brush == null)
-                throw new ArgumentNullException(nameof(brush), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(brush), PublicResources.ArgumentNull);
 
             using (GraphicsPath path = CreateRoundedRectangle(bounds, cornerRadius))
             {
@@ -112,7 +109,7 @@ namespace KGySoft.Drawing
         //public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
         //{
         //    if (graphics == null)
-        //        throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
+        //        throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
 
         //    graphics.TextContrast = 4;
         //    switch (quality)
@@ -169,13 +166,10 @@ namespace KGySoft.Drawing
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
             if (graphics == null)
-                throw new ArgumentNullException(nameof(graphics), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
 
             if (visibleClipOnly && graphics.IsVisibleClipEmpty)
                 return null;
-
-            if (fieldGraphic_backingImage == null)
-                fieldGraphic_backingImage = FieldAccessor.GetAccessor(typeof(Graphics).GetField("backingImage", BindingFlags.Instance | BindingFlags.NonPublic));
 
             Bitmap result;
             RectangleF visibleRect;
@@ -194,10 +188,8 @@ namespace KGySoft.Drawing
                 targetWidth = (int)visibleRect.Width;
                 targetHeight = (int)visibleRect.Height;
 
-                Bitmap imgSource = fieldGraphic_backingImage.Get(graphics) as Bitmap;
-
                 // there is a source image: copying so transparency is preserved
-                if (imgSource != null)
+                if (graphics.GetBackingImage() is Bitmap imgSource)
                 {
                     if (!visibleClipOnly)
                         return (Bitmap)imgSource.Clone();

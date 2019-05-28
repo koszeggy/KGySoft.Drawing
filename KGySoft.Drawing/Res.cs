@@ -1,12 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: Res.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Drawing.Imaging;
 using System.Globalization;
-using System.Linq;
-using System.Text;
+
 using KGySoft.CoreLibraries;
-using KGySoft.Reflection;
 using KGySoft.Resources;
+
+#endregion
 
 namespace KGySoft
 {
@@ -33,28 +50,6 @@ namespace KGySoft
         #endregion
 
         #region Properties
-
-        #region General
-
-        /// <summary>&lt;null&gt;</summary>
-        internal static string NullReference => Get("General_NullReference");
-
-        /// <summary>Value cannot be null.</summary>
-        internal static string ArgumentNull => Get("General_ArgumentNull");
-
-        /// <summary>Input string contains an invalid value.</summary>
-        internal static string ArgumentInvalidString => Get("General_ArgumentInvalidString");
-
-        /// <summary>Specified argument was out of the range of valid values.</summary>
-        internal static string ArgumentOutOfRange => Get("General_ArgumentOutOfRange");
-
-        /// <summary>Specified argument contains a null element.</summary>
-        internal static string ArgumentContainsNull => Get("General_ArgumentContainsNull");
-
-        /// <summary>Cannot access a disposed object.</summary>
-        internal static string ObjectDisposed => Get("General_ObjectDisposed");
-
-        #endregion
 
         #region Gdi32
 
@@ -115,16 +110,6 @@ namespace KGySoft
 
         #region Internal Methods
 
-        #region General
-
-        /// <summary>Enum instance of '{0}' type must be one of the defined values.</summary>
-        internal static string EnumOutOfRange<TEnum>(TEnum value = default) where TEnum : struct, IConvertible => Get("General_EnumOutOfRangeFormat", value.GetType().Name);
-
-        ///// <summary>Enum instance of '{0}' type must consist of the defined flags.</summary>
-        //internal static string FlagsEnumOutOfRange<TEnum>(TEnum value = default) where TEnum : struct, IConvertible => Get("General_FlagsEnumOutOfRangeFormat", value.GetType().Name);
-
-        #endregion
-
         #region ImageExtensions
 
         /// <summary>Pixel format '{0}' is not supported by GDI+.</summary>
@@ -151,7 +136,7 @@ namespace KGySoft
                 int i = Array.IndexOf(args, null);
                 if (i >= 0)
                 {
-                    string nullRef = NullReference;
+                    string nullRef = PublicResources.Null;
                     for (; i < args.Length; i++)
                     {
                         if (args[i] == null)

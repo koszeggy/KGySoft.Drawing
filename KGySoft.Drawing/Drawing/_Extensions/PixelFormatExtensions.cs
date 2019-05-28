@@ -5,7 +5,7 @@ namespace KGySoft.Drawing
     using System;
 
     /// <summary>
-    /// Extension methods and routines for <see cref="PixelFormat"/> enumeration.
+    /// Contains extension methods for the <see cref="PixelFormat"/> type.
     /// </summary>
     internal static class PixelFormatExtensions
     {
@@ -39,7 +39,7 @@ namespace KGySoft.Drawing
                 case PixelFormat.Format64bppPArgb:
                     return 64;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.EnumOutOfRange(pixelFormat));
+                    throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.EnumOutOfRange(pixelFormat));
             }
         }
 
@@ -67,7 +67,7 @@ namespace KGySoft.Drawing
                 case PixelFormat.Format48bppRgb:
                     return false;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.EnumOutOfRange(pixelFormat));
+                    throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.EnumOutOfRange(pixelFormat));
             }
         }
 
@@ -92,7 +92,7 @@ namespace KGySoft.Drawing
                 case 64:
                     return PixelFormat.Format64bppArgb;
                 default:
-                    throw new ArgumentOutOfRangeException(nameof(bpp), Res.ArgumentOutOfRange);
+                    throw new ArgumentOutOfRangeException(nameof(bpp), PublicResources.ArgumentOutOfRange);
             }
         }
     }

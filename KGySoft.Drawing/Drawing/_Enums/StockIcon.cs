@@ -1,10 +1,27 @@
-﻿namespace KGySoft.Drawing
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: StockIcon.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+namespace KGySoft.Drawing
 {
+    // ReSharper disable InconsistentNaming
     /// <summary>
-    /// Represents the Windows stock icons available in Windows Vista and above.
+    /// Represents the Windows stock icons can be retrieved by the <see cref="Icons.GetStockIcon">Icons.GetStockIcon</see> method in Windows Vista and above.
     /// <br/>See also the <a href="https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ne-shellapi-shstockiconid" target="_blank">SHSTOCKICONID Enumeration</a> at the Microsoft Docs site.
     /// </summary>
-    public enum StockIconId
+    public enum StockIcon
     {
         /// <summary>
         ///  Document of a type with no associated application.
@@ -470,35 +487,5 @@
         /// Windows Vista with SP1 and later. A cluster disk array.
         /// </summary>
         ClusteredDrive = 140,
-
-        ///// <summary>
-        ///// The question icon.
-        ///// </summary>
-        //Question = Help,
-
-        ///// <summary>
-        ///// The security question icon.
-        ///// </summary>
-        //SecurityQuestion = -1,
-
-        ///// <summary>
-        ///// The security warning icon.
-        ///// </summary>
-        //SecurityWarning = -2,
-
-        ///// <summary>
-        ///// The security error icon.
-        ///// </summary>
-        //SecurityError = -3,
-
-        ///// <summary>
-        ///// The security success icon.
-        ///// </summary>
-        //SecuritySuccess = -4,
-
-        ///// <summary>
-        ///// The security shield icon representing elevated functions.
-        ///// </summary>
-        //SecurityShield = -5,
     }
 }

@@ -20,13 +20,12 @@ using KGySoft.Reflection;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Provides extension methods and other <see cref="Image"/> routines for <see cref="Image"/> class.
+    /// Contains extension methods for the <see cref="Image"/> type.
     /// </summary>
     public static class ImageExtensions
     {
         #region Fields
 
-        private static FieldAccessor fieldColorPalette_entries;
         
         #endregion
 
@@ -43,7 +42,7 @@ namespace KGySoft.Drawing
         public static Image ToGrayscale(this Image image)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             //Set up the drawing surface
             Bitmap result = new Bitmap(image.Width, image.Height);
@@ -94,9 +93,9 @@ namespace KGySoft.Drawing
         public static Image ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!Enum<PixelFormat>.IsDefined(newPixelFormat))
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.EnumOutOfRange(newPixelFormat));
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.EnumOutOfRange(newPixelFormat));
 
             PixelFormat sourcePixelFormat = image.PixelFormat;
             //if (sourcePixelFormat == newPixelFormat)
@@ -214,10 +213,7 @@ namespace KGySoft.Drawing
                     desiredSize >>= 1;
 
                 Array.Resize(ref truncatedPalette, desiredSize);
-                if (fieldColorPalette_entries == null)
-                    fieldColorPalette_entries = FieldAccessor.GetAccessor(typeof(ColorPalette).GetField("entries", BindingFlags.Instance | BindingFlags.NonPublic));
-
-                fieldColorPalette_entries.Set(resultPalette, truncatedPalette);
+                resultPalette.SetEntries(truncatedPalette);
                 resetPalette = true;
             }
 
@@ -300,9 +296,9 @@ namespace KGySoft.Drawing
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
             if (images == null)
-                throw new ArgumentNullException(nameof(images), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(images), PublicResources.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
             ImageCodecInfo tiffEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
             if (tiffEncoder == null)
@@ -312,7 +308,7 @@ namespace KGySoft.Drawing
             foreach (Image page in images)
             {
                 if (page == null)
-                    throw new ArgumentException(Res.ArgumentContainsNull, nameof(images));
+                    throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
                 using (EncoderParameters encoderParams = new EncoderParameters(3))
                 {
@@ -354,7 +350,7 @@ namespace KGySoft.Drawing
         public static int GetBitsPerPixel(this Image image)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             return image.PixelFormat.ToBitsPerPixel();
         }

@@ -1,22 +1,39 @@
-﻿using System;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: BitmapExtensions.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security;
+
 using KGySoft.Drawing.WinApi;
+
+#endregion
 
 namespace KGySoft.Drawing
 {
-    using System.ComponentModel;
-
     /// <summary>
-    /// Provides extension methods for <see cref="Bitmap"/> class.
+    /// Contains extension methods for the <see cref="Bitmap"/> type.
     /// </summary>
     public static class BitmapExtensions
     {
@@ -25,6 +42,10 @@ namespace KGySoft.Drawing
         private static readonly int[] iconSizes = { 512, 384, 320, 256, 128, 96, 80, 72, 64, 60, 48, 40, 36, 32, 30, 24, 20, 16, 8, 4 };
 
         #endregion
+
+        #region Methods
+
+        #region Public Methods
 
         /// <summary>
         /// Resizes the image with high quality. The result is always a 32 bit ARGB image.
@@ -37,10 +58,10 @@ namespace KGySoft.Drawing
         public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             if (newSize.Width < 1 || newSize.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(newSize), Res.ArgumentOutOfRange);
+                throw new ArgumentOutOfRangeException(nameof(newSize), PublicResources.ArgumentOutOfRange);
 
             Size targetSize = newSize;
             Size sourceSize = image.Size;
@@ -49,13 +70,13 @@ namespace KGySoft.Drawing
             float ratio;
             if (keepAspectRatio && (!Equals((float)targetSize.Width / targetSize.Height, ratio = (float)sourceSize.Width / sourceSize.Height)))
             {
-                // width is bigger so dividing height by r
+                // width is bigger so dividing height by the ratio
                 if (ratio >= 1f)
                 {
                     targetSize.Height = (int)(newSize.Height / ratio);
                     targetLocation.Y = (newSize.Height - targetSize.Height) >> 1;
                 }
-                // height is bigger so multiplying width by r
+                // height is bigger so multiplying width by the ratio
                 else
                 {
                     targetSize.Width = (int)(newSize.Width * ratio);
@@ -85,7 +106,7 @@ namespace KGySoft.Drawing
         public static Bitmap[] ExtractBitmaps(this Bitmap image)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             // icon
             if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
@@ -125,8 +146,8 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Creates a clone of the current frame of the provided <see cref="Bitmap"/> instance. Unlike <see cref="Bitmap(Image)"/>, this method preserves original pixel format,
-        /// and unlike <see cref="Bitmap.Clone(Rectangle,PixelFormat)"/>, this method returns a single frame image.
+        /// Creates a clone of the current frame of the provided <see cref="Bitmap"/> instance. Unlike the <see cref="Bitmap(Image)"/> constructor, this method preserves original pixel format,
+        /// and unlike <see cref="Bitmap.Clone(Rectangle,PixelFormat)">Bitmap.Clone(Rectangle,PixelFormat)</see> method, this method returns a single frame image.
         /// </summary>
         /// <param name="bitmap">The bitmap to be cloned.</param>
         /// <returns>A single frame <see cref="Bitmap"/> instance that has the same content and has the same pixel format as the current frame of the source bitmap.</returns>
@@ -137,7 +158,7 @@ namespace KGySoft.Drawing
         public static Bitmap CloneCurrentFrame(this Bitmap bitmap)
         {
             if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
             Bitmap result = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
             ColorPalette palette = bitmap.Palette;
@@ -185,18 +206,19 @@ namespace KGySoft.Drawing
         /// Gets the colors used in the defined <paramref name="bitmap"/>. A limit can be defined in <paramref name="maxColors"/>.
         /// </summary>
         /// <param name="bitmap">The bitmap to get its colors. When it is indexed, its palette is returned and <paramref name="maxColors"/> is ignored.</param>
-        /// <param name="maxColors">A limit of the returned colors. This parameter is ignored for indexed bitmaps. 0 means no limit.</param>
+        /// <param name="maxColors">A limit of the returned colors. This parameter is ignored for indexed bitmaps. Use 0 for no limit. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
         /// <remarks>The method is optimized for <see cref="PixelFormat.Format32bppRgb"/> and <see cref="PixelFormat.Format32bppArgb"/> formats.</remarks>
         /// <returns>An array of <see cref="Color"/> entries.</returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Color[] GetColors(this Bitmap bitmap, int maxColors)
+        public static Color[] GetColors(this Bitmap bitmap, int maxColors = 0)
         {
             if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (maxColors < 0)
-                throw new ArgumentOutOfRangeException(nameof(maxColors), Res.ArgumentOutOfRange);
+                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
             if (maxColors == 0)
                 maxColors = Int32.MaxValue;
 
@@ -220,6 +242,7 @@ namespace KGySoft.Drawing
                         {
                             for (int x = 0; x < data.Width; x++)
                             {
+                                // ReSharper disable once PossibleNullReferenceException
                                 int c = ((int*)line)[x];
                                 if (hasTransparency)
                                 {
@@ -274,17 +297,17 @@ namespace KGySoft.Drawing
         /// <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> constructor
         /// to create a new cursor.
         /// </summary>
-        /// <param name="bitmap">The <see cref="Icon"/>, which should be converted to a cursor.</param>
-        /// <param name="cursorHotspot">The hotspot coordinates of the cursor.
-        /// <br/>Default value: 0; 0 (top-left corner)</param>
+        /// <param name="bitmap">The <see cref="Bitmap"/>, which should be converted to a cursor.</param>
+        /// <param name="cursorHotspot">The hotspot coordinates of the cursor. This parameter is optional.
+        /// <br/>Default value: <c>0; 0</c> (top-left corner)</param>
         /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default(Point))
+        public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default)
         {
             if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
             IntPtr iconHandle = bitmap.GetHicon();
             try
@@ -297,6 +320,9 @@ namespace KGySoft.Drawing
             }
         }
 
+        #endregion
+
+        #region Private Methods
 
         /// <summary>
         /// Tries to extract the icon images from an image.
@@ -351,5 +377,9 @@ namespace KGySoft.Drawing
 
             return result.ToArray();
         }
+
+        #endregion
+
+        #endregion
     }
 }

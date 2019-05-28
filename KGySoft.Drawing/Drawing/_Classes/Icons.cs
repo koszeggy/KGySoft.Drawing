@@ -38,7 +38,7 @@ namespace KGySoft.Drawing
         #region Fields
 
         private static ResourceManager resourceManager;
-        private static readonly Dictionary<StockIconId, RawIcon> systemIconsCache = new Dictionary<StockIconId, RawIcon>(EnumComparer<StockIconId>.Comparer);
+        private static readonly Dictionary<StockIcon, RawIcon> systemIconsCache = new Dictionary<StockIcon, RawIcon>(EnumComparer<StockIcon>.Comparer);
         private static readonly Dictionary<string, RawIcon> resourceIconsCache = new Dictionary<string, RawIcon>();
 
         #endregion
@@ -65,7 +65,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/InformationXP16.png" alt="Information Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemInformation => GetSystemIcon(StockIconId.Information, () => SystemIcons.Information);
+        public static Icon SystemInformation => GetSystemIcon(StockIcon.Information, () => SystemIcons.Information);
 
         /// <summary>
         /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
@@ -85,7 +85,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/WarningXP16.png" alt="Warning Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemWarning => GetSystemIcon(StockIconId.Warning, () => SystemIcons.Warning);
+        public static Icon SystemWarning => GetSystemIcon(StockIcon.Warning, () => SystemIcons.Warning);
 
         /// <summary>
         /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
@@ -105,7 +105,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ErrorXP16.png" alt="Error Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemError => GetSystemIcon(StockIconId.Error, () => SystemIcons.Error);
+        public static Icon SystemError => GetSystemIcon(StockIcon.Error, () => SystemIcons.Error);
 
         /// <summary>
         /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
@@ -125,7 +125,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/QuestionXP16.png" alt="Question Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemQuestion => GetSystemIcon(StockIconId.Help, () => SystemIcons.Question);
+        public static Icon SystemQuestion => GetSystemIcon(StockIcon.Help, () => SystemIcons.Question);
 
         /// <summary>
         /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
@@ -145,7 +145,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ApplicationXP16.png" alt="Application Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemApplication => GetSystemIcon(StockIconId.Application, () => SystemIcons.Application);
+        public static Icon SystemApplication => GetSystemIcon(StockIcon.Application, () => SystemIcons.Application);
 
         /// <summary>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield (small version for the summary)"/>
@@ -172,7 +172,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ShieldXP16.png" alt="Shield Windows XP 16x16"/>
         /// </para>
         /// </remarks>
-        public static Icon SystemShield => GetSystemIcon(StockIconId.Shield, () => SystemIcons.Shield);
+        public static Icon SystemShield => GetSystemIcon(StockIcon.Shield, () => SystemIcons.Shield);
 
         /// <summary>
         /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
@@ -371,10 +371,10 @@ namespace KGySoft.Drawing
         /// or Windows version is below Vista, this method returns <see langword="null"/>.
         /// On Windows XP use the predefined property members to retrieve system icons.
         /// </summary>
-        /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIconId"/> values are also allowed.</param>
+        /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
         /// when no icon found, or Windows version is below Vista.</returns>
-        public static Icon GetStockIcon(StockIconId id) => GetSystemIcon(id, null);
+        public static Icon GetStockIcon(StockIcon id) => GetSystemIcon(id, null);
 
         #endregion
 
@@ -383,7 +383,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        private static Icon GetSystemIcon(StockIconId id, Func<Icon> getLegacyIcon)
+        private static Icon GetSystemIcon(StockIcon id, Func<Icon> getLegacyIcon)
         {
             RawIcon result;
             lock (systemIconsCache)
@@ -422,7 +422,7 @@ namespace KGySoft.Drawing
 
         [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
-        private static RawIcon DoGetStockIcon(StockIconId id)
+        private static RawIcon DoGetStockIcon(StockIcon id)
         {
             if (id < 0 || !WindowsUtils.IsVistaOrLater)
                 return null;

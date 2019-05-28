@@ -62,8 +62,8 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="KGySoft.CoreLibraries, Version=4.5.1.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
-      <HintPath>..\packages\KGySoft.CoreLibraries.4.5.1\lib\net35\KGySoft.CoreLibraries.dll</HintPath>
+    <Reference Include="KGySoft.CoreLibraries, Version=4.6.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
+      <HintPath>..\packages\KGySoft.CoreLibraries.4.6.0-alpha.2\lib\net45\KGySoft.CoreLibraries.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -73,11 +73,12 @@
     <Compile Include="ComponentModel\__doc\NamespaceDoc.cs" />
     <Compile Include="Drawing\WinApi\_Enums\BitmapCompressionMode.cs" />
     <Compile Include="Drawing\WinApi\_Enums\SGHFI.cs" />
+    <Compile Include="Drawing\_Classes\Accessors.cs" />
     <Compile Include="Drawing\_Classes\CursorHandle.cs" />
     <Compile Include="Drawing\_Classes\Icons.cs" />
     <Compile Include="Drawing\_Classes\RawIcon.cs" />
     <Compile Include="ComponentModel\AdvancedImageConverter.cs" />
-    <Compile Include="Drawing\_Enums\StockIconId.cs" />
+    <Compile Include="Drawing\_Enums\StockIcon.cs" />
     <Compile Include="Drawing\_Enums\SystemIconSize.cs" />
     <Compile Include="Drawing\_Extensions\BitmapExtensions.cs" />
     <Compile Include="Drawing\_Extensions\GraphicsExtensions.cs" />
@@ -126,9 +127,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="KGySoft.Drawing.ruleset" />
-    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Resources\SecurityShield.ico" />
   </ItemGroup>
   <ItemGroup>

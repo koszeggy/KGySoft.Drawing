@@ -1,15 +1,32 @@
-﻿#region Used namespaces
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: RawIcon.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
 
 using System;
-using System.Drawing;
 using System.Collections.ObjectModel;
-using System.Drawing.Imaging;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 using System.Text;
+
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
@@ -31,7 +48,9 @@ namespace KGySoft.Drawing
 
         private sealed class RawIconImageCollection : Collection<RawIconImage>, IDisposable
         {
-            #region Explicit Disposing
+            #region Methods
+
+            #region Public Methods
 
             /// <summary>
             /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -48,7 +67,7 @@ namespace KGySoft.Drawing
 
             #endregion
 
-            #region Methods
+            #region Protected Methods
 
             /// <summary>
             /// Inserts an element into the <see cref="T:System.Collections.ObjectModel.Collection`1"></see> at the specified index.
@@ -64,6 +83,8 @@ namespace KGySoft.Drawing
             }
 
             #endregion
+
+            #endregion
         }
 
         #endregion
@@ -74,48 +95,40 @@ namespace KGySoft.Drawing
         {
             #region Fields
 
+            private readonly bool isPng;
+            /// <summary>
+            /// The bit count stored by the dir entry. Needed when actual format is PNG.
+            /// </summary>
+            private readonly int dirEntryBitCountPng;
+            private readonly Size size;
+
             /// <summary>
             /// In: Source image if it is already 32 bit ARGB and Color.Transparent is specified for transparency
             /// Out: Result image of ToBitmap(false)
             /// </summary>
             private Bitmap bmpComposite;
-
             /// <summary>
             /// In: Source image if it is non ARGB or when a custom transparent color is specified
             /// Out: Result image of ToBitmap(true)
             /// </summary>
             private Bitmap bmpColor;
-
             private Color transparentColor;
-
             /// <summary>
             /// Color image or the raw image itself when PNG
             /// </summary>
             private byte[] rawColor;
-
             /// <summary>
             /// Mask data (only if BMP)
             /// </summary>
             private byte[] rawMask;
-
             /// <summary>
             /// Header (only if BMP)
             /// </summary>
             private BITMAPINFOHEADER bmpHeader;
-
             /// <summary>
             /// Palette (only if indexed BMP)
             /// </summary>
             private RGBQUAD[] palette;
-
-            private readonly bool isPng;
-
-            /// <summary>
-            /// The bit count stored by the dir entry. Needed when actual format is PNG.
-            /// </summary>
-            private readonly int dirEntryBitCountPng;
-
-            private readonly Size size;
 
             #endregion
 
@@ -147,8 +160,8 @@ namespace KGySoft.Drawing
                     if (bmpHeader.biSize != 0U)
                     {
                         return (int)(bmpHeader.biClrUsed != 0
-                            ? bmpHeader.biClrUsed
-                            : bmpHeader.biBitCount <= 8 ? (uint)(1 << bmpHeader.biBitCount) : 0);
+                                ? bmpHeader.biClrUsed
+                                : bmpHeader.biBitCount <= 8 ? (uint)(1 << bmpHeader.biBitCount) : 0);
                     }
 
                     // from source image: when image is indexed, always the maximum palette number will be generated without optimization
@@ -159,7 +172,7 @@ namespace KGySoft.Drawing
                         return bpp > 8 ? 0 : 1 << bpp;
                     }
 
-                    throw new ObjectDisposedException(null, Res.ObjectDisposed);
+                    throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
                 }
             }
 
@@ -200,6 +213,7 @@ namespace KGySoft.Drawing
             /// <summary>
             /// From raw data
             /// </summary>
+            [SecurityCritical]
             internal RawIconImage(byte[] rawData)
             {
                 int signature = BitConverter.ToInt32(rawData, 0);
@@ -273,45 +287,6 @@ namespace KGySoft.Drawing
 
             #endregion
 
-            #region Explicit Disposing
-
-            /// <summary>
-            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
-            /// </summary>
-            public void Dispose()
-            {
-                Dispose(true);
-                GC.SuppressFinalize(this);
-            }
-
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="disposing"><see langword="true"/>&#160;to release both managed and unmanaged resources; <see langword="false"/>&#160;to release only unmanaged resources.</param>
-            private void Dispose(bool disposing)
-            {
-                if (disposing)
-                {
-                    if (bmpColor != null)
-                    {
-                        bmpColor.Dispose();
-                        bmpColor = null;
-                    }
-
-                    if (bmpComposite != null)
-                    {
-                        bmpComposite.Dispose();
-                        bmpComposite = null;
-                    }
-
-                    rawColor = null;
-                    rawMask = null;
-                    palette = null;
-                }
-            }
-
-            #endregion
-
             #endregion
 
             #region Methods
@@ -347,6 +322,19 @@ namespace KGySoft.Drawing
 
             #region Instance Methods
 
+            #region Public Methods
+
+            /// <summary>
+            /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
+            /// </summary>
+            public void Dispose()
+            {
+                Dispose(true);
+                GC.SuppressFinalize(this);
+            }
+
+            #endregion
+
             #region Internal Methods
 
             [SecurityCritical]
@@ -366,7 +354,7 @@ namespace KGySoft.Drawing
                     entry.wPlanes = bmpHeader.biPlanes;
                     entry.wBitCount = bmpHeader.biBitCount;
                     entry.dwBytesInRes = (uint)(Marshal.SizeOf(typeof(BITMAPINFOHEADER)) + Marshal.SizeOf(typeof(RGBQUAD)) * PaletteColorCount +
-                        rawColor.Length + rawMask.Length);
+                            rawColor.Length + rawMask.Length);
                 }
                 else
                 {
@@ -453,6 +441,32 @@ namespace KGySoft.Drawing
 
             #region Private Methods
 
+            /// <summary>
+            /// Releases unmanaged and - optionally - managed resources.
+            /// </summary>
+            /// <param name="disposing"><see langword="true"/>&#160;to release both managed and unmanaged resources; <see langword="false"/>&#160;to release only unmanaged resources.</param>
+            private void Dispose(bool disposing)
+            {
+                if (disposing)
+                {
+                    if (bmpColor != null)
+                    {
+                        bmpColor.Dispose();
+                        bmpColor = null;
+                    }
+
+                    if (bmpComposite != null)
+                    {
+                        bmpComposite.Dispose();
+                        bmpComposite = null;
+                    }
+
+                    rawColor = null;
+                    rawMask = null;
+                    palette = null;
+                }
+            }
+
             [SecurityCritical]
             private void AssureRawFormatGenerated()
             {
@@ -462,7 +476,7 @@ namespace KGySoft.Drawing
 
                 // if both raw and image data is null, then object is disposed
                 if (bmpColor == null && bmpComposite == null)
-                    throw new ObjectDisposedException(null, Res.ObjectDisposed);
+                    throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
                 if (isPng)
                 {
@@ -475,12 +489,10 @@ namespace KGySoft.Drawing
                     }
                 }
 
-                int bpp;
-                int strideColor;
                 Bitmap bmp = bmpColor ?? bmpComposite;
 
                 // palette
-                bpp = bmp.PixelFormat.ToBitsPerPixel();
+                int bpp = bmp.PixelFormat.ToBitsPerPixel();
                 if (bpp <= 8)
                 {
                     // generating the maximum number of palette entries without optimization
@@ -508,6 +520,7 @@ namespace KGySoft.Drawing
                 bmpHeader.biClrImportant = 0;
 
                 // Color image (XOR): copying from input bitmap
+                int strideColor;
                 using (bmp = (Bitmap)bmp.Clone())
                 {
                     // TODO: remove clone+using and flip rawColor similarly to the fallback in FlipImageY. See the TODO below this block.
@@ -530,25 +543,26 @@ namespace KGySoft.Drawing
                 bmpHeader.biSizeImage = (uint)rawColor.Length;
                 if (strideColor > 0)
                 {
-                    // TODO: Flip rawColor
+                    // TODO: Flip rawColor here
                 }
                 else
                     strideColor *= -1;
 
                 // Mask image (AND): Creating from color image and provided transparent color.
-                int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * BitsPerPixel + 31)/32)
+                int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * bpp + 31) / 32)
                 rawMask = new byte[strideMask * size.Height];
 
                 // If the image bpp is less than 32, transparent color cannot have transparency
                 if (bpp < 32)
                     transparentColor = Color.FromArgb(255, transparentColor.R, transparentColor.G, transparentColor.B);
 
-                DoGenerateRawData(bpp, strideColor, strideMask);
+                GenerateRawData(bpp, strideColor, strideMask);
             }
 
-            private void DoGenerateRawData(int bpp, int strideColor, int strideMask)
+            private void GenerateRawData(int bpp, int strideColor, int strideMask)
             {
-                // rawColor now contains the provided bitmap data with the original background, while rawMask is still totally empty
+                // rawColor now contains the provided bitmap data with the original background, while rawMask is still totally empty.
+                // Here we generate rawMask based on transparentColor and 
                 for (int y = 0; y < size.Height; y++)
                 {
                     int posColorY = strideColor * y;
@@ -589,10 +603,10 @@ namespace KGySoft.Drawing
                             case 64:
                                 throw new NotSupportedException(Res.RawIconUnsupportedBpp);
                             case 24:
-                                int posCX = x * 3;
-                                Color pixelColor = Color.FromArgb(0, rawColor[posCX + posColorY + 0],
-                                    rawColor[posCX + posColorY + 1],
-                                    rawColor[posCX + posColorY + 2]);
+                                int posColorX = x * 3;
+                                Color pixelColor = Color.FromArgb(0, rawColor[posColorX + posColorY + 0],
+                                        rawColor[posColorX + posColorY + 1],
+                                        rawColor[posColorX + posColorY + 2]);
                                 if (pixelColor == transparentColor)
                                     rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
                                 break;
@@ -631,7 +645,7 @@ namespace KGySoft.Drawing
             private void AssureBitmapsGenerated(bool isCompositRequired)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
-                    throw new ObjectDisposedException(null, Res.ObjectDisposed);
+                    throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
                 // exiting, if the requested bitmap already exists
                 if (isCompositRequired && bmpComposite != null || !isCompositRequired && bmpColor != null)
@@ -640,8 +654,9 @@ namespace KGySoft.Drawing
                 // PNG format
                 if (isPng)
                 {
+                    // Note: MemoryStream must not be in a using because that would kill the new bitmap.
                     Bitmap result = bmpComposite ?? bmpColor
-                        // rawColor is available, otherwise, object would be disposed. Note: MemoryStream must not be in a using because that would kill the new bitmap.
+                        // ReSharper disable once AssignNullToNotNullAttribute - rawColor is available, otherwise, object would be disposed. 
                         ?? new Bitmap(new MemoryStream(rawColor));
 
                     // assignments below will not replace any instance, otherwise, we would have returned above
@@ -750,8 +765,6 @@ namespace KGySoft.Drawing
 
         #endregion
 
-        #region Construction and Destruction
-
         #region Constructors
 
         /// <summary>
@@ -769,7 +782,7 @@ namespace KGySoft.Drawing
         internal RawIcon(Icon icon, Size? size = null, int? bpp = null, int? index = null)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             // there is no icon stream - adding by bitmap
             if (!icon.HasRawData())
@@ -804,7 +817,9 @@ namespace KGySoft.Drawing
 
         #endregion
 
-        #region Explicit Disposing
+        #region Methods
+
+        #region Public Methods
 
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
@@ -816,10 +831,6 @@ namespace KGySoft.Drawing
 
         #endregion
 
-        #endregion
-
-        #region Methods
-
         #region Internal Methods
 
         /// <summary>
@@ -830,7 +841,7 @@ namespace KGySoft.Drawing
         internal void Add(Icon icon)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             // not in using so its images will not be disposed after adding them to self images
             foreach (RawIconImage image in new RawIcon(icon).iconImages)
@@ -845,7 +856,7 @@ namespace KGySoft.Drawing
         internal void Add(Bitmap image)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             Add(image, image.PixelFormat.In(PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb, PixelFormat.Format64bppArgb, PixelFormat.Format64bppPArgb) ? Color.Transparent : image.GetPixel(0, 0));
         }
@@ -856,7 +867,7 @@ namespace KGySoft.Drawing
         internal void Add(Bitmap image, Color transparentColor)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             int bpp = image.PixelFormat.ToBitsPerPixel();
             if (bpp.In(16, 48, 64))

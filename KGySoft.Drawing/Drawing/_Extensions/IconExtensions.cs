@@ -21,13 +21,12 @@ namespace KGySoft.Drawing
     using System.ComponentModel;
 
     /// <summary>
-    /// Contains <see cref="Icon"/> related methods and extensions for the <see cref="Icon"/> type.
+    /// Contains extension methods for the <see cref="Icon"/> type.
     /// </summary>
     public static class IconExtensions
     {
         #region Fields
 
-        private static FieldAccessor iconData;
 
         #endregion
 
@@ -47,9 +46,9 @@ namespace KGySoft.Drawing
         public static Icon[] IconsFromFile(string fileName, SystemIconSize size)
         {
             if (fileName == null)
-                throw new ArgumentNullException(nameof(fileName), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
             Icon[] result = new Icon[handles.Length];
@@ -71,7 +70,7 @@ namespace KGySoft.Drawing
         public static Icon[] IconsFromFile(string fileName)
         {
             if (fileName == null)
-                throw new ArgumentNullException(nameof(fileName), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
             Icon[] result = new Icon[handles.Length];
@@ -98,16 +97,16 @@ namespace KGySoft.Drawing
         public static Icon IconFromExtension(string extension, SystemIconSize size)
         {
             if (extension == null)
-                throw new ArgumentNullException(nameof(extension), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(extension), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
-                throw new ArgumentOutOfRangeException(nameof(size), Res.EnumOutOfRange(size));
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
 
             if (!Path.HasExtension(extension))
                 extension = Path.GetFileName(extension) == extension ? '.' + extension : ".";
 
             IntPtr handle = Shell32.GetFileIconHandle(extension, size);
             if (handle == IntPtr.Zero)
-                throw new ArgumentException(Res.ArgumentInvalidString, nameof(extension));
+                throw new ArgumentException(PublicResources.ArgumentInvalidString, nameof(extension));
 
             return ToManagedIcon(Icon.FromHandle(handle));
         }
@@ -126,7 +125,7 @@ namespace KGySoft.Drawing
         public static Icon IconFromImage(Image image, int size, bool keepAspectRatio)
         {
             if (image == null)
-                throw new ArgumentNullException(nameof(image), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             Bitmap bitmap;
             if (size == image.Width && size == image.Height && (bitmap = image as Bitmap) != null)
@@ -211,7 +210,7 @@ namespace KGySoft.Drawing
         public static Bitmap ToAlphaBitmap(this Icon icon)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             User32.GetIconInfo(icon.Handle, out ICONINFO iconInfo);
             try
@@ -406,9 +405,9 @@ namespace KGySoft.Drawing
         public static Bitmap ExtractBitmap(this Icon icon, int index, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index), Res.ArgumentOutOfRange);
+                throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
 
             using (RawIcon rawIcon = new RawIcon(icon, null, null, index))
             {
@@ -433,7 +432,7 @@ namespace KGySoft.Drawing
         public static Bitmap ExtractNearestBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -520,9 +519,9 @@ namespace KGySoft.Drawing
         public static Icon ExtractIcon(this Icon icon, int index)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             if (index < 0)
-                throw new ArgumentOutOfRangeException(nameof(index), Res.ArgumentOutOfRange);
+                throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
 
             using (RawIcon rawIcon = new RawIcon(icon, null, null, index))
             {
@@ -546,7 +545,7 @@ namespace KGySoft.Drawing
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -566,7 +565,7 @@ namespace KGySoft.Drawing
         public static Icon Combine(this Icon icon, params Icon[] icons)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             if (icons == null || icons.Length == 0)
                 return icon;
 
@@ -621,7 +620,7 @@ namespace KGySoft.Drawing
         public static Icon Combine(this Icon icon, params Bitmap[] images)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             if (images == null || images.Length == 0)
                 return icon;
 
@@ -677,7 +676,7 @@ namespace KGySoft.Drawing
         public static Icon Combine(this Icon icon, Bitmap image, Color transparentColor)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             if (image == null)
                 return icon;
 
@@ -732,9 +731,9 @@ namespace KGySoft.Drawing
         public static void SaveHighQuality(this Icon icon, Stream stream)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
             if (stream == null)
-                throw new ArgumentNullException(nameof(stream), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
             using (RawIcon rawIcon = new RawIcon(icon))
             {
@@ -748,8 +747,8 @@ namespace KGySoft.Drawing
         /// to create a new cursor.
         /// </summary>
         /// <param name="icon">The <see cref="Icon"/>, which should be converted to a cursor.</param>
-        /// <param name="cursorHotspot">The hotspot coordinates of the cursor.
-        /// <br/>Default value: 0; 0 (top-left corner)</param>
+        /// <param name="cursorHotspot">The hotspot coordinates of the cursor. This parameter is optional.
+        /// <br/>Default value: <c>0; 0</c> (top-left corner)</param>
         /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
 #if !NET35
         [SecuritySafeCritical]
@@ -757,7 +756,7 @@ namespace KGySoft.Drawing
         public static CursorHandle ToCursorHandle(this Icon icon, Point cursorHotspot = default(Point))
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             return ToCursorHandle(icon.Handle, cursorHotspot);
         }
@@ -776,15 +775,7 @@ namespace KGySoft.Drawing
             return new CursorHandle(User32.CreateIconIndirect(ref iconInfo));
         }
 
-        internal static bool HasRawData(this Icon icon)
-        {
-            if (iconData == null)
-            {
-                iconData = FieldAccessor.GetAccessor(typeof(Icon).GetField("iconData", BindingFlags.Instance | BindingFlags.NonPublic));
-            }
-
-            return iconData.Get(icon) != null;
-        }
+        internal static bool HasRawData(this Icon icon) => icon.GetIconData() != null;
 
         #endregion
 
@@ -829,7 +820,7 @@ namespace KGySoft.Drawing
         private static Bitmap[] ExtractBitmaps(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
         {
             if (icon == null)
-                throw new ArgumentNullException(nameof(icon), Res.ArgumentNull);
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
             {
