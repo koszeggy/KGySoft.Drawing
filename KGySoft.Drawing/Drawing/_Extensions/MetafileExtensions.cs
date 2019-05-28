@@ -1,15 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: MetafileExtensions.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Text;
+
 using KGySoft.Drawing.WinApi;
 using KGySoft.Serialization;
+
+#endregion
 
 namespace KGySoft.Drawing
 {
@@ -18,9 +35,13 @@ namespace KGySoft.Drawing
     /// </summary>
     public static class MetafileExtensions
     {
+        #region WmfHeader struct
+
         [StructLayout(LayoutKind.Sequential, Pack = 2)]
         private struct WmfHeader
         {
+            #region Fields
+
             /// <summary>
             /// Magic number (always 9AC6CDD7h)
             /// </summary>
@@ -66,6 +87,10 @@ namespace KGySoft.Drawing
             /// </summary>
             private ushort checksum;
 
+            #endregion
+
+            #region Constructors
+
             internal WmfHeader(short width, short height, ushort dpi)
                 : this()
             {
@@ -79,7 +104,15 @@ namespace KGySoft.Drawing
                 checksum ^= (ushort)bottom;
                 checksum ^= inch;
             }
+
+            #endregion
         }
+
+        #endregion
+
+        #region Methods
+
+        #region Public Methods
 
         /// <summary>
         /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance provided in the <paramref name="metafile"/> parameter.
@@ -148,8 +181,8 @@ namespace KGySoft.Drawing
             IntPtr handle = metafile.GetHenhmetafile();
             try
             {
-                byte[] buffer = isWmf ? Gdi32.GetWmfContent(handle) 
-                    : (forceWmfFormat ? Gdi32.GetWmfContentFromEmf(handle) : Gdi32.GetEmfContent(handle));
+                byte[] buffer = isWmf ? Gdi32.GetWmfContent(handle)
+                        : (forceWmfFormat ? Gdi32.GetWmfContentFromEmf(handle) : Gdi32.GetEmfContent(handle));
                 stream.Write(buffer, 0, buffer.Length);
             }
             finally
@@ -159,6 +192,10 @@ namespace KGySoft.Drawing
             }
         }
 
+        #endregion
+
+        #region Private Methods
+
         [SecurityCritical]
         private static void WriteWmfHeader(Metafile metafile, Stream stream)
         {
@@ -166,5 +203,9 @@ namespace KGySoft.Drawing
             byte[] rawHeader = BinarySerializer.SerializeValueType(header);
             stream.Write(rawHeader, 0, rawHeader.Length);
         }
+
+        #endregion
+
+        #endregion
     }
 }

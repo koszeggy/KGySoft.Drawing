@@ -1,8 +1,28 @@
-﻿using System;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: Gdi32.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
+
+#endregion
 
 namespace KGySoft.Drawing.WinApi
 {
@@ -12,10 +32,12 @@ namespace KGySoft.Drawing.WinApi
     [SecurityCritical]
     internal static class Gdi32
     {
-        private const int DIB_RGB_COLORS = 0;
+        #region NativeMethods class
 
         private static class NativeMethods
         {
+            #region Methods
+
             /// <summary>
             /// The GetObject function retrieves information for the specified graphics object.
             /// </summary>
@@ -53,7 +75,7 @@ namespace KGySoft.Drawing.WinApi
             internal static extern IntPtr CreateDIBSection(IntPtr hdc, [In] ref BITMAPINFO pbmi, int iUsage, out IntPtr ppvBits, IntPtr hSection, uint dwOffset);
 
             /// <summary>
-            /// This function creates a memory device context (DC) compatible with the specified device. 
+            /// This function creates a memory device context (DC) compatible with the specified device.
             /// </summary>
             /// <param name="hdc">[in] Handle to an existing device context.
             /// If this handle is NULL, the function creates a memory device context compatible with the application's current screen. </param>
@@ -166,7 +188,19 @@ namespace KGySoft.Drawing.WinApi
             /// If the function fails, the return value is <see cref="System.IntPtr.Zero"/>.</returns>
             [DllImport("gdi32.dll")]
             internal static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
+
+            #endregion
         }
+
+        #endregion
+
+        #region Constants
+
+        private const int DIB_RGB_COLORS = 0;
+
+        #endregion
+
+        #region Methods
 
         internal static int GetBitmapColorDepth(IntPtr handle)
         {
@@ -185,7 +219,6 @@ namespace KGySoft.Drawing.WinApi
         internal static IntPtr CreateDibSectionRgb(IntPtr hdc, ref BITMAPINFO bitmapInfo, out IntPtr bits)
             => NativeMethods.CreateDIBSection(hdc, ref bitmapInfo, DIB_RGB_COLORS, out bits, IntPtr.Zero, 0);
 
-        // ReSharper disable once InconsistentNaming
         internal static IntPtr CreateCompatibleDC(IntPtr hdc) => NativeMethods.CreateCompatibleDC(hdc);
 
         internal static void SelectObject(IntPtr hdc, IntPtr hgdiobj)
@@ -247,5 +280,7 @@ namespace KGySoft.Drawing.WinApi
         }
 
         internal static IntPtr CreateCompatibleBitmap(IntPtr hdc, int width, int height) => NativeMethods.CreateCompatibleBitmap(hdc, width, height);
+
+        #endregion
     }
 }

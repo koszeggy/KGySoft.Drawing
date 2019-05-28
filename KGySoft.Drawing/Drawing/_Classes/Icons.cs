@@ -20,7 +20,10 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Globalization;
+using System.IO;
+using System.Linq;
 using System.Resources;
 using System.Security;
 using KGySoft.CoreLibraries;
@@ -31,7 +34,7 @@ using KGySoft.Drawing.WinApi;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Provides general icons in multi resolution. Unlike <see cref="SystemIcons"/>, these icons should be disposed when not used any more.
+    /// Provides some icon-related methods as well as properties returning general icons in multi resolution. Unlike <see cref="SystemIcons"/>, these icons should be disposed when not used any more.
     /// </summary>
     public static class Icons
     {
@@ -373,8 +376,247 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
-        /// when no icon found, or Windows version is below Vista.</returns>
+        /// when no icon found or Windows version is below Vista.</returns>
         public static Icon GetStockIcon(StockIcon id) => GetSystemIcon(id, null);
+
+        /// <summary>
+        /// Extracts icons of the specified <paramref name="size"/> from a file and returns them as separated <see cref="Icon"/> instances.
+        /// </summary>
+        /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file.</param>
+        /// <param name="size">The size of the icons to be extracted.</param>
+        /// <returns>The icons of the specified file, or an empty array if the file does not exist or does not contain any icons.</returns>
+        /// <remarks>
+        /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
+        /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
+        /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon[] FromFile(string fileName, SystemIconSize size)
+        {
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+            if (!Enum<SystemIconSize>.IsDefined(size))
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
+
+            IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
+            Icon[] result = new Icon[handles.Length];
+
+            for (int i = 0; i < handles.Length; i++)
+                result[i] = Icon.FromHandle(handles[i][0]).ToManagedIcon();
+
+            return result;
+        }
+
+        /// <summary>
+        /// Extracts dual-resolution icons from a file and returns them as separated <see cref="Icon"/> instances.
+        /// </summary>
+        /// <param name="fileName">The name of the file. Can be an executable file, a .dll or icon file.</param>
+        /// <returns>The icons of the specified file, or an empty array if the file does not exist or does not contain any icons.</returns>
+        /// <remarks>
+        /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
+        /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
+        /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon[] FromFile(string fileName)
+        {
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+
+            IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
+            Icon[] result = new Icon[handles.Length];
+
+            for (int i = 0; i < handles.Length; i++)
+            {
+                result[i] = Combine(handles[i].Select(Icon.FromHandle).ToArray());
+                foreach (IntPtr handle in handles[i])
+                    User32.DestroyIcon(handle);
+            }
+
+            return result;
+        }
+
+        /// <summary>
+        /// Gets the system-associated icon of a file extension.
+        /// </summary>
+        /// <param name="extension">A file name (can be a non-existing one) or an extension for which the associated icon is about to be retrieved.</param>
+        /// <param name="size">The size of the icon to be retrieved.</param>
+        /// <returns>The icon of the specified extension.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon FromExtension(string extension, SystemIconSize size)
+        {
+            if (extension == null)
+                throw new ArgumentNullException(nameof(extension), PublicResources.ArgumentNull);
+            if (!Enum<SystemIconSize>.IsDefined(size))
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
+
+            if (!Path.HasExtension(extension))
+                extension = Path.GetFileName(extension) == extension ? '.' + extension : ".";
+
+            IntPtr handle = Shell32.GetFileIconHandle(extension, size);
+            if (handle == IntPtr.Zero)
+                throw new ArgumentException(PublicResources.ArgumentInvalidString, nameof(extension));
+
+            return Icon.FromHandle(handle).ToManagedIcon();
+        }
+
+        /// <summary>
+        /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="icons">The icons to be combined.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
+        /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon Combine(params Icon[] icons)
+        {
+            if (icons == null || icons.Length == 0)
+                return null;
+
+            using (RawIcon rawIcon = new RawIcon())
+            {
+                foreach (Icon icon in icons)
+                    rawIcon.Add(icon);
+
+                return rawIcon.ToIcon();
+            }
+        }
+
+        /// <summary>
+        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
+        /// Transparency is determined automatically by image format.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon Combine(params Bitmap[] images)
+        {
+            if (images == null || images.Length == 0)
+                return null;
+
+            using (RawIcon rawIcon = new RawIcon())
+            {
+                foreach (Bitmap image in images)
+                    rawIcon.Add(image);
+
+                return rawIcon.ToIcon();
+            }
+        }
+
+        /// <summary>
+        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="images">The images to be added to the icon. Images can be non-squares ones.</param>
+        /// <param name="transparentColors">An array of transparent colors of the images. The array must have as many elements as <paramref name="images"/>.</param>
+        /// <returns>
+        /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
+        /// </returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon Combine(Bitmap[] images, Color[] transparentColors)
+        {
+            int imageCount = images?.Length ?? 0;
+            int colorCount = transparentColors?.Length ?? 0;
+            if (imageCount != colorCount)
+                throw new ArgumentException(Res.IconExtensionsImagesColorsDifferentLength);
+
+            if (images == null || transparentColors == null || imageCount == 0)
+                return null;
+
+            using (RawIcon rawIcon = new RawIcon())
+            {
+                for (int i = 0; i < imageCount; i++)
+                    rawIcon.Add(images[i], transparentColors[i]);
+
+                return rawIcon.ToIcon();
+            }
+        }
+
+        #endregion
+
+        #region Internal Methods
+
+        [SecurityCritical]
+        internal static CursorHandle ToCursorHandle(IntPtr iconHandle, Point cursorHotspot)
+        {
+            User32.GetIconInfo(iconHandle, out ICONINFO iconInfo);
+            iconInfo.xHotspot = cursorHotspot.X;
+            iconInfo.yHotspot = cursorHotspot.Y;
+            iconInfo.fIcon = false;
+            return new CursorHandle(User32.CreateIconIndirect(ref iconInfo));
+        }
+
+        /// <summary>
+        /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
+        /// </summary>
+        /// <param name="image">The image to be converted to an icon.</param>
+        /// <param name="size">The required size of the icon.</param>
+        /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
+        /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
+        /// <remarks>The result icon will be always square sized. To create a non-square icon, use <see cref="Combine(Bitmap[])"/> instead.</remarks>
+        [SecurityCritical]
+        internal static Icon FromImage(Image image, int size, bool keepAspectRatio)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+
+            Bitmap bitmap;
+            if (size == image.Width && size == image.Height && (bitmap = image as Bitmap) != null)
+            {
+                return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
+            }
+
+            using (bitmap = new Bitmap(size, size))
+            {
+                using (Graphics g = Graphics.FromImage(bitmap))
+                {
+                    int x, y, w, h; // dimensions for new image
+
+                    if (!keepAspectRatio || image.Height == image.Width)
+                    {
+                        // just fill the square
+                        x = y = 0; // set x and y to 0
+                        w = h = size; // set width and height to size
+                    }
+                    else
+                    {
+                        // work out the aspect ratio
+                        float r = (float)image.Width / image.Height;
+                        // set dimensions accordingly to fit inside size^2 square
+
+                        if (r > 1)
+                        { // w is bigger, so divide h by r
+                            w = size;
+                            h = (int)(size / r);
+                            x = 0;
+                            y = (size - h) / 2; // center the image
+                        }
+                        else
+                        { // h is bigger, so multiply w by r
+                            w = (int)(size * r);
+                            h = size;
+                            y = 0;
+                            x = (size - w) / 2; // center the image
+                        }
+                    }
+                    // make the image shrink nicely by using HighQualityBicubic mode
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.PixelOffsetMode = PixelOffsetMode.Half;
+                    g.DrawImage(image, x, y, w, h); // draw image with specified dimensions
+                    g.Flush(); // make sure all drawing operations complete before we get the icon
+
+                    return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
+                }
+            }
+        }
 
         #endregion
 

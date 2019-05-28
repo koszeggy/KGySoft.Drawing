@@ -1,8 +1,25 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: SHSTOCKICONINFO.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Runtime.InteropServices;
-using System.Text;
+
+#endregion
 
 namespace KGySoft.Drawing.WinApi
 {
@@ -12,7 +29,13 @@ namespace KGySoft.Drawing.WinApi
     [StructLayoutAttribute(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct SHSTOCKICONINFO
     {
+        #region Constants
+
         private const int MAX_PATH = 260;
+
+        #endregion
+
+        #region Fields
 
         /// <summary>
         /// The size of this structure, in bytes.
@@ -40,5 +63,7 @@ namespace KGySoft.Drawing.WinApi
         /// </summary>
         [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
         internal string szPath;
+
+        #endregion
     }
 }

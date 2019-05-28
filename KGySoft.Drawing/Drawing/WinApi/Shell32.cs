@@ -1,15 +1,38 @@
-﻿using System;
-using System.Globalization;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: Shell32.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Runtime.InteropServices;
 using System.Security;
+
+#endregion
 
 namespace KGySoft.Drawing.WinApi
 {
     [SecurityCritical]
     internal static class Shell32
     {
+        #region NativeMethods class
+
         private static class NativeMethods
         {
+            #region Methods
+
             /// <summary>
             /// The ExtractIconEx function creates an array of handles to large or small icons extracted from the specified executable file, DLL, or icon file.
             /// </summary>
@@ -17,7 +40,7 @@ namespace KGySoft.Drawing.WinApi
             /// Pointer to a null-terminated string that specifies the name of an executable file, DLL, or icon file from which icons will be extracted.
             /// </param>
             /// <param name="nIconIndex">[in] (Type: int)
-            /// Specifies the zero-based index of the first icon to extract. For example, if this value is zero, the function extracts the first icon in the specified file. 
+            /// Specifies the zero-based index of the first icon to extract. For example, if this value is zero, the function extracts the first icon in the specified file.
             /// If this value is –1 and phiconLarge and phiconSmall are both NULL, the function returns the total number of icons in the specified file. If the file is an executable file or DLL, the return value is the number of RT_GROUP_ICON resources. If the file is an .ico file, the return value is 1.
             /// If this value is a negative number and either phiconLarge or phiconSmall is not NULL, the function begins by extracting the icon whose resource identifier is equal to the absolute value of nIconIndex. For example, use -3 to extract the icon whose resource identifier is 3.
             /// </param>
@@ -40,15 +63,15 @@ namespace KGySoft.Drawing.WinApi
             /// Retrieves information about an object in the file system, such as a file, folder, directory, or drive root.
             /// </summary>
             /// <param name="pszPath">[in] (Type: LPCSTR)
-            /// A pointer to a null-terminated string of maximum length MAX_PATH that contains the path and file name. Both absolute and relative paths are valid. 
-            /// 
+            /// A pointer to a null-terminated string of maximum length MAX_PATH that contains the path and file name. Both absolute and relative paths are valid.
+            ///
             /// If the uFlags parameter includes the SHGFI_PIDL flag, this parameter must be the address of an ITEMIDLIST (PIDL) structure that contains the list of item identifiers
             /// that uniquely identifies the file within the Shell's namespace. The PIDL must be a fully qualified PIDL. Relative PIDLs are not allowed.
-            /// 
+            ///
             /// If the uFlags parameter includes the SHGFI_USEFILEATTRIBUTES flag, this parameter does not have to be a valid file name. The function will proceed as if the file exists
             /// with the specified name and with the file attributes passed in the dwFileAttributes parameter. This allows you to obtain information about a file type by passing just
             /// the extension for pszPath and passing FILE_ATTRIBUTE_NORMAL in dwFileAttributes.
-            /// 
+            ///
             /// This string can use either short (the 8.3 form) or long file names.
             /// </param>
             /// <param name="dwFileAttributes">Type: DWORD
@@ -65,10 +88,10 @@ namespace KGySoft.Drawing.WinApi
             /// The flags that specify the file information to retrieve.
             /// </param>
             /// <returns>Type: DWORD_PTR
-            /// Returns a value whose meaning depends on the uFlags parameter. 
-            /// 
+            /// Returns a value whose meaning depends on the uFlags parameter.
+            ///
             /// If uFlags does not contain SHGFI_EXETYPE or SHGFI_SYSICONINDEX, the return value is nonzero if successful, or zero otherwise.
-            /// 
+            ///
             /// If uFlags contains the SHGFI_EXETYPE flag, the return value specifies the type of the executable file.
             /// </returns>
             [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "SHGetFileInfoW")]
@@ -83,7 +106,13 @@ namespace KGySoft.Drawing.WinApi
             /// <returns>HRESULT</returns>
             [DllImport("Shell32.dll", SetLastError = false)]
             internal static extern int SHGetStockIconInfo(StockIcon siid, SHGSI uFlags, ref SHSTOCKICONINFO psii);
+
+            #endregion
         }
+
+        #endregion
+
+        #region Methods
 
         internal static IntPtr[][] ExtractIconHandles(string fileName, SystemIconSize? size)
         {
@@ -121,5 +150,7 @@ namespace KGySoft.Drawing.WinApi
             var iconInfo = new SHSTOCKICONINFO { cbSize = (uint)Marshal.SizeOf(typeof(SHSTOCKICONINFO)) };
             return NativeMethods.SHGetStockIconInfo(id, SHGSI.SHGSI_ICON | (SHGSI)size, ref iconInfo) == 0 ? iconInfo.hIcon : IntPtr.Zero;
         }
+
+        #endregion
     }
 }

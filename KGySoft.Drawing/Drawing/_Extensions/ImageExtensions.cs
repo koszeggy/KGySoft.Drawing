@@ -1,4 +1,20 @@
-﻿#region Used namespaces
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: ImageExtensions.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
 
 using System;
 using System.Collections.Generic;
@@ -8,12 +24,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Security;
+
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
-using KGySoft.Reflection;
 
 #endregion
 
@@ -24,19 +39,14 @@ namespace KGySoft.Drawing
     /// </summary>
     public static class ImageExtensions
     {
-        #region Fields
-
-        
-        #endregion
-
         #region Methods
 
         #region Public Methods
 
         /// <summary>
-        /// Converts an image to grayscale.
+        /// Converts an image to a grayscale one.
         /// </summary>
-        /// <param name="image">The image to convert to grayscale</param>
+        /// <param name="image">The image to convert to grayscale.</param>
         /// <returns>The grayscale version of the original <paramref name="image"/>.</returns>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Image ToGrayscale(this Image image)
@@ -44,11 +54,10 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            //Set up the drawing surface
             Bitmap result = new Bitmap(image.Width, image.Height);
             using (Graphics g = Graphics.FromImage(result))
             {
-                //Grayscale Color Matrix
+                // Grayscale color matrix
                 var colorMatrix = new ColorMatrix(new float[][]
                 {
                     new float[] { 0.3f, 0.3f, 0.3f, 0, 0 },
@@ -58,12 +67,9 @@ namespace KGySoft.Drawing
                     new float[] { 0, 0, 0, 0, 1 }
                 });
 
-                //Create attributes
                 using (var attrs = new ImageAttributes())
                 {
                     attrs.SetColorMatrix(colorMatrix);
-
-                    //Draw the image with the new attributes
                     g.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height), 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, attrs);
                 }
             }
@@ -72,19 +78,20 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Converts the image to the desired <see cref="PixelFormat"/>.
+        /// Converts the image to another one with the desired <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
-        /// <param name="newPixelFormat">The desired new pixel format. If requested format is indexed, built-in strategies
-        /// are used for the generated palette (see remarks).</param>
-        /// <param name="palette">The required palette for the result image. If <see langword="null"/>, palette will be taken from source or will be generated on demand. If palette contains transparent color, it might be considered. If it contains too few elements,
-        /// black entries will be added.</param>
+        /// <param name="newPixelFormat">The desired new pixel format. If the requested format is an indexed one, built-in strategies
+        /// are used for the generated palette.</param>
+        /// <param name="palette">The required palette for the result image. If <see langword="null"/>, the palette will be taken from source or will be generated on demand.
+        /// If palette contains transparent color, it might be considered. If it contains too few elements black entries will be added.</param>
         /// <returns>A new <see cref="Image"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format8bppIndexed"/> and <paramref name="palette"/> is <see langword="null"/>, a standard palette will be used. Transparency will be preserved.</para>
-        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/> and <paramref name="palette"/> is <see langword="null"/>, the standard 16 color palette will be used.</para>
-        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/> and <paramref name="palette"/> is <see langword="null"/>, black and white colors will be used.</para>
-        /// <para>If <paramref name="palette"/> contains the transparent color (<see cref="Color.Transparent"/>), and the source pixel format is <see cref="PixelFormat.Format32bppArgb"/>, and the target pixel format is indexed, the result will have transparency.</para>
+        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format8bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, a standard palette will be used. Transparency will be preserved.</para>
+        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, the standard 16 color palette will be used.</para>
+        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, black and white colors will be used.</para>
+        /// <para>If <paramref name="palette"/> contains the transparent color (<see cref="Color.Transparent"/>), the source pixel format is <see cref="PixelFormat.Format32bppArgb"/>, and the target pixel format is indexed, the result will have transparency.</para>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -102,7 +109,7 @@ namespace KGySoft.Drawing
             //    return (Image)image.Clone();
 
             int bpp = newPixelFormat.ToBitsPerPixel();
-            if (newPixelFormat == PixelFormat.Format16bppArgb1555 || newPixelFormat == PixelFormat.Format16bppGrayScale)
+            if (newPixelFormat.In(PixelFormat.Format16bppArgb1555, PixelFormat.Format16bppGrayScale))
                 throw new NotSupportedException(Res.ImageExtensionsPixelFormatNotSupported(newPixelFormat));
 
             Bitmap result;
@@ -119,7 +126,7 @@ namespace KGySoft.Drawing
                 return result;
             }
 
-            // 256 color image: when source has more colors and palette is not defined, saving as GIF so palette will be created internally (and image might be dithered)
+            // 256 color image: when source has more colors and palette is not defined, saving as GIF so palette will be created internally (and the image might be dithered)
             //int sourceBpp = sourcePixelFormat.ToBitsPerPixel();
             //if (bpp == 8 && palette == null && sourceBpp > 8)
             //{
@@ -156,21 +163,24 @@ namespace KGySoft.Drawing
             bool isMetafile = image is Metafile;
             var targetPalette = new RGBQUAD[256];
             int colorCount = InitPalette(targetPalette, bpp, isMetafile ? null : image.Palette, palette, out int transparentIndex);
-            var bmi = new BITMAPINFO();
-            bmi.icHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
-            bmi.icHeader.biWidth = image.Width;
-            bmi.icHeader.biHeight = image.Height;
-            bmi.icHeader.biPlanes = 1;
-            bmi.icHeader.biBitCount = (ushort)bpp;
-            bmi.icHeader.biCompression = BitmapCompressionMode.BI_RGB;
-            bmi.icHeader.biSizeImage = (uint)(((image.Width + 7) & 0xFFFFFFF8) * image.Height / (8 / bpp));
-            bmi.icHeader.biXPelsPerMeter = 0;
-            bmi.icHeader.biYPelsPerMeter = 0;
-            bmi.icHeader.biClrUsed = (uint)colorCount;
-            bmi.icHeader.biClrImportant = (uint)colorCount;
-            bmi.icColors = targetPalette;
-
-            //PixelFormat sourcePixelFormat = bmp.PixelFormat;
+            var bmi = new BITMAPINFO
+            {
+                icHeader =
+                {
+                    biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER)),
+                    biWidth = image.Width,
+                    biHeight = image.Height,
+                    biPlanes = 1,
+                    biBitCount = (ushort)bpp,
+                    biCompression = BitmapCompressionMode.BI_RGB,
+                    biSizeImage = (uint)(((image.Width + 7) & 0xFFFFFFF8) * image.Height / (8 / bpp)),
+                    biXPelsPerMeter = 0,
+                    biYPelsPerMeter = 0,
+                    biClrUsed = (uint)colorCount,
+                    biClrImportant = (uint)colorCount
+                },
+                icColors = targetPalette
+            };
 
             // Creating the indexed bitmap
             IntPtr hbmResult = Gdi32.CreateDibSectionRgb(IntPtr.Zero, ref bmi, out var _);
@@ -246,52 +256,37 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Compares an image to another by content and returns whether they are equal. Images of different
+        /// Compares an image to another one by content and returns whether they are equal. Images of different
         /// size or pixel format are considered as difference.
         /// </summary>
         /// <param name="image1">First image instance.</param>
         /// <param name="image2">Second image instance.</param>
         /// <returns><see langword="true"/>&#160;if both images have the same content; otherwise, <see langword="false"/>.</returns>
-        /// <remarks>If an image is not a <see cref="Bitmap"/> instance, a temporaly <see cref="Bitmap"/> is created for the check.
-        /// <note>This method compares images by raw content. If an images has a padding in each stride (content row), padding content is considered as well.</note></remarks>
-        public static bool EqualsByContent(this Image image1, Image image2)
-        {
-            return CompareImages(image1, image2);
-        }
-
-        /// <summary>
-        /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
-        /// </summary>
-        /// <param name="image">The image to be converted to an icon.</param>
-        /// <param name="size">The required size of the icon. Must not be larger than 256.</param>
-        /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
-        /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
-        /// <remarks>The result icon will be always square sized. To create a non-square icon, use <see cref="IconExtensions.Combine(Bitmap[])"/> instead.</remarks>
-        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio)
-        {
-            return IconExtensions.IconFromImage(image, size, keepAspectRatio);
-        }
+        /// <remarks>If an image is not a <see cref="Bitmap"/> instance, a temporary <see cref="Bitmap"/> is created for the check.
+        /// <note>This method compares images by raw content. If the images have padding in each stride (content row), padding content is considered as well.</note></remarks>
+        public static bool EqualsByContent(this Image image1, Image image2) => CompareImages(image1, image2);
 
         /// <summary>
         /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
         /// </summary>
         /// <param name="image">The image to be converted to an icon.</param>
         /// <param name="size">The required size of the icon.</param>
+        /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
-        /// <remarks>The result icon will be always sqaure sized. Original aspect ratio of the image is kept.</remarks>
-        public static Icon ToIcon(this Image image, SystemIconSize size)
-        {
-            return IconExtensions.IconFromImage(image, size);
-        }
+        /// <remarks>The result icon will be always square sized. To create a non-squared icon, use the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio);
 
         /// <summary>
-        /// Saves the provided <paramref name="images"/> as a multipage TIFF into the specified <see cref="Stream"/>.
-        /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the actual page is taken.
+        /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
+        /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
         /// </summary>
         /// <param name="images">The images to save into the TIFF data stream.</param>
-        /// <param name="stream">The stream into the TIFF data is saved.</param>
+        /// <param name="stream">The stream into the TIFF data is to be saved.</param>
         /// <remarks><para>When <paramref name="images"/> contain multi-page instances, this method takes only the current page. You can extract
-        /// images by <see cref="BitmapExtensions.ExtractBitmaps"/> method.</para>
+        /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
         /// <para>Compression mode and bit depth is chosen for each page based on pixel format.</para></remarks>
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
@@ -310,7 +305,7 @@ namespace KGySoft.Drawing
                 if (page == null)
                     throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                using (EncoderParameters encoderParams = new EncoderParameters(3))
+                using (var encoderParams = new EncoderParameters(3))
                 {
                     // LZW is always shorter, and non-BW palette is enabled, too
                     encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)(/*page.PixelFormat == PixelFormat.Format1bppIndexed ? EncoderValue.CompressionCCITT4 : */EncoderValue.CompressionLZW));
@@ -333,12 +328,11 @@ namespace KGySoft.Drawing
             }
 
             // finishing save
-            using (EncoderParameters encoderParams = new EncoderParameters(1))
+            using (var encoderParams = new EncoderParameters(1))
             {
                 encoderParams.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.Flush);
-                // ReSharper disable PossibleNullReferenceException
+                // ReSharper disable once PossibleNullReferenceException
                 tiff.SaveAdd(encoderParams);
-                // ReSharper restore PossibleNullReferenceException
             }
 
             stream.Flush();
@@ -347,6 +341,8 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the bits per pixel (bpp) value of the image.
         /// </summary>
+        /// <param name="image">The image to obtain the bits-per-pixel value from.</param>
+        /// <returns>The bits per pixel (bpp) value of the image.</returns>
         public static int GetBitsPerPixel(this Image image)
         {
             if (image == null)
@@ -390,27 +386,8 @@ namespace KGySoft.Drawing
                     {
                         fixed (byte* pbuf1 = ms1.GetBuffer())
                         fixed (byte* pbuf2 = ms2.GetBuffer())
-                        {
                             return msvcrt.CompareMemory(new IntPtr(pbuf1), new IntPtr(pbuf2), ms1.Length);
-                        }
                     }
-                    //GCHandle pbuf1 = GCHandle.Alloc(ms1.GetBuffer(), GCHandleType.Pinned);
-                    //try
-                    //{
-                    //    GCHandle pbuf2 = GCHandle.Alloc(ms2.GetBuffer(), GCHandleType.Pinned);
-                    //    try
-                    //    {
-                    //        return msvcrt.CompareMemory(pbuf1.AddrOfPinnedObject(), pbuf2.AddrOfPinnedObject(), ms1.Length);
-                    //    }
-                    //    finally
-                    //    {
-                    //        pbuf2.Free();
-                    //    }
-                    //}
-                    //finally
-                    //{
-                    //    pbuf1.Free();
-                    //}
                 }
             }
 
@@ -465,9 +442,7 @@ namespace KGySoft.Drawing
             if (sourcePalette == null)
             {
                 using (Bitmap bmpReference = new Bitmap(1, 1, bpp.ToPixelFormat()))
-                {
                     sourcePalette = bmpReference.Palette.Entries;
-                }
             }
 
             // it is ignored if source has too few colors (rest of the entries will be black)
@@ -526,6 +501,7 @@ namespace KGySoft.Drawing
                 byte* lineTarget = (byte*)dataTarget.Scan0;
                 bool is32Bpp = sourceBpp == 32;
 
+                // ReSharper disable PossibleNullReferenceException
                 // scanning through the lines
                 for (int y = 0; y < dataSource.Height; y++)
                 {
@@ -574,6 +550,7 @@ namespace KGySoft.Drawing
                     lineSource += dataSource.Stride;
                     lineTarget += dataTarget.Stride;
                 }
+                // ReSharper restore PossibleNullReferenceException
             }
             finally
             {
@@ -601,6 +578,7 @@ namespace KGySoft.Drawing
                 byte* lineSource = (byte*)dataSource.Scan0;
                 byte* lineTarget = (byte*)dataTarget.Scan0;
 
+                // ReSharper disable PossibleNullReferenceException
                 // scanning through the lines
                 for (int y = 0; y < dataSource.Height; y++)
                 {
@@ -672,6 +650,7 @@ namespace KGySoft.Drawing
                     lineSource += dataSource.Stride;
                     lineTarget += dataTarget.Stride;
                 }
+                // ReSharper restore PossibleNullReferenceException
             }
             finally
             {

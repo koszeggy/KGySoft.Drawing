@@ -1,4 +1,20 @@
-﻿#region Used namespaces
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: User32.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
 
 using System;
 using System.ComponentModel;
@@ -13,8 +29,12 @@ namespace KGySoft.Drawing.WinApi
     [SecurityCritical]
     internal static class User32
     {
+        #region NativeMethods class
+
         private static class NativeMethods
         {
+            #region Methods
+
             /// <summary>
             /// Destroys an icon and frees any memory the icon occupied.
             /// </summary>
@@ -51,7 +71,7 @@ namespace KGySoft.Drawing.WinApi
             internal static extern bool ReleaseDC(IntPtr hWnd, IntPtr hDC);
 
             /// <summary>
-            /// Retrieves information about the specified icon or cursor. 
+            /// Retrieves information about the specified icon or cursor.
             /// </summary>
             /// <param name="hIcon">A handle to the icon or cursor. To retrieve information about a standard icon or cursor, specify one of the standard values.</param>
             /// <param name="piconinfo">A pointer to an ICONINFO structure. The function fills in the structure's members.</param>
@@ -106,7 +126,13 @@ namespace KGySoft.Drawing.WinApi
             [DllImport("user32.dll", SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DestroyCursor(IntPtr hCursor);
+
+            #endregion
         }
+
+        #endregion
+
+        #region Methods
 
         internal static void DestroyIcon(IntPtr handle)
         {
@@ -163,5 +189,7 @@ namespace KGySoft.Drawing.WinApi
             if (!NativeMethods.DestroyCursor(handle))
                 throw new ArgumentException(Res.User32InvalidHandle, nameof(handle), new Win32Exception());
         }
+
+        #endregion
     }
 }

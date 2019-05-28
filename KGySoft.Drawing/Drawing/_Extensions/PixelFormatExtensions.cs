@@ -1,14 +1,35 @@
-﻿using System.Drawing.Imaging;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: PixelFormatExtensions.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
+using System.Drawing.Imaging;
+
+#endregion
 
 namespace KGySoft.Drawing
 {
-    using System;
-
     /// <summary>
     /// Contains extension methods for the <see cref="PixelFormat"/> type.
     /// </summary>
     internal static class PixelFormatExtensions
     {
+        #region Methods
+
         /// <summary>
         /// Gets the bits per pixel (bpp) value of a <see cref="PixelFormat"/> value.
         /// </summary>
@@ -95,5 +116,7 @@ namespace KGySoft.Drawing
                     throw new ArgumentOutOfRangeException(nameof(bpp), PublicResources.ArgumentOutOfRange);
             }
         }
+
+        #endregion
     }
 }

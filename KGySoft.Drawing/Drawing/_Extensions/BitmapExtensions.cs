@@ -312,7 +312,7 @@ namespace KGySoft.Drawing
             IntPtr iconHandle = bitmap.GetHicon();
             try
             {
-                return IconExtensions.ToCursorHandle(iconHandle, cursorHotspot);
+                return Icons.ToCursorHandle(iconHandle, cursorHotspot);
             }
             finally
             {

@@ -1,11 +1,30 @@
-﻿using System;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: GraphicsExtensions.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
-using System.Reflection;
 using System.Security;
+
 using KGySoft.Drawing.WinApi;
-using KGySoft.Reflection;
+
+#endregion
 
 namespace KGySoft.Drawing
 {
@@ -14,12 +33,16 @@ namespace KGySoft.Drawing
     /// </summary>
     public static class GraphicsExtensions
     {
+        #region Methods
+
+        #region Public Methods
+
         /// <summary>
-        /// Draws a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and four corner radius values.
+        /// Draws a rounded rectangle specified by a bounding <see cref="Rectangle"/> and four corner radius values.
         /// </summary>
-        /// <param name="graphics">The <see cref="Graphics"/> instance to draw.</param>
-        /// <param name="pen">The <see cref="Pen"/> instance to be used for the drawing</param>
-        /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
+        /// <param name="graphics">The <see cref="Graphics"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> instance to be used for the drawing.</param>
+        /// <param name="bounds">A <see cref="Rectangle"/> that bounds the rounded rectangle.</param>
         /// <param name="radiusTopLeft">Size of the top-left radius.</param>
         /// <param name="radiusTopRight">Size of the top-right radius.</param>
         /// <param name="radiusBottomRight">Size of the bottom-right radius.</param>
@@ -38,11 +61,11 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Draws a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and a common corner radius value for each corners.
+        /// Draws a rounded rectangle specified by a bounding <see cref="Rectangle"/> and a common corner radius value for each corners.
         /// </summary>
-        /// <param name="graphics">The <see cref="Graphics"/> instance to draw.</param>
-        /// <param name="pen">The <see cref="Pen"/> instance to be used for the drawing</param>
-        /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
+        /// <param name="graphics">The <see cref="Graphics"/> instance to draw on.</param>
+        /// <param name="pen">The <see cref="Pen"/> instance to be used for the drawing.</param>
+        /// <param name="bounds">A <see cref="Rectangle"/> that bounds the rounded rectangle.</param>
         /// <param name="cornerRadius">Size of the corner radius for each corners.</param>
         public static void DrawRoundedRectangle(this Graphics graphics, Pen pen, Rectangle bounds, int cornerRadius)
         {
@@ -58,11 +81,11 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Fills a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and four corner radius values.
+        /// Fills a rounded rectangle specified by a bounding <see cref="Rectangle"/> and four custom corner radius values.
         /// </summary>
-        /// <param name="graphics">The <see cref="Graphics"/> instance to draw.</param>
-        /// <param name="brush">The <see cref="Brush"/> instance to be used for the filling</param>
-        /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
+        /// <param name="graphics">The <see cref="Graphics"/> instance to draw on.</param>
+        /// <param name="brush">The <see cref="Brush"/> instance to be used for the drawing.</param>
+        /// <param name="bounds">A <see cref="Rectangle"/> that bounds the rounded rectangle.</param>
         /// <param name="radiusTopLeft">Size of the top-left radius.</param>
         /// <param name="radiusTopRight">Size of the top-right radius.</param>
         /// <param name="radiusBottomRight">Size of the bottom-right radius.</param>
@@ -81,11 +104,11 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Fills a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and a common corner radius value for each corners.
+        /// Fills a rounded rectangle specified by a bounding <see cref="Rectangle"/> and a common corner radius value for each corners.
         /// </summary>
-        /// <param name="graphics">The <see cref="Graphics"/> instance to draw.</param>
-        /// <param name="brush">The <see cref="Brush"/> instance to be used for the filling</param>
-        /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
+        /// <param name="graphics">The <see cref="Graphics"/> instance to draw on.</param>
+        /// <param name="brush">The <see cref="Brush"/> instance to be used for the drawing.</param>
+        /// <param name="bounds">A <see cref="Rectangle"/> that bounds the rounded rectangle.</param>
         /// <param name="cornerRadius">Size of the corner radius for each corners.</param>
         public static void FillRoundedRectangle(this Graphics graphics, Brush brush, Rectangle bounds, int cornerRadius)
         {
@@ -100,63 +123,12 @@ namespace KGySoft.Drawing
             }
         }
 
-        ///// <summary>
-        ///// Sets requested <paramref name="quality"/> for a <see cref="Graphics"/> instance.
-        ///// </summary>
-        ///// <param name="graphics">The graphics to set the quality.</param>
-        ///// <param name="quality">Requested quality.</param>
-        ///// <param name="useGdiPlusTextRendering"><see langword="true"/>, when GDI+ is required for text rendering instead of GDI (that is, when <c>UseCompatibleTextRendering</c> is <see langword="true"/>&#160;for a control).</param>
-        //public static void SetQuality(this Graphics graphics, RenderingQuality quality, bool useGdiPlusTextRendering)
-        //{
-        //    if (graphics == null)
-        //        throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
-
-        //    graphics.TextContrast = 4;
-        //    switch (quality)
-        //    {
-        //        case RenderingQuality.SystemDefault:
-        //            graphics.SmoothingMode = SmoothingMode.Default;
-        //            graphics.TextRenderingHint = TextRenderingHint.SystemDefault;
-        //            graphics.InterpolationMode = InterpolationMode.Default;
-        //            graphics.CompositingQuality = CompositingQuality.Default;
-        //            //graphics.PixelOffsetMode = PixelOffsetMode.Default;
-        //            break;
-        //        case RenderingQuality.Low:
-        //            graphics.SmoothingMode = SmoothingMode.None;
-        //            // with GDI, SingleBitPerPixelGridFit is replaced by ClearType
-        //            graphics.TextRenderingHint = useGdiPlusTextRendering ? TextRenderingHint.SingleBitPerPixelGridFit : TextRenderingHint.AntiAlias;
-        //            graphics.TextContrast = 0;
-        //            graphics.InterpolationMode = InterpolationMode.NearestNeighbor;
-        //            graphics.CompositingQuality = CompositingQuality.HighSpeed;
-        //            //graphics.PixelOffsetMode = PixelOffsetMode.None;
-        //            break;
-        //        case RenderingQuality.Medium:
-        //            graphics.SmoothingMode = SmoothingMode.AntiAlias;
-        //            //graphics.TextRenderingHint = useGdiPlusTextRendering ? TextRenderingHint.AntiAlias : TextRenderingHint.ClearTypeGridFit;
-        //            graphics.TextRenderingHint = TextRenderingHint.AntiAliasGridFit;
-        //            graphics.InterpolationMode = InterpolationMode.Bilinear;
-        //            graphics.CompositingQuality = CompositingQuality.AssumeLinear;
-        //            //graphics.PixelOffsetMode = PixelOffsetMode.Half;
-        //            break;
-        //        case RenderingQuality.High:
-        //            graphics.SmoothingMode = SmoothingMode.HighQuality;
-        //            //graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-        //            graphics.TextRenderingHint = TextRenderingHint.ClearTypeGridFit;
-        //            graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-        //            graphics.CompositingQuality = CompositingQuality.HighQuality;
-        //            //graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-        //            break;
-        //        default:
-        //            throw new ArgumentOutOfRangeException(nameof(quality), Res.EnumOutOfRange(quality));
-        //    }
-        //}
-
         /// <summary>
         /// Copies the  <see cref="Graphics"/> object provided in <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> instance to be converted.</param>
-        /// <param name="visibleClipOnly">When <see langword="true"/>, the result will contain only the area represented by <see cref="Graphics.VisibleClipBounds"/> property. When <see langword="false"/>, 
-        /// the result will contain the image of the whole container source (when window is found), where the visible clip bounds can be indentified by <see cref="Graphics.VisibleClipBounds"/> in pixels.</param>
+        /// <param name="visibleClipOnly">When <see langword="true"/>, the result will contain only the area represented by <see cref="Graphics.VisibleClipBounds"/> property. When <see langword="false"/>,
+        /// the result will contain the image of the whole container source (when a container object is found), where the visible clip bounds can be identified by <see cref="Graphics.VisibleClipBounds"/> in pixels.</param>
         /// <returns>A <see cref="Bitmap"/> object that contains the image content of the source <see cref="Graphics"/> object, or <see langword="null"/>, when the required area of
         /// <paramref name="graphics"/> is empty.</returns>
 #if !NET35
@@ -286,6 +258,10 @@ namespace KGySoft.Drawing
             return result;
         }
 
+        #endregion
+
+        #region Private Methods
+
         /// <summary>
         /// Returns the path for a rounded rectangle specified by a bounding <see cref="Rectangle"/> structure and four corner radius values.
         /// </summary>
@@ -320,7 +296,7 @@ namespace KGySoft.Drawing
             else
                 path.AddArc(arc, 270, 90);
 
-            // bottom right arc  
+            // bottom right arc
             if (radiusTopRight != radiusBottomRight)
             {
                 size = new Size(radiusBottomRight << 1, radiusBottomRight << 1);
@@ -334,7 +310,7 @@ namespace KGySoft.Drawing
             else
                 path.AddArc(arc, 0, 90);
 
-            // bottom left arc 
+            // bottom left arc
             if (radiusBottomRight != radiusBottomLeft)
             {
                 arc.Size = new Size(radiusBottomLeft << 1, radiusBottomLeft << 1);
@@ -370,18 +346,18 @@ namespace KGySoft.Drawing
                 return path;
             }
 
-            // top left arc  
+            // top left arc
             path.AddArc(arc, 180, 90);
 
-            // top right arc  
+            // top right arc
             arc.X = bounds.Right - diameter;
             path.AddArc(arc, 270, 90);
 
-            // bottom right arc  
+            // bottom right arc
             arc.Y = bounds.Bottom - diameter;
             path.AddArc(arc, 0, 90);
 
-            // bottom left arc 
+            // bottom left arc
             arc.X = bounds.Left;
             path.AddArc(arc, 90, 90);
 
@@ -389,5 +365,8 @@ namespace KGySoft.Drawing
             return path;
         }
 
+        #endregion
+
+        #endregion
     }
 }
