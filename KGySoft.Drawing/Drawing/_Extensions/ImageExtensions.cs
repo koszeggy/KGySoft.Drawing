@@ -126,38 +126,6 @@ namespace KGySoft.Drawing
                 return result;
             }
 
-            // 256 color image: when source has more colors and palette is not defined, saving as GIF so palette will be created internally (and the image might be dithered)
-            //int sourceBpp = sourcePixelFormat.ToBitsPerPixel();
-            //if (bpp == 8 && palette == null && sourceBpp > 8)
-            //{
-            //    // because of Image.FromStream, the stream must not be diposed during the image lifetime,
-            //    // othwerwise exceptions may come with "A generic error occurred in GDI+"
-            //    MemoryStream ms = new MemoryStream();
-            //    image.Save(ms, ImageFormat.Gif);
-            //    ms.Position = 0L;
-            //    result = (Bitmap)Image.FromStream(ms);
-
-            //    // if source may have transparency (32/64 bpp), fixing the target image because GIF encoder fails to do it
-            //    if (sourcePixelFormat.HasTransparency() || isMetafile)
-            //    {
-            //        // finding the transparent color in palette
-            //        transparentIndex = Array.FindIndex(result.Palette.Entries, c => c.ToArgb() == 0);
-            //        if (transparentIndex >= 0)
-            //        {
-            //            // when metafile, creating a bitmap with result size
-            //            bmp = (image as Bitmap) ?? new Bitmap(image, result.Size);
-
-            //            // source is never indexed here so it is enough to use ToIndexedTransparentByRgb
-            //            ToIndexedTransparentByArgb(result, bmp, transparentIndex);
-
-            //            if (!ReferenceEquals(image, bmp))
-            //                bmp.Dispose();
-            //        }
-            //    }
-
-            //    return result;
-            //}
-
             // indexed colors: using GDI+ natively
             Bitmap bmp = image as Bitmap ?? new Bitmap(image);
             bool isMetafile = image is Metafile;
@@ -724,7 +692,7 @@ namespace KGySoft.Drawing
             if (palette.IsNullOrEmpty() && (
                 // ... image is already a GIF or 8bpp memory BMP...
                 (format == ImageFormat.Gif.Guid || (bpp == 8 && format == ImageFormat.MemoryBmp.Guid))
-                // ... or image is not indexed, dithering is allowed and the source cannot has transparency
+                // ... or image is not an indexed one, dithering is allowed and the source cannot have transparency
                 || (bpp > 8 && allowDithering && !Image.IsAlphaPixelFormat(pixelFormat))))
             {
                 image.Save(stream, gifEncoder, null);
