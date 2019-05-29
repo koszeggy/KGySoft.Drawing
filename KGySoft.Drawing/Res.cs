@@ -79,6 +79,9 @@ namespace KGySoft
         /// <summary>TIFF encoder not found.</summary>
         internal static string ImageExtensionsNoTiffEncoder => Get("ImageExtensions_NoTiffEncoder");
 
+        /// <summary>GIF encoder not found.</summary>
+        internal static string ImageExtensionsNoGifEncoder => Get("ImageExtensions_NoGifEncoder");
+
         #endregion
 
         #region RawIcon

@@ -117,30 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="General_NullReference" xml:space="preserve">
-    <value>&lt;null&gt;</value>
-  </data>
-  <data name="General_ArgumentNull" xml:space="preserve">
-    <value>Value cannot be null.</value>
-  </data>
-  <data name="General_ArgumentInvalidString" xml:space="preserve">
-    <value>Input string contains an invalid value.</value>
-  </data>
-  <data name="General_ArgumentOutOfRange" xml:space="preserve">
-    <value>Specified argument was out of the range of valid values.</value>
-  </data>
-  <data name="ArgumentContainsNull" xml:space="preserve">
-    <value>Specified argument contains a null element.</value>
-  </data>
-  <data name="General_ObjectDisposed" xml:space="preserve">
-    <value>Cannot access a disposed object.</value>
-  </data>
-  <data name="General_EnumOutOfRangeFormat" xml:space="preserve">
-    <value>Enum instance of '{0}' type must be one of the defined values.</value>
-  </data>
-  <!--<data name="General_FlagsEnumOutOfRangeFormat" xml:space="preserve">
-    <value>Enum instance of '{0}' type must consist of the defined flags.</value>
-  </data>-->
   <data name="Gdi32_InvalidHandle" xml:space="preserve">
     <value>Invalid GDI object handle.</value>
   </data>
@@ -176,5 +152,8 @@
   </data>
   <data name="ImageExtensions_NoTiffEncoder" xml:space="preserve">
     <value>TIFF encoder not found.</value>
+  </data>
+  <data name="ImageExtensionsNoGifEncoder" xml:space="preserve">
+    <value>GIF encoder not found.</value>
   </data>
 </root>

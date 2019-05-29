@@ -60,9 +60,9 @@ namespace KGySoft.Drawing
                 // Grayscale color matrix
                 var colorMatrix = new ColorMatrix(new float[][]
                 {
-                    new float[] { 0.3f, 0.3f, 0.3f, 0, 0 },
-                    new float[] { 0.59f, 0.59f, 0.59f, 0, 0 },
-                    new float[] { 0.11f, 0.11f, 0.11f, 0, 0 },
+                    new float[] { 0.299f, 0.299f, 0.299f, 0, 0 },
+                    new float[] { 0.587f, 0.587f, 0.587f, 0, 0 },
+                    new float[] { 0.114f, 0.114f, 0.114f, 0, 0 },
                     new float[] { 0, 0, 0, 1, 0 },
                     new float[] { 0, 0, 0, 0, 1 }
                 });
@@ -337,6 +337,41 @@ namespace KGySoft.Drawing
 
             stream.Flush();
         }
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> as a GIF image.
+        /// <br/>See the <strong>Remarks</strong> section for the differences compared to the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method.
+        /// </summary>
+        /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current frame will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="allowDithering"><see langword="true"/>&#160; to allow dithering high color images using a fix palette; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <remarks>
+        /// <para>When an image is saved by the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method using the GIF image format, then
+        /// the original palette of an indexed source image and transparency can be lost in many cases.
+        /// Unless the source image is already a 8 bpp one, the built-in encoder will use a fixed palette and dithers the image,
+        /// while transparency will be lost.</para>
+        /// <para>This method preserves transparency of fully transparent pixels even if <paramref name="allowDithering"/> is <see langword="true"/>.</para>
+        /// </remarks>
+        public static void SaveAsGif(this Image image, Stream stream, bool allowDithering = false)
+            => SaveAsGif(image, stream, null, allowDithering);
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> as a GIF image.
+        /// <br/>See the <strong>Remarks</strong> section for the differences compared to the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method.
+        /// </summary>
+        /// <param name="image">The image to save. If image contains multiple images or frames, then the current frame will be saved. Animated GIF can be saved only if <paramref name="palette"/> is <see langword="null"/>.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="palette">The desired custom palette to use. If <see langword="null"/>, and a palette cannot be taken from the source image, then a default palette will be used.</param>
+        /// <remarks>
+        /// <para>When an image is saved by the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method using the GIF image format, then
+        /// the original palette of an indexed source image and transparency can be lost in many cases.
+        /// Unless the source image is already a 8 bpp one, the built-in encoder will use a fixed palette and dithers the image,
+        /// while transparency will be lost.</para>
+        /// <para>This method preserves transparency of fully transparent pixels unless <paramref name="palette"/> is specified and does not contain the transparent color.</para>
+        /// </remarks>
+        public static void SaveAsGif(this Image image, Stream stream, Color[] palette)
+            => SaveAsGif(image, stream, palette, false);
 
         /// <summary>
         /// Gets the bits per pixel (bpp) value of the image.
@@ -656,6 +691,76 @@ namespace KGySoft.Drawing
             {
                 target.UnlockBits(dataTarget);
                 source.UnlockBits(dataSource);
+            }
+        }
+
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream in using passed to Bitmap constructor. MemoryStream is not sensitive to multiple closing.")]
+        private static void SaveAsGif(Image image, Stream stream, Color[] palette, bool allowDithering)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+
+            ImageCodecInfo gifEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == ImageFormat.Gif.Guid);
+            if (gifEncoder == null)
+                throw new InvalidOperationException(Res.ImageExtensionsNoGifEncoder);
+
+            Guid format = image.RawFormat.Guid;
+            PixelFormat pixelFormat = image.PixelFormat;
+            int bpp = pixelFormat.ToBitsPerPixel();
+
+            // 0.) Metafile: recursion with bitmap
+            if (image is Metafile)
+            {
+                using (var bmp = new Bitmap(image, image.Size))
+                {
+                    SaveAsGif(bmp, stream, palette, allowDithering);
+                    return;
+                }
+            }
+
+            // 1.) Simply saving by GIF encoder (handles also animated GIFs), if there is no custom palette, and...
+            if (palette.IsNullOrEmpty() && (
+                // ... image is already a GIF or 8bpp memory BMP...
+                (format == ImageFormat.Gif.Guid || (bpp == 8 && format == ImageFormat.MemoryBmp.Guid))
+                // ... or image is not indexed, dithering is allowed and the source cannot has transparency
+                || (bpp > 8 && allowDithering && !Image.IsAlphaPixelFormat(pixelFormat))))
+            {
+                image.Save(stream, gifEncoder, null);
+                return;
+            }
+
+            // 2.) Indexed image or hi-color image without dithering: converting to 8bpp with desired or original palette.
+            //     Transparency is preserved if the palette has a transparent color.
+            if (bpp <= 8 || !allowDithering)
+            {
+                using (Image image8Bpp = image.ConvertPixelFormat(PixelFormat.Format8bppIndexed, palette))
+                {
+                    image8Bpp.Save(stream, gifEncoder, null);
+                    return;
+                }
+            }
+
+            // 3.) Hi-color image with dithering and transparency
+            using (var ms = new MemoryStream())
+            {
+                // a.) saving by GIF encoder into a temp stream, which makes a dithered image with no transparency
+                image.Save(ms, gifEncoder, null);
+
+                // b.) reloading the stream as a bitmap with the dithered image
+                ms.Position = 0L;
+                using (var ditheredGif = new Bitmap(ms))
+                {
+                    int transparentIndex = Array.FindIndex(ditheredGif.Palette.Entries, c => c.A == 0);
+
+                    // c.) restoring transparency in the dithered image
+                    if (transparentIndex >= 0)
+                        ToIndexedTransparentByArgb(ditheredGif, (Bitmap)image, transparentIndex);
+
+                    // d.) saving the restored transparent image
+                    ditheredGif.Save(stream, gifEncoder, null);
+                }
             }
         }
 
