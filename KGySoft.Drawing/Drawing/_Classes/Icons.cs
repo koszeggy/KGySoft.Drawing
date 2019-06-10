@@ -54,16 +54,16 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Information icon as it is stored in the current operating system.
-        /// On Windows Vista and above sizes are depending on current DPI settings, on Windows XP they have always 32x32 and 16x16 sizes.
+        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// On Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Information32.png" alt="Information 32x32"/>
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
+        /// In Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/InformationXP32.png" alt="Information Windows XP 32x32"/>
         /// <img src="../Help/Images/InformationXP16.png" alt="Information Windows XP 16x16"/>
         /// </para>
@@ -74,16 +74,16 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Warning icon as it is stored in the current operating system.
-        /// On Windows Vista and above sizes are depending on current DPI settings, on Windows XP they have always 32x32 and 16x16 sizes.
+        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// On Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32"/>
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
+        /// In Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/WarningXP32.png" alt="Warning Windows XP 32x32"/>
         /// <img src="../Help/Images/WarningXP16.png" alt="Warning Windows XP 16x16"/>
         /// </para>
@@ -94,16 +94,16 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Error icon as it is stored in the current operating system.
-        /// On Windows Vista and above sizes are depending on current DPI settings, on Windows XP they have always 32x32 and 16x16 sizes.
+        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// On Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Error32.png" alt="Error 32x32"/>
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
+        /// In Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/ErrorXP32.png" alt="Error Windows XP 32x32"/>
         /// <img src="../Help/Images/ErrorXP16.png" alt="Error Windows XP 16x16"/>
         /// </para>
@@ -114,16 +114,16 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Question icon as it is stored in the current operating system.
-        /// On Windows Vista and above sizes are depending on current DPI settings, on Windows XP they have always 32x32 and 16x16 sizes.
+        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// On Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Question32.png" alt="Question 32x32"/>
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
+        /// In Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/QuestionXP32.png" alt="Question Windows XP 32x32"/>
         /// <img src="../Help/Images/QuestionXP16.png" alt="Question Windows XP 16x16"/>
         /// </para>
@@ -134,16 +134,16 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Application icon as it is stored in the current operating system.
-        /// On Windows Vista and above sizes are depending on current DPI settings, on Windows XP they have always 32x32 and 16x16 sizes.
+        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// On Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Application32.png" alt="Application 32x32"/>
         /// <img src="../Help/Images/Application16.png" alt="Application 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains the following images:<br/>
+        /// In Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/ApplicationXP32.png" alt="Application Windows XP 32x32"/>
         /// <img src="../Help/Images/ApplicationXP16.png" alt="Application Windows XP 16x16"/>
         /// </para>
@@ -154,22 +154,22 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Shield icon as it is stored in the current operating system.
-        /// On Windows Vista and above icon contains two sizes, which are depending on current DPI settings,
-        /// on Windows XP the icon contains multiple resolution and color depths.
+        /// In Windows Vista and above icon contains two sizes, which are depending on current DPI settings,
+        /// in Windows XP the icon contains multiple resolution and color depths.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// On Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows 7, with default DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityShield32.png" alt="Shield Windows 7 32x32"/>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield Windows 7 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows Vista, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows Vista, with default DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Shield32.png" alt="Shield Windows Vista 32x32"/>
         /// <img src="../Help/Images/Shield16.png" alt="Shield Windows Vista 16x16"/>
         /// </para>
         /// <para>
-        /// On Windows XP the icon contains different color depth version of the following images:<br/>
+        /// In Windows XP the icon contains different color depth version of the following images:<br/>
         /// <img src="../Help/Images/ShieldXP48.png" alt="Shield Windows XP 48x48"/>
         /// <img src="../Help/Images/ShieldXP32.png" alt="Shield Windows XP 32x32"/>
         /// <img src="../Help/Images/ShieldXP16.png" alt="Shield Windows XP 16x16"/>
@@ -372,7 +372,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Tries to get a system stock icon. When there is no icon defined for provided <paramref name="id"/>,
         /// or Windows version is below Vista, this method returns <see langword="null"/>.
-        /// On Windows XP use the predefined property members to retrieve system icons.
+        /// In Windows XP use the predefined property members to retrieve system icons.
         /// </summary>
         /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,

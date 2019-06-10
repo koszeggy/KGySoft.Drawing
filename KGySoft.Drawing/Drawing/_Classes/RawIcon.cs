@@ -392,12 +392,12 @@ namespace KGySoft.Drawing
             }
 
             [SecurityCritical]
-            [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "False alarm, BinaryWriter leaves the stream open.")]
+            [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
             internal Icon ToIcon()
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    using (BinaryWriter bw = new BinaryWriter(ms, Encoding.ASCII, true))
+                    using (BinaryWriter bw = new BinaryWriter(ms))
                     {
                         // header
                         ICONDIR iconDir = new ICONDIR
@@ -778,7 +778,7 @@ namespace KGySoft.Drawing
         /// Initializes a new instance of the <see cref="RawIcon"/> class from an <see cref="Icon"/>.
         /// </summary>
         [SecurityCritical]
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "False alarm, BinaryReader leaves the stream open.")]
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
         internal RawIcon(Icon icon, Size? size = null, int? bpp = null, int? index = null)
         {
             if (icon == null)
@@ -808,7 +808,7 @@ namespace KGySoft.Drawing
                 icon.Save(ms);
                 ms.Position = 0L;
 
-                using (BinaryReader br = new BinaryReader(ms, Encoding.ASCII, true))
+                using (BinaryReader br = new BinaryReader(ms))
                 {
                     Load(br, size, bpp, index);
                 }
@@ -883,7 +883,7 @@ namespace KGySoft.Drawing
         /// Gets the icons of the <see cref="RawIcon"/> instance as a single, combined <see cref="Icon"/>.
         /// </summary>
         [SecurityCritical]
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "False alarm, the BinaryWriter leaves the stream open.")]
+        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
         internal Icon ToIcon()
         {
             if (iconImages.Count == 0)
@@ -891,7 +891,7 @@ namespace KGySoft.Drawing
 
             using (MemoryStream ms = new MemoryStream())
             {
-                using (BinaryWriter bw = new BinaryWriter(ms, Encoding.ASCII, true))
+                using (BinaryWriter bw = new BinaryWriter(ms))
                 {
                     Save(bw);
                     ms.Position = 0L;
@@ -913,7 +913,7 @@ namespace KGySoft.Drawing
             // not in using because stream must left open during the Bitmap lifetime
             var ms = new MemoryStream();
             {
-                using (var bw = new BinaryWriter(ms, Encoding.ASCII, true))
+                using (var bw = new BinaryWriter(ms))
                 {
                     Save(bw);
                 }

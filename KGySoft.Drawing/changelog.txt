@@ -1,0 +1,22 @@
+﻿Legend:
+! Breaking change
+* Compatible change
+- Bugfix
++ New feature
+===============================================================================
+
+~~~~~~~~~~~
+! v4.6.0.0:
+~~~~~~~~~~~
+
+! Assembly: Applying SecurityRuleSet.Level2 and adjusting security critical calls in the whole assembly.
+  This is a breaking change for .NET4.0 and above only if the caller assembly is partially trusted or is
+  security transparent and tries to call the few of the public methods, which are security critical.
+* Moving the repository to GitHub
+! Referencing KGySoft.CoreLibraries 4.6.0 and using its public resources for general messages.
++ Dynamic localizable resources are applied for KGySoft.Drawing
+
+* KGySoft.Drawing namespace:
+==================================
+! Removing the Images class along with the related resources
++ Moving public SaveAsGif methods to KGySoft.Drawing from VisualizerHelpers

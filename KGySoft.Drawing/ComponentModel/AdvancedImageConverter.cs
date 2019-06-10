@@ -101,9 +101,7 @@ namespace KGySoft.ComponentModel
                 }
             }
 
-            // 4.) GIF: TODO: put a SaveAsGif into Drawing
-
-            // 5.) Any other: base works well.
+            // 4.) Any other: base works well
             return base.ConvertTo(context, culture, value, destinationType);
         }
 

@@ -140,7 +140,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Saves a <see cref="Metafile"/> instace into a <see cref="Stream"/>.
+        /// Saves a <see cref="Metafile"/> instance into a <see cref="Stream"/>.
         /// Actual format is selected by the raw format of the metafile.
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
@@ -156,7 +156,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Saves a <see cref="Metafile"/> instace into a <see cref="Stream"/> using the required format.
+        /// Saves a <see cref="Metafile"/> instance into a <see cref="Stream"/> using the required format.
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
         /// <param name="stream">The <see cref="Stream"/> into the metafile should be saved.</param>

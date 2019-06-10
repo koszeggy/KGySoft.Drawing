@@ -1,0 +1,55 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>KGySoft.Drawing</id>
+    <version>4.6.0</version>
+    <title>KGy SOFT Drawing Libraries</title>
+    <authors>György Kőszeg</authors>
+    <owners>György Kőszeg</owners>
+    <license type="file">LICENSE</license>
+    <!--<licenseUrl>https://creativecommons.org/licenses/by-nd/4.0/legalcode</licenseUrl>-->
+    <projectUrl>https://kgysoft.net/drawing</projectUrl>
+    <iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Advanced features for System.Drawing types such as saving bitmaps and metafiles in various formats, manipulating high resolution multi-image icons, etc.</summary>
+    <description xml:space="preserve">KGy SOFT Drawing Libraries provides advanced features for System.Drawing types.
+
+Among others:
+- Several built-in icons as well as simple access to Windows associated and stock icons.
+- Extracting bitmaps from multi-frame bitmaps and icons.
+- Creating combined icons and multi-resolution bitmaps.
+- Saving metafiles in EMF/WMF formats.
+- Advanced support for saving Icon, GIF and TIFF formats.
+- Converting between various pixel formats preserving transparency if possible.
+- Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.
+
+Find the full documentation with examples online: https://docs.kgysoft.net/drawing</description>
+    <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt</releaseNotes>
+    <copyright>Copyright © KGy SOFT</copyright>
+    <tags>KGySoft Drawing extension icon bitmap image metafile graphics gif tiff emf wmf</tags>
+    <language>en-US</language>
+    <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
+    <dependencies>
+      <group targetFramework=".NETFramework3.5">
+        <dependency id="KGySoft.CoreLibraries" version="4.6.0" />
+      </group>
+      <group targetFramework=".NETFramework4.0">
+        <dependency id="KGySoft.CoreLibraries" version="4.6.0" />
+      </group>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="KGySoft.CoreLibraries" version="4.6.0" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\LICENSE" />
+    <file src="..\Help\KGySoft.Drawing.chm" target="Help" />
+    <file src="readme.txt"/>
+    <file src="..\bin\Release_NET35\KGySoft.Drawing.dll" target="lib\net35" />
+    <file src="..\bin\Release_NET35\KGySoft.Drawing.xml" target="lib\net35" />
+    <file src="..\bin\Release_NET40\KGySoft.Drawing.dll" target="lib\net40" />
+    <file src="..\bin\Release_NET40\KGySoft.Drawing.xml" target="lib\net40" />
+    <file src="..\bin\Release_NET45\KGySoft.Drawing.dll" target="lib\net45" />
+    <file src="..\bin\Release_NET45\KGySoft.Drawing.xml" target="lib\net45" />
+  </files>
+</package>

@@ -36,7 +36,7 @@ using System.Security;
 // by using the '*' as shown below:
 [assembly: AssemblyVersion("4.6.0.0")]
 [assembly: AssemblyFileVersion("4.6.0.0")]
-[assembly: AssemblyInformationalVersion("4.6.0-alpha.1")]
+[assembly: AssemblyInformationalVersion("4.6.0")]
 
 [assembly: CLSCompliant(true)]
 

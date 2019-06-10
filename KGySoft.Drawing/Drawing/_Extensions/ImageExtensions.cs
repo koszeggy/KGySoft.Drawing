@@ -91,7 +91,7 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format8bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, a standard palette will be used. Transparency will be preserved.</para>
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, the standard 16 color palette will be used.</para>
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, black and white colors will be used.</para>
-        /// <para>If <paramref name="palette"/> contains the transparent color (<see cref="Color.Transparent"/>), the source pixel format is <see cref="PixelFormat.Format32bppArgb"/>, and the target pixel format is indexed, the result will have transparency.</para>
+        /// <para>If the target pixel format is indexed, <paramref name="palette"/> contains the transparent color (<see cref="Color.Transparent">Color.Transparent</see>), and the source has transparency, then the result will have transparency for fully transparent pixels.</para>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -310,7 +310,7 @@ namespace KGySoft.Drawing
         /// Saves the specified <paramref name="image"/> as a GIF image.
         /// <br/>See the <strong>Remarks</strong> section for the differences compared to the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method.
         /// </summary>
-        /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current frame will be saved.</param>
+        /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
         /// <param name="allowDithering"><see langword="true"/>&#160; to allow dithering high color images using a fix palette; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
@@ -328,7 +328,7 @@ namespace KGySoft.Drawing
         /// Saves the specified <paramref name="image"/> as a GIF image.
         /// <br/>See the <strong>Remarks</strong> section for the differences compared to the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method.
         /// </summary>
-        /// <param name="image">The image to save. If image contains multiple images or frames, then the current frame will be saved. Animated GIF can be saved only if <paramref name="palette"/> is <see langword="null"/>.</param>
+        /// <param name="image">The image to save. If image contains multiple images or frames, then the current image will be saved. Animated GIF can be saved only if <paramref name="palette"/> is <see langword="null"/>.</param>
         /// <param name="stream">The stream to save the image into.</param>
         /// <param name="palette">The desired custom palette to use. If <see langword="null"/>, and a palette cannot be taken from the source image, then a default palette will be used.</param>
         /// <remarks>
