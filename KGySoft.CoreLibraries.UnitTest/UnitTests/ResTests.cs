@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.UnitTests
     public class ResTests
     {
         #region Constants
-
+        
         private const string unavailableResourcePrefix = "Resource ID not found";
         private const string invalidResourcePrefix = "Resource text is not valid";
 
@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.UnitTests
         public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "unknown").ToString().StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
 
         [Test]
-        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "General_NotAnInstanceOfTypeFormat", new object[0]).ToString().StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
+        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "ImageExtensions_PixelFormatNotSupportedFormat", new object[0]).ToString().StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
 
         [Test]
         public void TestResources()
@@ -128,8 +128,9 @@ namespace KGySoft.Drawing.UnitTests
                 string key = ((string)enumerator.Key).Replace("_", String.Empty);
                 if (key.StartsWith("General", StringComparison.Ordinal))
                     key = key.Substring("General".Length);
-                if (key.EndsWith("Format", StringComparison.Ordinal))
-                    key = key.Substring(0, key.Length - "Format".Length);
+                if (obtainedMembers.Contains(key) || !key.EndsWith("Format", StringComparison.Ordinal))
+                    continue;
+                key = key.Substring(0, key.Length - "Format".Length);
                 if (!obtainedMembers.Contains(key))
                     uncovered.Add((string)enumerator.Key);
             }
