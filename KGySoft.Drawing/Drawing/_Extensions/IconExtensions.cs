@@ -198,7 +198,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/>&#160;if no image was found in the <paramref name="icon"/>.</returns>
         /// <seealso cref="ToAlphaBitmap"/>
-        public static Bitmap ExtractBitmap(this Icon icon, bool keepOriginalFormat = false) => ExtractBitmaps(icon, null, null, keepOriginalFormat).FirstOrDefault();
+        public static Bitmap ExtractBitmap(this Icon icon, bool keepOriginalFormat = false) => ExtractFirstBitmap(icon, null, null, keepOriginalFormat);
 
         /// <summary>
         /// Extracts the first image of specified size from an <see cref="Icon"/> instance.
@@ -211,7 +211,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
         /// <seealso cref="ExtractIcon(Icon,Size)"/>
-        public static Bitmap ExtractBitmap(this Icon icon, Size size, bool keepOriginalFormat = false) => ExtractBitmaps(icon, size, null, keepOriginalFormat).FirstOrDefault();
+        public static Bitmap ExtractBitmap(this Icon icon, Size size, bool keepOriginalFormat = false) => ExtractFirstBitmap(icon, size, null, keepOriginalFormat);
 
         /// <summary>
         /// Extracts the image of specified size and pixel format from an <see cref="Icon"/> instance.
@@ -226,7 +226,7 @@ namespace KGySoft.Drawing
         /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
         /// <seealso cref="ExtractIcon(Icon,Size,PixelFormat)"/>
         public static Bitmap ExtractBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat = false)
-            => ExtractBitmaps(icon, size, pixelFormat.ToBitsPerPixel(), keepOriginalFormat).FirstOrDefault();
+            => ExtractFirstBitmap(icon, size, pixelFormat.ToBitsPerPixel(), keepOriginalFormat);
 
         /// <summary>
         /// Extracts the image of specified index from an <see cref="Icon"/> instance.
@@ -250,7 +250,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
 
             using (RawIcon rawIcon = new RawIcon(icon, null, null, index))
-                return rawIcon.ExtractBitmaps(keepOriginalFormat).FirstOrDefault();
+                return index >= rawIcon.ImageCount ? null : rawIcon.ExtractBitmap(index, keepOriginalFormat);
         }
 
         /// <summary>
@@ -275,9 +275,7 @@ namespace KGySoft.Drawing
             int bpp = pixelFormat.ToBitsPerPixel();
 
             using (RawIcon rawIcon = new RawIcon(icon))
-            {
                 return rawIcon.ExtractNearestBitmap(bpp, size, keepOriginalFormat);
-            }
         }
 
         /// <summary>
@@ -315,7 +313,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
         /// <seealso cref="ExtractBitmap(Icon,Size,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, Size size) => ExtractIcons(icon, size, null).FirstOrDefault();
+        public static Icon ExtractIcon(this Icon icon, Size size) => ExtractFirstIcon(icon, size, null);
 
         /// <summary>
         /// Extracts the icon of specified size and pixel format from an <see cref="Icon"/> instance.
@@ -327,7 +325,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
         /// <seealso cref="ExtractBitmap(Icon,Size,PixelFormat,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractIcons(icon, size, pixelFormat.ToBitsPerPixel()).FirstOrDefault();
+        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel());
 
         /// <summary>
         /// Extracts the icon of specified index from an <see cref="Icon"/> instance.
@@ -551,9 +549,19 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
             using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
-            {
                 return rawIcon.ExtractBitmaps(keepOriginalFormat);
-            }
+        }
+
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        private static Bitmap ExtractFirstBitmap(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+
+            using (RawIcon rawIcon = new RawIcon(icon, size, bpp))
+                return rawIcon.ExtractBitmap(0, keepOriginalFormat);
         }
 
 #if !NET35
@@ -565,9 +573,19 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(icon));
 
             using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
-            {
                 return rawIcon.ExtractIcons();
-            }
+        }
+
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        private static Icon ExtractFirstIcon(Icon icon, Size size, int? bpp)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon));
+
+            using (RawIcon rawIcon = new RawIcon(icon, size, bpp))
+                return rawIcon.ExtractIcon(0);
         }
 
         #endregion

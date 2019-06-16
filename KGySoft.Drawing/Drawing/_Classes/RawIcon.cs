@@ -809,9 +809,7 @@ namespace KGySoft.Drawing
                 ms.Position = 0L;
 
                 using (BinaryReader br = new BinaryReader(ms))
-                {
                     Load(br, size, bpp, index);
-                }
             }
         }
 
@@ -912,15 +910,10 @@ namespace KGySoft.Drawing
 
             // not in using because stream must left open during the Bitmap lifetime
             var ms = new MemoryStream();
-            {
-                using (var bw = new BinaryWriter(ms))
-                {
-                    Save(bw);
-                }
-
-                ms.Position = 0L;
-                return new Bitmap(ms);
-            }
+            var bw = new BinaryWriter(ms);
+            Save(bw);
+            ms.Position = 0L;
+            return new Bitmap(ms);
         }
 
         /// <summary>
@@ -931,6 +924,14 @@ namespace KGySoft.Drawing
         {
             BinaryWriter bw = new BinaryWriter(stream);
             Save(bw);
+        }
+
+        [SecurityCritical]
+        internal Icon ExtractIcon(int index)
+        {
+            if (index < 0 || index >= iconImages.Count)
+                return null;
+            return iconImages[index].ToIcon();
         }
 
         /// <summary>
@@ -946,6 +947,14 @@ namespace KGySoft.Drawing
             }
 
             return result;
+        }
+
+        [SecurityCritical]
+        internal Bitmap ExtractBitmap(int index, bool keepOriginalFormat)
+        {
+            if (index < 0 || index >= iconImages.Count)
+                return null;
+            return iconImages[index].ToBitmap(keepOriginalFormat);
         }
 
         /// <summary>
@@ -1013,15 +1022,11 @@ namespace KGySoft.Drawing
             // Icon directory entries
             uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + iconDir.idCount * Marshal.SizeOf(typeof(ICONDIRENTRY)));
             foreach (RawIconImage image in iconImages)
-            {
                 image.WriteDirEntry(bw, ref offset);
-            }
 
             // Icon images
             foreach (RawIconImage image in iconImages)
-            {
                 image.WriteRawImage(bw);
-            }
         }
 
         [SecurityCritical]
