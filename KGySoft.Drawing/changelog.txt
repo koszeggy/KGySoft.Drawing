@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~~~
+* v4.6.1.0:
+~~~~~~~~~~~
+
+* KGySoft.Drawing namespace:
+============================
+* IconExtensions:
+  - ToMultiResBitmap: Fixing InvalidOperationException
+  - ExtractBitmap and ExtractIcon overloads: Not creating unnecessary Bitmap/Icon instances, which would be discarded anyway.
+
+~~~~~~~~~~~
 ! v4.6.0.0:
 ~~~~~~~~~~~
 
@@ -16,7 +26,7 @@
 ! Referencing KGySoft.CoreLibraries 4.6.0 and using its public resources for general messages.
 + Dynamic localizable resources are applied for KGySoft.Drawing
 
-* KGySoft.Drawing namespace:
-==================================
+! KGySoft.Drawing namespace:
+============================
 ! Removing the Images class along with the related resources
 + Moving public SaveAsGif methods to KGySoft.Drawing from VisualizerHelpers

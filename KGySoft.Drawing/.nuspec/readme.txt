@@ -1,6 +1,6 @@
 Thank you for installing KGy SOFT Drawing Libraries
 
-Release Notes: https://github.com/koszeggy/KGySoft.CoreLibraries/blob/master/KGySoft.Drawing/changelog.txt
+Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
 Project Home Page: https://kgysoft.net/drawing
 Online documentation: https://docs.kgysoft.net/drawing
 Offline documentation: <packages folder>\KGySoft.Drawing.<version>\Help\KGySoft.Drawing.chm

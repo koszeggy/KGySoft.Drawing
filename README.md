@@ -1,4 +1,4 @@
-[![KGy SOFT .net](http://docs.kgysoft.net/corelibraries/icons/logo.png)](https://kgysoft.net)
+[![KGy SOFT .net](http://docs.kgysoft.net/drawing/icons/logo.png)](https://kgysoft.net)
 
 # KGy SOFT Drawing
 
@@ -29,3 +29,7 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 
 * [Online documentation](http://docs.kgysoft.net/drawing)
 * [Offline .chm documentation](https://github.com/koszeggy/KGySoft.Drawing/raw/master/KGySoft.Drawing/Help/KGySoft.Drawing.chm)
+
+## Release Notes
+
+See the [change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt).
