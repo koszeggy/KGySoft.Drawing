@@ -469,11 +469,24 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icons">The icons to be combined.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
+        /// <remarks>
+        /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// </remarks>
+        public static Icon Combine(params Icon[] icons) => Combine(!WindowsUtils.IsVistaOrLater, icons);
+
+        /// <summary>
+        /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="icons">The icons to be combined.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon Combine(params Icon[] icons)
+        public static Icon Combine(bool forceUncompressedResult, params Icon[] icons)
         {
             if (icons == null || icons.Length == 0)
                 return null;
@@ -483,7 +496,7 @@ namespace KGySoft.Drawing
                 foreach (Icon icon in icons)
                     rawIcon.Add(icon);
 
-                return rawIcon.ToIcon();
+                return rawIcon.ToIcon(forceUncompressedResult);
             }
         }
 
@@ -493,10 +506,21 @@ namespace KGySoft.Drawing
         /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
+        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        public static Icon Combine(params Bitmap[] images) => Combine(!WindowsUtils.IsVistaOrLater, images);
+
+        /// <summary>
+        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
+        /// Transparency is determined automatically by image format.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon Combine(params Bitmap[] images)
+        public static Icon Combine(bool forceUncompressedResult, params Bitmap[] images)
         {
             if (images == null || images.Length == 0)
                 return null;
@@ -506,7 +530,7 @@ namespace KGySoft.Drawing
                 foreach (Bitmap image in images)
                     rawIcon.Add(image);
 
-                return rawIcon.ToIcon();
+                return rawIcon.ToIcon(forceUncompressedResult);
             }
         }
 
@@ -518,10 +542,23 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
         /// </returns>
+        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        public static Icon Combine(Bitmap[] images, Color[] transparentColors) => Combine(images, transparentColors, !WindowsUtils.IsVistaOrLater);
+
+        /// <summary>
+        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="images">The images to be added to the icon. Images can be non-squares ones.</param>
+        /// <param name="transparentColors">An array of transparent colors of the images. The array must have as many elements as <paramref name="images"/>.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <returns>
+        /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
+        /// </returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon Combine(Bitmap[] images, Color[] transparentColors)
+        public static Icon Combine(Bitmap[] images, Color[] transparentColors, bool forceUncompressedResult)
         {
             int imageCount = images?.Length ?? 0;
             int colorCount = transparentColors?.Length ?? 0;
@@ -536,7 +573,7 @@ namespace KGySoft.Drawing
                 for (int i = 0; i < imageCount; i++)
                     rawIcon.Add(images[i], transparentColors[i]);
 
-                return rawIcon.ToIcon();
+                return rawIcon.ToIcon(forceUncompressedResult);
             }
         }
 
@@ -639,7 +676,7 @@ namespace KGySoft.Drawing
                 }
             }
 
-            return result?.ToIcon();
+            return result?.ToIcon(false);
         }
 
 #if !NET35
@@ -659,7 +696,7 @@ namespace KGySoft.Drawing
 
             }
 
-            return result.ToIcon();
+            return result.ToIcon(!WindowsUtils.IsVistaOrLater);
         }
 
         [SecurityCritical]

@@ -95,36 +95,44 @@ namespace KGySoft.Drawing
         {
             #region Fields
 
-            private readonly bool isPng;
-            /// <summary>
-            /// The bit count stored by the dir entry. Needed when actual format is PNG.
-            /// </summary>
-            private readonly int dirEntryBitCountPng;
             private readonly Size size;
+
+            private int bpp;
+
+            /// <summary>
+            /// Gets whether <see cref="rawColor"/> contains PNG data.
+            /// </summary>
+            private bool generatedAsPng;
 
             /// <summary>
             /// In: Source image if it is already 32 bit ARGB and Color.Transparent is specified for transparency
             /// Out: Result image of ToBitmap(false)
             /// </summary>
             private Bitmap bmpComposite;
+
             /// <summary>
             /// In: Source image if it is non ARGB or when a custom transparent color is specified
             /// Out: Result image of ToBitmap(true)
             /// </summary>
             private Bitmap bmpColor;
+
             private Color transparentColor;
+
             /// <summary>
             /// Color image or the raw image itself when PNG
             /// </summary>
             private byte[] rawColor;
+
             /// <summary>
             /// Mask data (only if BMP)
             /// </summary>
             private byte[] rawMask;
+
             /// <summary>
             /// Header (only if BMP)
             /// </summary>
             private BITMAPINFOHEADER bmpHeader;
+
             /// <summary>
             /// Palette (only if indexed BMP)
             /// </summary>
@@ -136,10 +144,7 @@ namespace KGySoft.Drawing
 
             #region Internal Properties
 
-            /// <summary>
-            /// Gets the bpp from raw data.
-            /// </summary>
-            internal int RawBpp => isPng ? dirEntryBitCountPng : bmpHeader.biBitCount;
+            internal int Bpp => bpp;
 
             /// <summary>
             /// Gets the size in pixels
@@ -154,7 +159,7 @@ namespace KGySoft.Drawing
             {
                 get
                 {
-                    Debug.Assert(!isPng, "Color count requested for PNG");
+                    Debug.Assert(!generatedAsPng, "Color count requested for PNG");
 
                     // from raw data: returning actual size of the palette
                     if (bmpHeader.biSize != 0U)
@@ -168,7 +173,7 @@ namespace KGySoft.Drawing
                     Bitmap bmp = bmpColor ?? bmpComposite;
                     if (bmp != null)
                     {
-                        int bpp = bmp.PixelFormat.ToBitsPerPixel();
+                        bpp = bmp.GetBitsPerPixel();
                         return bpp > 8 ? 0 : 1 << bpp;
                     }
 
@@ -202,12 +207,8 @@ namespace KGySoft.Drawing
                     this.transparentColor = transparentColor;
                 }
 
-                // setting PNG format arbitrarily
-                isPng = bmpColor.PixelFormat.ToBitsPerPixel() >= 32 && bmpColor.Width > 64 && bmpColor.Height > 64;
-                if (isPng)
-                    dirEntryBitCountPng = 32;
-
                 size = bmpColor.Size;
+                bpp = bmpColor.GetBitsPerPixel();
             }
 
             /// <summary>
@@ -219,23 +220,23 @@ namespace KGySoft.Drawing
                 int signature = BitConverter.ToInt32(rawData, 0);
 
                 // PNG header: 0x89+"PNG"
-                isPng = signature == 0x474E5089;
-                if (isPng)
+                generatedAsPng = signature == 0x474E5089;
+                if (generatedAsPng)
                 {
                     rawColor = rawData;
 
                     // byte 24: bpp per channel
-                    dirEntryBitCountPng = rawData[24];
+                    bpp = rawData[24];
                     switch (rawData[25])
                     {
                         case 2: // RGB
-                            dirEntryBitCountPng *= 3;
+                            bpp *= 3;
                             break;
                         case 4: // Alpha Grayscale
-                            dirEntryBitCountPng <<= 1;
+                            bpp <<= 1;
                             break;
                         case 6: // ARGB
-                            dirEntryBitCountPng <<= 2;
+                            bpp <<= 2;
                             break;
                     }
 
@@ -251,6 +252,7 @@ namespace KGySoft.Drawing
                 // header
                 bmpHeader = (BITMAPINFOHEADER)BinarySerializer.DeserializeValueType(typeof(BITMAPINFOHEADER), rawData);
                 size = new Size(bmpHeader.biWidth, bmpHeader.biHeight >> 1); // height is doubled because of mask
+                bpp = bmpHeader.biBitCount;
                 int offset = signature;
 
                 // palette
@@ -338,15 +340,21 @@ namespace KGySoft.Drawing
             #region Internal Methods
 
             [SecurityCritical]
-            internal void WriteDirEntry(BinaryWriter bw, ref uint offset)
+            internal void WriteDirEntry(BinaryWriter bw, bool forceBmpFormat, ref uint offset)
             {
-                AssureRawFormatGenerated();
+                AssureRawFormatGenerated(forceBmpFormat);
                 ICONDIRENTRY entry = new ICONDIRENTRY
                 {
                     dwImageOffset = offset
                 };
 
-                if (!isPng)
+                if (generatedAsPng)
+                {
+                    entry.wPlanes = 1;
+                    entry.wBitCount = (ushort)bpp;
+                    entry.dwBytesInRes = (uint)rawColor.Length;
+                }
+                else
                 {
                     entry.bWidth = (byte)bmpHeader.biWidth;
                     entry.bHeight = (byte)(bmpHeader.biHeight >> 1);
@@ -354,13 +362,7 @@ namespace KGySoft.Drawing
                     entry.wPlanes = bmpHeader.biPlanes;
                     entry.wBitCount = bmpHeader.biBitCount;
                     entry.dwBytesInRes = (uint)(Marshal.SizeOf(typeof(BITMAPINFOHEADER)) + Marshal.SizeOf(typeof(RGBQUAD)) * PaletteColorCount +
-                            rawColor.Length + rawMask.Length);
-                }
-                else
-                {
-                    entry.wPlanes = 1;
-                    entry.wBitCount = (ushort)(dirEntryBitCountPng == 0 ? 32 : dirEntryBitCountPng);
-                    entry.dwBytesInRes = (uint)rawColor.Length;
+                        rawColor.Length + rawMask.Length);
                 }
 
                 bw.Write(BinarySerializer.SerializeValueType(entry));
@@ -368,10 +370,10 @@ namespace KGySoft.Drawing
             }
 
             [SecurityCritical]
-            internal void WriteRawImage(BinaryWriter bw)
+            internal void WriteRawImage(BinaryWriter bw, bool forceBmpFormat)
             {
-                AssureRawFormatGenerated();
-                if (isPng)
+                AssureRawFormatGenerated(forceBmpFormat);
+                if (generatedAsPng)
                 {
                     bw.Write(rawColor);
                     return;
@@ -393,7 +395,7 @@ namespace KGySoft.Drawing
 
             [SecurityCritical]
             [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
-            internal Icon ToIcon()
+            internal Icon ToIcon(bool forceBmpFormat)
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
@@ -411,10 +413,10 @@ namespace KGySoft.Drawing
 
                         // Icon entry
                         uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + Marshal.SizeOf(typeof(ICONDIRENTRY)));
-                        WriteDirEntry(bw, ref offset);
+                        WriteDirEntry(bw, forceBmpFormat, ref offset);
 
                         // Icon image
-                        WriteRawImage(bw);
+                        WriteRawImage(bw, forceBmpFormat);
 
                         // returning icon
                         ms.Position = 0L;
@@ -431,7 +433,7 @@ namespace KGySoft.Drawing
                     return (Bitmap)bmpColor.Clone();
 
                 // When not original format is requested, returning a new bitmap instead of cloning for PNGs,
-                // because for PNG images may couse troubles in some cases (eg. OutOfMemoryException when used as background image)
+                // because for PNG images may cause troubles in some cases (eg. OutOfMemoryException when used as background image)
                 if (bmpComposite.RawFormat.Guid == ImageFormat.Png.Guid)
                     return new Bitmap(bmpComposite);
                 return (Bitmap)bmpComposite.Clone();
@@ -468,31 +470,41 @@ namespace KGySoft.Drawing
             }
 
             [SecurityCritical]
-            private void AssureRawFormatGenerated()
+            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+                Justification = "MemoryStream must not be disposed in new Bitmap(new MemoryStream(rawColor)) because it corrupts the Bitmap.")]
+            private void AssureRawFormatGenerated(bool forceBmpFormat)
             {
-                // exiting, if raw data is already generated
-                if (rawColor != null)
-                    return;
-
-                // if both raw and image data is null, then object is disposed
-                if (bmpColor == null && bmpComposite == null)
+                if (rawColor == null && bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
-                if (isPng)
+                // exiting, if raw data of the desired format is already generated
+                if (rawColor != null && !(forceBmpFormat && generatedAsPng))
+                    return;
+
+                // if there is only a raw PNG we create the bitmap from it to create the raw format from
+                if (forceBmpFormat && bmpColor == null && bmpComposite == null && generatedAsPng)
+                {
+                    // ReSharper disable once AssignNullToNotNullAttribute - if generatedAsPng is true, then rawColor contains its raw data
+                    bmpColor = new Bitmap(new MemoryStream(rawColor));
+                    if (transparentColor == Color.Empty)
+                        transparentColor = Color.Transparent;
+                }
+
+                Bitmap bmp = bmpColor ?? bmpComposite;
+                bpp = bmp.GetBitsPerPixel();
+                generatedAsPng = !forceBmpFormat && bpp >= 32 && bmp.Width > 64 && bmp.Height > 64;
+                if (generatedAsPng)
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
                         // When PNG, using composite image in the first place
-                        (bmpComposite ?? bmpColor).Save(ms, ImageFormat.Png);
+                        bmp.Save(ms, ImageFormat.Png);
                         rawColor = ms.ToArray();
                         return;
                     }
                 }
 
-                Bitmap bmp = bmpColor ?? bmpComposite;
-
                 // palette
-                int bpp = bmp.PixelFormat.ToBitsPerPixel();
                 if (bpp <= 8)
                 {
                     // generating the maximum number of palette entries without optimization
@@ -512,7 +524,7 @@ namespace KGySoft.Drawing
                 bmpHeader.biWidth = bmp.Width;
                 bmpHeader.biHeight = bmp.Height << 1; // because of mask, should be specified as double height image
                 bmpHeader.biPlanes = 1;
-                bmpHeader.biBitCount = (ushort)bmp.PixelFormat.ToBitsPerPixel();
+                bmpHeader.biBitCount = (ushort)bmp.GetBitsPerPixel();
                 bmpHeader.biCompression = BitmapCompressionMode.BI_RGB;
                 bmpHeader.biXPelsPerMeter = 0;
                 bmpHeader.biYPelsPerMeter = 0;
@@ -556,10 +568,10 @@ namespace KGySoft.Drawing
                 if (bpp < 32)
                     transparentColor = Color.FromArgb(255, transparentColor.R, transparentColor.G, transparentColor.B);
 
-                GenerateRawData(bpp, strideColor, strideMask);
+                GenerateRawData(strideColor, strideMask);
             }
 
-            private void GenerateRawData(int bpp, int strideColor, int strideMask)
+            private void GenerateRawData(int strideColor, int strideMask)
             {
                 // rawColor now contains the provided bitmap data with the original background, while rawMask is still totally empty.
                 // Here we generate rawMask based on transparentColor and 
@@ -652,7 +664,7 @@ namespace KGySoft.Drawing
                     return;
 
                 // PNG format
-                if (isPng)
+                if (generatedAsPng)
                 {
                     // Note: MemoryStream must not be in a using because that would kill the new bitmap.
                     Bitmap result = bmpComposite ?? bmpColor
@@ -664,32 +676,20 @@ namespace KGySoft.Drawing
                         bmpComposite = result;
                     else
                     {
-                        // if png bpp matches the required result
-                        if (dirEntryBitCountPng == 0 || dirEntryBitCountPng == 32 || dirEntryBitCountPng == result.PixelFormat.ToBitsPerPixel())
+                        // if PNG bpp matches the required result
+                        if (bpp == result.GetBitsPerPixel())
                             bmpColor = result;
                         else
                         {
                             // generating a lower bpp image
-                            // note: this code will theoretically never executed because dirEntryBitCountPng is now obtained from the PNG stream and not from the icondirenty
+                            // note: this code should theoretically be never executed if the decoder sets the same BPP as it is in the stream.
                             Color[] paletteBmpColor = null;
-                            if (dirEntryBitCountPng <= 8)
-                                paletteBmpColor = result.GetColors(1 << dirEntryBitCountPng);
+                            if (bpp <= 8)
+                                paletteBmpColor = result.GetColors(1 << bpp);
 
-                            bmpColor = (Bitmap)result.ConvertPixelFormat(dirEntryBitCountPng.ToPixelFormat(), paletteBmpColor);
+                            bmpColor = (Bitmap)result.ConvertPixelFormat(bpp.ToPixelFormat(), paletteBmpColor);
                             result.Dispose();
                         }
-
-                        //// turning transparent color black
-                        //ColorPalette palette = bmpColor.Palette;
-                        //if (palette.Entries.Length != 0)
-                        //{
-                        //    int transparentIndex = Array.FindIndex(palette.Entries, c => c.A == 0);
-                        //    if (transparentIndex != -1)
-                        //    {
-                        //        palette.Entries[transparentIndex] = Color.Black;
-                        //        bmpColor.Palette = palette;
-                        //    }
-                        //}
                     }
 
                     return;
@@ -698,13 +698,13 @@ namespace KGySoft.Drawing
                 // BMP format - composite image
                 if (isCompositRequired)
                 {
-                    Icon icon = ToIcon();
-
-                    // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
-                    // because bpp is always set well in icondir entry so ToAlphaBitmap is not required here.
-                    bmpComposite = icon.ToBitmap();
-                    icon.Dispose();
-                    return;
+                    using (Icon icon = ToIcon(true))
+                    {
+                        // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
+                        // because BPP is always set well in ICONDIRENTRY so ToAlphaBitmap is not required here.
+                        bmpComposite = icon.ToBitmap();
+                        return;
+                    }
                 }
 
                 // BMP format - original image format required
@@ -712,7 +712,7 @@ namespace KGySoft.Drawing
 
                 // working from raw format. If it doesn't exist, creating from composite image
                 if (rawColor == null)
-                    AssureRawFormatGenerated();
+                    AssureRawFormatGenerated(false);
 
                 // initializing bitmap data
                 BITMAPINFO bitmapInfo;
@@ -793,7 +793,7 @@ namespace KGySoft.Drawing
                 using (Bitmap bmp = icon.ToAlphaBitmap())
                 {
                     if ((!size.HasValue || (size.Value.Width == bmp.Size.Width && size.Value.Height == bmp.Size.Height))
-                        || (!bpp.HasValue || bpp.Value == bmp.PixelFormat.ToBitsPerPixel()))
+                        || (!bpp.HasValue || bpp.Value == bmp.GetBitsPerPixel()))
                     {
                         Add(bmp);
                     }
@@ -867,7 +867,7 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            int bpp = image.PixelFormat.ToBitsPerPixel();
+            int bpp = image.GetBitsPerPixel();
             if (bpp.In(16, 48, 64))
                 image = (Bitmap)image.ConvertPixelFormat(PixelFormat.Format32bppArgb, null);
             else
@@ -882,7 +882,7 @@ namespace KGySoft.Drawing
         /// </summary>
         [SecurityCritical]
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
-        internal Icon ToIcon()
+        internal Icon ToIcon(bool forceBmpImages)
         {
             if (iconImages.Count == 0)
                 return null;
@@ -891,7 +891,7 @@ namespace KGySoft.Drawing
             {
                 using (BinaryWriter bw = new BinaryWriter(ms))
                 {
-                    Save(bw);
+                    Save(bw, forceBmpImages);
                     ms.Position = 0L;
                     return new Icon(ms);
                 }
@@ -903,7 +903,7 @@ namespace KGySoft.Drawing
         /// </summary>
         [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Stream must not be disposed; otherwise, a Generic GDI+ Error will occur when using the result Bitmap.")]
-        internal Bitmap ToBitmap()
+        internal Bitmap ToBitmap(bool forceBmpFormat)
         {
             if (iconImages.Count == 0)
                 return null;
@@ -911,7 +911,7 @@ namespace KGySoft.Drawing
             // not in using because stream must left open during the Bitmap lifetime
             var ms = new MemoryStream();
             var bw = new BinaryWriter(ms);
-            Save(bw);
+            Save(bw, forceBmpFormat);
             ms.Position = 0L;
             return new Bitmap(ms);
         }
@@ -920,30 +920,30 @@ namespace KGySoft.Drawing
         /// Saves the icon into a stream
         /// </summary>
         [SecurityCritical]
-        internal void Save(Stream stream)
+        internal void Save(Stream stream, bool forceBmpImages)
         {
             BinaryWriter bw = new BinaryWriter(stream);
-            Save(bw);
+            Save(bw, forceBmpImages);
         }
 
         [SecurityCritical]
-        internal Icon ExtractIcon(int index)
+        internal Icon ExtractIcon(int index, bool forceBmpFormat)
         {
             if (index < 0 || index >= iconImages.Count)
                 return null;
-            return iconImages[index].ToIcon();
+            return iconImages[index].ToIcon(forceBmpFormat);
         }
 
         /// <summary>
         /// Gets the icons of the <see cref="RawIcon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         [SecurityCritical]
-        internal Icon[] ExtractIcons()
+        internal Icon[] ExtractIcons(bool forceBmpFormat)
         {
             Icon[] result = new Icon[iconImages.Count];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = iconImages[i].ToIcon();
+                result[i] = iconImages[i].ToIcon(forceBmpFormat);
             }
 
             return result;
@@ -991,15 +991,15 @@ namespace KGySoft.Drawing
         /// Gets the nearest icon to the specified color depth and size. Bpp is matched first.
         /// </summary>
         [SecurityCritical]
-        internal Icon ExtractNearestIcon(int bpp, Size size)
+        internal Icon ExtractNearestIcon(int bpp, Size size, bool forceBmpFormat)
         {
             if (iconImages.Count == 0)
                 return null;
 
             if (iconImages.Count == 1)
-                return iconImages[0].ToIcon();
+                return iconImages[0].ToIcon(forceBmpFormat);
 
-            return GetNearestImage(bpp, size).ToIcon();
+            return GetNearestImage(bpp, size).ToIcon(forceBmpFormat);
         }
 
         #endregion
@@ -1007,7 +1007,7 @@ namespace KGySoft.Drawing
         #region Private Methods
 
         [SecurityCritical]
-        private void Save(BinaryWriter bw)
+        private void Save(BinaryWriter bw, bool forceBmpImages)
         {
             // Icon header
             ICONDIR iconDir = new ICONDIR
@@ -1022,11 +1022,11 @@ namespace KGySoft.Drawing
             // Icon directory entries
             uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + iconDir.idCount * Marshal.SizeOf(typeof(ICONDIRENTRY)));
             foreach (RawIconImage image in iconImages)
-                image.WriteDirEntry(bw, ref offset);
+                image.WriteDirEntry(bw, forceBmpImages, ref offset);
 
             // Icon images
             foreach (RawIconImage image in iconImages)
-                image.WriteRawImage(bw);
+                image.WriteRawImage(bw, forceBmpImages);
         }
 
         [SecurityCritical]
@@ -1064,7 +1064,7 @@ namespace KGySoft.Drawing
                     RawIconImage image = new RawIconImage(br.ReadBytes((int)entry.dwBytesInRes));
 
                     // bpp was explicit defined, though there is 0 in dir entry: post-check
-                    if (entry.wBitCount == 0 && reqBpp != 0 && image.RawBpp != reqBpp)
+                    if (entry.wBitCount == 0 && reqBpp != 0 && image.Bpp != reqBpp)
                         image.Dispose();
                     else
                         iconImages.Add(image);
@@ -1081,7 +1081,7 @@ namespace KGySoft.Drawing
             CircularSortedList<int, RawIconImage> imagesBySize = new CircularSortedList<int, RawIconImage>();
             foreach (RawIconImage iconImage in iconImages)
             {
-                int bppDistance = Math.Abs(bpp - iconImage.RawBpp);
+                int bppDistance = Math.Abs(bpp - iconImage.Bpp);
                 if (bppDistance > minBppDistance)
                     continue;
 
