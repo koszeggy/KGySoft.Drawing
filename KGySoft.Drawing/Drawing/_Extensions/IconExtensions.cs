@@ -125,7 +125,10 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
-        /// <remarks>The result <see cref="Bitmap"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>If the method is executed in a Windows XP environment, the result <see cref="Bitmap"/> will contain only uncompressed images.</para>
+        /// <note>It is not guaranteed that the result is compatible with Windows XP even though the icon images will be uncompressed. In such case an <see cref="ArgumentException"/> will be thrown.</note>
+        /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -506,13 +509,17 @@ namespace KGySoft.Drawing
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
-            if (icons == null || icons.Length == 0)
+            if ((icons == null || icons.Length == 0) && !forceUncompressedResult)
                 return icon;
 
             using (RawIcon rawIcon = new RawIcon(icon))
             {
-                foreach (Icon item in icons)
+                if (icons != null)
+                {
+                    foreach (Icon item in icons)
                     rawIcon.Add(item);
+                }
+
                 return rawIcon.ToIcon(forceUncompressedResult);
             }
         }
@@ -626,6 +633,13 @@ namespace KGySoft.Drawing
             using (RawIcon rawIcon = new RawIcon(icon))
                 rawIcon.Save(stream, forceUncompressedResult);
         }
+
+        /// <summary>
+        /// Converts the <paramref name="icon"/> to an uncompressed one.
+        /// </summary>
+        /// <param name="icon">The icon to convert.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains only uncompressed images.</returns>
+        public static Icon ToUncompressedIcon(this Icon icon) => Icons.Combine(true, icon);
 
         /// <summary>
         /// Converts the provided <paramref name="icon"/> to a <see cref="CursorHandle"/>, which can be passed to the

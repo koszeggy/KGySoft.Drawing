@@ -25,7 +25,6 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Text;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -498,6 +497,7 @@ namespace KGySoft.Drawing
                     using (MemoryStream ms = new MemoryStream())
                     {
                         // When PNG, using composite image in the first place
+                        // ReSharper disable once PossibleNullReferenceException
                         bmp.Save(ms, ImageFormat.Png);
                         rawColor = ms.ToArray();
                         return;
@@ -510,6 +510,7 @@ namespace KGySoft.Drawing
                     // generating the maximum number of palette entries without optimization
                     // (so PaletteColorCount can return number of colors before generating the palette)
                     palette = new RGBQUAD[1 << bpp];
+                    // ReSharper disable once PossibleNullReferenceException
                     Color[] entries = bmp.Palette.Entries;
                     for (int i = 0; i < entries.Length; i++)
                     {
@@ -521,6 +522,7 @@ namespace KGySoft.Drawing
 
                 // header
                 bmpHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
+                // ReSharper disable once PossibleNullReferenceException
                 bmpHeader.biWidth = bmp.Width;
                 bmpHeader.biHeight = bmp.Height << 1; // because of mask, should be specified as double height image
                 bmpHeader.biPlanes = 1;
@@ -813,6 +815,15 @@ namespace KGySoft.Drawing
             }
         }
 
+        [SecurityCritical]
+        internal RawIcon(Stream stream)
+        {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            using (var br = new BinaryReader(stream))
+                Load(br, null, null, null);
+        }
+
         #endregion
 
         #region Methods
@@ -1072,7 +1083,6 @@ namespace KGySoft.Drawing
 
                 entryOffset += entrySize;
             }
-
         }
 
         private RawIconImage GetNearestImage(int bpp, Size size)

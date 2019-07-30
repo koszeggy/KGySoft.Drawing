@@ -465,6 +465,32 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
+        /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
+        /// </summary>
+        /// <param name="stream">The stream to load the icon from.</param>
+        /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>.</returns>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// </remarks>
+        public static Icon FromStream(Stream stream) => FromStream(stream, !WindowsUtils.IsVistaOrLater);
+
+        /// <summary>
+        /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
+        /// </summary>
+        /// <param name="stream">The stream to load the icon from.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon FromStream(Stream stream, bool forceUncompressedResult)
+        {
+            using (var rawIcon = new RawIcon(stream))
+                return rawIcon.ToIcon(forceUncompressedResult);
+        }
+
+        /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
         /// <param name="icons">The icons to be combined.</param>
