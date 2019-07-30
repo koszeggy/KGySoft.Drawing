@@ -642,6 +642,50 @@ namespace KGySoft.Drawing
         public static Icon ToUncompressedIcon(this Icon icon) => Icons.Combine(true, icon);
 
         /// <summary>
+        /// Determines whether the icon or its image at the specified index is compressed.
+        /// </summary>
+        /// <param name="icon">The icon.</param>
+        /// <param name="index">The index to check. If <see langword="null"/>, then the result determines whether the <paramref name="icon"/> has at least one compressed image. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>&#160;if the icon or its image at the specified index is compressed.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static bool IsCompressed(this Icon icon, int? index = null)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            using (var rawIcon = new RawIcon(icon, null, null, index))
+            {
+                if (index != null && rawIcon.ImageCount == 0)
+                    throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
+                return rawIcon.IsCompressed;
+            }
+        }
+
+        /// <summary>
+        /// Gets the bits per pixel (bpp) value of the icon.
+        /// </summary>
+        /// <param name="icon">The icon.</param>
+        /// <param name="index">The index to check. If <see langword="null"/>, then the result determines the highest bpp value if the icon images. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>The bits per pixel (bpp) value of the icon.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static int GetBitsPerPixel(this Icon icon, int? index = null)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            using (var rawIcon = new RawIcon(icon, null, null, index))
+            {
+                if (index != null && rawIcon.ImageCount == 0)
+                    throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
+                return rawIcon.Bpp;
+            }
+        }
+
+        /// <summary>
         /// Converts the provided <paramref name="icon"/> to a <see cref="CursorHandle"/>, which can be passed to the
         /// <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> constructor
         /// to create a new cursor.

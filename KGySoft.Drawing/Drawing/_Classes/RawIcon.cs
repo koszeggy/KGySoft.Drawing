@@ -23,6 +23,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -95,13 +96,12 @@ namespace KGySoft.Drawing
             #region Fields
 
             private readonly Size size;
-
-            private int bpp;
+            private readonly int bpp;
 
             /// <summary>
             /// Gets whether <see cref="rawColor"/> contains PNG data.
             /// </summary>
-            private bool generatedAsPng;
+            private bool isPng;
 
             /// <summary>
             /// In: Source image if it is already 32 bit ARGB and Color.Transparent is specified for transparency
@@ -150,6 +150,8 @@ namespace KGySoft.Drawing
             /// </summary>
             internal Size Size => size;
 
+            public bool IsCompressed => isPng;
+
             #endregion
 
             #region Private Properties
@@ -158,7 +160,7 @@ namespace KGySoft.Drawing
             {
                 get
                 {
-                    Debug.Assert(!generatedAsPng, "Color count requested for PNG");
+                    Debug.Assert(!isPng, "Color count requested for PNG");
 
                     // from raw data: returning actual size of the palette
                     if (bmpHeader.biSize != 0U)
@@ -169,14 +171,7 @@ namespace KGySoft.Drawing
                     }
 
                     // from source image: when image is indexed, always the maximum palette number will be generated without optimization
-                    Bitmap bmp = bmpColor ?? bmpComposite;
-                    if (bmp != null)
-                    {
-                        bpp = bmp.GetBitsPerPixel();
-                        return bpp > 8 ? 0 : 1 << bpp;
-                    }
-
-                    throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
+                    return bpp > 8 ? 0 : 1 << bpp;
                 }
             }
 
@@ -219,8 +214,8 @@ namespace KGySoft.Drawing
                 int signature = BitConverter.ToInt32(rawData, 0);
 
                 // PNG header: 0x89+"PNG"
-                generatedAsPng = signature == 0x474E5089;
-                if (generatedAsPng)
+                isPng = signature == 0x474E5089;
+                if (isPng)
                 {
                     rawColor = rawData;
 
@@ -238,6 +233,10 @@ namespace KGySoft.Drawing
                             bpp <<= 2;
                             break;
                     }
+
+                    // Eg. alpha grayscale. Setting 32 bit ensures that format will be alright when BMP format is forced.
+                    if (bpp.In(16, 48, 64))
+                        bpp = 32;
 
                     // size is at 16 and 20 DWORD big endian so reading last 2 bytes only
                     size = new Size(rawData[18] << 8 + rawData[19], rawData[22] << 8 + rawData[23]);
@@ -278,13 +277,7 @@ namespace KGySoft.Drawing
 
             #region Destructor
 
-            /// <summary>
-            /// Finalizes an instance of the <see cref="RawIconImage"/> class.
-            /// </summary>
-            ~RawIconImage()
-            {
-                Dispose(false);
-            }
+            ~RawIconImage() => Dispose(false);
 
             #endregion
 
@@ -347,7 +340,7 @@ namespace KGySoft.Drawing
                     dwImageOffset = offset
                 };
 
-                if (generatedAsPng)
+                if (isPng)
                 {
                     entry.wPlanes = 1;
                     entry.wBitCount = (ushort)bpp;
@@ -372,7 +365,7 @@ namespace KGySoft.Drawing
             internal void WriteRawImage(BinaryWriter bw, bool forceBmpFormat)
             {
                 AssureRawFormatGenerated(forceBmpFormat);
-                if (generatedAsPng)
+                if (isPng)
                 {
                     bw.Write(rawColor);
                     return;
@@ -477,11 +470,11 @@ namespace KGySoft.Drawing
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
                 // exiting, if raw data of the desired format is already generated
-                if (rawColor != null && !(forceBmpFormat && generatedAsPng))
+                if (rawColor != null && !(forceBmpFormat && isPng))
                     return;
 
                 // if there is only a raw PNG we create the bitmap from it to create the raw format from
-                if (forceBmpFormat && bmpColor == null && bmpComposite == null && generatedAsPng)
+                if (forceBmpFormat && bmpColor == null && bmpComposite == null && isPng)
                 {
                     // ReSharper disable once AssignNullToNotNullAttribute - if generatedAsPng is true, then rawColor contains its raw data
                     bmpColor = new Bitmap(new MemoryStream(rawColor));
@@ -490,9 +483,8 @@ namespace KGySoft.Drawing
                 }
 
                 Bitmap bmp = bmpColor ?? bmpComposite;
-                bpp = bmp.GetBitsPerPixel();
-                generatedAsPng = !forceBmpFormat && bpp >= 32 && bmp.Width > 64 && bmp.Height > 64;
-                if (generatedAsPng)
+                isPng = !forceBmpFormat && bpp >= 32 && size.Width > 64 && size.Height > 64;
+                if (isPng)
                 {
                     using (MemoryStream ms = new MemoryStream())
                     {
@@ -522,9 +514,8 @@ namespace KGySoft.Drawing
 
                 // header
                 bmpHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
-                // ReSharper disable once PossibleNullReferenceException
-                bmpHeader.biWidth = bmp.Width;
-                bmpHeader.biHeight = bmp.Height << 1; // because of mask, should be specified as double height image
+                bmpHeader.biWidth = size.Width;
+                bmpHeader.biHeight = size.Height << 1; // because of mask, should be specified as double height image
                 bmpHeader.biPlanes = 1;
                 bmpHeader.biBitCount = (ushort)bmp.GetBitsPerPixel();
                 bmpHeader.biCompression = BitmapCompressionMode.BI_RGB;
@@ -535,6 +526,7 @@ namespace KGySoft.Drawing
 
                 // Color image (XOR): copying from input bitmap
                 int strideColor;
+                // ReSharper disable once PossibleNullReferenceException
                 using (bmp = (Bitmap)bmp.Clone())
                 {
                     // TODO: remove clone+using and flip rawColor similarly to the fallback in FlipImageY. See the TODO below this block.
@@ -656,17 +648,17 @@ namespace KGySoft.Drawing
 
             [SecurityCritical]
             [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The stream must not be disposed if passed to a Bitmap constructor.")]
-            private void AssureBitmapsGenerated(bool isCompositRequired)
+            private void AssureBitmapsGenerated(bool isCompositeRequired)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
                 // exiting, if the requested bitmap already exists
-                if (isCompositRequired && bmpComposite != null || !isCompositRequired && bmpColor != null)
+                if (isCompositeRequired && bmpComposite != null || !isCompositeRequired && bmpColor != null)
                     return;
 
                 // PNG format
-                if (generatedAsPng)
+                if (isPng)
                 {
                     // Note: MemoryStream must not be in a using because that would kill the new bitmap.
                     Bitmap result = bmpComposite ?? bmpColor
@@ -674,7 +666,7 @@ namespace KGySoft.Drawing
                         ?? new Bitmap(new MemoryStream(rawColor));
 
                     // assignments below will not replace any instance, otherwise, we would have returned above
-                    if (isCompositRequired)
+                    if (isCompositeRequired)
                         bmpComposite = result;
                     else
                     {
@@ -698,7 +690,7 @@ namespace KGySoft.Drawing
                 }
 
                 // BMP format - composite image
-                if (isCompositRequired)
+                if (isCompositeRequired)
                 {
                     using (Icon icon = ToIcon(true))
                     {
@@ -764,6 +756,8 @@ namespace KGySoft.Drawing
         #region Properties
 
         internal int ImageCount => iconImages.Count;
+        internal bool IsCompressed => iconImages.Any(img => img.IsCompressed);
+        internal int Bpp => iconImages.Max(img => img.Bpp);
 
         #endregion
 
