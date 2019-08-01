@@ -62,18 +62,18 @@
     <DebugType>pdbonly</DebugType>
   </PropertyGroup>
   <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v3.5'">
-    <Reference Include="KGySoft.CoreLibraries, Version=4.6.1.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.6.1\lib\net35\KGySoft.CoreLibraries.dll</HintPath>
+    <Reference Include="KGySoft.CoreLibraries, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.7.0\lib\net35\KGySoft.CoreLibraries.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v4.0'">
-    <Reference Include="KGySoft.CoreLibraries, Version=4.6.1.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.6.1\lib\net40\KGySoft.CoreLibraries.dll</HintPath>
+    <Reference Include="KGySoft.CoreLibraries, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.7.0\lib\net40\KGySoft.CoreLibraries.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v4.5'">
-    <Reference Include="KGySoft.CoreLibraries, Version=4.6.1.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.6.1\lib\net45\KGySoft.CoreLibraries.dll</HintPath>
+    <Reference Include="KGySoft.CoreLibraries, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
+      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.7.0\lib\net45\KGySoft.CoreLibraries.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>

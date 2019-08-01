@@ -51,14 +51,19 @@ namespace KGySoft.Drawing
         #region Public Properties
 
         /// <summary>
-        /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
+        /// <img src="../Help/Images/Information16W10.png" alt="Information (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
-        /// Information icon as it is stored in the current operating system.
-        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
+        /// Information icon as it is displayed by the current operating system.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Information32W10.png" alt="Information 32x32"/>
+        /// <img src="../Help/Images/Information16W10.png" alt="Information 16x16"/>
+        /// </para>
+        /// <para>
+        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Information32.png" alt="Information 32x32"/>
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
         /// </para>
@@ -71,14 +76,19 @@ namespace KGySoft.Drawing
         public static Icon SystemInformation => GetSystemIcon(StockIcon.Information, () => SystemIcons.Information);
 
         /// <summary>
-        /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
+        /// <img src="../Help/Images/Warning16W10.png" alt="Warning (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
-        /// Warning icon as it is stored in the current operating system.
-        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
+        /// Warning icon as it is displayed by the current operating system.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Warning32W10.png" alt="Warning 32x32"/>
+        /// <img src="../Help/Images/Warning16W10.png" alt="Warning 16x16"/>
+        /// </para>
+        /// <para>
+        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32"/>
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
         /// </para>
@@ -91,14 +101,19 @@ namespace KGySoft.Drawing
         public static Icon SystemWarning => GetSystemIcon(StockIcon.Warning, () => SystemIcons.Warning);
 
         /// <summary>
-        /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
+        /// <img src="../Help/Images/Error16W10.png" alt="Error (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
-        /// Error icon as it is stored in the current operating system.
-        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
+        /// Error icon as it is displayed by the current operating system.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Error32W10.png" alt="Error 32x32"/>
+        /// <img src="../Help/Images/Error16W10.png" alt="Error 16x16"/>
+        /// </para>
+        /// <para>
+        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Error32.png" alt="Error 32x32"/>
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
         /// </para>
@@ -111,14 +126,19 @@ namespace KGySoft.Drawing
         public static Icon SystemError => GetSystemIcon(StockIcon.Error, () => SystemIcons.Error);
 
         /// <summary>
-        /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
+        /// <img src="../Help/Images/Question16W10.png" alt="Question (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
-        /// Question icon as it is stored in the current operating system.
-        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
+        /// Question icon as it is displayed by the current operating system.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Question32W10.png" alt="Question 32x32"/>
+        /// <img src="../Help/Images/Question16W10.png" alt="Question 16x16"/>
+        /// </para>
+        /// <para>
+        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Question32.png" alt="Question 32x32"/>
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
         /// </para>
@@ -131,14 +151,19 @@ namespace KGySoft.Drawing
         public static Icon SystemQuestion => GetSystemIcon(StockIcon.Help, () => SystemIcons.Question);
 
         /// <summary>
-        /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
+        /// <img src="../Help/Images/Application16W10.png" alt="Application (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
-        /// Application icon as it is stored in the current operating system.
-        /// In Windows Vista and above sizes are depending on current DPI settings, in Windows XP they have always 32x32 and 16x16 sizes.
+        /// Application icon as it is displayed by the current operating system.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows Vista and Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Application32W10.png" alt="Application 32x32"/>
+        /// <img src="../Help/Images/Application16W10.png" alt="Application 16x16"/>
+        /// </para>
+        /// <para>
+        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Application32.png" alt="Application 32x32"/>
         /// <img src="../Help/Images/Application16.png" alt="Application 16x16"/>
         /// </para>
@@ -153,23 +178,27 @@ namespace KGySoft.Drawing
         /// <summary>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains the
-        /// Shield icon as it is stored in the current operating system.
-        /// In Windows Vista and above icon contains two sizes, which are depending on current DPI settings,
-        /// in Windows XP the icon contains multiple resolution and color depths.
+        /// Shield icon as it is displayed by the current operating system.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows 7, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Shield32W10.png" alt="Shield Windows 8/10 32x32"/>
+        /// <img src="../Help/Images/Shield16W10.png" alt="Shield Windows 8/10 16x16"/>
+        /// </para>
+        /// <para>
+        /// In Windows 7 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityShield32.png" alt="Shield Windows 7 32x32"/>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield Windows 7 16x16"/>
         /// </para>
         /// <para>
-        /// In Windows Vista, with default DPI settings the icon contains the following images:<br/>
+        /// In Windows Vista at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Shield32.png" alt="Shield Windows Vista 32x32"/>
         /// <img src="../Help/Images/Shield16.png" alt="Shield Windows Vista 16x16"/>
         /// </para>
         /// <para>
-        /// In Windows XP the icon contains different color depth version of the following images:<br/>
+        /// In Windows XP the icon contains three different color depth version of the following images:<br/>
         /// <img src="../Help/Images/ShieldXP48.png" alt="Shield Windows XP 48x48"/>
         /// <img src="../Help/Images/ShieldXP32.png" alt="Shield Windows XP 32x32"/>
         /// <img src="../Help/Images/ShieldXP16.png" alt="Shield Windows XP 16x16"/>
@@ -179,14 +208,17 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Information16.png" alt="Information (small version for the summary)"/>
-        /// Gets the Information icon displaying a white "i" a blue circle (Sizes: 256x256, 48x48, 32x32, 16x16)
+        /// Gets the Information icon displaying a white "i" a blue circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
         /// </summary>
         /// <remarks>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Information256.png" alt="Information 256x256"/>
+        /// <img src="../Help/Images/Information64.png" alt="Information 64x64"/>
         /// <img src="../Help/Images/Information48.png" alt="Information 48x48"/>
         /// <img src="../Help/Images/Information32.png" alt="Information 32x32"/>
+        /// <img src="../Help/Images/Information24.png" alt="Information 24x24"/>
+        /// <img src="../Help/Images/Information20.png" alt="Information 20x20"/>
         /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
         /// </para>
         /// </remarks>
@@ -194,14 +226,17 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Warning16.png" alt="Warning (small version for the summary)"/>
-        /// Gets the Warning icon displaying a black "!" in a yellow triangle (Sizes: 256x256, 48x48, 32x32, 16x16)
+        /// Gets the Warning icon displaying a black "!" in a yellow triangle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
         /// </summary>
         /// <remarks>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Warning256.png" alt="Warning 256x256"/>
+        /// <img src="../Help/Images/Warning64.png" alt="Warning 64x64"/>
         /// <img src="../Help/Images/Warning48.png" alt="Warning 48x48"/>
         /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32"/>
+        /// <img src="../Help/Images/Warning24.png" alt="Warning 24x24"/>
+        /// <img src="../Help/Images/Warning20.png" alt="Warning 20x20"/>
         /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
         /// </para>
         /// </remarks>
@@ -209,7 +244,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Question16.png" alt="Question (small version for the summary)"/>
-        /// Gets the Question icon displaying a white "?" in a blue circle (Sizes: 256x256, 64x64, 48x48, 32x32, 16x16)
+        /// Gets the Question icon displaying a white "?" in a blue circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
         /// </summary>
         /// <remarks>
         /// <para>
@@ -218,6 +253,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question64.png" alt="Question 64x64"/>
         /// <img src="../Help/Images/Question48.png" alt="Question 48x48"/>
         /// <img src="../Help/Images/Question32.png" alt="Question 32x32"/>
+        /// <img src="../Help/Images/Question24.png" alt="Question 24x24"/>
+        /// <img src="../Help/Images/Question20.png" alt="Question 20x20"/>
         /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
         /// </para>
         /// </remarks>
@@ -225,15 +262,17 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Error16.png" alt="Error (small version for the summary)"/>
-        /// Gets the Error icon displaying a white "X" in a red circle (Sizes: 256x256, 48x48, 32x32, 24x24, 16x16)
+        /// Gets the Error icon displaying a white "X" in a red circle (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 20x20, 16x16)
         /// </summary>
         /// <remarks>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Error256.png" alt="Error 256x256"/>
+        /// <img src="../Help/Images/Error64.png" alt="Error 64x64"/>
         /// <img src="../Help/Images/Error48.png" alt="Error 48x48"/>
         /// <img src="../Help/Images/Error32.png" alt="Error 32x32"/>
         /// <img src="../Help/Images/Error24.png" alt="Error 24x24"/>
+        /// <img src="../Help/Images/Error20.png" alt="Error 20x20"/>
         /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
         /// </para>
         /// </remarks>
@@ -341,12 +380,13 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// <img src="../Help/Images/Application16.png" alt="Application (small version for the summary)"/>
-        /// Gets the Application icon displaying a window (Sizes: 256x256, 48x48, 32x32, 24x24, 16x16)
+        /// Gets the Application icon displaying a window (Sizes: 256x256, 64x64, 48x48, 32x32, 24x24, 16x16)
         /// </summary>
         /// <remarks>
         /// <para>
         /// The icon contains the following images:<br/>
         /// <img src="../Help/Images/Application256.png" alt="Application 256x256"/>
+        /// <img src="../Help/Images/Application64.png" alt="Application 64x64"/>
         /// <img src="../Help/Images/Application48.png" alt="Application 48x48"/>
         /// <img src="../Help/Images/Application32.png" alt="Application 32x32"/>
         /// <img src="../Help/Images/Application24.png" alt="Application 24x24"/>
@@ -754,13 +794,14 @@ namespace KGySoft.Drawing
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static RawIcon ToCombinedIcon(Icon icon)
         {
-            Bitmap imageLarge = icon.ToAlphaBitmap();
-            Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), true);
-            RawIcon result = new RawIcon();
-            result.Add(imageLarge);
-            result.Add(imageSmall);
-            imageLarge.Dispose();
-            imageSmall.Dispose();
+            RawIcon result = new RawIcon(icon);
+            if (result.ImageCount == 1)
+            {
+                using (Bitmap imageLarge = result.ExtractBitmap(0, false))
+                using (Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), true))
+                    result.Add(imageSmall);
+            }
+
             return result;
         }
 

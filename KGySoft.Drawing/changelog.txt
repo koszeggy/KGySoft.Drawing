@@ -5,19 +5,58 @@
 + New feature
 ===============================================================================
 
-~~~~~~~~~~~
-* v4.6.1.0:
-~~~~~~~~~~~
+~~~~~~~~~
+* v4.7.0:
+~~~~~~~~~
+
+* Assembly: Referencing KGySoft.CoreLibraries v4.7.0
+
+! KGySoft.Drawing namespace:
+============================
+! IconExtensions class:
+  ! ExtractNearestBitmap/ExtractNearestIcon methods: Size has preference over BPP value and on equal distances
+    the larger size and higher BPP values are selected. In contrast, in previous versions the result could
+    depend on the order of the stored images.
+  + New ToUncompressedIcon method.
+  + New IsCompressed method.
+  + New GetBitsPerPixel method.
+  * ToMultiResBitmap method:
+    + A new overload that can be used to prevent compression for larger images in the result bitmap.
+	- The original overload prevents compression in Windows XP and allows it in Windows Vista and above.
+  * ExtractIcons, ExtractIcon, ExtractNearestIcon, Combine methods:
+    + New overloads that can be used to prevent compression if the result icon contains larger images.
+	- The original overloads prevent compression in Windows XP and allows it in Windows Vista and above.
+  + SaveHighQuality method: New forceUncompressedResult optional parameter.
+
+* Icons class:
+  + New FromStream methods.
+  - Information, Warning, Question, Error, Shield, Application,
+    SecurityShield, SecuritySuccess, SecurityWarning, SecurityQuestion, SecurityError properties:
+	If obtained in Windows XP, the resulting icon does not contain compressed images.
+  * Combine methods:
+    + New overloads that can be used to prevent compression if the result icon contains larger images.
+	- The original overloads prevent compression in Windows XP and allows it in Windows Vista and above.
+  + Application property: 64x64 image has been added.
+  + Information property: 64x64, 24x24 and 20x20 images have been added.
+  + Warning property: 64x64, 24x24 and 20x20 images have been added.
+  + Error property: 64x64 and 20x20 images have been added.
+  + Question property: 64x64 image has been replaced, 24x24 and 20x20 images have been added.
+
+
+~~~~~~~~~
+* v4.6.1:
+~~~~~~~~~
 
 * KGySoft.Drawing namespace:
 ============================
-* IconExtensions:
+* IconExtensions class:
   - ToMultiResBitmap: Fixing InvalidOperationException
   - ExtractBitmap and ExtractIcon overloads: Not creating unnecessary Bitmap/Icon instances, which would be discarded anyway.
 
-~~~~~~~~~~~
-! v4.6.0.0:
-~~~~~~~~~~~
+
+~~~~~~~~~
+! v4.6.0:
+~~~~~~~~~
 
 ! Assembly: Applying SecurityRuleSet.Level2 and adjusting security critical calls in the whole assembly.
   This is a breaking change for .NET4.0 and above only if the caller assembly is partially trusted or is

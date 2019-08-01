@@ -1079,30 +1079,39 @@ namespace KGySoft.Drawing
             }
         }
 
-        private RawIconImage GetNearestImage(int bpp, Size size)
+        private RawIconImage GetNearestImage(int desiredBpp, Size desiredSize)
         {
-            int minBppDistance = Int32.MaxValue;
-            CircularSortedList<int, RawIconImage> imagesBySize = new CircularSortedList<int, RawIconImage>();
-            foreach (RawIconImage iconImage in iconImages)
+            int desiredWidth = Math.Max(desiredSize.Width, 1);
+            // Short solution: (but it does not stop on exact match and does not have preference on equal distances)
+            //return iconImages.Aggregate((acc, i) => Math.Abs(i.Size.Width - desiredWidth) < Math.Abs(acc.Size.Width - desiredWidth)
+            //    || i.Size == acc.Size && Math.Abs(i.Bpp - desiredBpp) < Math.Abs(acc.Bpp - desiredBpp) ? i : acc);
+
+            RawIconImage preferredImage = iconImages[0];
+            int preferredWidthDiff = Math.Abs(preferredImage.Size.Width - desiredWidth);
+            int preferredBppDiff = Math.Abs(preferredImage.Bpp - desiredBpp);
+            for (var i = 1; i < iconImages.Count; i++)
             {
-                int bppDistance = Math.Abs(bpp - iconImage.Bpp);
-                if (bppDistance > minBppDistance)
-                    continue;
+                // exact match: immediate return
+                if (preferredImage.Size == desiredSize && preferredBppDiff == 0)
+                    return preferredImage;
 
-                // clearing list if closer bpp distance has been found
-                if (bppDistance < minBppDistance)
+                // Size first, then BPP. On equal distance the higher value is preferred.
+                RawIconImage currentImage = iconImages[i];
+                int currentWidthDiff = Math.Abs(currentImage.Size.Width - desiredWidth);
+                int currentBppDiff = Math.Abs(currentImage.Bpp - desiredBpp);
+                if (currentWidthDiff < preferredWidthDiff // closer size
+                    || (currentWidthDiff == preferredWidthDiff && currentImage.Size.Width > preferredImage.Size.Width) // same size difference and current is larger
+                    || (currentImage.Size == preferredImage.Size
+                        && (currentBppDiff < preferredBppDiff // same size but closer bpp 
+                            || (currentBppDiff == preferredBppDiff && currentImage.Bpp > preferredImage.Bpp)))) // same size and same bpp difference but current has higher bpp
                 {
-                    minBppDistance = bppDistance;
-                    if (imagesBySize.Count > 0)
-                        imagesBySize.Clear();
+                    preferredImage = currentImage;
+                    preferredWidthDiff = currentWidthDiff;
+                    preferredBppDiff = currentBppDiff;
                 }
-
-                // from the same distances the last occurrence will win
-                int sizeDistance = Math.Abs(size.Width - iconImage.Size.Width) + Math.Abs(size.Height - iconImage.Size.Height);
-                imagesBySize[sizeDistance] = iconImage;
             }
 
-            return imagesBySize.Values[0];
+            return preferredImage;
         }
 
         #endregion

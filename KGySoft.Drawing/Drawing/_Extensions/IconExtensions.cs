@@ -127,12 +127,33 @@ namespace KGySoft.Drawing
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
         /// <remarks>
         /// <para>If the method is executed in a Windows XP environment, the result <see cref="Bitmap"/> will contain only uncompressed images.</para>
-        /// <note>It is not guaranteed that the result is compatible with Windows XP even though the icon images will be uncompressed. In such case an <see cref="ArgumentException"/> will be thrown.</note>
+        /// <para>Windows XP may display alpha channel incorrectly (semi-transparent pixels may be black).</para>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Bitmap ToMultiResBitmap(this Icon icon) => ToMultiResBitmap(icon, !WindowsUtils.IsVistaOrLater);
+        public static Bitmap ToMultiResBitmap(this Icon icon)
+        {
+            if (WindowsUtils.IsVistaOrLater)
+                return ToMultiResBitmap(icon, false);
+
+            // In Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor.
+            using (var result = new RawIcon())
+            {
+                foreach (Icon iconImage in icon.ExtractIcons())
+                {
+                    using (iconImage)
+                    {
+                        if (iconImage.GetBitsPerPixel() == 24)
+                            result.Add(iconImage.ToAlphaBitmap());
+                        else
+                            result.Add(iconImage);
+                    }
+                }
+
+                return result.ToBitmap(true);
+            }
+        }
 
         /// <summary>
         /// Converts the <paramref name="icon"/> to a <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.
