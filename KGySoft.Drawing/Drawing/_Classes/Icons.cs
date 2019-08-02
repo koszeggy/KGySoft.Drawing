@@ -791,6 +791,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets a multi size version of a system icon provided in <paramref name="icon"/> by generating the small version internally.
         /// </summary>
+        [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static RawIcon ToCombinedIcon(Icon icon)
         {

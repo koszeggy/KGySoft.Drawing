@@ -814,8 +814,7 @@ namespace KGySoft.Drawing
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            using (var br = new BinaryReader(stream))
-                Load(br, null, null, null);
+            Load(new BinaryReader(stream), null, null, null);
         }
 
         #endregion

@@ -44,17 +44,15 @@ namespace KGySoft.Drawing
         /// is always correctly applied for the image.
         /// </summary>
         /// <param name="icon">The icon optionally with transparency.</param>
-        /// <seealso cref="ExtractBitmap(Icon,bool)"/>
-        /// <seealso cref="ExtractBitmap(Icon,Size,PixelFormat,bool)"/>
-        /// <seealso cref="ExtractBitmap(Icon,int,bool)"/>
         /// <returns>A <see cref="Bitmap"/> that represents the converted <see cref="Icon"/>.</returns>
         /// <remarks>
-        /// <para><see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap">ExtractBitmap</see> and <see cref="ToAlphaBitmap"/> methods may return a different result even if
-        /// the <paramref name="icon"/> contains a single image only. The <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap">ExtractBitmap</see> overloads works from the 
-        /// saved icon stream in the first place, which is slower than this method.</para>
-        /// <para>If the <paramref name="icon"/> contains multiple images consider to use either the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap">ExtractBitmap</see> overloads to specify the exact image to return,
+        /// <para>If <paramref name="icon"/> is not from a native handle, then this method calls the <see cref="ExtractNearestBitmap">ExtractBitmap</see> method using the icon size
+        /// and <see cref="PixelFormat.Format32bppArgb"/> pixel format as parameters.</para>
+        /// <para>If the <paramref name="icon"/> contains multiple images consider to use either the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap">ExtractBitmap</see>
+        /// or <see cref="ExtractNearestBitmap">ExtractBitmap</see> methods to specify the exact image to return,
         /// or the <see cref="O:KGySoft.Drawing.IconExtensions.ToMultiResBitmap">ToMultiResBitmap</see> methods, which return every images in a single combined <see cref="Bitmap"/>.</para>
         /// </remarks>
+        /// <seealso cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap"/>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -64,11 +62,15 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
+            if (icon.HasRawData())
+                return icon.ExtractNearestBitmap(icon.Size, PixelFormat.Format32bppArgb);
+
             User32.GetIconInfo(icon.Handle, out ICONINFO iconInfo);
             try
             {
                 // Getting color depth by GDI. (FromHbitmap always returns 32 bppRgb format)
-                // The possible 1 bit transparency is handled by ToBitmap, too. Though GetIconInfo returns always 32 bit image when display settings use 32 bit.
+                // The possible 1 bit transparency is handled by ToBitmap. The code below would return a fully transparent bitmap for non-ARGB sources.
+                // GetBitmapColorDepth actually returns the current display BPP for HICONs.
                 if (Gdi32.GetBitmapColorDepth(iconInfo.hbmColor) < 32)
                     return icon.ToBitmap();
 
@@ -87,12 +89,6 @@ namespace KGySoft.Drawing
                     try
                     {
                         dataRedirected = bmpRedirected.LockBits(bounds, ImageLockMode.ReadOnly, bmpRedirected.PixelFormat);
-
-                        // Checking if result is fully transparent. This happens when icon is actually not a 32 bit one.
-                        // This cannot be checked with BITMAP or PixelFormat because that is always 32 bit with 32 bit display settings.
-                        // If image is fully transparent, letting Icon.ToBitmap do the job. RawIcon could also do it but it would build a new icon.
-                        if (IsFullyTransparent(dataRedirected))
-                            return icon.ToBitmap();
                     }
                     finally
                     {
@@ -749,25 +745,6 @@ namespace KGySoft.Drawing
         #endregion
 
         #region Private Methods
-
-        [SecurityCritical]
-        private static unsafe bool IsFullyTransparent(BitmapData data)
-        {
-            byte* line = (byte*)data.Scan0;
-            for (int y = 0; y < data.Height; y++)
-            {
-                for (int x = 0; x < data.Width; x++)
-                {
-                    int c = *((int*)line + x);
-                    if ((c >> 24) != 0)
-                        return false;
-                }
-
-                line += data.Stride;
-            }
-
-            return true;
-        }
 
 #if !NET35
         [SecuritySafeCritical]
