@@ -28,6 +28,11 @@
 	- The original overloads prevent compression in Windows XP and allows it in Windows Vista and above.
   + SaveHighQuality method: New forceUncompressedResult optional parameter.
 
+! ImageExtensions class:
+  ! ConvertPixelFormat method:
+    ! The return type has been changed to Bitmap from Image
+    * The palette parameter is now optional.
+
 * Icons class:
   + New FromStream methods.
   - Information, Warning, Question, Error, Shield, Application,

@@ -83,7 +83,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format. If the requested format is an indexed one, built-in strategies
-        /// are used for the generated palette.</param>
+        /// are used for the generated palette. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="palette">The required palette for the result image. If <see langword="null"/>, the palette will be taken from source or will be generated on demand.
         /// If palette contains transparent color, it might be considered. If it contains too few elements black entries will be added.</param>
         /// <returns>A new <see cref="Image"/> instance with the desired pixel format.</returns>
@@ -97,7 +98,7 @@ namespace KGySoft.Drawing
         [SecuritySafeCritical]
 #endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        public static Image ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette)
+        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
