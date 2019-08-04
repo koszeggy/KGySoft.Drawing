@@ -1,25 +1,39 @@
 [![KGy SOFT .net](http://docs.kgysoft.net/drawing/icons/logo.png)](https://kgysoft.net)
 
-# KGy SOFT Drawing
+# KGy SOFT Drawing Libraries
 
 KGy SOFT Drawing Libraries provides advanced features for System.Drawing types.
 
-Among others:
-- Several [built-in icons](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Icons.htm) as well as simple access to Windows associated and stock icons.
-- Extracting bitmaps from multi-frame bitmaps and icons.
-- Creating combined icons and multi-resolution bitmaps.
-- Saving metafiles in EMF/WMF formats.
-- Advanced support for saving Icon, GIF and TIFF formats.
-- Converting between various pixel formats preserving transparency if possible.
-- Useful extensions for the [Icon](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_IconExtensions.htm), [Bitmap](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_BitmapExtensions.htm), [Image](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_ImageExtensions.htm), [Metafile](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_MetafileExtensions.htm) and [Graphics](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_GraphicsExtensions.htm) types.
+[![Website](https://img.shields.io/website/https/kgysoft.net/corelibraries.svg)](https://kgysoft.net/drawing)
+[![Online Help](https://img.shields.io/website/https/docs.kgysoft.net/drawing.svg?label=online%20help&up_message=available)](https://docs.kgysoft.net/drawing)
+[![GitHub Repo](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.svg?label=github)](https://github.com/koszeggy/KGySoft.Drawing)
+[![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.svg)](https://www.nuget.org/packages/KGySoft.Drawing)
+[![Drawing Tools](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.Tools.svg?label=Drawing%20Tools)](https://github.com/koszeggy/KGySoft.Drawing.Tools)
 
-## Download Binaries:
+## Table of Contents:
+1. [Download](#download)
+   - [Download Binaries](#download-binaries)
+   - [Download Demo App and Debugger Visualizers](#download-demo-app-debugger-and-visualizers)
+2. [Project Site](#project-site)
+3. [Documentation](#documentation)
+4. [Release Notes](#release-notes)
+5. [License](#license)
 
-The binaries can be donwloaded as a NuGet package directly from [nuget.org](https://www.nuget.org/packages/KGySoft.Drawing)
+## Download:
+
+### Download Binaries:
+
+The binaries can be downloaded as a NuGet package directly from [nuget.org](https://www.nuget.org/packages/KGySoft.Drawing)
 
 However, the preferred way is to install the package in VisualStudio either by looking for the `KGySoft.Drawing` package in the Nuget Package Manager GUI, or by sending the following command at the Package Manager Console prompt:
 
     PM> Install-Package KGySoft.Drawing
+
+### Download Demo App and Debugger Visualizers:
+
+[KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) is another GitHub repository, which contains a couple of applications built on KGy SOFT Drawing Libraries along with debugger visualizers for several `System.Drawing` types including `Bitmap`, `Metafile`, `Icon`, `Graphics` and more.
+
+![Debugger Visualizer Test App](https://kgysoft.net/images/DebuggerVisualizerTest.png)
 
 ## Project Site
 
@@ -33,3 +47,6 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 ## Release Notes
 
 See the [change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt).
+
+## License
+This repository is under the [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/legalcode) license (see a short summary [here](https://creativecommons.org/licenses/by-nd/4.0)). It allows you to copy and redistribute the material in any medium or format for any purpose, even commercially. The only thing is not allowed is to distribute a modified material as yours.

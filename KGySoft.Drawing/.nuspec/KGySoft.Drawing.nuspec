@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing</id>
-    <version>4.6.1</version>
+    <version>4.7.0</version>
     <title>KGy SOFT Drawing Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -23,7 +23,8 @@ Among others:
 - Converting between various pixel formats preserving transparency if possible.
 - Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.
 
-Find the full documentation with examples online: https://docs.kgysoft.net/drawing</description>
+Demo App and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
     <tags>KGySoft Drawing extension icon bitmap image metafile graphics gif tiff emf wmf</tags>
@@ -31,13 +32,13 @@ Find the full documentation with examples online: https://docs.kgysoft.net/drawi
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="4.6.1" />
+        <dependency id="KGySoft.CoreLibraries" version="4.7.0" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="4.6.1" />
+        <dependency id="KGySoft.CoreLibraries" version="4.7.0" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="4.6.1" />
+        <dependency id="KGySoft.CoreLibraries" version="4.7.0" />
       </group>
     </dependencies>
   </metadata>
