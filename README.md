@@ -13,7 +13,7 @@ KGy SOFT Drawing Libraries provides advanced features for System.Drawing types.
 ## Table of Contents:
 1. [Download](#download)
    - [Download Binaries](#download-binaries)
-   - [Download Demo App and Debugger Visualizers](#download-demo-app-debugger-and-visualizers)
+   - [Download Demo App and Debugger Visualizers](#download-demo-app-and-debugger-visualizers)
 2. [Project Site](#project-site)
 3. [Documentation](#documentation)
 4. [Release Notes](#release-notes)
