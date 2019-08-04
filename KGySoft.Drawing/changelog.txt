@@ -22,10 +22,10 @@
   + New GetBitsPerPixel method.
   * ToMultiResBitmap method:
     + A new overload that can be used to prevent compression for larger images in the result bitmap.
-	- The original overload prevents compression in Windows XP and allows it in Windows Vista and above.
+    - The original overload prevents compression in Windows XP and allows it in Windows Vista and above.
   * ExtractIcons, ExtractIcon, ExtractNearestIcon, Combine methods:
     + New overloads that can be used to prevent compression if the result icon contains larger images.
-	- The original overloads prevent compression in Windows XP and allows it in Windows Vista and above.
+    - The original overloads prevent compression in Windows XP and allows it in Windows Vista and above.
   + SaveHighQuality method: New forceUncompressedResult optional parameter.
 
 ! ImageExtensions class:
@@ -37,10 +37,10 @@
   + New FromStream methods.
   - Information, Warning, Question, Error, Shield, Application,
     SecurityShield, SecuritySuccess, SecurityWarning, SecurityQuestion, SecurityError properties:
-	If obtained in Windows XP, the resulting icon does not contain compressed images.
+    If obtained in Windows XP, the resulting icon does not contain compressed images.
   * Combine methods:
     + New overloads that can be used to prevent compression if the result icon contains larger images.
-	- The original overloads prevent compression in Windows XP and allows it in Windows Vista and above.
+    - The original overloads prevent compression in Windows XP and allows it in Windows Vista and above.
   + Application property: 64x64 image has been added.
   + Information property: 64x64, 24x24 and 20x20 images have been added.
   + Warning property: 64x64, 24x24 and 20x20 images have been added.
