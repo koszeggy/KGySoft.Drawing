@@ -176,7 +176,7 @@ namespace KGySoft.Drawing
         public static Icon SystemApplication => GetSystemIcon(StockIcon.Application, () => SystemIcons.Application);
 
         /// <summary>
-        /// <img src="../Help/Images/SecurityShield16.png" alt="Shield (small version for the summary)"/>
+        /// <img src="../Help/Images/Shield16W10.png" alt="Shield (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Shield icon as it is displayed by the current operating system.
         /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths.
