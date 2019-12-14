@@ -27,10 +27,9 @@ using System.Linq;
 using System.Runtime.InteropServices;
 using System.Security;
 
-using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
-using KGySoft.Serialization;
+using KGySoft.Serialization.Binary;
 
 #endregion
 
@@ -300,13 +299,13 @@ namespace KGySoft.Drawing
                 BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed);
 
                 IntPtr pixelPtr = bitmapData.Scan0;
-                byte[] tmpbuffer = new byte[Math.Abs(bitmapData.Stride)];
+                byte[] tmpBuffer = new byte[Math.Abs(bitmapData.Stride)];
 
-                for (int i = 0; i < bitmap.Height / 2; i++)
+                for (int i = 0; i < bitmap.Height >> 1; i++)
                 {
-                    Marshal.Copy(new IntPtr(pixelPtr.ToInt64() + (i * bitmapData.Stride)), tmpbuffer, 0, bitmapData.Stride);
-                    Kernel32.CopyMemory(new IntPtr(pixelPtr.ToInt64() + (i * bitmapData.Stride)), new IntPtr(pixelPtr.ToInt64() + (((bitmap.Height - 1) - i) * bitmapData.Stride)), bitmapData.Stride);
-                    Marshal.Copy(tmpbuffer, 0, new IntPtr(pixelPtr.ToInt64() + (((bitmap.Height - 1) - i) * bitmapData.Stride)), bitmapData.Stride);
+                    Marshal.Copy(new IntPtr(pixelPtr.ToInt64() + (i * bitmapData.Stride)), tmpBuffer, 0, bitmapData.Stride);
+                    MemoryHelper.CopyMemory(new IntPtr(pixelPtr.ToInt64() + (i * bitmapData.Stride)), new IntPtr(pixelPtr.ToInt64() + (((bitmap.Height - 1) - i) * bitmapData.Stride)), bitmapData.Stride);
+                    Marshal.Copy(tmpBuffer, 0, new IntPtr(pixelPtr.ToInt64() + (((bitmap.Height - 1) - i) * bitmapData.Stride)), bitmapData.Stride);
                 }
 
                 bitmap.UnlockBits(bitmapData);

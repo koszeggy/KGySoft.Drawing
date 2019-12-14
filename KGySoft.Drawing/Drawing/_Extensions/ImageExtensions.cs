@@ -390,7 +390,7 @@ namespace KGySoft.Drawing
                     {
                         fixed (byte* pbuf1 = ms1.GetBuffer())
                         fixed (byte* pbuf2 = ms2.GetBuffer())
-                            return msvcrt.CompareMemory(new IntPtr(pbuf1), new IntPtr(pbuf2), ms1.Length);
+                            return MemoryHelper.CompareMemory(new IntPtr(pbuf1), new IntPtr(pbuf2), (int)ms1.Length);
                     }
                 }
             }
@@ -408,7 +408,7 @@ namespace KGySoft.Drawing
 
                 // top-down image: can be compared in a whole
                 if (data1.Stride > 0)
-                    return msvcrt.CompareMemory(data1.Scan0, data2.Scan0, (long)data1.Stride * image1.Height);
+                    return MemoryHelper.CompareMemory(data1.Scan0, data2.Scan0, data1.Stride * image1.Height);
 
                 // bottom-up image: line by line
                 int offset = 0;
@@ -416,7 +416,7 @@ namespace KGySoft.Drawing
                 {
                     IntPtr line1 = new IntPtr(data1.Scan0.ToInt64() + offset);
                     IntPtr line2 = new IntPtr(data2.Scan0.ToInt64() + offset);
-                    if (!msvcrt.CompareMemory(line1, line2, -data1.Stride))
+                    if (!MemoryHelper.CompareMemory(line1, line2, -data1.Stride))
                         return false;
 
                     offset += data1.Stride;

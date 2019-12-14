@@ -23,9 +23,11 @@ using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Resources;
+
 using KGySoft.CoreLibraries;
 using KGySoft.Reflection;
 using KGySoft.Resources;
+
 using NUnit.Framework;
 
 #endregion

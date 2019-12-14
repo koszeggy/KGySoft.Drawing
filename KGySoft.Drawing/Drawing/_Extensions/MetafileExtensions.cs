@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 
 using KGySoft.Drawing.WinApi;
-using KGySoft.Serialization;
+using KGySoft.Serialization.Binary;
 
 #endregion
 

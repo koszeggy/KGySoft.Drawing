@@ -104,7 +104,7 @@ namespace KGySoft
 
         /// <summary>Could not create icon or cursor.</summary>
         internal static string User32CreateIconIndirectFailed => Get("User32_CreateIconIndirectFailed");
-        
+
         #endregion
 
         #endregion
@@ -112,6 +112,13 @@ namespace KGySoft
         #region Methods
 
         #region Internal Methods
+
+        #region Accessors
+
+        /// <summary>Instance field "{0}" not found on type "{1}".</summary>
+        internal static string AccessorsInstanceFieldDoesNotExist(string fieldName, Type type) => Get("Accessors_InstanceFieldDoesNotExistFormat", fieldName, type);
+
+        #endregion
 
         #region ImageExtensions
 

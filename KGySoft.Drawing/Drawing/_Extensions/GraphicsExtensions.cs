@@ -172,7 +172,7 @@ namespace KGySoft.Drawing
                         graphicsTarget.DrawImage(imgSource, new RectangleF(0f, 0f, targetWidth, targetHeight), visibleRect, GraphicsUnit.Pixel);
                         return result;
                     }
-                }
+                } 
             }
             finally
             {

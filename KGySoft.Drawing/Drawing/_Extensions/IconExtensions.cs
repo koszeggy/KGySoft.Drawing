@@ -141,7 +141,10 @@ namespace KGySoft.Drawing
                     using (iconImage)
                     {
                         if (iconImage.GetBitsPerPixel() == 24)
-                            result.Add(iconImage.ToAlphaBitmap());
+                        {
+                            using (var bmp = iconImage.ToAlphaBitmap())
+                                result.Add(bmp);
+                        }
                         else
                             result.Add(iconImage);
                     }
@@ -726,7 +729,7 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
-        internal static bool HasRawData(this Icon icon) => icon.GetIconData() != null;
+        internal static bool HasRawData(this Icon icon) => icon.HasIconData();
 
         /// <summary>
         /// Needed for unmanaged icons returned by winapi methods because <see cref="Icon.FromHandle"/> does not

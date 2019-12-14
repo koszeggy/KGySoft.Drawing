@@ -156,4 +156,7 @@
   <data name="ImageExtensions_NoGifEncoder" xml:space="preserve">
     <value>GIF encoder not found.</value>
   </data>
+  <data name="Accessors_InstanceFieldDoesNotExistFormat" xml:space="preserve">
+    <value>Instance field "{0}" not found on type "{1}".</value>
+  </data>
 </root>

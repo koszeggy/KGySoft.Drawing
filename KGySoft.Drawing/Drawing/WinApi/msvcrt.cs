@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if WIN
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: msvcrt.cs
@@ -56,3 +57,5 @@ namespace KGySoft.Drawing.WinApi
         #endregion
     }
 }
+
+#endif

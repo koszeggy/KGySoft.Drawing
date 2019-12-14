@@ -33,6 +33,18 @@ namespace KGySoft.Drawing.WinApi
 
         private static class NativeMethods
         {
+            #region Constants
+
+#if WIN
+            private const string libName = "user32.dll";
+#elif UNIX
+            private const string libName = "user32";
+#else
+#error Unsupported platform
+#endif
+
+            #endregion
+
             #region Methods
 
             /// <summary>
@@ -43,7 +55,7 @@ namespace KGySoft.Drawing.WinApi
             /// </param>
             /// <returns>If the function succeeds, the return value is nonzero.
             /// If the function fails, the return value is zero. To get extended error information, call GetLastError.</returns>
-            [DllImport("user32.dll", SetLastError = true)]
+            [DllImport(libName, SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DestroyIcon(IntPtr handle);
 
@@ -53,7 +65,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hWnd">A handle to the window whose DC is to be retrieved. If this value is NULL, GetDC retrieves the DC for the entire screen.</param>
             /// <returns>If the function succeeds, the return value is a handle to the DC for the specified window's client area.
             /// If the function fails, the return value is NULL.</returns>
-            [DllImport("user32.dll", CharSet = CharSet.Auto)]
+            [DllImport(libName, CharSet = CharSet.Auto)]
             internal static extern IntPtr GetDC(IntPtr hWnd);
 
             /// <summary>
@@ -76,7 +88,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hIcon">A handle to the icon or cursor. To retrieve information about a standard icon or cursor, specify one of the standard values.</param>
             /// <param name="piconinfo">A pointer to an ICONINFO structure. The function fills in the structure's members.</param>
             /// <returns>If the function succeeds, the return value is nonzero and the function fills in the members of the specified ICONINFO structure. If the function fails, the return value is zero. To get extended error information, call GetLastError.</returns>
-            [DllImport("user32.dll", SetLastError = true)]
+            [DllImport(libName, SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool GetIconInfo(IntPtr hIcon, out ICONINFO piconinfo);
 
@@ -94,7 +106,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hWnd">A handle to the window. </param>
             /// <param name="lpRect">A pointer to a RECT structure that receives the screen coordinates of the upper-left and lower-right corners of the window. </param>
             /// <returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero. To get extended error information, call GetLastError. </returns>
-            [DllImport("user32.dll", SetLastError = true)]
+            [DllImport(libName, SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool GetWindowRect(IntPtr hWnd, out RECT lpRect);
 
@@ -104,7 +116,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hWnd">A handle to the window whose client coordinates are to be retrieved.</param>
             /// <param name="lpRect">A pointer to a RECT structure that receives the client coordinates. The left and top members are zero. The right and bottom members contain the width and height of the window.</param>
             /// <returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero. To get extended error information, call GetLastError.</returns>
-            [DllImport("user32.dll", SetLastError = true)]
+            [DllImport(libName, SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool GetClientRect(IntPtr hWnd, out RECT lpRect);
 
@@ -115,7 +127,7 @@ namespace KGySoft.Drawing.WinApi
             /// <returns>If the function succeeds, the return value is a handle to the icon or cursor that is created. If the function fails, the return value is NULL. To get extended error information, call GetLastError.</returns>
             /// <remarks>The system copies the bitmaps in the ICONINFO structure before creating the icon or cursor. Because the system may temporarily select the bitmaps in a device context, the hbmMask and hbmColor members of the ICONINFO structure should not already be selected into a device context. The application must continue to manage the original bitmaps and delete them when they are no longer necessary.
             /// When you are finished using the icon, destroy it using the <see cref="DestroyIcon"/> function.</remarks>
-            [DllImport("user32.dll", SetLastError = true)]
+            [DllImport(libName, SetLastError = true)]
             internal static extern IntPtr CreateIconIndirect([In] ref ICONINFO piconinfo);
 
             /// <summary>
@@ -123,7 +135,7 @@ namespace KGySoft.Drawing.WinApi
             /// </summary>
             /// <param name="hCursor">A handle to the cursor to be destroyed. The cursor must not be in use.</param>
             /// <returns>If the function succeeds, the return value is nonzero. If the function fails, the return value is zero. To get extended error information, call GetLastError.</returns>
-            [DllImport("user32.dll", SetLastError = true)]
+            [DllImport(libName, SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DestroyCursor(IntPtr hCursor);
 

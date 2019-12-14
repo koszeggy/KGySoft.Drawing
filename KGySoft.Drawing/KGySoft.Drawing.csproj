@@ -1,195 +1,76 @@
-﻿<?xml version="1.0" encoding="utf-8"?>
-<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003" ToolsVersion="4.0">
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
   <PropertyGroup>
-    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProductVersion>9.0.30729</ProductVersion>
-    <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{06AEC656-8AE3-409C-AB2E-64C6A3712F8B}</ProjectGuid>
-    <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <Configurations>win-Debug;win-Release;unix-Debug;unix-Release</Configurations>
+    <DefineConstants Condition="'$(Configuration)' == 'win-Debug' OR '$(Configuration)' == 'win-Release'">$(DefineConstants);WIN</DefineConstants>
+    <DefineConstants Condition="'$(Configuration)' == 'unix-Debug' OR '$(Configuration)' == 'unix-Release'">$(DefineConstants);UNIX</DefineConstants>
+
+    <!--Windows targets-->
+    <!--<TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
+    <!--Unix targets-->
+    <!--<TargetFrameworks>netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->
+    <TargetFrameworks>net45</TargetFrameworks>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>KGySoft</RootNamespace>
-    <AssemblyName>KGySoft.Drawing</AssemblyName>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <DocumentationFile>bin\$(Configuration)\KGySoft.Drawing.xml</DocumentationFile>
-    <ErrorReport>prompt</ErrorReport>
-    <WarningLevel>4</WarningLevel>
-    <LangVersion>latest</LangVersion>
-    <OutputPath>bin\$(Configuration)</OutputPath>
-    <PlatformTarget>AnyCPU</PlatformTarget>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
+    <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
     <CodeAnalysisRuleSet>KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Authors>György Kőszeg</Authors>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug_NET35|AnyCPU' ">
-    <DebugSymbols>true</DebugSymbols>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <DefineConstants>TRACE;DEBUG;NET35</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release_NET35|AnyCPU' ">
-    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
-    <DebugType>pdbonly</DebugType>
-    <Optimize>true</Optimize>
-    <DefineConstants>TRACE;NET35</DefineConstants>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_NET40|AnyCPU'">
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;NET40</DefineConstants>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_NET40|AnyCPU'">
-    <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
-    <DefineConstants>TRACE;NET40</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug_NET45|AnyCPU'">
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <DebugSymbols>true</DebugSymbols>
-    <DefineConstants>TRACE;DEBUG;NET45</DefineConstants>
-    <DebugType>full</DebugType>
-    <Optimize>false</Optimize>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release_NET45|AnyCPU'">
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <DefineConstants>TRACE;NET45</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-  </PropertyGroup>
-  <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v3.5'">
-    <Reference Include="KGySoft.CoreLibraries, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.7.0\lib\net35\KGySoft.CoreLibraries.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v4.0'">
-    <Reference Include="KGySoft.CoreLibraries, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.7.0\lib\net40\KGySoft.CoreLibraries.dll</HintPath>
-    </Reference>
-  </ItemGroup>
-  <ItemGroup Condition="'$(TargetFrameworkVersion)' == 'v4.5'">
-    <Reference Include="KGySoft.CoreLibraries, Version=4.7.0.0, Culture=neutral, PublicKeyToken=b45eba277439ddfe, processorArchitecture=MSIL">
-      <HintPath>..\..\packages\KGySoft.CoreLibraries.4.7.0\lib\net45\KGySoft.CoreLibraries.dll</HintPath>
-    </Reference>
-  </ItemGroup>
+
   <ItemGroup>
-    <Reference Include="System" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Drawing" />
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="ComponentModel\__doc\NamespaceDoc.cs" />
-    <Compile Include="Drawing\WinApi\_Enums\BitmapCompressionMode.cs" />
-    <Compile Include="Drawing\WinApi\_Enums\SGHFI.cs" />
-    <Compile Include="Drawing\_Classes\Accessors.cs" />
-    <Compile Include="Drawing\_Classes\CursorHandle.cs" />
-    <Compile Include="Drawing\_Classes\Icons.cs" />
-    <Compile Include="Drawing\_Classes\RawIcon.cs" />
-    <Compile Include="ComponentModel\AdvancedImageConverter.cs" />
-    <Compile Include="Drawing\_Enums\StockIcon.cs" />
-    <Compile Include="Drawing\_Enums\SystemIconSize.cs" />
-    <Compile Include="Drawing\_Extensions\BitmapExtensions.cs" />
-    <Compile Include="Drawing\_Extensions\GraphicsExtensions.cs" />
-    <Compile Include="Drawing\_Extensions\IconExtensions.cs" />
-    <Compile Include="Drawing\_Extensions\ImageExtensions.cs" />
-    <Compile Include="Drawing\_Extensions\MetafileExtensions.cs" />
-    <Compile Include="Drawing\_Extensions\PixelFormatExtensions.cs" />
-    <Compile Include="Drawing\__doc\NamespaceDoc.cs" />
-    <Compile Include="GlobalSuppressions.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\BITMAP.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\BITMAPINFO.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\BITMAPINFOHEADER.cs" />
-    <Compile Include="Drawing\WinApi\Gdi32.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\ICONDIR.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\ICONDIRENTRY.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\ICONINFO.cs" />
-    <Compile Include="Drawing\WinApi\Kernel32.cs" />
-    <Compile Include="Drawing\WinApi\_Enums\MappingModes.cs" />
-    <Compile Include="Drawing\WinApi\msvcrt.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\RECT.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\RGBQUAD.cs" />
-    <Compile Include="Drawing\WinApi\Shell32.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\SHFILEINFO.cs" />
-    <Compile Include="Drawing\WinApi\_Enums\SHGSI.cs" />
-    <Compile Include="Drawing\WinApi\_Structures\SHSTOCKICONINFO.cs" />
-    <Compile Include="Drawing\WinApi\_Enums\TernaryRasterOperations.cs" />
-    <Compile Include="Drawing\WinApi\User32.cs" />
-    <Compile Include="Drawing\WinApi\WindowsUtils.cs" />
-    <Compile Include="Res.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Include="KGySoft.Drawing.Icons.resx">
-      <LogicalName>KGySoft.Drawing.Icons.resources</LogicalName>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="KGySoft.Drawing.Messages.resx">
-      <LogicalName>KGySoft.Drawing.Messages.resources</LogicalName>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="..\KGySoft.snk">
-      <Link>KGySoft.snk</Link>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
+    <Compile Remove="HelpOut\**" />
+    <EmbeddedResource Remove="HelpOut\**" />
+    <None Remove="HelpOut\**" />
     <None Include="..\LICENSE">
-      <Link>LICENSE</Link>
+      <Pack>True</Pack>
+      <PackagePath></PackagePath>
     </None>
-    <None Include="..\README.md">
-      <Link>README.md</Link>
-    </None>
-    <None Include="KGySoft.Drawing.ruleset" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="packages.config" />
-    <None Include="Resources\SecurityShield.ico" />
+    <Content Include=".nuspec\readme.txt" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="Resources\Shield.ico" />
+    <None Include=".nuspec\KGySoft.Drawing.nuspec" />
+    <None Include=".nuspec\readme.md" />
   </ItemGroup>
+
   <ItemGroup>
-    <None Include="Resources\Information.ico" />
+    <PackageReference Include="KGySoft.CoreLibraries" Version="5.0.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
   </ItemGroup>
+
+  <!-- .NET Core 2/3 references -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0'">
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
+    <!--Required for non-string resources-->
+    <PackageReference Include="System.Resources.Extensions" Version="4.7.0" />
+  </ItemGroup>
+
+  <!-- .NET Core 3.0 references -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp3.0'">
+    <!--Required for ImageConverter-->
+    <PackageReference Include="System.Windows.Extensions" Version="4.7.0" />
+  </ItemGroup>
+
   <ItemGroup>
-    <None Include="Resources\Warning.ico" />
+    <EmbeddedResource Update="KGySoft.Drawing.Messages.resx">
+      <LogicalName>KGySoft.Drawing.Messages.resources</LogicalName>
+    </EmbeddedResource>
+    <EmbeddedResource Update="KGySoft.Drawing.Icons.resx">
+      <LogicalName>KGySoft.Drawing.Icons.resources</LogicalName>
+    </EmbeddedResource>
   </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Question.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Error.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SecurityError.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SecurityQuestion.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SecuritySuccess.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\SecurityWarning.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Resources\Application.ico" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="changelog.txt" />
-  </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
-  </Target>
-  <Target Name="AfterBuild">
-    <MSBuild Condition=" '$(TargetFrameworkVersion.Replace(&quot;v&quot;,&quot;&quot;))' &gt;= '4.0' " Projects="$(MSBuildProjectFile)" Properties="TargetFrameworkVersion=v3.5" RunEachTargetSeparately="true" />
-  </Target>
-  -->
+
 </Project>

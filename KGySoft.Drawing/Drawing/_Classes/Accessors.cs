@@ -16,10 +16,17 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 using System.Reflection;
+using System.Threading;
 
+using KGySoft.Collections;
+#if !NETCOREAPP3_0
+using KGySoft.CoreLibraries; 
+#endif
 using KGySoft.Reflection;
 
 #endregion
@@ -29,37 +36,89 @@ namespace KGySoft.Drawing
     // ReSharper disable InconsistentNaming
     internal static class Accessors
     {
-        #region Fields
+        #region Constants
 
-        private static FieldAccessor fieldGraphic_backingImage;
-        private static FieldAccessor fieldIcon_iconData;
-        private static FieldAccessor fieldColorPalette_entries;
+#if WIN
+#if NET35 || NET40 || NET45
+        private const string nameFieldIconData = "iconData";
+#elif NETCOREAPP2_0 || NETCOREAPP3_0
+        private const string nameFieldIconData = "_iconData";
+#else
+#error Unsupported Platform Target in Windows.
+#endif
+
+#elif UNIX
+#if NETCOREAPP2_0 || NETCOREAPP3_0
+       private const string nameFieldIconData = "imageData"; // type is Icon.ImageData[]  
+#else
+#error Unsupported Platform Target in Unix.
+#endif
+
+#else
+#error Unsupported Runtime.
+#endif
 
         #endregion
 
-        #region Properties
+        #region Fields
 
-#if NET35 || NET40 || NET45
-
-        private static FieldAccessor Graphics_backingImage => fieldGraphic_backingImage ?? (fieldGraphic_backingImage = FieldAccessor.GetAccessor(typeof(Graphics).GetField("backingImage", BindingFlags.Instance | BindingFlags.NonPublic)));
-
-        private static FieldAccessor Icon_iconData => fieldIcon_iconData ?? (fieldIcon_iconData = FieldAccessor.GetAccessor(typeof(Icon).GetField("iconData", BindingFlags.Instance | BindingFlags.NonPublic)));
-
-        private static FieldAccessor ColorPalette_entries => fieldColorPalette_entries ?? (fieldColorPalette_entries = FieldAccessor.GetAccessor(typeof(ColorPalette).GetField("entries", BindingFlags.Instance | BindingFlags.NonPublic)));
-
-#else
-#error .NET version is not set or not supported! Check accessed non-public member names for the newly added .NET version.
-#endif
+        private static IThreadSafeCacheAccessor<(Type DeclaringType, Type FieldType, string FieldNamePattern), FieldAccessor> fields;
 
         #endregion
 
         #region Methods
 
-        internal static Image GetBackingImage(this Graphics graphics) => (Image)Graphics_backingImage.Get(graphics);
+        private static FieldAccessor GetField(Type type, Type fieldType, string fieldNamePattern)
+        {
+            FieldAccessor GetFieldAccessor((Type DeclaringType, Type FieldType, string FieldNamePattern) key)
+            {
+                // Fields are meant to be used for non-visible members either by type or name pattern (or both)
+                var fields = key.DeclaringType.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+                FieldInfo field =
+                    fields.FirstOrDefault(f => (key.FieldType == null || f.FieldType == key.FieldType) && f.Name == key.FieldNamePattern) // exact name first
+                    ?? fields.FirstOrDefault(f => (key.FieldType == null || f.FieldType == key.FieldType)
+                                                  && (key.FieldNamePattern == null || f.Name.Contains(key.FieldNamePattern, StringComparison.OrdinalIgnoreCase)));
+                return field == null ? null : FieldAccessor.GetAccessor(field);
+            }
 
-        internal static byte[] GetIconData(this Icon icon) => (byte[])Icon_iconData.Get(icon);
+            if (fields == null)
+                Interlocked.CompareExchange(ref fields, new Cache<(Type, Type, string), FieldAccessor>(GetFieldAccessor).GetThreadSafeAccessor(), null);
+            return fields[(type, fieldType, fieldNamePattern)];
+        }
 
-        internal static void SetEntries(this ColorPalette palette, Color[] value) => ColorPalette_entries.Set(palette, value);
+        private static T GetFieldValueOrDefault<T>(object obj, string fieldNamePattern = null)
+        {
+            var field = GetField(obj.GetType(), typeof(T), fieldNamePattern);
+            return field == null ? default : (T)field.Get(obj);
+        }
+
+        private static void SetFieldValue<T>(object obj, string fieldNamePattern, T value, bool throwIfMissing = true)
+        {
+            Type type = obj.GetType();
+            FieldAccessor field = GetField(type, typeof(T), fieldNamePattern);
+            if (field == null)
+            {
+                if (throwIfMissing)
+                    throw new InvalidOperationException(Res.AccessorsInstanceFieldDoesNotExist(fieldNamePattern, type));
+                return;
+            }
+#if NETSTANDARD2_0
+            if (field.IsReadOnly || field.MemberInfo.DeclaringType?.IsValueType == true)
+            {
+                ((FieldInfo)field.MemberInfo).SetValue(obj, value);
+                return;
+            }
+#endif
+
+            field.Set(obj, value);
+        }
+
+
+        internal static Image GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Image>(graphics, "backingImage"); 
+
+        internal static bool HasIconData(this Icon icon) => GetField(typeof(Icon), null, nameFieldIconData) != null;
+
+        internal static void SetEntries(this ColorPalette palette, Color[] value) => SetFieldValue(palette, "entries", value);
 
         #endregion
     }

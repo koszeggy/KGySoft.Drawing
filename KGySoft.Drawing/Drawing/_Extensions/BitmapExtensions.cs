@@ -176,14 +176,14 @@ namespace KGySoft.Drawing
                     IntPtr lineTarget = targetData.Scan0;
                     if (sourceData.Stride > 0)
                     {
-                        Kernel32.CopyMemory(lineTarget, lineSource, sourceData.Stride * sourceData.Height);
+                        MemoryHelper.CopyMemory(lineTarget, lineSource, sourceData.Stride * sourceData.Height);
                     }
                     else
                     {
                         int lineWidth = Math.Abs(sourceData.Stride);
                         for (int y = 0; y < sourceData.Height; y++)
                         {
-                            Kernel32.CopyMemory(lineTarget, lineSource, lineWidth);
+                            MemoryHelper.CopyMemory(lineTarget, lineSource, lineWidth);
                             lineSource = new IntPtr(lineSource.ToInt64() + sourceData.Stride);
                             lineTarget = new IntPtr(lineTarget.ToInt64() + targetData.Stride);
                         }

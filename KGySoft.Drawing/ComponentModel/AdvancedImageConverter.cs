@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if !NETCOREAPP2_0
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: AdvancedImageConverter.cs
@@ -34,6 +35,9 @@ namespace KGySoft.ComponentModel
     /// Provides a converter for <see cref="Image"/> instances that can preserve the original format of images better than the <see cref="ImageConverter"/> class when converting <see cref="Bitmap"/>,
     /// <see cref="Metafile"/> and <see cref="Icon"/> images.
     /// </summary>
+    /// <remarks>
+    /// <note>This class is not available in the .NET Core 2.0 version.</note>
+    /// </remarks>
     public class AdvancedImageConverter : ImageConverter
     {
         #region Methods
@@ -108,3 +112,5 @@ namespace KGySoft.ComponentModel
         #endregion
     }
 }
+
+#endif
