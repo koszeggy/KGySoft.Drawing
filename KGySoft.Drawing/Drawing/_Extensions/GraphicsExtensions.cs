@@ -335,16 +335,16 @@ namespace KGySoft.Drawing
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
         {
-            int diameter = radius * 2;
-            Size size = new Size(diameter, diameter);
-            Rectangle arc = new Rectangle(bounds.Location, size);
             GraphicsPath path = new GraphicsPath();
-
             if (radius == 0)
             {
                 path.AddRectangle(bounds);
                 return path;
             }
+
+            int diameter = radius * 2;
+            Size size = new Size(diameter, diameter);
+            Rectangle arc = new Rectangle(bounds.Location, size);
 
             // top left arc
             path.AddArc(arc, 180, 90);

@@ -65,6 +65,9 @@ namespace KGySoft
         /// <summary>Invalid Enhanced Metafile handle.</summary>
         internal static string Gdi32InvalidEmfHandle => Get("Gdi32_InvalidEmfHandle");
 
+        /// <summary>Invalid Windows Metafile handle.</summary>
+        internal static string Gdi32InvalidWmfHandle => Get("Gdi32_InvalidWmfHandle");
+
         #endregion
 
         #region IconExtensions

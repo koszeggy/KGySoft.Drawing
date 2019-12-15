@@ -17,7 +17,9 @@
 #region Usings
 
 using System;
-
+#if !NET35
+using System.Security; 
+#endif
 #if WIN
 using KGySoft.Drawing.WinApi; 
 #endif
@@ -32,6 +34,9 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         internal static unsafe void CopyMemory(IntPtr dest, IntPtr src, int length)
         {
 #if WIN
@@ -41,6 +46,9 @@ namespace KGySoft.Drawing
 #endif
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         internal static unsafe bool CompareMemory(IntPtr p1, IntPtr p2, int length)
         {
 #if WIN

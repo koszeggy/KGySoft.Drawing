@@ -537,7 +537,7 @@ namespace KGySoft.Drawing
                 if (icons != null)
                 {
                     foreach (Icon item in icons)
-                    rawIcon.Add(item);
+                        rawIcon.Add(item);
                 }
 
                 return rawIcon.ToIcon(forceUncompressedResult);

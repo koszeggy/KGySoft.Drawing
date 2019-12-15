@@ -116,7 +116,7 @@ namespace KGySoft.Drawing
 
         internal static Image GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Image>(graphics, "backingImage"); 
 
-        internal static bool HasIconData(this Icon icon) => GetField(typeof(Icon), null, nameFieldIconData) != null;
+        internal static bool HasIconData(this Icon icon) => GetField(typeof(Icon), null, nameFieldIconData)?.Get(icon) != null;
 
         internal static void SetEntries(this ColorPalette palette, Color[] value) => SetFieldValue(palette, "entries", value);
 

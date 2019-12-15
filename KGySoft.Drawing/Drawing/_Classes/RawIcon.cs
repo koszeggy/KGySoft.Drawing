@@ -659,32 +659,7 @@ namespace KGySoft.Drawing
                 // PNG format
                 if (isPng)
                 {
-                    // Note: MemoryStream must not be in a using because that would kill the new bitmap.
-                    Bitmap result = bmpComposite ?? bmpColor
-                        // ReSharper disable once AssignNullToNotNullAttribute - rawColor is available, otherwise, object would be disposed. 
-                        ?? new Bitmap(new MemoryStream(rawColor));
-
-                    // assignments below will not replace any instance, otherwise, we would have returned above
-                    if (isCompositeRequired)
-                        bmpComposite = result;
-                    else
-                    {
-                        // if PNG bpp matches the required result
-                        if (bpp == result.GetBitsPerPixel())
-                            bmpColor = result;
-                        else
-                        {
-                            // generating a lower bpp image
-                            // note: this code should theoretically be never executed if the decoder sets the same BPP as it is in the stream.
-                            Color[] paletteBmpColor = null;
-                            if (bpp <= 8)
-                                paletteBmpColor = result.GetColors(1 << bpp);
-
-                            bmpColor = (Bitmap)result.ConvertPixelFormat(bpp.ToPixelFormat(), paletteBmpColor);
-                            result.Dispose();
-                        }
-                    }
-
+                    AssurePngBitmapsGenerated(isCompositeRequired);
                     return;
                 }
 
@@ -700,12 +675,24 @@ namespace KGySoft.Drawing
                     }
                 }
 
+                // Working from raw format. If it doesn't exist, creating from composite image...
+                if (rawColor == null)
+                {
+                    // Unless the we decide to handle the image as if it was PNG. In this case the icon was created
+                    // from a large bitmap but isPng should remain false because we don't create rawColor.
+                    bool asPng = bpp >= 32 && size.Width > 64 && size.Height > 64;
+                    if (asPng)
+                    {
+                        AssurePngBitmapsGenerated(false);
+                        return;
+                    }
+
+                    // Now we create rawColor and it will be a BMP for sure.
+                    AssureRawFormatGenerated(true);
+                }
+
                 // BMP format - original image format required
                 IntPtr dcScreen = User32.GetDC(IntPtr.Zero);
-
-                // working from raw format. If it doesn't exist, creating from composite image
-                if (rawColor == null)
-                    AssureRawFormatGenerated(false);
 
                 // initializing bitmap data
                 BITMAPINFO bitmapInfo;
@@ -733,6 +720,35 @@ namespace KGySoft.Drawing
                 User32.ReleaseDC(IntPtr.Zero, dcScreen);
                 Gdi32.DeleteObject(hbmpColor);
                 Gdi32.DeleteDC(dcColor);
+            }
+
+            private void AssurePngBitmapsGenerated(bool isCompositeRequired)
+            {
+                // Note: MemoryStream must not be in a using because that would kill the new bitmap.
+                Bitmap result = bmpComposite ?? bmpColor
+                    // ReSharper disable once AssignNullToNotNullAttribute - rawColor is available, otherwise, object would be disposed. 
+                    ?? new Bitmap(new MemoryStream(rawColor));
+
+                // assignments below will not replace any instance, otherwise, we would have returned above
+                if (isCompositeRequired)
+                    bmpComposite = result;
+                else
+                {
+                    // if PNG bpp matches the required result
+                    if (bpp == result.GetBitsPerPixel())
+                        bmpColor = result;
+                    else
+                    {
+                        // generating a lower bpp image
+                        // note: this code should theoretically be never executed if the decoder sets the same BPP as it is in the stream.
+                        Color[] paletteBmpColor = null;
+                        if (bpp <= 8)
+                            paletteBmpColor = result.GetColors(1 << bpp);
+
+                        bmpColor = result.ConvertPixelFormat(bpp.ToPixelFormat(), paletteBmpColor);
+                        result.Dispose();
+                    }
+                }
             }
 
             #endregion

@@ -94,6 +94,9 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, black and white colors will be used.</para>
         /// <para>If the target pixel format is indexed, <paramref name="palette"/> contains the transparent color (<see cref="Color.Transparent">Color.Transparent</see>), and the source has transparency, then the result will have transparency for fully transparent pixels.</para>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format16bppArgb1555"/> or <see cref="PixelFormat.Format16bppGrayScale"/>, which are not supported.</exception>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -226,7 +229,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Compares an image to another one by content and returns whether they are equal. Images of different
-        /// size or pixel format are considered as difference.
+        /// size or pixel format are considered different.
         /// </summary>
         /// <param name="image1">First image instance.</param>
         /// <param name="image2">Second image instance.</param>
@@ -372,7 +375,7 @@ namespace KGySoft.Drawing
 
             Type type1 = image1.GetType();
             Type type2 = image2.GetType();
-            if (type1 != type2 || image1.Size != image2.Size || image1.PixelFormat != image2.PixelFormat || image1.RawFormat.Guid != image2.RawFormat.Guid)
+            if (type1 != type2 || image1.Size != image2.Size || image1.PixelFormat != image2.PixelFormat)
                 return false;
 
             if (type1 == typeof(Metafile))
@@ -380,8 +383,9 @@ namespace KGySoft.Drawing
                 using (MemoryStream ms1 = new MemoryStream())
                 using (MemoryStream ms2 = new MemoryStream())
                 {
-                    ((Metafile)image1).Save(ms1);
-                    ((Metafile)image2).Save(ms2);
+                    bool forceWmf = image1.RawFormat.Equals(ImageFormat.Wmf) || image2.RawFormat.Equals(ImageFormat.Wmf);
+                    ((Metafile)image1).Save(ms1, forceWmf);
+                    ((Metafile)image2).Save(ms2, forceWmf);
 
                     if (ms1.Length != ms2.Length)
                         return false;
@@ -403,23 +407,20 @@ namespace KGySoft.Drawing
 
             try
             {
-                if (data1.Stride != data2.Stride)
+                if (Math.Abs(data1.Stride) != Math.Abs(data2.Stride))
                     return false;
 
-                // top-down image: can be compared in a whole
-                if (data1.Stride > 0)
+                // both are top-down images: can be compared in a whole
+                if (data1.Stride > 0 && data2.Stride > 0)
                     return MemoryHelper.CompareMemory(data1.Scan0, data2.Scan0, data1.Stride * image1.Height);
 
-                // bottom-up image: line by line
-                int offset = 0;
+                // at least one of them is a bottom-up image: line by line
                 for (int i = 0; i < data1.Height; i++)
                 {
-                    IntPtr line1 = new IntPtr(data1.Scan0.ToInt64() + offset);
-                    IntPtr line2 = new IntPtr(data2.Scan0.ToInt64() + offset);
-                    if (!MemoryHelper.CompareMemory(line1, line2, -data1.Stride))
+                    IntPtr line1 = new IntPtr(data1.Scan0.ToInt64() + data1.Stride * i);
+                    IntPtr line2 = new IntPtr(data2.Scan0.ToInt64() + data2.Stride * i);
+                    if (!MemoryHelper.CompareMemory(line1, line2, Math.Abs(data1.Stride)))
                         return false;
-
-                    offset += data1.Stride;
                 }
 
                 return true;
@@ -462,16 +463,26 @@ namespace KGySoft.Drawing
                     hasBlack = true;
             }
 
-            // if transparent index is 0, relocating it and setting transparent index to 1
-            if (transparentIndex == 0)
+            // if there is transparency and there are more than 2 colors, then 
+            if (transparentIndex != -1)
             {
-                targetPalette[0] = targetPalette[1];
-                transparentIndex = 1;
-            }
-            // otherwise, setting the color of transparent index the same as the previous color, so it will not be used during the conversion
-            else if (transparentIndex != -1)
-            {
-                targetPalette[transparentIndex] = targetPalette[transparentIndex - 1];
+                // two colors image: preventing the result to be completely blank
+                if (maxColors == 2)
+                {
+                    int nonTrIndex = 1 - transparentIndex;
+                    if (targetPalette[nonTrIndex].EqualsWithColor(sourcePalette[transparentIndex]))
+                        targetPalette[transparentIndex] = new RGBQUAD(sourcePalette[transparentIndex].G >= 128 ? Color.Black : Color.White);
+                }
+                // non 2 colors image: making sure the transparent index is not used during the conversion
+                else if (transparentIndex == 0)
+                {
+                    // relocating transparent index to be the 2nd color
+                    targetPalette[0] = targetPalette[1];
+                    transparentIndex = 1;
+                }
+                else
+                    // otherwise, setting the color of transparent index the same as the previous color
+                    targetPalette[transparentIndex] = targetPalette[transparentIndex - 1];
             }
 
             // if black color is not found in palette, counting 1 extra colors because it can be used in conversion

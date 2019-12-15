@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.WinApi
             /// <returns>If the nIconIndex parameter is -1, the phiconLarge parameter is NULL, and the phiconSmall parameter is NULL,
             /// then the return value is the number of icons contained in the specified file.
             /// Otherwise, the return value is the number of icons successfully extracted from the file.</returns>
-            [DllImport("shell32", CharSet = CharSet.Unicode, EntryPoint = "ExtractIconExW")]
+            [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "ExtractIconExW")]
             internal static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPWStr)] string lpszFile, int nIconIndex, IntPtr[] phIconLarge, IntPtr[] phIconSmall, int nIcons);
 
             /// <summary>
@@ -104,7 +104,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="uFlags">A combination of zero or more of the <see cref="SHGSI"/> flags that specify which information is requested.</param>
             /// <param name="psii">A pointer to a <see cref="SHSTOCKICONINFO"/> structure. When this function is called, the cbSize member of this structure needs to be set to the size of the SHSTOCKICONINFO structure. When this function returns, contains a pointer to a SHSTOCKICONINFO structure that contains the requested information.</param>
             /// <returns>HRESULT</returns>
-            [DllImport("Shell32.dll", SetLastError = false)]
+            [DllImport("shell32.dll", SetLastError = false)]
             internal static extern int SHGetStockIconInfo(StockIcon siid, SHGSI uFlags, ref SHSTOCKICONINFO psii);
 
             #endregion

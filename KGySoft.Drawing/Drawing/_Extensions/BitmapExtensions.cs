@@ -67,21 +67,11 @@ namespace KGySoft.Drawing
             Size sourceSize = image.Size;
             Point targetLocation = Point.Empty;
 
-            float ratio;
-            if (keepAspectRatio && (!Equals((float)targetSize.Width / targetSize.Height, ratio = (float)sourceSize.Width / sourceSize.Height)))
+            if (keepAspectRatio && newSize != sourceSize)
             {
-                // width is bigger so dividing height by the ratio
-                if (ratio >= 1f)
-                {
-                    targetSize.Height = (int)(newSize.Height / ratio);
-                    targetLocation.Y = (newSize.Height - targetSize.Height) >> 1;
-                }
-                // height is bigger so multiplying width by the ratio
-                else
-                {
-                    targetSize.Width = (int)(newSize.Width * ratio);
-                    targetLocation.X = (newSize.Width - targetSize.Width) >> 1;
-                }
+                float ratio = Math.Min((float)newSize.Width / sourceSize.Width, (float)newSize.Height / sourceSize.Height);
+                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetLocation = new Point(newSize.Width / 2 - targetSize.Width / 2, newSize.Height / 2 - targetSize.Height / 2);
             }
 
             Bitmap result = new Bitmap(newSize.Width, newSize.Height);

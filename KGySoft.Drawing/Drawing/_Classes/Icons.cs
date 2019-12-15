@@ -399,7 +399,7 @@ namespace KGySoft.Drawing
 
         #region Private Properties
 
-        private static ResourceManager ResourceManager => resourceManager ?? (resourceManager = new ResourceManager(typeof(Icons)));
+        private static ResourceManager ResourceManager => resourceManager ??= new ResourceManager(typeof(Icons));
 
         #endregion
 
@@ -671,50 +671,30 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            Bitmap bitmap;
-            if (size == image.Width && size == image.Height && (bitmap = image as Bitmap) != null)
-            {
+            // Same size and image is Bitmap
+            if (image is Bitmap bitmap && size == image.Width && size == image.Height)
                 return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
+
+            // Different size or image is not a Bitmap
+            Size targetSize = new Size(size, size);
+            Size sourceSize = image.Size;
+            Point targetLocation = Point.Empty;
+
+            if (keepAspectRatio && targetSize != sourceSize)
+            {
+                float ratio = Math.Min((float)size / sourceSize.Width, (float)size / sourceSize.Height);
+                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetLocation = new Point(size / 2 - targetSize.Width / 2, size / 2 - targetSize.Height / 2);
             }
 
             using (bitmap = new Bitmap(size, size))
             {
                 using (Graphics g = Graphics.FromImage(bitmap))
                 {
-                    int x, y, w, h; // dimensions for new image
-
-                    if (!keepAspectRatio || image.Height == image.Width)
-                    {
-                        // just fill the square
-                        x = y = 0; // set x and y to 0
-                        w = h = size; // set width and height to size
-                    }
-                    else
-                    {
-                        // work out the aspect ratio
-                        float r = (float)image.Width / image.Height;
-                        // set dimensions accordingly to fit inside size^2 square
-
-                        if (r > 1)
-                        { // w is bigger, so divide h by r
-                            w = size;
-                            h = (int)(size / r);
-                            x = 0;
-                            y = (size - h) / 2; // center the image
-                        }
-                        else
-                        { // h is bigger, so multiply w by r
-                            w = (int)(size * r);
-                            h = size;
-                            y = 0;
-                            x = (size - w) / 2; // center the image
-                        }
-                    }
-                    // make the image shrink nicely by using HighQualityBicubic mode
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.PixelOffsetMode = PixelOffsetMode.Half;
-                    g.DrawImage(image, x, y, w, h); // draw image with specified dimensions
-                    g.Flush(); // make sure all drawing operations complete before we get the icon
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.DrawImage(image, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                    g.Flush();
 
                     return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
                 }

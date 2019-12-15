@@ -191,6 +191,16 @@ namespace KGySoft.Drawing.WinApi
             internal static extern bool DeleteEnhMetaFile(IntPtr hemf);
 
             /// <summary>
+            /// The DeleteMetaFile function deletes a Windows-format metafile or Windows-format metafile handle.
+            /// </summary>
+            /// <param name="hmf">A handle to a Windows-format metafile.</param>
+            /// <returns>If the function succeeds, the return value is nonzero.
+            /// If the function fails, the return value is zero.</returns>
+            [DllImport(libName)]
+            [return: MarshalAs(UnmanagedType.Bool)]
+            internal static extern bool DeleteMetaFile(IntPtr hmf);
+
+            /// <summary>
             /// Creates a bitmap compatible with the device that is associated with the specified device context.
             /// </summary>
             /// <param name="hdc">A handle to a device context.</param>
@@ -289,6 +299,12 @@ namespace KGySoft.Drawing.WinApi
         {
             if (!NativeMethods.DeleteEnhMetaFile(handle))
                 throw new ArgumentException(Res.Gdi32InvalidEmfHandle, nameof(handle));
+        }
+
+        internal static void DeleteMetaFile(IntPtr handle)
+        {
+            if (!NativeMethods.DeleteMetaFile(handle))
+                throw new ArgumentException(Res.Gdi32InvalidWmfHandle, nameof(handle));
         }
 
         internal static IntPtr CreateCompatibleBitmap(IntPtr hdc, int width, int height) => NativeMethods.CreateCompatibleBitmap(hdc, width, height);

@@ -15,7 +15,6 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <LangVersion>latest</LangVersion>
-    <Configurations>Debug;Release;unix-Debug;unix-Release</Configurations>
   </PropertyGroup>
 
   <!-- Common NuGet references -->

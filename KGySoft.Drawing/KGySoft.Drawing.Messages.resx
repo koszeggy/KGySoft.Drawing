@@ -129,6 +129,9 @@
   <data name="Gdi32_InvalidEmfHandle" xml:space="preserve">
     <value>Invalid Enhanced Metafile handle.</value>
   </data>
+  <data name="Gdi32_InvalidWmfHandle" xml:space="preserve">
+    <value>Invalid Windows Metafile handle.</value>
+  </data>
   <data name="User32_InvalidHandle" xml:space="preserve">
     <value>Invalid handle.</value>
   </data>

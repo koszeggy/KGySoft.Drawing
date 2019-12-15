@@ -187,7 +187,10 @@ namespace KGySoft.Drawing
             }
             finally
             {
-                Gdi32.DeleteEnhMetaFile(handle);
+                if (isWmf)
+                    Gdi32.DeleteMetaFile(handle);
+                else
+                    Gdi32.DeleteEnhMetaFile(handle);
                 metafile.Dispose();
             }
         }

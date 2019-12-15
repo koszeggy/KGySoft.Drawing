@@ -6,6 +6,34 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v5.0.0:
+~~~~~~~~~
+
+* Assembly changes:
+===================
++ Targeting also .NET Core 2.0.
++ Targeting also .NET Core 3.0.
+
+- KGySoft.Drawing namespace:
+============================
+- BitmapExtensions class:
+  - Resize method: Fixing resize if keepAspectRatio is true.
+- IconExtensions class:
+  - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
+    keepOriginalFormat parameter was true.
+- ImageExtensions class:
+  - ConvertPixelFormat method: If converting to 1 bpp transparent image the result is not a simple transparency
+    mask anymore.
+  - EqualsByContent method:
+    - Images with different raw format were considered different even if their raw content were the same. From now
+      on images with different raw format can also be considered equal (as expected based on the documentation).
+    - Images with the same stride size were considered different if the absolute value of their stride were
+      different (a top-down image was compared to a bottom-up image).
+- MetafileExtensions class:
+  - Save method: Fixing an ArgumentException if the raw format of the metafile to save is WMF rather than EMF.
+
+
+~~~~~~~~~
 * v4.7.0:
 ~~~~~~~~~
 
