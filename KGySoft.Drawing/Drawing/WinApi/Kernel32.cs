@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="dest">A pointer to the starting address of the copied block's destination.</param>
             /// <param name="src">A pointer to the starting address of the block of memory to copy.</param>
             /// <param name="length">The size of the block of memory to copy, in bytes.</param>
-            [DllImport("kernel32.dll")]
+            [DllImport("kernel32.dll", EntryPoint = "RtlCopyMemory")]
             internal static extern void CopyMemory(IntPtr dest, IntPtr src, int length);
 
             #endregion
