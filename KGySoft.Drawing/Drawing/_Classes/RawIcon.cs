@@ -804,7 +804,7 @@ namespace KGySoft.Drawing
                 using (Bitmap bmp = icon.ToAlphaBitmap())
                 {
                     if ((!size.HasValue || (size.Value.Width == bmp.Size.Width && size.Value.Height == bmp.Size.Height))
-                        || (!bpp.HasValue || bpp.Value == bmp.GetBitsPerPixel()))
+                        && (!bpp.HasValue || bpp.Value == bmp.GetBitsPerPixel()))
                     {
                         Add(bmp);
                     }
