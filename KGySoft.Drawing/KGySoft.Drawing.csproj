@@ -1,9 +1,9 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <Configurations>win-Debug;win-Release;unix-Debug;unix-Release</Configurations>
-    <DefineConstants Condition="'$(Configuration)' == 'win-Debug' OR '$(Configuration)' == 'win-Release'">$(DefineConstants);WIN</DefineConstants>
-    <DefineConstants Condition="'$(Configuration)' == 'unix-Debug' OR '$(Configuration)' == 'unix-Release'">$(DefineConstants);UNIX</DefineConstants>
+    <!--<Configurations>win-Debug;win-Release;unix-Debug;unix-Release</Configurations>-->
+    <!--<DefineConstants Condition="'$(Configuration)' == 'win-Debug' OR '$(Configuration)' == 'win-Release'">$(DefineConstants);WIN</DefineConstants>
+    <DefineConstants Condition="'$(Configuration)' == 'unix-Debug' OR '$(Configuration)' == 'unix-Release'">$(DefineConstants);UNIX</DefineConstants>-->
 
     <!--Windows targets-->
     <!--<TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>-->

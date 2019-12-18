@@ -36,18 +36,6 @@ namespace KGySoft.Drawing.WinApi
 
         private static class NativeMethods
         {
-            #region Constants
-
-#if WIN
-            private const string libName = "gdi32.dll";
-#elif UNIX
-            private const string libName = "gdi32";
-#else
-#error Unsupported platform
-#endif
-
-            #endregion
-
             #region Methods
 
             /// <summary>
@@ -57,7 +45,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="cbBuffer">The number of bytes of information to be written to the buffer.</param>
             /// <param name="lpvObject">A pointer to a buffer that receives the information about the specified graphics object.</param>
             /// <returns>If the lpvObject parameter is NULL, the function return value is the number of bytes required to store the information it writes to the buffer for the specified graphics object.</returns>
-            [DllImport(libName, SetLastError = true)]
+            [DllImport("gdi32.dll", SetLastError = true)]
             internal static extern int GetObject(IntPtr hgdiobj, int cbBuffer, out BITMAP lpvObject);
 
             /// <summary>
@@ -65,7 +53,7 @@ namespace KGySoft.Drawing.WinApi
             /// </summary>
             /// <param name="hObject">A handle to a logical pen, brush, font, bitmap, region, or palette.</param>
             /// <returns>If the function succeeds, the return value is nonzero.</returns>
-            [DllImport(libName, SetLastError = true)]
+            [DllImport("gdi32.dll", SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteObject(IntPtr hObject);
 
@@ -83,7 +71,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="dwOffset">The offset from the beginning of the file-mapping object referenced by hSection where storage for the bitmap bit values is to begin. This value is ignored if hSection is NULL. The bitmap bit values are aligned on doubleword boundaries, so dwOffset must be a multiple of the size of a DWORD.</param>
             /// <returns>If the function succeeds, the return value is a handle to the newly created DIB, and *ppvBits points to the bitmap bit values.
             /// If the function fails, the return value is NULL, and ppvBits is NULL.</returns>
-            [DllImport(libName, CharSet = CharSet.Auto)]
+            [DllImport("gdi32.dll", CharSet = CharSet.Auto)]
             internal static extern IntPtr CreateDIBSection(IntPtr hdc, [In] ref BITMAPINFO pbmi, int iUsage, out IntPtr ppvBits, IntPtr hSection, uint dwOffset);
 
             /// <summary>
@@ -94,7 +82,7 @@ namespace KGySoft.Drawing.WinApi
             /// <returns>The handle to a memory device context indicates success.
             /// NULL indicates failure.
             /// To get extended error information, call GetLastError.</returns>
-            [DllImport(libName, SetLastError = true)]
+            [DllImport("gdi32.dll", SetLastError = true)]
             internal static extern IntPtr CreateCompatibleDC(IntPtr hdc);
 
             /// <summary>
@@ -103,7 +91,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hdc">A handle to the DC.</param>
             /// <param name="hgdiobj">A handle to the object to be selected.</param>
             /// <returns>If the selected object is not a region and the function succeeds, the return value is a handle to the object being replaced.</returns>
-            [DllImport(libName, SetLastError = true)]
+            [DllImport("gdi32.dll", SetLastError = true)]
             internal static extern IntPtr SelectObject(IntPtr hdc, IntPtr hgdiobj);
 
             /// <summary>The BitBlt function performs a bit-block transfer of the color data corresponding to a rectangle of pixels from the specified source device context into a destination device context.</summary>
@@ -117,7 +105,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="nYSrc">The topmost y-coordinate of the source rectangle (in pixels).</param>
             /// <param name="dwRop">A raster-operation code.</param>
             /// <returns><see langword="true"/>&#160;if the operation succeeds, <see langword="false"/>&#160;otherwise. To get extended error information, call <see cref="Marshal.GetLastWin32Error"/>.</returns>
-            [DllImport(libName, SetLastError = true)]
+            [DllImport("gdi32.dll", SetLastError = true)]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool BitBlt(IntPtr hdc, int nXDest, int nYDest, int nWidth, int nHeight, IntPtr hdcSrc, int nXSrc, int nYSrc, TernaryRasterOperations dwRop);
 
@@ -127,7 +115,7 @@ namespace KGySoft.Drawing.WinApi
             /// <remarks>
             /// An application must not delete a DC whose handle was obtained by calling the GetDC function. Instead, it must call the ReleaseDC function to free the DC.
             /// </remarks>
-            [DllImport(libName)]
+            [DllImport("gdi32.dll")]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteDC(IntPtr hdc);
 
@@ -143,7 +131,7 @@ namespace KGySoft.Drawing.WinApi
             /// <remarks>After the enhanced-metafile bits are retrieved, they can be used to create a memory-based metafile by calling the SetEnhMetaFileBits function.
             /// The GetEnhMetaFileBits function does not invalidate the enhanced-metafile handle. The application must call the DeleteEnhMetaFile function to delete the handle when it is no longer needed.
             /// The metafile contents retrieved by this function are in the enhanced format. To retrieve the metafile contents in the Windows format, use the GetWinMetaFileBits function.</remarks>
-            [DllImport(libName)]
+            [DllImport("gdi32.dll")]
             internal static extern uint GetEnhMetaFileBits(IntPtr hemf, uint cbBuffer, [Out]byte[] lpbBuffer);
 
             /// <summary>
@@ -161,7 +149,7 @@ namespace KGySoft.Drawing.WinApi
             /// The GetWinMetaFileBits function does not invalidate the enhanced metafile handle. An application should call the DeleteEnhMetaFile function to release the handle when it is no longer needed.
             /// To create a scalable Windows-format metafile, specify MM_ANISOTROPIC as the fnMapMode parameter.
             /// The upper-left corner of the metafile picture is always mapped to the origin of the reference device.</remarks>
-            [DllImport(libName)]
+            [DllImport("gdi32.dll")]
             internal static extern uint GetWinMetaFileBits(IntPtr hemf, uint cbBuffer, [Out]byte[] lpbBuffer, MappingModes fnMapMode, IntPtr hdcRef);
 
             /// <summary>
@@ -177,7 +165,7 @@ namespace KGySoft.Drawing.WinApi
             /// After the Windows-metafile bits are retrieved, they can be used to create a memory-based metafile by calling the SetMetaFileBitsEx function.
             /// The GetMetaFileBitsEx function does not invalidate the metafile handle. An application must delete this handle by calling the DeleteMetaFile function.
             /// To convert a Windows-format metafile into an enhanced-format metafile, use the SetWinMetaFileBits function.</remarks>
-            [DllImport(libName)]
+            [DllImport("gdi32.dll")]
             internal static extern uint GetMetaFileBitsEx(IntPtr hmf, uint nSize, [Out]byte[] lpvData);
 
             /// <summary>
@@ -186,7 +174,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hemf">A handle to an enhanced metafile.</param>
             /// <returns>If the function succeeds, the return value is nonzero.
             /// If the function fails, the return value is zero.</returns>
-            [DllImport(libName)]
+            [DllImport("gdi32.dll")]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteEnhMetaFile(IntPtr hemf);
 
@@ -196,7 +184,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="hmf">A handle to a Windows-format metafile.</param>
             /// <returns>If the function succeeds, the return value is nonzero.
             /// If the function fails, the return value is zero.</returns>
-            [DllImport(libName)]
+            [DllImport("gdi32.dll")]
             [return: MarshalAs(UnmanagedType.Bool)]
             internal static extern bool DeleteMetaFile(IntPtr hmf);
 
@@ -208,7 +196,7 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="nHeight">The bitmap height, in pixels.</param>
             /// <returns>If the function succeeds, the return value is a handle to the compatible bitmap (DDB).
             /// If the function fails, the return value is <see cref="System.IntPtr.Zero"/>.</returns>
-            [DllImport(libName)]
+            [DllImport("gdi32.dll")]
             internal static extern IntPtr CreateCompatibleBitmap(IntPtr hdc, int nWidth, int nHeight);
 
             #endregion

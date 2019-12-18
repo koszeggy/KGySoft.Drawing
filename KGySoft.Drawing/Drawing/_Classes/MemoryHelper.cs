@@ -20,9 +20,7 @@ using System;
 #if !NET35
 using System.Security; 
 #endif
-#if WIN
 using KGySoft.Drawing.WinApi; 
-#endif
 
 #endregion
 
@@ -39,29 +37,23 @@ namespace KGySoft.Drawing
 #endif
         internal static unsafe void CopyMemory(IntPtr dest, IntPtr src, int length)
         {
-#if WIN
-            Kernel32.CopyMemory(dest, src, length);
-#else
-            Buffer.MemoryCopy(src.ToPointer(), dest.ToPointer(), length, length);
-#endif
+            if (OSUtils.IsWindows)
+                Kernel32.CopyMemory(dest, src, length);
+            else
+                Buffer.MemoryCopy(src.ToPointer(), dest.ToPointer(), length, length);
         }
 
 #if !NET35
         [SecuritySafeCritical]
 #endif
         internal static unsafe bool CompareMemory(IntPtr p1, IntPtr p2, int length)
-        {
-#if WIN
-            return msvcrt.CompareMemory(p1, p2, length);
-#else
-            return CompareMemory((byte*)p1, (byte*)p2, length);
-#endif
-        }
+            => OSUtils.IsWindows
+                ? msvcrt.CompareMemory(p1, p2, length)
+                : CompareMemory((byte*)p1, (byte*)p2, length);
 
         #endregion
 
         #region Private Methods
-#if !WIN
 
         private static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
         {
@@ -142,7 +134,6 @@ namespace KGySoft.Drawing
             return true;
         }
 
-#endif
         #endregion
 
         #endregion

@@ -291,6 +291,10 @@ namespace KGySoft.Drawing
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor. This parameter is optional.
         /// <br/>Default value: <c>0; 0</c> (top-left corner)</param>
         /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -298,6 +302,8 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (!OSUtils.IsWindows)
+                throw new PlatformNotSupportedException(Res.RequiresWindows);
 
             IntPtr iconHandle = bitmap.GetHicon();
             try

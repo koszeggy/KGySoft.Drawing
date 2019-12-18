@@ -69,7 +69,7 @@ namespace KGySoft.Drawing.UnitTests
         public void StockIconsTest(StockIcon stockIcon)
         {
             var icon = Icons.GetStockIcon(stockIcon);
-            Assert.IsTrue(!WindowsUtils.IsVistaOrLater || icon != null);
+            Assert.IsTrue(!OSUtils.IsVistaOrLater || icon != null);
             SaveIcon(stockIcon.ToString(), icon);
         }
 

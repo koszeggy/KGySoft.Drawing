@@ -64,6 +64,8 @@ namespace KGySoft.Drawing
 
             if (icon.HasRawData())
                 return icon.ExtractNearestBitmap(icon.Size, PixelFormat.Format32bppArgb);
+            if (!OSUtils.IsWindows)
+                return icon.ToBitmap();
 
             User32.GetIconInfo(icon.Handle, out ICONINFO iconInfo);
             try
@@ -130,7 +132,7 @@ namespace KGySoft.Drawing
 #endif
         public static Bitmap ToMultiResBitmap(this Icon icon)
         {
-            if (WindowsUtils.IsVistaOrLater)
+            if (!OSUtils.IsWindows || OSUtils.IsVistaOrLater)
                 return ToMultiResBitmap(icon, false);
 
             // In Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor.
@@ -321,7 +323,7 @@ namespace KGySoft.Drawing
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
         /// <remarks>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         /// <seealso cref="ExtractBitmaps(Icon,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon) => ExtractIcons(icon, null, null, !WindowsUtils.IsVistaOrLater);
+        public static Icon[] ExtractIcons(this Icon icon) => ExtractIcons(icon, null, null, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Extracts every icon from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
@@ -341,7 +343,7 @@ namespace KGySoft.Drawing
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
         /// <remarks>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         /// <seealso cref="ExtractBitmaps(Icon,Size,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon, Size size) => ExtractIcons(icon, size, null, !WindowsUtils.IsVistaOrLater);
+        public static Icon[] ExtractIcons(this Icon icon, Size size) => ExtractIcons(icon, size, null, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
@@ -362,7 +364,7 @@ namespace KGySoft.Drawing
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
         /// <remarks>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         /// <seealso cref="ExtractBitmaps(Icon,PixelFormat,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon, PixelFormat pixelFormat) => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), !WindowsUtils.IsVistaOrLater);
+        public static Icon[] ExtractIcons(this Icon icon, PixelFormat pixelFormat) => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
@@ -385,7 +387,7 @@ namespace KGySoft.Drawing
         /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
         /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, Size size) => ExtractFirstIcon(icon, size, null, !WindowsUtils.IsVistaOrLater);
+        public static Icon ExtractIcon(this Icon icon, Size size) => ExtractFirstIcon(icon, size, null, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Extracts the first icon of specified size from an <see cref="Icon"/> instance.
@@ -411,7 +413,7 @@ namespace KGySoft.Drawing
         /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
         /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,PixelFormat,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), !WindowsUtils.IsVistaOrLater);
+        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Extracts the icon of specified size and pixel format from an <see cref="Icon"/> instance.
@@ -436,7 +438,7 @@ namespace KGySoft.Drawing
         /// or <see langword="null"/>&#160;if the specified <paramref name="index"/> was too large.</returns>
         /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         /// <seealso cref="ExtractBitmap(Icon,int,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, int index) => ExtractIcon(icon, index, !WindowsUtils.IsVistaOrLater);
+        public static Icon ExtractIcon(this Icon icon, int index) => ExtractIcon(icon, index, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Extracts the icon of specified index from an <see cref="Icon"/> instance.
@@ -474,7 +476,7 @@ namespace KGySoft.Drawing
         /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
         /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
-        public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractNearestIcon(icon, size, pixelFormat, !WindowsUtils.IsVistaOrLater);
+        public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractNearestIcon(icon, size, pixelFormat, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Extracts the nearest icon of specified size and pixel format from an <see cref="Icon"/> instance.
@@ -511,7 +513,7 @@ namespace KGySoft.Drawing
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(this Icon icon, params Icon[] icons) => Combine(icon, !WindowsUtils.IsVistaOrLater, icons);
+        public static Icon Combine(this Icon icon, params Icon[] icons) => Combine(icon, OSUtils.IsXpOrEarlier, icons);
 
         /// <summary>
         /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -556,7 +558,7 @@ namespace KGySoft.Drawing
         /// <para><paramref name="icon"/> may already contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(this Icon icon, params Bitmap[] images) => Combine(icon, !WindowsUtils.IsVistaOrLater, images);
+        public static Icon Combine(this Icon icon, params Bitmap[] images) => Combine(icon, OSUtils.IsXpOrEarlier, images);
 
         /// <summary>
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
@@ -600,7 +602,7 @@ namespace KGySoft.Drawing
         /// <para><paramref name="icon"/> may already contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(this Icon icon, Bitmap image, Color transparentColor) => Combine(icon, image, transparentColor, !WindowsUtils.IsVistaOrLater);
+        public static Icon Combine(this Icon icon, Bitmap image, Color transparentColor) => Combine(icon, image, transparentColor, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="image" /> into a multi-resolution <see cref="Icon" /> instance.
@@ -714,6 +716,10 @@ namespace KGySoft.Drawing
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor. This parameter is optional.
         /// <br/>Default value: <c>0; 0</c> (top-left corner)</param>
         /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -721,6 +727,8 @@ namespace KGySoft.Drawing
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            if (!OSUtils.IsWindows)
+                throw new PlatformNotSupportedException(Res.RequiresWindows);
 
             return Icons.ToCursorHandle(icon.Handle, cursorHotspot);
         }
@@ -740,6 +748,8 @@ namespace KGySoft.Drawing
 #endif
         internal static Icon ToManagedIcon(this Icon unmanagedIcon)
         {
+            if (!OSUtils.IsWindows)
+                return unmanagedIcon;
             Icon managedIcon = (Icon)unmanagedIcon.Clone();
             User32.DestroyIcon(unmanagedIcon.Handle);
             return managedIcon;

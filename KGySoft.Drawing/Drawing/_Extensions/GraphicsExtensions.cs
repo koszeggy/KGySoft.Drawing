@@ -131,12 +131,19 @@ namespace KGySoft.Drawing
         /// the result will contain the image of the whole container source (when a container object is found), where the visible clip bounds can be identified by <see cref="Graphics.VisibleClipBounds"/> in pixels.</param>
         /// <returns>A <see cref="Bitmap"/> object that contains the image content of the source <see cref="Graphics"/> object, or <see langword="null"/>, when the required area of
         /// <paramref name="graphics"/> is empty.</returns>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
 #if !NET35
         [SecuritySafeCritical]
 #endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
+            if (!OSUtils.IsWindows)
+                throw new PlatformNotSupportedException(Res.RequiresWindows);
+
             if (graphics == null)
                 throw new ArgumentNullException(nameof(graphics), PublicResources.ArgumentNull);
 

@@ -36,30 +36,6 @@ namespace KGySoft.Drawing
     // ReSharper disable InconsistentNaming
     internal static class Accessors
     {
-        #region Constants
-
-#if WIN
-#if NET35 || NET40 || NET45
-        private const string nameFieldIconData = "iconData";
-#elif NETCOREAPP2_0 || NETCOREAPP3_0
-        private const string nameFieldIconData = "_iconData";
-#else
-#error Unsupported Platform Target in Windows.
-#endif
-
-#elif UNIX
-#if NETCOREAPP2_0 || NETCOREAPP3_0
-       private const string nameFieldIconData = "imageData"; // type is Icon.ImageData[]  
-#else
-#error Unsupported Platform Target in Unix.
-#endif
-
-#else
-#error Unsupported Runtime.
-#endif
-
-        #endregion
-
         #region Fields
 
         private static IThreadSafeCacheAccessor<(Type DeclaringType, Type FieldType, string FieldNamePattern), FieldAccessor> fields;
@@ -116,7 +92,8 @@ namespace KGySoft.Drawing
 
         internal static Image GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Image>(graphics, "backingImage"); 
 
-        internal static bool HasIconData(this Icon icon) => GetField(typeof(Icon), null, nameFieldIconData)?.Get(icon) != null;
+        internal static bool HasIconData(this Icon icon) => (GetField(typeof(Icon), null, "iconData")
+            ?? GetField(typeof(Icon), null, "imageData"))?.Get(icon) != null;
 
         internal static void SetEntries(this ColorPalette palette, Color[] value) => SetFieldValue(palette, "entries", value);
 

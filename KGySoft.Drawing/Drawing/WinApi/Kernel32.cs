@@ -1,5 +1,4 @@
-﻿#if WIN
-#region Copyright
+﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Kernel32.cs
@@ -55,5 +54,3 @@ namespace KGySoft.Drawing.WinApi
         #endregion
     }
 }
-
-#endif

@@ -17,16 +17,18 @@
 #region Usings
 
 using System;
+using KGySoft.CoreLibraries;
 
 #endregion
 
 namespace KGySoft.Drawing.WinApi
 {
-    internal static class WindowsUtils
+    internal static class OSUtils
     {
         #region Fields
 
         private static bool? isVistaOrLater;
+        private static bool? isWindows;
 
         #endregion
 
@@ -50,6 +52,10 @@ namespace KGySoft.Drawing.WinApi
                 return isVistaOrLater.Value;
             }
         }
+
+        internal static bool IsWindows => isWindows ??= Environment.OSVersion.Platform.In(PlatformID.Win32NT, PlatformID.Win32Windows);
+
+        internal static bool IsXpOrEarlier => IsWindows && !IsVistaOrLater;
 
         #endregion
     }

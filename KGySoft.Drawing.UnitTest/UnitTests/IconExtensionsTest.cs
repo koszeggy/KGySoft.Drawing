@@ -120,9 +120,9 @@ namespace KGySoft.Drawing.UnitTests
         public void IsCompressedTest()
         {
             Assert.IsFalse(Icons.Information.ExtractIcon(new Size(16, 16)).IsCompressed());
-            Assert.IsTrue(!WindowsUtils.IsVistaOrLater || Icons.Information.ExtractIcon(new Size(256, 256)).IsCompressed());
-            Assert.IsTrue(!WindowsUtils.IsVistaOrLater || Icons.Information.IsCompressed());
-            Assert.IsFalse(!WindowsUtils.IsVistaOrLater || Icons.Information.ToUncompressedIcon().IsCompressed());
+            Assert.IsTrue(!OSUtils.IsVistaOrLater || Icons.Information.ExtractIcon(new Size(256, 256)).IsCompressed());
+            Assert.IsTrue(!OSUtils.IsVistaOrLater || Icons.Information.IsCompressed());
+            Assert.IsFalse(!OSUtils.IsVistaOrLater || Icons.Information.ToUncompressedIcon().IsCompressed());
         }
 
         [Test]

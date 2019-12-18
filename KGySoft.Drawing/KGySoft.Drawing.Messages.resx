@@ -117,6 +117,9 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="General_RequiresWindows" xml:space="preserve">
+    <value>This operation is supported on Windows only.</value>
+  </data>
   <data name="Gdi32_InvalidHandle" xml:space="preserve">
     <value>Invalid GDI object handle.</value>
   </data>

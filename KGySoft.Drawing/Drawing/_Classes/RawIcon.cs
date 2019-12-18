@@ -691,6 +691,13 @@ namespace KGySoft.Drawing
                     AssureRawFormatGenerated(true);
                 }
 
+                if (OSUtils.IsWindows)
+                    GenerateColorBitmapWindows();
+            }
+
+            [SecurityCritical]
+            private void GenerateColorBitmapWindows()
+            {
                 // BMP format - original image format required
                 IntPtr dcScreen = User32.GetDC(IntPtr.Zero);
 
@@ -720,6 +727,11 @@ namespace KGySoft.Drawing
                 User32.ReleaseDC(IntPtr.Zero, dcScreen);
                 Gdi32.DeleteObject(hbmpColor);
                 Gdi32.DeleteDC(dcColor);
+            }
+
+            private void GenerateColorBitmapNonWindows()
+            {
+                throw new NotImplementedException("TODO: GenerateColorBitmapNonWindows");
             }
 
             private void AssurePngBitmapsGenerated(bool isCompositeRequired)
@@ -888,7 +900,7 @@ namespace KGySoft.Drawing
 
             int bpp = image.GetBitsPerPixel();
             if (bpp.In(16, 48, 64))
-                image = (Bitmap)image.ConvertPixelFormat(PixelFormat.Format32bppArgb, null);
+                image = image.ConvertPixelFormat(PixelFormat.Format32bppArgb);
             else
                 image = (Bitmap)image.Clone();
 

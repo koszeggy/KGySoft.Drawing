@@ -108,20 +108,14 @@ namespace KGySoft.Drawing
             if (!Enum<PixelFormat>.IsDefined(newPixelFormat))
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.EnumOutOfRange(newPixelFormat));
 
-            PixelFormat sourcePixelFormat = image.PixelFormat;
-            //if (sourcePixelFormat == newPixelFormat)
-            //    return (Image)image.Clone();
-
             int bpp = newPixelFormat.ToBitsPerPixel();
             if (newPixelFormat.In(PixelFormat.Format16bppArgb1555, PixelFormat.Format16bppGrayScale))
                 throw new NotSupportedException(Res.ImageExtensionsPixelFormatNotSupported(newPixelFormat));
 
-            Bitmap result;
-
             // non-indexed target image (transparency preserved automatically)
             if (bpp > 8)
             {
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+                Bitmap result = new Bitmap(image.Width, image.Height, newPixelFormat);
                 using (Graphics g = Graphics.FromImage(result))
                 {
                     g.DrawImage(image, 0, 0, image.Width, image.Height);
@@ -130,101 +124,7 @@ namespace KGySoft.Drawing
                 return result;
             }
 
-            // indexed colors: using GDI+ natively
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            bool isMetafile = image is Metafile;
-            var targetPalette = new RGBQUAD[256];
-            int colorCount = InitPalette(targetPalette, bpp, isMetafile ? null : image.Palette, palette, out int transparentIndex);
-            var bmi = new BITMAPINFO
-            {
-                icHeader =
-                {
-                    biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER)),
-                    biWidth = image.Width,
-                    biHeight = image.Height,
-                    biPlanes = 1,
-                    biBitCount = (ushort)bpp,
-                    biCompression = BitmapCompressionMode.BI_RGB,
-                    biSizeImage = (uint)(((image.Width + 7) & 0xFFFFFFF8) * image.Height / (8 / bpp)),
-                    biXPelsPerMeter = 0,
-                    biYPelsPerMeter = 0,
-                    biClrUsed = (uint)colorCount,
-                    biClrImportant = (uint)colorCount
-                },
-                icColors = targetPalette
-            };
-
-            // Creating the indexed bitmap
-            IntPtr hbmResult = Gdi32.CreateDibSectionRgb(IntPtr.Zero, ref bmi, out var _);
-
-            // Obtaining screen DC
-            IntPtr dcScreen = User32.GetDC(IntPtr.Zero);
-
-            // DC for the original hbitmap
-            IntPtr hbmSource = bmp.GetHbitmap();
-            IntPtr dcSource = Gdi32.CreateCompatibleDC(dcScreen);
-            Gdi32.SelectObject(dcSource, hbmSource);
-
-            // DC for the indexed hbitmap
-            IntPtr dcTarget = Gdi32.CreateCompatibleDC(dcScreen);
-            Gdi32.SelectObject(dcTarget, hbmResult);
-
-            // Copy content
-            Gdi32.BitBlt(dcTarget, 0, 0, image.Width, image.Height, dcSource, 0, 0);
-
-            // obtaining result
-            result = Image.FromHbitmap(hbmResult);
-            result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-
-            // cleanup
-            Gdi32.DeleteDC(dcSource);
-            Gdi32.DeleteDC(dcTarget);
-            User32.ReleaseDC(IntPtr.Zero, dcScreen);
-            Gdi32.DeleteObject(hbmSource);
-            Gdi32.DeleteObject(hbmResult);
-
-            ColorPalette resultPalette = result.Palette;
-            bool resetPalette = false;
-
-            // compacting palette is possible (eg. 8 bpp image uses only 14 colors: truncating to 16 entries)
-            if (colorCount <= result.Palette.Entries.Length >> 1)
-            {
-                Color[] truncatedPalette = resultPalette.Entries;
-                int desiredSize = resultPalette.Entries.Length >> 1;
-                while (desiredSize >> 1 >= colorCount)
-                    desiredSize >>= 1;
-
-                Array.Resize(ref truncatedPalette, desiredSize);
-                resultPalette.SetEntries(truncatedPalette);
-                resetPalette = true;
-            }
-
-            // restoring transparency
-            if (transparentIndex >= 0)
-            {
-                // updating palette if transparent color is not actually transparent
-                if (resultPalette.Entries[transparentIndex].A != 0)
-                {
-                    resultPalette.Entries[transparentIndex] = Color.Transparent;
-                    resetPalette = true;
-                }
-
-                if (sourcePixelFormat.HasTransparency() || isMetafile)
-                    ToIndexedTransparentByArgb(result, bmp, transparentIndex);
-                else if (sourcePixelFormat.ToBitsPerPixel() <= 8)
-                {
-                    int inputTransparentIndex = Array.FindIndex(bmp.Palette.Entries, c => c.A == 0);
-                    if (inputTransparentIndex >= 0)
-                        ToIndexedTransparentByIndexed(result, bmp, transparentIndex, inputTransparentIndex);
-                }
-            }
-
-            if (resetPalette)
-                result.Palette = resultPalette;
-
-            if (!ReferenceEquals(bmp, image))
-                bmp.Dispose();
-            return result;
+            return OSUtils.IsWindows ? ToIndexedWindows(image, bpp, palette) : ToIndexedNonWindows(image, bpp, palette);
         }
 
         /// <summary>
@@ -430,6 +330,112 @@ namespace KGySoft.Drawing
                 bmp1.UnlockBits(data1);
                 bmp2.UnlockBits(data2);
             }
+        }
+
+        private static Bitmap ToIndexedWindows(Image image, int bpp, Color[] palette = null)
+        {
+            PixelFormat sourcePixelFormat = image.PixelFormat;
+
+            // using GDI+ natively
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            bool isMetafile = image is Metafile;
+            var targetPalette = new RGBQUAD[256];
+            int colorCount = InitPalette(targetPalette, bpp, isMetafile ? null : image.Palette, palette, out int transparentIndex);
+            var bmi = new BITMAPINFO
+            {
+                icHeader =
+                {
+                    biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER)),
+                    biWidth = image.Width,
+                    biHeight = image.Height,
+                    biPlanes = 1,
+                    biBitCount = (ushort)bpp,
+                    biCompression = BitmapCompressionMode.BI_RGB,
+                    biSizeImage = (uint)(((image.Width + 7) & 0xFFFFFFF8) * image.Height / (8 / bpp)),
+                    biXPelsPerMeter = 0,
+                    biYPelsPerMeter = 0,
+                    biClrUsed = (uint)colorCount,
+                    biClrImportant = (uint)colorCount
+                },
+                icColors = targetPalette
+            };
+
+            // Creating the indexed bitmap
+            IntPtr hbmResult = Gdi32.CreateDibSectionRgb(IntPtr.Zero, ref bmi, out var _);
+
+            // Obtaining screen DC
+            IntPtr dcScreen = User32.GetDC(IntPtr.Zero);
+
+            // DC for the original hbitmap
+            IntPtr hbmSource = bmp.GetHbitmap();
+            IntPtr dcSource = Gdi32.CreateCompatibleDC(dcScreen);
+            Gdi32.SelectObject(dcSource, hbmSource);
+
+            // DC for the indexed hbitmap
+            IntPtr dcTarget = Gdi32.CreateCompatibleDC(dcScreen);
+            Gdi32.SelectObject(dcTarget, hbmResult);
+
+            // Copy content
+            Gdi32.BitBlt(dcTarget, 0, 0, image.Width, image.Height, dcSource, 0, 0);
+
+            // obtaining result
+            Bitmap result = Image.FromHbitmap(hbmResult);
+            result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            // cleanup
+            Gdi32.DeleteDC(dcSource);
+            Gdi32.DeleteDC(dcTarget);
+            User32.ReleaseDC(IntPtr.Zero, dcScreen);
+            Gdi32.DeleteObject(hbmSource);
+            Gdi32.DeleteObject(hbmResult);
+
+            ColorPalette resultPalette = result.Palette;
+            bool resetPalette = false;
+
+            // compacting palette is possible (eg. 8 bpp image uses only 14 colors: truncating to 16 entries)
+            if (colorCount <= result.Palette.Entries.Length >> 1)
+            {
+                Color[] truncatedPalette = resultPalette.Entries;
+                int desiredSize = resultPalette.Entries.Length >> 1;
+                while (desiredSize >> 1 >= colorCount)
+                    desiredSize >>= 1;
+
+                Array.Resize(ref truncatedPalette, desiredSize);
+                resultPalette.SetEntries(truncatedPalette);
+                resetPalette = true;
+            }
+
+            // restoring transparency
+            if (transparentIndex >= 0)
+            {
+                // updating palette if transparent color is not actually transparent
+                if (resultPalette.Entries[transparentIndex].A != 0)
+                {
+                    resultPalette.Entries[transparentIndex] = Color.Transparent;
+                    resetPalette = true;
+                }
+
+                if (sourcePixelFormat.HasTransparency() || isMetafile)
+                    ToIndexedTransparentByArgb(result, bmp, transparentIndex);
+                else if (sourcePixelFormat.ToBitsPerPixel() <= 8)
+                {
+                    int inputTransparentIndex = Array.FindIndex(bmp.Palette.Entries, c => c.A == 0);
+                    if (inputTransparentIndex >= 0)
+                        ToIndexedTransparentByIndexed(result, bmp, transparentIndex, inputTransparentIndex);
+                }
+            }
+
+            if (resetPalette)
+                result.Palette = resultPalette;
+
+            if (!ReferenceEquals(bmp, image))
+                bmp.Dispose();
+            return result;
+        }
+
+        private static Bitmap ToIndexedNonWindows(Image image, int bpp, Color[] palette = null)
+        {
+            throw new NotImplementedException("TODO: ToIndexedNonWindows");
         }
 
         private static int InitPalette(RGBQUAD[] targetPalette, int bpp, ColorPalette originalPalette, Color[] desiredPalette, out int transparentIndex)

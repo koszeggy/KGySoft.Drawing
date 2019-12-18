@@ -145,15 +145,11 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
         /// <param name="stream">The <see cref="Stream"/> into the metafile should be saved.</param>
-        public static void Save(this Metafile metafile, Stream stream)
-        {
-            if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
-            if (stream == null)
-                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-
-            Save(metafile, stream, false);
-        }
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
+        public static void Save(this Metafile metafile, Stream stream) => Save(metafile, stream, false);
 
         /// <summary>
         /// Saves a <see cref="Metafile"/> instance into a <see cref="Stream"/> using the required format.
@@ -162,6 +158,10 @@ namespace KGySoft.Drawing
         /// <param name="stream">The <see cref="Stream"/> into the metafile should be saved.</param>
         /// <param name="forceWmfFormat">When <see langword="true"/>, forces to use the Windows Metafile Format (WMF), even if
         /// the <paramref name="metafile"/> itself is encoded by Enhanced Metafile Format (EMF). When <see langword="false"/>, uses the appropriate format automatically.</param>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -171,6 +171,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            if (!OSUtils.IsWindows)
+                throw new PlatformNotSupportedException(Res.RequiresWindows);
 
             bool isWmf = metafile.RawFormat.Guid == ImageFormat.Wmf.Guid;
             if (isWmf || forceWmfFormat)

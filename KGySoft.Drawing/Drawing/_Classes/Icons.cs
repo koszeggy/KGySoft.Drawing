@@ -428,6 +428,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
+        /// <note>On non-Windows platforms this method always returns the <see cref="SystemIcons.WinLogo">SystemIcons.WinLogo</see> icon.</note>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -438,6 +439,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
+            if (!OSUtils.IsWindows)
+                return new[] { SystemIcons.WinLogo };
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
             Icon[] result = new Icon[handles.Length];
@@ -456,6 +459,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
+        /// <note>On non-Windows platforms this method always returns the <see cref="SystemIcons.WinLogo">SystemIcons.WinLogo</see> icon.</note>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -464,6 +468,8 @@ namespace KGySoft.Drawing
         {
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+            if (!OSUtils.IsWindows)
+                return new[] { SystemIcons.WinLogo };
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
             Icon[] result = new Icon[handles.Length];
@@ -484,6 +490,9 @@ namespace KGySoft.Drawing
         /// <param name="extension">A file name (can be a non-existing one) or an extension for which the associated icon is about to be retrieved.</param>
         /// <param name="size">The size of the icon to be retrieved.</param>
         /// <returns>The icon of the specified extension.</returns>
+        /// <remarks>
+        /// <note>On non-Windows platforms this method always returns the <see cref="SystemIcons.WinLogo">SystemIcons.WinLogo</see> icon.</note>
+        /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -493,6 +502,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(extension), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
+            if (!OSUtils.IsWindows)
+                return SystemIcons.WinLogo;
 
             if (!Path.HasExtension(extension))
                 extension = Path.GetFileName(extension) == extension ? '.' + extension : ".";
@@ -512,7 +523,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon FromStream(Stream stream) => FromStream(stream, !WindowsUtils.IsVistaOrLater);
+        public static Icon FromStream(Stream stream) => FromStream(stream, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
@@ -539,7 +550,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(params Icon[] icons) => Combine(!WindowsUtils.IsVistaOrLater, icons);
+        public static Icon Combine(params Icon[] icons) => Combine(OSUtils.IsXpOrEarlier, icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -573,7 +584,7 @@ namespace KGySoft.Drawing
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
         /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
-        public static Icon Combine(params Bitmap[] images) => Combine(!WindowsUtils.IsVistaOrLater, images);
+        public static Icon Combine(params Bitmap[] images) => Combine(OSUtils.IsXpOrEarlier, images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -609,7 +620,7 @@ namespace KGySoft.Drawing
         /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
         /// </returns>
         /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
-        public static Icon Combine(Bitmap[] images, Color[] transparentColors) => Combine(images, transparentColors, !WindowsUtils.IsVistaOrLater);
+        public static Icon Combine(Bitmap[] images, Color[] transparentColors) => Combine(images, transparentColors, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -650,6 +661,8 @@ namespace KGySoft.Drawing
         [SecurityCritical]
         internal static CursorHandle ToCursorHandle(IntPtr iconHandle, Point cursorHotspot)
         {
+            if (!OSUtils.IsWindows)
+                throw new PlatformNotSupportedException(Res.RequiresWindows);
             User32.GetIconInfo(iconHandle, out ICONINFO iconInfo);
             iconInfo.xHotspot = cursorHotspot.X;
             iconInfo.yHotspot = cursorHotspot.Y;
@@ -742,14 +755,14 @@ namespace KGySoft.Drawing
 
             }
 
-            return result.ToIcon(!WindowsUtils.IsVistaOrLater);
+            return result.ToIcon(OSUtils.IsXpOrEarlier);
         }
 
         [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static RawIcon DoGetStockIcon(StockIcon id)
         {
-            if (id < 0 || !WindowsUtils.IsVistaOrLater)
+            if (id < 0 || !OSUtils.IsVistaOrLater)
                 return null;
 
             IntPtr largeHandle = Shell32.GetStockIconHandle(id, SystemIconSize.Large);

@@ -51,6 +51,13 @@ namespace KGySoft
 
         #region Properties
 
+        #region General
+
+        /// <summary>This operation is supported on Windows only.</summary>
+        internal static string RequiresWindows => Get("General_RequiresWindows");
+
+        #endregion
+
         #region Gdi32
 
         /// <summary>Invalid GDI object handle.</summary>
