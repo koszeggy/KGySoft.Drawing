@@ -17,9 +17,8 @@
 #region Usings
 
 using System;
-#if !NET35
 using System.Security; 
-#endif
+
 using KGySoft.Drawing.WinApi; 
 
 #endregion
@@ -40,7 +39,13 @@ namespace KGySoft.Drawing
             if (OSUtils.IsWindows)
                 Kernel32.CopyMemory(dest, src, length);
             else
+            {
+#if NET35 || NET40 || NET45
+                CopyMemory((byte*)src, (byte*)dest, length);
+#else
                 Buffer.MemoryCopy(src.ToPointer(), dest.ToPointer(), length, length);
+#endif
+            }
         }
 
 #if !NET35
@@ -55,6 +60,50 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
+#if NET35 || NET40 || NET45
+        [SecurityCritical]
+        private static unsafe void CopyMemory(byte* src, byte* dest, int length)
+        {
+            long* qwDest = (long*)dest;
+            long* qwSrc = (long*)src;
+
+            // copying qwords until possible
+            for (int len = length >> 3, i = 0; i < len; i++)
+            {
+                *qwDest = *qwSrc;
+                qwDest += 1;
+                qwSrc += 1;
+            }
+
+            if ((length & 7) == 0)
+                return;
+
+            dest = (byte*)qwDest;
+            src = (byte*)qwSrc;
+
+            // copying last dword
+            if ((length & 4) != 0)
+            {
+                *(int*)dest = *(int*)src;
+                dest += 4;
+                src += 4;
+            }
+
+            // copying last word
+            if ((length & 2) != 0)
+            {
+                *(short*)dest = *(short*)src;
+                dest += 2;
+                src += 2;
+            }
+
+            // copying last byte
+            if ((length & 1) != 0)
+                *dest = *src;
+        } 
+#endif
+
+        [SecurityCritical]
         private static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
         {
             // we could use Vector<T> but this is actually faster and is available everywhere
@@ -66,7 +115,7 @@ namespace KGySoft.Drawing
             int rest = length % 1024;
             long* end = (long*)(p1 + length - rest);
 
-            // comparing 1024 byte chunks as qwords
+            // comparing 128 byte chunks as qwords
             while (qw1 < end)
             {
                 if (*qw1 != *qw2
@@ -96,17 +145,20 @@ namespace KGySoft.Drawing
             if (rest == 0)
                 return true;
 
-            p1 = (byte*)end;
-            p2 = p2 + length - rest;
-
-            // comparing last qwords (up to 15)
+            // comparing last qwords
             for (int len = rest >> 3, i = 0; i < len; i++)
             {
-                if (*(long*)p1 != *(long*)p2)
+                if (*qw1 != *qw2)
                     return false;
-                p1 += 8;
-                p2 += 8;
+                qw1 += 1;
+                qw2 += 1;
             }
+
+            if ((rest & 7) == 0)
+                return true;
+
+            p1 = (byte*)qw1;
+            p2 = (byte*)qw2;
 
             // comparing last dword
             if ((rest & 4) != 0)

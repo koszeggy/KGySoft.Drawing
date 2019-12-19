@@ -417,6 +417,9 @@ namespace KGySoft.Drawing
         /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
         /// when no icon found or Windows version is below Vista.</returns>
+        /// <remarks>
+        /// <note>On non-Windows platforms this method always returns <see langword="null"/>.</note>
+        /// </remarks>
         public static Icon GetStockIcon(StockIcon id) => GetSystemIcon(id, null);
 
         /// <summary>
@@ -428,7 +431,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
-        /// <note>On non-Windows platforms this method always returns the <see cref="SystemIcons.WinLogo">SystemIcons.WinLogo</see> icon.</note>
+        /// <note>On non-Windows platforms this method always returns an empty array.</note>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -440,7 +443,11 @@ namespace KGySoft.Drawing
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
             if (!OSUtils.IsWindows)
-                return new[] { SystemIcons.WinLogo };
+#if NETFRAMEWORK
+                return new Icon[0];
+#else
+                return Array.Empty<Icon>();
+#endif
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
             Icon[] result = new Icon[handles.Length];
@@ -459,7 +466,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>If <paramref name="fileName"/> refers to an icon file use the <see cref="Icon(string)"/> constructor instead.</para>
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
-        /// <note>On non-Windows platforms this method always returns the <see cref="SystemIcons.WinLogo">SystemIcons.WinLogo</see> icon.</note>
+        /// <note>On non-Windows platforms this method always returns an empty array.</note>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -469,7 +476,11 @@ namespace KGySoft.Drawing
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
             if (!OSUtils.IsWindows)
-                return new[] { SystemIcons.WinLogo };
+#if NETFRAMEWORK
+                return new Icon[0];
+#else
+                return Array.Empty<Icon>();
+#endif
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
             Icon[] result = new Icon[handles.Length];
@@ -485,32 +496,35 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Gets the system-associated icon of a file extension.
+        /// Gets the system-associated icon of a file or an extension.
         /// </summary>
-        /// <param name="extension">A file name (can be a non-existing one) or an extension for which the associated icon is about to be retrieved.</param>
+        /// <param name="fileOrExtension">A file name (can be a non-existing one) or an extension (with or without a leading dot character)
+        /// for which the associated icon is about to be retrieved.</param>
         /// <param name="size">The size of the icon to be retrieved.</param>
-        /// <returns>The icon of the specified extension.</returns>
+        /// <returns>The system-associated icon of the specified file or extension.</returns>
         /// <remarks>
+        /// <para>If <paramref name="size"/> is <see cref="SystemIconSize.Large"/> and <paramref name="fileOrExtension"/> is an existing file, then the result
+        /// is usually the same as for the <see cref="Icon.ExtractAssociatedIcon">Icon.ExtractAssociatedIcon</see> method.</para>
         /// <note>On non-Windows platforms this method always returns the <see cref="SystemIcons.WinLogo">SystemIcons.WinLogo</see> icon.</note>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon FromExtension(string extension, SystemIconSize size)
+        public static Icon FromExtension(string fileOrExtension, SystemIconSize size)
         {
-            if (extension == null)
-                throw new ArgumentNullException(nameof(extension), PublicResources.ArgumentNull);
+            if (fileOrExtension == null)
+                throw new ArgumentNullException(nameof(fileOrExtension), PublicResources.ArgumentNull);
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
             if (!OSUtils.IsWindows)
                 return SystemIcons.WinLogo;
 
-            if (!Path.HasExtension(extension))
-                extension = Path.GetFileName(extension) == extension ? '.' + extension : ".";
+            if (!Path.HasExtension(fileOrExtension))
+                fileOrExtension = Path.GetFileName(fileOrExtension) == fileOrExtension ? '.' + fileOrExtension : ".";
 
-            IntPtr handle = Shell32.GetFileIconHandle(extension, size);
+            IntPtr handle = Shell32.GetFileIconHandle(fileOrExtension, size);
             if (handle == IntPtr.Zero)
-                throw new ArgumentException(PublicResources.ArgumentInvalidString, nameof(extension));
+                throw new ArgumentException(PublicResources.ArgumentInvalidString, nameof(fileOrExtension));
 
             return Icon.FromHandle(handle).ToManagedIcon();
         }
