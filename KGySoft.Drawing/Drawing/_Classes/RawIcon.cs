@@ -390,29 +390,11 @@ namespace KGySoft.Drawing
             {
                 using (MemoryStream ms = new MemoryStream())
                 {
-                    using (BinaryWriter bw = new BinaryWriter(ms))
-                    {
-                        // header
-                        ICONDIR iconDir = new ICONDIR
-                        {
-                            idReserved = 0,
-                            idType = 1,
-                            idCount = 1
-                        };
+                    Save(ms, forceBmpFormat);
 
-                        bw.Write(BinarySerializer.SerializeValueType(iconDir));
-
-                        // Icon entry
-                        uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + Marshal.SizeOf(typeof(ICONDIRENTRY)));
-                        WriteDirEntry(bw, forceBmpFormat, ref offset);
-
-                        // Icon image
-                        WriteRawImage(bw, forceBmpFormat);
-
-                        // returning icon
-                        ms.Position = 0L;
-                        return new Icon(ms);
-                    }
+                    // returning icon
+                    ms.Position = 0L;
+                    return new Icon(ms);
                 }
             }
 
@@ -434,10 +416,29 @@ namespace KGySoft.Drawing
 
             #region Private Methods
 
-            /// <summary>
-            /// Releases unmanaged and - optionally - managed resources.
-            /// </summary>
-            /// <param name="disposing"><see langword="true"/>&#160;to release both managed and unmanaged resources; <see langword="false"/>&#160;to release only unmanaged resources.</param>
+            [SecurityCritical]
+            private void Save(Stream stream, bool forceBmpFormat)
+            {
+                BinaryWriter bw = new BinaryWriter(stream);
+                
+                // header
+                ICONDIR iconDir = new ICONDIR
+                {
+                    idReserved = 0,
+                    idType = 1,
+                    idCount = 1
+                };
+
+                bw.Write(BinarySerializer.SerializeValueType(iconDir));
+
+                // Icon entry
+                uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + Marshal.SizeOf(typeof(ICONDIRENTRY)));
+                WriteDirEntry(bw, forceBmpFormat, ref offset);
+
+                // Icon image
+                WriteRawImage(bw, forceBmpFormat);
+            }
+
             private void Dispose(bool disposing)
             {
                 if (disposing)
@@ -693,6 +694,8 @@ namespace KGySoft.Drawing
 
                 if (OSUtils.IsWindows)
                     GenerateColorBitmapWindows();
+                else
+                    GenerateColorBitmapNonWindows();
             }
 
             [SecurityCritical]
@@ -731,7 +734,11 @@ namespace KGySoft.Drawing
 
             private void GenerateColorBitmapNonWindows()
             {
-                throw new NotImplementedException("TODO: GenerateColorBitmapNonWindows");
+                // On non-windows the original format will be the icon itself
+                var ms = new MemoryStream();
+                Save(ms, true);
+                ms.Position = 0;
+                bmpColor = new Bitmap(ms);
             }
 
             private void AssurePngBitmapsGenerated(bool isCompositeRequired)

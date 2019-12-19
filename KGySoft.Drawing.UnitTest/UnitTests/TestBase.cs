@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static void SaveIcon(string iconName, Icon icon, [CallerMemberName]string testName = null)
         {
-            if (!saveToFile)
+            if (!saveToFile || icon == null)
                 return;
 
             string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");

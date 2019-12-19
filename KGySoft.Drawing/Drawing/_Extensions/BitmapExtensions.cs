@@ -75,7 +75,8 @@ namespace KGySoft.Drawing
             }
 
             Bitmap result = new Bitmap(newSize.Width, newSize.Height);
-            result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+            if (OSUtils.IsWindows)
+                result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
             using (Graphics g = Graphics.FromImage(result))
             {
                 g.InterpolationMode = InterpolationMode.HighQualityBicubic;

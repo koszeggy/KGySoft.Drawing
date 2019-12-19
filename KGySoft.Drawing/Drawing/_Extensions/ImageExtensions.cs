@@ -340,7 +340,7 @@ namespace KGySoft.Drawing
             Bitmap bmp = image as Bitmap ?? new Bitmap(image);
             bool isMetafile = image is Metafile;
             var targetPalette = new RGBQUAD[256];
-            int colorCount = InitPalette(targetPalette, bpp, isMetafile ? null : image.Palette, palette, out int transparentIndex);
+            int colorCount = InitPalette(targetPalette, bpp, bmp.Palette, palette, out int transparentIndex);
             var bmi = new BITMAPINFO
             {
                 icHeader =
@@ -433,9 +433,17 @@ namespace KGySoft.Drawing
             return result;
         }
 
-        private static Bitmap ToIndexedNonWindows(Image image, int bpp, Color[] palette = null)
+        private static Bitmap ToIndexedNonWindows(Image image, int bpp, Color[] palette)
         {
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap result = new Bitmap(image.Width, image.Height, bpp.ToPixelFormat());
+            if (palette == null)
+                palette = bmp.Palette?.Entries;
+
             throw new NotImplementedException("TODO: ToIndexedNonWindows");
+            if (!ReferenceEquals(bmp, image))
+                bmp.Dispose();
+            return result;
         }
 
         private static int InitPalette(RGBQUAD[] targetPalette, int bpp, ColorPalette originalPalette, Color[] desiredPalette, out int transparentIndex)

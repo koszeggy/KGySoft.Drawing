@@ -19,6 +19,9 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+
+using KGySoft.Drawing.WinApi;
+
 using NUnit.Framework;
 
 #endregion
@@ -97,16 +100,19 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage("24rgb", bmp24bpp);
 
             // 48 bit: Fallback to GetPixel (TODO)
-            using var bmp48bpp = refBmp.ConvertPixelFormat(PixelFormat.Format48bppRgb);
-            colors = bmp48bpp.GetColors();
-            Assert.LessOrEqual(colors.Length, bmp48bpp.Width * bmp48bpp.Height);
-            SaveImage("48rgb", bmp48bpp);
+            if (OSUtils.IsWindows)
+            {
+                using var bmp48bpp = refBmp.ConvertPixelFormat(PixelFormat.Format48bppRgb);
+                colors = bmp48bpp.GetColors();
+                Assert.LessOrEqual(colors.Length, bmp48bpp.Width * bmp48bpp.Height);
+                SaveImage("48rgb", bmp48bpp);
 
-            // 64 bit: Fallback to GetPixel (TODO)
-            using var bmp64bpp = refBmp.ConvertPixelFormat(PixelFormat.Format64bppArgb);
-            colors = bmp64bpp.GetColors();
-            Assert.LessOrEqual(colors.Length, bmp64bpp.Width * bmp64bpp.Height);
-            SaveImage("64argb", bmp64bpp);
+                // 64 bit: Fallback to GetPixel (TODO)
+                using var bmp64bpp = refBmp.ConvertPixelFormat(PixelFormat.Format64bppArgb);
+                colors = bmp64bpp.GetColors();
+                Assert.LessOrEqual(colors.Length, bmp64bpp.Width * bmp64bpp.Height);
+                SaveImage("64argb", bmp64bpp);
+            }
 
             // 8 bit: returning actual palette
             using var bmp8bpp = refBmp.ConvertPixelFormat(PixelFormat.Format8bppIndexed);
