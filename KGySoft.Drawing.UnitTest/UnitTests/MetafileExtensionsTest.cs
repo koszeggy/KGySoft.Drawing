@@ -87,23 +87,26 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var metafile = GenerateMetafile();
 
-            using (var ms = new MemoryStream())
+            AssertPlatformDependent(() =>
             {
-                metafile.Save(ms, false);
-                ms.Position = 0;
-                var clone = new Metafile(ms);
-                Assert.IsTrue(metafile.EqualsByContent(clone));
-                SaveImage("EMF", clone);
-            }
+                using (var ms = new MemoryStream())
+                {
+                    metafile.Save(ms, false);
+                    ms.Position = 0;
+                    var clone = new Metafile(ms);
+                    Assert.IsTrue(metafile.EqualsByContent(clone));
+                    SaveImage("EMF", clone);
+                }
 
-            using (var ms = new MemoryStream())
-            {
-                metafile.Save(ms, true);
-                ms.Position = 0;
-                var clone = Image.FromStream(ms);
-                Assert.IsTrue(metafile.EqualsByContent(clone));
-                SaveImage("WMF", clone);
-            }
+                using (var ms = new MemoryStream())
+                {
+                    metafile.Save(ms, true);
+                    ms.Position = 0;
+                    var clone = Image.FromStream(ms);
+                    Assert.IsTrue(metafile.EqualsByContent(clone));
+                    SaveImage("WMF", clone);
+                }
+            }, PlatformID.Win32NT);
         }
 
         #endregion

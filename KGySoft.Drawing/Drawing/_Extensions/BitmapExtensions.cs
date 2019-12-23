@@ -99,11 +99,7 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            // icon
-            if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
-                return ExtractIconImages(image);
-
-            // other image: check if it has multiple frames
+            // checking if image has multiple frames
             FrameDimension dimension = null;
             Guid[] dimensions = image.FrameDimensionsList;
             if (dimensions.Length > 0)
@@ -120,7 +116,13 @@ namespace KGySoft.Drawing
 
             // single image, unknown dimension or one frame only: returning a copy
             if (frameCount <= 1 || dimension == null)
+            {
+                // Special handling for icons if it didn't have resolution dimensions
+                if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
+                    return ExtractIconImages(image);
+
                 return new Bitmap[] { image.CloneCurrentFrame() };
+            }
 
             // extracting frames
             Bitmap[] result = new Bitmap[frameCount];
@@ -329,17 +331,17 @@ namespace KGySoft.Drawing
         {
             Debug.Assert(image.RawFormat.Guid == ImageFormat.Icon.Guid);
 
-            //// first try: trying to save it officially (does not work if there is no icon encoder registered in OS)
-            //ImageCodecInfo iconEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(enc => enc.FormatID == ImageFormat.Icon.Guid);
-            //if (iconEncoder != null)
-            //{
-            //    using (MemoryStream ms = new MemoryStream())
+            // // first try: trying to save it officially (does not work if there is no icon encoder registered in OS)
+            // ImageCodecInfo iconEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(enc => enc.FormatID == ImageFormat.Icon.Guid);
+            // if (iconEncoder != null)
+            // {
+            //    using (var ms = new System.IO.MemoryStream())
             //    {
             //        image.Save(ms, iconEncoder, null);
             //        ms.Position = 0L;
             //        return new Icon(ms).ExtractBitmaps(false);
             //    }
-            //}
+            // }
 
             // second try: guessing by official sizes (every size will be extracted with the same pixel format)
             List<Bitmap> result = new List<Bitmap>();
@@ -348,10 +350,11 @@ namespace KGySoft.Drawing
             HashSet<int> testedSizes = new HashSet<int>();
             do
             {
-                // after drawing the image into a new bmp, its size will be changed to the best image size;
                 Size iconSize = new Size(nextSize, nextSize);
                 testedSizes.Add(nextSize);
                 Bitmap testImage = new Bitmap(image, iconSize);
+
+                // after drawing the image on a new bmp, its size will be changed to the best image size (does not work on Linux)
                 iconSize = image.Size;
 
                 // a new resolution has been found

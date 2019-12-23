@@ -185,24 +185,27 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ToBitmapTest()
         {
-            // from bitmap
-            using var refBmp = Icons.Information.ToAlphaBitmap();
-            using (var g = Graphics.FromImage(refBmp))
+            AssertPlatformDependent(() =>
             {
-                var bmp = g.ToBitmap(false);
-                SaveImage("FromBitmap", bmp);
-            }
+                // from bitmap
+                using var refBmp = Icons.Information.ToAlphaBitmap();
+                using (var g = Graphics.FromImage(refBmp))
+                {
+                    var bmp = g.ToBitmap(false);
+                    SaveImage("FromBitmap", bmp);
+                }
 
-            // from screen
-            using (var g = Graphics.FromHwnd(IntPtr.Zero))
-            {
-                var bmp = g.ToBitmap(false);
-                SaveImage("FromFullScreen", bmp);
+                // from screen
+                using (var g = Graphics.FromHwnd(IntPtr.Zero))
+                {
+                    var bmp = g.ToBitmap(false);
+                    SaveImage("FromFullScreen", bmp);
 
-                g.IntersectClip(new Rectangle(100, 100, 100, 50));
-                bmp = g.ToBitmap(true);
-                SaveImage("FromFullScreenWithClip", bmp);
-            }
+                    g.IntersectClip(new Rectangle(100, 100, 100, 50));
+                    bmp = g.ToBitmap(true);
+                    SaveImage("FromFullScreenWithClip", bmp);
+                }
+            }, PlatformID.Win32NT);
         }
 
         #endregion

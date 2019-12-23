@@ -140,13 +140,16 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void SaveAsMultipageTiffTest()
         {
-            using var ms = new MemoryStream();
-            var pages = Icons.Information.ExtractBitmaps();
-            pages.SaveAsMultipageTiff(ms);
-            ms.Position = 0;
-            var tiff = new Bitmap(ms);
-            Assert.AreEqual(ImageFormat.Tiff, tiff.RawFormat);
-            Assert.AreEqual(pages.Length, tiff.GetFrameCount(FrameDimension.Page));
+            AssertPlatformDependent(() =>
+            {
+                using var ms = new MemoryStream();
+                var pages = Icons.Information.ExtractBitmaps();
+                pages.SaveAsMultipageTiff(ms);
+                ms.Position = 0;
+                var tiff = new Bitmap(ms);
+                Assert.AreEqual(ImageFormat.Tiff, tiff.RawFormat);
+                Assert.AreEqual(pages.Length, tiff.GetFrameCount(FrameDimension.Page));
+            }, PlatformID.Win32NT);
         }
 
         [Test]

@@ -22,6 +22,7 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.CompilerServices;
 using KGySoft.CoreLibraries;
+using NUnit.Framework;
 
 #endregion
 
@@ -36,6 +37,20 @@ namespace KGySoft.Drawing.UnitTests
         #endregion
 
         #region Methods
+
+        protected static void AssertPlatformDependent(Action code, params PlatformID[] platforms)
+        {
+            try
+            {
+                code.Invoke();
+            }
+            catch (Exception e)
+            {
+                if (Environment.OSVersion.Platform.In(platforms))
+                    throw;
+                Assert.Inconclusive($"Test failed on platform {Environment.OSVersion.Platform}: {e.Message}");
+            }
+        }
 
         protected static void SaveIcon(string iconName, Icon icon, [CallerMemberName]string testName = null)
         {

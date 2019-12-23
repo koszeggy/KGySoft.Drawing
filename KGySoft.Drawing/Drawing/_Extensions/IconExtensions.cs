@@ -124,7 +124,7 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
         /// <remarks>
-        /// <para>If the method is executed in a Windows XP environment, the result <see cref="Bitmap"/> will contain only uncompressed images.</para>
+        /// <para>If the method is executed in a Windows XP or non-Windows environment, the result <see cref="Bitmap"/> will contain only uncompressed images.</para>
         /// <para>Windows XP may display alpha channel incorrectly (semi-transparent pixels may be black).</para>
         /// </remarks>
 #if !NET35
@@ -133,7 +133,8 @@ namespace KGySoft.Drawing
         public static Bitmap ToMultiResBitmap(this Icon icon)
         {
             if (!OSUtils.IsWindows || OSUtils.IsVistaOrLater)
-                return ToMultiResBitmap(icon, false);
+                // Forcing BMP only images also on Linux to prevent possible OutOfMemoryException from the Bitmap constructor
+                return ToMultiResBitmap(icon, !OSUtils.IsWindows);
 
             // In Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor.
             using (var result = new RawIcon())

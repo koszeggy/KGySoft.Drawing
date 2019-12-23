@@ -65,7 +65,7 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ExtractBitmapsTest()
         {
-            Assert.AreEqual(7, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length);
+            AssertPlatformDependent(() => Assert.AreEqual(7, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length), PlatformID.Win32NT);
         }
 
         [Test]
@@ -124,7 +124,7 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ToCursorHandleTest()
         {
-            Assert.AreNotEqual(IntPtr.Zero, (IntPtr)Icons.Information.ToAlphaBitmap().ToCursorHandle());
+            AssertPlatformDependent(() => Assert.AreNotEqual(IntPtr.Zero, (IntPtr)Icons.Information.ToAlphaBitmap().ToCursorHandle()), PlatformID.Win32NT);
         }
 
         #endregion

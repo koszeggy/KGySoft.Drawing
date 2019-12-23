@@ -157,9 +157,12 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="images">The images to save into the TIFF data stream.</param>
         /// <param name="stream">The stream into the TIFF data is to be saved.</param>
-        /// <remarks><para>When <paramref name="images"/> contain multi-page instances, this method takes only the current page. You can extract
+        /// <remarks>
+        /// <para>When <paramref name="images"/> contain multi-page instances, this method takes only the current page. You can extract
         /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
-        /// <para>Compression mode and bit depth is chosen for each page based on pixel format.</para></remarks>
+        /// <para>Compression mode and bit depth is chosen for each page based on pixel format.</para>
+        /// <note>On non-Windows platform this method may throw a <see cref="NotSupportedException"/> if <paramref name="images"/> has multiple elements.</note>
+        /// </remarks>
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
             if (images == null)
@@ -203,6 +206,7 @@ namespace KGySoft.Drawing
             using (var encoderParams = new EncoderParameters(1))
             {
                 encoderParams.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.Flush);
+
                 // ReSharper disable once PossibleNullReferenceException
                 tiff.SaveAdd(encoderParams);
             }
