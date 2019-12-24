@@ -14,10 +14,15 @@
 + Targeting also .NET Core 2.0.
 + Targeting also .NET Core 3.0.
 
++ KGySoft.Frawing.Imaging namespace:
+====================================
+A new namespace for fast and direct Bitmap pixel manipulation in a type-safe and managed way.
+
 - KGySoft.Drawing namespace:
 ============================
-- BitmapExtensions class:
++ BitmapExtensions class:
   - Resize method: Fixing resize if keepAspectRatio is true.
+  + New GetBitmapDataAccessor method: Provides fast managed pixel manipulation for any pixel formats.
 - IconExtensions class:
   - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
     keepOriginalFormat parameter was true.

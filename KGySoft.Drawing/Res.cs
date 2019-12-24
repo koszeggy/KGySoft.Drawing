@@ -117,11 +117,26 @@ namespace KGySoft
 
         #endregion
 
+        #region Imaging
+
+        /// <summary>This method can be used only on bitmaps with indexed pixel format.</summary>
+        internal static string ImagingInvalidOperationIndexedOnly => Get("Imaging_InvalidOperationIndexedOnly");
+
+        #endregion
+
         #endregion
 
         #region Methods
 
         #region Internal Methods
+
+        #region General
+
+        /// <summary>Internal Error: {0}</summary>
+        /// <remarks>Use this method to avoid CA1303 for using string literals in internal errors that never supposed to occur.</remarks>
+        internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
+
+        #endregion
 
         #region Accessors
 
@@ -134,6 +149,13 @@ namespace KGySoft
 
         /// <summary>Pixel format '{0}' is not supported by GDI+.</summary>
         internal static string ImageExtensionsPixelFormatNotSupported(PixelFormat pixelFormat) => Get("ImageExtensions_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
+
+        #endregion
+
+        #region Imaging
+
+        /// <summary>Pixel format '{0}' is not supported.</summary>
+        internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion
 

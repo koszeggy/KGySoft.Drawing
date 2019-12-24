@@ -49,6 +49,14 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
             SaveImage("32bppRef", ref32bpp);
 
+            using var bmp32pargb = ref32bpp.ConvertPixelFormat(PixelFormat.Format32bppPArgb);
+            SaveImage("32bppPArgb", bmp32pargb);
+            Assert.AreEqual(32, bmp32pargb.GetBitsPerPixel());
+
+            using var bmp64argb = ref32bpp.ConvertPixelFormat(PixelFormat.Format64bppArgb);
+            SaveImage("64bppArgb", bmp64argb);
+            Assert.AreEqual(64, bmp64argb.GetBitsPerPixel());
+
             using var bmp24bpp = ref32bpp.ConvertPixelFormat(PixelFormat.Format24bppRgb);
             SaveImage("24bpp", bmp24bpp);
             Assert.AreEqual(24, bmp24bpp.GetBitsPerPixel());

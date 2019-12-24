@@ -26,6 +26,8 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Security;
 
+using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
 #endregion
@@ -215,71 +217,25 @@ namespace KGySoft.Drawing
             if (maxColors == 0)
                 maxColors = Int32.MaxValue;
 
-            HashSet<int> colors = new HashSet<int>();
+            var colors = new HashSet<int>();
             PixelFormat pixelFormat = bitmap.PixelFormat;
             if (pixelFormat.ToBitsPerPixel() <= 8)
                 return bitmap.Palette.Entries;
 
-            bool hasTransparency = pixelFormat.HasTransparency();
-            if (pixelFormat == PixelFormat.Format32bppRgb ||
-                pixelFormat == PixelFormat.Format32bppArgb ||
-                pixelFormat == PixelFormat.Format32bppPArgb)
+            using (IBitmapDataAccessor data = bitmap.GetBitmapDataAccessor(ImageLockMode.ReadOnly))
             {
-                BitmapData data = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), ImageLockMode.ReadOnly, pixelFormat);
-                try
+                IBitmapDataRow line = data.FirstRow;
+
+                do
                 {
-                    unsafe
+                    for (int x = 0; x < data.Width; x++)
                     {
-                        byte* line = (byte*)data.Scan0;
-                        for (int y = 0; y < data.Height; y++)
-                        {
-                            for (int x = 0; x < data.Width; x++)
-                            {
-                                // ReSharper disable once PossibleNullReferenceException
-                                int c = ((int*)line)[x];
-                                if (hasTransparency)
-                                {
-                                    // if alpha is 0, adding the transparent color
-                                    // detects PARGB transparency, too, though added TransparentColor does not exist in PARGB
-                                    if ((c >> 24) == 0)
-                                        c = 0xFFFFFF;
-                                }
-                                else
-                                    c = (c & 0xFFFFFF) | unchecked((int)0xFF000000);
-                                if (colors.Contains(c))
-                                    continue;
-
-                                colors.Add(c);
-                                if (colors.Count == maxColors)
-                                    return colors.Select(Color.FromArgb).ToArray();
-                            }
-
-                            line += data.Stride;
-                        }
-                    }
-                }
-                finally
-                {
-                    bitmap.UnlockBits(data);
-                }
-            }
-            else
-            {
-                // TODO: see EuclideanQuantizer.GetRGB
-                // fallback: getpixel
-                for (int y = 0; y < bitmap.Height; y++)
-                {
-                    for (int x = 0; x < bitmap.Width; x++)
-                    {
-                        int c = bitmap.GetPixel(x, y).ToArgb();
-                        if (colors.Contains(c))
-                            continue;
-
-                        colors.Add(c);
+                        Color32 c = line.GetPixelColor32(x);
+                        colors.Add(c.A == 0 ? Color.Transparent.ToArgb() : c.ToArgb());
                         if (colors.Count == maxColors)
                             return colors.Select(Color.FromArgb).ToArray();
                     }
-                }
+                } while (line.MoveNextRow());
             }
 
             return colors.Select(Color.FromArgb).ToArray();
@@ -318,6 +274,19 @@ namespace KGySoft.Drawing
                 User32.DestroyIcon(iconHandle);
             }
         }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <param name="lockMode"></param>
+        /// <param name="omitPremultiplication"><see langword="true"/>&#160;to assume that colors are already premultiplied when setting pixels of a <see cref="Bitmap"/>
+        /// with premultiplied alpha pixels; <see langword="false"/>&#160;to perform premultiplication when setting/getting alpha pixels of a <see cref="Bitmap"/>
+        /// with premultiplied alpha pixels. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <returns></returns>
+        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode, bool omitPremultiplication = false)
+            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode, omitPremultiplication);
 
         #endregion
 

@@ -64,33 +64,13 @@ namespace KGySoft.Drawing
             }
         }
 
-        /// <summary>
-        /// Gets whether the provided <paramref name="pixelFormat"/> represents a transparency-capable format.
-        /// </summary>
         internal static bool HasTransparency(this PixelFormat pixelFormat)
-        {
-            switch (pixelFormat)
-            {
-                case PixelFormat.Format32bppArgb:
-                case PixelFormat.Format32bppPArgb:
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
-                    return true;
-                case PixelFormat.Format1bppIndexed:
-                case PixelFormat.Format4bppIndexed:
-                case PixelFormat.Format8bppIndexed:
-                case PixelFormat.Format16bppArgb1555:
-                case PixelFormat.Format16bppGrayScale:
-                case PixelFormat.Format16bppRgb555:
-                case PixelFormat.Format16bppRgb565:
-                case PixelFormat.Format24bppRgb:
-                case PixelFormat.Format32bppRgb:
-                case PixelFormat.Format48bppRgb:
-                    return false;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.EnumOutOfRange(pixelFormat));
-            }
-        }
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
+
+        internal static bool IsIndexed(this PixelFormat pixelFormat)
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
         internal static PixelFormat ToPixelFormat(this int bpp)
         {

@@ -127,6 +127,16 @@ namespace KGySoft.Drawing
             return OSUtils.IsWindows ? ToIndexedWindows(image, bpp, palette) : ToIndexedNonWindows(image, bpp, palette);
         }
 
+        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Dithering dithering = Dithering.None)
+        {
+            throw new NotImplementedException("TODO: ConvertPixelFormat");
+        }
+
+        //public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Quantization quantizer = Quantization.DefaultColors, Dithering dithering = Dithering.None)
+        //{
+        //    throw new NotImplementedException("TODO: ConvertPixelFormat");
+        //}
+
         /// <summary>
         /// Compares an image to another one by content and returns whether they are equal. Images of different
         /// size or pixel format are considered different.
@@ -638,8 +648,7 @@ namespace KGySoft.Drawing
                                 transparent = sourceTransparentIndex == 0 ^ (bits & mask) != 0;
                                 break;
                             default:
-                                // internal error, no res is needed
-                                throw new InvalidOperationException("Unexpected bits per pixel");
+                                throw new InvalidOperationException(Res.InternalError("Unexpected bits per pixel"));
                         }
 
                         // transparent pixel found

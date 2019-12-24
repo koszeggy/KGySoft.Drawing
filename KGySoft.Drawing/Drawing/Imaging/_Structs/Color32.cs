@@ -1,0 +1,168 @@
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: Color32.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
+using System.Drawing;
+
+#endregion
+
+namespace KGySoft.Drawing
+{
+    // Comment TODO:
+    // - Implicit conversion from and to Color exists.
+    //   Note: Does not contain known color properties. Just use Color32 c = Color.Blue, for example.
+    public readonly struct Color32 : IEquatable<Color32>
+    {
+        #region Constants
+
+        private const uint alphaMask = 0xFF_00_00_00U;
+        private const uint redMask = 0xFF_00_00U;
+        private const uint greenMask = 0xFF_00U;
+        private const uint blueMask = 0xFF;
+        private const uint rgbMask = redMask | greenMask | blueMask;
+
+        #endregion
+
+        #region Fields
+
+        private readonly uint value;
+
+        #endregion
+
+        #region Properties
+
+        public byte A => (byte)(value >> 24);
+
+        public byte R => (byte)((value & redMask) >> 16);
+
+        public byte G => (byte)((value & greenMask) >> 8);
+
+        public byte B => (byte)(value & blueMask);
+
+        #endregion
+
+        #region Operators
+
+        public static implicit operator Color32(Color c) => FromColor(c);
+
+        public static implicit operator Color(Color32 c) => c.ToColor();
+
+        #endregion
+
+        #region Constructors
+
+        #region Public Constructors
+
+        public Color32(byte a, byte r, byte g, byte b)
+            => value = (uint)a << 24
+                | ((uint)r << 16)
+                | ((uint)g << 8)
+                | b;
+
+        public Color32(byte r, byte g, byte b)
+            => value = alphaMask
+                | ((uint)r << 16)
+                | ((uint)g << 8)
+                | b;
+
+        #endregion
+
+        #region Internal Constructors
+
+        internal Color32(uint argb) => value = argb;
+
+        #endregion
+
+        #endregion
+
+        #region Methods
+
+        #region Static Methods
+
+        [CLSCompliant(false)]
+        public static Color32 FromRgb555(ushort pixel16)
+        {
+            const uint r = 0b01111100_00000000;
+            const uint g = 0b00000011_11100000;
+            const uint b = 0b00011111;
+            return new Color32(alphaMask
+                    | ((pixel16 & r) << 9)
+                    | ((pixel16 & g) << 6)
+                    | ((pixel16 & b) << 3));
+        }
+
+        [CLSCompliant(false)]
+        public static Color32 FromRgb565(ushort pixel16)
+        {
+            const uint r = 0b11111000_00000000;
+            const uint g = 0b00000111_11100000;
+            const uint b = 0b00011111;
+            return new Color32(alphaMask
+                    | ((pixel16 & r) << 8)
+                    | ((pixel16 & g) << 5)
+                    | ((pixel16 & b) << 3));
+        }
+
+        [CLSCompliant(false)]
+        public static Color32 FromArgb1555(ushort pixel16)
+        {
+            const uint a = 0b10000000_00000000;
+            const uint r = 0b01111100_00000000;
+            const uint g = 0b00000011_11100000;
+            const uint b = 0b00011111;
+            return new Color32(((pixel16 & a) == 0 ? 0 : alphaMask)
+                    | ((pixel16 & r) << 9)
+                    | ((pixel16 & g) << 6)
+                    | ((pixel16 & b) << 3));
+        }
+
+        public static Color32 FromColor(Color c) => FromArgb(c.ToArgb());
+
+        public static Color32 FromArgb(int argb) => new Color32((uint)argb);
+
+        public static Color32 FromArgb(byte a, Color32 baseColor)
+            => new Color32(((uint)a << 24) | (baseColor.value & rgbMask));
+
+        public static Color32 FromRgb(int rgb) => new Color32(alphaMask | (uint)rgb);
+
+        public static Color32 FromGray(byte level) => new Color32(level, level, level);
+
+        [CLSCompliant(false)]
+        public static Color32 FromGray16(ushort level) => new Color32((byte)(level >> 8), (byte)(level >> 8), (byte)(level >> 8));
+
+        #endregion
+
+        #region Instance Methods
+
+        public Color ToColor() => Color.FromArgb(ToArgb());
+
+        public int ToArgb() => (int)value;
+
+        public bool Equals(Color32 other) => value == other.value;
+
+        public override bool Equals(object obj) => obj is Color32 other && Equals(other);
+
+        public override int GetHashCode() => (int)value;
+
+        public override string ToString() => $"{value:X8} [A={A}; R={R}; G={G}; B={B}]";
+
+        #endregion
+
+        #endregion
+    }
+}

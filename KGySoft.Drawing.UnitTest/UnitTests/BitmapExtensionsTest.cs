@@ -19,7 +19,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using KGySoft.Diagnostics;
 using KGySoft.Drawing.WinApi;
 
 using NUnit.Framework;
@@ -31,6 +31,22 @@ namespace KGySoft.Drawing.UnitTests
     [TestFixture]
     public class BitmapExtensionsTest : TestBase
     {
+        #region Fields
+
+        private static readonly object[][] bitmapAccessor32TestSource =
+        {
+            new object[] { "ARGB32 Blue", PixelFormat.Format32bppArgb, Color.Blue, Color.Blue, 0xFF_00_00_FFU },
+            new object[] { "ARGB32 Alpha 50%", PixelFormat.Format32bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_FFU },
+            new object[] { "ARGB32 Transparent", PixelFormat.Format32bppArgb, Color.Transparent, Color.Transparent, 0x00_FF_FF_FFU },
+            new object[] { "PARGB32 Blue", PixelFormat.Format32bppPArgb, Color.Blue, Color.Blue, 0xFF_00_00_FFU },
+            new object[] { "PARGB32 Alpha 50%", PixelFormat.Format32bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_80U },
+            new object[] { "PARGB32 Alpha 1", PixelFormat.Format32bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(1, Color.Blue), 0x01_00_00_01U },
+            new object[] { "PARGB32 Alpha 254", PixelFormat.Format32bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0xFE_00_00_FEU },
+            new object[] { "PARGB32 Transparent", PixelFormat.Format32bppPArgb, Color.Transparent, Color.Empty, 0x00_00_00_00U },
+        };
+
+        #endregion
+
         #region Methods
 
         [Test]
@@ -87,19 +103,19 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void GetColorsTest()
         {
-            // 32 bit ARGB: count by raw data
+            // 32 bit ARGB
             using var refBmp = Icons.Information.ToAlphaBitmap();
             var colors = refBmp.GetColors();
             Assert.LessOrEqual(colors.Length, refBmp.Width * refBmp.Height);
             SaveImage("32argb", refBmp);
 
-            // 24 bit: Fallback to GetPixel (TODO)
+            // 24 bit
             using var bmp24bpp = refBmp.ConvertPixelFormat(PixelFormat.Format24bppRgb);
             colors = bmp24bpp.GetColors();
             Assert.LessOrEqual(colors.Length, bmp24bpp.Width * bmp24bpp.Height);
             SaveImage("24rgb", bmp24bpp);
 
-            // 48 bit: Fallback to GetPixel (TODO)
+            // 48 bit
             if (OSUtils.IsWindows)
             {
                 using var bmp48bpp = refBmp.ConvertPixelFormat(PixelFormat.Format48bppRgb);
@@ -107,7 +123,7 @@ namespace KGySoft.Drawing.UnitTests
                 Assert.LessOrEqual(colors.Length, bmp48bpp.Width * bmp48bpp.Height);
                 SaveImage("48rgb", bmp48bpp);
 
-                // 64 bit: Fallback to GetPixel (TODO)
+                // 64 bit
                 using var bmp64bpp = refBmp.ConvertPixelFormat(PixelFormat.Format64bppArgb);
                 colors = bmp64bpp.GetColors();
                 Assert.LessOrEqual(colors.Length, bmp64bpp.Width * bmp64bpp.Height);
@@ -125,6 +141,63 @@ namespace KGySoft.Drawing.UnitTests
         public void ToCursorHandleTest()
         {
             AssertPlatformDependent(() => Assert.AreNotEqual(IntPtr.Zero, (IntPtr)Icons.Information.ToAlphaBitmap().ToCursorHandle()), PlatformID.Win32NT);
+        }
+
+        [TestCaseSource(nameof(bitmapAccessor32TestSource))]
+        public unsafe void BitmapAccessor32Test(string testName, PixelFormat pixelFormat, Color testColor, Color expectedResult, uint expectedRawValue)
+        {
+            Color actualColor;
+            uint actualRawValue;
+
+            Console.WriteLine($"{testName}: {pixelFormat} + {testColor}{Environment.NewLine}");
+            using Bitmap bmp = new Bitmap(1, 1, pixelFormat);
+
+            // Reference test by Set/GetPixel
+            try
+            {
+                Console.Write("Bitmap.SetPixel/GetPixel: ");
+                bmp.SetPixel(0, 0, testColor);
+                actualColor = bmp.GetPixel(0, 0);
+                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(expectedResult.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
+                var data = bmp.LockBits(new Rectangle(0, 0, 1, 1), ImageLockMode.ReadOnly, pixelFormat);
+                try
+                {
+                    actualRawValue = *(uint*)data.Scan0;
+                    Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")}){Environment.NewLine}");
+                }
+                finally
+                {
+                    bmp.UnlockBits(data);
+                }
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e.Message);
+            }
+
+            using IBitmapDataAccessor accessor = bmp.GetBitmapDataAccessor(ImageLockMode.ReadWrite);
+
+            // by Accessor Set/GetPixel
+            Console.Write("IBitmapDataAccessor.SetPixel/GetPixel: ");
+            accessor.SetPixel(0, 0, testColor);
+            actualColor = accessor.GetPixel(0, 0);
+            Console.WriteLine($"{expectedResult} vs. {actualColor} ({(expectedResult.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
+            Assert.AreEqual(expectedResult.ToArgb(), actualColor.ToArgb());
+
+            actualRawValue = *(uint*)accessor.Scan0;
+            Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
+            Assert.AreEqual(expectedRawValue, *(uint*)accessor.Scan0);
+
+            // by indexer
+            accessor[0][0] = testColor;
+            Assert.AreEqual(expectedResult.ToArgb(), accessor[0][0].ToArgb());
+            Assert.AreEqual(expectedRawValue, *(uint*)accessor.Scan0);
+
+            // by row/Color32
+            var row = accessor.FirstRow;
+            row.SetPixelColor(0, testColor);
+            Assert.AreEqual(Color32.FromColor(expectedResult), row.GetPixelColor32(0));
+            Assert.AreEqual(expectedRawValue, *(uint*)accessor.Scan0);
         }
 
         #endregion
