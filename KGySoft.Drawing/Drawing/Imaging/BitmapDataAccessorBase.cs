@@ -41,9 +41,13 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         public int Height { get; }
+
         public int Width { get; }
+
         public PixelFormat PixelFormat { get; }
+
         public int Stride { get; }
+
         public IntPtr Scan0 { get; }
 
         public IBitmapDataRow FirstRow => GetRow(0);
@@ -56,7 +60,8 @@ namespace KGySoft.Drawing.Imaging
         {
             get
             {
-                ValidateY(y);
+                if ((uint)y > Height)
+                    ThrowYOutOfRange();
                 return GetRow(y);
             }
         }
@@ -99,17 +104,33 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Static Methods
+
+        private static void ThrowYOutOfRange()
+        {
+#pragma warning disable CA2208
+            // ReSharper disable once NotResolvedInText
+            throw new ArgumentOutOfRangeException("y", PublicResources.ArgumentOutOfRange);
+#pragma warning restore CA2208
+        }
+
+        #endregion
+
+        #region Instance Methods
+
         #region Public Methods
 
         public Color GetPixel(int x, int y)
         {
-            ValidateY(y);
+            if ((uint)y > Height)
+                ThrowYOutOfRange();
             return GetRow(y)[x];
         }
 
         public void SetPixel(int x, int y, Color color)
         {
-            ValidateY(y);
+            if ((uint)y > Height)
+                ThrowYOutOfRange();
             GetRow(y)[x] = color;
         }
 
@@ -148,11 +169,7 @@ namespace KGySoft.Drawing.Imaging
             disposed = true;
         }
 
-        private void ValidateY(int y)
-        {
-            if ((uint)y > Height)
-                throw new ArgumentOutOfRangeException(nameof(y), PublicResources.ArgumentOutOfRange);
-        }
+        #endregion
 
         #endregion
 

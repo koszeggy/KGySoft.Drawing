@@ -18,38 +18,50 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 #endregion
 
-namespace KGySoft.Drawing
+namespace KGySoft.Drawing.Imaging
 {
+    [StructLayout(LayoutKind.Explicit)]
     public readonly struct Color64 : IEquatable<Color64>
     {
         #region Constants
 
-        private const ulong alphaMask = 0xFFFFuL << 48;
-        private const ulong redMask = 0xFFFFuL << 32;
-        private const ulong greenMask = 0xFFFFuL << 16;
-        private const ulong blueMask = 0xFFFF;
-        private const ulong rgbMask = redMask | greenMask | blueMask;
+        private const ulong alphaMask = 0xFFFF_0000_0000_0000;
+        private const ulong rgbMask = 0x0000_FFFF_FFFF_FFFF;
 
         #endregion
 
         #region Fields
 
-        private readonly ulong value;
+        #region Public Fields
+
+        [CLSCompliant(false)]
+        [FieldOffset(6)]
+        public readonly ushort A;
+
+        [CLSCompliant(false)]
+        [FieldOffset(4)]
+        public readonly ushort R;
+
+        [CLSCompliant(false)]
+        [FieldOffset(2)]
+        public readonly ushort G;
+
+        [CLSCompliant(false)]
+        [FieldOffset(0)]
+        public readonly ushort B;
 
         #endregion
 
-        #region Properties
+        #region Private Fields
 
-        public int A => (int)(value >> 48);
+        [FieldOffset(0)]
+        private readonly ulong value;
 
-        public int R => (int)((value & redMask) >> 32);
-
-        public int G => (int)((value & greenMask) >> 16);
-
-        public int B => (int)(value & blueMask);
+        #endregion
 
         #endregion
 
@@ -68,24 +80,34 @@ namespace KGySoft.Drawing
         #region Public Constructors
 
         [CLSCompliant(false)]
-        public Color64(ushort r, ushort g, ushort b)
-            => value = alphaMask
-            | ((ulong)r << 32)
-            | ((ulong)g << 16)
-            | b;
+        public Color64(ushort a, ushort r, ushort g, ushort b)
+            : this() // so the compiler does not complain about not initializing value
+        {
+            B = b;
+            G = g;
+            R = r;
+            A = a;
+        }
 
         [CLSCompliant(false)]
-        public Color64(ushort a, ushort r, ushort g, ushort b)
-            => value = ((ulong)a << 48)
-            | ((ulong)r << 32)
-            | ((ulong)g << 16)
-            | b;
+        public Color64(ushort r, ushort g, ushort b)
+            : this() // so the compiler does not complain about not initializing value
+        {
+            B = b;
+            G = g;
+            R = r;
+            A = UInt16.MaxValue;
+        }
 
         #endregion
 
         #region Internal Constructors
 
-        internal Color64(ulong argb) => value = argb;
+        internal Color64(ulong argb)
+            : this() // so the compiler does not complain about not initializing ARGB fields
+        {
+            value = argb;
+        }
 
         #endregion
 

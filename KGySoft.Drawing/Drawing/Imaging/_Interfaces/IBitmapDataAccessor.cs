@@ -1,26 +1,63 @@
-﻿using System;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: IBitmapDataAccessor.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace KGySoft.Drawing
+#endregion
+
+namespace KGySoft.Drawing.Imaging
 {
     /// Obtain an instance by the ... extension
     /// TODO: <para>For parallel processing you can retrieve multiple rows by the indexer and process them concurrently.</para>
     /// TODO: example: Processing by coordinates
     /// TODO: example: Line by line processing by FirstRow + MoveNextRow
     /// TODO: example: Parallel processing by FirstRow + MoveNextRow
-
     public interface IBitmapDataAccessor : IDisposable
     {
+        #region Properties and Indexers
+
+        #region Properties
+
         int Height { get; }
+
         int Width { get; }
+
         PixelFormat PixelFormat { get; }
+
         int Stride { get; }
+
         IntPtr Scan0 { get; }
 
         IBitmapDataRow FirstRow { get; }
 
+        #endregion
+
+        #region Indexers
+
         IBitmapDataRow this[int rowIndex] { get; }
+
+        #endregion
+
+        #endregion
+
+        #region Methods
 
         /// <summary>
         /// Gets the color of the specified pixel.
@@ -44,5 +81,7 @@ namespace KGySoft.Drawing
         void SetPixel(int x, int y, Color color);
 
         BitmapData ToBitmapData();
+
+        #endregion
     }
 }

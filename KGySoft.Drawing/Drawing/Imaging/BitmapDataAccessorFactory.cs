@@ -1,13 +1,36 @@
-﻿using System;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: BitmapDataAccessorFactory.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+
 using KGySoft.CoreLibraries;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {
     public static class BitmapDataAccessorFactory
     {
-        internal static IBitmapDataAccessor CreateAccessor(Bitmap bitmap, ImageLockMode lockMode, bool omitPremultiplication)
+        #region Methods
+
+        public static IBitmapDataAccessor CreateAccessor(Bitmap bitmap, ImageLockMode lockMode, bool omitPremultiplication)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -25,6 +48,9 @@ namespace KGySoft.Drawing.Imaging
                         ? (IBitmapDataAccessor)new BitmapDataAccessor<BitmapDataRowArgb32>(bitmap, pixelFormat, lockMode)
                         : new BitmapDataAccessor<BitmapDataRowPArgb32>(bitmap, pixelFormat, lockMode);
 
+                //case PixelFormat.Format32bppRgb:
+                //    return new BitmapDataAccessor<BitmapDataRowRgb32>(bitmap, pixelFormat, lockMode);
+
                 case PixelFormat.Indexed:
                 case PixelFormat.Gdi:
                 case PixelFormat.Alpha:
@@ -40,7 +66,6 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppRgb565:
                 case PixelFormat.Format16bppArgb1555:
                 case PixelFormat.Format24bppRgb:
-                case PixelFormat.Format32bppRgb:
                 case PixelFormat.Format48bppRgb:
                 case PixelFormat.Format64bppArgb:
                 case PixelFormat.Format64bppPArgb:
@@ -49,5 +74,7 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentException(Res.ImagingPixelFormatNotSupported(pixelFormat), nameof(bitmap));
             }
         }
+
+        #endregion
     }
 }

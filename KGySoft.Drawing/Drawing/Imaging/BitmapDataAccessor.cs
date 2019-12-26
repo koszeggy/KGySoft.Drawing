@@ -1,17 +1,47 @@
-﻿using System;
-using System.Collections.Generic;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: BitmapDataAccessor.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {
     internal class BitmapDataAccessor<TRow> : BitmapDataAccessorBase
         where TRow : BitmapDataRowBase, new()
     {
+        #region Fields
+
         private TRow lastRow;
+
+        #endregion
+
+        #region Constructors
+
+        internal BitmapDataAccessor(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode)
+            : base(bitmap, pixelFormat, lockMode)
+        {
+        }
+
+        #endregion
+
+        #region Methods
 
         protected sealed override BitmapDataRowBase GetRow(int row)
         {
@@ -30,9 +60,6 @@ namespace KGySoft.Drawing.Imaging
                 Line = row,
             };
 
-        internal BitmapDataAccessor(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode)
-            : base(bitmap, pixelFormat, lockMode)
-        {
-        }
+        #endregion
     }
 }

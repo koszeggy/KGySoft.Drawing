@@ -18,42 +18,50 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 #endregion
 
-namespace KGySoft.Drawing
+namespace KGySoft.Drawing.Imaging
 {
     // Comment TODO:
     // - Implicit conversion from and to Color exists.
     //   Note: Does not contain known color properties. Just use Color32 c = Color.Blue, for example.
+    [StructLayout(LayoutKind.Explicit)]
     public readonly struct Color32 : IEquatable<Color32>
     {
         #region Constants
 
-        private const uint alphaMask = 0xFF_00_00_00U;
-        private const uint redMask = 0xFF_00_00U;
-        private const uint greenMask = 0xFF_00U;
-        private const uint blueMask = 0xFF;
-        private const uint rgbMask = redMask | greenMask | blueMask;
+        private const uint alphaMask = 0xFF_00_00_00;
+        private const uint rgbMask = 0x00_FF_FF_FF;
 
         #endregion
 
         #region Fields
 
-        private readonly uint value;
+        #region Public Fields
+
+        [FieldOffset(3)]
+        public readonly byte A;
+
+        [FieldOffset(2)]
+        public readonly byte R;
+
+        [FieldOffset(1)]
+        public readonly byte G;
+
+        [FieldOffset(0)]
+        public readonly byte B;
 
         #endregion
 
-        #region Properties
+        #region Private Fields
 
-        public byte A => (byte)(value >> 24);
+        [FieldOffset(0)]
+        private readonly uint value;
 
-        public byte R => (byte)((value & redMask) >> 16);
-
-        public byte G => (byte)((value & greenMask) >> 8);
-
-        public byte B => (byte)(value & blueMask);
-
+        #endregion
+        
         #endregion
 
         #region Operators
@@ -69,22 +77,32 @@ namespace KGySoft.Drawing
         #region Public Constructors
 
         public Color32(byte a, byte r, byte g, byte b)
-            => value = (uint)a << 24
-                | ((uint)r << 16)
-                | ((uint)g << 8)
-                | b;
+            : this() // so the compiler does not complain about not initializing value
+        {
+            B = b;
+            G = g;
+            R = r;
+            A = a;
+        }
 
         public Color32(byte r, byte g, byte b)
-            => value = alphaMask
-                | ((uint)r << 16)
-                | ((uint)g << 8)
-                | b;
+            : this() // so the compiler does not complain about not initializing value
+        {
+            B = b;
+            G = g;
+            R = r;
+            A = Byte.MaxValue;
+        }
 
         #endregion
 
         #region Internal Constructors
 
-        internal Color32(uint argb) => value = argb;
+        internal Color32(uint argb)
+            : this() // so the compiler does not complain about not initializing ARGB fields
+        {
+            value = argb;
+        }
 
         #endregion
 
@@ -94,42 +112,42 @@ namespace KGySoft.Drawing
 
         #region Static Methods
 
-        [CLSCompliant(false)]
-        public static Color32 FromRgb555(ushort pixel16)
-        {
-            const uint r = 0b01111100_00000000;
-            const uint g = 0b00000011_11100000;
-            const uint b = 0b00011111;
-            return new Color32(alphaMask
-                    | ((pixel16 & r) << 9)
-                    | ((pixel16 & g) << 6)
-                    | ((pixel16 & b) << 3));
-        }
+        //[CLSCompliant(false)]
+        //public static Color32 FromRgb555(ushort pixel16)
+        //{
+        //    const uint r = 0b01111100_00000000;
+        //    const uint g = 0b00000011_11100000;
+        //    const uint b = 0b00011111;
+        //    return new Color32(alphaMask
+        //            | ((pixel16 & r) << 9)
+        //            | ((pixel16 & g) << 6)
+        //            | ((pixel16 & b) << 3));
+        //}
 
-        [CLSCompliant(false)]
-        public static Color32 FromRgb565(ushort pixel16)
-        {
-            const uint r = 0b11111000_00000000;
-            const uint g = 0b00000111_11100000;
-            const uint b = 0b00011111;
-            return new Color32(alphaMask
-                    | ((pixel16 & r) << 8)
-                    | ((pixel16 & g) << 5)
-                    | ((pixel16 & b) << 3));
-        }
+        //[CLSCompliant(false)]
+        //public static Color32 FromRgb565(ushort pixel16)
+        //{
+        //    const uint r = 0b11111000_00000000;
+        //    const uint g = 0b00000111_11100000;
+        //    const uint b = 0b00011111;
+        //    return new Color32(alphaMask
+        //            | ((pixel16 & r) << 8)
+        //            | ((pixel16 & g) << 5)
+        //            | ((pixel16 & b) << 3));
+        //}
 
-        [CLSCompliant(false)]
-        public static Color32 FromArgb1555(ushort pixel16)
-        {
-            const uint a = 0b10000000_00000000;
-            const uint r = 0b01111100_00000000;
-            const uint g = 0b00000011_11100000;
-            const uint b = 0b00011111;
-            return new Color32(((pixel16 & a) == 0 ? 0 : alphaMask)
-                    | ((pixel16 & r) << 9)
-                    | ((pixel16 & g) << 6)
-                    | ((pixel16 & b) << 3));
-        }
+        //[CLSCompliant(false)]
+        //public static Color32 FromArgb1555(ushort pixel16)
+        //{
+        //    const uint a = 0b10000000_00000000;
+        //    const uint r = 0b01111100_00000000;
+        //    const uint g = 0b00000011_11100000;
+        //    const uint b = 0b00011111;
+        //    return new Color32(((pixel16 & a) == 0 ? 0 : alphaMask)
+        //            | ((pixel16 & r) << 9)
+        //            | ((pixel16 & g) << 6)
+        //            | ((pixel16 & b) << 3));
+        //}
 
         public static Color32 FromColor(Color c) => FromArgb(c.ToArgb());
 

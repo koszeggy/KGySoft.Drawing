@@ -2,7 +2,7 @@
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
 
-namespace KGySoft.Drawing
+namespace KGySoft.Drawing.Imaging
 {
     internal struct BitmapLine
     {
@@ -19,12 +19,12 @@ namespace KGySoft.Drawing
         {
             switch (pixelFormat)
             {
-                case PixelFormat.Format16bppRgb555:
-                    return Color32.FromRgb555(((ushort*)line)[x]);
-                case PixelFormat.Format16bppRgb565:
-                    return Color32.FromRgb565(((ushort*)line)[x]);
-                case PixelFormat.Format16bppArgb1555:
-                    return Color32.FromArgb1555(((ushort*)line)[x]);
+                //case PixelFormat.Format16bppRgb555:
+                //    return Color32.FromRgb555(((ushort*)line)[x]);
+                //case PixelFormat.Format16bppRgb565:
+                //    return Color32.FromRgb565(((ushort*)line)[x]);
+                //case PixelFormat.Format16bppArgb1555:
+                //    return Color32.FromArgb1555(((ushort*)line)[x]);
                 case PixelFormat.Format24bppRgb:
                     return ((Color24*)line)[x].ToColor32();
                 case PixelFormat.Format32bppRgb:

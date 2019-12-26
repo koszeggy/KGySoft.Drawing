@@ -1,7 +1,7 @@
 ﻿using System.Drawing;
 using System.Drawing.Imaging;
 
-namespace KGySoft.Drawing
+namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a quantization for the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Quantization,Dithering)">ConvertPixelFormat</see> extension method.

@@ -1,4 +1,4 @@
-﻿namespace KGySoft.Drawing
+﻿namespace KGySoft.Drawing.Imaging
 {
     public enum Dithering
     {
