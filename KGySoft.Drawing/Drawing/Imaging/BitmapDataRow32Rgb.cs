@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: IBitmapDataRow.cs
+//  File: BitmapDataRow32Rgb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -17,41 +17,29 @@
 #region Usings
 
 using System;
-using System.Drawing;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    public interface IBitmapDataRow
+    internal sealed class BitmapDataRow32Rgb : BitmapDataRowNonIndexedBase
     {
-        #region Properties and Indexers
-
-        #region Properties
-
-        IntPtr Address { get; }
-
-        #endregion
-
-        #region Indexers
-
-        Color this[int x] { get; set; }
-
-        #endregion
-
-        #endregion
-
         #region Methods
 
-        int GetColorIndex(int x);
+        #region Static Methods
 
-        void SetColorIndex(int x, int colorIndex);
+        private static Color32 ToRgb32(Color32 c)
+            => c.A == Byte.MaxValue ? c : new Color32(c.R, c.G, c.B);
 
-        T ReadRaw<T>(int x) where T : unmanaged;
+        #endregion
 
-        void WriteRaw<T>(int x, T data) where T : unmanaged;
+        #region Instance Methods
 
-        bool MoveNextRow();
+        internal override unsafe Color32 DoGetColor32(int x) => ToRgb32(((Color32*)Address)[x]);
+
+        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color32*)Address)[x] = c;
+
+        #endregion
 
         #endregion
     }

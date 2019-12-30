@@ -43,7 +43,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        protected sealed override BitmapDataRowBase GetRow(int row)
+        #region Internal Methods
+
+        internal sealed override BitmapDataRowBase GetRow(int row)
         {
             TRow result = lastRow;
             if (result?.Line == row)
@@ -52,6 +54,10 @@ namespace KGySoft.Drawing.Imaging
             return lastRow = CreateRow(row);
         }
 
+        #endregion
+
+        #region Protected Methods
+
         protected virtual unsafe TRow CreateRow(int row) =>
             new TRow
             {
@@ -59,6 +65,8 @@ namespace KGySoft.Drawing.Imaging
                 Accessor = this,
                 Line = row,
             };
+
+        #endregion
 
         #endregion
     }

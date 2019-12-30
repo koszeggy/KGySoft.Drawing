@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataRowBaseIndexed.cs
+//  File: BitmapDataRowIndexedBase.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -22,7 +22,7 @@ using System.Drawing;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class BitmapDataRowBaseIndexed : BitmapDataRowBase
+    internal abstract class BitmapDataRowIndexedBase : BitmapDataRowBase
     {
         #region Fields
 

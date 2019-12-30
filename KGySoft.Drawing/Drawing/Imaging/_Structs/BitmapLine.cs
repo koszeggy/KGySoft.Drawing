@@ -45,21 +45,6 @@ namespace KGySoft.Drawing.Imaging
         }
     }
 
-    [StructLayout(LayoutKind.Explicit, Size = 3)]
-    internal readonly struct Color24
-    {
-        [FieldOffset(0)]
-        internal readonly byte B;
-
-        [FieldOffset(1)]
-        internal readonly byte G;
-
-        [FieldOffset(2)]
-        internal readonly byte R;
-
-        internal Color32 ToColor32() => new Color32(R, G, B);
-    }
-
     [StructLayout(LayoutKind.Explicit, Size = 6)]
     internal readonly struct Color48
     {

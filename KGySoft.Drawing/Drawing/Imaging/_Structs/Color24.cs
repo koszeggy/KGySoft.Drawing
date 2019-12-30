@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: IBitmapDataRow.cs
+//  File: Color24.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -16,42 +16,42 @@
 
 #region Usings
 
-using System;
-using System.Drawing;
+using System.Runtime.InteropServices;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    public interface IBitmapDataRow
+    [StructLayout(LayoutKind.Explicit)]
+    internal readonly struct Color24
     {
-        #region Properties and Indexers
+        #region Fields
 
-        #region Properties
+        [FieldOffset(0)]
+        private readonly byte b;
 
-        IntPtr Address { get; }
+        [FieldOffset(1)]
+        private readonly byte g;
+
+        [FieldOffset(2)]
+        private readonly byte r;
 
         #endregion
 
-        #region Indexers
+        #region Constructors
 
-        Color this[int x] { get; set; }
-
-        #endregion
+        internal Color24(Color32 c)
+        {
+            r = c.R;
+            g = c.G;
+            b = c.B;
+        }
 
         #endregion
 
         #region Methods
 
-        int GetColorIndex(int x);
-
-        void SetColorIndex(int x, int colorIndex);
-
-        T ReadRaw<T>(int x) where T : unmanaged;
-
-        void WriteRaw<T>(int x, T data) where T : unmanaged;
-
-        bool MoveNextRow();
+        internal Color32 ToColor32() => new Color32(r, g, b);
 
         #endregion
     }

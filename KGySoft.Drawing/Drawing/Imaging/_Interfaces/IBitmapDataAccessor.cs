@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Indexers
 
-        IBitmapDataRow this[int rowIndex] { get; }
+        IBitmapDataRow this[int y] { get; }
 
         #endregion
 

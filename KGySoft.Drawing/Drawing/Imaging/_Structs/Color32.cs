@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     // - Implicit conversion from and to Color exists.
     //   Note: Does not contain known color properties. Just use Color32 c = Color.Blue, for example.
     [StructLayout(LayoutKind.Explicit)]
-    public readonly struct Color32 : IEquatable<Color32>
+    internal readonly struct Color32 : IEquatable<Color32>
     {
         #region Constants
 
@@ -61,22 +61,26 @@ namespace KGySoft.Drawing.Imaging
         private readonly uint value;
 
         #endregion
-        
+
         #endregion
 
         #region Operators
 
-        public static implicit operator Color32(Color c) => FromColor(c);
+        public static bool operator ==(Color32 a, Color32 b) => a.Equals(b);
 
-        public static implicit operator Color(Color32 c) => c.ToColor();
+        public static bool operator !=(Color32 a, Color32 b) => !a.Equals(b);
 
         #endregion
 
         #region Constructors
 
-        #region Public Constructors
+        internal Color32(uint argb)
+            : this() // so the compiler does not complain about not initializing ARGB fields
+        {
+            value = argb;
+        }
 
-        public Color32(byte a, byte r, byte g, byte b)
+        internal Color32(byte a, byte r, byte g, byte b)
             : this() // so the compiler does not complain about not initializing value
         {
             B = b;
@@ -85,7 +89,7 @@ namespace KGySoft.Drawing.Imaging
             A = a;
         }
 
-        public Color32(byte r, byte g, byte b)
+        internal Color32(byte r, byte g, byte b)
             : this() // so the compiler does not complain about not initializing value
         {
             B = b;
@@ -94,17 +98,7 @@ namespace KGySoft.Drawing.Imaging
             A = Byte.MaxValue;
         }
 
-        #endregion
-
-        #region Internal Constructors
-
-        internal Color32(uint argb)
-            : this() // so the compiler does not complain about not initializing ARGB fields
-        {
-            value = argb;
-        }
-
-        #endregion
+        internal Color32(Color c) : this((uint)c.ToArgb()) { }
 
         #endregion
 
@@ -149,8 +143,6 @@ namespace KGySoft.Drawing.Imaging
         //            | ((pixel16 & b) << 3));
         //}
 
-        public static Color32 FromColor(Color c) => FromArgb(c.ToArgb());
-
         public static Color32 FromArgb(int argb) => new Color32((uint)argb);
 
         public static Color32 FromArgb(byte a, Color32 baseColor)
@@ -160,7 +152,6 @@ namespace KGySoft.Drawing.Imaging
 
         public static Color32 FromGray(byte level) => new Color32(level, level, level);
 
-        [CLSCompliant(false)]
         public static Color32 FromGray16(ushort level) => new Color32((byte)(level >> 8), (byte)(level >> 8), (byte)(level >> 8));
 
         #endregion
@@ -170,6 +161,8 @@ namespace KGySoft.Drawing.Imaging
         public Color ToColor() => Color.FromArgb(ToArgb());
 
         public int ToArgb() => (int)value;
+
+        public int ToRgb() => (int)(~alphaMask & value);
 
         public bool Equals(Color32 other) => value == other.value;
 

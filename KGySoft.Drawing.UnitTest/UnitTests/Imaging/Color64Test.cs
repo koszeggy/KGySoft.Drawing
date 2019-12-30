@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Color32Test.cs
+//  File: Color64Test.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -27,42 +27,39 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class Color32Test
+    public class Color64Test
     {
         #region Methods
 
-        [TestCase(0x11223344U, 0x11, 0x22, 0x33, 0x44)]
-        public void UnionTest(uint value, byte a, byte r, byte g, byte b)
+        [TestCase(0x1111222233334444U, (ushort)0x1111, (ushort)0x2222, (ushort)0x3333, (ushort)0x4444)]
+        public void UnionTest(ulong value, ushort a, ushort r, ushort g, ushort b)
         {
-            Color32 c = new Color32(value);
+            Color64 c = new Color64(value);
             Assert.AreEqual(a, c.A);
             Assert.AreEqual(r, c.R);
             Assert.AreEqual(g, c.G);
             Assert.AreEqual(b, c.B);
 
-            c = new Color32(a, r, g, b);
-            Assert.AreEqual(value, (uint)c.ToArgb());
+            c = new Color64(a, r, g, b);
+            Assert.AreEqual(value, (ulong)c.ToArgb());
         }
 
         [Test]
         public void ConversionTest()
         {
-            Color c = Color.FromArgb(0x11223344);
+            Color32 c = Color32.FromArgb(0x11223344);
 
-            Color32 c32 = new Color32(c);
-            Assert.AreEqual(c.ToArgb(), c32.ToArgb());
-
-            c = c32.ToColor();
-            Assert.AreEqual(c32.ToArgb(), c.ToArgb());
+            Color64 c64 = new Color64(c);
+            Assert.AreEqual(c.ToArgb(), c64.ToColor32().ToArgb());
         }
 
         [Test]
         public unsafe void SizeAndAlignmentTest()
         {
-            Assert.AreEqual(4, sizeof(Color32));
+            Assert.AreEqual(8, sizeof(Color64));
 
-            Color32* p = stackalloc Color32[2];
-            Assert.AreEqual(4, (byte*)&p[1] - (byte*)&p[0]);
+            Color64* p = stackalloc Color64[2];
+            Assert.AreEqual(8, (byte*)&p[1] - (byte*)&p[0]);
         }
 
         #endregion

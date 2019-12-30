@@ -24,7 +24,7 @@ using System.Drawing.Imaging;
 namespace KGySoft.Drawing.Imaging
 {
     internal class BitmapDataAccessorIndexed<TRow> : BitmapDataAccessor<TRow>
-        where TRow : BitmapDataRowBaseIndexed, new()
+        where TRow : BitmapDataRowIndexedBase, new()
     {
         #region Fields
 

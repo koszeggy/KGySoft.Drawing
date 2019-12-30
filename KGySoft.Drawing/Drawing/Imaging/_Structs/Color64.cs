@@ -25,7 +25,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit)]
-    public readonly struct Color64 : IEquatable<Color64>
+    internal readonly struct Color64 : IEquatable<Color64>
     {
         #region Constants
 
@@ -67,20 +67,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Operators
 
-        public static implicit operator Color64(Color32 c) => FromColor32(c);
+        public static bool operator ==(Color64 a, Color64 b) => a.Equals(b);
 
-        public static explicit operator Color32(Color64 c) => c.ToColor32();
-
-        public static explicit operator Color(Color64 c) => c.ToColor();
+        public static bool operator !=(Color64 a, Color64 b) => !a.Equals(b);
 
         #endregion
 
         #region Constructors
 
-        #region Public Constructors
+        internal Color64(ulong argb)
+            : this() // so the compiler does not complain about not initializing ARGB fields
+        {
+            value = argb;
+        }
 
-        [CLSCompliant(false)]
-        public Color64(ushort a, ushort r, ushort g, ushort b)
+        internal Color64(ushort a, ushort r, ushort g, ushort b)
             : this() // so the compiler does not complain about not initializing value
         {
             B = b;
@@ -89,8 +90,7 @@ namespace KGySoft.Drawing.Imaging
             A = a;
         }
 
-        [CLSCompliant(false)]
-        public Color64(ushort r, ushort g, ushort b)
+        internal Color64(ushort r, ushort g, ushort b)
             : this() // so the compiler does not complain about not initializing value
         {
             B = b;
@@ -99,17 +99,14 @@ namespace KGySoft.Drawing.Imaging
             A = UInt16.MaxValue;
         }
 
-        #endregion
-
-        #region Internal Constructors
-
-        internal Color64(ulong argb)
-            : this() // so the compiler does not complain about not initializing ARGB fields
+        internal Color64(Color32 c)
+            : this() // so the compiler does not complain about not initializing value
         {
-            value = argb;
+            B = (ushort)((c.B << 8) | c.B);
+            G = (ushort)((c.G << 8) | c.G);
+            R = (ushort)((c.R << 8) | c.R);
+            A = (ushort)((c.A << 8) | c.A);
         }
-
-        #endregion
 
         #endregion
 
@@ -117,36 +114,32 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
-        public static Color64 FromColor(Color c) => FromArgb32(c.ToArgb());
-
-        public static Color64 FromColor32(Color32 c) => new Color64((ushort)(c.A << 8), (ushort)(c.R << 8), (ushort)(c.G << 8), (ushort)(c.B << 8));
-
-        public static Color64 FromArgb32(int argb) => FromColor32(Color32.FromArgb(argb));
+        public static Color64 FromArgb32(int argb) => new Color64(Color32.FromArgb(argb));
 
         public static Color64 FromArgb(long argb) => new Color64((ulong)argb);
 
-        [CLSCompliant(false)]
         public static Color64 FromArgb(ushort a, Color64 baseColor)
             => new Color64(((ulong)a << 48) | (baseColor.value & rgbMask));
 
-        public static Color64 FromRgb32(int rgb) => FromColor32(Color32.FromRgb(rgb));
+        public static Color64 FromRgb32(int rgb) => new Color64(Color32.FromRgb(rgb));
 
         public static Color64 FromRgb(long rgb) => new Color64(alphaMask | (ulong)rgb);
 
-        [CLSCompliant(false)]
         public static Color64 FromGray(ushort level) => new Color64(level, level, level);
 
         #endregion
 
         #region Instance Methods
 
-        public Color ToColor() => ToColor32().ToColor();
-        
         public Color32 ToColor32() => new Color32((byte)(A >> 8), (byte)(R >> 8), (byte)(G >> 8), (byte)(B >> 8));
 
         public long ToArgb() => (long)value;
 
         public int ToArgb32() => ToColor32().ToArgb();
+
+        public long ToRgb() => (long)(~alphaMask & value);
+
+        public int ToRgb32() => ToColor32().ToRgb();
 
         public bool Equals(Color64 other) => value == other.value;
 

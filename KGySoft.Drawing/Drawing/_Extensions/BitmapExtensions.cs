@@ -222,16 +222,17 @@ namespace KGySoft.Drawing
             if (pixelFormat.ToBitsPerPixel() <= 8)
                 return bitmap.Palette.Entries;
 
-            using (IBitmapDataAccessor data = bitmap.GetBitmapDataAccessor(ImageLockMode.ReadOnly))
+            int transparent = Color.Transparent.ToArgb();
+            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly, false))
             {
-                IBitmapDataRow line = data.FirstRow;
+                BitmapDataRowBase line = data.GetRow(0);
 
                 do
                 {
                     for (int x = 0; x < data.Width; x++)
                     {
-                        Color32 c = line.GetPixelColor32(x);
-                        colors.Add(c.A == 0 ? Color.Transparent.ToArgb() : c.ToArgb());
+                        Color32 c = line.DoGetColor32(x);
+                        colors.Add(c.A == 0 ? transparent : c.ToArgb());
                         if (colors.Count == maxColors)
                             return colors.Select(Color.FromArgb).ToArray();
                     }
@@ -280,13 +281,31 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bitmap"></param>
         /// <param name="lockMode"></param>
-        /// <param name="omitPremultiplication"><see langword="true"/>&#160;to assume that colors are already premultiplied when setting pixels of a <see cref="Bitmap"/>
-        /// with premultiplied alpha pixels; <see langword="false"/>&#160;to perform premultiplication when setting/getting alpha pixels of a <see cref="Bitmap"/>
-        /// with premultiplied alpha pixels. This parameter is optional.
-        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="omitTrueAndDeepColorTransformations"><see langword="true"/>&#160;to omit 32, 48 and 64 bits-per-pixel transformations (premultiplication, range scaling, gamma conversion) when setting and getting pixels of a <see cref="Bitmap"/>;
+        /// <see langword="false"/>&#160;to perform such transformations when setting and getting pixels. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.</param>
         /// <returns></returns>
-        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode, bool omitPremultiplication = false)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode, omitPremultiplication);
+        /// <remarks>
+        /// <para>If <paramref name="omitTrueAndDeepColorTransformations"/> is <see langword="false"/>, then the following transformations are performed when getting and setting pixels of bitmaps with specific pixel formats:
+        /// <list type="definition">
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When pixels are set, color channels are premultiplied with alpha channel. When pixels are read, converting premultiplied colors to straight ones.</description></item>
+        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>When pix Transforming to and from 13-bit color component range is omitted.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Transforming to and from 13-bit color component range is omitted.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Converting to premultiplied/straight color and transforming to and from 13-bit color component range are omitted.</description></item>
+        /// <item><term>All other pixel formats</term><description>The value of the <paramref name="omitTrueAndDeepColorTransformations"/> parameter is ignored.</description></item>
+        /// </list>
+        /// <note>Even if the <paramref name="omitTrueAndDeepColorTransformations"/> parameter is <see langword="false"/> the actual underlying data can be read and written
+        /// by the <see cref="IBitmapDataRow.ReadRaw{T}"><![CDATA[IBitmapDataRow.ReadDataDirect<T>]]></see> and <see cref="IBitmapDataRow.WriteRaw{T}"><![CDATA[IBitmapDataRow.WriteDataDirect<T>]]></see> methods.</note></para>
+        /// <para>If <paramref name="omitTrueAndDeepColorTransformations"/> is <see langword="true"/>, then for the best performance setting pixels of deep color formats by the
+        /// <see cref="IBitmapDataRow.SetPixelColor(int,Color64)">IBitmapDataRow.SetPixelColor(int,Color64)</see> method will transform the color components of the <see cref="Color64"/> structure to a 13-bit range by using a lookup table of 256 values.
+        /// In order to preserve all the possible 8192 shades per color component either set the <paramref name="omitTrueAndDeepColorTransformations"/> to <see langword="true"/>&#160;or use the
+        /// <see cref="IBitmapDataRow.WriteRaw{T}"><![CDATA[IBitmapDataRow.WriteDataDirect<T>]]></see> method with <see cref="Color64"/> type parameter and make sure that all
+        /// color components are in the 0..8192 range.
+        /// </para>
+        /// </remarks>
+        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode, bool omitTrueAndDeepColorTransformations = false)
+            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode, omitTrueAndDeepColorTransformations);
 
         #endregion
 

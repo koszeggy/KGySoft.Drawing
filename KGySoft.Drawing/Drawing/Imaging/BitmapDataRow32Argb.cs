@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataRowBaseNonIndexed.cs
+//  File: BitmapDataRow32Argb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -14,22 +14,15 @@
 
 #endregion
 
-#region Usings
-
-using System;
-
-#endregion
-
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class BitmapDataRowBaseNonIndexed : BitmapDataRowBase
+    internal sealed class BitmapDataRow32Argb : BitmapDataRowNonIndexedBase
     {
         #region Methods
 
-        protected override Color64 DoGetColor64(int x) => DoGetColor32(x);
-        protected override Color64 DoSetColor64(int x, Color64 c) => DoSetColor32(x, c.ToColor32());
-        protected override int DoGetColorIndex(int i) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
-        protected override void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+        internal override unsafe Color32 DoGetColor32(int x) => ((Color32*)Address)[x];
+
+        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color32*)Address)[x] = c;
 
         #endregion
     }

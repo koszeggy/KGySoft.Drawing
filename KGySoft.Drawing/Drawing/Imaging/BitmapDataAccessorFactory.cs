@@ -26,11 +26,11 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Imaging
 {
-    public static class BitmapDataAccessorFactory
+    internal static class BitmapDataAccessorFactory
     {
         #region Methods
 
-        public static IBitmapDataAccessor CreateAccessor(Bitmap bitmap, ImageLockMode lockMode, bool omitPremultiplication)
+        internal static BitmapDataAccessorBase CreateAccessor(Bitmap bitmap, ImageLockMode lockMode, bool omitTrueAndDeepColorTransformations)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -41,15 +41,24 @@ namespace KGySoft.Drawing.Imaging
             switch (pixelFormat)
             {
                 case PixelFormat.Format32bppArgb:
-                    return new BitmapDataAccessor<BitmapDataRowArgb32>(bitmap, pixelFormat, lockMode);
+                    return new BitmapDataAccessor<BitmapDataRow32Argb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format32bppPArgb:
-                    return omitPremultiplication
-                        ? (IBitmapDataAccessor)new BitmapDataAccessor<BitmapDataRowArgb32>(bitmap, pixelFormat, lockMode)
-                        : new BitmapDataAccessor<BitmapDataRowPArgb32>(bitmap, pixelFormat, lockMode);
+                    return omitTrueAndDeepColorTransformations
+                        ? (BitmapDataAccessorBase)new BitmapDataAccessor<BitmapDataRow32Argb>(bitmap, pixelFormat, lockMode)
+                        : new BitmapDataAccessor<BitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode);
 
-                //case PixelFormat.Format32bppRgb:
-                //    return new BitmapDataAccessor<BitmapDataRowRgb32>(bitmap, pixelFormat, lockMode);
+                case PixelFormat.Format32bppRgb:
+                    return new BitmapDataAccessor<BitmapDataRow32Rgb>(bitmap, pixelFormat, lockMode);
+
+                case PixelFormat.Format24bppRgb:
+                    return new BitmapDataAccessor<BitmapDataRow24Rgb>(bitmap, pixelFormat, lockMode);
+
+                case PixelFormat.Format64bppArgb:
+                    return new BitmapDataAccessor<BitmapDataRow64Argb>(bitmap, pixelFormat, lockMode);
+
+                case PixelFormat.Format64bppPArgb:
+                    return new BitmapDataAccessor<BitmapDataRow64PArgb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Indexed:
                 case PixelFormat.Gdi:
@@ -65,10 +74,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppRgb555:
                 case PixelFormat.Format16bppRgb565:
                 case PixelFormat.Format16bppArgb1555:
-                case PixelFormat.Format24bppRgb:
                 case PixelFormat.Format48bppRgb:
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
                 case PixelFormat.Max:
                 default:
                     throw new ArgumentException(Res.ImagingPixelFormatNotSupported(pixelFormat), nameof(bitmap));

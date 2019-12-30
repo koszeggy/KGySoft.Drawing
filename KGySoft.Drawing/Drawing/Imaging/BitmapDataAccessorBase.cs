@@ -153,9 +153,9 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Protected Methods
+        #region Internal Methods
 
-        protected abstract BitmapDataRowBase GetRow(int row);
+        internal abstract BitmapDataRowBase GetRow(int row);
 
         #endregion
 

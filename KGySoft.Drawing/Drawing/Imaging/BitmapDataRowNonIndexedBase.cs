@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: IBitmapDataRow.cs
+//  File: BitmapDataRowNonIndexedBase.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -17,41 +17,17 @@
 #region Usings
 
 using System;
-using System.Drawing;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    public interface IBitmapDataRow
+    internal abstract class BitmapDataRowNonIndexedBase : BitmapDataRowBase
     {
-        #region Properties and Indexers
-
-        #region Properties
-
-        IntPtr Address { get; }
-
-        #endregion
-
-        #region Indexers
-
-        Color this[int x] { get; set; }
-
-        #endregion
-
-        #endregion
-
         #region Methods
 
-        int GetColorIndex(int x);
-
-        void SetColorIndex(int x, int colorIndex);
-
-        T ReadRaw<T>(int x) where T : unmanaged;
-
-        void WriteRaw<T>(int x, T data) where T : unmanaged;
-
-        bool MoveNextRow();
+        internal override int DoGetColorIndex(int i) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+        internal override void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
 
         #endregion
     }

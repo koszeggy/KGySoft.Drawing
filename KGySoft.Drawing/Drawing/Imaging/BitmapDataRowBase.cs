@@ -18,6 +18,9 @@
 
 using System;
 using System.Drawing;
+#if !(NET35 || NET40)
+using System.Security;
+#endif
 
 #endregion
 
@@ -28,6 +31,7 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         internal IBitmapDataAccessor Accessor;
+        internal unsafe byte* Address;
         internal int Line;
 
         #endregion
@@ -36,7 +40,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        internal abstract unsafe byte* Address { get; set; }
+        unsafe IntPtr IBitmapDataRow.Address
+        {
+#if !(NET35 || NET40)
+            [SecuritySafeCritical] 
+#endif
+            get => (IntPtr)Address;
+        }
 
         #endregion
 
@@ -44,8 +54,18 @@ namespace KGySoft.Drawing.Imaging
 
         public Color this[int x]
         {
-            get => GetPixelColor32(x);
-            set => SetPixelColor(x, value);
+            get
+            {
+                if ((uint)x > Accessor.Width)
+                    ThrowXOutOfRange();
+                return DoGetColor32(x).ToColor();
+            }
+            set
+            {
+                if ((uint)x > Accessor.Width)
+                    ThrowXOutOfRange();
+                DoSetColor32(x, new Color32(value));
+            }
         }
 
         #endregion
@@ -56,46 +76,34 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public Color32 GetPixelColor32(int x)
-        {
-            if ((uint)x > Accessor.Width)
-                ThrowXOutOfRange();
-            return DoGetColor32(x);
-        }
-
-        public Color64 GetPixelColor64(int x)
-        {
-            if ((uint)x > Accessor.Width)
-                ThrowXOutOfRange();
-            return DoGetColor64(x);
-        }
-
-        public int GetPixelColorIndex(int x)
+        public int GetColorIndex(int x)
         {
             if ((uint)x > Accessor.Width)
                 ThrowXOutOfRange();
             return DoGetColorIndex(x);
         }
 
-        public Color32 SetPixelColor(int x, Color32 color)
-        {
-            if ((uint)x > Accessor.Width)
-                ThrowXOutOfRange();
-            return DoSetColor32(x, color);
-        }
-
-        public Color64 SetPixelColor(int x, Color64 color)
-        {
-            if ((uint)x > Accessor.Width)
-                ThrowXOutOfRange();
-            return DoSetColor64(x, color);
-        }
-
-        public void SetPixelColorIndex(int x, int colorIndex)
+        public void SetColorIndex(int x, int colorIndex)
         {
             if ((uint)x > Accessor.Width)
                 ThrowXOutOfRange();
             DoSetColorIndex(x, colorIndex);
+        }
+
+        public unsafe T ReadRaw<T>(int x)
+            where T : unmanaged
+        {
+            if ((x + 1) * sizeof(T) > Accessor.Stride)
+                ThrowXOutOfRange();
+            return ((T*)Address)[x];
+        }
+
+        public unsafe void WriteRaw<T>(int x, T data)
+            where T : unmanaged
+        {
+            if ((x + 1) * sizeof(T) > Accessor.Stride)
+                ThrowXOutOfRange();
+            ((T*)Address)[x] = data;
         }
 
         public unsafe bool MoveNextRow()
@@ -109,14 +117,12 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Protected Methods
+        #region Internal Methods
 
-        protected abstract Color32 DoGetColor32(int x);
-        protected abstract Color32 DoSetColor32(int x, Color32 c);
-        protected abstract Color64 DoGetColor64(int x);
-        protected abstract Color64 DoSetColor64(int x, Color64 c);
-        protected abstract int DoGetColorIndex(int x);
-        protected abstract void DoSetColorIndex(int x, int colorIndex);
+        internal abstract Color32 DoGetColor32(int x);
+        internal abstract void DoSetColor32(int x, Color32 c);
+        internal abstract int DoGetColorIndex(int x);
+        internal abstract void DoSetColorIndex(int x, int colorIndex);
 
         #endregion
 
