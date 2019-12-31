@@ -26,6 +26,14 @@ namespace KGySoft.Drawing.Imaging
 {
     internal static class ColorHelper
     {
+        #region Constants
+
+        internal const float RLum = 0.299f;
+        internal const float GLum = 0.587f;
+        internal const float BLum = 0.114f;
+
+        #endregion
+
         #region Fields
 
         private static readonly object syncRoot = new object();

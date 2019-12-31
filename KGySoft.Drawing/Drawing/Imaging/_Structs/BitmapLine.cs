@@ -32,8 +32,8 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format32bppArgb:
                 case PixelFormat.Format32bppPArgb:
                     return ((Color32*)line)[x];
-                case PixelFormat.Format16bppGrayScale:
-                    return Color32.FromGray16(((ushort*)line)[x]);
+                //case PixelFormat.Format16bppGrayScale:
+                //    return Color32.FromGray16(((ushort*)line)[x]);
                 case PixelFormat.Format48bppRgb:
                     return ((Color48*)line)[x].ToColor32();
                 case PixelFormat.Format64bppArgb:

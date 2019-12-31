@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Color24Test.cs
+//  File: Color16Argb555Test.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution. If not, then this file is considered as
@@ -27,26 +27,17 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class Color24Test
+    public class Color16Argb555Test
     {
         #region Methods
 
         [Test]
-        public void ConversionTest()
-        {
-            Color32 c = Color32.FromArgb(0x11223344);
-
-            Color24 c24 = new Color24(c);
-            Assert.AreEqual(Color32.FromArgb(255, c), c24.ToColor32());
-        }
-
-        [Test]
         public unsafe void SizeAndAlignmentTest()
         {
-            Assert.AreEqual(3, sizeof(Color24));
+            Assert.AreEqual(2, sizeof(Color16Argb1555));
 
-            Color24* p = stackalloc Color24[2];
-            Assert.AreEqual(3, (byte*)&p[1] - (byte*)&p[0]);
+            Color16Argb1555* p = stackalloc Color16Argb1555[2];
+            Assert.AreEqual(2, (byte*)&p[1] - (byte*)&p[0]);
         }
 
         #endregion

@@ -152,9 +152,6 @@ namespace KGySoft.Drawing.Imaging
 
         public static Color32 FromGray(byte level) => new Color32(level, level, level);
 
-        [CLSCompliant(false)]
-        public static Color32 FromGray16(ushort level) => new Color32((byte)(level >> 8), (byte)(level >> 8), (byte)(level >> 8));
-
         #endregion
 
         #region Instance Methods

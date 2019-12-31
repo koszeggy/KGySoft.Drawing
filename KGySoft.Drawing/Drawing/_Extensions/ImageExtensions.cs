@@ -61,9 +61,9 @@ namespace KGySoft.Drawing
                 // Grayscale color matrix
                 var colorMatrix = new ColorMatrix(new float[][]
                 {
-                    new float[] { 0.299f, 0.299f, 0.299f, 0, 0 },
-                    new float[] { 0.587f, 0.587f, 0.587f, 0, 0 },
-                    new float[] { 0.114f, 0.114f, 0.114f, 0, 0 },
+                    new float[] { ColorHelper.RLum, ColorHelper.RLum, ColorHelper.RLum, 0, 0 },
+                    new float[] { ColorHelper.GLum, ColorHelper.GLum, ColorHelper.GLum, 0, 0 },
+                    new float[] { ColorHelper.BLum, ColorHelper.BLum, ColorHelper.BLum, 0, 0 },
                     new float[] { 0, 0, 0, 1, 0 },
                     new float[] { 0, 0, 0, 0, 1 }
                 });

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Color64Test.cs
+//  File: Color16GrayTest.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -27,39 +27,26 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class Color64Test
+    public class Color16GrayTest
     {
         #region Methods
-
-        [TestCase(0x1111222233334444U, (ushort)0x1111, (ushort)0x2222, (ushort)0x3333, (ushort)0x4444)]
-        public void UnionTest(ulong value, ushort a, ushort r, ushort g, ushort b)
-        {
-            Color64 c = new Color64(value);
-            Assert.AreEqual(a, c.A);
-            Assert.AreEqual(r, c.R);
-            Assert.AreEqual(g, c.G);
-            Assert.AreEqual(b, c.B);
-
-            c = new Color64(a, r, g, b);
-            Assert.AreEqual(value, (ulong)c.ToArgb());
-        }
 
         [Test]
         public void ConversionTest()
         {
             Color32 c = Color32.FromArgb(0x11223344);
 
-            Color64 c64 = new Color64(c);
-            Assert.AreEqual(c, c64.ToColor32());
+            Color16Gray c16 = new Color16Gray(c);
+            Assert.AreEqual((ushort)(0x2222 * ColorHelper.RLum + 0x3333 * ColorHelper.GLum + 0x4444 * ColorHelper.BLum), c16.Value);
         }
 
         [Test]
         public unsafe void SizeAndAlignmentTest()
         {
-            Assert.AreEqual(8, sizeof(Color64));
+            Assert.AreEqual(2, sizeof(Color16Gray));
 
-            Color64* p = stackalloc Color64[2];
-            Assert.AreEqual(8, (byte*)&p[1] - (byte*)&p[0]);
+            Color16Gray* p = stackalloc Color16Gray[2];
+            Assert.AreEqual(2, (byte*)&p[1] - (byte*)&p[0]);
         }
 
         #endregion

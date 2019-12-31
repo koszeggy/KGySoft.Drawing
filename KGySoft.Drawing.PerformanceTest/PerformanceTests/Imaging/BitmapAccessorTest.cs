@@ -40,6 +40,9 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
         [TestCase(PixelFormat.Format64bppPArgb)]
         [TestCase(PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
         public void SetGetPixelTest(PixelFormat pixelFormat)
         {
             static int Argb(int a, int l) => (a << 24) | (l << 16) | (l << 8) | l;
@@ -47,7 +50,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
             var size = new Size(256, 256);
             using var bmp = new Bitmap(size.Width, size.Height, pixelFormat);
 
-            new PerformanceTest { TestName = pixelFormat.ToString(), Iterations = 10 }
+            new PerformanceTest<int> { TestName = pixelFormat.ToString(), Iterations = 10 }
                 .AddCase(() =>
                 {
                     int diffs = 0;
@@ -61,6 +64,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                                 diffs++;
                         }
                     }
+                    return diffs;
                 }, "Bitmap.SetPixel/GetPixel")
                 .AddCase(() =>
                 {
@@ -76,6 +80,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                                 diffs++;
                         }
                     }
+                    return diffs;
                 }, "IBitmapDataAccessor.SetPixel/GetPixel")
                 .AddCase(() =>
                 {
@@ -92,6 +97,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                                 diffs++;
                         }
                     } while (row.MoveNextRow());
+                    return diffs;
                 }, "IBitmapDataRow.this")
                 .AddCase(() =>
                 {
@@ -102,6 +108,15 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                     {
                         switch (pixelFormat.ToBitsPerPixel())
                         {
+                            case 16:
+                                for (int x = 0; x < size.Width; x++)
+                                {
+                                    int argb = Argb(row.Index, x);
+                                    row.WriteRaw(x, new Color16Rgb565(Color32.FromArgb(argb)));
+                                    if (row.ReadRaw<Color16Rgb565>(x).ToColor32().ToArgb() != argb)
+                                        diffs++;
+                                }
+                                break;
                             case 24:
                                 for (int x = 0; x < size.Width; x++)
                                 {
@@ -142,6 +157,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                                 throw new NotImplementedException(pixelFormat.ToString());
                         }
                     } while (row.MoveNextRow());
+                    return diffs;
                 }, "IBitmapDataRow.WriteRaw/ReadRaw")
                 .AddCase(() =>
                 {
@@ -158,6 +174,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                                 diffs++;
                         }
                     } while (row.MoveNextRow());
+                    return diffs;
                 }, "IBitmapDataRow.SetColor/GetColor")
                 .AddCase(() =>
                 {
@@ -174,9 +191,10 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                                 diffs++;
                         }
                     } while (row.MoveNextRow());
+                    return diffs;
                 }, "BitmapDataRowBase.DoSetColor32/DoGetColor32")
                 .DoTest()
-                .DumpResults(Console.Out);
+                .DumpResults(Console.Out/*, dumpReturnValue: true*/);
         }
 
         /*
