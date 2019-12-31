@@ -31,17 +31,23 @@ namespace KGySoft.Drawing.Imaging
 
         IntPtr Address { get; }
 
+        int Index { get; }
+
         #endregion
 
         #region Indexers
 
-        Color this[int x] { get; set; }
+        Color32 this[int x] { get; set; }
 
         #endregion
 
         #endregion
 
         #region Methods
+
+        Color GetColor(int x);
+
+        void SetColor(int x, Color color);
 
         int GetColorIndex(int x);
 

@@ -124,14 +124,14 @@ namespace KGySoft.Drawing.Imaging
         {
             if ((uint)y > Height)
                 ThrowYOutOfRange();
-            return GetRow(y)[x];
+            return GetRow(y).GetColor(x);
         }
 
         public void SetPixel(int x, int y, Color color)
         {
             if ((uint)y > Height)
                 ThrowYOutOfRange();
-            GetRow(y)[x] = color;
+            GetRow(y).SetColor(x, color);
         }
 
         public BitmapData ToBitmapData()

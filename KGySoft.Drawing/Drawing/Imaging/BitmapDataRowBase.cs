@@ -48,23 +48,25 @@ namespace KGySoft.Drawing.Imaging
             get => (IntPtr)Address;
         }
 
+        int IBitmapDataRow.Index => Line;
+
         #endregion
 
         #region Indexers
 
-        public Color this[int x]
+        public Color32 this[int x]
         {
             get
             {
                 if ((uint)x > Accessor.Width)
                     ThrowXOutOfRange();
-                return DoGetColor32(x).ToColor();
+                return DoGetColor32(x);
             }
             set
             {
                 if ((uint)x > Accessor.Width)
                     ThrowXOutOfRange();
-                DoSetColor32(x, new Color32(value));
+                DoSetColor32(x, value);
             }
         }
 
@@ -75,6 +77,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
+
+        public Color GetColor(int x) => this[x].ToColor();
+
+        public void SetColor(int x, Color color) => this[x] = new Color32(color);
 
         public int GetColorIndex(int x)
         {

@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     // - Implicit conversion from and to Color exists.
     //   Note: Does not contain known color properties. Just use Color32 c = Color.Blue, for example.
     [StructLayout(LayoutKind.Explicit)]
-    internal readonly struct Color32 : IEquatable<Color32>
+    public readonly struct Color32 : IEquatable<Color32>
     {
         #region Constants
 
@@ -152,6 +152,7 @@ namespace KGySoft.Drawing.Imaging
 
         public static Color32 FromGray(byte level) => new Color32(level, level, level);
 
+        [CLSCompliant(false)]
         public static Color32 FromGray16(ushort level) => new Color32((byte)(level >> 8), (byte)(level >> 8), (byte)(level >> 8));
 
         #endregion

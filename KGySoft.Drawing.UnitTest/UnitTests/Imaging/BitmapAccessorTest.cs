@@ -19,7 +19,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using KGySoft.CoreLibraries;
+using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -33,27 +34,27 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     {
         #region Fields
 
-        private static readonly object[][] setGetPixelColor32TestSource =
+        private static readonly object[][] setGetPixelTestSource =
         {
-            //new object[] { "32 bit ARGB Blue", PixelFormat.Format32bppArgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
-            //new object[] { "32 bit ARGB Alpha 50%", PixelFormat.Format32bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_FF },
-            //new object[] { "32 bit ARGB Transparent", PixelFormat.Format32bppArgb, Color.Transparent, Color.Transparent, 0x00_FF_FF_FF },
-            //// TODO: translation table
+            new object[] { "32 bit ARGB Blue", PixelFormat.Format32bppArgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
+            new object[] { "32 bit ARGB Alpha 50%", PixelFormat.Format32bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_FF },
+            new object[] { "32 bit ARGB Transparent", PixelFormat.Format32bppArgb, Color.Transparent, Color.Transparent, 0x00_FF_FF_FF },
             new object[] { "32 bit PARGB Blue", PixelFormat.Format32bppPArgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
             new object[] { "32 bit PARGB Alpha 50%", PixelFormat.Format32bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_80 },
             new object[] { "32 bit PARGB Alpha 1", PixelFormat.Format32bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(1, Color.Blue), 0x01_00_00_01 },
             new object[] { "32 bit PARGB Alpha 254", PixelFormat.Format32bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0xFE_00_00_FE },
             new object[] { "32 bit PARGB Transparent", PixelFormat.Format32bppPArgb, Color.Transparent, Color.Empty, 0x00_00_00_00 },
-            //new object[] { "24 bit RGB32 Blue", PixelFormat.Format24bppRgb, Color.Blue, Color.Blue, 0x00_00_FF },
-            //new object[] { "24 bit RGB32 Transparent", PixelFormat.Format24bppRgb, Color.Transparent, Color.White, 0xFF_FF_FF },
-            //new object[] { "64 bit ARGB Blue", PixelFormat.Format64bppArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
-            //new object[] { "64 bit ARGB Alpha 50%", PixelFormat.Format64bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(127, Color.Blue), 0x1010_0000_0000_2000 },
-            //new object[] { "64 bit ARGB Transparent", PixelFormat.Format64bppArgb, Color.Transparent, Color.Transparent, 0x0000_2000_2000_2000 },
-            //new object[] { "64 bit PARGB Blue", PixelFormat.Format64bppPArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
-            //new object[] { "64 bit PARGB Alpha 50%", PixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(127, Color.Blue), 0x1010_0000_0000_1010 },
-            //new object[] { "64 bit PARGB Alpha 1", PixelFormat.Format64bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(1, Color.Blue), 0x01_00_00_01 },
-            //new object[] { "64 bit PARGB Alpha 254", PixelFormat.Format64bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0xFE_00_00_FE },
-            //new object[] { "64 bit PARGB Transparent", PixelFormat.Format64bppPArgb, Color.Transparent, Color.Transparent, 0x0000_0000_0000_0000 },
+            new object[] { "24 bit RGB32 Blue", PixelFormat.Format24bppRgb, Color.Blue, Color.Blue, 0x00_00_FF },
+            new object[] { "24 bit RGB32 Transparent", PixelFormat.Format24bppRgb, Color.Transparent, Color.White, 0xFF_FF_FF },
+            new object[] { "64 bit ARGB Blue", PixelFormat.Format64bppArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
+            new object[] { "64 bit ARGB Alpha 50%", PixelFormat.Format64bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x1010_0000_0000_2000 },
+            new object[] { "64 bit ARGB Transparent", PixelFormat.Format64bppArgb, Color.Transparent, Color.Transparent, 0x0000_2000_2000_2000 },
+            new object[] { "64 bit PARGB Blue", PixelFormat.Format64bppPArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
+            new object[] { "64 bit PARGB Alpha Blue 50%", PixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x1010_0000_0000_1010 },
+            new object[] { "64 bit PARGB Alpha Green 50%", PixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Green), Color.FromArgb(128, Color.Green), 0x1010_0000_0377_0000 },
+            new object[] { "64 bit PARGB Alpha 1", PixelFormat.Format64bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(0, Color.Blue), 0x0020_0000_0000_0020 },
+            new object[] { "64 bit PARGB Alpha 254", PixelFormat.Format64bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0x1FDF_0000_0000_1FDF },
+            new object[] { "64 bit PARGB Transparent", PixelFormat.Format64bppPArgb, Color.Transparent, Color.Empty, 0x0000_0000_0000_0000 },
         };
 
         #endregion
@@ -88,8 +89,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         #region Instance Methods
 
-        [TestCaseSource(nameof(setGetPixelColor32TestSource))]
-        public void SetGetPixelColor32Test(string testName, PixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValue)
+        [TestCaseSource(nameof(setGetPixelTestSource))]
+        public void SetGetPixelTest(string testName, PixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValue)
         {
             Color actualColor;
             long actualRawValue;
@@ -134,18 +135,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(expectedRawValue, actualRawValue);
 
                 // by indexer
-                accessor[0][0] = testColor;
+                accessor[0][0] = new Color32(testColor);
                 Assert.AreEqual(expectedResult.ToArgb(), accessor[0][0].ToArgb());
                 Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, accessor.Scan0));
-
-                //// by row/Color32
-                //var row = accessor.;
-                //row. (0, testColor);
-                //Assert.AreEqual(Color32.FromColor(expectedResult), row.GetPixelColor32(0));
-                //Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, accessor.Scan0));
             }
-
-            //actualColor = bmp.GetPixel(0, 0);
         }
 
         [Test]
@@ -190,6 +183,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
 
         }
+
         /*
          var bmp = new Bitmap(5, 1, PixelFormat.Format64bppArgb);
                     bmp.SetPixel(0, 0, Color.Black);
