@@ -84,7 +84,7 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (byte)0 : (byte)(c.B * Byte.MaxValue / c.A));
         }
 
-        internal static Color64 Argb32ToArgb64(this Color32 c)
+        internal static Color64 ToArgb64(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
                 InitializeLookupTable8To16Bpp();
@@ -99,7 +99,7 @@ namespace KGySoft.Drawing.Imaging
             return new Color64(a, lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
         }
 
-        internal static Color32 Argb64ToArgb32(this Color64 c)
+        internal static Color32 ToArgb32(this Color64 c)
         {
             if (!lookupTable16To8BppInitialized)
                 InitializeLookupTable16To8Bpp();
@@ -114,12 +114,12 @@ namespace KGySoft.Drawing.Imaging
             return new Color32(a, lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
-        internal static Color64 Argb32ToPArgb64(this Color32 c)
+        internal static Color64 ToPArgb64(this Color32 c)
         {
             if (c.A == 0)
                 return default;
 
-            Color64 c64 = c.Argb32ToArgb64();
+            Color64 c64 = c.ToArgb64();
             if (c.A == Byte.MaxValue)
                 return c64;
 
@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.Imaging
                 (ushort)(c64.B * c64.A / max16BppValue));
         }
 
-        internal static Color32 PArgb64ToArgb32(this Color64 c)
+        internal static Color32 ToStraightArgb32(this Color64 c)
         {
             if (c.A == 0)
                 return default;
@@ -140,7 +140,27 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.R * max / c.A),
                 c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.G * max / c.A),
                 c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.B * max / c.A));
-            return straight.Argb64ToArgb32();
+            return ToArgb32(straight);
+        }
+
+        internal static Color48 ToRgb48(this Color32 c)
+        {
+            if (!lookupTable8To16BppInitialized)
+                InitializeLookupTable8To16Bpp();
+
+            return lookupTable8To16Bpp == null
+                ? new Color48(c)
+                : new Color48(lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
+        }
+
+        internal static Color32 ToArgb32(this Color48 c)
+        {
+            if (!lookupTable16To8BppInitialized)
+                InitializeLookupTable16To8Bpp();
+
+            return lookupTable16To8Bpp == null
+                ? c.ToColor32()
+                : new Color32(lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
         #endregion
@@ -172,6 +192,7 @@ namespace KGySoft.Drawing.Imaging
                         lookupTable8To16Bpp = new ushort[256];
                         for (int i = 0; i < 256; i++)
                         {
+                            // ReSharper disable once PossibleNullReferenceException - row is not null
                             lookupTable8To16Bpp[i] = row[i].R;
                             isLinear = isLinear && row[i] == new Color64(new Color32((byte)i, (byte)i, (byte)i, (byte)i));
                         }
@@ -236,6 +257,7 @@ namespace KGySoft.Drawing.Imaging
                                 row = (Color64*)((byte*)row + data.Stride);
                             }
 
+                            // ReSharper disable once PossibleNullReferenceException - row is not null
                             row[x] = new Color64((ushort)i, (ushort)i, (ushort)i);
                         }
                     }

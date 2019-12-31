@@ -38,6 +38,8 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
         [TestCase(PixelFormat.Format32bppPArgb)]
         [TestCase(PixelFormat.Format64bppArgb)]
         [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
         public void SetGetPixelTest(PixelFormat pixelFormat)
         {
             static int Argb(int a, int l) => (a << 24) | (l << 16) | (l << 8) | l;
@@ -100,6 +102,15 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                     {
                         switch (pixelFormat.ToBitsPerPixel())
                         {
+                            case 24:
+                                for (int x = 0; x < size.Width; x++)
+                                {
+                                    int argb = Argb(row.Index, x);
+                                    row.WriteRaw(x, new Color24(Color32.FromArgb(argb)));
+                                    if (row.ReadRaw<Color24>(x).ToColor32().ToArgb() != argb)
+                                        diffs++;
+                                }
+                                break;
                             case 32:
                                 for (int x = 0; x < size.Width; x++)
                                 {
@@ -109,15 +120,26 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                                         diffs++;
                                 }
                                 break;
+                            case 48:
+                                for (int x = 0; x < size.Width; x++)
+                                {
+                                    int argb = Argb(row.Index, x);
+                                    row.WriteRaw(x, new Color48(Color32.FromArgb(argb)));
+                                    if (row.ReadRaw<Color48>(x).ToColor32().ToArgb() != argb)
+                                        diffs++;
+                                }
+                                break;
                             case 64:
                                 for (int x = 0; x < size.Width; x++)
                                 {
-                                    int argb = (row.Index << 24) | (x << 16) | (x << 8) | x;
+                                    int argb = Argb(row.Index, x);
                                     row.WriteRaw(x, Color64.FromArgb32(argb));
                                     if (row.ReadRaw<Color64>(x).ToArgb32() != argb)
                                         diffs++;
                                 }
                                 break;
+                            default:
+                                throw new NotImplementedException(pixelFormat.ToString());
                         }
                     } while (row.MoveNextRow());
                 }, "IBitmapDataRow.WriteRaw/ReadRaw")

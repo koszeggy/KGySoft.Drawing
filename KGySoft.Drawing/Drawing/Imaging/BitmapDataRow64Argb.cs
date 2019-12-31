@@ -20,9 +20,9 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
-        internal override unsafe Color32 DoGetColor32(int x) => ((Color64*)Address)[x].Argb64ToArgb32();
+        internal override unsafe Color32 DoGetColor32(int x) => ColorHelper.ToArgb32(((Color64*)Address)[x]);
 
-        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Address)[x] = c.Argb32ToArgb64();
+        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Address)[x] = c.ToArgb64();
 
         #endregion
     }

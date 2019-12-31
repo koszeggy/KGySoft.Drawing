@@ -44,19 +44,4 @@ namespace KGySoft.Drawing.Imaging
             throw new InvalidOperationException(Res.InternalError($"Unexpected pixelFormat in {nameof(GetColor32)}: {pixelFormat}"));
         }
     }
-
-    [StructLayout(LayoutKind.Explicit, Size = 6)]
-    internal readonly struct Color48
-    {
-        [FieldOffset(0)]
-        internal readonly ushort B;
-
-        [FieldOffset(2)]
-        internal readonly ushort G;
-
-        [FieldOffset(4)]
-        internal readonly ushort R;
-
-        internal Color32 ToColor32() => new Color32((byte)(R >> 8), (byte)(G >> 8), (byte)(B >> 8));
-    }
 }

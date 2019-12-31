@@ -55,6 +55,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "64 bit PARGB Alpha 1", PixelFormat.Format64bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(0, Color.Blue), 0x0020_0000_0000_0020 },
             new object[] { "64 bit PARGB Alpha 254", PixelFormat.Format64bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0x1FDF_0000_0000_1FDF },
             new object[] { "64 bit PARGB Transparent", PixelFormat.Format64bppPArgb, Color.Transparent, Color.Empty, 0x0000_0000_0000_0000 },
+            new object[] { "48 bit RGB32 Blue", PixelFormat.Format48bppRgb, Color.Blue, Color.Blue, 0x0000_0000_2000 },
+            new object[] { "48 bit RGB32 Transparent", PixelFormat.Format48bppRgb, Color.Transparent, Color.White, 0x2000_2000_2000 },
         };
 
         #endregion

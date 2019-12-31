@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataRow64PArgb.cs
+//  File: BitmapDataRow48Rgb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -16,13 +16,13 @@
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class BitmapDataRow64PArgb : BitmapDataRowNonIndexedBase
+    internal sealed class BitmapDataRow48Rgb : BitmapDataRowNonIndexedBase
     {
         #region Methods
 
-        internal override unsafe Color32 DoGetColor32(int x) => ((Color64*)Address)[x].ToStraightArgb32();
+        internal override unsafe Color32 DoGetColor32(int x) => ((Color48*)Address)[x].ToArgb32();
 
-        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Address)[x] = c.ToPArgb64();
+        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color48*)Address)[x] = c.ToRgb48();
 
         #endregion
     }

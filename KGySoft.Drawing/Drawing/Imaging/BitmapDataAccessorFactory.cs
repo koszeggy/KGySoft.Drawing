@@ -60,6 +60,9 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format64bppPArgb:
                     return new BitmapDataAccessor<BitmapDataRow64PArgb>(bitmap, pixelFormat, lockMode);
 
+                case PixelFormat.Format48bppRgb:
+                    return new BitmapDataAccessor<BitmapDataRow48Rgb>(bitmap, pixelFormat, lockMode);
+
                 case PixelFormat.Indexed:
                 case PixelFormat.Gdi:
                 case PixelFormat.Alpha:
@@ -74,7 +77,6 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppRgb555:
                 case PixelFormat.Format16bppRgb565:
                 case PixelFormat.Format16bppArgb1555:
-                case PixelFormat.Format48bppRgb:
                 case PixelFormat.Max:
                 default:
                     throw new ArgumentException(Res.ImagingPixelFormatNotSupported(pixelFormat), nameof(bitmap));
