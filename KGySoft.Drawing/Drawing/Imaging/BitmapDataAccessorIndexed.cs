@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        private readonly Color[] palette;
+        private readonly Palette palette;
 
         #endregion
 
@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
         internal BitmapDataAccessorIndexed(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode)
             : base(bitmap, pixelFormat, lockMode)
         {
-            palette = bitmap.Palette.Entries;
+            palette = new Palette(bitmap.Palette.Entries);
         }
 
         #endregion

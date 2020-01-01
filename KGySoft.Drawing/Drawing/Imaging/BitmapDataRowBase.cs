@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public Color GetColor(int x) => this[x].ToColor();
+        public virtual Color GetColor(int x) => this[x].ToColor();
 
         public void SetColor(int x, Color color) => this[x] = new Color32(color);
 
@@ -89,7 +89,7 @@ namespace KGySoft.Drawing.Imaging
             return DoGetColorIndex(x);
         }
 
-        public void SetColorIndex(int x, int colorIndex)
+        public virtual void SetColorIndex(int x, int colorIndex)
         {
             if ((uint)x > Accessor.Width)
                 ThrowXOutOfRange();

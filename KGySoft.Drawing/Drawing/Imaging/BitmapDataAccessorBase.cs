@@ -96,7 +96,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Destructor
 
-        ~BitmapDataAccessorBase() => DoDispose();
+        ~BitmapDataAccessorBase() => Dispose(false);
 
         #endregion
 
@@ -147,7 +147,7 @@ namespace KGySoft.Drawing.Imaging
 
         public void Dispose()
         {
-            DoDispose();
+            Dispose(true);
             GC.SuppressFinalize(this);
         }
 
@@ -159,9 +159,9 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Private Methods
+        #region Protected Methods
 
-        private void DoDispose()
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;

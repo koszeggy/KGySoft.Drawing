@@ -179,7 +179,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 .AddCase(() =>
                 {
                     int diffs = 0;
-                    using BitmapDataAccessorBase accessor = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite, false);
+                    using BitmapDataAccessorBase accessor = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite);
                     BitmapDataRowBase row = accessor.GetRow(0);
                     do
                     {

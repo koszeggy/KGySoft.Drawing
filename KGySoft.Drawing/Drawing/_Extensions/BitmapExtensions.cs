@@ -223,7 +223,7 @@ namespace KGySoft.Drawing
                 return bitmap.Palette.Entries;
 
             int transparent = Color.Transparent.ToArgb();
-            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly, false))
+            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
             {
                 BitmapDataRowBase line = data.GetRow(0);
 
@@ -281,10 +281,6 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bitmap"></param>
         /// <param name="lockMode"></param>
-        /// <param name="omitTrueAndDeepColorTransformations"><see langword="true"/>&#160;to omit 32, 48 and 64 bits-per-pixel transformations (premultiplication, range scaling, gamma conversion) when setting and getting pixels of a <see cref="Bitmap"/>;
-        /// <see langword="false"/>&#160;to perform such transformations when setting and getting pixels. This parameter is optional.
-        /// <br/>Default value: <see langword="false"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.</param>
         /// <returns></returns>
         /// <remarks>
         /// <para>If <paramref name="omitTrueAndDeepColorTransformations"/> is <see langword="false"/>, then the following transformations are performed when getting and setting pixels of bitmaps with specific pixel formats:
@@ -304,8 +300,8 @@ namespace KGySoft.Drawing
         /// color components are in the 0..8192 range.
         /// </para>
         /// </remarks>
-        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode, bool omitTrueAndDeepColorTransformations = false)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode, omitTrueAndDeepColorTransformations);
+        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode)
+            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode);
 
         #endregion
 

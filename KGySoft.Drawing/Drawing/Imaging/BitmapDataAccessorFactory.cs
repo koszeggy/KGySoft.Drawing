@@ -30,7 +30,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
-        internal static BitmapDataAccessorBase CreateAccessor(Bitmap bitmap, ImageLockMode lockMode, bool omitTrueAndDeepColorTransformations)
+        internal static BitmapDataAccessorBase CreateAccessor(Bitmap bitmap, ImageLockMode lockMode)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -44,9 +44,7 @@ namespace KGySoft.Drawing.Imaging
                     return new BitmapDataAccessor<BitmapDataRow32Argb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format32bppPArgb:
-                    return omitTrueAndDeepColorTransformations
-                        ? (BitmapDataAccessorBase)new BitmapDataAccessor<BitmapDataRow32Argb>(bitmap, pixelFormat, lockMode)
-                        : new BitmapDataAccessor<BitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode);
+                    return new BitmapDataAccessor<BitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format32bppRgb:
                     return new BitmapDataAccessor<BitmapDataRow32Rgb>(bitmap, pixelFormat, lockMode);
@@ -75,17 +73,15 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppGrayScale:
                     return new BitmapDataAccessor<BitmapDataRow16Gray>(bitmap, pixelFormat, lockMode);
 
-                case PixelFormat.Indexed:
-                case PixelFormat.Gdi:
-                case PixelFormat.Alpha:
-                case PixelFormat.PAlpha:
-                case PixelFormat.Extended:
-                case PixelFormat.Canonical:
-                case PixelFormat.Undefined:
-                case PixelFormat.Format1bppIndexed:
-                case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format8bppIndexed:
-                case PixelFormat.Max:
+                    return new BitmapDataAccessorIndexed<BitmapDataRow8I>(bitmap, pixelFormat, lockMode);
+
+                case PixelFormat.Format4bppIndexed:
+                    return new BitmapDataAccessorIndexed<BitmapDataRow4I>(bitmap, pixelFormat, lockMode);
+
+                case PixelFormat.Format1bppIndexed:
+                    return new BitmapDataAccessorIndexed<BitmapDataRow1I>(bitmap, pixelFormat, lockMode);
+
                 default:
                     throw new ArgumentException(Res.ImagingPixelFormatNotSupported(pixelFormat), nameof(bitmap));
             }
