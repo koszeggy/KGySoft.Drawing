@@ -85,6 +85,11 @@ namespace KGySoft.Drawing.UnitTests
 
                 if (toGif)
                     image.SaveAsGif(fs);
+                else if (image.PixelFormat == PixelFormat.Format16bppGrayScale || image.PixelFormat.ToBitsPerPixel() > 32)
+                {
+                    using var toSave = image.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+                    toSave.Save(fs, ImageFormat.Png);
+                }
                 else
                     image.Save(fs, ImageFormat.Png);
             }

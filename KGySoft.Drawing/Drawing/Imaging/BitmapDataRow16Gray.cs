@@ -14,15 +14,22 @@
 
 #endregion
 
+#region Usings
+
+using System;
+
+#endregion
+
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class BitmapDataRow16Gray : BitmapDataRowNonIndexedBase
+    internal sealed class BitmapDataRow16Gray : BitmapDataRowNoAlphaBase
     {
         #region Methods
 
         internal override unsafe Color32 DoGetColor32(int x) => ((Color16Gray*)Address)[x].ToColor32();
 
-        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color16Gray*)Address)[x] = new Color16Gray(c);
+        internal override unsafe void DoSetColor32(int x, Color32 c)
+            => ((Color16Gray*)Address)[x] = new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
 
         #endregion
     }

@@ -171,52 +171,19 @@ namespace KGySoft.Drawing.Imaging
                 : new Color32(lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
-        internal static int GetNearestIndex(this Color32 c, Color32[] palette /*, way*/)
+        internal static byte GetBrightness(this Color32 c) => (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
+
+        internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
-            int minDiff = Int32.MaxValue;
-            int resultIndex = 0;
-            for (int i = 0; i < palette.Length; i++)
-            {
-                Color32 p = palette[i];
-
-                // exact match
-                if (p == c)
-                    return i;
-
-                // both are transparent (not needed if using premultiplication)
-                if (p.A == 0 && c.A == 0)
-                    return i;
-
-                // TODO: consider brightness, alpha (and maybe hue distance)
-                // - Hue is now substituted by RGB distance. Max difference is now 3x255.
-                // - Add perceptual brightness distance where max distance is also 3x255 (try to avoid floating point arithmetic bit if used normalize RGB distance, too)
-                // - Alpha:
-                //   - Premultiply RGB/Hue and brightness with alpha (so they will no matter when A=0) and add a normalized alpha distance (maybe max = 6*255 - same as the two above)
-                //   - This way Black and White will have the same distance from any A=0 colors. If the palette has no transparent color always the first color will be picked.
-                //     -> Add the non-premultiplied RGB distance with a small weight so Color.Transparent pixels will be mapped to White and Empty pixels to Black, for example.
-                //     -> Or manually: Specify a color in the palette (by default: White). The more transparent is a pixel the closer it should be to this color.
-                //        If the transparent color is really transparent this extra weight must not be added. So the pixel will be either transparent or a color chosen by the pixel's RGB
-
-                // using euclidean distance
-                //int rd = p.R - c.R;
-                //int gd = p.G - c.G;
-                //int bd = p.B - c.B;
-                //int diff = rd * rd + gd * gd + bd * bd;
-
-                int diff = Math.Abs(p.R - c.R) + Math.Abs(p.G - c.G) + Math.Abs(p.B - c.B);
-                // diff /= 768 // 0..1 * PreAlpha
-                // + diffBrightness // 0..1 * PreAlpha
-                // + diffAlpha // 0..2(?) - try to balance so 50% blue maps to blue rather than 50% red but not at 1% (see the strategies for real transparent and proxy color above)
-
-                // new closest match
-                if (diff < minDiff)
-                {
-                    minDiff = diff;
-                    resultIndex = i;
-                }
-            }
-
-            return resultIndex;
+            // The blending is applied only to the color and not the resulting alpha, which always has the source alpha
+            // so its distance still can be measured.
+            if (c.A == 0)
+                return Color32.FromArgb(Byte.MaxValue, backColor);
+            float alpha = c.A / 255f;
+            return new Color32(Byte.MaxValue,
+                (byte)(c.R * alpha + backColor.R * (1 - alpha)),
+                (byte)(c.G * alpha + backColor.G * (1 - alpha)),
+                (byte)(c.B * alpha + backColor.B * (1 - alpha)));
         }
 
         #endregion

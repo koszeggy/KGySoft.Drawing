@@ -102,36 +102,83 @@ namespace KGySoft.Drawing
         [SecuritySafeCritical]
 #endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette = null)
+        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!Enum<PixelFormat>.IsDefined(newPixelFormat))
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.EnumOutOfRange(newPixelFormat));
 
-            int bpp = newPixelFormat.ToBitsPerPixel();
-            if (newPixelFormat.In(PixelFormat.Format16bppArgb1555, PixelFormat.Format16bppGrayScale))
-                throw new NotSupportedException(Res.ImageExtensionsPixelFormatNotSupported(newPixelFormat));
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap result = null;
 
-            // non-indexed target image (transparency preserved automatically)
-            if (bpp > 8)
+            try
             {
-                Bitmap result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using (Graphics g = Graphics.FromImage(result))
+                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+
+                // validating and initializing palette
+                if (newPixelFormat.IsIndexed())
                 {
-                    g.DrawImage(image, 0, 0, image.Width, image.Height);
+                    int bpp = newPixelFormat.ToBitsPerPixel();
+
+                    // if there is no desired palette but converting to a higher bpp indexed image, then taking the source palette
+                    if (palette == null && bmp.PixelFormat.ToBitsPerPixel() <= bpp)
+                        palette = bmp.Palette?.Entries;
+
+                    // there is a desired palette to apply
+                    if (palette != null && palette.Length > 0)
+                    {
+                        int maxColors = 1 << bpp;
+                        if (palette.Length > maxColors)
+                            throw new ArgumentException(Res.ImageExtensionsPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
+
+                        ColorPalette targetPalette = result.Palette;
+                        bool setEntries = palette.Length != targetPalette.Entries.Length;
+                        Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
+
+                        // copying even if it could be just set to prevent change of entries
+                        for (int i = 0; i < palette.Length; i++)
+                            targetColors[i] = palette[i];
+
+                        if (setEntries)
+                            targetPalette.SetEntries(targetColors);
+                        result.Palette = targetPalette;
+                    }
+                }
+
+                using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly, backColor, alphaThreshold))
+                using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
+                {
+                    BitmapDataRowBase rowSrc = source.GetRow(0);
+                    BitmapDataRowBase rowDst = target.GetRow(0);
+                    do
+                    {
+                        for (int x = 0; x < source.Width; x++)
+                            rowDst.DoSetColor32(x, rowSrc.DoGetColor32(x));
+                    } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
                 }
 
                 return result;
             }
-
-            return OSUtils.IsWindows ? ToIndexedWindows(image, bpp, palette) : ToIndexedNonWindows(image, bpp, palette);
+            catch (Exception)
+            {
+                result?.Dispose();
+                throw;
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+            }
         }
 
-        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Dithering dithering = Dithering.None)
-        {
-            throw new NotImplementedException("TODO: ConvertPixelFormat");
-        }
+        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
+            => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
+
+        //public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Dithering dithering = Dithering.None)
+        //{
+        //    throw new NotImplementedException("TODO: ConvertPixelFormat");
+        //}
 
         //public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Quantization quantizer = Quantization.DefaultColors, Dithering dithering = Dithering.None)
         //{
@@ -347,6 +394,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        // TODO: delete, no longer needed
         private static Bitmap ToIndexedWindows(Image image, int bpp, Color[] palette = null)
         {
             PixelFormat sourcePixelFormat = image.PixelFormat;
@@ -443,19 +491,6 @@ namespace KGySoft.Drawing
             if (resetPalette)
                 result.Palette = resultPalette;
 
-            if (!ReferenceEquals(bmp, image))
-                bmp.Dispose();
-            return result;
-        }
-
-        private static Bitmap ToIndexedNonWindows(Image image, int bpp, Color[] palette)
-        {
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            Bitmap result = new Bitmap(image.Width, image.Height, bpp.ToPixelFormat());
-            if (palette == null)
-                palette = bmp.Palette?.Entries;
-
-            throw new NotImplementedException("TODO: ToIndexedNonWindows");
             if (!ReferenceEquals(bmp, image))
                 bmp.Dispose();
             return result;

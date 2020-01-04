@@ -281,6 +281,12 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bitmap"></param>
         /// <param name="lockMode"></param>
+        /// <param name="backColor">When setting pixels of indexed bitmaps, bitmaps without alpha support or with single bit alpha, then specifies the
+        /// background color, which will be bended with color to set. The alpha value (<see cref="Color.A"/> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has transparent color, then determines the lowest
+        /// alpha value, which should not be considered as transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns></returns>
         /// <remarks>
         /// <para>If <paramref name="omitTrueAndDeepColorTransformations"/> is <see langword="false"/>, then the following transformations are performed when getting and setting pixels of bitmaps with specific pixel formats:
@@ -299,9 +305,19 @@ namespace KGySoft.Drawing
         /// <see cref="IBitmapDataRow.WriteRaw{T}"><![CDATA[IBitmapDataRow.WriteDataDirect<T>]]></see> method with <see cref="Color64"/> type parameter and make sure that all
         /// color components are in the 0..8192 range.
         /// </para>
+        ///
+        /// <para>If <paramref name="alphaThreshold"/> is zero, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
+        /// by a fully transparent pixel will be blended by <paramref name="backColor"/> even if the bitmap can handle transparent pixels.</para>
+        /// <para>If <paramref name="alphaThreshold"/> is <c>1</c>, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
+        /// will be transparent only if the color to set is completely transparent (has zero alpha).</para>
+        /// <para>If <paramref name="alphaThreshold"/> is <c>255</c>, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
+        /// will be opaque only if the color to set is completely opaque (its alpha value is <c>255</c>).</para>
+        /// <para>If a pixel of a bitmap without alpha gradient support is set by the <see cref="IBitmapDataAccessor.SetPixel">IBitmapDataAccessor.SetPixel</see>/<see cref="IBitmapDataRow.SetColor">IBitmapDataRow.SetColor</see>
+        /// methods or by the <see cref="IBitmapDataRow.this">IBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
+        /// then the pixel to set will be blended by <paramref name="backColor"/>.</para>
         /// </remarks>
-        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode);
+        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode, Color backColor = default, byte alphaThreshold = 128)
+            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode, backColor, alphaThreshold);
 
         #endregion
 

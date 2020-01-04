@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataRow24Rgb.cs
+//  File: BitmapDataRowNoAlphaBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution. If not, then this file is considered as
@@ -17,19 +17,17 @@
 #region Usings
 
 using System;
+using System.Drawing;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class BitmapDataRow24Rgb : BitmapDataRowNoAlphaBase
+    internal abstract class BitmapDataRowNoAlphaBase : BitmapDataRowNonIndexedBase
     {
-        #region Methods
+        #region Fields
 
-        internal override unsafe Color32 DoGetColor32(int x) => ((Color24*)Address)[x].ToColor32();
-
-        internal override unsafe void DoSetColor32(int x, Color32 c)
-            => ((Color24*)Address)[x] = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
+        internal Color32 BackColor;
 
         #endregion
     }

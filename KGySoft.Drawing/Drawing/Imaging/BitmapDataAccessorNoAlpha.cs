@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataAccessorIndexed.cs
+//  File: BitmapDataAccessorNoAlpha.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution. If not, then this file is considered as
@@ -23,21 +23,21 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class BitmapDataAccessorIndexed<TRow> : BitmapDataAccessor<TRow>
-        where TRow : BitmapDataRowIndexedBase, new()
+    internal class BitmapDataAccessorNoAlpha<TRow> : BitmapDataAccessor<TRow>
+        where TRow : BitmapDataRowNoAlphaBase, new()
     {
         #region Fields
 
-        private readonly Palette palette;
+        private readonly Color32 backColor;
 
         #endregion
 
         #region Constructors
 
-        internal BitmapDataAccessorIndexed(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color backColor, byte alphaThreshold)
+        public BitmapDataAccessorNoAlpha(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color backColor)
             : base(bitmap, pixelFormat, lockMode)
         {
-            palette = new Palette(bitmap.Palette.Entries, backColor, alphaThreshold);
+            this.backColor = new Color32(backColor);
         }
 
         #endregion
@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Imaging
         protected override TRow CreateRow(int row)
         {
             TRow result = base.CreateRow(row);
-            result.Palette = palette;
+            result.BackColor = backColor;
             return result;
         }
 

@@ -22,7 +22,7 @@ using System;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class BitmapDataRow32Rgb : BitmapDataRowNonIndexedBase
+    internal sealed class BitmapDataRow32Rgb : BitmapDataRowNoAlphaBase
     {
         #region Methods
 
@@ -37,7 +37,8 @@ namespace KGySoft.Drawing.Imaging
 
         internal override unsafe Color32 DoGetColor32(int x) => ToRgb32(((Color32*)Address)[x]);
 
-        internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color32*)Address)[x] = c;
+        internal override unsafe void DoSetColor32(int x, Color32 c)
+            => ((Color32*)Address)[x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor);
 
         #endregion
 
