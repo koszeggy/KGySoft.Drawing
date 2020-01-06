@@ -30,7 +30,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
-        internal static BitmapDataAccessorBase CreateAccessor(Bitmap bitmap, ImageLockMode lockMode, Color backColor = default, byte alphaThreshold = 128)
+        internal static BitmapDataAccessorBase CreateAccessor(Bitmap bitmap, ImageLockMode lockMode)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -47,10 +47,10 @@ namespace KGySoft.Drawing.Imaging
                     return new BitmapDataAccessor<BitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format32bppRgb:
-                    return new BitmapDataAccessorNoAlpha<BitmapDataRow32Rgb>(bitmap, pixelFormat, lockMode, backColor);
+                    return new BitmapDataAccessor<BitmapDataRow32Rgb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format24bppRgb:
-                    return new BitmapDataAccessorNoAlpha<BitmapDataRow24Rgb>(bitmap, pixelFormat, lockMode, backColor);
+                    return new BitmapDataAccessor<BitmapDataRow24Rgb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format64bppArgb:
                     return new BitmapDataAccessor<BitmapDataRow64Argb>(bitmap, pixelFormat, lockMode);
@@ -59,28 +59,28 @@ namespace KGySoft.Drawing.Imaging
                     return new BitmapDataAccessor<BitmapDataRow64PArgb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format48bppRgb:
-                    return new BitmapDataAccessorNoAlpha<BitmapDataRow48Rgb>(bitmap, pixelFormat, lockMode, backColor);
+                    return new BitmapDataAccessor<BitmapDataRow48Rgb>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format16bppRgb565:
-                    return new BitmapDataAccessorNoAlpha<BitmapDataRow16Rgb565>(bitmap, pixelFormat, lockMode, backColor);
+                    return new BitmapDataAccessor<BitmapDataRow16Rgb565>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format16bppRgb555:
-                    return new BitmapDataAccessorNoAlpha<BitmapDataRow16Rgb555>(bitmap, pixelFormat, lockMode, backColor);
+                    return new BitmapDataAccessor<BitmapDataRow16Rgb555>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format16bppArgb1555:
-                    return new BitmapDataAccessorSingleBitAlpha<BitmapDataRow16Argb1555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new BitmapDataAccessor<BitmapDataRow16Argb1555>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format16bppGrayScale:
-                    return new BitmapDataAccessorNoAlpha<BitmapDataRow16Gray>(bitmap, pixelFormat, lockMode, backColor);
+                    return new BitmapDataAccessor<BitmapDataRow16Gray>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format8bppIndexed:
-                    return new BitmapDataAccessorIndexed<BitmapDataRow8I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new BitmapDataAccessorIndexed<BitmapDataRow8I>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format4bppIndexed:
-                    return new BitmapDataAccessorIndexed<BitmapDataRow4I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new BitmapDataAccessorIndexed<BitmapDataRow4I>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format1bppIndexed:
-                    return new BitmapDataAccessorIndexed<BitmapDataRow1I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new BitmapDataAccessorIndexed<BitmapDataRow1I>(bitmap, pixelFormat, lockMode);
 
                 default:
                     throw new ArgumentException(Res.ImagingPixelFormatNotSupported(pixelFormat), nameof(bitmap));

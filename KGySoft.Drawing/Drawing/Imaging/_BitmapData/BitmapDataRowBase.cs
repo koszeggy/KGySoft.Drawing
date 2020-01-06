@@ -30,7 +30,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        internal IBitmapDataAccessor Accessor;
+        internal BitmapDataAccessorBase Accessor;
         internal unsafe byte* Address;
         internal int Line;
 

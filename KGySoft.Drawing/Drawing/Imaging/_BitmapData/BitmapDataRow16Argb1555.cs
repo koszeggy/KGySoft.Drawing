@@ -22,7 +22,7 @@ using System;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class BitmapDataRow16Argb1555 : BitmapDataRowSingleBitAlphaBase
+    internal sealed class BitmapDataRow16Argb1555 : BitmapDataRowNonIndexedBase
     {
         #region Methods
 
@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (c.A != Byte.MaxValue)
             {
-                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor)
+                c = c.A >= Accessor.AlphaThreshold ? c.BlendWithBackground(Accessor.BackColor32)
                     : c.A < 128 ? c
                     : default;
             }

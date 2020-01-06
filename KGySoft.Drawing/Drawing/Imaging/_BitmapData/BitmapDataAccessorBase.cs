@@ -33,12 +33,15 @@ namespace KGySoft.Drawing.Imaging
         private readonly int handle;
 
         private bool disposed;
+        private Color32 backColor;
 
         #endregion
 
         #region Properties and Indexers
 
         #region Properties
+
+        #region Public Properties
 
         public int Height { get; }
 
@@ -52,6 +55,22 @@ namespace KGySoft.Drawing.Imaging
 
         public IBitmapDataRow FirstRow => GetRow(0);
 
+        public virtual Color BackColor
+        {
+            get => backColor.ToColor();
+            set => backColor = new Color32(value);
+        }
+
+        public virtual byte AlphaThreshold { get; set; }
+
+        #endregion
+
+        #region Internal Properties
+
+        internal Color32 BackColor32 => backColor;
+
+        #endregion
+        
         #endregion
 
         #region Indexers

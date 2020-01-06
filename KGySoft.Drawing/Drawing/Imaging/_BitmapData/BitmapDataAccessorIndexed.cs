@@ -32,12 +32,36 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        public override Color BackColor
+        {
+            get => base.BackColor;
+            set
+            {
+                base.BackColor = value;
+                palette.BackColor = BackColor32;
+            }
+        }
+
+        public override byte AlphaThreshold
+        {
+            get => base.AlphaThreshold;
+            set
+            {
+                base.AlphaThreshold = value;
+                palette.AlphaThreshold = value;
+            }
+        }
+
+        #endregion
+
         #region Constructors
 
-        internal BitmapDataAccessorIndexed(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color backColor, byte alphaThreshold)
+        internal BitmapDataAccessorIndexed(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode)
             : base(bitmap, pixelFormat, lockMode)
         {
-            palette = new Palette(bitmap.Palette.Entries, backColor, alphaThreshold);
+            palette = new Palette(bitmap.Palette.Entries);
         }
 
         #endregion
