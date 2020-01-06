@@ -149,6 +149,7 @@ namespace KGySoft.Drawing
                 using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly, backColor, alphaThreshold))
                 using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
                 {
+                    // TODO: parallel
                     BitmapDataRowBase rowSrc = source.GetRow(0);
                     BitmapDataRowBase rowDst = target.GetRow(0);
                     do
@@ -174,6 +175,7 @@ namespace KGySoft.Drawing
 
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
+
 
         //public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Dithering dithering = Dithering.None)
         //{
