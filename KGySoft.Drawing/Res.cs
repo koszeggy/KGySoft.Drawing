@@ -122,6 +122,12 @@ namespace KGySoft
         /// <summary>This method can be used only on bitmaps with indexed pixel format.</summary>
         internal static string ImagingInvalidOperationIndexedOnly => Get("Imaging_InvalidOperationIndexedOnly");
 
+        /// <summary>The IQuantizer.Initialize method returned a null value.</summary>
+        internal static string ImagingQuantizerInitializeNull => Get("Imaging_QuantizerInitializeNull");
+
+        /// <summary>The IDitherer.Initialize method returned a null value.</summary>
+        internal static string ImagingDithererInitializeNull => Get("Imaging_DithererInitializeNull");
+
         #endregion
 
         #endregion

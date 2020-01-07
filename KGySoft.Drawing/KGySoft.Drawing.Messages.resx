@@ -177,4 +177,10 @@
   <data name="Imaging_PixelFormatNotSupportedFormat" xml:space="preserve">
     <value>Pixel format '{0}' is not supported.</value>
   </data>
+  <data name="Imaging_QuantizerInitializeNull" xml:space="preserve">
+    <value>The IQuantizer.Initialize method returned a null value.</value>
+  </data>
+  <data name="Imaging_DithererInitializeNull" xml:space="preserve">
+    <value>The IDitherer.Initialize method returned a null value.</value>
+  </data>
 </root>

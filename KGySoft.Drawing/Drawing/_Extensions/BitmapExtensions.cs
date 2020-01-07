@@ -316,8 +316,61 @@ namespace KGySoft.Drawing
         /// methods or by the <see cref="IBitmapDataRow.this">IBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended by <paramref name="backColor"/>.</para>
         /// </remarks>
-        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode, backColor, alphaThreshold);
+        public static IBitmapDataAccessor GetBitmapDataAccessor(this Bitmap bitmap, ImageLockMode lockMode/*, Color backColor = default, byte alphaThreshold = 128*/)
+            => BitmapDataAccessorFactory.CreateAccessor(bitmap, lockMode);
+
+        public static void Quantize(this Bitmap bitmap, IQuantizer quantizer)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            using (IBitmapDataAccessor bitmapData = bitmap.GetBitmapDataAccessor(ImageLockMode.ReadWrite))
+            using (IQuantizingSession session = quantizer.Initialize(bitmapData))
+            {
+                if (session == null)
+                    throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+                
+                // TODO: parallel
+                IBitmapDataRow row = bitmapData.FirstRow;
+                int width = bitmapData.Width;
+                do
+                {
+                    for (int x = 0; x < width; x++)
+                        row[x] = session.GetQuantizedColor(row[x]);
+                } while (row.MoveNextRow());
+            }
+        }
+
+        public static void Dither(this Bitmap bitmap, IDitherer ditherer, IQuantizer quantizer)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (ditherer == null)
+                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            using (IBitmapDataAccessor bitmapData = bitmap.GetBitmapDataAccessor(ImageLockMode.ReadWrite))
+            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
+            using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull)))
+            {
+                if (ditheringSession == null)
+                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                // TODO: parallel if possible
+                IBitmapDataRow row = bitmapData.FirstRow;
+                int width = bitmapData.Width;
+                int y = 0;
+                do
+                {
+                    for (int x = 0; x < width; x++)
+                        row[x] = ditheringSession.GetDitheredColor(row[x], x, y);
+                    y += 1;
+                } while (row.MoveNextRow());
+            }
+        }
 
         #endregion
 

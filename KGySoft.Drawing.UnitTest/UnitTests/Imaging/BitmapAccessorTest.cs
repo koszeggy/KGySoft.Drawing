@@ -19,8 +19,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using KGySoft.CoreLibraries;
-using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;

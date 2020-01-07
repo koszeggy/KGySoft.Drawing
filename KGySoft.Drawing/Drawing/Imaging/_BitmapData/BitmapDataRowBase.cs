@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public virtual Color GetColor(int x) => this[x].ToColor();
+        public Color GetColor(int x) => this[x].ToColor();
 
         public void SetColor(int x, Color color) => this[x] = new Color32(color);
 

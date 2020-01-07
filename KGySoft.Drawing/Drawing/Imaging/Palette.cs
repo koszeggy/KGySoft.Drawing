@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Threading;
+using System.Linq;
 
 using KGySoft.Collections;
 
@@ -30,63 +30,60 @@ namespace KGySoft.Drawing.Imaging
 {
     internal class Palette
     {
-        #region Nested structs
-
-        #region ColorInfo struct
-
-        private struct ColorInfo
-        {
-            #region Fields
-
-            internal readonly Color32 Color;
-            internal readonly byte Saturation;
-            internal readonly byte Brightness;
-
-            #endregion
-
-            #region Constructors
-
-            internal ColorInfo(Color c) : this()
-            {
-                Color = new Color32(c);
-                Saturation = (byte)(c.GetSaturation() * 255);
-                Brightness = Color.GetBrightness();
-            }
-
-            #endregion
-        }
-
-        #endregion
-
-        #endregion
-
         #region Fields
 
-        private readonly Color[] entries;
-        private readonly byte alphaThreshold;
-        private readonly Color32 backColor;
-
-        private ColorInfo[] colors;
-        private int transparentIndex = -1;
-        private bool grayScale;
-        private Dictionary<Color32, int> color32ToIndex;
-        private IThreadSafeCacheAccessor<Color32, int> nearestColorsCache;
+        private readonly Color32[] entries;
+        private readonly int transparentIndex = -1;
+        private readonly bool isGrayscale;
+        private readonly Dictionary<Color32, int> color32ToIndex;
+        private readonly IThreadSafeCacheAccessor<Color32, int> nearestColorsCache;
 
         #endregion
 
         #region Properties
 
-        internal int Length => entries.Length;
+        internal int Count => entries.Length;
+        internal Color32[] Entries => entries;
+        internal byte AlphaThreshold { get; set; }
+        internal Color32 BackColor { get; set; }
 
         #endregion
 
         #region Constructors
 
-        internal Palette(Color[] entries, Color backColor, byte alphaThreshold)
+        internal Palette(Color32[] entries)
         {
             this.entries = entries;
-            this.alphaThreshold = alphaThreshold;
-            this.backColor = Color32.FromArgb(Byte.MaxValue, new Color32(backColor));
+            color32ToIndex = new Dictionary<Color32, int>(entries.Length);
+            isGrayscale = true;
+
+            for (int i = 0; i < entries.Length; i++)
+            {
+                Color32 c = entries[i];
+                if (!color32ToIndex.ContainsKey(c) && !(AlphaThreshold == 0 && c.A == 0))
+                    color32ToIndex[c] = i;
+
+                if (c.A == 0)
+                {
+                    if (transparentIndex < 0)
+                        transparentIndex = i;
+                }
+
+                if (isGrayscale)
+                    isGrayscale = c.R == c.G && c.R == c.B;
+            }
+
+            // Caching results is a problem because a true color image can have millions of colors.
+            // In order not to run out of memory we need to limit the cache size but that is another problem because:
+            // - ConcurrentDictionary.Count is ridiculously expensive. Unbounded cache would consume a lot of memory.
+            // - Cache.GetThreadSafeAccessor locks and if colors are never the same caching is nothing but an additional cost.
+            // Conclusion: Using Cache with a fairly large capacity without locking the item loader and hoping for the best.
+            nearestColorsCache = new Cache<Color32, int>(FindNearestColorIndex, 65536).GetThreadSafeAccessor();
+        }
+
+        internal Palette(Color[] entries)
+            : this(entries.Select(c => new Color32(c)).ToArray())
+        {
         }
 
         #endregion
@@ -95,107 +92,55 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal Color GetColor(int index)
+        internal Color32 GetColor(int index)
         {
             Debug.Assert(index < entries.Length, $"Valid color index expected in {nameof(GetColor)}");
             return entries[index];
         }
 
-        internal Color32 GetColor32(int index)
-        {
-            Debug.Assert(index < entries.Length, $"Valid color index expected in {nameof(GetColor)}");
-            if (colors == null)
-                InitColors();
-            return colors[index].Color;
-        }
-
         internal int GetColorIndex(Color32 c)
-        {
-            if (color32ToIndex == null)
-                InitColors();
-            if (color32ToIndex.TryGetValue(c, out int result))
-                return result;
+            => color32ToIndex.TryGetValue(c, out int result)
+                ? result
+                : nearestColorsCache[c];
 
-            // Caching results is a problem because a true color image can have millions of colors.
-            // In order not to run out of memory we need to limit the cache size but that is another problem because:
-            // - ConcurrentDictionary.Count is ridiculously expensive. Unbounded cache would consume a lot of memory.
-            // - Cache.GetThreadSafeAccessor locks and if colors are never the same it will be worse than without caching.
-            // Conclusion: Using Cache with a fairly large capacity without locking the item loader and hoping for the best.
-            Interlocked.CompareExchange(ref nearestColorsCache,
-                new Cache<Color32, int>(FindNearestColorIndex, 65536).GetThreadSafeAccessor(), null);
-            return nearestColorsCache[c];
-        }
+        internal Color32 GetNearestColor(Color32 c) => entries[GetColorIndex(c)];
 
         #endregion
 
         #region Private Methods
 
-        private void InitColors()
-        {
-            // internal type, cannot be accessed from outside so locking on this is alright
-            lock (this)
-            {
-                // lost race
-                if (colors != null)
-                    return;
-
-                var info = new ColorInfo[entries.Length];
-                var toIndex = new Dictionary<Color32, int>(info.Length);
-                grayScale = true;
-
-                for (int i = 0; i < info.Length; i++)
-                {
-                    var ci = new ColorInfo(entries[i]);
-                    var c = ci.Color;
-                    info[i] = ci;
-                    if (!toIndex.ContainsKey(c) && !(alphaThreshold == 0 && c.A == 0))
-                        toIndex[c] = i;
-
-                    if (c.A == 0)
-                    {
-                        if (transparentIndex < 0)
-                            transparentIndex = i;
-                    }
-
-                    if (grayScale)
-                        grayScale = ci.Saturation == 0;
-                }
-
-                color32ToIndex = toIndex;
-                colors = info;
-            }
-        }
-
         private int FindNearestColorIndex(Color32 color)
         {
-            // handling transparency
-            if (color.A < alphaThreshold && transparentIndex != -1)
+            // mapping alpha to full transparency
+            if (color.A < AlphaThreshold && transparentIndex != -1)
                 return transparentIndex;
 
             int minDiff = Int32.MaxValue;
             int resultIndex = 0;
 
             // blending the color with background
-            Color32 c = color.A != Byte.MaxValue ? color.BlendWithBackground(backColor) : color;
+            Color32 c = color.A != Byte.MaxValue ? color.BlendWithBackground(BackColor) : color;
 
-            for (int i = 0; i < colors.Length; i++)
+            for (int i = 0; i < entries.Length; i++)
             {
-                Color32 current = colors[i].Color;
+                Color32 current = entries[i];
 
                 // Skipping fully transparent palette colors if they are excluded by threshold
-                if (current.A == 0 && alphaThreshold == 0)
+                if (current.A == 0 && AlphaThreshold == 0)
                     continue;
 
-                // Exact match
+                // Exact match. Since color32ToIndex contains exact matches this can occur after alpha blending.
                 if (current == color)
                     return i;
 
                 // Blending also the current palette color (only for translucent palette entries, if any)
                 if (current.A != Byte.MaxValue)
-                    current = current.BlendWithBackground(backColor);
+                    current = current.BlendWithBackground(BackColor);
 
-                int diff = grayScale
-                    ? Math.Abs(colors[i].Brightness - c.GetBrightness())
+                // If the palette is grayscale, then distance is measured by perceived brightness;
+                // otherwise, by an Euclidean-like but much faster distance based on RGB components.
+                int diff = isGrayscale
+                    ? Math.Abs(entries[i].GetBrightness() - c.GetBrightness())
                     : Math.Abs(current.R - c.R) + Math.Abs(current.G - c.G) + Math.Abs(current.B - c.B);
 
                 // new closest match

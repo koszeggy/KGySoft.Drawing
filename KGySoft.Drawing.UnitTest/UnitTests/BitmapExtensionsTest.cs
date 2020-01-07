@@ -19,7 +19,8 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using System.Linq;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
 using NUnit.Framework;
@@ -31,6 +32,41 @@ namespace KGySoft.Drawing.UnitTests
     [TestFixture]
     public class BitmapExtensionsTest : TestBase
     {
+        #region Fields
+
+        private static object[][] quantizeTestSource =
+        {
+            new object[] { "RGB888 Black", PredefinedColorsQuantizer.Rgb888(), 1 << 24 },
+            new object[] { "RGB888 White", PredefinedColorsQuantizer.Rgb888(Color.White), 1 << 24 },
+            new object[] { "RGB565 Black", PredefinedColorsQuantizer.Rgb565(), 1 << 16 },
+            new object[] { "RGB565 White", PredefinedColorsQuantizer.Rgb565(Color.White), 1 << 16 },
+            new object[] { "RGB555 Black", PredefinedColorsQuantizer.Rgb555(), 1 << 15 },
+            new object[] { "RGB555 White", PredefinedColorsQuantizer.Rgb555(Color.White), 1 << 15 },
+            new object[] { "ARGB1555 Black 50%", PredefinedColorsQuantizer.Argb1555(), (1 << 15) + 1 },
+            new object[] { "ARGB1555 White 50%", PredefinedColorsQuantizer.Argb1555(Color.White), (1 << 15) + 1 },
+            new object[] { "ARGB1555 Black 0", PredefinedColorsQuantizer.Argb1555(default, 0), (1 << 15) + 1 },
+            new object[] { "ARGB1555 Black 1", PredefinedColorsQuantizer.Argb1555(default, 1), (1 << 15) + 1 },
+            new object[] { "ARGB1555 Black 254", PredefinedColorsQuantizer.Argb1555(default, 254), (1 << 15) + 1 },
+            new object[] { "RGB332 Black", PredefinedColorsQuantizer.Rgb332(), 256 },
+            new object[] { "RGB332 White", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
+            new object[] { "Grayscale Black", PredefinedColorsQuantizer.Grayscale(), 256 },
+            new object[] { "Grayscale White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
+            new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 256 },
+            new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 256 },
+            new object[] { "BW Blue", PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), 2 },
+            new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
+            new object[] { "Default8Bpp Black", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
+            new object[] { "Default8Bpp White", PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.White), 256 },
+            new object[] { "Default4Bpp Black", PredefinedColorsQuantizer.SystemDefault4BppPalette(), 16 },
+            new object[] { "Default4Bpp White", PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White), 16 },
+            new object[] { "Default1Bpp Black", PredefinedColorsQuantizer.SystemDefault1BppPalette(), 2 },
+            new object[] { "Default1Bpp White", PredefinedColorsQuantizer.SystemDefault1BppPalette(Color.White), 2 },
+            new object[] { "Custom Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
+            new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
+        };
+
+        #endregion
+
         #region Methods
 
         [Test]
@@ -125,6 +161,18 @@ namespace KGySoft.Drawing.UnitTests
         public void ToCursorHandleTest()
         {
             AssertPlatformDependent(() => Assert.AreNotEqual(IntPtr.Zero, (IntPtr)Icons.Information.ToAlphaBitmap().ToCursorHandle()), PlatformID.Win32NT);
+        }
+
+        [TestCaseSource(nameof(quantizeTestSource))]
+        public void QuantizeTest(string testName, IQuantizer quantizer, int maxColors)
+        {
+            //using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
+            using Bitmap ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            ref32bpp.Quantize(quantizer);
+            int colors = ref32bpp.GetColors().Length;
+            Console.WriteLine($"{testName} - {colors} colors");
+            Assert.LessOrEqual(colors, maxColors);
+            SaveImage(testName, ref32bpp);
         }
 
         #endregion

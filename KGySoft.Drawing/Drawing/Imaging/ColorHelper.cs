@@ -171,7 +171,10 @@ namespace KGySoft.Drawing.Imaging
                 : new Color32(lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
-        internal static byte GetBrightness(this Color32 c) => (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
+        internal static byte GetBrightness(this Color32 c)
+            => c.R == c.G && c.R == c.B
+                ? c.R
+                : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
 
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {

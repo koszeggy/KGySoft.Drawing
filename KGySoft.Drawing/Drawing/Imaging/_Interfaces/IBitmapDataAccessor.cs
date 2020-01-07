@@ -47,6 +47,10 @@ namespace KGySoft.Drawing.Imaging
 
         IBitmapDataRow FirstRow { get; }
 
+        Color BackColor { get; set; }
+
+        byte AlphaThreshold { get; set; }
+
         #endregion
 
         #region Indexers

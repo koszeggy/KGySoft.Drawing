@@ -146,15 +146,19 @@ namespace KGySoft.Drawing
                     }
                 }
 
-                using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly, backColor, alphaThreshold))
-                using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
+                using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly))
+                using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly))
                 {
+                    target.BackColor = backColor;
+                    target.AlphaThreshold = alphaThreshold;
+
                     // TODO: parallel
                     BitmapDataRowBase rowSrc = source.GetRow(0);
                     BitmapDataRowBase rowDst = target.GetRow(0);
+                    int width = source.Width;
                     do
                     {
-                        for (int x = 0; x < source.Width; x++)
+                        for (int x = 0; x < width; x++)
                             rowDst.DoSetColor32(x, rowSrc.DoGetColor32(x));
                     } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
                 }
