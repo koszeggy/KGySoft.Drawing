@@ -63,7 +63,9 @@ namespace KGySoft.Drawing.Imaging
 
                 internal Octree(int maxColors)
                 {
-                    this.MaxColors = maxColors;
+                    MaxColors = maxColors;
+
+                    // bits per pixel is actually ceiling of log2(maxColors)
                     for (int n = maxColors - 1; n > 0; n >>= 1)
                         Bpp++;
 
@@ -99,7 +101,10 @@ namespace KGySoft.Drawing.Imaging
 
                     var result = new Color32[ColorCount];
                     int palIndex = 0;
-                    root.PopulatePalette(result, ref palIndex);
+                    root.PopulatePalette(result, ref palIndex, ref leavesCount);
+                    Debug.Assert(leavesCount == 0);
+
+                    // If transparent color is needed, then it will be automatically the last color in the result
                     return result;
                 }
 
@@ -170,7 +175,8 @@ namespace KGySoft.Drawing.Imaging
                         if (children == null)
                             return result;
 
-                        // Adding also the direct children because reducing the tree starts at level BPP - 2
+                        // Adding also the direct children because reducing the tree starts at level BPP - 2.
+                        // And due to reducing no more than two levels can have non-empty nodes.
                         for (int index = 0; index < 8; index++)
                         {
                             OctreeNode node = children[index];
@@ -194,9 +200,6 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Constructors
 
-                /// <summary>
-                /// Initializes a new instance of the <see cref="OctreeNode"/> class.
-                /// </summary>
                 internal OctreeNode(int level, Octree parent)
                 {
                     this.parent = parent;
@@ -231,11 +234,11 @@ namespace KGySoft.Drawing.Imaging
                     if (children == null)
                         children = new OctreeNode[8];
 
-                    // Generating a 0..7 index based on the color components and adding new branches on demand
+                    // Generating a 0..7 index based on the color components and adding new branches on demand.
                     int mask = 128 >> level;
                     int branchIndex = ((color.R & mask) == mask ? 4 : 0)
-                            | ((color.G & mask) == mask ? 2 : 0)
-                            | ((color.B & mask) == mask ? 1 : 0);
+                        | ((color.G & mask) == mask ? 2 : 0)
+                        | ((color.B & mask) == mask ? 1 : 0);
 
                     if (children[branchIndex] == null)
                         children[branchIndex] = new OctreeNode(level, parent);
@@ -255,7 +258,7 @@ namespace KGySoft.Drawing.Imaging
 
                         Debug.Assert(!node.IsEmpty);
 
-                        // Decreasing only if this node not becoming a "leaf" while cutting a branch down.
+                        // Decreasing only if this node is not becoming a "leaf" while cutting a branch down.
                         if (!IsEmpty)
                             leavesCount--;
 
@@ -267,19 +270,21 @@ namespace KGySoft.Drawing.Imaging
                         children[i] = null;
 
                         // As we can return before merging all children,
-                        // leavesCount may include not-quite leaf elements in the end.
+                        // leavesCount may include "not-quite leaf" elements in the end.
                         if (parent.ColorCount == parent.MaxColors)
                             return;
                     }
                 }
 
-                internal void PopulatePalette(Color32[] result, ref int palIndex)
+                internal void PopulatePalette(Color32[] result, ref int palIndex, ref int remainingColors)
                 {
+                    // if a non-empty node is found, adding it to the resulting palette
                     if (!IsEmpty)
                     {
                         result[palIndex] = ToColor();
                         palIndex += 1;
-                        if (palIndex == parent.MaxColors)
+                        remainingColors -= 1;
+                        if (remainingColors == 0)
                             return;
                     }
 
@@ -290,8 +295,8 @@ namespace KGySoft.Drawing.Imaging
                     {
                         if (child == null)
                             continue;
-                        child.PopulatePalette(result, ref palIndex);
-                        if (palIndex == parent.MaxColors)
+                        child.PopulatePalette(result, ref palIndex, ref remainingColors);
+                        if (remainingColors == 0)
                             return;
                     }
                 }
@@ -317,8 +322,7 @@ namespace KGySoft.Drawing.Imaging
             #region Fields
 
             private readonly OctreeQuantizer quantizer;
-
-            private Palette palette;
+            private readonly Palette palette;
 
             #endregion
 
@@ -333,7 +337,7 @@ namespace KGySoft.Drawing.Imaging
             internal OctreeQuantizerSession(OctreeQuantizer quantizer, IBitmapDataAccessor source)
             {
                 this.quantizer = quantizer;
-                InitializePalette(source);
+                palette = InitializePalette(source);
             }
 
             #endregion
@@ -352,7 +356,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private void InitializePalette(IBitmapDataAccessor source)
+            private Palette InitializePalette(IBitmapDataAccessor source)
             {
                 Octree octree = new Octree(quantizer.maxColors);
                 int width = source.Width;
@@ -371,7 +375,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 } while (row.MoveNextRow());
 
-                palette = new Palette(octree.GeneratePalette())
+                return new Palette(octree.GeneratePalette())
                 {
                     AlphaThreshold = quantizer.alphaThreshold,
                     BackColor = quantizer.backColor
