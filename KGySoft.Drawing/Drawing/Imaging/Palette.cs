@@ -125,8 +125,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 Color32 current = entries[i];
 
-                // Skipping fully transparent palette colors if they are excluded by threshold
-                if (current.A == 0 && AlphaThreshold == 0)
+                // Skipping fully transparent palette colors because they were handled above
+                if (current.A == 0)
                     continue;
 
                 // Exact match. Since color32ToIndex contains exact matches this can occur after alpha blending.

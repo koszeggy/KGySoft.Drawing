@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a quantizer to arbitrary colors. Use the static members to retrieve an instance.
     /// </summary>
-    public class PredefinedColorsQuantizer : IQuantizer
+    public sealed class PredefinedColorsQuantizer : IQuantizer
     {
         #region Nested classes
 

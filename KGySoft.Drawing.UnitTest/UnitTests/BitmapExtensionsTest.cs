@@ -20,6 +20,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
@@ -63,6 +64,18 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "Default1Bpp White", PredefinedColorsQuantizer.SystemDefault1BppPalette(Color.White), 2 },
             new object[] { "Custom Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
             new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
+            new object[] { "Octree 256 Black", new OctreeQuantizer(256, Color.Black, 0), 256 },
+            new object[] { "Octree 256 White", new OctreeQuantizer(256, Color.White, 0), 256 },
+            new object[] { "Octree 256 TR", new OctreeQuantizer(256, Color.White), 256 },
+            new object[] { "Octree 16 Black", new OctreeQuantizer(16, Color.Black, 0), 16 },
+            new object[] { "Octree 16 White", new OctreeQuantizer(16, Color.White, 0), 16 },
+            new object[] { "Octree 16 TR", new OctreeQuantizer(16, Color.White), 16 },
+            new object[] { "Octree 4 Black", new OctreeQuantizer(4, Color.Black, 0), 4 },
+            new object[] { "Octree 4 White", new OctreeQuantizer(4, Color.White, 0), 4 },
+            new object[] { "Octree 4 TR", new OctreeQuantizer(4, Color.White), 4 },
+            new object[] { "Octree 2 Black", new OctreeQuantizer(2, Color.Black, 0), 2 },
+            new object[] { "Octree 2 White", new OctreeQuantizer(2, Color.White, 0), 2 },
+            new object[] { "Octree 2 TR", new OctreeQuantizer(2, Color.White), 2 },
         };
 
         #endregion
