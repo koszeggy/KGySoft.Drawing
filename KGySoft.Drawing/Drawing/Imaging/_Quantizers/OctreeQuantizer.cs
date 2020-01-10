@@ -45,7 +45,6 @@ namespace KGySoft.Drawing.Imaging
                 private readonly OctreeNode root;
 
                 private int leavesCount;
-                private int transparentCount;
 
                 #endregion
 
@@ -55,15 +54,20 @@ namespace KGySoft.Drawing.Imaging
 
                 internal int Bpp { get; }
 
-                internal int ColorCount => leavesCount + Math.Sign(transparentCount);
+                internal int ColorCount => leavesCount + (HasTransparent ? 1 : 0);
+
+                internal bool HasTransparent { get; private set; }
+
+                internal int Size { get; }
 
                 #endregion
 
                 #region Constructors
 
-                internal Octree(int maxColors)
+                internal Octree(int maxColors, int size)
                 {
                     MaxColors = maxColors;
+                    Size = size;
 
                     // bits per pixel is actually ceiling of log2(maxColors)
                     for (int n = maxColors - 1; n > 0; n >>= 1)
@@ -85,7 +89,7 @@ namespace KGySoft.Drawing.Imaging
                 internal void AddColor(Color32 color)
                 {
                     if (color.A == 0)
-                        transparentCount++;
+                        HasTransparent = true;
                     else if (root.AddColor(color, 0))
                         leavesCount++;
                 }
@@ -97,12 +101,15 @@ namespace KGySoft.Drawing.Imaging
                     if (ColorCount > MaxColors)
                         ReduceTree();
 
-                    Debug.Assert(leavesCount > 0 && ColorCount <= MaxColors);
+                    Debug.Assert(ColorCount <= MaxColors);
 
                     var result = new Color32[ColorCount];
-                    int palIndex = 0;
-                    root.PopulatePalette(result, ref palIndex, ref leavesCount);
-                    Debug.Assert(leavesCount == 0);
+                    if (leavesCount > 0)
+                    {
+                        int palIndex = 0;
+                        root.PopulatePalette(result, ref palIndex, ref leavesCount);
+                        Debug.Assert(leavesCount == 0);
+                    }
 
                     // If transparent color is needed, then it will be automatically the last color in the result
                     return result;
@@ -121,7 +128,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // Sorting nodes of the current level (least significant ones first)
-                        // while merging them into their parents until we go under maxColors
+                        // while merging them into their parents until we go under MaxColors
                         List<OctreeNode> nodes = levels[level];
                         nodes.Sort((a, b) => a.DeepPixelCount - b.DeepPixelCount);
 
@@ -247,8 +254,40 @@ namespace KGySoft.Drawing.Imaging
 
                 internal void MergeNodes(ref int leavesCount)
                 {
+                    #region Local Methods
+
+                    static int CompareByBrightness(OctreeNode a, OctreeNode b)
+                    {
+                        if (a == null || b == null)
+                            return Int32.MinValue;
+
+                        Color32 ca = a.ToColor();
+                        Color32 cb = b.ToColor();
+                        return ca.GetBrightness() - cb.GetBrightness();
+                    }
+
+                    int CompareByWeightedBrightness(OctreeNode a, OctreeNode b)
+                    {
+                        if (a == null || b == null)
+                            return Int32.MinValue;
+
+                        Color32 ca = a.ToColor();
+                        Color32 cb = b.ToColor();
+                        return (int)(ca.GetBrightness() * (a.DeepPixelCount / (float)parent.Size) - cb.GetBrightness() * (b.DeepPixelCount / (float)parent.Size));
+                    }
+
+                    #endregion
+
                     if (children == null)
                         return;
+
+                    // If there are fewer than 8 removals left we sort them to merge the least relevant ones first.
+                    // For 2 colors (and 3 + TR) the distance is measured purely by brightness to avoid returning very similar colors.
+                    // Note: reordering children is not a problem because we don't add more colors in merging phase.
+                    if (parent.ColorCount - parent.MaxColors < 8)
+                        Array.Sort(children, parent.MaxColors - (parent.HasTransparent ? 1 : 0) <= 2
+                            ? (Comparison<OctreeNode>)CompareByBrightness
+                            : CompareByWeightedBrightness);
 
                     for (int i = 0; i < 8; i++)
                     {
@@ -306,9 +345,12 @@ namespace KGySoft.Drawing.Imaging
                 #region Private Methods
 
                 private Color32 ToColor()
-                    => pixelCount <= 1
-                    ? new Color32((byte)sumRed, (byte)sumGreen, (byte)sumBlue)
-                    : new Color32((byte)(sumRed / pixelCount), (byte)(sumGreen / pixelCount), (byte)(sumBlue / pixelCount));
+                {
+                    Debug.Assert(!IsEmpty);
+                    return pixelCount == 1
+                        ? new Color32((byte)sumRed, (byte)sumGreen, (byte)sumBlue)
+                        : new Color32((byte)(sumRed / pixelCount), (byte)(sumGreen / pixelCount), (byte)(sumBlue / pixelCount));
+                }
 
                 #endregion
 
@@ -358,7 +400,7 @@ namespace KGySoft.Drawing.Imaging
 
             private Palette InitializePalette(IBitmapDataAccessor source)
             {
-                Octree octree = new Octree(quantizer.maxColors);
+                Octree octree = new Octree(quantizer.maxColors, source.Width * source.Height);
                 int width = source.Width;
                 IBitmapDataRow row = source.FirstRow;
                 do

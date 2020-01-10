@@ -200,15 +200,19 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the colors used in the defined <paramref name="bitmap"/>. A limit can be defined in <paramref name="maxColors"/>.
         /// </summary>
-        /// <param name="bitmap">The bitmap to get its colors. When it is indexed, its palette is returned and <paramref name="maxColors"/> is ignored.</param>
-        /// <param name="maxColors">A limit of the returned colors. This parameter is ignored for indexed bitmaps. Use 0 for no limit. This parameter is optional.
+        /// <param name="bitmap">The bitmap to get its colors. When it is indexed and the <paramref name="forceScanningContent"/> parameter is <see langword="false"/>,
+        /// then its palette is returned and <paramref name="maxColors"/> is ignored.</param>
+        /// <param name="maxColors">A limit of the returned colors. If <paramref name="forceScanningContent"/> parameter is <see langword="false"/>, then
+        /// this parameter is ignored for indexed bitmaps. Use 0 for no limit. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
+        /// <param name="forceScanningContent"><see langword="true"/>&#160;to force scanning the actual image content even if the specified <paramref name="bitmap"/> is
+        /// indexed and has a palette.</param>
         /// <remarks>The method is optimized for <see cref="PixelFormat.Format32bppRgb"/> and <see cref="PixelFormat.Format32bppArgb"/> formats.</remarks>
         /// <returns>An array of <see cref="Color"/> entries.</returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Color[] GetColors(this Bitmap bitmap, int maxColors = 0)
+        public static Color[] GetColors(this Bitmap bitmap, int maxColors = 0, bool forceScanningContent = false)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -219,7 +223,7 @@ namespace KGySoft.Drawing
 
             var colors = new HashSet<int>();
             PixelFormat pixelFormat = bitmap.PixelFormat;
-            if (pixelFormat.ToBitsPerPixel() <= 8)
+            if (pixelFormat.IsIndexed() && !forceScanningContent)
                 return bitmap.Palette.Entries;
 
             int transparent = Color.Transparent.ToArgb();
