@@ -339,8 +339,16 @@ namespace KGySoft.Drawing
                 // TODO: parallel
                 IBitmapDataRow row = bitmapData.FirstRow;
                 int width = bitmapData.Width;
+                bool byPosition = session.SupportsPositionalResult;
                 do
                 {
+                    if (byPosition)
+                    {
+                        for (int x = 0; x < width; x++)
+                            row[x] = session.GetQuantizedColorByPosition(x, row.Index);
+                        continue;
+                    }
+
                     for (int x = 0; x < width; x++)
                         row[x] = session.GetQuantizedColor(row[x]);
                 } while (row.MoveNextRow());
