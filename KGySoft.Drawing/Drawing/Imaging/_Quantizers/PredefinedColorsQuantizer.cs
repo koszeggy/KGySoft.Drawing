@@ -47,8 +47,6 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32[] Palette => null;
 
-            public bool SupportsPositionalResult => false;
-
             #endregion
 
             #region Constructors
@@ -69,8 +67,6 @@ namespace KGySoft.Drawing.Imaging
 
             public virtual Color32 GetQuantizedColor(Color32 c) =>
                 transform.Invoke(c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor));
-
-            public Color32 GetQuantizedColorByPosition(int x, int y) => throw new NotSupportedException(PublicResources.NotSupported);
 
             #endregion
         }
@@ -121,8 +117,6 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32[] Palette => palette.Entries;
 
-            public bool SupportsPositionalResult => false;
-
             #endregion
 
             #region Constructors
@@ -138,8 +132,6 @@ namespace KGySoft.Drawing.Imaging
             }
 
             public Color32 GetQuantizedColor(Color32 c) => palette.GetNearestColor(c);
-
-            public Color32 GetQuantizedColorByPosition(int x, int y) => throw new NotSupportedException(PublicResources.NotSupported);
 
             #endregion
         }

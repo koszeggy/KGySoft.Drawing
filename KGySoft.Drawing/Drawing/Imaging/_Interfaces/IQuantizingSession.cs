@@ -31,8 +31,6 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         Color32[] Palette { get; }
 
-        bool SupportsPositionalResult { get; }
-
         #endregion
 
         #region Methods
@@ -43,8 +41,6 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="origColor">The original color to be quantized.</param>
         /// <returns>The quantized color.</returns>
         Color32 GetQuantizedColor(Color32 origColor);
-
-        Color32 GetQuantizedColorByPosition(int x, int y);
 
         #endregion
     }

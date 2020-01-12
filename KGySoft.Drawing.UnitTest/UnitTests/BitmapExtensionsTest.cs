@@ -97,6 +97,22 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "MedianCut 4 TR", new MedianCutQuantizer(4, Color.White), 4 },
             new object[] { "MedianCut 3 TR", new MedianCutQuantizer(3, Color.White), 3 },
             new object[] { "MedianCut 2 TR", new MedianCutQuantizer(2, Color.White), 2 },
+
+            new object[] { "Wu 256 Black", new WuQuantizer(256, Color.Black, 0), 256 },
+            new object[] { "Wu 16 Black", new WuQuantizer(16, Color.Black, 0), 16 },
+            new object[] { "Wu 4 Black", new WuQuantizer(4, Color.Black, 0), 4 },
+            new object[] { "Wu 3 Black", new WuQuantizer(3, Color.Black, 0), 3 },
+            new object[] { "Wu 2 Black", new WuQuantizer(2, Color.Black, 0), 2 },
+            new object[] { "Wu 256 White", new WuQuantizer(256, Color.White, 0), 256 },
+            new object[] { "Wu 16 White", new WuQuantizer(16, Color.White, 0), 16 },
+            new object[] { "Wu 4 White", new WuQuantizer(4, Color.White, 0), 4 },
+            new object[] { "Wu 3 White", new WuQuantizer(3, Color.White, 0), 3 },
+            new object[] { "Wu 2 White", new WuQuantizer(2, Color.White, 0), 2 },
+            new object[] { "Wu 256 TR", new WuQuantizer(256, Color.White), 256 },
+            new object[] { "Wu 16 TR", new WuQuantizer(16, Color.White), 16 },
+            new object[] { "Wu 4 TR", new WuQuantizer(4, Color.White), 4 },
+            new object[] { "Wu 3 TR", new WuQuantizer(3, Color.White), 3 },
+            new object[] { "Wu 2 TR", new WuQuantizer(2, Color.White), 2 },
         };
 
         #endregion
@@ -214,18 +230,18 @@ namespace KGySoft.Drawing.UnitTests
         {
             var files = new string[]
             {
-                //@"D:\Dokumentumok\Képek\Formats\_test\Information.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\lena.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\Information.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
+                @"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
+                @"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\lena.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
-                //@"D:\Letolt\MYSTY8RQER62.jpg",
+                @"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
+                @"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
+                @"D:\Letolt\MYSTY8RQER62.jpg",
             };
 
             foreach (string file in files)
@@ -235,7 +251,7 @@ namespace KGySoft.Drawing.UnitTests
                 int colors = bitmap.GetColors(forceScanningContent: true).Length;
                 Console.WriteLine($"{testName} - {colors} colors");
                 Assert.LessOrEqual(colors, maxColors);
-                SaveImage($"{Path.GetFileNameWithoutExtension(file)} {maxColors} {testName}", bitmap);
+                SaveImage($"{Path.GetFileNameWithoutExtension(file)} {maxColors} {testName} Euclidean", bitmap);
             }
         }
 
@@ -244,8 +260,9 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
             new PerformanceTest { Iterations = 1 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new OctreeQuantizer(16)))
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new MedianCutQuantizer(16)))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new OctreeQuantizer()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new MedianCutQuantizer()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new WuQuantizer()))
                 .DoTest()
                 .DumpResults(Console.Out);
         }
