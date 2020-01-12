@@ -66,53 +66,53 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "Custom Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
             new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
 
-            new object[] { "Octree 256 Black", new OctreeQuantizer(256, Color.Black, 0), 256 },
-            new object[] { "Octree 16 Black", new OctreeQuantizer(16, Color.Black, 0), 16 },
-            new object[] { "Octree 4 Black", new OctreeQuantizer(4, Color.Black, 0), 4 },
-            new object[] { "Octree 3 Black", new OctreeQuantizer(3, Color.Black, 0), 3 },
-            new object[] { "Octree 2 Black", new OctreeQuantizer(2, Color.Black, 0), 2 },
-            new object[] { "Octree 256 White", new OctreeQuantizer(256, Color.White, 0), 256 },
-            new object[] { "Octree 16 White", new OctreeQuantizer(16, Color.White, 0), 16 },
-            new object[] { "Octree 4 White", new OctreeQuantizer(4, Color.White, 0), 4 },
-            new object[] { "Octree 3 White", new OctreeQuantizer(3, Color.White, 0), 3 },
-            new object[] { "Octree 2 White", new OctreeQuantizer(2, Color.White, 0), 2 },
-            new object[] { "Octree 256 TR", new OctreeQuantizer(256, Color.White), 256 },
-            new object[] { "Octree 16 TR", new OctreeQuantizer(16, Color.White), 16 },
-            new object[] { "Octree 4 TR", new OctreeQuantizer(4, Color.White), 4 },
-            new object[] { "Octree 3 TR", new OctreeQuantizer(3, Color.White), 3 },
-            new object[] { "Octree 2 TR", new OctreeQuantizer(2, Color.White), 2 },
+            new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
+            new object[] { "Octree 16 Black", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0), 16 },
+            new object[] { "Octree 4 Black", OptimizedPaletteQuantizer.Octree(4, Color.Black, 0), 4 },
+            new object[] { "Octree 3 Black", OptimizedPaletteQuantizer.Octree(3, Color.Black, 0), 3 },
+            new object[] { "Octree 2 Black", OptimizedPaletteQuantizer.Octree(2, Color.Black, 0), 2 },
+            new object[] { "Octree 256 White", OptimizedPaletteQuantizer.Octree(256, Color.White, 0), 256 },
+            new object[] { "Octree 16 White", OptimizedPaletteQuantizer.Octree(16, Color.White, 0), 16 },
+            new object[] { "Octree 4 White", OptimizedPaletteQuantizer.Octree(4, Color.White, 0), 4 },
+            new object[] { "Octree 3 White", OptimizedPaletteQuantizer.Octree(3, Color.White, 0), 3 },
+            new object[] { "Octree 2 White", OptimizedPaletteQuantizer.Octree(2, Color.White, 0), 2 },
+            new object[] { "Octree 256 TR", OptimizedPaletteQuantizer.Octree(256, Color.White), 256 },
+            new object[] { "Octree 16 TR", OptimizedPaletteQuantizer.Octree(16, Color.White), 16 },
+            new object[] { "Octree 4 TR", OptimizedPaletteQuantizer.Octree(4, Color.White), 4 },
+            new object[] { "Octree 3 TR", OptimizedPaletteQuantizer.Octree(3, Color.White), 3 },
+            new object[] { "Octree 2 TR", OptimizedPaletteQuantizer.Octree(2, Color.White), 2 },
 
-            new object[] { "MedianCut 256 Black", new MedianCutQuantizer(256, Color.Black, 0), 256 },
-            new object[] { "MedianCut 16 Black", new MedianCutQuantizer(16, Color.Black, 0), 16 },
-            new object[] { "MedianCut 4 Black", new MedianCutQuantizer(4, Color.Black, 0), 4 },
-            new object[] { "MedianCut 3 Black", new MedianCutQuantizer(3, Color.Black, 0), 3 },
-            new object[] { "MedianCut 2 Black", new MedianCutQuantizer(2, Color.Black, 0), 2 },
-            new object[] { "MedianCut 256 White", new MedianCutQuantizer(256, Color.White, 0), 256 },
-            new object[] { "MedianCut 16 White", new MedianCutQuantizer(16, Color.White, 0), 16 },
-            new object[] { "MedianCut 4 White", new MedianCutQuantizer(4, Color.White, 0), 4 },
-            new object[] { "MedianCut 3 White", new MedianCutQuantizer(3, Color.White, 0), 3 },
-            new object[] { "MedianCut 2 White", new MedianCutQuantizer(2, Color.White, 0), 2 },
-            new object[] { "MedianCut 256 TR", new MedianCutQuantizer(256, Color.White), 256 },
-            new object[] { "MedianCut 16 TR", new MedianCutQuantizer(16, Color.White), 16 },
-            new object[] { "MedianCut 4 TR", new MedianCutQuantizer(4, Color.White), 4 },
-            new object[] { "MedianCut 3 TR", new MedianCutQuantizer(3, Color.White), 3 },
-            new object[] { "MedianCut 2 TR", new MedianCutQuantizer(2, Color.White), 2 },
+            new object[] { "MedianCut 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
+            new object[] { "MedianCut 16 Black", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0), 16 },
+            new object[] { "MedianCut 4 Black", OptimizedPaletteQuantizer.MedianCut(4, Color.Black, 0), 4 },
+            new object[] { "MedianCut 3 Black", OptimizedPaletteQuantizer.MedianCut(3, Color.Black, 0), 3 },
+            new object[] { "MedianCut 2 Black", OptimizedPaletteQuantizer.MedianCut(2, Color.Black, 0), 2 },
+            new object[] { "MedianCut 256 White", OptimizedPaletteQuantizer.MedianCut(256, Color.White, 0), 256 },
+            new object[] { "MedianCut 16 White", OptimizedPaletteQuantizer.MedianCut(16, Color.White, 0), 16 },
+            new object[] { "MedianCut 4 White", OptimizedPaletteQuantizer.MedianCut(4, Color.White, 0), 4 },
+            new object[] { "MedianCut 3 White", OptimizedPaletteQuantizer.MedianCut(3, Color.White, 0), 3 },
+            new object[] { "MedianCut 2 White", OptimizedPaletteQuantizer.MedianCut(2, Color.White, 0), 2 },
+            new object[] { "MedianCut 256 TR", OptimizedPaletteQuantizer.MedianCut(256, Color.White), 256 },
+            new object[] { "MedianCut 16 TR", OptimizedPaletteQuantizer.MedianCut(16, Color.White), 16 },
+            new object[] { "MedianCut 4 TR", OptimizedPaletteQuantizer.MedianCut(4, Color.White), 4 },
+            new object[] { "MedianCut 3 TR", OptimizedPaletteQuantizer.MedianCut(3, Color.White), 3 },
+            new object[] { "MedianCut 2 TR", OptimizedPaletteQuantizer.MedianCut(2, Color.White), 2 },
 
-            new object[] { "Wu 256 Black", new WuQuantizer(256, Color.Black, 0), 256 },
-            new object[] { "Wu 16 Black", new WuQuantizer(16, Color.Black, 0), 16 },
-            new object[] { "Wu 4 Black", new WuQuantizer(4, Color.Black, 0), 4 },
-            new object[] { "Wu 3 Black", new WuQuantizer(3, Color.Black, 0), 3 },
-            new object[] { "Wu 2 Black", new WuQuantizer(2, Color.Black, 0), 2 },
-            new object[] { "Wu 256 White", new WuQuantizer(256, Color.White, 0), 256 },
-            new object[] { "Wu 16 White", new WuQuantizer(16, Color.White, 0), 16 },
-            new object[] { "Wu 4 White", new WuQuantizer(4, Color.White, 0), 4 },
-            new object[] { "Wu 3 White", new WuQuantizer(3, Color.White, 0), 3 },
-            new object[] { "Wu 2 White", new WuQuantizer(2, Color.White, 0), 2 },
-            new object[] { "Wu 256 TR", new WuQuantizer(256, Color.White), 256 },
-            new object[] { "Wu 16 TR", new WuQuantizer(16, Color.White), 16 },
-            new object[] { "Wu 4 TR", new WuQuantizer(4, Color.White), 4 },
-            new object[] { "Wu 3 TR", new WuQuantizer(3, Color.White), 3 },
-            new object[] { "Wu 2 TR", new WuQuantizer(2, Color.White), 2 },
+            new object[] { "Wu 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
+            new object[] { "Wu 16 Black", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0), 16 },
+            new object[] { "Wu 4 Black", OptimizedPaletteQuantizer.MedianCut(4, Color.Black, 0), 4 },
+            new object[] { "Wu 3 Black", OptimizedPaletteQuantizer.MedianCut(3, Color.Black, 0), 3 },
+            new object[] { "Wu 2 Black", OptimizedPaletteQuantizer.MedianCut(2, Color.Black, 0), 2 },
+            new object[] { "Wu 256 White", OptimizedPaletteQuantizer.MedianCut(256, Color.White, 0), 256 },
+            new object[] { "Wu 16 White", OptimizedPaletteQuantizer.MedianCut(16, Color.White, 0), 16 },
+            new object[] { "Wu 4 White", OptimizedPaletteQuantizer.MedianCut(4, Color.White, 0), 4 },
+            new object[] { "Wu 3 White", OptimizedPaletteQuantizer.MedianCut(3, Color.White, 0), 3 },
+            new object[] { "Wu 2 White", OptimizedPaletteQuantizer.MedianCut(2, Color.White, 0), 2 },
+            new object[] { "Wu 256 TR", OptimizedPaletteQuantizer.MedianCut(256, Color.White), 256 },
+            new object[] { "Wu 16 TR", OptimizedPaletteQuantizer.MedianCut(16, Color.White), 16 },
+            new object[] { "Wu 4 TR", OptimizedPaletteQuantizer.MedianCut(4, Color.White), 4 },
+            new object[] { "Wu 3 TR", OptimizedPaletteQuantizer.MedianCut(3, Color.White), 3 },
+            new object[] { "Wu 2 TR", OptimizedPaletteQuantizer.MedianCut(2, Color.White), 2 },
         };
 
         #endregion
@@ -255,14 +255,14 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
-        [Test]
-        public void PerfTest()
+        [Test, Explicit]
+        public void QuantizerPerformanceTest()
         {
             using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
             new PerformanceTest { Iterations = 1 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new OctreeQuantizer()))
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new MedianCutQuantizer()))
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(new WuQuantizer()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.Octree()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.MedianCut()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.MedianCut()))
                 .DoTest()
                 .DumpResults(Console.Out);
         }

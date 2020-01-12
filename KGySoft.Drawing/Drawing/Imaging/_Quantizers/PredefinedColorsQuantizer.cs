@@ -26,7 +26,8 @@ using System.Linq;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a quantizer to arbitrary colors. Use the static members to retrieve an instance.
+    /// Represents a quantizer with predefined set of colors. Use the static members to retrieve an instance.
+    /// <br/>For using optimized colors for a source image see also the <see cref="OptimizedPaletteQuantizer"/> class.
     /// </summary>
     public sealed class PredefinedColorsQuantizer : IQuantizer
     {
@@ -273,7 +274,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24 bit RGB ones.
         /// </summary>
-        /// <param name="backColor">Colors with alpha (transparency) will be blended by the specified <paramref name="backColor"/> before quantization. The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// <param name="backColor">Colors with alpha (transparency) will be blended by the specified <paramref name="backColor"/> before quantization.
+        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24 bit RGB ones.</returns>
         public static PredefinedColorsQuantizer Rgb888(Color backColor = default)

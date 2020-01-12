@@ -289,7 +289,7 @@ namespace KGySoft.Drawing
         /// background color, which will be bended with color to set. The alpha value (<see cref="Color.A"/> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has transparent color, then determines the lowest
-        /// alpha value, which should not be considered as transparent. This parameter is optional.
+        /// alpha value of a color, which should not be considered as transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns></returns>
         /// <remarks>

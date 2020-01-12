@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: OctreeQuantizer.cs
+//  File: OptimizedPaletteQuantizer.Octree.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -19,148 +19,22 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    public sealed class OctreeQuantizer : IQuantizer
+    public sealed partial class OptimizedPaletteQuantizer
     {
-        #region Nested classes
-
-        #region OctreeQuantizerSession class
-
-        private sealed class OctreeQuantizerSession : IQuantizingSession
+        private sealed class OctreeQuantizer : IOptimizedPaletteQuantizer
         {
-            #region Nested classes
-
-            #region Octree class
-
-            private sealed class Octree
-            {
-                #region Fields
-
-                private readonly List<OctreeNode>[] levels;
-                private readonly OctreeNode root;
-
-                private int leavesCount;
-
-                #endregion
-
-                #region Properties
-
-                internal int MaxColors { get; }
-
-                internal int Bpp { get; }
-
-                internal int ColorCount => leavesCount + (HasTransparent ? 1 : 0);
-
-                internal bool HasTransparent { get; private set; }
-
-                internal int Size { get; }
-
-                #endregion
-
-                #region Constructors
-
-                internal Octree(int maxColors, int size)
-                {
-                    MaxColors = maxColors;
-                    Size = size;
-
-                    // bits per pixel is actually ceiling of log2(maxColors)
-                    for (int n = maxColors - 1; n > 0; n >>= 1)
-                        Bpp++;
-
-                    levels = new List<OctreeNode>[Bpp];
-                    for (int level = 0; level < Bpp; level++)
-                        levels[level] = new List<OctreeNode>();
-
-                    root = new OctreeNode(-1, this);
-                }
-
-                #endregion
-
-                #region Methods
-
-                #region Internal Methods
-
-                internal void AddColor(Color32 color)
-                {
-                    if (color.A == 0)
-                        HasTransparent = true;
-                    else if (root.AddColor(color, 0))
-                        leavesCount++;
-                }
-
-                internal void AddToLevel(OctreeNode octreeNode, int level) => levels[level].Add(octreeNode);
-
-                internal Color32[] GeneratePalette()
-                {
-                    if (ColorCount > MaxColors)
-                        ReduceTree();
-
-                    Debug.Assert(ColorCount <= MaxColors);
-
-                    var result = new Color32[ColorCount];
-                    if (leavesCount > 0)
-                    {
-                        int palIndex = 0;
-                        root.PopulatePalette(result, ref palIndex, ref leavesCount);
-                        Debug.Assert(leavesCount == 0);
-                    }
-
-                    // If transparent color is needed, then it will be automatically the last color in the result
-                    return result;
-                }
-
-                #endregion
-
-                #region Private Methods
-
-                private void ReduceTree()
-                {
-                    // Scanning all levels towards root. Leaves are skipped (hence -2) because they are not reducible.
-                    for (int level = Bpp - 2; level >= 0; level--)
-                    {
-                        if (levels[level].Count <= 0)
-                            continue;
-
-                        // Sorting nodes of the current level (least significant ones first)
-                        // while merging them into their parents until we go under MaxColors
-                        List<OctreeNode> nodes = levels[level];
-                        nodes.Sort((a, b) => a.DeepPixelCount - b.DeepPixelCount);
-
-                        foreach (OctreeNode node in nodes)
-                        {
-                            // As merging is stopped when we reach MaxColors leavesCount may include
-                            // some half-merged non-leaf nodes as well.
-                            node.MergeNodes(ref leavesCount);
-                            if (ColorCount <= MaxColors)
-                                return;
-                        }
-                    }
-
-                    // If we are here, we need to reduce also the root node (less than 8 colors or 8 colors + transparency)
-                    root.MergeNodes(ref leavesCount);
-                    Debug.Assert(ColorCount == MaxColors);
-                }
-
-                #endregion
-
-                #endregion
-            }
-
-            #endregion
-
-            #region OctreeNode class
+            #region Nested Types
 
             private sealed class OctreeNode
             {
                 #region Fields
 
-                private readonly Octree parent;
+                private readonly OctreeQuantizer parent;
 
                 private uint sumRed;
                 private uint sumGreen;
@@ -207,13 +81,13 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Constructors
 
-                internal OctreeNode(int level, Octree parent)
+                internal OctreeNode(int level, OctreeQuantizer parent)
                 {
                     this.parent = parent;
-                    Debug.Assert(level < parent.Bpp);
+                    Debug.Assert(level < parent.bpp);
 
                     if (level >= 0)
-                        parent.AddToLevel(this, level);
+                        parent.levels[level].Add(this);
                 }
 
                 #endregion
@@ -225,7 +99,7 @@ namespace KGySoft.Drawing.Imaging
                 internal bool AddColor(Color32 color, int level)
                 {
                     // In the populating phase all colors are summed up in leaves at deepest level.
-                    if (level == parent.Bpp)
+                    if (level == parent.bpp)
                     {
                         sumRed += color.R;
                         sumGreen += color.G;
@@ -236,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
                         return pixelCount == 1;
                     }
 
-                    Debug.Assert(level < parent.Bpp);
+                    Debug.Assert(level < parent.bpp);
 
                     if (children == null)
                         children = new OctreeNode[8];
@@ -273,7 +147,7 @@ namespace KGySoft.Drawing.Imaging
 
                         Color32 ca = a.ToColor();
                         Color32 cb = b.ToColor();
-                        return (int)(ca.GetBrightness() * (a.DeepPixelCount / (float)parent.Size) - cb.GetBrightness() * (b.DeepPixelCount / (float)parent.Size));
+                        return (int)(ca.GetBrightness() * (a.DeepPixelCount / (float)parent.size) - cb.GetBrightness() * (b.DeepPixelCount / (float)parent.size));
                     }
 
                     #endregion
@@ -284,8 +158,8 @@ namespace KGySoft.Drawing.Imaging
                     // If there are fewer than 8 removals left we sort them to merge the least relevant ones first.
                     // For 2 colors (and 3 + TR) the distance is measured purely by brightness to avoid returning very similar colors.
                     // Note: reordering children is not a problem because we don't add more colors in merging phase.
-                    if (parent.ColorCount - parent.MaxColors < 8)
-                        Array.Sort(children, parent.MaxColors - (parent.HasTransparent ? 1 : 0) <= 2
+                    if (parent.ColorCount - parent.maxColors < 8)
+                        Array.Sort(children, parent.maxColors - (parent.hasTransparency ? 1 : 0) <= 2
                             ? (Comparison<OctreeNode>)CompareByBrightness
                             : CompareByWeightedBrightness);
 
@@ -310,7 +184,7 @@ namespace KGySoft.Drawing.Imaging
 
                         // As we can return before merging all children,
                         // leavesCount may include "not-quite leaf" elements in the end.
-                        if (parent.ColorCount == parent.MaxColors)
+                        if (parent.ColorCount == parent.maxColors)
                             return;
                     }
                 }
@@ -359,28 +233,22 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-            #endregion
-
             #region Fields
 
-            private readonly OctreeQuantizer quantizer;
-            private readonly Palette palette;
+            private int maxColors;
+            private int size;
+            private int bpp;
+            private bool hasTransparency;
+
+            private List<OctreeNode>[] levels;
+            private OctreeNode root;
+            private int leavesCount;
 
             #endregion
 
             #region Properties
 
-            public Color32[] Palette => palette.Entries;
-
-            #endregion
-
-            #region Constructors
-
-            internal OctreeQuantizerSession(OctreeQuantizer quantizer, IBitmapDataAccessor source)
-            {
-                this.quantizer = quantizer;
-                palette = InitializePalette(source);
-            }
+            private int ColorCount => leavesCount + (hasTransparency ? 1 : 0);
 
             #endregion
 
@@ -388,76 +256,84 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public void Dispose()
+            public void Initialize(int requestedColors, IBitmapDataAccessor source)
             {
+                maxColors = requestedColors;
+                size = source.Width * source.Height;
+
+                // bits per pixel is actually ceiling of log2(maxColors)
+                for (int n = requestedColors - 1; n > 0; n >>= 1)
+                    bpp++;
+
+                levels = new List<OctreeNode>[bpp];
+                for (int level = 0; level < bpp; level++)
+                    levels[level] = new List<OctreeNode>();
+
+                root = new OctreeNode(-1, this);
             }
 
-            public Color32 GetQuantizedColor(Color32 origColor) => palette.GetNearestColor(origColor);
+            public void AddColor(Color32 color)
+            {
+                if (color.A == 0)
+                    hasTransparency = true;
+                else if (root.AddColor(color, 0))
+                    leavesCount++;
+            }
+
+            public Color32[] GeneratePalette()
+            {
+                if (ColorCount > maxColors)
+                    ReduceTree();
+
+                Debug.Assert(ColorCount <= maxColors);
+
+                var result = new Color32[ColorCount];
+                if (leavesCount > 0)
+                {
+                    int palIndex = 0;
+                    root.PopulatePalette(result, ref palIndex, ref leavesCount);
+                    Debug.Assert(leavesCount == 0);
+                }
+
+                // If transparent color is needed, then it will be automatically the last color in the result
+                return result;
+            }
 
             #endregion
 
             #region Private Methods
 
-            private Palette InitializePalette(IBitmapDataAccessor source)
+            private void ReduceTree()
             {
-                Octree octree = new Octree(quantizer.maxColors, source.Width * source.Height);
-                int width = source.Width;
-                IBitmapDataRow row = source.FirstRow;
-                do
+                // Scanning all levels towards root. Leaves are skipped (hence -2) because they are not reducible.
+                for (int level = bpp - 2; level >= 0; level--)
                 {
-                    // TODO: parallel if possible
-                    for (int x = 0; x < width; x++)
+                    if (levels[level].Count <= 0)
+                        continue;
+
+                    // Sorting nodes of the current level (least significant ones first)
+                    // while merging them into their parents until we go under MaxColors
+                    List<OctreeNode> nodes = levels[level];
+                    nodes.Sort((a, b) => a.DeepPixelCount - b.DeepPixelCount);
+
+                    foreach (OctreeNode node in nodes)
                     {
-                        Color32 c = row[x];
-
-                        // handling alpha including full transparency
-                        if (c.A != Byte.MaxValue)
-                            c = c.A < quantizer.alphaThreshold ? default : c.BlendWithBackground(quantizer.backColor);
-                        octree.AddColor(c);
+                        // As merging is stopped when we reach MaxColors leavesCount may include
+                        // some half-merged non-leaf nodes as well.
+                        node.MergeNodes(ref leavesCount);
+                        if (ColorCount <= maxColors)
+                            return;
                     }
-                } while (row.MoveNextRow());
+                }
 
-                return new Palette(octree.GeneratePalette())
-                {
-                    AlphaThreshold = quantizer.alphaThreshold,
-                    BackColor = quantizer.backColor
-                };
+                // If we are here, we need to reduce also the root node (less than 8 colors or 8 colors + transparency)
+                root.MergeNodes(ref leavesCount);
+                Debug.Assert(ColorCount == maxColors);
             }
 
             #endregion
 
             #endregion
         }
-
-        #endregion
-
-        #endregion
-
-        #region Fields
-
-        private readonly int maxColors;
-        private readonly Color32 backColor;
-        private readonly byte alphaThreshold;
-
-        #endregion
-
-        #region Constructors
-
-        public OctreeQuantizer(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
-        {
-            if (maxColors < 2 || maxColors > 256)
-                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentMustBeBetween(2, 256));
-            this.maxColors = maxColors;
-            this.backColor = new Color32(backColor);
-            this.alphaThreshold = alphaThreshold;
-        }
-
-        #endregion
-
-        #region Methods
-
-        IQuantizingSession IQuantizer.Initialize(IBitmapDataAccessor source) => new OctreeQuantizerSession(this, source);
-
-        #endregion
     }
 }
