@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal Palette(Color32[] entries, Func<Color32, int> customFindNearestColorIndex = null)
+        internal Palette(Color32[] entries)
         {
             this.entries = entries;
             color32ToIndex = new Dictionary<Color32, int>(entries.Length);
@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
             // - ConcurrentDictionary.Count is ridiculously expensive. Unbounded cache would consume a lot of memory.
             // - Cache.GetThreadSafeAccessor locks and if colors are never the same caching is nothing but an additional cost.
             // Conclusion: Using Cache with a fairly large capacity without locking the item loader and hoping for the best.
-            nearestColorsCache = new Cache<Color32, int>(customFindNearestColorIndex ?? FindNearestColorIndex, 65536).GetThreadSafeAccessor();
+            nearestColorsCache = new Cache<Color32, int>(FindNearestColorIndex, 65536).GetThreadSafeAccessor();
         }
 
         internal Palette(Color[] entries)
