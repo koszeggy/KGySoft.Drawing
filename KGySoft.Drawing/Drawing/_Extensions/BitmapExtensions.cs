@@ -347,22 +347,19 @@ namespace KGySoft.Drawing
             }
         }
 
-        public static void Dither(this Bitmap bitmap, IDitherer ditherer, IQuantizer quantizer)
+        public static void Dither(this Bitmap bitmap, IQuantizer quantizer, IDitherer ditherer)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            if (ditherer == null)
-                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+            if (ditherer == null)
+                throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
             using (IBitmapDataAccessor bitmapData = bitmap.GetBitmapDataAccessor(ImageLockMode.ReadWrite))
-            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
-            using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull)))
+            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+            using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
             {
-                if (ditheringSession == null)
-                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-
                 // TODO: parallel if possible
                 IBitmapDataRow row = bitmapData.FirstRow;
                 int width = bitmapData.Width;
@@ -371,6 +368,7 @@ namespace KGySoft.Drawing
                 {
                     for (int x = 0; x < width; x++)
                         row[x] = ditheringSession.GetDitheredColor(row[x], x, y);
+
                     y += 1;
                 } while (row.MoveNextRow());
             }
