@@ -33,14 +33,14 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Nested classes
 
-        #region QuantizingSessionCustomMappingNoAlpha class
+        #region QuantizingSessionCustomMapping class
 
-        private class QuantizingSessionCustomMappingNoAlpha : IQuantizingSession
+        private class QuantizingSessionCustomMapping : IQuantizingSession
         {
             #region Fields
 
+            private readonly PredefinedColorsQuantizer quantizer;
             private readonly Func<Color32, Color32> transform;
-            private readonly Color32 backColor;
             private readonly Palette palette;
 
             #endregion
@@ -48,15 +48,17 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             public Color32[] Palette => palette?.Entries;
+            public Color32 BackColor => quantizer.backColor;
+            public byte AlphaThreshold => quantizer.alphaThreshold;
 
             #endregion
 
             #region Constructors
 
-            internal QuantizingSessionCustomMappingNoAlpha(Func<Color32, Color32> transform, Color32 backColor, Palette palette)
+            internal QuantizingSessionCustomMapping(PredefinedColorsQuantizer quantizer, Func<Color32, Color32> transform, Palette palette)
             {
+                this.quantizer = quantizer;
                 this.transform = transform;
-                this.backColor = backColor;
                 this.palette = palette;
             }
 
@@ -68,38 +70,10 @@ namespace KGySoft.Drawing.Imaging
             {
             }
 
-            public virtual Color32 GetQuantizedColor(Color32 c) =>
-                transform.Invoke(c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor));
-
-            #endregion
-        }
-
-        #endregion
-
-        #region QuantizingSessionCustomMappingSingleBitAlpha class
-
-        private sealed class QuantizingSessionCustomMappingSingleBitAlpha : QuantizingSessionCustomMappingNoAlpha
-        {
-            #region Fields
-
-            private readonly byte alphaThreshold;
-
-            #endregion
-
-            #region Constructors
-
-            internal QuantizingSessionCustomMappingSingleBitAlpha(Func<Color32, Color32> transform, Color32 backColor, byte alphaThreshold)
-                : base(transform, backColor, null)
-            {
-                this.alphaThreshold = alphaThreshold;
-            }
-
-            #endregion
-
-            #region Methods
-
-            public override Color32 GetQuantizedColor(Color32 c)
-                => c.A >= alphaThreshold ? base.GetQuantizedColor(c) : default;
+            public virtual Color32 GetQuantizedColor(Color32 c)
+                => c.A < AlphaThreshold
+                    ? default
+                    : transform.Invoke(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
 
             #endregion
         }
@@ -112,6 +86,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Fields
 
+            private readonly PredefinedColorsQuantizer quantizer;
             private readonly Palette palette;
 
             #endregion
@@ -119,12 +94,18 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             public Color32[] Palette => palette.Entries;
+            public Color32 BackColor => quantizer.backColor;
+            public byte AlphaThreshold => quantizer.alphaThreshold;
 
             #endregion
 
             #region Constructors
 
-            internal QuantizingSessionIndexed(Palette palette) => this.palette = palette;
+            internal QuantizingSessionIndexed(PredefinedColorsQuantizer quantizer, Palette palette)
+            {
+                this.quantizer = quantizer;
+                this.palette = palette;
+            }
 
             #endregion
 
@@ -163,7 +144,7 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly Func<Color32, Color32> transform;
         private readonly Color32 backColor;
-        private readonly byte? alphaThreshold;
+        private readonly byte alphaThreshold;
         private readonly Palette palette;
 
         #endregion
@@ -252,20 +233,35 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> transform, Color32 backColor, Color32[] palette = null, byte? alphaThreshold = null)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> transform, Color32 backColor, Color32[] palette = null, byte alphaThreshold = 0)
         {
             this.transform = transform;
-            this.backColor = backColor;
+            this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
             this.alphaThreshold = alphaThreshold;
             if (palette != null)
-                this.palette = new Palette(palette) { BackColor = this.backColor, AlphaThreshold = alphaThreshold ?? 0 };
+            {
+                this.palette = new Palette(palette)
+                {
+                    BackColor = this.backColor,
+                    AlphaThreshold = alphaThreshold
+                };
+            }
         }
 
         private PredefinedColorsQuantizer(Color[] colors, Color backColor, byte alphaThreshold = 0)
-            => palette = new Palette(colors) { BackColor = new Color32(backColor), AlphaThreshold = alphaThreshold };
+            : this(null, new Color32(backColor), null, alphaThreshold)
+        {
+            palette = new Palette(colors)
+            {
+                BackColor = this.backColor,
+                AlphaThreshold = alphaThreshold
+            };
+        }
 
         private PredefinedColorsQuantizer(Color32[] colors, Color32 backColor, byte alphaThreshold = 0)
-            => palette = new Palette(colors) { BackColor = backColor, AlphaThreshold = alphaThreshold };
+            : this(null, backColor, colors, alphaThreshold)
+        {
+        }
 
         #endregion
 
@@ -351,9 +347,9 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Methods
 
         IQuantizingSession IQuantizer.Initialize(IBitmapDataAccessor source)
-            => transform == null ? new QuantizingSessionIndexed(palette)
-                : alphaThreshold == null ? new QuantizingSessionCustomMappingNoAlpha(transform, backColor, palette)
-                : (IQuantizingSession)new QuantizingSessionCustomMappingSingleBitAlpha(transform, backColor, alphaThreshold.Value);
+            => transform != null
+                ? new QuantizingSessionCustomMapping(this, transform, palette)
+                : (IQuantizingSession)new QuantizingSessionIndexed(this, palette);
 
         #endregion
 

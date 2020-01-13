@@ -75,6 +75,8 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             public Color32[] Palette => palette.Entries;
+            public Color32 BackColor => quantizer.backColor;
+            public byte AlphaThreshold => quantizer.alphaThreshold;
 
             #endregion
 
@@ -177,11 +179,11 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between <c>2</c> and <c>256</c>, inclusive. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
-        /// <param name="backColor">Colors with alpha (transparency) will be blended by the specified <paramref name="backColor"/> before quantization.
+        /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
         /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="alphaThreshold">Determines a threshold value for color alpha, under which the color is considered as transparent.
-        /// If <c>0</c>, then the generated palette will not have a transparent color. If <c>255</c>, then only fully opaque pixels will not be considered as transparent. This parameter is optional.
+        /// <param name="alphaThreshold">Specifies the threshold for determining whether a quantized color will be transparent.
+        /// <br/>See the also <strong>Remarks</strong> section if the <see cref="IQuantizingSession.AlphaThreshold"/> property for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image by Xiaolin Wu's quantizing algorithm.</returns>
         public static OptimizedPaletteQuantizer Wu(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
