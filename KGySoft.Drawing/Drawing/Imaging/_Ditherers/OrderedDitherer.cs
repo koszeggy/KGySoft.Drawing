@@ -22,12 +22,10 @@ using System;
 
 namespace KGySoft.Drawing.Imaging
 {
-    public class OrderedDitherer : IDitherer
+#pragma warning disable CA1814 // arrays in this class are better to be matrices than jagged arrays as they are always rectangular
+
+    public sealed class OrderedDitherer : IDitherer
     {
-#pragma warning disable CA1814 // arrays in this class are better as matrices than jagged arrays as they really should be rectangular
-
-        #region Nested classes
-
         #region OrderedDitheringSession class
 
         private sealed class OrderedDitheringSession : IDitheringSession
@@ -77,35 +75,36 @@ namespace KGySoft.Drawing.Imaging
                         : value > Byte.MaxValue ? Byte.MaxValue
                         : (byte)value;
 
-                Color32 c;
+                Color32 currentColor;
 
-                // handling alpha
+                // handling alpha (and calling GetQuantizedColor before quantizing only if really necessary)
                 if (origColor.A != Byte.MaxValue)
                 {
                     // the color can be considered fully transparent
                     if (origColor.A < quantizer.AlphaThreshold)
                     {
                         // and even the quantizer returns a transparent color
-                        c = quantizer.GetQuantizedColor(origColor);
-                        if (c.A == 0)
-                            return c;
+                        currentColor = quantizer.GetQuantizedColor(origColor);
+                        if (currentColor.A == 0)
+                            return currentColor;
                     }
 
                     // the color will not be transparent in the end: blending
-                    c = origColor.BlendWithBackground(quantizer.BackColor);
+                    currentColor = origColor.BlendWithBackground(quantizer.BackColor);
                 }
                 else
-                    c = origColor;
+                    currentColor = origColor;
 
                 // applying the matrix and strength adjustments
                 int offset = ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
                 if (strength < 1)
                     offset = (int)(offset * strength);
 
-                c = new Color32(ToByteSafe(c.R + offset), ToByteSafe(c.G + offset), ToByteSafe(c.B + offset));
+                currentColor = new Color32(ToByteSafe(currentColor.R + offset), ToByteSafe(currentColor.G + offset), ToByteSafe(currentColor.B + offset));
 
                 // getting the quantized value of the dithered result
-                return quantizer.GetQuantizedColor(c);
+                // (it might be quantized further if the target image cannot represent it)
+                return quantizer.GetQuantizedColor(currentColor);
             }
 
             public void Dispose()
@@ -114,8 +113,6 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
         }
-
-        #endregion
 
         #endregion
 
@@ -159,23 +156,23 @@ namespace KGySoft.Drawing.Imaging
 
         private static readonly byte[,] halftone5 =
         {
-            {  0,  2,  4,  2,  1 },
-            {  2,  5,  6,  5,  2 },
-            {  4,  6,  7,  6,  4 },
-            {  2,  5,  6,  5,  2 },
-            {  1,  2,  4,  2,  1 },
+            { 0, 2, 4, 2, 1 },
+            { 2, 5, 6, 5, 2 },
+            { 4, 6, 7, 6, 4 },
+            { 2, 5, 6, 5, 2 },
+            { 1, 2, 4, 2, 1 },
         };
 
 
         private static readonly byte[,] halftone7 =
         {
-            {  0,  2,  4,  5,  4,  2,   1},
-            {  2,  3,  6,  7,  6,  3,   2},
-            {  4,  6,  8,  9,  8,  6,   4},
-            {  5,  7,  9, 10,  9,  7,   5},
-            {  4,  6,  8,  9,  8,  6,   4},
-            {  2,  3,  6,  7,  6,  3,   2},
-            {  1,  2,  4,  5,  4,  2,   1},
+            { 0, 2, 4, 5, 4, 2, 1 },
+            { 2, 3, 6, 7, 6, 3, 2 },
+            { 4, 6, 8, 9, 8, 6, 4 },
+            { 5, 7, 9, 10, 9, 7, 5 },
+            { 4, 6, 8, 9, 8, 6, 4 },
+            { 2, 3, 6, 7, 6, 3, 2 },
+            { 1, 2, 4, 5, 4, 2, 1 },
         };
 
         // ReSharper restore InconsistentNaming
