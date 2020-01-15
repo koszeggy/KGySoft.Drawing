@@ -132,7 +132,9 @@ namespace KGySoft.Drawing.Imaging
         private static readonly Color32 white = Color32.FromGray(Byte.MaxValue);
 
         private static Color32[] rgb332Palette;
-        private static Color32[] grayscalePalette;
+        private static Color32[] grayscale256Palette;
+        private static Color32[] grayscale16Palette;
+        private static Color32[] grayscale4Palette;
         private static Color32[] blackAndWhitePalette;
         private static Color32[] system8BppPalette;
         private static Color32[] system4BppPalette;
@@ -176,18 +178,52 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static Color32[] GrayscalePalette
+        private static Color32[] Grayscale256Palette
         {
             get
             {
-                if (grayscalePalette != null)
-                    return grayscalePalette;
+                if (grayscale256Palette != null)
+                    return grayscale256Palette;
 
                 var result = new Color32[256];
                 for (int i = 0; i < 256; i++)
                     result[i] = Color32.FromGray((byte)i);
 
-                return grayscalePalette = result;
+                return grayscale256Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale16Palette
+        {
+            get
+            {
+                if (grayscale16Palette != null)
+                    return grayscale16Palette;
+
+                var result = new Color32[16];
+                for (int i = 0; i < 16; i++)
+                    result[i] = Color32.FromGray((byte)((i << 4) | i));
+
+                return grayscale16Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale4Palette
+        {
+            get
+            {
+                if (grayscale4Palette != null)
+                    return grayscale4Palette;
+
+                var result = new Color32[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    byte br = (byte)((i & 0b00000011) << 6);
+                    br |= (byte)((br >> 2) | (br >> 4) | (br >> 6));
+                    result[i] = Color32.FromGray(br);
+                }
+
+                return grayscale4Palette = result;
             }
         }
 
@@ -309,7 +345,13 @@ namespace KGySoft.Drawing.Imaging
             => new PredefinedColorsQuantizer(Rgb332Palette, new Color32(backColor));
 
         public static PredefinedColorsQuantizer Grayscale(Color backColor = default)
-            => new PredefinedColorsQuantizer(GrayscalePalette, new Color32(backColor));
+            => new PredefinedColorsQuantizer(Grayscale256Palette, new Color32(backColor));
+
+        public static PredefinedColorsQuantizer Grayscale16(Color backColor = default)
+            => new PredefinedColorsQuantizer(Grayscale16Palette, new Color32(backColor));
+
+        public static PredefinedColorsQuantizer Grayscale4(Color backColor = default)
+            => new PredefinedColorsQuantizer(Grayscale4Palette, new Color32(backColor));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.
