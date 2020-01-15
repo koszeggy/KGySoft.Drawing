@@ -53,11 +53,11 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "RGB332 White", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
             //new object[] { "Grayscale Black", PredefinedColorsQuantizer.Grayscale(), 256 },
             //new object[] { "Grayscale White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
-            new object[] { "Grayscale16 Black", PredefinedColorsQuantizer.Grayscale16(), 16 },
+            //new object[] { "Grayscale16 Black", PredefinedColorsQuantizer.Grayscale16(), 16 },
             //new object[] { "Grayscale5 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
             //new object[] { "Grayscale4 Black", PredefinedColorsQuantizer.Grayscale4(), 4 },
             //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.Gray, Color.White }), 3 },
-            //new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
+            new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
             //new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
             //new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
             //new object[] { "BW Blue", PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), 2 },
@@ -281,25 +281,25 @@ namespace KGySoft.Drawing.UnitTests
         {
             string[] files =
             {
-                //@"D:\Dokumentumok\Képek\Formats\_test\Information.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\Information.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
 
                 //@"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
                 //@"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
                 //@"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\lena.png",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
+                //@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
+                //@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
                 //@"D:\Letolt\MYSTY8RQER62.jpg",
 
-                @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
@@ -309,8 +309,9 @@ namespace KGySoft.Drawing.UnitTests
                 //(OrderedDitherer.Bayer3x3(), nameof(OrderedDitherer.Bayer3x3)),
                 //(OrderedDitherer.Bayer4x4(), nameof(OrderedDitherer.Bayer4x4)),
                 //(OrderedDitherer.Bayer8x8(), nameof(OrderedDitherer.Bayer8x8)),
-                (OrderedDitherer.Halftone5(), nameof(OrderedDitherer.Halftone5)),
-                (OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
+                //(OrderedDitherer.Halftone5(), nameof(OrderedDitherer.Halftone5)),
+                //(OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
+                (ErrorDiffusionDitherer.FloydSteinberg, nameof(ErrorDiffusionDitherer.FloydSteinberg)),
             };
 
             foreach (string file in files)
@@ -323,12 +324,23 @@ namespace KGySoft.Drawing.UnitTests
                         bmp.Quantize(quantizer);
                     else
                         bmp.Dither(quantizer, ditherer.Ditherer);
-                    int colors = bmp.GetColors(forceScanningContent: true).Length;
-                    Console.WriteLine($"{testName} - {colors} colors");
-                    Assert.LessOrEqual(colors, maxColors);
+                    //int colors = bmp.GetColors(forceScanningContent: true).Length;
+                    //Console.WriteLine($"{testName} - {colors} colors");
+                    //Assert.LessOrEqual(colors, maxColors);
                     SaveImage($"{Path.GetFileNameWithoutExtension(file)} {maxColors} {testName} {ditherer.Name}", bmp);
                 }
             }
+        }
+
+        [Test, Explicit]
+        public void DithererPerformanceTest()
+        {
+            using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\GrangerRainbow.png");
+            new PerformanceTest { Iterations = 10 }
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.Bayer8x8()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg))
+                .DoTest()
+                .DumpResults(Console.Out);
         }
 
         #endregion
