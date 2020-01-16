@@ -258,7 +258,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets an <see cref="OrderedDitherer"/> using the specified <paramref name="matrix"/> and <paramref name="strength"/>.
         /// </summary>
         /// <param name="matrix">A matrix to be used as the coefficients of the dithering. Ideally contains every value from 0
-        /// up to the total size of the matrix (excluding upper bound) so the average brightness of the image will not change.</param>
+        /// up to the total size of the matrix (excluding upper bound) to have the most possible patterns but this is just a recommendation.</param>
         /// <param name="strength">The strength of the dithering effect between 0 and 1.
         /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>

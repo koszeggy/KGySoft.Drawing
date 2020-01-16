@@ -61,7 +61,7 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
             //new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
             //new object[] { "BW Blue", PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), 2 },
-            //new object[] { "Default8Bpp Black", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
+            new object[] { "Default8Bpp Black", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
             //new object[] { "Default8Bpp White", PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.White), 256 },
             //new object[] { "Default4Bpp Black", PredefinedColorsQuantizer.SystemDefault4BppPalette(), 16 },
             //new object[] { "Default4Bpp White", PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White), 16 },
@@ -283,8 +283,8 @@ namespace KGySoft.Drawing.UnitTests
             {
                 @"D:\Dokumentumok\Képek\Formats\_test\Information.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
 
                 //@"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
@@ -295,16 +295,17 @@ namespace KGySoft.Drawing.UnitTests
                 //@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
                 //@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
                 //@"D:\Letolt\MYSTY8RQER62.jpg",
+                @"D:\Dokumentumok\Képek\Formats\_test\Portal_Companion_Cube.jpg",
 
-                //@"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
             {
-                //(null, " No Dithering"),
+                (null, " No Dithering"),
                 //(OrderedDitherer.Bayer2x2(), nameof(OrderedDitherer.Bayer2x2)),
                 //(OrderedDitherer.Bayer3x3(), nameof(OrderedDitherer.Bayer3x3)),
                 //(OrderedDitherer.Bayer4x4(), nameof(OrderedDitherer.Bayer4x4)),
@@ -312,6 +313,12 @@ namespace KGySoft.Drawing.UnitTests
                 //(OrderedDitherer.Halftone5(), nameof(OrderedDitherer.Halftone5)),
                 //(OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
                 (ErrorDiffusionDitherer.FloydSteinberg, nameof(ErrorDiffusionDitherer.FloydSteinberg)),
+                (ErrorDiffusionDitherer.JarvisJudiceNinke, nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
+                (ErrorDiffusionDitherer.Stucki, nameof(ErrorDiffusionDitherer.Stucki)),
+                (ErrorDiffusionDitherer.Burkes, nameof(ErrorDiffusionDitherer.Burkes)),
+                (ErrorDiffusionDitherer.Sierra3, nameof(ErrorDiffusionDitherer.Sierra3)),
+                (ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
+                (ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
             };
 
             foreach (string file in files)
