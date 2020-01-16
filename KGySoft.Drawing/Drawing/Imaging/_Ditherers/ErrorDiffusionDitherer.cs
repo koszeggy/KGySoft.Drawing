@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly int imageWidth;
             private readonly int imageHeight;
 
-            private readonly CircularList<(int R, int G, int B)[]> errorsBuffer;
+            private readonly CircularList<(float R, float G, float B)[]> errorsBuffer;
             private int lastRow;
 
             #endregion
@@ -61,9 +61,13 @@ namespace KGySoft.Drawing.Imaging
 
                 // Initializing a circular buffer for the diffused errors.
                 // This helps to minimize used memory because it needs only a few lines to be stored.
-                errorsBuffer = new CircularList<(int, int, int)[]>(ditherer.matrixHeight);
+                // Another solution could be to store resulting colors instead of just the errors but then the color
+                // entries would be clipped not just in the end but in every iteration, and small errors would be lost
+                // that could stack up otherwise.
+                // See also the ErrorDiffusionDitherer constructor for more comments on why using floats.
+                errorsBuffer = new CircularList<(float, float, float)[]>(ditherer.matrixHeight);
                 for (int i = 0; i < ditherer.matrixHeight; i++)
-                    errorsBuffer.Add(new (int, int, int)[imageWidth]);
+                    errorsBuffer.Add(new (float, float, float)[imageWidth]);
             }
 
             #endregion
@@ -76,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 GetDitheredColor(Color32 origColor, int x, int y)
             {
-                static byte ToByteSafe(int value)
+                static byte ClipToByte(int value)
                     => value < Byte.MinValue ? Byte.MinValue
                     : value > Byte.MaxValue ? Byte.MaxValue
                     : (byte)value;
@@ -85,7 +89,9 @@ namespace KGySoft.Drawing.Imaging
                 if (y != lastRow)
                 {
                     errorsBuffer.RemoveFirst();
-                    errorsBuffer.AddLast(new (int, int, int)[imageWidth]);
+
+                    if (y + ditherer.matrixHeight <= imageHeight)
+                        errorsBuffer.AddLast(new (float, float, float)[imageWidth]);
 
                     lastRow = y;
                 }
@@ -112,9 +118,9 @@ namespace KGySoft.Drawing.Imaging
 
                 // applying propagated errors to the current pixel
                 ref var error = ref errorsBuffer[0][x];
-                currentColor = new Color32(ToByteSafe(currentColor.R + error.R),
-                    ToByteSafe(currentColor.G + error.G),
-                    ToByteSafe(currentColor.B + error.B));
+                currentColor = new Color32(ClipToByte(currentColor.R + (int)error.R),
+                    ClipToByte(currentColor.G + (int)error.G),
+                    ClipToByte(currentColor.B + (int)error.B));
 
                 // getting the quantized result for the current pixel + errors
                 Color32 quantizedColor = quantizer.GetQuantizedColor(currentColor);
@@ -152,9 +158,9 @@ namespace KGySoft.Drawing.Imaging
 
                         // applying the error in our buffer
                         error = ref errorsBuffer[my][targetX];
-                        error.R += (int)(errR * coefficient);
-                        error.G += (int)(errG * coefficient);
-                        error.B += (int)(errB * coefficient);
+                        error.R += errR * coefficient;
+                        error.G += errG * coefficient;
+                        error.B += errB * coefficient;
                     }
                 }
 
@@ -307,7 +313,11 @@ namespace KGySoft.Drawing.Imaging
 
             this.matrixFirstPixelIndex = matrixFirstPixelIndex;
 
-            // Applying divisor to the provided matrix elements
+            // Applying divisor to the provided matrix elements into a new float matrix. This has two benefits:
+            // 1. Applying the error will be a simple multiplication, which alone is faster even for a float than an
+            //    int multiplication combined with bit shifting (or division if divisor is not power of 2)
+            // 2. By not losing the fractions after bit shifting, small errors can stack up that would be lost otherwise,
+            //    which prevents some artifacts and provides better results for almost completely black/white/saturated areas.
             coefficientsMatrix = new float[matrixHeight, matrixWidth];
             for (int y = 0; y < matrixHeight; y++)
             {
