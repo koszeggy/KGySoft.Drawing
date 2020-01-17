@@ -295,12 +295,12 @@ namespace KGySoft.Drawing.UnitTests
                 //@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
                 //@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
                 //@"D:\Letolt\MYSTY8RQER62.jpg",
-                @"D:\Dokumentumok\Képek\Formats\_test\Portal_Companion_Cube.jpg",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Portal_Companion_Cube.jpg",
 
                 @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
@@ -319,7 +319,8 @@ namespace KGySoft.Drawing.UnitTests
                 //(ErrorDiffusionDitherer.Sierra3, nameof(ErrorDiffusionDitherer.Sierra3)),
                 //(ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
                 //(ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
-                (ErrorDiffusionDitherer.StevensonArce, nameof(ErrorDiffusionDitherer.StevensonArce)),
+                //(ErrorDiffusionDitherer.StevensonArce, nameof(ErrorDiffusionDitherer.StevensonArce)),
+                (RandomNoiseDitherer.WhiteNoise(), nameof(RandomNoiseDitherer.WhiteNoise)),
             };
 
             foreach (string file in files)
