@@ -80,11 +80,6 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 GetDitheredColor(Color32 origColor, int x, int y)
             {
-                static byte ClipToByte(int value)
-                    => value < Byte.MinValue ? Byte.MinValue
-                    : value > Byte.MaxValue ? Byte.MaxValue
-                    : (byte)value;
-
                 // new line
                 if (y != lastRow)
                 {
@@ -118,9 +113,9 @@ namespace KGySoft.Drawing.Imaging
 
                 // applying propagated errors to the current pixel
                 ref var error = ref errorsBuffer[0][x];
-                currentColor = new Color32(ClipToByte(currentColor.R + (int)error.R),
-                    ClipToByte(currentColor.G + (int)error.G),
-                    ClipToByte(currentColor.B + (int)error.B));
+                currentColor = new Color32((currentColor.R + (int)error.R).ClipToByte(),
+                    (currentColor.G + (int)error.G).ClipToByte(),
+                    (currentColor.B + (int)error.B).ClipToByte());
 
                 // getting the quantized result for the current pixel + errors
                 Color32 quantizedColor = quantizer.GetQuantizedColor(currentColor);
@@ -221,6 +216,14 @@ namespace KGySoft.Drawing.Imaging
             { 1, 1, 0 },
         };
 
+        private static byte[,] stevensonArceMatrix =
+        {
+            { 0, 0, 0, 0, 0, 32, 0 },
+            { 12, 0, 26, 0, 30, 0, 16 },
+            { 0, 12, 0, 26, 0, 12, 0 },
+            { 5, 0, 12, 0, 12, 0, 5 },
+        };
+
         private static ErrorDiffusionDitherer floydSteinberg;
         private static ErrorDiffusionDitherer jarvisJudiceNinke;
         private static ErrorDiffusionDitherer stucki;
@@ -228,6 +231,7 @@ namespace KGySoft.Drawing.Imaging
         private static ErrorDiffusionDitherer sierra3;
         private static ErrorDiffusionDitherer sierra2;
         private static ErrorDiffusionDitherer sierraLite;
+        private static ErrorDiffusionDitherer stevensonArce;
 
         #endregion
 
@@ -245,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the original Floyd-Steinberg filter invented in 1975.
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the original filter proposed by Floyd and Steinberg in 1975 when they came out with the idea of error diffusion dithering.
         /// Uses a small, 3x2 matrix so the processing is somewhat faster than the other alternatives.
         /// </summary>
         public static ErrorDiffusionDitherer FloydSteinberg
@@ -292,6 +296,13 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         public static ErrorDiffusionDitherer SierraLite
             => sierraLite ??= new ErrorDiffusionDitherer(sierraLiteMatrix, 4, 2);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the hexagonal filter proposed by Stevenson and Arce in 1985.
+        /// Uses a fairly large, 7x4 matrix, but due to the hexagonal arrangement of the coefficients the processing performance is comparable to a rectangular 5x3 matrix.
+        /// </summary>
+        public static ErrorDiffusionDitherer StevensonArce
+            => stevensonArce ??= new ErrorDiffusionDitherer(stevensonArceMatrix, 200, 4);
 
         #endregion
 
