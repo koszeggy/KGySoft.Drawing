@@ -96,17 +96,9 @@ namespace KGySoft.Drawing.Imaging
                 // handling alpha
                 if (origColor.A != Byte.MaxValue)
                 {
-                    // the color can be considered fully transparent
-                    if (origColor.A < quantizer.AlphaThreshold)
-                    {
-                        // and even the quantizer returns a transparent color
-                        currentColor = quantizer.GetQuantizedColor(origColor);
-                        if (currentColor.A == 0)
-                            return currentColor;
-                    }
-
-                    // the color will not be transparent in the end: blending
-                    currentColor = origColor.BlendWithBackground(quantizer.BackColor);
+                    currentColor = quantizer.BlendOrMakeTransparent(origColor);
+                    if (currentColor.A == 0)
+                        return currentColor;
                 }
                 else
                     currentColor = origColor;
@@ -308,7 +300,17 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        private ErrorDiffusionDitherer(byte[,] matrix, int divisor, int matrixFirstPixelIndex)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="ErrorDiffusionDitherer" /> class using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.
+        /// <br/>For some well known error diffusion ditherers see the static properties.
+        /// </summary>
+        /// <param name="matrix">A matrix to be used as the coefficients for the quantization errors to be propagated to the neighboring pixels.</param>
+        /// <param name="divisor">Each elements in the <paramref name="matrix"/> will be divided by this value. If less than the sum of the elements
+        /// in the <paramref name="matrix"/>, then only a fraction of the error will be propagated.</param>
+        /// <param name="matrixFirstPixelIndex">Specifies the first effective index in the first row of the matrix. If larger than zero, then the error will be propagated also to the bottom-left direction.
+        /// Must be between 0 and <paramref name="matrix"/> width, excluding upper bound.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.</returns>
+        public ErrorDiffusionDitherer(byte[,] matrix, int divisor, int matrixFirstPixelIndex)
         {
             if (matrix == null)
                 throw new ArgumentNullException(nameof(matrix), PublicResources.ArgumentNull);
@@ -341,28 +343,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Static Methods
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.
-        /// </summary>
-        /// <param name="matrix">A matrix to be used as the coefficients for the quantization errors to be propagated to the neighboring pixels.</param>
-        /// <param name="divisor">Each elements in the <paramref name="matrix"/> will be divided by this value. If less than the sum of the elements
-        /// in the <paramref name="matrix"/>, then only a fraction of the error will be propagated.</param>
-        /// <param name="matrixFirstPixelIndex">Specifies the first effective index in the first row of the matrix. If larger than zero, then the error will be propagated also to the bottom-left direction.
-        /// Must be between 0 and <paramref name="matrix"/> width, excluding upper bound.</param>
-        /// <returns>An <see cref="OrderedDitherer"/> instance using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.</returns>
-        public static ErrorDiffusionDitherer FromCustomMatrix(byte[,] matrix, int divisor, int matrixFirstPixelIndex)
-            => new ErrorDiffusionDitherer(matrix, divisor, matrixFirstPixelIndex);
-
-        #endregion
-
-        #region Instance Methods
-
         IDitheringSession IDitherer.Initialize(IBitmapDataAccessor source, IQuantizingSession quantizer)
             => new ErrorDiffusionDitheringSession(quantizer, this, source);
-
-        #endregion
 
         #endregion
     }

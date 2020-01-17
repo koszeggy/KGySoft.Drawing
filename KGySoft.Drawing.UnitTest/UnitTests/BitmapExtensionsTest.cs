@@ -53,7 +53,7 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "RGB332 White", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
             //new object[] { "Grayscale Black", PredefinedColorsQuantizer.Grayscale(), 256 },
             //new object[] { "Grayscale White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
-            //new object[] { "Grayscale16 Black", PredefinedColorsQuantizer.Grayscale16(), 16 },
+            new object[] { "Grayscale16 Black", PredefinedColorsQuantizer.Grayscale16(), 16 },
             //new object[] { "Grayscale5 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
             //new object[] { "Grayscale4 Black", PredefinedColorsQuantizer.Grayscale4(), 4 },
             //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.Gray, Color.White }), 3 },
@@ -70,7 +70,7 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "Custom Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
             //new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
 
-            //new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
+            new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
             //new object[] { "Octree 32 Black", OptimizedPaletteQuantizer.Octree(32, Color.Black, 0), 32 },
             //new object[] { "Octree 16 Black", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0), 16 },
             //new object[] { "Octree 8 Black", OptimizedPaletteQuantizer.Octree(8, Color.Black, 0), 8 },
@@ -281,26 +281,26 @@ namespace KGySoft.Drawing.UnitTests
         {
             string[] files =
             {
-                @"D:\Dokumentumok\Képek\Formats\_test\Information.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Information.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
 
-                //@"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\lena.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
-                //@"D:\Letolt\MYSTY8RQER62.jpg",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\lena.png",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
+                ////@"D:\Letolt\MYSTY8RQER62.jpg",
                 //@"D:\Dokumentumok\Képek\Formats\_test\Portal_Companion_Cube.jpg",
 
                 @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
+                ////@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
@@ -312,6 +312,10 @@ namespace KGySoft.Drawing.UnitTests
                 //(OrderedDitherer.Bayer8x8(), nameof(OrderedDitherer.Bayer8x8)),
                 //(OrderedDitherer.Halftone5(), nameof(OrderedDitherer.Halftone5)),
                 //(OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
+                //(OrderedDitherer.BlueNoise16x16(), nameof(OrderedDitherer.BlueNoise16x16)),
+                //(OrderedDitherer.BlueNoise32x32(), nameof(OrderedDitherer.BlueNoise32x32)),
+                //(OrderedDitherer.BlueNoise64x64(), nameof(OrderedDitherer.BlueNoise64x64)),
+                (OrderedDitherer.BlueNoise(new Size(256, 256)), nameof(OrderedDitherer.BlueNoise)),
                 //(ErrorDiffusionDitherer.FloydSteinberg, nameof(ErrorDiffusionDitherer.FloydSteinberg)),
                 //(ErrorDiffusionDitherer.JarvisJudiceNinke, nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
                 //(ErrorDiffusionDitherer.Stucki, nameof(ErrorDiffusionDitherer.Stucki)),
@@ -320,7 +324,7 @@ namespace KGySoft.Drawing.UnitTests
                 //(ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
                 //(ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
                 //(ErrorDiffusionDitherer.StevensonArce, nameof(ErrorDiffusionDitherer.StevensonArce)),
-                (RandomNoiseDitherer.WhiteNoise(), nameof(RandomNoiseDitherer.WhiteNoise)),
+                //(new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
             };
 
             foreach (string file in files)
@@ -352,6 +356,31 @@ namespace KGySoft.Drawing.UnitTests
                 .DoTest()
                 .DumpResults(Console.Out);
         }
+
+        [Test, Explicit]
+        public void GenerateBlueNoiseMatrix()
+        {
+            using Bitmap texture = new Bitmap(@"D:\Dokumentumok\Képek\Formats\BlueNoiseTextures\64\LDR_LLL1_13.png");
+            using IBitmapDataAccessor accessor = texture.GetBitmapDataAccessor(ImageLockMode.ReadOnly);
+
+            IBitmapDataRow row = accessor.FirstRow;
+            Console.WriteLine($"private static readonly byte[,] blueNoise{accessor.Width} =");
+            Console.WriteLine("{");
+            do
+            {
+                Console.Write("    { ");
+                for (int x = 0; x < accessor.Width; x++)
+                {
+                    Console.Write(row[x].R);
+                    if (x < accessor.Width - 1)
+                        Console.Write(", ");
+                }
+                Console.WriteLine(" }, ");
+            } while (row.MoveNextRow());
+
+            Console.WriteLine("};");
+        }
+
 
         #endregion
     }

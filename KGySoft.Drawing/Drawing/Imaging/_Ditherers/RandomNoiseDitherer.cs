@@ -23,6 +23,14 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents a ditherer that applies a random white noise during the quantization.
+    /// <br/>To apply a blue noise use the <see cref="OrderedDitherer.BlueNoise64x64">OrderedDitherer.BlueNoise64x64</see> (static pattern)
+    /// and <see cref="OrderedDitherer.BlueNoise">OrderedDitherer.BlueNoise</see> (somewhat randomized pattern) methods instead.
+    /// </summary>
+    /// <seealso cref="IDitherer" />
+    /// <seealso cref="OrderedDitherer" />
+    /// <seealso cref="ErrorDiffusionDitherer" />
     public sealed class RandomNoiseDitherer : IDitherer
     {
         #region OrderedDitheringSession class
@@ -52,7 +60,7 @@ namespace KGySoft.Drawing.Imaging
                 this.quantizer = quantizer ?? throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
                 this.ditherer = ditherer;
 
-                // If we have don't have a seed, we must use a thread safe random generator because pixels can be obtained in any order
+                // If we have don't have a seed, we must use a thread safe random generator because pixels can be queried in any order
                 random = ditherer.seed == null ? new ThreadSafeRandom() : new Random(ditherer.seed.Value);
 
                 if (ditherer.strength > 0f)
@@ -75,39 +83,31 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 GetDitheredColor(Color32 origColor, int x, int y)
             {
-                Color32 currentColor;
+                Color32 result;
 
-                // handling alpha (and calling GetQuantizedColor before quantizing only if really necessary)
+                // handling alpha
                 if (origColor.A != Byte.MaxValue)
                 {
-                    // the color can be considered fully transparent
-                    if (origColor.A < quantizer.AlphaThreshold)
-                    {
-                        // and even the quantizer returns a transparent color
-                        currentColor = quantizer.GetQuantizedColor(origColor);
-                        if (currentColor.A == 0)
-                            return currentColor;
-                    }
-
-                    // the color will not be transparent in the end: blending
-                    currentColor = origColor.BlendWithBackground(quantizer.BackColor);
+                    result = quantizer.BlendOrMakeTransparent(origColor);
+                    if (result.A == 0)
+                        return result;
                 }
                 else
-                    currentColor = origColor;
+                    result = origColor;
 
                 // generating random numbers between -127 and 127 so completely white/black pixels will not change
                 int offset = random.NextSByte(-127, 127, true);
                 if (strength < 1)
                     offset = (int)(offset * strength);
 
-                currentColor = new Color32(
-                    (currentColor.R + offset).ClipToByte(),
-                    (currentColor.G + offset).ClipToByte(),
-                    (currentColor.B + offset).ClipToByte());
+                result = new Color32(
+                    (result.R + offset).ClipToByte(),
+                    (result.G + offset).ClipToByte(),
+                    (result.B + offset).ClipToByte());
 
                 // getting the quantized value of the dithered result
                 // (it might be quantized further if the target image cannot represent it)
-                return quantizer.GetQuantizedColor(currentColor);
+                return quantizer.GetQuantizedColor(result);
             }
 
             public void Dispose()
@@ -132,7 +132,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        private RandomNoiseDitherer(float strength, int? seed)
+        public RandomNoiseDitherer(float strength = 0f, int? seed = null)
         {
             this.strength = strength;
             this.seed = seed;
@@ -142,18 +142,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Static Methods
-
-        public static RandomNoiseDitherer WhiteNoise(float strength = 0f, int? seed = null) => new RandomNoiseDitherer(strength, seed);
-
-        #endregion
-
-        #region Instance Methods
-
         IDitheringSession IDitherer.Initialize(IBitmapDataAccessor source, IQuantizingSession quantizer)
             => new RandomNoiseDitheringSession(quantizer, this);
-
-        #endregion
 
         #endregion
     }
