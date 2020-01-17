@@ -305,20 +305,21 @@ namespace KGySoft.Drawing.UnitTests
 
             (IDitherer Ditherer, string Name)[] ditherers =
             {
-                (null, " No Dithering"),
+                //(null, " No Dithering"),
                 //(OrderedDitherer.Bayer2x2(), nameof(OrderedDitherer.Bayer2x2)),
                 //(OrderedDitherer.Bayer3x3(), nameof(OrderedDitherer.Bayer3x3)),
                 //(OrderedDitherer.Bayer4x4(), nameof(OrderedDitherer.Bayer4x4)),
                 //(OrderedDitherer.Bayer8x8(), nameof(OrderedDitherer.Bayer8x8)),
                 //(OrderedDitherer.Halftone5(), nameof(OrderedDitherer.Halftone5)),
                 //(OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
-                (ErrorDiffusionDitherer.FloydSteinberg, nameof(ErrorDiffusionDitherer.FloydSteinberg)),
-                (ErrorDiffusionDitherer.JarvisJudiceNinke, nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
-                (ErrorDiffusionDitherer.Stucki, nameof(ErrorDiffusionDitherer.Stucki)),
-                (ErrorDiffusionDitherer.Burkes, nameof(ErrorDiffusionDitherer.Burkes)),
-                (ErrorDiffusionDitherer.Sierra3, nameof(ErrorDiffusionDitherer.Sierra3)),
-                (ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
-                (ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
+                //(ErrorDiffusionDitherer.FloydSteinberg, nameof(ErrorDiffusionDitherer.FloydSteinberg)),
+                //(ErrorDiffusionDitherer.JarvisJudiceNinke, nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
+                //(ErrorDiffusionDitherer.Stucki, nameof(ErrorDiffusionDitherer.Stucki)),
+                //(ErrorDiffusionDitherer.Burkes, nameof(ErrorDiffusionDitherer.Burkes)),
+                //(ErrorDiffusionDitherer.Sierra3, nameof(ErrorDiffusionDitherer.Sierra3)),
+                //(ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
+                //(ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
+                (ErrorDiffusionDitherer.StevensonArce, nameof(ErrorDiffusionDitherer.StevensonArce)),
             };
 
             foreach (string file in files)
@@ -344,8 +345,9 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\GrangerRainbow.png");
             new PerformanceTest { Iterations = 10 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.Bayer8x8()))
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg), "NoClip, int")
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg), "Clip")
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg), "float")
                 .DoTest()
                 .DumpResults(Console.Out);
         }

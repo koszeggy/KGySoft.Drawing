@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorHelper.cs
+//  File: Color32Extensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -24,7 +24,7 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal static class ColorHelper
+    internal static class Color32Extensions
     {
         #region Constants
 

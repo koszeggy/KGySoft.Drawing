@@ -70,11 +70,6 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 GetDitheredColor(Color32 origColor, int x, int y)
             {
-                static byte ToByteSafe(int value)
-                    => value < Byte.MinValue ? Byte.MinValue
-                        : value > Byte.MaxValue ? Byte.MaxValue
-                        : (byte)value;
-
                 Color32 currentColor;
 
                 // handling alpha (and calling GetQuantizedColor before quantizing only if really necessary)
@@ -100,7 +95,10 @@ namespace KGySoft.Drawing.Imaging
                 if (strength < 1)
                     offset = (int)(offset * strength);
 
-                currentColor = new Color32(ToByteSafe(currentColor.R + offset), ToByteSafe(currentColor.G + offset), ToByteSafe(currentColor.B + offset));
+                currentColor = new Color32(
+                    (currentColor.R + offset).ClipToByte(),
+                    (currentColor.G + offset).ClipToByte(),
+                    (currentColor.B + offset).ClipToByte());
 
                 // getting the quantized value of the dithered result
                 // (it might be quantized further if the target image cannot represent it)

@@ -29,9 +29,9 @@ namespace KGySoft.Drawing.Imaging
         internal Color16Gray(Color32 c)
         {
             var c64 = new Color64(c);
-            Value = (ushort)(c64.R * ColorHelper.RLum
-                + c64.G * ColorHelper.GLum
-                + c64.B * ColorHelper.BLum);
+            Value = (ushort)(c64.R * Color32Extensions.RLum
+                + c64.G * Color32Extensions.GLum
+                + c64.B * Color32Extensions.BLum);
         }
 
         #endregion
