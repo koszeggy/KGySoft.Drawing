@@ -25,15 +25,16 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a ditherer that applies a random white noise during the quantization.
-    /// <br/>To apply a blue noise use the <see cref="OrderedDitherer.BlueNoise64x64">OrderedDitherer.BlueNoise64x64</see> (static pattern)
-    /// and <see cref="OrderedDitherer.BlueNoise">OrderedDitherer.BlueNoise</see> (somewhat randomized pattern) methods instead.
+    /// <br/>To apply non-random noise-like patterns you can use also the <see cref="OrderedDitherer.BlueNoise">OrderedDitherer.BlueNoise</see> method
+    /// or the <see cref="InterleavedGradientNoiseDitherer"/> class.
     /// </summary>
     /// <seealso cref="IDitherer" />
     /// <seealso cref="OrderedDitherer" />
     /// <seealso cref="ErrorDiffusionDitherer" />
+    /// <seealso cref="InterleavedGradientNoiseDitherer" />
     public sealed class RandomNoiseDitherer : IDitherer
     {
-        #region OrderedDitheringSession class
+        #region RandomNoiseDitheringSession class
 
         private sealed class RandomNoiseDitheringSession : VariableStrengthDitheringSessionBase
         {

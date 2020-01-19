@@ -120,6 +120,46 @@ namespace KGySoft.Drawing.Imaging
             { 1, 2, 4, 2, 1 },
         };
 
+        private static readonly byte[,] halftone6hexagonal =
+        {
+            { 6, 5, 4, 4, 5, 6 },
+            { 5, 3, 2, 2, 3, 5 },
+            { 4, 2, 0, 1, 2, 4 },
+            { 4, 2, 1, 1, 2, 4 },
+            { 5, 3, 2, 2, 3, 5 },
+            { 6, 5, 4, 4, 5, 7 },
+
+            { 4, 5, 6, 6, 5, 4 },
+            { 2, 3, 5, 5, 3, 2 },
+            { 1, 2, 4, 4, 2, 0 },
+            { 1, 2, 4, 4, 2, 1 },
+            { 2, 3, 5, 5, 3, 2 },
+            { 4, 5, 6, 7, 5, 4 },
+        };
+
+        private static readonly byte[,] halftone6diagonal =
+        {
+            { 6, 5, 4, 4, 5, 6 },
+            { 5, 3, 2, 2, 3, 5 },
+            { 4, 2, 0, 1, 2, 4 },
+            { 4, 2, 1, 1, 2, 4 },
+            { 5, 3, 2, 2, 3, 5 },
+            { 6, 5, 4, 4, 5, 7 },
+
+            { 5, 6, 6, 5, 4, 4 },
+            { 3, 5, 5, 3, 2, 2 },
+            { 2, 4, 4, 2, 0, 1 },
+            { 2, 4, 4, 2, 1, 1 },
+            { 3, 5, 5, 3, 2, 2 },
+            { 5, 7, 6, 5, 4, 4 },
+
+            { 4, 4, 5, 6, 6, 5 },
+            { 2, 2, 3, 5, 5, 3 },
+            { 0, 1, 2, 4, 4, 2 },
+            { 1, 1, 2, 4, 4, 2 },
+            { 2, 2, 3, 5, 5, 3 },
+            { 4, 4, 5, 7, 6, 5 },
+        };
 
         private static readonly byte[,] halftone7 =
         {
@@ -130,6 +170,66 @@ namespace KGySoft.Drawing.Imaging
             { 4, 6, 8, 9, 8, 6, 4 },
             { 2, 3, 6, 7, 6, 3, 2 },
             { 1, 2, 4, 5, 4, 2, 1 },
+        };
+
+        private static readonly byte[,] halftone8hexagonal =
+        {
+            { 10, 9, 8, 6, 6, 8, 9, 10 },
+            { 9, 7, 5, 4, 4, 5, 7, 9 },
+            { 8, 5, 3, 2, 2, 3, 5, 8 },
+            { 6, 4, 2, 0, 1, 2, 4, 6 },
+            { 6, 4, 2, 1, 1, 2, 4, 6 },
+            { 8, 5, 3, 2, 2, 3, 5, 8 },
+            { 9, 7, 5, 4, 4, 5, 7, 9 },
+            { 10, 9, 8, 6, 6, 8, 9, 11 },
+
+            { 6, 8, 9, 10, 10, 9, 8, 6 },
+            { 4, 5, 7, 9, 9, 7, 5, 4 },
+            { 2, 3, 5, 8, 8, 5, 3, 2 },
+            { 1, 2, 4, 6, 6, 4, 2, 0 },
+            { 1, 2, 4, 6, 6, 4, 2, 1 },
+            { 2, 3, 5, 8, 8, 5, 3, 2 },
+            { 4, 5, 7, 9, 9, 7, 5, 4 },
+            { 6, 8, 9, 11, 10, 9, 8, 6 },
+        };
+
+        private static readonly byte[,] halftone8diagonal =
+        {
+            { 10, 9, 8, 6, 6, 8, 9, 10 },
+            { 9, 7, 5, 4, 4, 5, 7, 9 },
+            { 8, 5, 3, 2, 2, 3, 5, 8 },
+            { 6, 4, 2, 0, 1, 2, 4, 6 },
+            { 6, 4, 2, 1, 1, 2, 4, 6 },
+            { 8, 5, 3, 2, 2, 3, 5, 8 },
+            { 9, 7, 5, 4, 4, 5, 7, 9 },
+            { 10, 9, 8, 6, 6, 8, 9, 11 },
+
+            { 9, 10, 10, 9, 8, 6, 6, 8 },
+            { 7, 9, 9, 7, 5, 4, 4, 5 },
+            { 5, 8, 8, 5, 3, 2, 2, 3 },
+            { 4, 6, 6, 4, 2, 0, 1, 2 },
+            { 4, 6, 6, 4, 2, 1, 1, 2 },
+            { 5, 8, 8, 5, 3, 2, 2, 3 },
+            { 7, 9, 9, 7, 5, 4, 4, 5 },
+            { 9, 11, 10, 9, 8, 6, 6, 8 },
+
+            { 6, 8, 9, 10, 10, 9, 8, 6 },
+            { 4, 5, 7, 9, 9, 7, 5, 4 },
+            { 2, 3, 5, 8, 8, 5, 3, 2 },
+            { 1, 2, 4, 6, 6, 4, 2, 0 },
+            { 1, 2, 4, 6, 6, 4, 2, 1 },
+            { 2, 3, 5, 8, 8, 5, 3, 2 },
+            { 4, 5, 7, 9, 9, 7, 5, 4 },
+            { 6, 8, 9, 11, 10, 9, 8, 6 },
+
+            { 8, 6, 6, 8, 9, 10, 10, 9 },
+            { 5, 4, 4, 5, 7, 9, 9, 7 },
+            { 3, 2, 2, 3, 5, 8, 8, 5 },
+            { 2, 0, 1, 2, 4, 6, 6, 4 },
+            { 2, 1, 1, 2, 4, 6, 6, 4 },
+            { 3, 2, 2, 3, 5, 8, 8, 5 },
+            { 5, 4, 4, 5, 7, 9, 9, 7 },
+            { 8, 6, 6, 8, 9, 11, 10, 9 },
         };
 
         private static readonly byte[,] blueNoise64 =
@@ -301,75 +401,21 @@ namespace KGySoft.Drawing.Imaging
         /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using a 5x5 halftone matrix of 8 patterns and the specified <paramref name="strength"/>.</returns>
-        public static OrderedDitherer Halftone5(float strength = 0f) => new OrderedDitherer(halftone5, strength);
-        public static OrderedDitherer Halftone7(float strength = 0f) => new OrderedDitherer(halftone7, strength);
+        public static OrderedDitherer Halftone5Rectangular(float strength = 0f) => new OrderedDitherer(halftone5, strength);
+        public static OrderedDitherer Halftone6Hexagonal(float strength = 0f) => new OrderedDitherer(halftone6hexagonal, strength);
+        public static OrderedDitherer Halftone6Diagonal(float strength = 0f) => new OrderedDitherer(halftone6diagonal, strength);
+        public static OrderedDitherer Halftone7Rectangular(float strength = 0f) => new OrderedDitherer(halftone7, strength);
+        public static OrderedDitherer Halftone8Hexagonal(float strength = 0f) => new OrderedDitherer(halftone8hexagonal, strength);
+        public static OrderedDitherer Halftone8Diagonal(float strength = 0f) => new OrderedDitherer(halftone8diagonal, strength);
 
         /// <summary>
-        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
-        /// using a fixed 64x64 blue noise pattern.
-        /// To get a not so perfect but randomized pattern use the <see cref="BlueNoise">BlueNoise</see> method.
+        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/> using a fixed 64x64 blue noise pattern.
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1.
         /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using a fixed 64x64 blue noise matrix and the specified <paramref name="strength"/>.</returns>
-        public static OrderedDitherer BlueNoise64x64(float strength = 0f) => new OrderedDitherer(blueNoise64, strength);
-
-        /// <summary>
-        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
-        /// using a somewhat randomized blue noise pattern of the requested <paramref name="size"/>.
-        /// The result will be built up from random parts of the same pattern that is used by the <see cref="BlueNoise64x64">BlueNoise64x64</see> method.
-        /// To get a more accurate but fixed result use the <see cref="BlueNoise64x64">BlueNoise64x64</see> method instead.
-        /// </summary>
-        /// <param name="size">Size of the matrix to be generated. For the best result use multiples of <c>32</c>.</param>
-        /// <param name="seed">The seed to be used to generate the pattern. If <see langword="null"/>, then a random seed will be used.This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="strength">The strength of the dithering effect between 0 and 1.
-        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
-        /// <br/>Default value: <c>0</c>.</param>
-        /// <returns>An <see cref="OrderedDitherer"/> instance using a random blue noise matrix of the specified <paramref name="size"/> and <paramref name="strength"/>.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> must be at least 8x8.</exception>
-        public static OrderedDitherer BlueNoise(Size size, int? seed = null, float strength = 0f)
-        {
-            const int sampleSize = 64;
-            const int subtileSize = 32;
-            const int shift = 5;
-
-            if (size.Width < 8 || size.Height < 8)
-                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
-
-            Random rnd = seed == null ? new Random() : new Random(seed.Value);
-            byte[,] matrix = new byte[size.Height, size.Width];
-
-            // determining the size in sub-tiles
-            int tw = ((size.Width - 1) >> shift) + 1;
-            int th = ((size.Height - 1) >> shift) + 1;
-
-            // iterating through the 16x16 blocks
-            for (int ty = 0; ty < th; ty++)
-            {
-                int offsetY = ty << shift;
-                for (int tx = 0; tx < tw; tx++)
-                {
-                    int offsetX = tx << shift;
-
-                    // generating an origin for the current subtile
-                    int srcX = rnd.Next(sampleSize);
-                    int srcY = rnd.Next(sampleSize);
-
-                    // copying the sub-tile into the target
-                    int maxX = Math.Min(subtileSize, size.Width - offsetX);
-                    int maxY = Math.Min(subtileSize, size.Height - offsetY);
-                    for (int y = 0; y < maxY; y++)
-                    {
-                        for (int x = 0; x < maxX; x++)
-                            matrix[offsetY + y, offsetX + x] = blueNoise64[(srcY + y) % sampleSize, (srcX + x) % sampleSize];
-                    }
-                }
-            }
-
-            return new OrderedDitherer(matrix, strength);
-        }
+        public static OrderedDitherer BlueNoise(float strength = 0f) => new OrderedDitherer(blueNoise64, strength);
 
         #endregion
 
