@@ -57,17 +57,41 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                // Auto strength is calculated by color count. The correct value actually depends on the
-                // used quantizer and the image. In general case (with not so perfect colors) the lower is better.
-                int colorCount = quantizer.Palette?.Length ?? 0; // or 32768, 2^24 but we don't know exactly
-                strength = colorCount == 0 ? 1 / 32f
-                    : colorCount == 2 ? 1f
-                    : 1 / (Math.Min(colorCount + 1, 16) / 2f);
+                // Calibrating strength between 0 and 1
+                strength = 1;
+
+                Color32 quantizedWhite = quantizer.GetQuantizedColor(Color32.White);
+                Color32 quantizedBlack = quantizer.GetQuantizedColor(Color32.Black);
+
+                // Checking 1 (strongest) first. If this is alright, we are done
+                if (CheckStrength(quantizedWhite, quantizedBlack))
+                    return;
+
+                // Halving the strength until we find an acceptable value
+                while (true)
+                {
+                    strength /= 2f;
+                    if (CheckStrength(quantizedWhite, quantizedBlack))
+                        break;
+                }
+
+                // Doing the same again with the lastly found good value as upper limit
+                float lo = strength;
+                float hi = strength * 2f;
+                while (true)
+                {
+                    strength = (hi + lo) / 2f;
+                    if (CheckStrength(quantizedWhite, quantizedBlack))
+                        break;
+                    hi = strength;
+                }
             }
 
             #endregion
 
             #region Methods
+
+            #region Public Methods
 
             public Color32 GetDitheredColor(Color32 origColor, int x, int y)
             {
@@ -101,6 +125,34 @@ namespace KGySoft.Drawing.Imaging
             public void Dispose()
             {
             }
+
+            #endregion
+
+            #region Private Methods
+
+            private bool CheckStrength(Color32 quantizedWhite, Color32 quantizedBlack)
+            {
+                // Current strength is considered alright if neither whitest nor blackest color is
+                // affected by the dither pattern. This prevents "overdithering" black and white colors
+                // while reduces banding. Of course, if colors are not evenly distributed banding will
+                // be not perfectly removed and even "overdithering" may occur between some colors.
+                int maxX = Math.Min(ditherer.matrixWidth, 16);
+                int maxY = Math.Min(ditherer.matrixHeight, 16);
+                for (int y = 0; y < maxY; y++)
+                {
+                    for (int x = 0; x < maxX; x++)
+                    {
+                        if (GetDitheredColor(Color32.White, x, y) != quantizedWhite)
+                            return false;
+                        if (GetDitheredColor(Color32.Black, x, y) != quantizedBlack)
+                            return false;
+                    }
+                }
+
+                return true;
+            }
+
+            #endregion
 
             #endregion
         }
@@ -243,6 +295,7 @@ namespace KGySoft.Drawing.Imaging
         private readonly int matrixWidth;
         private readonly int matrixHeight;
         private readonly float strength;
+        private readonly int shades;
 
         #endregion
 
@@ -272,7 +325,7 @@ namespace KGySoft.Drawing.Imaging
             this.strength = strength;
             matrixWidth = matrix.GetUpperBound(1) + 1;
             matrixHeight = matrix.GetUpperBound(0) + 1;
-            int shades = 0;
+            shades = 0;
 
             // extensions cannot be used on matrices (unsafe would work though)
             foreach (byte b in matrix)

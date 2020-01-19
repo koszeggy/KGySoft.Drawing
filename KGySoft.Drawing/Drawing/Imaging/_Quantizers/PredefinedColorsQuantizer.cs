@@ -128,9 +128,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Fields
 
-        private static readonly Color32 black = Color32.FromGray(Byte.MinValue);
-        private static readonly Color32 white = Color32.FromGray(Byte.MaxValue);
-
         private static Color32[] rgb332Palette;
         private static Color32[] grayscale256Palette;
         private static Color32[] grayscale16Palette;
@@ -263,7 +260,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static Color32[] BlackAndWhitePalette => blackAndWhitePalette ??= new[] { black, white };
+        private static Color32[] BlackAndWhitePalette => blackAndWhitePalette ??= new[] { Color32.Black, Color32.White };
 
         #endregion
 
@@ -365,9 +362,9 @@ namespace KGySoft.Drawing.Imaging
         public static PredefinedColorsQuantizer BlackAndWhite(Color backColor = default, byte whiteThreshold = 128)
         {
             Color32 Transform(Color32 c)
-                => c == black ? black
-                    : c == white ? white
-                    : c.GetBrightness() >= whiteThreshold ? white : black;
+                => c == Color32.Black ? Color32.Black
+                    : c == Color32.White ? Color32.White
+                    : c.GetBrightness() >= whiteThreshold ? Color32.White : Color32.Black;
 
             return new PredefinedColorsQuantizer(Transform, new Color32(backColor), BlackAndWhitePalette);
         }

@@ -39,6 +39,16 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
+        #region Static Fields
+
+        internal static readonly Color32 Black = FromGray(Byte.MinValue);
+
+        internal static readonly Color32 White = FromGray(Byte.MaxValue);
+
+        #endregion
+
+        #region Instance Fields
+
         #region Public Fields
 
         [FieldOffset(3)]
@@ -60,6 +70,8 @@ namespace KGySoft.Drawing.Imaging
         [FieldOffset(0)]
         private readonly uint value;
 
+        
+        #endregion
         #endregion
 
         #endregion
