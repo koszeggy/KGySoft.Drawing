@@ -35,13 +35,11 @@ namespace KGySoft.Drawing.Imaging
     {
         #region OrderedDitheringSession class
 
-        private sealed class RandomNoiseDitheringSession : IDitheringSession
+        private sealed class RandomNoiseDitheringSession : VariableStrengthDitheringSessionBase
         {
             #region Fields
 
-            private readonly IQuantizingSession quantizer;
             private readonly RandomNoiseDitherer ditherer;
-            private readonly float strength;
             private readonly Random random;
 
             #endregion
@@ -49,15 +47,15 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             // if we have a seed we need to produce a consistent result
-            public bool IsSequential => ditherer.seed.HasValue;
+            public override bool IsSequential => ditherer.seed.HasValue;
 
             #endregion
 
             #region Constructors
 
-            internal RandomNoiseDitheringSession(IQuantizingSession quantizer, RandomNoiseDitherer ditherer)
+            internal RandomNoiseDitheringSession(IQuantizingSession quantizingSession, RandomNoiseDitherer ditherer)
+                : base(quantizingSession)
             {
-                this.quantizer = quantizer ?? throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
                 this.ditherer = ditherer;
 
                 // If we have don't have a seed, we must use a thread safe random generator because pixels can be queried in any order
@@ -65,53 +63,21 @@ namespace KGySoft.Drawing.Imaging
 
                 if (ditherer.strength > 0f)
                 {
-                    strength = ditherer.strength;
+                    Strength = ditherer.strength;
                     return;
                 }
 
-                // Auto strength is calculated by color count. The correct value actually depends on the
-                // used quantizer and the image. In general case (with not so perfect colors) the lower is better.
-                int colorCount = quantizer.Palette?.Length ?? 0; // or 32768, 2^24 but we don't know exactly
-                strength = colorCount == 0 ? 1 / 32f
-                    : colorCount == 2 ? 1f
-                    : 1 / (Math.Min(colorCount + 1, 16) / 2f);
+                CalibrateStrength(-127, 127);
             }
 
             #endregion
 
             #region Methods
 
-            public Color32 GetDitheredColor(Color32 origColor, int x, int y)
+            protected override sbyte GetOffset(int x, int y)
             {
-                Color32 result;
-
-                // handling alpha
-                if (origColor.A != Byte.MaxValue)
-                {
-                    result = quantizer.BlendOrMakeTransparent(origColor);
-                    if (result.A == 0)
-                        return result;
-                }
-                else
-                    result = origColor;
-
                 // generating random numbers between -127 and 127 so completely white/black pixels will not change
-                int offset = random.NextSByte(-127, 127, true);
-                if (strength < 1)
-                    offset = (int)(offset * strength);
-
-                result = new Color32(
-                    (result.R + offset).ClipToByte(),
-                    (result.G + offset).ClipToByte(),
-                    (result.B + offset).ClipToByte());
-
-                // getting the quantized value of the dithered result
-                // (it might be quantized further if the target image cannot represent it)
-                return quantizer.GetQuantizedColor(result);
-            }
-
-            public void Dispose()
-            {
+                return random.NextSByte(-127, 127, true);
             }
 
             #endregion

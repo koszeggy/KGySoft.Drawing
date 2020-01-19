@@ -29,130 +29,44 @@ namespace KGySoft.Drawing.Imaging
     {
         #region OrderedDitheringSession class
 
-        private sealed class OrderedDitheringSession : IDitheringSession
+        private sealed class OrderedDitheringSession : VariableStrengthDitheringSessionBase
         {
             #region Fields
 
-            private readonly IQuantizingSession quantizer;
             private readonly OrderedDitherer ditherer;
-            private readonly float strength;
 
             #endregion
 
             #region Properties
 
-            public bool IsSequential => false;
+            public override bool IsSequential => false;
 
             #endregion
 
             #region Constructors
 
-            internal OrderedDitheringSession(IQuantizingSession quantizer, OrderedDitherer ditherer)
+            internal OrderedDitheringSession(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
+                : base(quantizingSession)
             {
-                this.quantizer = quantizer ?? throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
                 this.ditherer = ditherer;
                 if (ditherer.strength > 0f)
                 {
-                    strength = ditherer.strength;
+                    Strength = ditherer.strength;
                     return;
                 }
 
-                // Calibrating strength between 0 and 1
-                strength = 1;
-
-                Color32 quantizedWhite = quantizer.GetQuantizedColor(Color32.White);
-                Color32 quantizedBlack = quantizer.GetQuantizedColor(Color32.Black);
-
-                // Checking 1 (strongest) first. If this is alright, we are done
-                if (CheckStrength(quantizedWhite, quantizedBlack))
-                    return;
-
-                // Halving the strength until we find an acceptable value
-                while (true)
-                {
-                    strength /= 2f;
-                    if (CheckStrength(quantizedWhite, quantizedBlack))
-                        break;
-                }
-
-                // Doing the same again with the lastly found good value as upper limit
-                float lo = strength;
-                float hi = strength * 2f;
-                while (true)
-                {
-                    strength = (hi + lo) / 2f;
-                    if (CheckStrength(quantizedWhite, quantizedBlack))
-                        break;
-                    hi = strength;
-                }
+                CalibrateStrength(ditherer.matrixMinValue, ditherer.matrixMaxValue);
             }
 
             #endregion
 
             #region Methods
 
-            #region Public Methods
-
-            public Color32 GetDitheredColor(Color32 origColor, int x, int y)
+            protected override sbyte GetOffset(int x, int y)
             {
-                Color32 currentColor;
-
-                // handling alpha
-                if (origColor.A != Byte.MaxValue)
-                {
-                    currentColor = quantizer.BlendOrMakeTransparent(origColor);
-                    if (currentColor.A == 0)
-                        return currentColor;
-                }
-                else
-                    currentColor = origColor;
-
                 // applying the matrix and strength adjustments
-                int offset = ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
-                if (strength < 1)
-                    offset = (int)(offset * strength);
-
-                currentColor = new Color32(
-                    (currentColor.R + offset).ClipToByte(),
-                    (currentColor.G + offset).ClipToByte(),
-                    (currentColor.B + offset).ClipToByte());
-
-                // getting the quantized value of the dithered result
-                // (it might be quantized further if the target image cannot represent it)
-                return quantizer.GetQuantizedColor(currentColor);
+                return ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
             }
-
-            public void Dispose()
-            {
-            }
-
-            #endregion
-
-            #region Private Methods
-
-            private bool CheckStrength(Color32 quantizedWhite, Color32 quantizedBlack)
-            {
-                // Current strength is considered alright if neither whitest nor blackest color is
-                // affected by the dither pattern. This prevents "overdithering" black and white colors
-                // while reduces banding. Of course, if colors are not evenly distributed banding will
-                // be not perfectly removed and even "overdithering" may occur between some colors.
-                int maxX = Math.Min(ditherer.matrixWidth, 16);
-                int maxY = Math.Min(ditherer.matrixHeight, 16);
-                for (int y = 0; y < maxY; y++)
-                {
-                    for (int x = 0; x < maxX; x++)
-                    {
-                        if (GetDitheredColor(Color32.White, x, y) != quantizedWhite)
-                            return false;
-                        if (GetDitheredColor(Color32.Black, x, y) != quantizedBlack)
-                            return false;
-                    }
-                }
-
-                return true;
-            }
-
-            #endregion
 
             #endregion
         }
@@ -295,7 +209,8 @@ namespace KGySoft.Drawing.Imaging
         private readonly int matrixWidth;
         private readonly int matrixHeight;
         private readonly float strength;
-        private readonly int shades;
+        private readonly sbyte matrixMinValue;
+        private readonly sbyte matrixMaxValue;
 
         #endregion
 
@@ -325,7 +240,7 @@ namespace KGySoft.Drawing.Imaging
             this.strength = strength;
             matrixWidth = matrix.GetUpperBound(1) + 1;
             matrixHeight = matrix.GetUpperBound(0) + 1;
-            shades = 0;
+            int shades = 0;
 
             // extensions cannot be used on matrices (unsafe would work though)
             foreach (byte b in matrix)
@@ -341,13 +256,22 @@ namespace KGySoft.Drawing.Imaging
             // adding two levels for total black and white
             shades += 2;
 
-            // Elements in premultiplied matrix are between -128..127
+            // Elements in premultiplied matrix are between -127..127
             premultipliedMatrix = new sbyte[matrixHeight, matrixWidth];
+            matrixMinValue = SByte.MaxValue;
+            matrixMaxValue = SByte.MinValue;
             for (int y = 0; y < matrixHeight; y++)
             {
                 for (int x = 0; x < matrixWidth; x++)
+                {
                     // +1 for separating total black from the first pattern, -127 for balancing brightness level
-                    premultipliedMatrix[y, x] = (sbyte)((matrix[y, x] + 1) * 255 / shades - 127);
+                    sbyte value = (sbyte)((matrix[y, x] + 1) * 255 / shades - 127);
+                    premultipliedMatrix[y, x] = value;
+                    if (value < matrixMinValue)
+                        matrixMinValue = value;
+                    if (value > matrixMaxValue)
+                        matrixMaxValue = value;
+                }
             }
         }
 
