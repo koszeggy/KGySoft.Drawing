@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: RandomNoiseDitherer.cs
+//  File: InterleavedGradientNoiseDitherer.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using KGySoft.CoreLibraries;
 
 #endregion
 
