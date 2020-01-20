@@ -156,7 +156,7 @@ namespace KGySoft
         /// <summary>Pixel format '{0}' is not supported by GDI+.</summary>
         internal static string ImageExtensionsPixelFormatNotSupported(PixelFormat pixelFormat) => Get("ImageExtensions_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
-        /// <summary>The desired palette can have up to {0} colors for pixel format '{1}'.</summary>
+        /// <summary>The target palette can have up to {0} colors for pixel format '{1}'.</summary>
         internal static string ImageExtensionsPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("ImageExtensions_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion

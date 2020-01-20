@@ -79,28 +79,35 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Converts the image to another one with the desired <see cref="PixelFormat"/>.
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
-        /// <param name="newPixelFormat">The desired new pixel format. If the requested format is an indexed one, built-in strategies
-        /// are used for the generated palette. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="palette">The required palette for the result image. If <see langword="null"/>, the palette will be taken from source or will be generated on demand.
-        /// If palette contains transparent color, it might be considered. If it contains too few elements black entries will be added.</param>
-        /// <returns>A new <see cref="Image"/> instance with the desired pixel format.</returns>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>, then
+        /// and <paramref name="image"/> also has a palette of no more entries than the target indexed format can have, then the source palette will be used.
+        /// Otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> cannot represent multi-level alpha, then specifies the color of the background.
+        /// Source pixels with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before setting the pixel in the result image.
+        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered to be transparent. If <c>0</c>,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format8bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, a standard palette will be used. Transparency will be preserved.</para>
-        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, the standard 16 color palette will be used.</para>
-        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, black and white colors will be used.</para>
-        /// <para>If the target pixel format is indexed, <paramref name="palette"/> contains the transparent color (<see cref="Color.Transparent">Color.Transparent</see>), and the source has transparency, then the result will have transparency for fully transparent pixels.</para>
+        /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
+        /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)"/> overload.
+        /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
+        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format8bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then the standard 256 color palette will be used.
+        /// On Windows this contains the web-safe palette, the standard 16 Windows colors and the transparent color.</para>
+        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then the standard 16 color palette will be used.</para>
+        /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then black and white colors will be used.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
-        /// <exception cref="NotSupportedException"><paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format16bppArgb1555"/> or <see cref="PixelFormat.Format16bppGrayScale"/>, which are not supported.</exception>
-#if !NET35
-        [SecuritySafeCritical]
-#endif
+        /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
         {
@@ -118,33 +125,7 @@ namespace KGySoft.Drawing
 
                 // validating and initializing palette
                 if (newPixelFormat.IsIndexed())
-                {
-                    int bpp = newPixelFormat.ToBitsPerPixel();
-
-                    // if there is no desired palette but converting to a higher bpp indexed image, then taking the source palette
-                    if (palette == null && bmp.PixelFormat.ToBitsPerPixel() <= bpp)
-                        palette = bmp.Palette?.Entries;
-
-                    // there is a desired palette to apply
-                    if (palette != null && palette.Length > 0)
-                    {
-                        int maxColors = 1 << bpp;
-                        if (palette.Length > maxColors)
-                            throw new ArgumentException(Res.ImageExtensionsPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
-
-                        ColorPalette targetPalette = result.Palette;
-                        bool setEntries = palette.Length != targetPalette.Entries.Length;
-                        Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
-
-                        // copying even if it could be just set to prevent change of entries
-                        for (int i = 0; i < palette.Length; i++)
-                            targetColors[i] = palette[i];
-
-                        if (setEntries)
-                            targetPalette.SetEntries(targetColors);
-                        result.Palette = targetPalette;
-                    }
-                }
+                    InitPalette(newPixelFormat, bmp, result, palette);
 
                 using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly))
                 using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly))
@@ -177,19 +158,128 @@ namespace KGySoft.Drawing
             }
         }
 
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> cannot represent multi-level alpha, then specifies the color of the background.
+        /// Source pixels with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before setting the pixel in the result image.
+        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered to be transparent. If <c>0</c>,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>If <paramref name="newPixelFormat"/> is an indexed format, then this overload will either use the palette of the source <paramref name="image"/> if applicable,
+        /// or a system default palette. To apply a custom palette use the of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color[],Color,byte)"/> overload.</para>
+        /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
+        /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)"/> overload.
+        /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
 
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to determine the conversion of the colors.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance for dithering the result image, which usually produces a better result if colors are reduced. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
+        /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>
+        /// <para>To use a quantizer with predefined colors you can use the <see cref="PredefinedColorsQuantizer"/> class. If you want to use
+        /// a quantizer without a ditherer and <paramref name="newPixelFormat"/> represents the same number of reduced colors as the <paramref name="quantizer"/> produces,
+        /// then you can use the <see cref="ConvertPixelFormat(Image,PixelFormat,Color[],Color,byte)"/> overload for a slightly better performance.</para>
+        /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
+        /// <para>To quantize a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Quantize">BitmapExtensions.Quantize</see> method.</para>
+        /// <para>To dither a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Dither">BitmapExtensions.Dither</see> method.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="quantizer"/> are <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
+        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (!Enum<PixelFormat>.IsDefined(newPixelFormat))
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.EnumOutOfRange(newPixelFormat));
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-        //public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Dithering dithering = Dithering.None)
-        //{
-        //    throw new NotImplementedException("TODO: ConvertPixelFormat");
-        //}
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap result = null;
 
-        //public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Quantization quantizer = Quantization.DefaultColors, Dithering dithering = Dithering.None)
-        //{
-        //    throw new NotImplementedException("TODO: ConvertPixelFormat");
-        //}
+            try
+            {
+                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+                using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(source) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                {
+                    // validating and initializing palette
+                    if (newPixelFormat.IsIndexed())
+                        InitPalette(newPixelFormat, bmp, result, quantizingSession.Palette?.Select(c => c.ToColor()).ToArray());
+
+                    using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly))
+                    {
+                        target.BackColor = quantizingSession.BackColor.ToColor();
+                        target.AlphaThreshold = quantizingSession.AlphaThreshold;
+
+                        // no dithering
+                        if (ditherer == null)
+                        {
+                            // TODO: parallel
+                            BitmapDataRowBase rowSrc = source.GetRow(0);
+                            BitmapDataRowBase rowDst = target.GetRow(0);
+                            int width = source.Width;
+                            do
+                            {
+                                for (int x = 0; x < width; x++)
+                                    rowDst.DoSetColor32(x, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x)));
+                            } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+                        }
+                        else
+                        {
+                            using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                            {
+                                // TODO: parallel if supported
+                                BitmapDataRowBase rowSrc = source.GetRow(0);
+                                BitmapDataRowBase rowDst = target.GetRow(0);
+                                int width = source.Width;
+                                do
+                                {
+                                    for (int x = 0; x < width; x++)
+                                        rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.Line));
+                                } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+                            }
+                        }
+                    }
+                }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                result?.Dispose();
+                throw;
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+            }
+        }
 
         /// <summary>
         /// Compares an image to another one by content and returns whether they are equal. Images of different
@@ -560,6 +650,35 @@ namespace KGySoft.Drawing
                 colorCount++;
 
             return colorCount;
+        }
+
+        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
+        {
+            int bpp = newPixelFormat.ToBitsPerPixel();
+
+            // if the quantized does not have a palette but converting to a higher bpp indexed image, then taking the source palette
+            if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
+                palette = source.Palette?.Entries;
+
+            if (palette == null || palette.Length <= 0)
+                return;
+
+            // there is a desired palette to apply
+            int maxColors = 1 << bpp;
+            if (palette.Length > maxColors)
+                throw new ArgumentException(Res.ImageExtensionsPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
+
+            ColorPalette targetPalette = target.Palette;
+            bool setEntries = palette.Length != targetPalette.Entries.Length;
+            Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
+
+            // copying even if it could be just set to prevent change of entries
+            for (int i = 0; i < palette.Length; i++)
+                targetColors[i] = palette[i];
+
+            if (setEntries)
+                targetPalette.SetEntries(targetColors);
+            target.Palette = targetPalette;
         }
 
         /// <summary>

@@ -160,7 +160,7 @@
     <value>Pixel format '{0}' is not supported by GDI+.</value>
   </data>
   <data name="ImageExtensions_PaletteTooLargeFormat" xml:space="preserve">
-    <value>The desired palette can have up to {0} colors for pixel format '{1}'.</value>
+    <value>The target palette can have up to {0} colors for pixel format '{1}'.</value>
   </data>
   <data name="ImageExtensions_NoTiffEncoder" xml:space="preserve">
     <value>TIFF encoder not found.</value>

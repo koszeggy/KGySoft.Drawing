@@ -20,7 +20,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-
+using KGySoft.Drawing.Imaging;
 using NUnit.Framework;
 
 #endregion
@@ -30,6 +30,22 @@ namespace KGySoft.Drawing.UnitTests
     [TestFixture]
     public class ImageExtensionsTest : TestBase
     {
+        #region Fields
+
+        private static object[][] convertPixelFormatCustomTestSource =
+        {
+            new object[] { "To 8bpp 256 color no dithering", PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.SystemDefault8BppPalette(), null }, 
+            new object[] { "To 8bpp 256 color dithering", PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer2x2() },
+            new object[] { "To 8bpp 16 color no dithering", PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.SystemDefault4BppPalette(), null },
+            new object[] { "To 4bpp 2 color dithering", PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.Halftone5Rectangular() },
+            //new object[] { "To 4bpp 256 color dithering", PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Halftone5Rectangular() },
+            new object[] { "To ARGB1555 256 color dithering", PixelFormat.Format16bppArgb1555, PredefinedColorsQuantizer.SystemDefault8BppPalette(), new RandomNoiseDitherer(), }, 
+            new object[] { "To ARGB1555 32K color dithering", PixelFormat.Format16bppArgb1555, PredefinedColorsQuantizer.Argb1555(), new RandomNoiseDitherer(), },
+            new object[] { "To ARGB1555 16.7M color dithering", PixelFormat.Format16bppArgb1555, PredefinedColorsQuantizer.Rgb888(), new RandomNoiseDitherer(), }, 
+        };
+
+        #endregion
+
         #region Methods
 
         [Test]
@@ -60,7 +76,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format16bppGrayScale, 0xFFFFFF, 0)]
         [TestCase(PixelFormat.Format48bppRgb, 0, 0)]
         [TestCase(PixelFormat.Format48bppRgb, 0xFFFFFF, 0)]
-        public void ConvertPixelFormatTest(PixelFormat pixelFormat, int backColorArgb, byte alphaThreshold)
+        public void ConvertPixelFormatDirectTest(PixelFormat pixelFormat, int backColorArgb, byte alphaThreshold)
         {
             //using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
             using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
@@ -70,6 +86,15 @@ namespace KGySoft.Drawing.UnitTests
             using var converted = ref32bpp.ConvertPixelFormat(pixelFormat, backColor, alphaThreshold);
             Assert.AreEqual(pixelFormat, converted.PixelFormat);
             SaveImage($"{pixelFormat} - {backColor.Name} (A={alphaThreshold})", converted);
+        }
+
+        [TestCaseSource(nameof(convertPixelFormatCustomTestSource))]
+        public void ConvertPixelFormatCustomTest(string testName, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer)
+        {
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256));
+            using var converted = source.ConvertPixelFormat(pixelFormat, quantizer, ditherer);
+            Assert.AreEqual(pixelFormat, converted.PixelFormat);
+            SaveImage(testName, converted);
         }
 
         [Test]
