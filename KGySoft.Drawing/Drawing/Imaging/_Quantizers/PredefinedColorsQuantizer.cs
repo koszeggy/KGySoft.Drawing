@@ -342,12 +342,15 @@ namespace KGySoft.Drawing.Imaging
             => new PredefinedColorsQuantizer(Rgb332Palette, new Color32(backColor));
 
         public static PredefinedColorsQuantizer Grayscale(Color backColor = default)
+            // TODO: transform if faster than lookup
             => new PredefinedColorsQuantizer(Grayscale256Palette, new Color32(backColor));
 
         public static PredefinedColorsQuantizer Grayscale16(Color backColor = default)
+            // TODO: transform if faster than lookup
             => new PredefinedColorsQuantizer(Grayscale16Palette, new Color32(backColor));
 
         public static PredefinedColorsQuantizer Grayscale4(Color backColor = default)
+            // TODO: transform if faster than lookup
             => new PredefinedColorsQuantizer(Grayscale4Palette, new Color32(backColor));
 
         /// <summary>

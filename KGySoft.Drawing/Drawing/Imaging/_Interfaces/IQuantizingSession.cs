@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets the background color for this <see cref="IQuantizingSession"/>.
         /// Colors with alpha above the <see cref="AlphaThreshold"/> will be blended with this color before quantizing.
-        /// <br/>See the also <strong>Remarks</strong> section if the <see cref="AlphaThreshold"/> property for details.
+        /// <br/>See the also <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
         /// </summary>
         Color32 BackColor { get; }
 
