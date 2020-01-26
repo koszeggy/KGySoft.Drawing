@@ -58,13 +58,13 @@ namespace KGySoft.Drawing.Imaging
         {
             get
             {
-                if ((uint)x > Accessor.Width)
+                if ((uint)x >= Accessor.Width)
                     ThrowXOutOfRange();
                 return DoGetColor32(x);
             }
             set
             {
-                if ((uint)x > Accessor.Width)
+                if ((uint)x >= Accessor.Width)
                     ThrowXOutOfRange();
                 DoSetColor32(x, value);
             }
@@ -84,14 +84,14 @@ namespace KGySoft.Drawing.Imaging
 
         public int GetColorIndex(int x)
         {
-            if ((uint)x > Accessor.Width)
+            if ((uint)x >= Accessor.Width)
                 ThrowXOutOfRange();
             return DoGetColorIndex(x);
         }
 
         public virtual void SetColorIndex(int x, int colorIndex)
         {
-            if ((uint)x > Accessor.Width)
+            if ((uint)x >= Accessor.Width)
                 ThrowXOutOfRange();
             DoSetColorIndex(x, colorIndex);
         }
@@ -101,7 +101,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if ((x + 1) * sizeof(T) > Accessor.Stride)
                 ThrowXOutOfRange();
-            return ((T*)Address)[x];
+            return DoReadRaw<T>(x);
         }
 
         public unsafe void WriteRaw<T>(int x, T data)
@@ -109,7 +109,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if ((x + 1) * sizeof(T) > Accessor.Stride)
                 ThrowXOutOfRange();
-            ((T*)Address)[x] = data;
+            DoWriteRaw(x, data);
         }
 
         public unsafe bool MoveNextRow()
@@ -129,6 +129,9 @@ namespace KGySoft.Drawing.Imaging
         internal abstract void DoSetColor32(int x, Color32 c);
         internal abstract int DoGetColorIndex(int x);
         internal abstract void DoSetColorIndex(int x, int colorIndex);
+
+        internal unsafe T DoReadRaw<T>(int x) where T : unmanaged => ((T*)Address)[x];
+        internal unsafe void DoWriteRaw<T>(int x, T data) where T : unmanaged => ((T*)Address)[x] = data;
 
         #endregion
 

@@ -79,7 +79,7 @@ namespace KGySoft.Drawing.Imaging
         {
             get
             {
-                if ((uint)y > Height)
+                if ((uint)y >= Height)
                     ThrowYOutOfRange();
                 return GetRow(y);
             }
@@ -141,14 +141,14 @@ namespace KGySoft.Drawing.Imaging
 
         public Color GetPixel(int x, int y)
         {
-            if ((uint)y > Height)
+            if ((uint)y >= Height)
                 ThrowYOutOfRange();
             return GetRow(y).GetColor(x);
         }
 
         public void SetPixel(int x, int y, Color color)
         {
-            if ((uint)y > Height)
+            if ((uint)y >= Height)
                 ThrowYOutOfRange();
             GetRow(y).SetColor(x, color);
         }
