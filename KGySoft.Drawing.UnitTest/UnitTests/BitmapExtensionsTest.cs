@@ -392,6 +392,39 @@ namespace KGySoft.Drawing.UnitTests
             Console.WriteLine("};");
         }
 
+        [TestCase(PixelFormat.Format32bppArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppPArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format16bppRgb555, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format64bppArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format8bppIndexed, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format4bppIndexed, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
+        public void ClearTest(PixelFormat pixelFormat, uint argb)
+        {
+            const int size = 17;
+            Color color = Color.FromArgb((int)argb);
+
+            using var bmp = new Bitmap(size, size, pixelFormat);
+            bmp.Clear(color);
+            using (var bitmapData = bmp.GetBitmapDataAccessor(ImageLockMode.ReadOnly))
+            {
+                var row = bitmapData.FirstRow;
+                var c32 = new Color32(color);
+                do
+                {
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        Assert.AreEqual(c32, row[x]);
+                } while (row.MoveNextRow());
+            }
+
+            SaveImage(pixelFormat.ToString(), bmp);
+        }
+
+        [Test]
+        public void ChangeColorTest()
+        {
+            throw new NotImplementedException();
+        }
 
         #endregion
     }

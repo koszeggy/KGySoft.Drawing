@@ -197,16 +197,6 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 .DumpResults(Console.Out/*, dumpReturnValue: true*/);
         }
 
-        /*
-         var bmp = new Bitmap(5, 1, PixelFormat.Format64bppArgb);
-                    bmp.SetPixel(0, 0, Color.Black);
-                    bmp.SetPixel(1, 0, Color.Red);
-                    bmp.SetPixel(2, 0, Color.Green);
-                    bmp.SetPixel(3, 0, Color.Blue);
-                    bmp.SetPixel(4, 0, Color.White);
-                    image = bmp;
-*/
-
         #endregion
     }
 }

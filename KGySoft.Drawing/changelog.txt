@@ -23,12 +23,14 @@ A new namespace for fast and direct Bitmap pixel manipulation in a type-safe and
 + BitmapExtensions class:
   - Resize method: Fixing resize if keepAspectRatio is true.
   + New GetBitmapDataAccessor method: Provides fast managed pixel manipulation for any pixel formats.
+  + New Quantize method: Reduces number of colors
+  + New Dither method: Reduces number of colors with dithering
+  + New Clear method: Similar to Graphics.Clear but supports every PixelFormat
 - IconExtensions class:
   - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
     keepOriginalFormat parameter was true.
 - ImageExtensions class:
   + ConvertPixelFormat method:
-    - If converting to 1 bpp transparent image the result is not a simple transparency mask anymore.
     + Supporting every pixel formats, including Format16bppGrayScale and Format16bppArgb1555.
     + New backColor optional parameter: Specifies a background color for non-alpha pixel formats. From now on
       converting alpha bitmaps to non-alpha ones the color of the originally alpha pixels will not be necessarily
@@ -36,11 +38,13 @@ A new namespace for fast and direct Bitmap pixel manipulation in a type-safe and
     + New alphaThreshold optional parameter: If the new pixel format has one bit alpha or is indexed, then specifies
       a threshold value for treating alpha pixels completely transparent. Alpha pixels, which are not treated
       transparent are blended with the backColor parameter.
+    + New overloads for omitting palette and for using a custom quantizer and ditherer.
   - EqualsByContent method:
     - Images with different raw format were considered different even if their raw content were the same. From now
       on images with different raw format can also be considered equal (as expected based on the documentation).
     - Images with the same stride size were considered different if the absolute value of their stride were
       different (a top-down image was compared to a bottom-up image).
+  + New DrawInto method: Similar to Graphics.DrawImage but supports every PixelFormat
 - MetafileExtensions class:
   - Save method: Fixing an ArgumentException if the raw format of the metafile to save is WMF rather than EMF.
 

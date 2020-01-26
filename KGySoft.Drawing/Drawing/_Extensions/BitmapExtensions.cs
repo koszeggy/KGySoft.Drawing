@@ -26,7 +26,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Security;
 
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
@@ -39,6 +38,12 @@ namespace KGySoft.Drawing
     /// </summary>
     public static class BitmapExtensions
     {
+        #region Constants
+
+        private const int parallelThreshold = 100;
+
+        #endregion
+
         #region Fields
 
         private static readonly int[] iconSizes = { 512, 384, 320, 256, 128, 96, 80, 72, 64, 60, 48, 40, 36, 32, 30, 24, 20, 16, 8, 4 };
@@ -374,6 +379,28 @@ namespace KGySoft.Drawing
             }
         }
 
+        /// <summary>
+        /// Clears the complete <paramref name="bitmap"/> and fills it with the specified <paramref name="color"/>.
+        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> but can be used for <see cref="Bitmap"/>s of any <see cref="PixelFormat"/>.
+        /// </summary>
+        /// <param name="bitmap">The <see cref="Bitmap"/> to be cleared.</param>
+        /// <param name="color">A <see cref="Color"/> that represents the desired background color of the bitmap.</param>
+        /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect, if <see cref="Image.PixelFormat"/> returns a <see cref="PixelFormat"/> of at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        public static void Clear(this Bitmap bitmap, Color color, IDitherer ditherer = null)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            Color32 c = new Color32(color);
+            using (var accessor = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite))
+            {
+                if (ditherer == null || accessor.PixelFormat.ToBitsPerPixel() >= 24 || accessor.PixelFormat == PixelFormat.Format16bppGrayScale)
+                    ClearDirect(accessor, c);
+                else
+                    ClearWithDithering(accessor, c, ditherer);
+            }
+        }
+
         #endregion
 
         #region Private Methods
@@ -431,6 +458,147 @@ namespace KGySoft.Drawing
             } while (nextSize > 0);
 
             return result.ToArray();
+        }
+
+        private static void ClearDirect(BitmapDataAccessorBase bitmapData, Color32 color)
+        {
+            BitmapDataRowBase row;
+            int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
+            switch (bpp)
+            {
+                // premultiplying only once (if needed), clearing by longs
+                case 32:
+                    Color32 rawColor = bitmapData.PixelFormat == PixelFormat.Format32bppPArgb ? color.ToPremultiplied() : color;
+                    int longWidth = bitmapData.Stride >> 3;
+
+                    // writing as longs
+                    if (longWidth > 0)
+                    {
+                        uint argb = (uint)rawColor.ToArgb();
+                        ClearRaw(bitmapData, longWidth, ((ulong)argb << 32) | argb);
+                    }
+
+                    // if width is odd we clear the last column
+                    if ((bitmapData.Width & 1) == 1)
+                    {
+                        int x = bitmapData.Width - 1;
+                        row = bitmapData.GetRow(0);
+                        do
+                        {
+                            row.DoWriteRaw(x, rawColor);
+                        } while (row.MoveNextRow());
+                    }
+
+                    return;
+
+                // converting color to 64-bit [P]ARGB value only once
+                case 64:
+                    row = bitmapData.GetRow(0);
+                    row.DoSetColor32(0, color);
+                    var longValue = row.DoReadRaw<long>(0);
+                    ClearRaw(bitmapData, bitmapData.Width, longValue);
+                    return;
+
+                // converting color to underlying 16 bit pixel only once, clearing by longs
+                case 16:
+                    row = bitmapData.GetRow(0);
+                    row.DoSetColor32(0, color);
+                    var shortValue = row.DoReadRaw<ushort>(0);
+                    longWidth = bitmapData.Stride >> 3;
+                    uint uintValue = (uint)((shortValue << 16) | shortValue);
+
+                    // writing as longs
+                    if (longWidth > 0)
+                        ClearRaw(bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
+
+                    // if stride can be divided by 8, then we are done
+                    if ((bitmapData.Stride & 0b111) == 0)
+                        return;
+
+                    // otherwise, we clear the last 1..3 columns (on Windows: 1..2 because stride always can be divided by 4)
+                    int to = bitmapData.Width;
+                    int from = to - (bitmapData.Width & 0b11);
+                    row = bitmapData.GetRow(0);
+                    do
+                    {
+                        for (int x = from; x < to; x++)
+                            row.DoWriteRaw(x, shortValue);
+                    } while (row.MoveNextRow());
+
+                    return;
+
+                // converting color to palette index only once
+                case 8:
+                case 4:
+                case 1:
+                    row = bitmapData.GetRow(0);
+                    Palette palette = ((BitmapDataRowIndexedBase)row).Palette;
+                    int index = palette.GetColorIndex(color);
+                    byte byteValue = bpp == 8 ? (byte)index
+                        : bpp == 4 ? (byte)((index << 4) | index)
+                        : index == 1 ? Byte.MaxValue : Byte.MinValue;
+
+                    // writing as 32-bit integers (on Windows Stride is always the multiple of 4)
+                    if ((bitmapData.Stride & 0b11) == 0)
+                        ClearRaw(bitmapData, bitmapData.Stride >> 2, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
+                    // fallback: writing as bytes (will not occur on Windows)
+                    else
+                        ClearRaw(bitmapData, bitmapData.Stride, byteValue);
+                    return;
+
+                // Direct color-based clear (24/48 bit formats)
+                default:
+                    // small width: going with sequential clear
+                    if (bitmapData.Width < parallelThreshold)
+                    {
+                        row = bitmapData.GetRow(0);
+                        do
+                        {
+                            for (int x = 0; x < bitmapData.Width; x++)
+                                row.DoSetColor32(x, color);
+                        } while (row.MoveNextRow());
+
+                        return;
+                    }
+
+                    // parallel clear
+                    ParallelHelper.For(0, bitmapData.Height, y =>
+                    {
+                        BitmapDataRowBase row = bitmapData.GetRow(y);
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row.DoSetColor32(x, color);
+                    });
+                    return;
+            }
+        }
+
+        private static void ClearRaw<T>(BitmapDataAccessorBase bitmapData, int width, T data)
+            where T : unmanaged
+        {
+            // small width: going with sequential clear
+            if (width < parallelThreshold)
+            {
+                var row = bitmapData.GetRow(0);
+                do
+                {
+                    for (int x = 0; x < width; x++)
+                        row.DoWriteRaw(x, data);
+                } while (row.MoveNextRow());
+                return;
+            }
+
+            // parallel clear
+            ParallelHelper.For(0, bitmapData.Height, y =>
+            {
+                BitmapDataRowBase row = bitmapData.GetRow(y);
+                for (int x = 0; x < width; x++)
+                    row.DoWriteRaw(x, data);
+            });
+        }
+
+        private static void ClearWithDithering(IBitmapDataAccessor accessor, in Color32 color, IDitherer ditherer)
+        {
+            throw new NotImplementedException();
         }
 
         #endregion
