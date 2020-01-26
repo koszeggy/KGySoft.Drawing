@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -182,11 +183,29 @@ namespace KGySoft.Drawing.Imaging
             // so its distance still can be measured.
             if (c.A == 0)
                 return Color32.FromArgb(Byte.MaxValue, backColor);
+            // TODO: is it faster if we multiply by 1 / 255 constant?
             float alpha = c.A / 255f;
+            float inverseAlpha = 1f - alpha;
             return new Color32(Byte.MaxValue,
-                (byte)(c.R * alpha + backColor.R * (1 - alpha)),
-                (byte)(c.G * alpha + backColor.G * (1 - alpha)),
-                (byte)(c.B * alpha + backColor.B * (1 - alpha)));
+                (byte)(c.R * alpha + backColor.R * inverseAlpha),
+                (byte)(c.G * alpha + backColor.G * inverseAlpha),
+                (byte)(c.B * alpha + backColor.B * inverseAlpha));
+        }
+
+        internal static Color32 BlendWith(this Color32 src, Color32 dst)
+        {
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Semi transparent colors are expected");
+            
+            // TODO: is it faster if we multiply by 1 / 255 constant?
+            float alphaSrc = src.A / 255f;
+            float alphaDst = dst.A / 255f;
+            float inverseAlphaSrc = 1f - alphaSrc;
+            float alphaOut = alphaSrc + alphaDst * inverseAlphaSrc;
+
+            return new Color32((byte)(alphaOut * 255),
+                (byte)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
+                (byte)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
+                (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
         }
 
         #endregion

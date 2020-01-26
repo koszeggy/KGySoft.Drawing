@@ -98,6 +98,19 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [Test]
+        public void DrawIntoTestNoDithering(/*uint colorSrc, uint colorDst, PixelFormat formatSrc, PixelFormat formatDst*/)
+        {
+            //using var source = Icons.Information.ExtractBitmap(new Size(256, 256));
+            throw new NotImplementedException();
+
+            //// TODO: A DrawInto ne (csak) az Image-en, hanem az IBitmapDataAccessor-on legyen extension
+            //// - Több művelet esetén logikusabb az accessoron (főleg, ha DrawLine/Rectangle, etc is lesz),
+            ////   mert nincs lock újra meg újra, viszont BitmapDataAccessorBase-re optimalizálás meg image extension-ként lehet
+            ////   (hacsak nem magára az IBitmapDataAccessor-re kerülnek a metódusok, ami viszont rugalmatlan verziózás szempontjából - pl. nuget kompatibilitás)
+            //// + Clear(Color), Clear(int paletteIndex)
+        }
+
+        [Test]
         public void EqualsByContentTest()
         {
             var large = new Size(256, 256);

@@ -55,6 +55,7 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
+            // TODO: performance test with using grayscale quantizer
             Bitmap result = new Bitmap(image.Width, image.Height);
             using (Graphics g = Graphics.FromImage(result))
             {
@@ -277,6 +278,66 @@ namespace KGySoft.Drawing
             finally
             {
                 if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+            }
+        }
+
+        public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IDitherer ditherer = null)
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, ditherer);
+
+        /// <summary>
+        /// Draws the <paramref name="source"/> <see cref="Image"/> into the <paramref name="target"/> <see cref="Bitmap"/>.
+        /// This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> except that it never scales the images
+        /// and that works between any pair of source and target <see cref="PixelFormat"/>s. If <paramref name="target"/> can represent a narrower set
+        /// of colors, then the result will be automatically quantized to the colors of the target, and also an optional <paramref name="ditherer"/> can be specified.
+        /// </summary>
+        /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="sourceRect">The source area to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/></exception>
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer = null)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+
+            // clipping source rectangle with actual source size
+            sourceRect.Intersect(new Rectangle(Point.Empty, source.Size));
+
+            // calculating target rectangle
+            Size targetSize = target.Size;
+            Rectangle targetRect = new Rectangle(targetLocation, sourceRect.Size);
+            if (targetRect.Right > targetSize.Width)
+                targetRect.Width = targetRect.Right - targetSize.Width;
+            if (targetRect.Bottom > targetSize.Height)
+                targetRect.Height = targetRect.Bottom - targetSize.Height;
+
+            // final size is determined by the remaining target size (if any)
+            sourceRect.Size = targetRect.Size;
+            if (sourceRect.Height <= 0 || sourceRect.Width <= 0)
+                return;
+
+            PixelFormat targetPixelFormat = target.PixelFormat;
+
+            // Cloning source if target and source are the same, or creating a new bitmap is source is a metafile
+            Bitmap bmp = ReferenceEquals(source, target)
+                ? ((Bitmap)source).CloneCurrentFrame()
+                : source as Bitmap ?? new Bitmap(source);
+
+            try
+            {
+                if (ditherer == null || targetPixelFormat.ToBitsPerPixel() >= 24 || targetPixelFormat == PixelFormat.Format16bppGrayScale)
+                    DrawIntoDirect(bmp, target, sourceRect, targetLocation);
+                else
+                    DrawIntoWithDithering(bmp, target, sourceRect, targetLocation, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, source))
                     bmp.Dispose();
             }
         }
@@ -592,6 +653,7 @@ namespace KGySoft.Drawing
             return result;
         }
 
+        // TODO: delete
         private static int InitPalette(RGBQUAD[] targetPalette, int bpp, ColorPalette originalPalette, Color[] desiredPalette, out int transparentIndex)
         {
             int maxColors = 1 << bpp;
@@ -681,6 +743,7 @@ namespace KGySoft.Drawing
             target.Palette = targetPalette;
         }
 
+        // TODO: delete
         /// <summary>
         /// Makes an indexed bitmap transparent based on a non-indexed source
         /// </summary>
@@ -763,6 +826,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        // TODO: delete
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -860,6 +924,60 @@ namespace KGySoft.Drawing
                 target.UnlockBits(dataTarget);
                 source.UnlockBits(dataSource);
             }
+        }
+
+        private static void DrawIntoDirect(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation)
+        {
+            // TODO: special handling for same or compatible formats if can have better performance (eg. PARGB, no transparency, 16 bit channels, etc.)
+            using (BitmapDataAccessorBase src = BitmapDataAccessorFactory.CreateAccessor(source, ImageLockMode.ReadOnly))
+            using (BitmapDataAccessorBase dst = BitmapDataAccessorFactory.CreateAccessor(target, ImageLockMode.ReadWrite))
+            {
+                for (int y = 0; y < sourceRect.Height; y++)
+                {
+                    // TODO: parallel
+                    BitmapDataRowBase lineSrc = src.GetRow(sourceRect.Y + y);
+                    BitmapDataRowBase lineDst = dst.GetRow(targetLocation.Y + y);
+                    for (int x = 0; x < sourceRect.Width; x++)
+                    {
+                        Color32 colorSrc = lineSrc.DoGetColor32(sourceRect.X + x);
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            lineDst.DoSetColor32(targetLocation.X + x, colorSrc);
+                            continue;
+                        }
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = targetLocation.X + x;
+                        Color32 colorDst = lineDst.DoGetColor32(pos);
+                        
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            lineDst.DoSetColor32(pos, colorSrc);
+                            continue;
+                        }
+
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst);
+
+                        lineDst.DoSetColor32(pos, colorSrc);
+                    }
+                }
+            }
+        }
+
+        private static void DrawIntoWithDithering(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer)
+        {
+            throw new NotImplementedException("TODO: DrawIntoWithDithering");
         }
 
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream in using passed to Bitmap constructor. MemoryStream is not sensitive to multiple closing.")]
