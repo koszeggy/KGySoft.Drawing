@@ -531,9 +531,7 @@ namespace KGySoft.Drawing
                 case 8:
                 case 4:
                 case 1:
-                    row = bitmapData.GetRow(0);
-                    Palette palette = ((BitmapDataRowIndexedBase)row).Palette;
-                    int index = palette.GetColorIndex(color);
+                    int index = bitmapData.Palette.GetColorIndex(color);
                     byte byteValue = bpp == 8 ? (byte)index
                         : bpp == 4 ? (byte)((index << 4) | index)
                         : index == 1 ? Byte.MaxValue : Byte.MinValue;
@@ -596,9 +594,33 @@ namespace KGySoft.Drawing
             });
         }
 
-        private static void ClearWithDithering(IBitmapDataAccessor accessor, in Color32 color, IDitherer ditherer)
+        private static void ClearWithDithering(BitmapDataAccessorBase bitmapData, Color32 color, IDitherer ditherer)
         {
-            throw new NotImplementedException();
+            IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
+            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
+            using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+            {
+                // sequential clear
+                if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
+                {
+                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    do
+                    {
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row[x] = ditheringSession.GetDitheredColor(color, x, row.RowIndex);
+                    } while (row.MoveNextRow());
+
+                    return;
+                }
+
+                // parallel clear
+                ParallelHelper.For(0, bitmapData.Height, y =>
+                {
+                    BitmapDataRowBase row = bitmapData.GetRow(y);
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        row[x] = ditheringSession.GetDitheredColor(color, x, row.RowIndex);
+                });
+            }
         }
 
         #endregion
