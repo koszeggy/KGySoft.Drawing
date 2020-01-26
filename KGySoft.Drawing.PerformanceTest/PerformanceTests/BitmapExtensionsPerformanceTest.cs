@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapExtensionsTest.cs
+//  File: BitmapExtensionsPerformanceTest.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.PerformanceTests
 {
     [TestFixture]
-    public class BitmapExtensionsTest
+    public class BitmapExtensionsPerformanceTest
     {
         #region Methods
 
@@ -72,6 +72,44 @@ namespace KGySoft.Drawing.PerformanceTests
                 .DoTest()
                 .DumpResultsAndReturnValues(Console.Out);
         }
+
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, false)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, true)]
+        [TestCase(PixelFormat.Format8bppIndexed, 0xFF333333, true)]
+        [TestCase(PixelFormat.Format16bppRgb565, 0xFF333333, false)]
+        public void ClearWithDitheringTest(PixelFormat pixelFormat, uint argb, bool errorDiffusion)
+        {
+            const int size = 512;
+            Color color = Color.FromArgb((int)argb);
+            var ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8();
+
+            new PerformanceTest { TestName = $"{pixelFormat} {size}x{size} {(errorDiffusion ? "Error Diffusion" : "Ordered Dithering")}", Iterations = 10, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var bmp = new Bitmap(size, size, pixelFormat);
+                    IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmap(bmp);
+                    var c = new Color32(color);
+                    using (IBitmapDataAccessor acc = bmp.GetBitmapDataAccessor(ImageLockMode.WriteOnly))
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
+                    using (IDitheringSession ditheringSession = ditherer.Initialize(acc, quantizingSession))
+                    {
+                        IBitmapDataRow row = acc.FirstRow;
+                        do
+                        {
+                            for (int x = 0; x < acc.Width; x++)
+                                row[x] = ditheringSession.GetDitheredColor(c, x, row.Index);
+                        } while (row.MoveNextRow());
+                    }
+                }, "Sequential clear")
+                .AddCase(() =>
+                {
+                    using var bmp = new Bitmap(size, size, pixelFormat);
+                    bmp.Clear(color, ditherer);
+                }, "BitmapDataAccessor.Clear")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
 
         #endregion
     }

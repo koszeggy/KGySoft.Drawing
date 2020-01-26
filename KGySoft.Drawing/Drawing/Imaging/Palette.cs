@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.Imaging
         private readonly int transparentIndex = -1;
         private readonly bool isGrayscale;
         private readonly Dictionary<Color32, int> color32ToIndex;
-        private readonly IThreadSafeCacheAccessor<Color32, int> nearestColorsCache;
+        //private readonly IThreadSafeCacheAccessor<Color32, int> nearestColorsCache;
 
         #endregion
 
@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
             // - ConcurrentDictionary.Count is ridiculously expensive. Unbounded cache would consume a lot of memory.
             // - Cache.GetThreadSafeAccessor locks and if colors are never the same caching is nothing but an additional cost.
             // Conclusion: Using Cache with a fairly large capacity without locking the item loader and hoping for the best.
-            nearestColorsCache = new Cache<Color32, int>(FindNearestColorIndex, 65536).GetThreadSafeAccessor();
+            //nearestColorsCache = new Cache<Color32, int>(FindNearestColorIndex, 65536).GetThreadSafeAccessor();
         }
 
         internal Palette(Color[] entries)
@@ -101,7 +101,8 @@ namespace KGySoft.Drawing.Imaging
         internal int GetColorIndex(Color32 c)
             => color32ToIndex.TryGetValue(c, out int result)
                 ? result
-                : nearestColorsCache[c];
+                //: nearestColorsCache[c];
+                : FindNearestColorIndex(c);
 
         internal Color32 GetNearestColor(Color32 c) => entries[GetColorIndex(c)];
 

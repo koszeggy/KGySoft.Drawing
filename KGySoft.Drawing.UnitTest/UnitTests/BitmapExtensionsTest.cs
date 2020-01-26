@@ -420,6 +420,18 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(pixelFormat.ToString(), bmp);
         }
 
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, false)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, true)]
+        public void ClearWithDitheringTest(PixelFormat pixelFormat, uint argb, bool errorDiffusion)
+        {
+            const int size = 17;
+            Color color = Color.FromArgb((int)argb);
+
+            using var bmp = new Bitmap(size, size, pixelFormat);
+            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8());
+            SaveImage($"{pixelFormat} {(errorDiffusion ? "Error diffusion" : "Ordered")}", bmp);
+        }
+
         [Test]
         public void ChangeColorTest()
         {

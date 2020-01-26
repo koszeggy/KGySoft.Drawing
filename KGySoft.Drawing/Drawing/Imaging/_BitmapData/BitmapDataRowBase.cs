@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal BitmapDataAccessorBase Accessor;
         internal unsafe byte* Address;
-        internal int Line;
+        internal int RowIndex;
 
         #endregion
 
@@ -48,7 +48,7 @@ namespace KGySoft.Drawing.Imaging
             get => (IntPtr)Address;
         }
 
-        int IBitmapDataRow.Index => Line;
+        int IBitmapDataRow.Index => RowIndex;
 
         #endregion
 
@@ -114,9 +114,9 @@ namespace KGySoft.Drawing.Imaging
 
         public unsafe bool MoveNextRow()
         {
-            if (Line == Accessor.Height - 1)
+            if (RowIndex == Accessor.Height - 1)
                 return false;
-            Line += 1;
+            RowIndex += 1;
             Address += Accessor.Stride;
             return true;
         }

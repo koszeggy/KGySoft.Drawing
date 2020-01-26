@@ -31,9 +31,11 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly Bitmap bitmap;
         private readonly int handle;
+        private readonly Palette palette;
 
         private bool disposed;
         private Color32 backColor;
+        private byte alphaThreshold;
 
         #endregion
 
@@ -55,19 +57,34 @@ namespace KGySoft.Drawing.Imaging
 
         public IBitmapDataRow FirstRow => GetRow(0);
 
-        public virtual Color BackColor
+        public Color BackColor
         {
             get => backColor.ToColor();
-            set => backColor = new Color32(value);
+            set
+            {
+                backColor = new Color32(value);
+                if (palette != null)
+                    palette.BackColor = BackColor32;
+            }
         }
 
-        public virtual byte AlphaThreshold { get; set; }
+        public byte AlphaThreshold
+        {
+            get => alphaThreshold;
+            set
+            {
+                alphaThreshold = value;
+                if (palette != null)
+                    palette.AlphaThreshold = value;
+            }
+        }
 
         #endregion
 
         #region Internal Properties
 
         internal Color32 BackColor32 => backColor;
+        internal Palette Palette => palette;
 
         #endregion
         
@@ -109,6 +126,9 @@ namespace KGySoft.Drawing.Imaging
             PixelFormat = bitmapData.PixelFormat;
             Scan0 = bitmapData.Scan0;
             handle = bitmapData.Reserved; // used as a handle, required for UnlockBits
+
+            if (bitmapData.PixelFormat.IsIndexed())
+                palette = new Palette(bitmap.Palette.Entries);
         }
 
         #endregion

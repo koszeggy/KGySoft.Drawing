@@ -74,13 +74,13 @@ namespace KGySoft.Drawing.Imaging
                     return new BitmapDataAccessor<BitmapDataRow16Gray>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format8bppIndexed:
-                    return new BitmapDataAccessorIndexed<BitmapDataRow8I>(bitmap, pixelFormat, lockMode);
+                    return new BitmapDataAccessor<BitmapDataRow8I>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format4bppIndexed:
-                    return new BitmapDataAccessorIndexed<BitmapDataRow4I>(bitmap, pixelFormat, lockMode);
+                    return new BitmapDataAccessor<BitmapDataRow4I>(bitmap, pixelFormat, lockMode);
 
                 case PixelFormat.Format1bppIndexed:
-                    return new BitmapDataAccessorIndexed<BitmapDataRow1I>(bitmap, pixelFormat, lockMode);
+                    return new BitmapDataAccessor<BitmapDataRow1I>(bitmap, pixelFormat, lockMode);
 
                 default:
                     throw new ArgumentException(Res.ImagingPixelFormatNotSupported(pixelFormat), nameof(bitmap));

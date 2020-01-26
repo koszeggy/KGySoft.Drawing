@@ -169,7 +169,8 @@ namespace KGySoft.Drawing
             var partitions = Partitioner.Create(fromInclusive, toExclusive, rangeSize);
             Parallel.ForEach(partitions, (range, state) =>
             {
-                for (int i = range.Item1; i < range.Item2; i++)
+                (int from, int to) = range;
+                for (int i = from; i < to; i++)
                     body.Invoke(i);
             });
 #endif

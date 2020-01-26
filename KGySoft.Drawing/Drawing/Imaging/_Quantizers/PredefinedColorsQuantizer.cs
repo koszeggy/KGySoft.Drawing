@@ -296,11 +296,20 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
+        private PredefinedColorsQuantizer(Palette palette)
+        {
+            this.palette = palette;
+            backColor = palette.BackColor;
+            alphaThreshold = palette.AlphaThreshold;
+        }
+
         #endregion
 
         #region Methods
 
         #region Static Methods
+
+        #region Public Methods
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24 bit RGB ones.
@@ -383,6 +392,54 @@ namespace KGySoft.Drawing.Imaging
 
         public static PredefinedColorsQuantizer FromCustomPalette(Color[] palette, Color backColor = default, byte alphaThreshold = 128)
             => new PredefinedColorsQuantizer(palette, backColor, alphaThreshold);
+
+        public static PredefinedColorsQuantizer FromBitmap(Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+        {
+            switch (bitmap.PixelFormat)
+            {
+                case PixelFormat.Format16bppArgb1555:
+                    return Argb1555(backColor, alphaThreshold);
+                case PixelFormat.Format16bppRgb565:
+                    return Rgb565(backColor);
+                case PixelFormat.Format16bppRgb555:
+                    return Rgb555(backColor);
+                case PixelFormat.Format16bppGrayScale:
+                    return Grayscale16(backColor);
+                case PixelFormat.Format8bppIndexed:
+                case PixelFormat.Format4bppIndexed:
+                case PixelFormat.Format1bppIndexed:
+                    return FromCustomPalette(bitmap.Palette.Entries, backColor, alphaThreshold);
+                default:
+                    return Rgb888(backColor);
+            }
+        }
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static PredefinedColorsQuantizer FromBitmapData(BitmapDataAccessorBase bitmapData)
+        {
+            switch (bitmapData.PixelFormat)
+            {
+                case PixelFormat.Format16bppArgb1555:
+                    return Argb1555(bitmapData.BackColor, bitmapData.AlphaThreshold);
+                case PixelFormat.Format16bppRgb565:
+                    return Rgb565(bitmapData.BackColor);
+                case PixelFormat.Format16bppRgb555:
+                    return Rgb555(bitmapData.BackColor);
+                case PixelFormat.Format16bppGrayScale:
+                    return Grayscale16(bitmapData.BackColor);
+                case PixelFormat.Format8bppIndexed:
+                case PixelFormat.Format4bppIndexed:
+                case PixelFormat.Format1bppIndexed:
+                    return new PredefinedColorsQuantizer(bitmapData.Palette);
+                default:
+                    return Rgb888(bitmapData.BackColor);
+            }
+        }
+
+        #endregion
 
         #endregion
 

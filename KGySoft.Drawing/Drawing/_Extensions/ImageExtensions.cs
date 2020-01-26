@@ -261,7 +261,7 @@ namespace KGySoft.Drawing
                                 do
                                 {
                                     for (int x = 0; x < width; x++)
-                                        rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.Line));
+                                        rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.RowIndex));
                                 } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
                             }
                         }
