@@ -421,7 +421,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
-        IDitheringSession IDitherer.Initialize(IBitmapDataAccessor source, IQuantizingSession quantizer)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer)
             => new OrderedDitheringSession(quantizer, this);
 
         #endregion

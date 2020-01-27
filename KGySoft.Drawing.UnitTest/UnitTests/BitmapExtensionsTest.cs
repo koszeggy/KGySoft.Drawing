@@ -372,9 +372,9 @@ namespace KGySoft.Drawing.UnitTests
         public void GenerateBlueNoiseMatrix()
         {
             using Bitmap texture = new Bitmap(@"D:\Dokumentumok\Képek\Formats\BlueNoiseTextures\64\LDR_LLL1_13.png");
-            using IBitmapDataAccessor accessor = texture.GetBitmapDataAccessor(ImageLockMode.ReadOnly);
+            using IReadableBitmapData accessor = texture.GetReadableBitmapData();
 
-            IBitmapDataRow row = accessor.FirstRow;
+            IReadableBitmapDataRow row = accessor.FirstRow;
             Console.WriteLine($"private static readonly byte[,] blueNoise{accessor.Width} =");
             Console.WriteLine("{");
             do
@@ -406,9 +406,9 @@ namespace KGySoft.Drawing.UnitTests
 
             using var bmp = new Bitmap(size, size, pixelFormat);
             bmp.Clear(color);
-            using (var bitmapData = bmp.GetBitmapDataAccessor(ImageLockMode.ReadOnly))
+            using (IReadableBitmapData bitmapData = bmp.GetReadableBitmapData())
             {
-                var row = bitmapData.FirstRow;
+                IReadableBitmapDataRow row = bitmapData.FirstRow;
                 var c32 = new Color32(color);
                 do
                 {

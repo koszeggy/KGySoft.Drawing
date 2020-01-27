@@ -25,17 +25,14 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class BitmapDataAccessorBase : IBitmapDataAccessor
+    internal abstract class BitmapDataAccessorBase : IReadWriteBitmapData
     {
         #region Fields
 
         private readonly Bitmap bitmap;
         private readonly int handle;
-        private readonly Palette palette;
 
         private bool disposed;
-        private Color32 backColor;
-        private byte alphaThreshold;
 
         #endregion
 
@@ -53,46 +50,39 @@ namespace KGySoft.Drawing.Imaging
 
         public int Stride { get; }
 
-        public IntPtr Scan0 { get; }
+        public byte AlphaThreshold { get; }
 
-        public IBitmapDataRow FirstRow => GetRow(0);
-
-        public Color BackColor
-        {
-            get => backColor.ToColor();
-            set
-            {
-                backColor = new Color32(value);
-                if (palette != null)
-                    palette.BackColor = BackColor32;
-            }
-        }
-
-        public byte AlphaThreshold
-        {
-            get => alphaThreshold;
-            set
-            {
-                alphaThreshold = value;
-                if (palette != null)
-                    palette.AlphaThreshold = value;
-            }
-        }
+        public Palette Palette { get; }
 
         #endregion
 
         #region Internal Properties
 
-        internal Color32 BackColor32 => backColor;
-        internal Palette Palette => palette;
+        internal Color32 BackColor { get; }
 
         #endregion
+
+        #region Protected Internal Properties
         
+        protected internal IntPtr Scan0 { get; }
+
+        #endregion
+
+        #region Explicitly Implemented Properties
+
+        IReadableBitmapDataRow IReadableBitmapData.FirstRow => GetRow(0);
+        IWritableBitmapDataRow IWritableBitmapData.FirstRow => GetRow(0);
+        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => GetRow(0);
+
+        Color IWritableBitmapData.BackColor => BackColor.ToColor();
+
+        #endregion
+
         #endregion
 
         #region Indexers
 
-        public IBitmapDataRow this[int y]
+        IReadWriteBitmapDataRow IReadWriteBitmapData.this[int y]
         {
             get
             {
@@ -102,6 +92,9 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        IReadableBitmapDataRow IReadableBitmapData.this[int y] => ((IReadWriteBitmapData)this)[y];
+        IWritableBitmapDataRow IWritableBitmapData.this[int y] => ((IReadWriteBitmapData)this)[y];
+
         #endregion
 
         #endregion
@@ -110,12 +103,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        protected BitmapDataAccessorBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode)
+        protected BitmapDataAccessorBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold)
         {
             // Pixel format is passed only to avoid doubled retrieval but it must be the same as bitmap format.
             Debug.Assert(bitmap.PixelFormat == pixelFormat, "Unmatching pixel format");
 
             this.bitmap = bitmap;
+            BackColor = backColor;
+            AlphaThreshold = alphaThreshold;
+
             BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);
 
             // Instead of single BitmapData property it is safer if we store all of the data because anyone could
@@ -128,7 +124,7 @@ namespace KGySoft.Drawing.Imaging
             handle = bitmapData.Reserved; // used as a handle, required for UnlockBits
 
             if (bitmapData.PixelFormat.IsIndexed())
-                palette = new Palette(bitmap.Palette.Entries);
+                Palette = new Palette(bitmap.Palette.Entries);
         }
 
         #endregion
@@ -173,17 +169,6 @@ namespace KGySoft.Drawing.Imaging
             GetRow(y).SetColor(x, color);
         }
 
-        public BitmapData ToBitmapData()
-            => new BitmapData
-            {
-                Reserved = handle,
-                Width = Width,
-                Height = Height,
-                Stride = Stride,
-                PixelFormat = PixelFormat,
-                Scan0 = Scan0
-            };
-
         public void Dispose()
         {
             Dispose(true);
@@ -198,9 +183,20 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Protected Methods
+        #region Private Methods
 
-        protected virtual void Dispose(bool disposing)
+        private BitmapData ToBitmapData()
+            => new BitmapData
+            {
+                Reserved = handle,
+                Width = Width,
+                Height = Height,
+                Stride = Stride,
+                PixelFormat = PixelFormat,
+                Scan0 = Scan0
+            };
+
+        private void Dispose(bool disposing)
         {
             if (disposed)
                 return;

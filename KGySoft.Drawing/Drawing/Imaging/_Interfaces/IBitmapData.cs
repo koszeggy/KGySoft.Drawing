@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: IBitmapDataRow.cs
+//  File: IBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -18,24 +18,38 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    public interface IBitmapDataRow
+    /// Obtain an instance by the ... extension
+    /// TODO: <para>For parallel processing you can retrieve multiple rows by the indexer and process them concurrently.</para>
+    /// TODO: example: Processing by coordinates
+    /// TODO: example: Line by line processing by FirstRow + MoveNextRow
+    /// TODO: example: Parallel processing by FirstRow + MoveNextRow
+    public interface IBitmapData : IDisposable
     {
         #region Properties
 
-        //IntPtr Address { get; }
+        int Height { get; }
 
-        int Index { get; }
+        int Width { get; }
+
+        PixelFormat PixelFormat { get; }
+
+        //int Stride { get; }
+
+        //IntPtr Scan0 { get; }
+
+        Palette Palette { get; }
 
         #endregion
 
         #region Methods
 
-        bool MoveNextRow();
+        //BitmapData ToBitmapData();
 
         #endregion
     }

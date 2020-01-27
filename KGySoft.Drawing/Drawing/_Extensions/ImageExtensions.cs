@@ -129,11 +129,8 @@ namespace KGySoft.Drawing
                     InitPalette(newPixelFormat, bmp, result, palette);
 
                 using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly))
-                using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly))
+                using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold))
                 {
-                    target.BackColor = backColor;
-                    target.AlphaThreshold = alphaThreshold;
-
                     // TODO: parallel
                     BitmapDataRowBase rowSrc = source.GetRow(0);
                     BitmapDataRowBase rowDst = target.GetRow(0);
@@ -230,13 +227,10 @@ namespace KGySoft.Drawing
                 {
                     // validating and initializing palette
                     if (newPixelFormat.IsIndexed())
-                        InitPalette(newPixelFormat, bmp, result, quantizingSession.Palette?.Select(c => c.ToColor()).ToArray());
+                        InitPalette(newPixelFormat, bmp, result, quantizingSession.Palette?.Entries?.Select(c => c.ToColor()).ToArray());
 
-                    using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly))
+                    using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, quantizingSession.BackColor, quantizingSession.AlphaThreshold))
                     {
-                        target.BackColor = quantizingSession.BackColor.ToColor();
-                        target.AlphaThreshold = quantizingSession.AlphaThreshold;
-
                         // no dithering
                         if (ditherer == null)
                         {

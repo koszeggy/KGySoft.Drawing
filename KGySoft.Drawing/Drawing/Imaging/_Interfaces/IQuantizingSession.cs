@@ -27,9 +27,9 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         /// <summary>
-        /// Gets the palette if the number of colors are limited up to 256 colors; otherwise, can be <see langword="null"/>&#160;or empty.
+        /// Gets the palette if the number of colors are limited up to 256 colors; otherwise, can return <see langword="null"/>.
         /// </summary>
-        Color32[] Palette { get; }
+        Palette Palette { get; }
 
         /// <summary>
         /// Gets the background color for this <see cref="IQuantizingSession"/>.

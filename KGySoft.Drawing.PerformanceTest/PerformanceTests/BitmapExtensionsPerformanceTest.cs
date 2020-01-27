@@ -55,9 +55,9 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var bmp = new Bitmap(size, size, pixelFormat);
-                    using IBitmapDataAccessor acc = bmp.GetBitmapDataAccessor(ImageLockMode.WriteOnly);
+                    using IWritableBitmapData acc = bmp.GetWritableBitmapData();
                     var c = new Color32(color);
-                    IBitmapDataRow row = acc.FirstRow;
+                    IWritableBitmapDataRow row = acc.FirstRow;
                     do
                     {
                         for (int x = 0; x < acc.Width; x++)
@@ -89,11 +89,11 @@ namespace KGySoft.Drawing.PerformanceTests
                     using var bmp = new Bitmap(size, size, pixelFormat);
                     IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmap(bmp);
                     var c = new Color32(color);
-                    using (IBitmapDataAccessor acc = bmp.GetBitmapDataAccessor(ImageLockMode.WriteOnly))
+                    using (IReadWriteBitmapData acc = bmp.GetReadWriteBitmapData())
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(acc, quantizingSession))
                     {
-                        IBitmapDataRow row = acc.FirstRow;
+                        IReadWriteBitmapDataRow row = acc.FirstRow;
                         do
                         {
                             for (int x = 0; x < acc.Width; x++)

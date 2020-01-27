@@ -41,13 +41,12 @@ namespace KGySoft.Drawing.Imaging
 
             private readonly PredefinedColorsQuantizer quantizer;
             private readonly Func<Color32, Color32> transform;
-            private readonly Palette palette;
 
             #endregion
 
             #region Properties
 
-            public Color32[] Palette => palette?.Entries;
+            public Palette Palette { get; }
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
 
@@ -59,7 +58,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 this.quantizer = quantizer;
                 this.transform = transform;
-                this.palette = palette;
+                this.Palette = palette;
             }
 
             #endregion
@@ -87,13 +86,12 @@ namespace KGySoft.Drawing.Imaging
             #region Fields
 
             private readonly PredefinedColorsQuantizer quantizer;
-            private readonly Palette palette;
 
             #endregion
 
             #region Properties
 
-            public Color32[] Palette => palette.Entries;
+            public Palette Palette { get; }
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
 
@@ -104,7 +102,7 @@ namespace KGySoft.Drawing.Imaging
             internal QuantizingSessionIndexed(PredefinedColorsQuantizer quantizer, Palette palette)
             {
                 this.quantizer = quantizer;
-                this.palette = palette;
+                this.Palette = palette;
             }
 
             #endregion
@@ -115,7 +113,7 @@ namespace KGySoft.Drawing.Imaging
             {
             }
 
-            public Color32 GetQuantizedColor(Color32 c) => palette.GetNearestColor(c);
+            public Color32 GetQuantizedColor(Color32 c) => Palette.GetNearestColor(c);
 
             #endregion
         }
@@ -266,41 +264,30 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
+        private PredefinedColorsQuantizer(Palette palette)
+        {
+            this.palette = palette;
+            backColor = palette.BackColor;
+            alphaThreshold = palette.AlphaThreshold;
+        }
+
+        private PredefinedColorsQuantizer(Color[] colors, Color backColor, byte alphaThreshold = 0)
+            : this(new Palette(colors, backColor, alphaThreshold))
+        {
+        }
+
+        private PredefinedColorsQuantizer(Color32[] colors, Color32 backColor, byte alphaThreshold = 0)
+            : this(new Palette(colors, backColor, alphaThreshold))
+        {
+        }
+
         private PredefinedColorsQuantizer(Func<Color32, Color32> transform, Color32 backColor, Color32[] palette = null, byte alphaThreshold = 0)
         {
             this.transform = transform;
             this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
             this.alphaThreshold = alphaThreshold;
             if (palette != null)
-            {
-                this.palette = new Palette(palette)
-                {
-                    BackColor = this.backColor,
-                    AlphaThreshold = alphaThreshold
-                };
-            }
-        }
-
-        private PredefinedColorsQuantizer(Color[] colors, Color backColor, byte alphaThreshold = 0)
-            : this(null, new Color32(backColor), null, alphaThreshold)
-        {
-            palette = new Palette(colors)
-            {
-                BackColor = this.backColor,
-                AlphaThreshold = alphaThreshold
-            };
-        }
-
-        private PredefinedColorsQuantizer(Color32[] colors, Color32 backColor, byte alphaThreshold = 0)
-            : this(null, backColor, colors, alphaThreshold)
-        {
-        }
-
-        private PredefinedColorsQuantizer(Palette palette)
-        {
-            this.palette = palette;
-            backColor = palette.BackColor;
-            alphaThreshold = palette.AlphaThreshold;
+                this.palette = new Palette(palette, this.backColor, alphaThreshold);
         }
 
         #endregion
@@ -393,6 +380,8 @@ namespace KGySoft.Drawing.Imaging
         public static PredefinedColorsQuantizer FromCustomPalette(Color[] palette, Color backColor = default, byte alphaThreshold = 128)
             => new PredefinedColorsQuantizer(palette, backColor, alphaThreshold);
 
+        public static PredefinedColorsQuantizer FromCustomPalette(Palette palette) => new PredefinedColorsQuantizer(palette);
+
         public static PredefinedColorsQuantizer FromBitmap(Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
             switch (bitmap.PixelFormat)
@@ -404,7 +393,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppRgb555:
                     return Rgb555(backColor);
                 case PixelFormat.Format16bppGrayScale:
-                    return Grayscale16(backColor);
+                    return Grayscale(backColor);
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
@@ -423,19 +412,19 @@ namespace KGySoft.Drawing.Imaging
             switch (bitmapData.PixelFormat)
             {
                 case PixelFormat.Format16bppArgb1555:
-                    return Argb1555(bitmapData.BackColor, bitmapData.AlphaThreshold);
+                    return Argb1555(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold);
                 case PixelFormat.Format16bppRgb565:
-                    return Rgb565(bitmapData.BackColor);
+                    return Rgb565(bitmapData.BackColor.ToColor());
                 case PixelFormat.Format16bppRgb555:
-                    return Rgb555(bitmapData.BackColor);
+                    return Rgb555(bitmapData.BackColor.ToColor());
                 case PixelFormat.Format16bppGrayScale:
-                    return Grayscale16(bitmapData.BackColor);
+                    return Grayscale(bitmapData.BackColor.ToColor());
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
-                    return new PredefinedColorsQuantizer(bitmapData.Palette);
+                    return FromCustomPalette(bitmapData.Palette);
                 default:
-                    return Rgb888(bitmapData.BackColor);
+                    return Rgb888(bitmapData.BackColor.ToColor());
             }
         }
 
@@ -445,7 +434,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
-        IQuantizingSession IQuantizer.Initialize(IBitmapDataAccessor source)
+        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
             => transform != null
                 ? new QuantizingSessionCustomMapping(this, transform, palette)
                 : (IQuantizingSession)new QuantizingSessionIndexed(this, palette);

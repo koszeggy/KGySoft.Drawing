@@ -49,7 +49,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Methods
 
-            void Initialize(int requestedColors, IBitmapDataAccessor source);
+            void Initialize(int requestedColors, IBitmapData source);
 
             void AddColor(Color32 c);
 
@@ -68,13 +68,13 @@ namespace KGySoft.Drawing.Imaging
             #region Fields
 
             private readonly OptimizedPaletteQuantizer quantizer;
-            private readonly Palette palette;
 
             #endregion
 
             #region Properties
 
-            public Color32[] Palette => palette.Entries;
+            public Palette Palette { get; }
+
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
 
@@ -82,10 +82,10 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            public OptimizedPaletteQuantizerSession(OptimizedPaletteQuantizer quantizer, IBitmapDataAccessor source)
+            public OptimizedPaletteQuantizerSession(OptimizedPaletteQuantizer quantizer, IReadableBitmapData source)
             {
                 this.quantizer = quantizer;
-                palette = InitializePalette(source);
+                Palette = InitializePalette(source);
             }
 
             #endregion
@@ -98,18 +98,18 @@ namespace KGySoft.Drawing.Imaging
             {
             }
 
-            public Color32 GetQuantizedColor(Color32 origColor) => palette.GetNearestColor(origColor);
+            public Color32 GetQuantizedColor(Color32 origColor) => Palette.GetNearestColor(origColor);
 
             #endregion
 
             #region Private Methods
 
-            private Palette InitializePalette(IBitmapDataAccessor source)
+            private Palette InitializePalette(IReadableBitmapData source)
             {
                 TAlg alg = new TAlg();
                 alg.Initialize(quantizer.maxColors, source);
                 int width = source.Width;
-                IBitmapDataRow row = source.FirstRow;
+                IReadableBitmapDataRow row = source.FirstRow;
                 do
                 {
                     // TODO: parallel if possible
@@ -124,11 +124,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 } while (row.MoveNextRow());
 
-                return new Palette(alg.GeneratePalette())
-                {
-                    AlphaThreshold = quantizer.alphaThreshold,
-                    BackColor = quantizer.backColor
-                };
+                return new Palette(alg.GeneratePalette(), quantizer.backColor, quantizer.alphaThreshold);
             }
 
             #endregion
@@ -193,7 +189,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
-        IQuantizingSession IQuantizer.Initialize(IBitmapDataAccessor source)
+        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
         {
             switch (algorithm)
             {

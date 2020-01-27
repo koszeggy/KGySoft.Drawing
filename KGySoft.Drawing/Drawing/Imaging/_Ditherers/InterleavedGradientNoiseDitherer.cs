@@ -87,7 +87,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        IDitheringSession IDitherer.Initialize(IBitmapDataAccessor source, IQuantizingSession quantizer)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer)
             => new InterleavedGradientNoiseDitheringSession(quantizer, this);
 
         #endregion

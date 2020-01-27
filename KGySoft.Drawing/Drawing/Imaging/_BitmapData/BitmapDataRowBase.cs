@@ -26,7 +26,7 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class BitmapDataRowBase : IBitmapDataRow
+    internal abstract class BitmapDataRowBase : IReadWriteBitmapDataRow
     {
         #region Fields
 
@@ -40,13 +40,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        unsafe IntPtr IBitmapDataRow.Address
-        {
-#if !(NET35 || NET40)
-            [SecuritySafeCritical] 
-#endif
-            get => (IntPtr)Address;
-        }
+//        unsafe IntPtr IBitmapDataRow.Address
+//        {
+//#if !(NET35 || NET40)
+//            [SecuritySafeCritical] 
+//#endif
+//            get => (IntPtr)Address;
+//        }
 
         int IBitmapDataRow.Index => RowIndex;
 

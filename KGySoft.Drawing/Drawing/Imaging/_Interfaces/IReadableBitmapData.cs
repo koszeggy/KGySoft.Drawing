@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: IBitmapDataAccessor.cs
+//  File: IReadableBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution. If not, then this file is considered as
@@ -29,33 +29,19 @@ namespace KGySoft.Drawing.Imaging
     /// TODO: example: Processing by coordinates
     /// TODO: example: Line by line processing by FirstRow + MoveNextRow
     /// TODO: example: Parallel processing by FirstRow + MoveNextRow
-    public interface IBitmapDataAccessor : IDisposable
+    public interface IReadableBitmapData : IBitmapData
     {
         #region Properties and Indexers
 
         #region Properties
 
-        int Height { get; }
-
-        int Width { get; }
-
-        PixelFormat PixelFormat { get; }
-
-        int Stride { get; }
-
-        IntPtr Scan0 { get; }
-
-        IBitmapDataRow FirstRow { get; }
-
-        Color BackColor { get; set; }
-
-        byte AlphaThreshold { get; set; }
+        IReadableBitmapDataRow FirstRow { get; }
 
         #endregion
 
         #region Indexers
 
-        IBitmapDataRow this[int y] { get; }
+        IReadableBitmapDataRow this[int y] { get; }
 
         #endregion
 
@@ -81,10 +67,6 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
         Color GetPixel(int x, int y);
-
-        void SetPixel(int x, int y, Color color);
-
-        BitmapData ToBitmapData();
 
         #endregion
     }

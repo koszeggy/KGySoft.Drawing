@@ -20,7 +20,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
-        IDitheringSession Initialize(IBitmapDataAccessor source, IQuantizingSession quantizingSession);
+        IDitheringSession Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession);
 
         #endregion
     }

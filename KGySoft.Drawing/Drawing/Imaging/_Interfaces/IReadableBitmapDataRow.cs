@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: IQuantizer.cs
+//  File: IReadableBitmapDataRow.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -14,13 +14,30 @@
 
 #endregion
 
+#region Usings
+
+using System;
+using System.Drawing;
+
+#endregion
+
 namespace KGySoft.Drawing.Imaging
 {
-    public interface IQuantizer
+    public interface IReadableBitmapDataRow : IBitmapDataRow
     {
+        #region Indexers
+
+        Color32 this[int x] { get; }
+
+        #endregion
+
         #region Methods
 
-        IQuantizingSession Initialize(IReadableBitmapData source);
+        Color GetColor(int x);
+
+        int GetColorIndex(int x);
+
+        T ReadRaw<T>(int x) where T : unmanaged;
 
         #endregion
     }

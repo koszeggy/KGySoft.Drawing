@@ -52,7 +52,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal ErrorDiffusionDitheringSession(IQuantizingSession quantizer, ErrorDiffusionDitherer ditherer, IBitmapDataAccessor source)
+            internal ErrorDiffusionDitheringSession(IQuantizingSession quantizer, ErrorDiffusionDitherer ditherer, IBitmapData source)
             {
                 this.quantizer = quantizer;
                 this.ditherer = ditherer;
@@ -343,7 +343,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        IDitheringSession IDitherer.Initialize(IBitmapDataAccessor source, IQuantizingSession quantizer)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer)
             => new ErrorDiffusionDitheringSession(quantizer, this, source);
 
         #endregion

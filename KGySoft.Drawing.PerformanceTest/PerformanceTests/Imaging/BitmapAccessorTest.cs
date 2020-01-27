@@ -69,7 +69,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 .AddCase(() =>
                 {
                     int diffs = 0;
-                    using IBitmapDataAccessor accessor = bmp.GetBitmapDataAccessor(ImageLockMode.ReadWrite);
+                    using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
                     for (int y = 0; y < size.Height; y++)
                     {
                         for (int x = 0; x < size.Width; x++)
@@ -81,12 +81,12 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                         }
                     }
                     return diffs;
-                }, "IBitmapDataAccessor.SetPixel/GetPixel")
+                }, "IReadWriteBitmapData.SetPixel/GetPixel")
                 .AddCase(() =>
                 {
                     int diffs = 0;
-                    using IBitmapDataAccessor accessor = bmp.GetBitmapDataAccessor(ImageLockMode.ReadWrite);
-                    IBitmapDataRow row = accessor.FirstRow;
+                    using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
+                    IReadWriteBitmapDataRow row = accessor.FirstRow;
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
@@ -98,12 +98,12 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                         }
                     } while (row.MoveNextRow());
                     return diffs;
-                }, "IBitmapDataRow.this")
+                }, "IReadWriteBitmapDataRow.this")
                 .AddCase(() =>
                 {
                     int diffs = 0;
-                    using IBitmapDataAccessor accessor = bmp.GetBitmapDataAccessor(ImageLockMode.ReadWrite);
-                    IBitmapDataRow row = accessor.FirstRow;
+                    using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
+                    IReadWriteBitmapDataRow row = accessor.FirstRow;
                     do
                     {
                         switch (pixelFormat.ToBitsPerPixel())
@@ -158,12 +158,12 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                         }
                     } while (row.MoveNextRow());
                     return diffs;
-                }, "IBitmapDataRow.WriteRaw/ReadRaw")
+                }, "IReadWriteBitmapDataRow.WriteRaw/ReadRaw")
                 .AddCase(() =>
                 {
                     int diffs = 0;
-                    using IBitmapDataAccessor accessor = bmp.GetBitmapDataAccessor(ImageLockMode.ReadWrite);
-                    IBitmapDataRow row = accessor.FirstRow;
+                    using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
+                    IReadWriteBitmapDataRow row = accessor.FirstRow;
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
@@ -175,7 +175,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                         }
                     } while (row.MoveNextRow());
                     return diffs;
-                }, "IBitmapDataRow.SetColor/GetColor")
+                }, "IReadWriteBitmapDataRow.SetColor/GetColor")
                 .AddCase(() =>
                 {
                     int diffs = 0;

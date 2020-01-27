@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (c.A != Byte.MaxValue)
             {
-                c = c.A >= Accessor.AlphaThreshold ? c.BlendWithBackground(Accessor.BackColor32)
+                c = c.A >= Accessor.AlphaThreshold ? c.BlendWithBackground(Accessor.BackColor)
                     : c.A < 128 ? c
                     : default;
             }

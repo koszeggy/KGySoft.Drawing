@@ -257,7 +257,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public void Initialize(int requestedColors, IBitmapDataAccessor source) => maxColors = requestedColors;
+            public void Initialize(int requestedColors, IBitmapData source) => maxColors = requestedColors;
 
             public void AddColor(Color32 c)
             {
