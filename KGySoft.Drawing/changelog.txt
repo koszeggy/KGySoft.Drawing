@@ -25,11 +25,11 @@ A new namespace for fast and direct Bitmap pixel manipulation in a type-safe and
   + New GetBitmapDataAccessor method: Provides fast managed pixel manipulation for any pixel formats.
   + New Quantize method: Reduces number of colors
   + New Dither method: Reduces number of colors with dithering
-  + New Clear method: Similar to Graphics.Clear but supports every PixelFormat
+  + New Clear methods: Similar to Graphics.Clear but supports every PixelFormat
 - IconExtensions class:
   - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
     keepOriginalFormat parameter was true.
-- ImageExtensions class:
++ ImageExtensions class:
   + ConvertPixelFormat method:
     + Supporting every pixel formats, including Format16bppGrayScale and Format16bppArgb1555.
     + New backColor optional parameter: Specifies a background color for non-alpha pixel formats. From now on
@@ -44,7 +44,7 @@ A new namespace for fast and direct Bitmap pixel manipulation in a type-safe and
       on images with different raw format can also be considered equal (as expected based on the documentation).
     - Images with the same stride size were considered different if the absolute value of their stride were
       different (a top-down image was compared to a bottom-up image).
-  + New DrawInto method: Similar to Graphics.DrawImage but supports every PixelFormat
+  + New DrawInto methods: Similar to Graphics.DrawImage but supports every PixelFormat
 - MetafileExtensions class:
   - Save method: Fixing an ArgumentException if the raw format of the metafile to save is WMF rather than EMF.
 

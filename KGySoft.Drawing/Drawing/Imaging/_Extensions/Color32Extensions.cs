@@ -195,8 +195,7 @@ namespace KGySoft.Drawing.Imaging
         internal static Color32 BlendWith(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Semi transparent colors are expected");
-            
-            // TODO: is it faster if we multiply by 1 / 255 constant?
+
             float alphaSrc = src.A / 255f;
             float alphaDst = dst.A / 255f;
             float inverseAlphaSrc = 1f - alphaSrc;
@@ -206,6 +205,18 @@ namespace KGySoft.Drawing.Imaging
                 (byte)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
+        }
+
+        internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
+        {
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Semi transparent colors are expected");
+
+            float inverseAlphaSrc = (255 - src.A) / 255f;
+
+            return new Color32((byte)(src.A + dst.A * inverseAlphaSrc),
+                (byte)(src.R + dst.R * inverseAlphaSrc),
+                (byte)(src.G + dst.G * inverseAlphaSrc),
+                (byte)(src.B + dst.B * inverseAlphaSrc));
         }
 
         #endregion

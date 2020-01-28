@@ -391,15 +391,46 @@ namespace KGySoft.Drawing
         /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> but can be used for <see cref="Bitmap"/>s of any <see cref="PixelFormat"/>.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be cleared.</param>
-        /// <param name="color">A <see cref="Color"/> that represents the desired background color of the bitmap.</param>
-        /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect, if <see cref="Image.PixelFormat"/> returns a <see cref="PixelFormat"/> of at least 24 bits-per-pixel size. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        public static void Clear(this Bitmap bitmap, Color color, IDitherer ditherer = null)
+        /// <param name="color">A <see cref="Color"/> that represents the desired result color of the bitmap.</param>
+        /// <param name="backColor">If <paramref name="bitmap"/> cannot have alpha or has only single-bit alpha, and <paramref name="color"/> is not fully opaque, then specifies the color of the background.
+        /// The not fully opaque <paramref name="color"/> with alpha above the <paramref name="alphaThreshold"/> will be blended with <paramref name="backColor"/> to determine the color of the cleared <paramref name="bitmap"/>.
+        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="bitmap"/> has only single-bit alpha or its palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the specified <paramref name="color"/> is considered to be transparent. If <c>0</c>,
+        /// then the cleared <paramref name="bitmap"/> will not be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        public static void Clear(this Bitmap bitmap, Color color, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            using (var accessor = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+                ClearDirect(accessor, new Color32(color));
+        }
+
+        /// <summary>
+        /// Clears the complete <paramref name="bitmap"/> and fills it with the specified <paramref name="color"/>.
+        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> but can be used for <see cref="Bitmap"/>s of any <see cref="PixelFormat"/>.
+        /// </summary>
+        /// <param name="bitmap">The <see cref="Bitmap"/> to be cleared.</param>
+        /// <param name="color">A <see cref="Color"/> that represents the desired result color of the bitmap.</param>
+        /// <param name="backColor">If <paramref name="bitmap"/> cannot have alpha or has only single-bit alpha, and <paramref name="color"/> is not fully opaque, then specifies the color of the background.
+        /// The not fully opaque <paramref name="color"/> with alpha above the <paramref name="alphaThreshold"/> will be blended with <paramref name="backColor"/> to determine the color of the cleared <paramref name="bitmap"/>.
+        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="bitmap"/> has only single-bit alpha or its palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the specified <paramref name="color"/> is considered to be transparent. If <c>0</c>,
+        /// then the cleared <paramref name="bitmap"/> will not be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <paramref name="bitmap"/> <see cref="PixelFormat"/> has at least 24 bits-per-pixel size.
+        /// If <see langword="null"/>, then the <see cref="Clear(Bitmap,Color,Color,byte)"/> overload will be called.</param>
+        public static void Clear(this Bitmap bitmap, Color color, IDitherer ditherer, Color backColor = default, byte alphaThreshold = 128)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+
             Color32 c = new Color32(color);
-            using (var accessor = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite))
+            using (var accessor = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
             {
                 if (ditherer == null || accessor.PixelFormat.ToBitsPerPixel() >= 24 || accessor.PixelFormat == PixelFormat.Format16bppGrayScale)
                     ClearDirect(accessor, c);
@@ -475,7 +506,9 @@ namespace KGySoft.Drawing
             {
                 // premultiplying only once (if needed), clearing by longs
                 case 32:
-                    Color32 rawColor = bitmapData.PixelFormat == PixelFormat.Format32bppPArgb ? color.ToPremultiplied() : color;
+                    row = bitmapData.GetRow(0);
+                    row.DoSetColor32(0, color);
+                    var rawColor = row.DoReadRaw<Color32>(0);
                     int longWidth = bitmapData.Stride >> 3;
 
                     // writing as longs

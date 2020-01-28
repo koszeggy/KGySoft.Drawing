@@ -40,6 +40,12 @@ namespace KGySoft.Drawing
     /// </summary>
     public static class ImageExtensions
     {
+        #region Constants
+
+        private const int parallelThreshold = 100;
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -88,7 +94,7 @@ namespace KGySoft.Drawing
         /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>, then
         /// and <paramref name="image"/> also has a palette of no more entries than the target indexed format can have, then the source palette will be used.
         /// Otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
-        /// <param name="backColor">If <paramref name="newPixelFormat"/> cannot represent multi-level alpha, then specifies the color of the background.
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not have alpha or has only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before setting the pixel in the result image.
         /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -162,7 +168,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="backColor">If <paramref name="newPixelFormat"/> cannot represent multi-level alpha, then specifies the color of the background.
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not have alpha or has only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before setting the pixel in the result image.
         /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -306,12 +312,34 @@ namespace KGySoft.Drawing
             Size targetSize = target.Size;
             Rectangle targetRect = new Rectangle(targetLocation, sourceRect.Size);
             if (targetRect.Right > targetSize.Width)
-                targetRect.Width = targetRect.Right - targetSize.Width;
-            if (targetRect.Bottom > targetSize.Height)
-                targetRect.Height = targetRect.Bottom - targetSize.Height;
+            {
+                targetRect.Width -= targetRect.Right - targetSize.Width;
+                sourceRect.Width = targetRect.Width;
+            }
 
-            // final size is determined by the remaining target size (if any)
-            sourceRect.Size = targetRect.Size;
+            if (targetRect.Bottom > targetSize.Height)
+            {
+                targetRect.Height -= targetRect.Bottom - targetSize.Height;
+                sourceRect.Height = targetRect.Height;
+            }
+
+            if (targetRect.Left < 0)
+            {
+                sourceRect.Width += targetRect.Left;
+                sourceRect.X -= targetRect.Left;
+                targetRect.Width += targetRect.Left;
+                targetRect.X = 0;
+            }
+
+            if (targetRect.Top < 0)
+            {
+                sourceRect.Height += targetRect.Top;
+                sourceRect.Y -= targetRect.Top;
+                targetRect.Height += targetRect.Top;
+                targetRect.Y = 0;
+            }
+
+            // returning, if there is no remaining source to draw
             if (sourceRect.Height <= 0 || sourceRect.Width <= 0)
                 return;
 
@@ -325,9 +353,9 @@ namespace KGySoft.Drawing
             try
             {
                 if (ditherer == null || targetPixelFormat.ToBitsPerPixel() >= 24 || targetPixelFormat == PixelFormat.Format16bppGrayScale)
-                    DrawIntoDirect(bmp, target, sourceRect, targetLocation);
+                    DrawIntoDirect(bmp, target, sourceRect, targetRect.Location);
                 else
-                    DrawIntoWithDithering(bmp, target, sourceRect, targetLocation, ditherer);
+                    DrawIntoWithDithering(bmp, target, sourceRect, targetRect.Location, ditherer);
             }
             finally
             {
@@ -922,50 +950,105 @@ namespace KGySoft.Drawing
 
         private static void DrawIntoDirect(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation)
         {
-            // TODO: special handling for same or compatible formats if can have better performance (eg. PARGB, no transparency, 16 bit channels, etc.)
+            #region Local Methods
+
+            static void ProcessRowStraight(int y, BitmapDataAccessorBase src, BitmapDataAccessorBase dst, Rectangle rectSrc, Point locDst)
+            {
+                BitmapDataRowBase rowSrc = src.GetRow(rectSrc.Y + y);
+                BitmapDataRowBase rowDst = dst.GetRow(locDst.Y + y);
+                for (int x = 0; x < rectSrc.Width; x++)
+                {
+                    Color32 colorSrc = rowSrc.DoGetColor32(rectSrc.X + x);
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoSetColor32(locDst.X + x, colorSrc);
+                        continue;
+                    }
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = locDst.X + x;
+                    Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                    // fully transparent target: we can overwrite with source
+                    if (colorDst.A == 0)
+                    {
+                        rowDst.DoSetColor32(pos, colorSrc);
+                        continue;
+                    }
+
+                    colorSrc = colorDst.A == Byte.MaxValue
+                        // target pixel is fully solid: simple blending
+                        ? colorSrc.BlendWithBackground(colorDst)
+                        // both source and target pixels are partially transparent: complex blending
+                        : colorSrc.BlendWith(colorDst);
+
+                    rowDst.DoSetColor32(pos, colorSrc);
+                }
+            }
+
+            static void ProcessRowPremultiplied(int y, BitmapDataAccessorBase src, BitmapDataAccessorBase dst, Rectangle rectSrc, Point locDst)
+            {
+                BitmapDataRowBase rowSrc = src.GetRow(rectSrc.Y + y);
+                BitmapDataRowBase rowDst = dst.GetRow(locDst.Y + y);
+                bool isPremultipliedSource = src.PixelFormat == PixelFormat.Format32bppPArgb;
+                for (int x = 0; x < rectSrc.Width; x++)
+                {
+                    Color32 colorSrc = isPremultipliedSource
+                        ? rowSrc.DoReadRaw<Color32>(rectSrc.X + x)
+                        : rowSrc.DoGetColor32(rectSrc.X + x).ToPremultiplied();
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoWriteRaw(locDst.X + x, colorSrc);
+                        continue;
+                    }
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = locDst.X + x;
+                    Color32 colorDst = rowDst.DoReadRaw<Color32>(pos);
+
+                    // fully transparent target: we can overwrite with source
+                    if (colorDst.A == 0)
+                    {
+                        rowDst.DoWriteRaw(pos, colorSrc);
+                        continue;
+                    }
+
+                    rowDst.DoWriteRaw(pos, colorSrc.BlendWithPremultiplied(colorDst));
+                }
+            } 
+            
+            #endregion
+
             using (BitmapDataAccessorBase src = BitmapDataAccessorFactory.CreateAccessor(source, ImageLockMode.ReadOnly))
             using (BitmapDataAccessorBase dst = BitmapDataAccessorFactory.CreateAccessor(target, ImageLockMode.ReadWrite))
             {
-                for (int y = 0; y < sourceRect.Height; y++)
+                Action<int, BitmapDataAccessorBase, BitmapDataAccessorBase, Rectangle, Point> processRow = dst.PixelFormat == PixelFormat.Format32bppPArgb
+                    ? (Action<int, BitmapDataAccessorBase, BitmapDataAccessorBase, Rectangle, Point>)ProcessRowPremultiplied
+                    : ProcessRowStraight;
+
+                // Sequential processing
+                if (sourceRect.Width < parallelThreshold)
                 {
-                    // TODO: parallel
-                    BitmapDataRowBase lineSrc = src.GetRow(sourceRect.Y + y);
-                    BitmapDataRowBase lineDst = dst.GetRow(targetLocation.Y + y);
-                    for (int x = 0; x < sourceRect.Width; x++)
-                    {
-                        Color32 colorSrc = lineSrc.DoGetColor32(sourceRect.X + x);
-
-                        // fully transparent source: skip
-                        if (colorSrc.A == 0)
-                            continue;
-
-                        // fully solid source: overwrite
-                        if (colorSrc.A == Byte.MaxValue)
-                        {
-                            lineDst.DoSetColor32(targetLocation.X + x, colorSrc);
-                            continue;
-                        }
-
-                        // source here has a partial transparency: we need to read the target color
-                        int pos = targetLocation.X + x;
-                        Color32 colorDst = lineDst.DoGetColor32(pos);
-                        
-                        // fully transparent target: we can overwrite with source
-                        if (colorDst.A == 0)
-                        {
-                            lineDst.DoSetColor32(pos, colorSrc);
-                            continue;
-                        }
-
-                        colorSrc = colorDst.A == Byte.MaxValue
-                            // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackground(colorDst)
-                            // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWith(colorDst);
-
-                        lineDst.DoSetColor32(pos, colorSrc);
-                    }
+                    for (int y = 0; y < sourceRect.Height; y++)
+                        processRow.Invoke(y, src, dst, sourceRect, targetLocation);
+                    return;
                 }
+
+                // Parallel processing
+                ParallelHelper.For(0, sourceRect.Height,
+                    y => processRow.Invoke(y, src, dst, sourceRect, targetLocation));
             }
         }
 

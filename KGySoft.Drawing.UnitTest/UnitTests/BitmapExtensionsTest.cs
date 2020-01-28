@@ -393,7 +393,11 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [TestCase(PixelFormat.Format32bppArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppArgb, 0x800000FF)]
+        [TestCase(PixelFormat.Format32bppRgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppRgb, 0x800000FF)]
         [TestCase(PixelFormat.Format32bppPArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppPArgb, 0x800000FF)]
         [TestCase(PixelFormat.Format16bppRgb555, 0xFF0000FF)]
         [TestCase(PixelFormat.Format64bppArgb, 0xFF0000FF)]
         [TestCase(PixelFormat.Format8bppIndexed, 0xFF0000FF)]
@@ -410,6 +414,8 @@ namespace KGySoft.Drawing.UnitTests
             {
                 IReadableBitmapDataRow row = bitmapData.FirstRow;
                 var c32 = new Color32(color);
+                if (!pixelFormat.HasTransparency())
+                    c32 = c32.BlendWithBackground(default);
                 do
                 {
                     for (int x = 0; x < bitmapData.Width; x++)

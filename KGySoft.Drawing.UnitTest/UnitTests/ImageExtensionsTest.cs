@@ -97,17 +97,64 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, converted);
         }
 
-        [Test]
-        public void DrawIntoTestNoDithering(/*uint colorSrc, uint colorDst, PixelFormat formatSrc, PixelFormat formatDst*/)
+        [TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp PARGB to 32bpp PARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppPArgb)]
+        [TestCase("32bpp ARGB to 32bpp RGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppRgb)]
+        [TestCase("32bpp RGB to 32bpp ARGB", PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp ARGB to 32bpp PARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb)]
+        [TestCase("32bpp PARGB to 32bpp ARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp ARGB to 16bpp Grayscale", PixelFormat.Format32bppArgb, PixelFormat.Format16bppGrayScale)]
+        [TestCase("32bpp ARGB to 16bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format16bppArgb1555)]
+        [TestCase("32bpp ARGB to 8bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed)]
+        [TestCase("32bpp ARGB to 4bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format4bppIndexed)]
+        [TestCase("32bpp ARGB to 1bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed)]
+        [TestCase("64bpp ARGB to 64bpp ARGB", PixelFormat.Format64bppArgb, PixelFormat.Format64bppArgb)]
+        [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
+        public void DrawIntoTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
-            //using var source = Icons.Information.ExtractBitmap(new Size(256, 256));
-            throw new NotImplementedException();
+            Size targetSize = new Size(300, 300);
+            Size sourceSize = new Size(300, 300);
+            Point offset = new Point(-50, -50);
 
-            //// TODO: A DrawInto ne (csak) az Image-en, hanem az IBitmapDataAccessor-on legyen extension
-            //// - Több művelet esetén logikusabb az accessoron (főleg, ha DrawLine/Rectangle, etc is lesz),
-            ////   mert nincs lock újra meg újra, viszont BitmapDataAccessorBase-re optimalizálás meg image extension-ként lehet
-            ////   (hacsak nem magára az IBitmapDataAccessor-re kerülnek a metódusok, ami viszont rugalmatlan verziózás szempontjából - pl. nuget kompatibilitás)
-            //// + Clear(Color), Clear(int paletteIndex)
+            // creating source images: alpha rectangles
+            using var bmpSrc1 = new Bitmap(sourceSize.Width, sourceSize.Height, formatSrc);
+            bmpSrc1.Clear(Color.FromArgb(128, Color.Red));
+            using var bmpSrc2 = new Bitmap(sourceSize.Width, sourceSize.Height, formatSrc);
+            bmpSrc2.Clear(Color.FromArgb(128, Color.Lime));
+
+            // creating target image
+            using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
+
+            // drawing sources into destination
+            Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset));
+            Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height)));
+
+            SaveImage(testName, bmpDst);
+        }
+
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, false)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, true)]
+        public void DrawIntoWithDitheringTest(string testName, PixelFormat formatSrc, PixelFormat formatDst, bool errorDiffusion)
+        {
+            Size targetSize = new Size(300, 300);
+            Size sourceSize = new Size(300, 300);
+            Point offset = new Point(-50, -50);
+
+            // creating source images: alpha rectangles
+            using var bmpSrc1 = new Bitmap(sourceSize.Width, sourceSize.Height, formatSrc);
+            bmpSrc1.Clear(Color.FromArgb(128, Color.Red));
+            using var bmpSrc2 = new Bitmap(sourceSize.Width, sourceSize.Height, formatSrc);
+            bmpSrc2.Clear(Color.FromArgb(128, Color.Lime));
+
+            // creating target image
+            using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
+
+            // drawing sources into destination
+            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8();
+            Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset, ditherer));
+            Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height), ditherer));
+
+            SaveImage($"{testName} {(errorDiffusion ? "Error diffusion" : "Ordered")}", bmpDst);
         }
 
         [Test]
