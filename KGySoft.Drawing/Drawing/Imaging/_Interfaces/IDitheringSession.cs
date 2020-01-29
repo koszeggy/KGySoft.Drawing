@@ -27,10 +27,11 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         /// <summary>
-        /// Gets whether this ditherer allows only sequential processing (line by line).
+        /// Gets whether this ditherer allows only sequential processing (line by line). Even returning <see langword="true"/>&#160;
+        /// does not guarantee that every pixel will be queried. It just enforces that queried rows are processed sequentially.
         /// </summary>
         /// <value>
-        /// If <see langword="true"/>, then the <see cref="GetDitheredColor">GetDitheredColor</see> method will be called sequentially for each pixels.
+        /// If <see langword="true"/>, then the <see cref="GetDitheredColor">GetDitheredColor</see> method will be called sequentially for each queried pixels.
         /// If <see langword="false"/>, then the <see cref="GetDitheredColor">GetDitheredColor</see> method can be called concurrently for any pixels.
         /// </value>
         bool IsSequential { get; }

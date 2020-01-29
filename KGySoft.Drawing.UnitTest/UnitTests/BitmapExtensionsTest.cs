@@ -426,8 +426,8 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(pixelFormat.ToString(), bmp);
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, false)]
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, true)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, false)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, true)]
         public void ClearWithDitheringTest(PixelFormat pixelFormat, uint argb, bool errorDiffusion)
         {
             const int size = 17;

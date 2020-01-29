@@ -1054,7 +1054,46 @@ namespace KGySoft.Drawing
 
         private static void DrawIntoWithDithering(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer)
         {
-            throw new NotImplementedException("TODO: DrawIntoWithDithering");
+            #region Local Methods
+
+            static void ProcessRow(int y, IDitheringSession session, BitmapDataAccessorBase src, BitmapDataAccessorBase dst, Rectangle rectSrc, Point locDst)
+            {
+                int ySrc = y + rectSrc.Top;
+                BitmapDataRowBase rowSrc = src.GetRow(ySrc);
+                BitmapDataRowBase rowDst = dst.GetRow(y + locDst.Y);
+
+                for (int x = 0; x < rectSrc.Width; x++)
+                {
+                    int xSrc = x + rectSrc.Left;
+                    rowDst.DoSetColor32(x + locDst.X,
+                        session.GetDitheredColor(rowSrc.DoGetColor32(xSrc), xSrc, ySrc));
+                }
+            }
+
+            #endregion
+
+            using (BitmapDataAccessorBase src = BitmapDataAccessorFactory.CreateAccessor(source, ImageLockMode.ReadOnly))
+            using (BitmapDataAccessorBase dst = BitmapDataAccessorFactory.CreateAccessor(target, ImageLockMode.ReadWrite))
+            {
+                IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(dst);
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(src))
+                using (IDitheringSession ditheringSession = ditherer.Initialize(src, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                {
+                    // sequential processing
+                    if (ditheringSession.IsSequential || sourceRect.Width < parallelThreshold)
+                    {
+                        for (int y = 0; y < sourceRect.Height; y++)
+                            ProcessRow(y, ditheringSession, src, dst, sourceRect, targetLocation);
+                        return;
+                    }
+
+                    // parallel processing
+                    ParallelHelper.For(0, sourceRect.Height, y =>
+                    {
+                        ProcessRow(y, ditheringSession, src, dst, sourceRect, targetLocation);
+                    });
+                }
+            }
         }
 
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream in using passed to Bitmap constructor. MemoryStream is not sensitive to multiple closing.")]

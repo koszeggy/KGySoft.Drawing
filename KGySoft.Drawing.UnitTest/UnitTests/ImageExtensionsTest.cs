@@ -132,8 +132,8 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, bmpDst);
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, false)]
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, true)]
+        [TestCase("32bpp ARGB to 1bpp Indexed ErrorDiffusion", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed, true)]
+        [TestCase("32bpp ARGB to 1bpp Indexed Ordered", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed, false)]
         public void DrawIntoWithDitheringTest(string testName, PixelFormat formatSrc, PixelFormat formatDst, bool errorDiffusion)
         {
             Size targetSize = new Size(300, 300);
@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset, ditherer));
             Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height), ditherer));
 
-            SaveImage($"{testName} {(errorDiffusion ? "Error diffusion" : "Ordered")}", bmpDst);
+            SaveImage(testName, bmpDst);
         }
 
         [Test]
