@@ -38,8 +38,9 @@ namespace KGySoft.Drawing.Imaging
             private readonly ErrorDiffusionDitherer ditherer;
             private readonly int imageWidth;
             private readonly int imageHeight;
-
+            private readonly bool byBrightness;
             private readonly CircularList<(float R, float G, float B)[]> errorsBuffer;
+
             private int lastRow;
 
             #endregion
@@ -58,6 +59,7 @@ namespace KGySoft.Drawing.Imaging
                 this.ditherer = ditherer;
                 imageWidth = source.Width;
                 imageHeight = source.Height;
+                byBrightness = ditherer.byBrightness ?? quantizer.Palette?.IsGrayscale ?? false;
 
                 // Initializing a circular buffer for the diffused errors.
                 // This helps to minimize used memory because it needs only a few lines to be stored.
@@ -113,9 +115,18 @@ namespace KGySoft.Drawing.Imaging
                 Color32 quantizedColor = quantizer.GetQuantizedColor(currentColor);
 
                 // determining the quantization error for the current pixel
-                int errR = currentColor.R - quantizedColor.R;
-                int errG = currentColor.G - quantizedColor.G;
-                int errB = currentColor.B - quantizedColor.B;
+                int errR;
+                int errG;
+                int errB;
+
+                if (byBrightness)
+                    errR = errG = errB = currentColor.GetBrightness() - quantizedColor.GetBrightness();
+                else
+                {
+                    errR = currentColor.R - quantizedColor.R;
+                    errG = currentColor.G - quantizedColor.G;
+                    errB = currentColor.B - quantizedColor.B;
+                }
 
                 // no error, nothing to propagate further
                 if (errR == 0 && errG == 0 && errB == 0)
@@ -216,15 +227,6 @@ namespace KGySoft.Drawing.Imaging
             { 5, 0, 12, 0, 12, 0, 5 },
         };
 
-        private static ErrorDiffusionDitherer floydSteinberg;
-        private static ErrorDiffusionDitherer jarvisJudiceNinke;
-        private static ErrorDiffusionDitherer stucki;
-        private static ErrorDiffusionDitherer burkes;
-        private static ErrorDiffusionDitherer sierra3;
-        private static ErrorDiffusionDitherer sierra2;
-        private static ErrorDiffusionDitherer sierraLite;
-        private static ErrorDiffusionDitherer stevensonArce;
-
         #endregion
 
         #region Instance Fields
@@ -233,68 +235,9 @@ namespace KGySoft.Drawing.Imaging
         private readonly int matrixWidth;
         private readonly int matrixHeight;
         private readonly int matrixFirstPixelIndex;
+        private readonly bool? byBrightness;
 
         #endregion
-
-        #endregion
-
-        #region Properties
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the original filter proposed by Floyd and Steinberg in 1975 when they came out with the idea of error diffusion dithering.
-        /// Uses a small, 3x2 matrix so the processing is somewhat faster than the other alternatives.
-        /// </summary>
-        public static ErrorDiffusionDitherer FloydSteinberg
-            => floydSteinberg ??= new ErrorDiffusionDitherer(floydSteinbergMatrix, 16, 2);
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by Jarvis, Judice and Ninke in 1976.
-        /// Uses a 5x3 matrix so the processing is slower than by the original Floyd-Steinberg filter but distributes errors in a wider range.
-        /// </summary>
-        public static ErrorDiffusionDitherer JarvisJudiceNinke
-            => jarvisJudiceNinke ??= new ErrorDiffusionDitherer(jarvisJudiceNinkeMatrix, 48, 3);
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by P. Stucki in 1981.
-        /// Uses a 5x3 matrix so the processing is slower than by the original Floyd-Steinberg filter  but distributes errors in a wider range.
-        /// </summary>
-        public static ErrorDiffusionDitherer Stucki
-            => stucki ??= new ErrorDiffusionDitherer(stuckiMatrix, 42, 3);
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by D. Burkes in 1988.
-        /// Uses a 5x2 matrix, which is actually the same as the first two lines of the matrix used by the Stucki filter.
-        /// </summary>
-        public static ErrorDiffusionDitherer Burkes
-            => burkes ??= new ErrorDiffusionDitherer(burkesMatrix, 32, 3);
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the three-line filter proposed by Frankie Sierra in 1989.
-        /// Uses a 5x3 matrix so this is the slowest Sierra filter but this produces the best result among them.
-        /// </summary>
-        public static ErrorDiffusionDitherer Sierra3
-            => sierra3 ??= new ErrorDiffusionDitherer(sierra3Matrix, 32, 3);
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the two-line filter proposed by Frankie Sierra in 1990.
-        /// Uses a 5x2 matrix so this somewhat faster than the three-line version and still provides a similar quality.
-        /// </summary>
-        public static ErrorDiffusionDitherer Sierra2
-            => sierra2 ??= new ErrorDiffusionDitherer(sierra2Matrix, 16, 3);
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using a small two-line filter proposed by Frankie Sierra.
-        /// Uses a 3x2 matrix so it has the same performance as the Floyd-Steinberg algorithm and also produces a quite similar result.
-        /// </summary>
-        public static ErrorDiffusionDitherer SierraLite
-            => sierraLite ??= new ErrorDiffusionDitherer(sierraLiteMatrix, 4, 2);
-
-        /// <summary>
-        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the hexagonal filter proposed by Stevenson and Arce in 1985.
-        /// Uses a fairly large, 7x4 matrix, but due to the hexagonal arrangement of the coefficients the processing performance is comparable to a rectangular 5x3 matrix.
-        /// </summary>
-        public static ErrorDiffusionDitherer StevensonArce
-            => stevensonArce ??= new ErrorDiffusionDitherer(stevensonArceMatrix, 200, 4);
 
         #endregion
 
@@ -309,8 +252,12 @@ namespace KGySoft.Drawing.Imaging
         /// in the <paramref name="matrix"/>, then only a fraction of the error will be propagated.</param>
         /// <param name="matrixFirstPixelIndex">Specifies the first effective index in the first row of the matrix. If larger than zero, then the error will be propagated also to the bottom-left direction.
         /// Must be between 0 and <paramref name="matrix"/> width, excluding upper bound.</param>
+        /// <param name="byBrightness"><see langword="true"/>&#160;to apply the same quantization error on every color channel determined by brightness difference;
+        /// <see langword="false"/>&#160;to apply handle quantization errors on each color channels independently; <see langword="null"/>&#160;to auto select strategy.
+        /// Deciding by brightness can produce a better result when fully saturated colors are mapped to a grayscale palette. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.</returns>
-        public ErrorDiffusionDitherer(byte[,] matrix, int divisor, int matrixFirstPixelIndex)
+        public ErrorDiffusionDitherer(byte[,] matrix, int divisor, int matrixFirstPixelIndex, bool? byBrightness)
         {
             if (matrix == null)
                 throw new ArgumentNullException(nameof(matrix), PublicResources.ArgumentNull);
@@ -325,6 +272,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(matrixFirstPixelIndex), PublicResources.ArgumentMustBeBetween(0, matrixWidth - 1));
 
             this.matrixFirstPixelIndex = matrixFirstPixelIndex;
+            this.byBrightness = byBrightness;
 
             // Applying divisor to the provided matrix elements into a new float matrix. This has two benefits:
             // 1. Applying the error will be a simple multiplication, which alone is faster even for a float than an
@@ -343,8 +291,73 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Static Methods
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the original filter proposed by Floyd and Steinberg in 1975 when they came out with the idea of error diffusion dithering.
+        /// Uses a small, 3x2 matrix so the processing is somewhat faster than the other alternatives.
+        /// </summary>
+        public static ErrorDiffusionDitherer FloydSteinberg(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(floydSteinbergMatrix, 16, 2, byBrightness);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by Jarvis, Judice and Ninke in 1976.
+        /// Uses a 5x3 matrix so the processing is slower than by the original Floyd-Steinberg filter but distributes errors in a wider range.
+        /// </summary>
+        public static ErrorDiffusionDitherer JarvisJudiceNinke(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(jarvisJudiceNinkeMatrix, 48, 3, byBrightness);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by P. Stucki in 1981.
+        /// Uses a 5x3 matrix so the processing is slower than by the original Floyd-Steinberg filter  but distributes errors in a wider range.
+        /// </summary>
+        public static ErrorDiffusionDitherer Stucki(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(stuckiMatrix, 42, 3, byBrightness);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by D. Burkes in 1988.
+        /// Uses a 5x2 matrix, which is actually the same as the first two lines of the matrix used by the Stucki filter.
+        /// </summary>
+        public static ErrorDiffusionDitherer Burkes(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(burkesMatrix, 32, 3, byBrightness);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the three-line filter proposed by Frankie Sierra in 1989.
+        /// Uses a 5x3 matrix so this is the slowest Sierra filter but this produces the best result among them.
+        /// </summary>
+        public static ErrorDiffusionDitherer Sierra3(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(sierra3Matrix, 32, 3, byBrightness);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the two-line filter proposed by Frankie Sierra in 1990.
+        /// Uses a 5x2 matrix so this somewhat faster than the three-line version and still provides a similar quality.
+        /// </summary>
+        public static ErrorDiffusionDitherer Sierra2(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(sierra2Matrix, 16, 3, byBrightness);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using a small two-line filter proposed by Frankie Sierra.
+        /// Uses a 3x2 matrix so it has the same performance as the Floyd-Steinberg algorithm and also produces a quite similar result.
+        /// </summary>
+        public static ErrorDiffusionDitherer SierraLite(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(sierraLiteMatrix, 4, 2, byBrightness);
+
+        /// <summary>
+        /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the hexagonal filter proposed by Stevenson and Arce in 1985.
+        /// Uses a fairly large, 7x4 matrix, but due to the hexagonal arrangement of the coefficients the processing performance is comparable to a rectangular 5x3 matrix.
+        /// </summary>
+        public static ErrorDiffusionDitherer StevensonArce(bool? byBrightness = null)
+            => new ErrorDiffusionDitherer(stevensonArceMatrix, 200, 4, byBrightness);
+
+        #endregion
+
+
+        #region Instance Methods
+
         IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer)
             => new ErrorDiffusionDitheringSession(quantizer, this, source);
+
+        #endregion
 
         #endregion
     }

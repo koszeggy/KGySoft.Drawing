@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             const int size = 512;
             Color color = Color.FromArgb((int)argb);
-            var ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8();
+            var ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8();
 
             new PerformanceTest { TestName = $"{pixelFormat} {size}x{size} {(errorDiffusion ? "Error Diffusion" : "Ordered Dithering")}", Iterations = 10, CpuAffinity = null }
                 .AddCase(() =>

@@ -32,7 +32,6 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly int transparentIndex = -1;
-        private readonly bool isGrayscale;
         private readonly Dictionary<Color32, int> color32ToIndex;
         private readonly Func<Color32, int> customGetNearestColorIndex;
 
@@ -51,6 +50,7 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Properties
 
         internal Color32[] Entries { get; }
+        internal bool IsGrayscale { get; }
 
         #endregion
 
@@ -65,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
             this.customGetNearestColorIndex = customGetNearestColorIndex;
             color32ToIndex = new Dictionary<Color32, int>(entries.Length);
-            isGrayscale = true;
+            IsGrayscale = true;
 
             for (int i = 0; i < entries.Length; i++)
             {
@@ -79,8 +79,8 @@ namespace KGySoft.Drawing.Imaging
                         transparentIndex = i;
                 }
 
-                if (isGrayscale)
-                    isGrayscale = c.R == c.G && c.R == c.B;
+                if (IsGrayscale)
+                    IsGrayscale = c.R == c.G && c.R == c.B;
             }
         }
 
@@ -154,11 +154,11 @@ namespace KGySoft.Drawing.Imaging
 
                 // If the palette is grayscale, then distance is measured by perceived brightness;
                 // otherwise, by an Euclidean-like but much faster distance based on RGB components.
-                int diff = isGrayscale
+                int diff = IsGrayscale
                     ? Math.Abs(Entries[i].GetBrightness() - color.GetBrightness())
                     : Math.Abs(current.R - color.R) + Math.Abs(current.G - color.G) + Math.Abs(current.B - color.B);
 
-                Debug.Assert(isGrayscale || diff != 0, "Exact match should have been returned earlier");
+                Debug.Assert(IsGrayscale || diff != 0, "Exact match should have been returned earlier");
 
                 // new closest match
                 if (diff < minDiff)

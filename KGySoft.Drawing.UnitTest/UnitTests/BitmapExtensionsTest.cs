@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "RGB565 White", PredefinedColorsQuantizer.Rgb565(Color.White), 1 << 16 },
             //new object[] { "RGB555 Black", PredefinedColorsQuantizer.Rgb555(), 1 << 15 },
             //new object[] { "RGB555 White", PredefinedColorsQuantizer.Rgb555(Color.White), 1 << 15 },
-            new object[] { "ARGB1555 Black 50%", PredefinedColorsQuantizer.Argb1555(), (1 << 15) + 1 },
+            //new object[] { "ARGB1555 Black 50%", PredefinedColorsQuantizer.Argb1555(), (1 << 15) + 1 },
             //new object[] { "ARGB1555 White 50%", PredefinedColorsQuantizer.Argb1555(Color.White), (1 << 15) + 1 },
             //new object[] { "ARGB1555 Black 0", PredefinedColorsQuantizer.Argb1555(default, 0), (1 << 15) + 1 },
             //new object[] { "ARGB1555 Black 1", PredefinedColorsQuantizer.Argb1555(default, 1), (1 << 15) + 1 },
@@ -53,24 +53,24 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "RGB332 White", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
             //new object[] { "Grayscale Black", PredefinedColorsQuantizer.Grayscale(), 256 },
             //new object[] { "Grayscale White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
-            new object[] { "Grayscale16 Black", PredefinedColorsQuantizer.Grayscale16(), 16 },
+            //new object[] { "Grayscale16 Black", PredefinedColorsQuantizer.Grayscale16(), 16 },
             //new object[] { "Grayscale5 black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
             //new object[] { "Grayscale4 Black", PredefinedColorsQuantizer.Grayscale4(), 4 },
             //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.Gray, Color.White }), 3 },
-            new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
+            //new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
             //new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
             //new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
             //new object[] { "BW Blue", PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), 2 },
             new object[] { "Default8Bpp Black", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
             //new object[] { "Default8Bpp White", PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.White), 256 },
-            new object[] { "Default4Bpp Black", PredefinedColorsQuantizer.SystemDefault4BppPalette(), 16 },
+            //new object[] { "Default4Bpp Black", PredefinedColorsQuantizer.SystemDefault4BppPalette(), 16 },
             //new object[] { "Default4Bpp White", PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White), 16 },
             //new object[] { "Default1Bpp Black", PredefinedColorsQuantizer.SystemDefault1BppPalette(), 2 },
             //new object[] { "Default1Bpp White", PredefinedColorsQuantizer.SystemDefault1BppPalette(Color.White), 2 },
             //new object[] { "Custom Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
             //new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
 
-            new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
+            //new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
             //new object[] { "Octree 32 Black", OptimizedPaletteQuantizer.Octree(32, Color.Black, 0), 32 },
             //new object[] { "Octree 16 Black", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0), 16 },
             //new object[] { "Octree 8 Black", OptimizedPaletteQuantizer.Octree(8, Color.Black, 0), 8 },
@@ -284,8 +284,8 @@ namespace KGySoft.Drawing.UnitTests
                 //@"D:\Dokumentumok\Képek\Formats\_test\Information.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
                 //@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
 
                 ////@"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
                 //////@"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
@@ -295,12 +295,12 @@ namespace KGySoft.Drawing.UnitTests
                 //////@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
                 //////@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
                 //////@"D:\Letolt\MYSTY8RQER62.jpg",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\Portal_Companion_Cube.jpg",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Portal_Companion_Cube.jpg",
 
-                @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
                 ////@"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
-                ////@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
@@ -324,18 +324,17 @@ namespace KGySoft.Drawing.UnitTests
                 //(OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
                 //(OrderedDitherer.Halftone8Hex(), nameof(OrderedDitherer.Halftone8Hex)),
                 //(OrderedDitherer.Halftone8Diagonal(), nameof(OrderedDitherer.Halftone8Diagonal)),
-                (OrderedDitherer.BlueNoise(), nameof(OrderedDitherer.BlueNoise)),
-                //(OrderedDitherer.BlueNoise(new Size(256, 256)), nameof(OrderedDitherer.BlueNoise)),
-                //(ErrorDiffusionDitherer.FloydSteinberg, nameof(ErrorDiffusionDitherer.FloydSteinberg)),
-                //(ErrorDiffusionDitherer.JarvisJudiceNinke, nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
-                //(ErrorDiffusionDitherer.Stucki, nameof(ErrorDiffusionDitherer.Stucki)),
-                //(ErrorDiffusionDitherer.Burkes, nameof(ErrorDiffusionDitherer.Burkes)),
-                //(ErrorDiffusionDitherer.Sierra3, nameof(ErrorDiffusionDitherer.Sierra3)),
-                //(ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
-                //(ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
-                //(ErrorDiffusionDitherer.StevensonArce, nameof(ErrorDiffusionDitherer.StevensonArce)),
-                (new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
-                (new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
+                //(OrderedDitherer.BlueNoise(), nameof(OrderedDitherer.BlueNoise)),
+                (ErrorDiffusionDitherer.FloydSteinberg(), nameof(ErrorDiffusionDitherer.FloydSteinberg)),
+                //(ErrorDiffusionDitherer.JarvisJudiceNinke(), nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
+                //(ErrorDiffusionDitherer.Stucki(), nameof(ErrorDiffusionDitherer.Stucki)),
+                //(ErrorDiffusionDitherer.Burkes(), nameof(ErrorDiffusionDitherer.Burkes)),
+                //(ErrorDiffusionDitherer.Sierra3(), nameof(ErrorDiffusionDitherer.Sierra3)),
+                //(ErrorDiffusionDitherer.Sierra2(), nameof(ErrorDiffusionDitherer.Sierra2)),
+                //(ErrorDiffusionDitherer.SierraLite(), nameof(ErrorDiffusionDitherer.SierraLite)),
+                //(ErrorDiffusionDitherer.StevensonArce(), nameof(ErrorDiffusionDitherer.StevensonArce)),
+                //(new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
+                //(new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
             };
 
             foreach (string file in files)
@@ -361,9 +360,9 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\GrangerRainbow.png");
             new PerformanceTest { Iterations = 10 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg), "NoClip, int")
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg), "Clip")
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg), "float")
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg()), "NoClip, int")
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg()), "Clip")
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg()), "float")
                 .DoTest()
                 .DumpResults(Console.Out);
         }
@@ -434,7 +433,7 @@ namespace KGySoft.Drawing.UnitTests
             Color color = Color.FromArgb((int)argb);
 
             using var bmp = new Bitmap(size, size, pixelFormat);
-            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8());
+            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8());
             SaveImage($"{pixelFormat} {(errorDiffusion ? "Error diffusion" : "Ordered")}", bmp);
         }
 
