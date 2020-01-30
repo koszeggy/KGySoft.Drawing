@@ -266,7 +266,7 @@ namespace KGySoft.Drawing.Imaging
 
         private PredefinedColorsQuantizer(Palette palette)
         {
-            this.palette = palette;
+            this.palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
             backColor = palette.BackColor;
             alphaThreshold = palette.AlphaThreshold;
         }
@@ -281,13 +281,11 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> transform, Color32 backColor, Color32[] palette = null, byte alphaThreshold = 0)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> transform, Color32 backColor, byte alphaThreshold = 0)
         {
             this.transform = transform;
             this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
             this.alphaThreshold = alphaThreshold;
-            if (palette != null)
-                this.palette = new Palette(palette, this.backColor, alphaThreshold);
         }
 
         #endregion
@@ -331,23 +329,53 @@ namespace KGySoft.Drawing.Imaging
         {
             static Color32 Transform(Color32 c) => new Color16Argb1555(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Transform, new Color32(backColor), null, alphaThreshold);
+            return new PredefinedColorsQuantizer(Transform, new Color32(backColor), alphaThreshold);
         }
 
         public static PredefinedColorsQuantizer Rgb332(Color backColor = default)
             => new PredefinedColorsQuantizer(Rgb332Palette, new Color32(backColor));
 
         public static PredefinedColorsQuantizer Grayscale(Color backColor = default)
-            // TODO: transform if faster than lookup
-            => new PredefinedColorsQuantizer(Grayscale256Palette, new Color32(backColor));
+        {
+            var bg = new Color32(backColor);
+
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(bg);
+                return c.GetBrightness();
+            }
+
+            return new PredefinedColorsQuantizer(new Palette(Grayscale256Palette, bg, 0, GetNearestColorIndex));
+        }
 
         public static PredefinedColorsQuantizer Grayscale16(Color backColor = default)
-            // TODO: transform if faster than lookup
-            => new PredefinedColorsQuantizer(Grayscale16Palette, new Color32(backColor));
+        {
+            var bg = new Color32(backColor);
+
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(bg);
+                return c.GetBrightness() >> 4;
+            }
+
+            return new PredefinedColorsQuantizer(new Palette(Grayscale16Palette, bg, 0, GetNearestColorIndex));
+        }
 
         public static PredefinedColorsQuantizer Grayscale4(Color backColor = default)
-            // TODO: transform if faster than lookup
-            => new PredefinedColorsQuantizer(Grayscale4Palette, new Color32(backColor));
+        {
+            var bg = new Color32(backColor);
+
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(bg);
+                return c.GetBrightness() >> 6;
+            }
+
+            return new PredefinedColorsQuantizer(new Palette(Grayscale4Palette, bg, 0, GetNearestColorIndex));
+        }
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.
@@ -360,12 +388,19 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.</returns>
         public static PredefinedColorsQuantizer BlackAndWhite(Color backColor = default, byte whiteThreshold = 128)
         {
-            Color32 Transform(Color32 c)
-                => c == Color32.Black ? Color32.Black
-                    : c == Color32.White ? Color32.White
-                    : c.GetBrightness() >= whiteThreshold ? Color32.White : Color32.Black;
+            var bg = new Color32(backColor);
 
-            return new PredefinedColorsQuantizer(Transform, new Color32(backColor), BlackAndWhitePalette);
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(bg);
+
+                return c == Color32.Black ? 0
+                    : c == Color32.White ? 1
+                    : c.GetBrightness() >= whiteThreshold ? 1 : 0;
+            }
+
+            return new PredefinedColorsQuantizer(new Palette(BlackAndWhitePalette, bg, 0, GetNearestColorIndex));
         }
 
         public static PredefinedColorsQuantizer SystemDefault8BppPalette(Color backColor = default, byte alphaThreshold = 128)

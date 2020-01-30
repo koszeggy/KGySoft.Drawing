@@ -55,13 +55,13 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "Grayscale White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
             //new object[] { "Grayscale16 Black", PredefinedColorsQuantizer.Grayscale16(), 16 },
             //new object[] { "Grayscale5 black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
-            //new object[] { "Grayscale4 Black", PredefinedColorsQuantizer.Grayscale4(), 4 },
+            new object[] { "Grayscale4 Black", PredefinedColorsQuantizer.Grayscale4(), 4 },
             //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.Gray, Color.White }), 3 },
             //new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
             //new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
             //new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
             //new object[] { "BW Blue", PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), 2 },
-            new object[] { "Default8Bpp Black", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
+            //new object[] { "Default8Bpp Black", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
             //new object[] { "Default8Bpp White", PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.White), 256 },
             //new object[] { "Default4Bpp Black", PredefinedColorsQuantizer.SystemDefault4BppPalette(), 16 },
             //new object[] { "Default4Bpp White", PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White), 16 },
@@ -241,16 +241,21 @@ namespace KGySoft.Drawing.UnitTests
             {
                 @"D:\Dokumentumok\Képek\Formats\_test\Information.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
                 @"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\lena.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
+                //@"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
+                //@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
                 @"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
-                @"D:\Letolt\MYSTY8RQER62.jpg",
+                //@"D:\Letolt\MYSTY8RQER62.jpg",
+                @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
+                @"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
+                @"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
             };
 
             foreach (string file in files)
@@ -269,9 +274,9 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
             new PerformanceTest { Iterations = 1 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.Octree()))
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.MedianCut()))
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.MedianCut()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(PredefinedColorsQuantizer.Grayscale4()))
+                //.AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.Octree()))
+                //.AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.MedianCut()))
                 .DoTest()
                 .DumpResults(Console.Out);
         }
