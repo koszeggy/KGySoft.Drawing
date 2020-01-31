@@ -329,11 +329,10 @@ namespace KGySoft.Drawing
                 if (session == null)
                     throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
 
-                int width = bitmapData.Width;
-
                 // Sequential processing
                 if (bitmapData.Width < parallelThreshold)
                 {
+                    int width = bitmapData.Width;
                     BitmapDataRowBase row = bitmapData.GetRow(0);
                     do
                     {
@@ -347,6 +346,7 @@ namespace KGySoft.Drawing
                 // Parallel processing
                 ParallelHelper.For(0, bitmapData.Height, y =>
                 {
+                    int width = bitmapData.Width;
                     BitmapDataRowBase row = bitmapData.GetRow(y);
                     for (int x = 0; x < width; x++)
                         row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
@@ -367,17 +367,31 @@ namespace KGySoft.Drawing
             using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
             using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
             {
-                // TODO: parallel if possible
-                BitmapDataRowBase row = bitmapData.GetRow(0);
-                int width = bitmapData.Width;
-                int y = 0;
-                do
+                // Sequential processing
+                if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                 {
+                    int width = bitmapData.Width;
+                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    int y = 0;
+                    do
+                    {
+                        for (int x = 0; x < width; x++)
+                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
+
+                        y += 1;
+                    } while (row.MoveNextRow());
+
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, bitmapData.Height, y =>
+                {
+                    int width = bitmapData.Width;
+                    BitmapDataRowBase row = bitmapData.GetRow(y);
                     for (int x = 0; x < width; x++)
                         row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-
-                    y += 1;
-                } while (row.MoveNextRow());
+                });
             }
         }
 
@@ -666,10 +680,12 @@ namespace KGySoft.Drawing
                 if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                 {
                     BitmapDataRowBase row = bitmapData.GetRow(0);
+                    int y = 0;
                     do
                     {
                         for (int x = 0; x < bitmapData.Width; x++)
-                            row[x] = ditheringSession.GetDitheredColor(color, x, row.RowIndex);
+                            row[x] = ditheringSession.GetDitheredColor(color, x, y);
+                        y += 1;
                     } while (row.MoveNextRow());
 
                     return;
@@ -680,7 +696,7 @@ namespace KGySoft.Drawing
                 {
                     BitmapDataRowBase row = bitmapData.GetRow(y);
                     for (int x = 0; x < bitmapData.Width; x++)
-                        row[x] = ditheringSession.GetDitheredColor(color, x, row.RowIndex);
+                        row[x] = ditheringSession.GetDitheredColor(color, x, y);
                 });
             }
         }

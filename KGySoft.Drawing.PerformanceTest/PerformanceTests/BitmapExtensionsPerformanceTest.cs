@@ -111,7 +111,7 @@ namespace KGySoft.Drawing.PerformanceTests
         }
 
         [Test]
-        public void QuantizerPerformanceTest()
+        public void QuantizePerformanceTest()
         {
             //using var bmpRef = new Bitmap(@"D:\Letolt\MYSTY8RQER62.jpg");
             using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
@@ -133,6 +133,35 @@ namespace KGySoft.Drawing.PerformanceTests
                         } while (row.MoveNextRow());
                     }
                 }, "Sequential quantization")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
+        [TestCase(true)]
+        [TestCase(false)]
+        public void DitherPerformanceTest(bool errorDiffusion)
+        {
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
+            IQuantizer quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette();
+            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8();
+            new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()} {(errorDiffusion ? "Error Diffusion" : "Ordered")}", Iterations = 100, CpuAffinity = null }
+                .AddCase(() => bmpRef.CloneCurrentFrame().Dither(quantizer, ditherer), "BitmapExtensions.Dither")
+                .AddCase(() =>
+                {
+                    using var bmp = bmpRef.CloneCurrentFrame();
+                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite))
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
+                    using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession))
+                    {
+                        var row = bitmapData.GetRow(0);
+                        int width = bitmapData.Width;
+                        do
+                        {
+                            for (int x = 0; x < width; x++)
+                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, row.RowIndex));
+                        } while (row.MoveNextRow());
+                    }
+                }, "Sequential dithering")
                 .DoTest()
                 .DumpResults(Console.Out);
         }
