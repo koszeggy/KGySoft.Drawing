@@ -214,41 +214,22 @@ namespace KGySoft.Drawing
         /// indexed and has a palette.</param>
         /// <remarks>The method is optimized for <see cref="PixelFormat.Format32bppRgb"/> and <see cref="PixelFormat.Format32bppArgb"/> formats.</remarks>
         /// <returns>An array of <see cref="Color"/> entries.</returns>
-#if !NET35
-        [SecuritySafeCritical]
-#endif
         public static Color[] GetColors(this Bitmap bitmap, int maxColors = 0, bool forceScanningContent = false)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            if (maxColors < 0)
-                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
-            if (maxColors == 0)
-                maxColors = Int32.MaxValue;
 
-            var colors = new HashSet<int>();
-            PixelFormat pixelFormat = bitmap.PixelFormat;
-            if (pixelFormat.IsIndexed() && !forceScanningContent)
+            if (bitmap.PixelFormat.IsIndexed() && !forceScanningContent)
                 return bitmap.Palette.Entries;
 
-            int transparent = Color.Transparent.ToArgb();
-            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
-            {
-                BitmapDataRowBase line = data.GetRow(0);
+            return DoGetColors(bitmap, maxColors).Select(c => c.ToColor()).ToArray();
+        }
 
-                do
-                {
-                    for (int x = 0; x < data.Width; x++)
-                    {
-                        Color32 c = line.DoGetColor32(x);
-                        colors.Add(c.A == 0 ? transparent : c.ToArgb());
-                        if (colors.Count == maxColors)
-                            return colors.Select(Color.FromArgb).ToArray();
-                    }
-                } while (line.MoveNextRow());
-            }
-
-            return colors.Select(Color.FromArgb).ToArray();
+        public static int GetColorCount(this Bitmap bitmap)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            return DoGetColors(bitmap, 0).Count;
         }
 
         /// <summary>
@@ -347,15 +328,29 @@ namespace KGySoft.Drawing
             {
                 if (session == null)
                     throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-                
-                // TODO: parallel
-                var row = bitmapData.GetRow(0);
+
                 int width = bitmapData.Width;
-                do
+
+                // Sequential processing
+                if (bitmapData.Width < parallelThreshold)
                 {
+                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    do
+                    {
+                        for (int x = 0; x < width; x++)
+                            row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
+                    } while (row.MoveNextRow());
+
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, bitmapData.Height, y =>
+                {
+                    BitmapDataRowBase row = bitmapData.GetRow(y);
                     for (int x = 0; x < width; x++)
                         row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                } while (row.MoveNextRow());
+                });
             }
         }
 
@@ -496,6 +491,33 @@ namespace KGySoft.Drawing
             } while (nextSize > 0);
 
             return result.ToArray();
+        }
+
+        private static ICollection<Color32> DoGetColors(Bitmap bitmap, int maxColors)
+        {
+            if (maxColors < 0)
+                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
+            if (maxColors == 0)
+                maxColors = Int32.MaxValue;
+
+            var colors = new HashSet<Color32>();
+            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
+            {
+                BitmapDataRowBase line = data.GetRow(0);
+
+                do
+                {
+                    for (int x = 0; x < data.Width; x++)
+                    {
+                        Color32 c = line.DoGetColor32(x);
+                        colors.Add(c.A == 0 ? Color32.Transparent : c);
+                        if (colors.Count == maxColors)
+                            return colors;
+                    }
+                } while (line.MoveNextRow());
+            }
+
+            return colors;
         }
 
         private static void ClearDirect(BitmapDataAccessorBase bitmapData, Color32 color)
