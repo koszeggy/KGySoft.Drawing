@@ -181,7 +181,6 @@ namespace KGySoft.Drawing.Imaging
 
             private int maxColors;
 
-
             /// <summary>
             /// The squared moment values of color RGB values.
             /// After building the histogram by <see cref="AddColor"/> an element of this array can be interpreted as
@@ -310,7 +309,6 @@ namespace KGySoft.Drawing.Imaging
                     if (weight <= 0)
                     {
                         Debug.Assert(cubes.Count == 1 && hasTransparency, $"bogus box {k}");
-
                         continue;
                     }
 
@@ -340,7 +338,6 @@ namespace KGySoft.Drawing.Imaging
 
                 for (int r = 1; r <= histSize; r++)
                 {
-                    // TODO: is it faster if we just initialize these here instead of zeroing?
                     for (int i = 0; i <= histSize; i++)
                         area2[i] = area[i] = areaR[i] = areaG[i] = areaB[i] = 0;
 

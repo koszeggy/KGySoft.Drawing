@@ -110,6 +110,32 @@ namespace KGySoft.Drawing.PerformanceTests
                 .DumpResults(Console.Out);
         }
 
+        [Test]
+        public void QuantizerPerformanceTest()
+        {
+            //using var bmpRef = new Bitmap(@"D:\Letolt\MYSTY8RQER62.jpg");
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
+            IQuantizer quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette();
+            new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()}", Iterations = 100, CpuAffinity = null }
+                .AddCase(() => bmpRef.CloneCurrentFrame().Quantize(quantizer), "BitmapExtensions.Quantize")
+                .AddCase(() =>
+                {
+                    using var bmp = bmpRef.CloneCurrentFrame();
+                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite))
+                    using (IQuantizingSession session = quantizer.Initialize(bitmapData))
+                    {
+                        var row = bitmapData.GetRow(0);
+                        int width = bitmapData.Width;
+                        do
+                        {
+                            for (int x = 0; x < width; x++)
+                                row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
+                        } while (row.MoveNextRow());
+                    }
+                }, "Sequential quantization")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
 
         #endregion
     }

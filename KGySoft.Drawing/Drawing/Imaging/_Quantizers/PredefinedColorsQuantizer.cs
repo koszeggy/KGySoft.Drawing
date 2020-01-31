@@ -35,18 +35,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region QuantizingSessionCustomMapping class
 
-        private class QuantizingSessionCustomMapping : IQuantizingSession
+        private sealed class QuantizingSessionCustomMapping : IQuantizingSession
         {
             #region Fields
 
             private readonly PredefinedColorsQuantizer quantizer;
-            private readonly Func<Color32, Color32> transform;
+            private readonly Func<Color32, Color32> quantize;
 
             #endregion
 
             #region Properties
 
-            public Palette Palette { get; }
+            public Palette Palette => null;
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
 
@@ -54,11 +54,10 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal QuantizingSessionCustomMapping(PredefinedColorsQuantizer quantizer, Func<Color32, Color32> transform, Palette palette)
+            internal QuantizingSessionCustomMapping(PredefinedColorsQuantizer quantizer, Func<Color32, Color32> quantize)
             {
                 this.quantizer = quantizer;
-                this.transform = transform;
-                this.Palette = palette;
+                this.quantize = quantize;
             }
 
             #endregion
@@ -69,10 +68,10 @@ namespace KGySoft.Drawing.Imaging
             {
             }
 
-            public virtual Color32 GetQuantizedColor(Color32 c)
+            public Color32 GetQuantizedColor(Color32 c)
                 => c.A < AlphaThreshold
                     ? default
-                    : transform.Invoke(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
+                    : quantize.Invoke(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
 
             #endregion
         }
@@ -102,7 +101,7 @@ namespace KGySoft.Drawing.Imaging
             internal QuantizingSessionIndexed(PredefinedColorsQuantizer quantizer, Palette palette)
             {
                 this.quantizer = quantizer;
-                this.Palette = palette;
+                Palette = palette;
             }
 
             #endregion
@@ -139,7 +138,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Fields
 
-        private readonly Func<Color32, Color32> transform;
+        private readonly Func<Color32, Color32> quantize;
         private readonly Color32 backColor;
         private readonly byte alphaThreshold;
         private readonly Palette palette;
@@ -281,9 +280,9 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> transform, Color32 backColor, byte alphaThreshold = 0)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantize, Color32 backColor, byte alphaThreshold = 0)
         {
-            this.transform = transform;
+            this.quantize = quantize;
             this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
             this.alphaThreshold = alphaThreshold;
         }
@@ -306,35 +305,50 @@ namespace KGySoft.Drawing.Imaging
         public static PredefinedColorsQuantizer Rgb888(Color backColor = default)
         {
             // just returning the already blended color
-            static Color32 Transform(Color32 c) => c;
+            static Color32 Quantize(Color32 c) => c;
 
-            return new PredefinedColorsQuantizer(Transform, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor));
         }
 
         public static PredefinedColorsQuantizer Rgb565(Color backColor = default)
         {
-            static Color32 Transform(Color32 c) => new Color16Rgb565(c).ToColor32();
+            static Color32 Quantize(Color32 c) => new Color16Rgb565(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Transform, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor));
         }
 
         public static PredefinedColorsQuantizer Rgb555(Color backColor = default)
         {
-            static Color32 Transform(Color32 c) => new Color16Rgb555(c).ToColor32();
+            static Color32 Quantize(Color32 c) => new Color16Rgb555(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Transform, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor));
         }
 
         public static PredefinedColorsQuantizer Argb1555(Color backColor = default, byte alphaThreshold = 128)
         {
-            static Color32 Transform(Color32 c) => new Color16Argb1555(c).ToColor32();
+            static Color32 Quantize(Color32 c) => new Color16Argb1555(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Transform, new Color32(backColor), alphaThreshold);
+            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor), alphaThreshold);
         }
 
-        public static PredefinedColorsQuantizer Rgb332(Color backColor = default)
-            => new PredefinedColorsQuantizer(Rgb332Palette, new Color32(backColor));
+        // directMapping: <see langword="true"/>&#160;to map a color directly to an index instead of searching for a nearest color, which is very fast
+        // but may cause poorer results.
+        public static PredefinedColorsQuantizer Rgb332(Color backColor = default, bool directMapping = false)
+        {
+            var bg = new Color32(backColor);
 
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(bg);
+
+                return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
+            }
+
+            return new PredefinedColorsQuantizer(new Palette(Rgb332Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
+        }
+
+        // very fast, uses always a direct index mapping
         public static PredefinedColorsQuantizer Grayscale(Color backColor = default)
         {
             var bg = new Color32(backColor);
@@ -349,7 +363,9 @@ namespace KGySoft.Drawing.Imaging
             return new PredefinedColorsQuantizer(new Palette(Grayscale256Palette, bg, 0, GetNearestColorIndex));
         }
 
-        public static PredefinedColorsQuantizer Grayscale16(Color backColor = default)
+        // directMapping: <see langword="true"/>&#160;to map a color directly to an index instead of searching for a nearest color, which is very fast
+        // but may cause poorer results.
+        public static PredefinedColorsQuantizer Grayscale16(Color backColor = default, bool directMapping = false)
         {
             var bg = new Color32(backColor);
 
@@ -360,10 +376,10 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness() >> 4;
             }
 
-            return new PredefinedColorsQuantizer(new Palette(Grayscale16Palette, bg, 0, GetNearestColorIndex));
+            return new PredefinedColorsQuantizer(new Palette(Grayscale16Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
         }
 
-        public static PredefinedColorsQuantizer Grayscale4(Color backColor = default)
+        public static PredefinedColorsQuantizer Grayscale4(Color backColor = default, bool directMapping = false)
         {
             var bg = new Color32(backColor);
 
@@ -374,7 +390,7 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness() >> 6;
             }
 
-            return new PredefinedColorsQuantizer(new Palette(Grayscale4Palette, bg, 0, GetNearestColorIndex));
+            return new PredefinedColorsQuantizer(new Palette(Grayscale4Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
         }
 
         /// <summary>
@@ -470,9 +486,9 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Methods
 
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
-            => transform != null
-                ? new QuantizingSessionCustomMapping(this, transform, palette)
-                : (IQuantizingSession)new QuantizingSessionIndexed(this, palette);
+            => palette != null
+                ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
+                : new QuantizingSessionCustomMapping(this, quantize);
 
         #endregion
 

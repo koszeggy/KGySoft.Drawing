@@ -45,6 +45,8 @@ namespace KGySoft.Drawing.Imaging
 
         internal static readonly Color32 White = FromGray(Byte.MaxValue);
 
+        internal static readonly Color32 Transparent = new Color32(Color.Transparent);
+
         #endregion
 
         #region Instance Fields
@@ -117,43 +119,6 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Static Methods
-
-        //[CLSCompliant(false)]
-        //public static Color32 FromRgb555(ushort pixel16)
-        //{
-        //    const uint r = 0b01111100_00000000;
-        //    const uint g = 0b00000011_11100000;
-        //    const uint b = 0b00011111;
-        //    return new Color32(alphaMask
-        //            | ((pixel16 & r) << 9)
-        //            | ((pixel16 & g) << 6)
-        //            | ((pixel16 & b) << 3));
-        //}
-
-        //[CLSCompliant(false)]
-        //public static Color32 FromRgb565(ushort pixel16)
-        //{
-        //    const uint r = 0b11111000_00000000;
-        //    const uint g = 0b00000111_11100000;
-        //    const uint b = 0b00011111;
-        //    return new Color32(alphaMask
-        //            | ((pixel16 & r) << 8)
-        //            | ((pixel16 & g) << 5)
-        //            | ((pixel16 & b) << 3));
-        //}
-
-        //[CLSCompliant(false)]
-        //public static Color32 FromArgb1555(ushort pixel16)
-        //{
-        //    const uint a = 0b10000000_00000000;
-        //    const uint r = 0b01111100_00000000;
-        //    const uint g = 0b00000011_11100000;
-        //    const uint b = 0b00011111;
-        //    return new Color32(((pixel16 & a) == 0 ? 0 : alphaMask)
-        //            | ((pixel16 & r) << 9)
-        //            | ((pixel16 & g) << 6)
-        //            | ((pixel16 & b) << 3));
-        //}
 
         public static Color32 FromArgb(int argb) => new Color32((uint)argb);
 

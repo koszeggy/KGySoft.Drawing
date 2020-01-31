@@ -132,7 +132,6 @@ namespace KGySoft.Drawing.Imaging
                 if (errR == 0 && errG == 0 && errB == 0)
                     return quantizedColor;
 
-                // TODO: parallel if possible
                 // processing the whole matrix and propagating the current error to neighbors
                 for (int my = 0; my < ditherer.matrixHeight; my++)
                 {
