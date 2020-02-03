@@ -19,7 +19,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using System.Linq;
 using KGySoft.CoreLibraries;
 
 #endregion
@@ -84,6 +84,44 @@ namespace KGySoft.Drawing.Imaging
 
                 default:
                     throw new ArgumentException(Res.ImagingPixelFormatNotSupported(pixelFormat), nameof(bitmap));
+            }
+        }
+
+        /// <summary>
+        /// Creates a <see cref="BitmapDataAccessorBase"/> by a quantizer session re-using its palette if possible.
+        /// </summary>
+        internal static BitmapDataAccessorBase CreateAccessor(Bitmap bitmap, ImageLockMode lockMode, IQuantizingSession quantizingSession)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+
+            var pixelFormat = bitmap.PixelFormat;
+            if (!pixelFormat.IsIndexed() || quantizingSession.Palette == null)
+                return CreateAccessor(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold);
+
+            // checking if bitmap and quantizer palette has the same entries
+            var bmpPalette = bitmap.Palette.Entries;
+            var quantizerPalette = quantizingSession.Palette.Entries;
+            if (bmpPalette.Length != quantizerPalette.Length || bmpPalette.Zip(quantizerPalette, (c1, c2) => new Color32(c1) != c2).Any(b => b))
+                return CreateAccessor(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold);
+
+            if (!lockMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(lockMode), PublicResources.EnumOutOfRange(lockMode));
+
+            // here the quantizer and the target bitmap uses the same palette
+            switch (pixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    return new BitmapDataAccessor<BitmapDataRow8I>(bitmap, pixelFormat, lockMode, quantizingSession);
+
+                case PixelFormat.Format4bppIndexed:
+                    return new BitmapDataAccessor<BitmapDataRow4I>(bitmap, pixelFormat, lockMode, quantizingSession);
+
+                case PixelFormat.Format1bppIndexed:
+                    return new BitmapDataAccessor<BitmapDataRow1I>(bitmap, pixelFormat, lockMode, quantizingSession);
+
+                default:
+                    throw new InvalidOperationException(Res.InternalError($"Unexpected indexed format: {pixelFormat}"));
             }
         }
 

@@ -24,6 +24,10 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents the same 32-bit ARGB color as the <see cref="Color"/> structure does but in a more optimized way
+    /// for better performance and smaller memory consumption.
+    /// </summary>
     // Comment TODO:
     // - Implicit conversion from and to Color exists.
     //   Note: Does not contain known color properties. Just use Color32 c = Color.Blue, for example.
@@ -42,9 +46,7 @@ namespace KGySoft.Drawing.Imaging
         #region Static Fields
 
         internal static readonly Color32 Black = FromGray(Byte.MinValue);
-
         internal static readonly Color32 White = FromGray(Byte.MaxValue);
-
         internal static readonly Color32 Transparent = new Color32(Color.Transparent);
 
         #endregion
@@ -72,8 +74,8 @@ namespace KGySoft.Drawing.Imaging
         [FieldOffset(0)]
         private readonly uint value;
 
-        
         #endregion
+
         #endregion
 
         #endregion
@@ -88,13 +90,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal Color32(uint argb)
-            : this() // so the compiler does not complain about not initializing ARGB fields
-        {
-            value = argb;
-        }
+        #region Public Constructors
 
-        internal Color32(byte a, byte r, byte g, byte b)
+        public Color32(byte a, byte r, byte g, byte b)
             : this() // so the compiler does not complain about not initializing value
         {
             B = b;
@@ -103,16 +101,24 @@ namespace KGySoft.Drawing.Imaging
             A = a;
         }
 
-        internal Color32(byte r, byte g, byte b)
-            : this() // so the compiler does not complain about not initializing value
+        public Color32(byte r, byte g, byte b)
+            : this(Byte.MaxValue, r, g, b)
         {
-            B = b;
-            G = g;
-            R = r;
-            A = Byte.MaxValue;
         }
 
-        internal Color32(Color c) : this((uint)c.ToArgb()) { }
+        public Color32(Color c) : this((uint)c.ToArgb()) { }
+
+        #endregion
+
+        #region Internal Constructors
+
+        internal Color32(uint argb)
+            : this() // so the compiler does not complain about not initializing ARGB fields
+        {
+            value = argb;
+        }
+
+        #endregion
 
         #endregion
 

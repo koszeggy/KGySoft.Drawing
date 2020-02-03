@@ -39,7 +39,12 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal BitmapDataAccessor(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold)
-            : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
+            : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, null)
+        {
+        }
+
+        internal BitmapDataAccessor(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, IQuantizingSession quantizingSession)
+            : base(bitmap, pixelFormat, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette)
         {
         }
 

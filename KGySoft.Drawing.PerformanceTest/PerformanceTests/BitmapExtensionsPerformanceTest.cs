@@ -166,6 +166,36 @@ namespace KGySoft.Drawing.PerformanceTests
                 .DumpResults(Console.Out);
         }
 
+        [Test]
+        public void ReplaceColorTest()
+        {
+            using var bmp = Icons.Shield.ExtractBitmap(new Size(128, 128), true).Resize(new Size(256, 256));
+            new PerformanceTest { Iterations = 100, CpuAffinity = null }
+                .AddCase(() => bmp.CloneCurrentFrame().MakeTransparent(Color.Black), "Bitmap.MakeTransparent")
+                .AddCase(() => bmp.CloneCurrentFrame().ReplaceColor(Color.Black, Color.Transparent), "BitmapExtensions.ReplaceColor")
+                .AddCase(() =>
+                {
+                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bmp.CloneCurrentFrame(), ImageLockMode.ReadWrite))
+                    {
+                        Color32 from = new Color32(Color.Black);
+                        Color32 to = new Color32(Color.Transparent);
+                        BitmapDataRowBase row = bitmapData.GetRow(0);
+                        do
+                        {
+                            for (int x = 0; x < bitmapData.Width; x++)
+                            {
+                                if (row[x] != from)
+                                    continue;
+                                row[x] = to;
+                            }
+                        } while (row.MoveNextRow());
+                    }
+                }, "Sequential processing")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
+
         #endregion
     }
 }

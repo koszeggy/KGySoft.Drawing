@@ -21,13 +21,20 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
 - KGySoft.Drawing namespace:
 ============================
 + BitmapExtensions class:
-  - Resize method: Fixing resize if keepAspectRatio is true.
+  - Resize method:
+    - Fixing resize if keepAspectRatio is true.
+    * keepAspectRation parameter is now optional (default value: false)
   + New GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData methods: They provide and fast managed
     pixel access and/or manipulation for any pixel formats.
   + New Quantize method: Reduces number of colors
   + New Dither method: Reduces number of colors with dithering
   + New Clear methods: Similar to Graphics.Clear but supports every PixelFormat
   + New GetColorCount method
+  + New TransformColors method
+  + New ReplaceColor method
+  + New Inverse method
+  + New MakeOpaque method
+  + New MakeGrayscale method
 - IconExtensions class:
   - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
     keepOriginalFormat parameter was true.

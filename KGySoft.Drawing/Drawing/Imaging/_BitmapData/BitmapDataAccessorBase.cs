@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 
 #endregion
 
@@ -103,10 +104,14 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        protected BitmapDataAccessorBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold)
+        protected BitmapDataAccessorBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette palette)
         {
             // Pixel format is passed only to avoid doubled retrieval but it must be the same as bitmap format.
             Debug.Assert(bitmap.PixelFormat == pixelFormat, "Unmatching pixel format");
+
+            // If palette is passed it must match with actual palette
+            Debug.Assert(palette == null || bitmap.Palette.Entries.Length == palette.Entries.Length
+                && bitmap.Palette.Entries.Zip(palette.Entries, (c1, c2) => new Color32(c1) == c2).All(b => b), "Unmatching palette");
 
             this.bitmap = bitmap;
             BackColor = backColor;
@@ -124,7 +129,7 @@ namespace KGySoft.Drawing.Imaging
             handle = bitmapData.Reserved; // used as a handle, required for UnlockBits
 
             if (bitmapData.PixelFormat.IsIndexed())
-                Palette = new Palette(bitmap.Palette.Entries);
+                Palette = palette ?? new Palette(bitmap.Palette.Entries);
         }
 
         #endregion

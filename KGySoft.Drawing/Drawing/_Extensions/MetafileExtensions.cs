@@ -135,7 +135,7 @@ namespace KGySoft.Drawing
 
             using (Bitmap bmpDouble = new Bitmap(metafile, requestedSize.Width << 1, requestedSize.Height << 1))
             {
-                return bmpDouble.Resize(requestedSize, false);
+                return bmpDouble.Resize(requestedSize);
             }
         }
 

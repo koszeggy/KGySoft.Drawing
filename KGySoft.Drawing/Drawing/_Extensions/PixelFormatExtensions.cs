@@ -72,6 +72,8 @@ namespace KGySoft.Drawing
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
+        internal static bool CanBeDithered(this PixelFormat pixelFormat) => pixelFormat.ToBitsPerPixel() <= 16 && pixelFormat != PixelFormat.Format16bppGrayScale;
+
         internal static PixelFormat ToPixelFormat(this int bpp)
         {
             switch (bpp)

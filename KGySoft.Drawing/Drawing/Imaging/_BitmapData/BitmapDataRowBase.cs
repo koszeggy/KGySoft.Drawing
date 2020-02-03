@@ -40,14 +40,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-//        unsafe IntPtr IBitmapDataRow.Address
-//        {
-//#if !(NET35 || NET40)
-//            [SecuritySafeCritical] 
-//#endif
-//            get => (IntPtr)Address;
-//        }
-
         int IBitmapDataRow.Index => RowIndex;
 
         #endregion

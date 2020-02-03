@@ -250,7 +250,7 @@ namespace KGySoft.Drawing
                     if (newPixelFormat.IsIndexed())
                         InitPalette(newPixelFormat, bmp, result, quantizingSession.Palette?.Entries?.Select(c => c.ToColor()).ToArray());
 
-                    using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, quantizingSession.BackColor, quantizingSession.AlphaThreshold))
+                    using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, quantizingSession))
                     {
                         // quantization without dithering
                         if (ditherer == null)

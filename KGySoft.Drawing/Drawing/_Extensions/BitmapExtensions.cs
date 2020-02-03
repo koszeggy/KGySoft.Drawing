@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -25,7 +26,8 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Security;
-
+using System.Threading;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
@@ -59,10 +61,11 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to resize</param>
         /// <param name="newSize">The requested new size.</param>
-        /// <param name="keepAspectRatio">Determines whether the source <paramref name="image"/> should keep aspect ratio.</param>
+        /// <param name="keepAspectRatio">Determines whether the source <paramref name="image"/> should keep aspect ratio. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
-        public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio)
+        public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio = false)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -151,9 +154,6 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bitmap">The bitmap to be cloned.</param>
         /// <returns>A single frame <see cref="Bitmap"/> instance that has the same content and has the same pixel format as the current frame of the source bitmap.</returns>
-#if !NET35
-        [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap CloneCurrentFrame(this Bitmap bitmap)
         {
@@ -177,17 +177,18 @@ namespace KGySoft.Drawing
                     if (sourceData.Stride > 0)
                     {
                         MemoryHelper.CopyMemory(lineTarget, lineSource, sourceData.Stride * sourceData.Height);
+                        return result;
                     }
-                    else
+
+                    int lineWidth = Math.Abs(sourceData.Stride);
+                    for (int y = 0; y < sourceData.Height; y++)
                     {
-                        int lineWidth = Math.Abs(sourceData.Stride);
-                        for (int y = 0; y < sourceData.Height; y++)
-                        {
-                            MemoryHelper.CopyMemory(lineTarget, lineSource, lineWidth);
-                            lineSource = new IntPtr(lineSource.ToInt64() + sourceData.Stride);
-                            lineTarget = new IntPtr(lineTarget.ToInt64() + targetData.Stride);
-                        }
+                        MemoryHelper.CopyMemory(lineTarget, lineSource, lineWidth);
+                        lineSource = new IntPtr(lineSource.ToInt64() + sourceData.Stride);
+                        lineTarget = new IntPtr(lineTarget.ToInt64() + targetData.Stride);
                     }
+
+                    return result;
                 }
                 finally
                 {
@@ -198,8 +199,6 @@ namespace KGySoft.Drawing
             {
                 bitmap.UnlockBits(sourceData);
             }
-
-            return result;
         }
 
         /// <summary>
@@ -441,12 +440,162 @@ namespace KGySoft.Drawing
             Color32 c = new Color32(color);
             using (var accessor = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
             {
-                if (ditherer == null || accessor.PixelFormat.ToBitsPerPixel() >= 24 || accessor.PixelFormat == PixelFormat.Format16bppGrayScale)
+                if (ditherer == null || !accessor.PixelFormat.CanBeDithered())
                     ClearDirect(accessor, c);
                 else
                     ClearWithDithering(accessor, c, ditherer);
             }
         }
+
+        /// <param name="backColor">If <paramref name="bitmap"/> cannot have alpha or has only single-bit alpha, and the result value of <paramref name="transformFunction"/> is not fully opaque, then specifies the color of the background.
+        /// The not fully opaque result color with alpha above the <paramref name="alphaThreshold"/> will be blended with <paramref name="backColor"/> to determine the color to set.
+        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="bitmap"/> has only single-bit alpha or its palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the result color is considered to be transparent. If <c>0</c>,
+        /// then the pixels set will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        // example: Inverse
+        // note: indexed
+        public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, Color backColor = default, byte alphaThreshold = 128)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (transformFunction == null)
+                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
+
+            PixelFormat pixelFormat = bitmap.PixelFormat;
+
+            // Indexed format: processing the palette entries
+            if (pixelFormat.IsIndexed())
+            {
+                ColorPalette palette = bitmap.Palette;
+                Color[] entries = palette.Entries;
+                for (int i = 0; i < entries.Length; i++)
+                    entries[i] = transformFunction.Invoke(new Color32(entries[i])).ToColor();
+                bitmap.Palette = palette;
+                return;
+            }
+
+            // Non-indexed format: processing the pixels
+            using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            {
+                // Sequential processing
+                if (bitmapData.Width < parallelThreshold)
+                {
+                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    do
+                    {
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row[x] = transformFunction.Invoke(row[x]);
+                    } while (row.MoveNextRow());
+
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, bitmapData.Height, y =>
+                {
+                    BitmapDataRowBase row = bitmapData.GetRow(y);
+                    bool replaced = false;
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        row[x] = transformFunction.Invoke(row[x]);
+                });
+            }
+        }
+
+        // note: if bitmap is indexed and ditherer is null, then only the palette entries are processed. This is actually much faster and produces better result than processing the pixels with dithering using the original palette.
+        public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, IDitherer ditherer, Color backColor = default, byte alphaThreshold = 128)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+
+            PixelFormat pixelFormat = bitmap.PixelFormat;
+            if (ditherer == null || !pixelFormat.CanBeDithered())
+            {
+                bitmap.TransformColors(transformFunction, backColor, alphaThreshold);
+                return;
+            }
+
+            if (transformFunction == null)
+                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
+
+            using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            {
+                IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
+                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                {
+                    // sequential processing
+                    if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
+                    {
+                        BitmapDataRowBase row = bitmapData.GetRow(0);
+                        int y = 0;
+                        do
+                        {
+                            for (int x = 0; x < bitmapData.Width; x++)
+                                row[x] = ditheringSession.GetDitheredColor(transformFunction.Invoke(row[x]), x, y);
+                            y += 1;
+                        } while (row.MoveNextRow());
+
+                        return;
+                    }
+
+                    // parallel processing
+                    ParallelHelper.For(0, bitmapData.Height, y =>
+                    {
+                        BitmapDataRowBase row = bitmapData.GetRow(y);
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row[x] = ditheringSession.GetDitheredColor(transformFunction.Invoke(row[x]), x, y);
+                    });
+                }
+            }
+        }
+
+        // note: if newColor has alpha, which cannot be represented by bitmap, then it will be blended with black. Call TransformColor to use a custom backColor instead.
+        public static void ReplaceColor(this Bitmap bitmap, Color oldColor, Color newColor, IDitherer ditherer = null)
+        {
+            Color32 from = new Color32(oldColor);
+            Color32 to = new Color32(newColor);
+
+            Color32 Transform(Color32 c) => c == from ? to : c;
+
+            bitmap.TransformColors(Transform, ditherer);
+        }
+
+        // note: if bitmap is indexed and ditherer is null, then only the palette entries are processed. This is actually much faster and produces better result than processing the pixels with dithering using the original palette.
+        public static void Inverse(this Bitmap bitmap, IDitherer ditherer = null)
+        {
+            static Color32 Transform(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
+
+            bitmap.TransformColors(Transform, ditherer);
+        }
+
+        // backColor.A is ignored
+        // note: if bitmap is indexed and ditherer is null, then only the (partially) transparent palette entries are processed. This is actually much faster and produces better result than processing the pixels with dithering using the original palette.
+        public static void MakeOpaque(this Bitmap bitmap, Color backColor, IDitherer ditherer = null)
+        {
+            Color32 backColor32 = new Color32(backColor);
+
+            Color32 Transform(Color32 c) => c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor32);
+
+            bitmap.TransformColors(Transform, ditherer, backColor, 0);
+        }
+
+        // note: if bitmap is indexed and ditherer is null, then only the palette entries are processed. This is actually much faster and produces better result than processing the pixels with dithering using the original palette.
+        // see also ToGrayscale, which returns a new instance with PixelFormat ARGB32, whereas this method uses the original pixel format (and even palette if ditherer is not null)
+        public static void MakeGrayscale(this Bitmap bitmap, IDitherer ditherer = null)
+        {
+            static Color32 Transform(Color32 c)
+            {
+                byte br = c.GetBrightness();
+                return new Color32(c.A, br, br, br);
+            }
+
+            bitmap.TransformColors(Transform, ditherer);
+        }
+
+
 
         #endregion
 

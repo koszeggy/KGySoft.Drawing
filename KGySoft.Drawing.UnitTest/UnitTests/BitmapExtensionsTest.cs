@@ -187,35 +187,35 @@ namespace KGySoft.Drawing.UnitTests
         {
             // 32 bit ARGB
             using var refBmp = Icons.Information.ToAlphaBitmap();
-            var colors = refBmp.GetColors();
-            Assert.LessOrEqual(colors.Length, refBmp.Width * refBmp.Height);
+            var colorCount = refBmp.GetColorCount();
+            Assert.LessOrEqual(colorCount, refBmp.Width * refBmp.Height);
             SaveImage("32argb", refBmp);
 
             // 24 bit
             using var bmp24bpp = refBmp.ConvertPixelFormat(PixelFormat.Format24bppRgb);
-            colors = bmp24bpp.GetColors();
-            Assert.LessOrEqual(colors.Length, bmp24bpp.Width * bmp24bpp.Height);
+            colorCount = bmp24bpp.GetColorCount();
+            Assert.LessOrEqual(colorCount, bmp24bpp.Width * bmp24bpp.Height);
             SaveImage("24rgb", bmp24bpp);
 
             // 48 bit
             if (OSUtils.IsWindows)
             {
                 using var bmp48bpp = refBmp.ConvertPixelFormat(PixelFormat.Format48bppRgb);
-                colors = bmp48bpp.GetColors();
-                Assert.LessOrEqual(colors.Length, bmp48bpp.Width * bmp48bpp.Height);
+                colorCount = bmp48bpp.GetColorCount();
+                Assert.LessOrEqual(colorCount, bmp48bpp.Width * bmp48bpp.Height);
                 SaveImage("48rgb", bmp48bpp);
 
                 // 64 bit
                 using var bmp64bpp = refBmp.ConvertPixelFormat(PixelFormat.Format64bppArgb);
-                colors = bmp64bpp.GetColors();
-                Assert.LessOrEqual(colors.Length, bmp64bpp.Width * bmp64bpp.Height);
+                colorCount = bmp64bpp.GetColorCount();
+                Assert.LessOrEqual(colorCount, bmp64bpp.Width * bmp64bpp.Height);
                 SaveImage("64argb", bmp64bpp);
             }
 
             // 8 bit: returning actual palette
             using var bmp8bpp = refBmp.ConvertPixelFormat(PixelFormat.Format8bppIndexed);
-            colors = bmp8bpp.GetColors();
-            Assert.AreEqual(bmp8bpp.Palette.Entries.Length, colors.Length);
+            colorCount = bmp8bpp.GetColorCount();
+            Assert.AreEqual(bmp8bpp.Palette.Entries.Length, colorCount);
             SaveImage("8ind", bmp8bpp);
         }
 
@@ -440,7 +440,69 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ChangeColorTest()
         {
-            throw new NotImplementedException();
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.DoesNotThrow(() => bmp.ReplaceColor(Color.Empty, Color.Blue));
+            SaveImage(null, bmp);
+        }
+
+        [TestCase("Inverting 32 bit ARGB", PixelFormat.Format32bppArgb, false)]
+        [TestCase("Inverting 8 bit by palette", PixelFormat.Format8bppIndexed, false)]
+        [TestCase("Inverting 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
+        public void TransformColors(string testName, PixelFormat pixelFormat, bool useDithering)
+        {
+            static Color32 Transform(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
+
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            Assert.DoesNotThrow(() => bmp.TransformColors(Transform, useDithering ? OrderedDitherer.Bayer8x8() : null));
+            SaveImage(testName, bmp);
+        }
+
+        [TestCase("32 bit ARGB", PixelFormat.Format32bppArgb, false)]
+        [TestCase("8 bit by palette", PixelFormat.Format8bppIndexed, false)]
+        [TestCase("32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
+        public void InverseTest(string testName, PixelFormat pixelFormat, bool useDithering)
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            Assert.DoesNotThrow(() => bmp.Inverse(useDithering ? OrderedDitherer.Bayer8x8() : null));
+            SaveImage(testName, bmp);
+        }
+
+        [TestCase("32 bit ARGB", PixelFormat.Format32bppArgb, false)]
+        [TestCase("8 bit by palette", PixelFormat.Format8bppIndexed, false)]
+        [TestCase("32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
+        public void MakeOpaqueTest(string testName, PixelFormat pixelFormat, bool useDithering)
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            Assert.DoesNotThrow(() => bmp.MakeOpaque(Color.Blue, useDithering ? OrderedDitherer.Bayer8x8() : null));
+            SaveImage(testName, bmp);
+        }
+
+        [TestCase("32 bit ARGB", PixelFormat.Format32bppArgb, false)]
+        [TestCase("8 bit by palette", PixelFormat.Format8bppIndexed, false)]
+        [TestCase("32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
+        public void MakeGrayscaleTest(string testName, PixelFormat pixelFormat, bool useDithering)
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            Assert.DoesNotThrow(() => bmp.MakeGrayscale(useDithering ? OrderedDitherer.Bayer8x8() : null));
+            SaveImage(testName, bmp);
+        }
+
+        [Test]
+        public void AdjustBrightnessTest()
+        {
+            throw new NotImplementedException("TODO");
+        }
+
+        [Test]
+        public void AdjustContrastTest()
+        {
+            throw new NotImplementedException("TODO");
+        }
+
+        [Test]
+        public void AdjustGammaTest()
+        {
+            throw new NotImplementedException("TODO");
         }
 
         #endregion
