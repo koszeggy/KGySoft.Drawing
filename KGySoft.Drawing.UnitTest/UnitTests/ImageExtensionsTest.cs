@@ -54,7 +54,6 @@ namespace KGySoft.Drawing.UnitTests
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
             using var gray = bmp.ToGrayscale();
             Assert.IsFalse(bmp.EqualsByContent(gray));
-            SaveImage("Reference", bmp);
             SaveImage("Grayscale", gray);
         }
 

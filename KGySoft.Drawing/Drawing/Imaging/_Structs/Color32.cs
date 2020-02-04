@@ -145,6 +145,8 @@ namespace KGySoft.Drawing.Imaging
 
         public int ToRgb() => (int)(~alphaMask & value);
 
+        public Color32 ToGray() => FromArgb(A, FromGray(this.GetBrightness()));
+
         public bool Equals(Color32 other) => value == other.value;
 
         public override bool Equals(object obj) => obj is Color32 other && Equals(other);

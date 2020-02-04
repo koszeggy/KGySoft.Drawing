@@ -33,6 +33,56 @@ namespace KGySoft.Drawing.PerformanceTests
     {
         #region Methods
 
+        [Test]
+        public void ToGrayscaleTest()
+        {
+            using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+
+            new PerformanceTest { Iterations = 100, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var result = new Bitmap(bmp.Width, bmp.Height);
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        // Grayscale color matrix
+                        var colorMatrix = new ColorMatrix(new float[][]
+                        {
+                            new float[] { ColorExtensions.RLum, ColorExtensions.RLum, ColorExtensions.RLum, 0, 0 },
+                            new float[] { ColorExtensions.GLum, ColorExtensions.GLum, ColorExtensions.GLum, 0, 0 },
+                            new float[] { ColorExtensions.BLum, ColorExtensions.BLum, ColorExtensions.BLum, 0, 0 },
+                            new float[] { 0, 0, 0, 1, 0 },
+                            new float[] { 0, 0, 0, 0, 1 }
+                        });
+
+                        using (var attrs = new ImageAttributes())
+                        {
+                            attrs.SetColorMatrix(colorMatrix);
+                            g.DrawImage(bmp, new Rectangle(0, 0, result.Width, result.Height), 0, 0, result.Width, result.Height, GraphicsUnit.Pixel, attrs);
+                        }
+                    }
+                }, "Graphics.DrawImage(..., ImageAttributes)")
+                .AddCase(() =>
+                {
+                    using var result = new Bitmap(bmp.Width, bmp.Height);
+                    using IReadableBitmapData src = bmp.GetReadableBitmapData();
+                    using IWritableBitmapData dst = result.GetWritableBitmapData();
+                    IReadableBitmapDataRow rowSrc = src.FirstRow;
+                    IWritableBitmapDataRow rowDst = dst.FirstRow;
+                    do
+                    {
+                        for (int x = 0; x < src.Width; x++)
+                            rowDst[x] = rowSrc[x].ToGray();
+                    } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+                }, "Sequential processing")
+                .AddCase(() =>
+                {
+                    using var result = bmp.ToGrayscale();
+                }, "ImageExtensions.ToGrayscale")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
+
         [TestCase(PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format32bppPArgb)]
         [TestCase(PixelFormat.Format64bppArgb)]

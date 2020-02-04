@@ -51,6 +51,7 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
       a threshold value for treating alpha pixels completely transparent. Alpha pixels, which are not treated
       transparent are blended with the backColor parameter.
     + New overloads for omitting palette and for using a custom quantizer and ditherer.
+  * ToGrayscale method: Now supports every source pixel format.
   - EqualsByContent method:
     - Images with different raw format were considered different even if their raw content were the same. From now
       on images with different raw format can also be considered equal (as expected based on the documentation).

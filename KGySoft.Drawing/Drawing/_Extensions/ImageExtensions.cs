@@ -52,38 +52,18 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts an image to a grayscale one.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The image to convert to grayscale.</param>
-        /// <returns>The grayscale version of the original <paramref name="image"/>.</returns>
+        /// <returns>An <see cref="Image"/> containing the grayscale version of the original <paramref name="image"/>.</returns>
+        /// <remarks>
+        /// <para>This method always returns a <see cref="Bitmap"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat"/> overloads with a grayscale palette, quantizer or pixel format.</para>
+        /// <para>To make a <see cref="Bitmap"/> grayscale without creating a new instance use the <see cref="BitmapExtensions.MakeGrayscale">BitmapExtensions.MakeGrayscale</see> method.</para>
+        /// </remarks>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Image ToGrayscale(this Image image)
-        {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
-
-            // TODO: performance test with using grayscale quantizer
-            Bitmap result = new Bitmap(image.Width, image.Height);
-            using (Graphics g = Graphics.FromImage(result))
-            {
-                // Grayscale color matrix
-                var colorMatrix = new ColorMatrix(new float[][]
-                {
-                    new float[] { ColorExtensions.RLum, ColorExtensions.RLum, ColorExtensions.RLum, 0, 0 },
-                    new float[] { ColorExtensions.GLum, ColorExtensions.GLum, ColorExtensions.GLum, 0, 0 },
-                    new float[] { ColorExtensions.BLum, ColorExtensions.BLum, ColorExtensions.BLum, 0, 0 },
-                    new float[] { 0, 0, 0, 1, 0 },
-                    new float[] { 0, 0, 0, 0, 1 }
-                });
-
-                using (var attrs = new ImageAttributes())
-                {
-                    attrs.SetColorMatrix(colorMatrix);
-                    g.DrawImage(image, new Rectangle(0, 0, image.Width, image.Height), 0, 0, image.Width, image.Height, GraphicsUnit.Pixel, attrs);
-                }
-            }
-
-            return result;
-        }
+            => image.ConvertPixelFormat(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.

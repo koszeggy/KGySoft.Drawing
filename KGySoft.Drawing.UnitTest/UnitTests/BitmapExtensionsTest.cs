@@ -52,13 +52,13 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "RGB332 Black Slow", PredefinedColorsQuantizer.Rgb332(), 256 },
             new object[] { "RGB332 Black Fast", PredefinedColorsQuantizer.Rgb332(directMapping: true), 256 },
             //new object[] { "RGB332 White Slow", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
-            new object[] { "Grayscale Black", PredefinedColorsQuantizer.Grayscale(), 256 },
+            new object[] { "Grayscale Black", PredefinedColorsQuantizer.Grayscale8bpp(), 256 },
             //new object[] { "Grayscale White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
-            new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale16(), 16 },
-            new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale16(directMapping: true), 16 },
+            new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale4bpp(), 16 },
+            new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale4bpp(directMapping: true), 16 },
             //new object[] { "Grayscale5 black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
-            new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale4(), 4 },
-            new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale4(directMapping: true), 4 },
+            new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale2bpp(), 4 },
+            new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale2bpp(directMapping: true), 4 },
             //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.Gray, Color.White }), 3 },
             //new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
             //new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
@@ -277,7 +277,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
             new PerformanceTest { Iterations = 1 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(PredefinedColorsQuantizer.Grayscale4()))
+                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(PredefinedColorsQuantizer.Grayscale2bpp()))
                 //.AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.Octree()))
                 //.AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.MedianCut()))
                 .DoTest()
