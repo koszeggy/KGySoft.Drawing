@@ -117,11 +117,15 @@ namespace KGySoft.Drawing.PerformanceTests
             using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
             IQuantizer quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette();
             new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()}", Iterations = 100, CpuAffinity = null }
-                .AddCase(() => bmpRef.CloneCurrentFrame().Quantize(quantizer), "BitmapExtensions.Quantize")
                 .AddCase(() =>
                 {
-                    using var bmp = bmpRef.CloneCurrentFrame();
-                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite))
+                    using var result = (Bitmap)bmpRef.Clone();
+                    result.Quantize(quantizer);
+                }, "BitmapExtensions.Quantize")
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmpRef.Clone();
+                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession session = quantizer.Initialize(bitmapData))
                     {
                         var row = bitmapData.GetRow(0);
@@ -145,11 +149,15 @@ namespace KGySoft.Drawing.PerformanceTests
             IQuantizer quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette();
             IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8();
             new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()} {(errorDiffusion ? "Error Diffusion" : "Ordered")}", Iterations = 100, CpuAffinity = null }
-                .AddCase(() => bmpRef.CloneCurrentFrame().Dither(quantizer, ditherer), "BitmapExtensions.Dither")
                 .AddCase(() =>
                 {
-                    using var bmp = bmpRef.CloneCurrentFrame();
-                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite))
+                    using var result = (Bitmap)bmpRef.Clone();
+                    result.Dither(quantizer, ditherer);
+                }, "BitmapExtensions.Dither")
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmpRef.Clone();
+                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession))
                     {
@@ -171,11 +179,20 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             using var bmp = Icons.Shield.ExtractBitmap(new Size(128, 128), true).Resize(new Size(256, 256));
             new PerformanceTest { Iterations = 100, CpuAffinity = null }
-                .AddCase(() => bmp.CloneCurrentFrame().MakeTransparent(Color.Black), "Bitmap.MakeTransparent")
-                .AddCase(() => bmp.CloneCurrentFrame().ReplaceColor(Color.Black, Color.Transparent), "BitmapExtensions.ReplaceColor")
                 .AddCase(() =>
                 {
-                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bmp.CloneCurrentFrame(), ImageLockMode.ReadWrite))
+                    using var result = (Bitmap)bmp.Clone();
+                    result.MakeTransparent(Color.Black);
+                }, "Bitmap.MakeTransparent")
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    result.ReplaceColor(Color.Black, Color.Transparent);
+                }, "BitmapExtensions.ReplaceColor")
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.ReadWrite))
                     {
                         Color32 from = new Color32(Color.Black);
                         Color32 to = new Color32(Color.Transparent);
@@ -195,6 +212,108 @@ namespace KGySoft.Drawing.PerformanceTests
                 .DumpResults(Console.Out);
         }
 
+        [Test]
+        public void AdjustBrightnessTest()
+        {
+            const float brightness = +0.5f;
+            using var bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+            new PerformanceTest { Iterations = 100, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    result.AdjustBrightness(brightness);
+                }, "BitmapExtensions.AdjustBrightness")
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        var br = brightness + 1;
+
+                        var colorMatrix = new ColorMatrix(new float[][]
+                        {
+                            new[] { 1f, 0, 0, 0, 0 },
+                            new[] { 0, 1f, 0, 0, 0 },
+                            new[] { 0, 0, 1f, 0, 0 },
+                            new[] { 0, 0, 0, 1f, 0 },
+                            new[] { br, br, br, 0, 1f }
+                        });
+
+                        using (var attrs = new ImageAttributes())
+                        {
+                            attrs.SetColorMatrix(colorMatrix);
+                            g.DrawImage(result, new Rectangle(Point.Empty, result.Size), 0, 0, result.Width, result.Height, GraphicsUnit.Pixel, attrs);
+                        }
+                    }
+                }, "Graphics.DrawImage(..., ImageAttributes)")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
+        [Test]
+        public void AdjustContrastTest()
+        {
+            const float contrast = +0.5f;
+            using var bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+            new PerformanceTest { Iterations = 100, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    result.AdjustContrast(contrast);
+                }, "BitmapExtensions.AdjustContrast")
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        var c = contrast + 1;
+
+                        var colorMatrix = new ColorMatrix(new float[][]
+                        {
+                            new[] { c, 0, 0, 0, 0 },
+                            new[] { 0, c, 0, 0, 0 },
+                            new[] { 0, 0, c, 0, 0 },
+                            new[] { 0, 0, 0, 1f, 0 },
+                            new[] { 0, 0, 0, 0, 1f }
+                        });
+
+                        using (var attrs = new ImageAttributes())
+                        {
+                            attrs.SetColorMatrix(colorMatrix);
+                            g.DrawImage(result, new Rectangle(Point.Empty, result.Size), 0, 0, result.Width, result.Height, GraphicsUnit.Pixel, attrs);
+                        }
+                    }
+                }, "Graphics.DrawImage(..., ImageAttributes)")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
+        [Test]
+        public void AdjustGammaTest()
+        {
+            const float gamma = 1.6f;
+            using var bmp = Icons.Shield.ExtractBitmap(new Size(256, 256));
+            new PerformanceTest { Iterations = 100, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    result.AdjustGamma(gamma);
+                }, "BitmapExtensions.AdjustGamma")
+                .AddCase(() =>
+                {
+                    using var result = (Bitmap)bmp.Clone();
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        using (var attrs = new ImageAttributes())
+                        {
+                            attrs.SetGamma(gamma);
+                            g.DrawImage(result, new Rectangle(Point.Empty, result.Size), 0, 0, result.Width, result.Height, GraphicsUnit.Pixel, attrs);
+                        }
+                    }
+                }, "Graphics.DrawImage(..., ImageAttributes)")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
 
         #endregion
     }

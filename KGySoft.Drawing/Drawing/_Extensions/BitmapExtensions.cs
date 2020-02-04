@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -26,7 +25,7 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Security;
-using System.Threading;
+using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
@@ -49,6 +48,8 @@ namespace KGySoft.Drawing
         #region Fields
 
         private static readonly int[] iconSizes = { 512, 384, 320, 256, 128, 96, 80, 72, 64, 60, 48, 40, 36, 32, 30, 24, 20, 16, 8, 4 };
+
+        private static readonly IThreadSafeCacheAccessor<float, byte[]> gammaLookupTableCache = new Cache<float, byte[]>(GenerateGammaLookupTable, 16).GetThreadSafeAccessor();
 
         #endregion
 
@@ -595,7 +596,88 @@ namespace KGySoft.Drawing
             bitmap.TransformColors(Transform, ditherer);
         }
 
+        public static void AdjustBrightness(this Bitmap bitmap, float brightness, IDitherer ditherer = null, ColorChannel channels = ColorChannel.Rgb)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
+                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
 
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannel.None || brightness == 0f)
+                return;
+
+            if (brightness < 0f)
+            {
+                brightness += 1f;
+                bitmap.TransformColors(Darken, ditherer);
+            }
+            else
+                bitmap.TransformColors(Lighten, ditherer);
+
+            #region Local Methods
+
+            Color32 Darken(Color32 c) => new Color32(c.A,
+                (channels & ColorChannel.R) == ColorChannel.R ? (byte)(c.R * brightness) : c.R,
+                (channels & ColorChannel.G) == ColorChannel.G ? (byte)(c.G * brightness) : c.G,
+                (channels & ColorChannel.B) == ColorChannel.B ? (byte)(c.B * brightness) : c.B);
+
+            Color32 Lighten(Color32 c) => new Color32(c.A,
+                (channels & ColorChannel.R) == ColorChannel.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
+                (channels & ColorChannel.G) == ColorChannel.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
+                (channels & ColorChannel.B) == ColorChannel.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
+
+            #endregion
+        }
+
+        public static void AdjustContrast(this Bitmap bitmap, float contrast, IDitherer ditherer = null, ColorChannel channels = ColorChannel.Rgb)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
+                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannel.None || contrast == 0f)
+                return;
+
+            contrast += 1f;
+            contrast *= contrast;
+
+            Color32 Transform(Color32 c) => new Color32(c.A,
+                (channels & ColorChannel.R) == ColorChannel.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
+                (channels & ColorChannel.G) == ColorChannel.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
+                (channels & ColorChannel.B) == ColorChannel.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
+
+            bitmap.TransformColors(Transform, ditherer);
+        }
+
+        public static void AdjustGamma(this Bitmap bitmap, float gamma, IDitherer ditherer = null, ColorChannel channels = ColorChannel.Rgb)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
+                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
+            if (channels == ColorChannel.None || gamma == 1f)
+                return;
+
+            byte[] table = gammaLookupTableCache[gamma];
+
+            Color32 Transform(Color32 c) => new Color32(c.A,
+                (channels & ColorChannel.R) == ColorChannel.R ? table[c.R] : c.R,
+                (channels & ColorChannel.G) == ColorChannel.G ? table[c.G] : c.G,
+                (channels & ColorChannel.B) == ColorChannel.B ? table[c.B] : c.B);
+
+            bitmap.TransformColors(Transform, ditherer);
+        }
 
         #endregion
 
@@ -848,6 +930,14 @@ namespace KGySoft.Drawing
                         row[x] = ditheringSession.GetDitheredColor(color, x, y);
                 });
             }
+        }
+
+        private static byte[] GenerateGammaLookupTable(float gamma)
+        {
+            byte[] result = new byte[256];
+            for (int i = 0; i < 256; i++)
+                result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
+            return result;
         }
 
         #endregion

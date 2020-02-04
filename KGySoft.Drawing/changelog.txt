@@ -35,6 +35,9 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
   + New Inverse method
   + New MakeOpaque method
   + New MakeGrayscale method
+  + New AdjustBrightness method
+  + New AdjustContrast method
+  + New AdjustGamma method
 - IconExtensions class:
   - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
     keepOriginalFormat parameter was true.
