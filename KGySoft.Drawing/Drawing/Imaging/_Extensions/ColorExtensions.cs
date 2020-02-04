@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: Color32Extensions.cs
+//  File: ColorExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
 //
@@ -25,7 +25,7 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal static class Color32Extensions
+    internal static class ColorExtensions
     {
         #region Constants
 
@@ -179,11 +179,9 @@ namespace KGySoft.Drawing.Imaging
 
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
-            // The blending is applied only to the color and not the resulting alpha, which always has the source alpha
-            // so its distance still can be measured.
+            // The blending is applied only to the color and not the resulting alpha, which is always considered opaque
             if (c.A == 0)
                 return Color32.FromArgb(Byte.MaxValue, backColor);
-            // TODO: is it faster if we multiply by 1 / 255 constant?
             float alpha = c.A / 255f;
             float inverseAlpha = 1f - alpha;
             return new Color32(Byte.MaxValue,
@@ -194,7 +192,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal static Color32 BlendWith(this Color32 src, Color32 dst)
         {
-            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Semi transparent colors are expected");
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
 
             float alphaSrc = src.A / 255f;
             float alphaDst = dst.A / 255f;
@@ -209,7 +207,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
         {
-            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Semi transparent colors are expected");
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
 
             float inverseAlphaSrc = (255 - src.A) / 255f;
 

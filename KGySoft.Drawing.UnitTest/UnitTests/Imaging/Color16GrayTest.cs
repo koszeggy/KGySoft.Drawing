@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Color32 c = Color32.FromArgb(0x11223344);
 
             Color16Gray c16 = new Color16Gray(c);
-            Assert.AreEqual((ushort)(0x2222 * Color32Extensions.RLum + 0x3333 * Color32Extensions.GLum + 0x4444 * Color32Extensions.BLum), c16.Value);
+            Assert.AreEqual((ushort)(0x2222 * ColorExtensions.RLum + 0x3333 * ColorExtensions.GLum + 0x4444 * ColorExtensions.BLum), c16.Value);
         }
 
         [Test]
