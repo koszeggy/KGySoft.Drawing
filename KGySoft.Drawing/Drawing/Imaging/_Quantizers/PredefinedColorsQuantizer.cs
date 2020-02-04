@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
             #region Fields
 
             private readonly PredefinedColorsQuantizer quantizer;
-            private readonly Func<Color32, Color32> quantize;
+            private readonly Func<Color32, Color32> quantizingFunction;
 
             #endregion
 
@@ -54,10 +54,10 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal QuantizingSessionCustomMapping(PredefinedColorsQuantizer quantizer, Func<Color32, Color32> quantize)
+            internal QuantizingSessionCustomMapping(PredefinedColorsQuantizer quantizer, Func<Color32, Color32> quantizingFunction)
             {
                 this.quantizer = quantizer;
-                this.quantize = quantize;
+                this.quantizingFunction = quantizingFunction;
             }
 
             #endregion
@@ -69,9 +69,11 @@ namespace KGySoft.Drawing.Imaging
             }
 
             public Color32 GetQuantizedColor(Color32 c)
-                => c.A < AlphaThreshold
-                    ? default
-                    : quantize.Invoke(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
+                => c.A == Byte.MaxValue || !quantizer.blendAlphaBeforeQuantize
+                    ? quantizingFunction.Invoke(c)
+                    : c.A < AlphaThreshold
+                        ? default
+                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor));
 
             #endregion
         }
@@ -138,9 +140,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Fields
 
-        private readonly Func<Color32, Color32> quantize;
+        private readonly Func<Color32, Color32> quantizingFunction;
         private readonly Color32 backColor;
         private readonly byte alphaThreshold;
+        private readonly bool blendAlphaBeforeQuantize;
         private readonly Palette palette;
 
         #endregion
@@ -280,11 +283,17 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> quantize, Color32 backColor, byte alphaThreshold = 0)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, Color32 backColor, byte alphaThreshold = 0)
+            : this(quantizingFunction)
         {
-            this.quantize = quantize;
             this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
             this.alphaThreshold = alphaThreshold;
+            blendAlphaBeforeQuantize = true;
+        }
+
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction)
+        {
+            this.quantizingFunction = quantizingFunction ?? throw new ArgumentNullException(nameof(quantizingFunction), PublicResources.ArgumentNull);
         }
 
         #endregion
@@ -348,8 +357,8 @@ namespace KGySoft.Drawing.Imaging
             return new PredefinedColorsQuantizer(new Palette(Rgb332Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
         }
 
-        // very fast, uses always a direct index mapping
-        public static PredefinedColorsQuantizer Grayscale(Color backColor = default)
+        // very fast, uses always a direct index mapping, has no transparent color
+        public static PredefinedColorsQuantizer Grayscale8bpp(Color backColor = default)
         {
             var bg = new Color32(backColor);
 
@@ -365,7 +374,7 @@ namespace KGySoft.Drawing.Imaging
 
         // directMapping: <see langword="true"/>&#160;to map a color directly to an index instead of searching for a nearest color, which is very fast
         // but may cause poorer results.
-        public static PredefinedColorsQuantizer Grayscale16(Color backColor = default, bool directMapping = false)
+        public static PredefinedColorsQuantizer Grayscale4bpp(Color backColor = default, bool directMapping = false)
         {
             var bg = new Color32(backColor);
 
@@ -379,7 +388,7 @@ namespace KGySoft.Drawing.Imaging
             return new PredefinedColorsQuantizer(new Palette(Grayscale16Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
         }
 
-        public static PredefinedColorsQuantizer Grayscale4(Color backColor = default, bool directMapping = false)
+        public static PredefinedColorsQuantizer Grayscale2bpp(Color backColor = default, bool directMapping = false)
         {
             var bg = new Color32(backColor);
 
@@ -433,6 +442,18 @@ namespace KGySoft.Drawing.Imaging
 
         public static PredefinedColorsQuantizer FromCustomPalette(Palette palette) => new PredefinedColorsQuantizer(palette);
 
+        // The quantizer will have no palette. If the target is an indexed format consider to use the FromCustomPalette overloads instead.
+        // note: alphaThreshold default is 0, meaning, by default every color with alpha will be blended by backColor
+        // The quantizingFunction will never get a color with alpha. Depending on alphaThreshold either a completely transparent color will be returned
+        // or the color will be blended by backColor. In order to process colors with alpha use the other FromCustomFunction overload instead
+        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, byte alphaThreshold = 0)
+            => new PredefinedColorsQuantizer(quantizingFunction, new Color32(backColor), alphaThreshold);
+
+        // The quantizer will have no palette. If the target is an indexed format consider to use the FromCustomPalette overloads instead.
+        // note: This FromCustomFunction passes colors with alpha to the quantizingFunction delegate. In order to pass only blended colors to the delegate call the other FromCustomFunction overload.
+        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction)
+            => new PredefinedColorsQuantizer(quantizingFunction);
+
         public static PredefinedColorsQuantizer FromBitmap(Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
             switch (bitmap.PixelFormat)
@@ -444,7 +465,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppRgb555:
                     return Rgb555(backColor);
                 case PixelFormat.Format16bppGrayScale:
-                    return Grayscale(backColor);
+                    return Grayscale8bpp(backColor);
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
@@ -469,7 +490,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppRgb555:
                     return Rgb555(bitmapData.BackColor.ToColor());
                 case PixelFormat.Format16bppGrayScale:
-                    return Grayscale(bitmapData.BackColor.ToColor());
+                    return Grayscale8bpp(bitmapData.BackColor.ToColor());
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
@@ -488,7 +509,7 @@ namespace KGySoft.Drawing.Imaging
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
             => palette != null
                 ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
-                : new QuantizingSessionCustomMapping(this, quantize);
+                : new QuantizingSessionCustomMapping(this, quantizingFunction);
 
         #endregion
 
