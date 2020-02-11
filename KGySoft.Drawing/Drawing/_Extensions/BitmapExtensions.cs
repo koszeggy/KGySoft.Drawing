@@ -681,13 +681,14 @@ namespace KGySoft.Drawing
 
         #endregion
 
-        #region Private Methods
+
+        #region Internal Methods
 
         /// <summary>
         /// Tries to extract the icon images from an image.
         /// </summary>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Non-disposed bitmaps are returned.")]
-        private static Bitmap[] ExtractIconImages(Bitmap image)
+        internal static Bitmap[] ExtractIconImages(this Bitmap image)
         {
             Debug.Assert(image.RawFormat.Guid == ImageFormat.Icon.Guid);
 
@@ -737,6 +738,10 @@ namespace KGySoft.Drawing
 
             return result.ToArray();
         }
+
+        #endregion
+
+        #region Private Methods
 
         private static ICollection<Color32> DoGetColors(Bitmap bitmap, int maxColors)
         {

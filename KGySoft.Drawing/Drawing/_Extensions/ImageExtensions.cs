@@ -46,6 +46,71 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #region Fields
+
+        private static ImageCodecInfo[] encoders = ImageCodecInfo.GetImageEncoders();
+
+        private static readonly Dictionary<Guid, Dictionary<PixelFormat, PixelFormat>> saveConversions = new Dictionary<Guid, Dictionary<PixelFormat, PixelFormat>>
+        {
+            [ImageFormat.Bmp.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            {
+                [PixelFormat.Format16bppRgb565] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format16bppRgb555] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format16bppArgb1555] = PixelFormat.Format32bppArgb,
+                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Undefined] = PixelFormat.Format24bppRgb
+            },
+            [ImageFormat.Gif.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            {
+                [PixelFormat.Format1bppIndexed] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format4bppIndexed] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format16bppArgb1555] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format16bppRgb555] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format16bppRgb565] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format24bppRgb] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format32bppRgb] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format32bppPArgb] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format32bppArgb] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format48bppRgb] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format64bppArgb] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Format64bppPArgb] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Undefined] = PixelFormat.Format8bppIndexed
+            },
+            [ImageFormat.Jpeg.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            {
+                [PixelFormat.Format16bppArgb1555] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format32bppArgb] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format64bppArgb] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format64bppPArgb] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Undefined] = PixelFormat.Format24bppRgb
+            },
+            [ImageFormat.Png.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            {
+                [PixelFormat.Format16bppRgb565] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format16bppRgb555] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format48bppRgb] = PixelFormat.Format24bppRgb,
+                [PixelFormat.Format64bppArgb] = PixelFormat.Format32bppArgb,
+                [PixelFormat.Format64bppPArgb] = PixelFormat.Format32bppArgb,
+                [PixelFormat.Undefined] = PixelFormat.Format32bppArgb
+            },
+            [ImageFormat.Tiff.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            {
+                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format8bppIndexed,
+                [PixelFormat.Undefined] = PixelFormat.Format32bppArgb
+            },
+        };
+
+        #endregion
+
+        #region Properties
+
+        private static ImageCodecInfo[] Encoders => encoders ??= ImageCodecInfo.GetImageEncoders();
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -190,7 +255,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An <see cref="IQuantizer"/> instance to determine the conversion of the colors.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the conversion of the colors.
+        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance for dithering the result image, which usually produces a better result if colors are reduced. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
@@ -204,7 +270,7 @@ namespace KGySoft.Drawing
         /// <para>To quantize a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Quantize">BitmapExtensions.Quantize</see> method.</para>
         /// <para>To dither a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Dither">BitmapExtensions.Dither</see> method.</para>
         /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="quantizer"/> are <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
@@ -215,7 +281,7 @@ namespace KGySoft.Drawing
             if (!Enum<PixelFormat>.IsDefined(newPixelFormat))
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.EnumOutOfRange(newPixelFormat));
             if (quantizer == null)
-                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+                return ConvertPixelFormat(image, newPixelFormat);
 
             Bitmap bmp = image as Bitmap ?? new Bitmap(image);
             Bitmap result = null;
@@ -408,11 +474,402 @@ namespace KGySoft.Drawing
         /// <param name="size">The required size of the icon.</param>
         /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
-        /// <remarks>The result icon will be always square sized. To create a non-squared icon, use the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
+        /// <remarks>The result icon will be always square sized and will contain only a single image.
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio);
+        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, new Size(size, size), keepAspectRatio);
+
+        /// <summary>
+        /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
+        /// </summary>
+        /// <param name="image">The image to be converted to an icon.</param>
+        /// <param name="transparentColor">A color that represents transparent color for the icon to be created. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which keeps only already transparent pixels.</param>
+        /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/> that has the same size as the specified <paramref name="image"/>.</returns>
+        /// <remarks>
+        /// <para>The result icon will have the same size as the specified <paramref name="image"/>.
+        /// To create a squared icon, use the <see cref="ToIcon(Image,int,bool)"/> overload instead.</para>
+        /// <para>If the raw format of <paramref name="image"/> is an icon that contains multiple images, then the result will also contain multiple resolutions.</para>
+        /// </remarks>
+        public static Icon ToIcon(this Image image, Color transparentColor = default)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            try
+            {
+                return Icons.Combine(new[] { bmp }, new[] { transparentColor });
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> using the built-in BMP encoder if available on current operating system.
+        /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details and an example.
+        /// </summary>
+        /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <remarks>
+        /// <para>The <paramref name="image"/> can only be saved if a built-in BMP encoder is available in the current operating system.</para>
+        /// <para>The saved BMP image is never RLE compressed.</para>
+        /// <para>The BMP format supports transparency only for the 64 BPP formats but the Windows BMP encoder stores alpha information also for the 32 BPP formats, which can be restored (see also the example below).</para>
+        /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
+        /// <list type="definition">
+        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>The pixel format is preserved, though palette entries with alpha are turned opaque.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>The pixel format is preserved, though palette entries with alpha are turned opaque.</description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>The pixel format is preserved, though palette entries with alpha are turned opaque.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
+        /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
+        /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format32bppArgb"/>.
+        /// Though reloading such an image will not have transparency but it can be restored (see also the example below).</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
+        /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
+        /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When the saved image is reloaded by the built-in decoder the pixel format will be <see cref="PixelFormat.Format32bppRgb"/> and the image will have no transparency.
+        /// Actually alpha information is preserved and can be restored (see the example below).</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When the saved image is reloaded by the built-in decoder, the pixel format will be <see cref="PixelFormat.Format32bppRgb"/> and the image will have no transparency.
+        /// Actually alpha information preserved and can be restored (see the example below).</description></item>
+        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>When reloading the saved image the pixel format is preserved. Note that not every application supports or handles BMP format with 64 BPP correctly.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format64bppArgb"/>.</description></item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <example>The following example demonstrates how to restore transparency from 32 BPP bitmaps saved by the <see cref="SaveAsBmp">SaveAsBmp</see> method:
+        /// <code lang="C#"><![CDATA[
+        /// // this is a 32 BPP ARGB bitmap with transparency:
+        /// Bitmap toSave = Icons.Information.ExtractBitmap(new Size(256, 256));
+        /// Bitmap reloaded;
+        ///
+        /// // Saving and reloading the transparent image as BMP:
+        /// using (var stream = new MemoryStream())
+        /// {
+        ///     bmp.SaveAsBmp(stream);
+        ///     stream.Position = 0;
+        ///
+        ///     // realoaded Bitmap has now Format32bppRgb PixelFormat without transparency
+        ///     reloaded = new Bitmap(stream);
+        /// }
+        ///
+        /// // Restoring transparency by using fast bitmap data accessors (not needed for 64 BPP images):
+        /// Bitmap restored = new Bitmap(reloaded.Width, reloaded.Height, PixelFormat.Format32bppArgb);
+        /// using (IReadableBitmapData dataSrc = reloaded.GetReadableBitmapData())
+        /// using (IWritableBitmapData dataDst = restored.GetWritableBitmapData())
+        /// {
+        ///     IReadableBitmapDataRow rowSrc = dataSrc.FirstRow;
+        ///     IWritableBitmapDataRow rowDst = dataDst.FirstRow;
+        ///     do
+        ///     {
+        ///         for (int x = 0; x < dataSrc.Width; x++)
+        ///         {
+        ///             // Note 1: If we used the indexer instead, then the source color would never be transparent.
+        ///             // Note 2: We can use any type of the same size so int/uint types would also do the trick.
+        ///             rowDst.WriteRaw(x, rowSrc.ReadRaw<Color32>(x));
+        ///         }
+        ///     } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+        /// }]]></code>
+        /// </example>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails on current operating system.</exception>
+        public static void SaveAsBmp(this Image image, Stream stream)
+            => SaveByEncoder(image, stream, ImageFormat.Bmp, null, false);
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> using the built-in JPEG encoder if available on current operating system.
+        /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details and an example.
+        /// </summary>
+        /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="quality">An integer between <c>0</c> and <c>100</c> that determines the quality of the saved image. Higher value means
+        /// better quality as well as bigger size. This parameter is optional.
+        /// <br/>Default value: <c>90</c>.</param>
+        /// <remarks>
+        /// <para>The <paramref name="image"/> can only be saved if a built-in JPEG encoder is available in the current operating system.</para>
+        /// <para>The saved JPEG image is will have always 24 BPP format.</para>
+        /// <para>The JPEG format uses a lossy compression (even using the best quality) and does not support transparency for any <see cref="PixelFormat"/>.</para>
+        /// <para>Transparent pixels will be black in the saved image. To use another background color use the <see cref="BitmapExtensions.MakeOpaque">MakeOpaque</see>
+        /// or <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)">ConvertPixelFormat</see> before saving (see also the example below).</para>
+        /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
+        /// <list type="definition">
+        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// otherwise, the built-in encoder may save transparent pixels with nonzero color information incorrectly. Transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
+        /// because otherwise GDI+ would throw an exception.</description></item>
+        /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// otherwise, the built-in encoder may save pixels with alpha incorrectly. Transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// otherwise, the built-in encoder may save pixels with alpha incorrectly. Transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// otherwise, the built-in encoder may save pixels with alpha incorrectly. Transparency will be lost.</description></item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails on current operating system.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="quality"/> must be between 0 and 100.</exception>
+        /// <example>The following example demonstrates how to save an image with custom background color using the <see cref="SaveAsJpeg">SaveAsJpeg</see> method:
+        /// <code lang="C#"><![CDATA[
+        /// // this is a 32 BPP ARGB bitmap with transparency:
+        /// using Bitmap origBmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+        ///
+        /// // Turning the background white before saving (it would turn black otherwise):
+        /// using Bitmap toSave = origBmp.ConvertPixelFormat(PixelFormat.Format24bppRgb, Color.White);
+        /// // Or: origBmp.MakeOpaque(Color.White); // changes the original image instead of returning a new one
+        ///
+        /// // Saving the image with the white background:
+        /// toSave.SaveAsJpeg(File.Create(@"C:\myimage.jpg"))]]></code>
+        /// </example>
+        public static void SaveAsJpeg(this Image image, Stream stream, int quality = 90)
+        {
+            if ((uint)quality > 100u)
+                throw new ArgumentOutOfRangeException(nameof(quality), PublicResources.ArgumentMustBeBetween(0, 100));
+            using (var parameters = new EncoderParameters(1))
+            {
+                parameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
+                SaveByEncoder(image, stream, ImageFormat.Jpeg, parameters, false);
+            }
+        }
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> using the built-in PNG encoder if available on current operating system.
+        /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <remarks>
+        /// <para>The <paramref name="image"/> can only be saved if a built-in PNG encoder is available in the current operating system.</para>
+        /// <para>The saved PNG image will have 32 BPP format if the source image can have transparency; otherwise, it will have 24 BPP format.</para>
+        /// <para>On Windows PNG is never saved with indexed format.</para>
+        /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
+        /// <list type="definition">
+        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
+        /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
+        /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
+        /// because otherwise GDI+ would throw an exception.</description></item>
+        /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
+        /// because the built-in encoder would save a 32 BPP image with incorrect colors otherwise.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format32bppArgb"/>
+        /// because the built-in encoder would save the image incorrectly otherwise.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format32bppArgb"/>
+        /// because the built-in encoder would save the image incorrectly otherwise.</description></item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails on current operating system.</exception>
+        public static void SaveAsPng(this Image image, Stream stream)
+            => SaveByEncoder(image, stream, ImageFormat.Png, null, false);
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> using the built-in GIF encoder if available on current operating system.
+        /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="quantizer">If <paramref name="image"/> is a non-indexed one, then specifies the quantizer to be used to determine the colors of the saved image. If <see langword="null"/>,
+        /// then the target colors will be optimized for the actual colors in the <paramref name="image"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">If a quantization has to be performed can specifies the ditherer to be used. If <see langword="null"/>, then no dithering will be performed. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>The <paramref name="image"/> can only be saved if a built-in GIF encoder is available in the current operating system.</para>
+        /// <para>If <paramref name="image"/> is an animated GIF, then the whole animation will be saved (can depend on the operating system).</para>
+        /// <para>The saved GIF will always have a <see cref="PixelFormat.Format8bppIndexed"/> format, though the palette can have less than 256 colors.</para>
+        /// <para>The GIF format supports single bit transparency only.</para>
+        /// <para>Images with <see cref="PixelFormat"/>s other than <see cref="PixelFormat.Format8bppIndexed"/> are converted to <see cref="PixelFormat.Format8bppIndexed"/> before saving (including other indexed formats);
+        /// otherwise, the built-in GIF encoder (at least on Windows) would save the image with a fixed palette and transparency would be lost.</para>
+        /// <para>If <paramref name="quantizer"/> is <see langword="null"/>&#160;and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
+        /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale8bpp">PredefinedColorsQuantizer.Grayscale8bpp</see> method
+        /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Octree">OptimizedPaletteQuantizer.Octree</see> method for any other pixel formats.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, the no ditherer will be auto-selected for the quantization.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails on current operating system.</exception>
+        public static void SaveAsGif(this Image image, Stream stream, IQuantizer quantizer = null, IDitherer ditherer = null)
+        {
+            // Shortcut: GIF is saved as a GIF, including animated ones (exploiting the workaround in Image.Save)
+            // Without this workaround animated GIFs (which have 32 BPP ARGB format in GDI+) would be converted and a single frame would be saved.
+            if (stream != null && image is Bitmap bmp && bmp.RawFormat.Guid == ImageFormat.Gif.Guid && bmp.PixelFormat.ToBitsPerPixel() >= 8)
+            {
+                ImageCodecInfo encoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Gif.Guid);
+                if (encoder == null)
+                    throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Gif));
+                try
+                {
+                    bmp.Save(stream, encoder, null);
+                    return;
+                }
+                catch (Exception e)
+                {
+                    throw new InvalidOperationException(Res.ImageExtensionsEncoderSaveFail(ImageFormat.Gif), e);
+                }
+            }
+
+            SaveByEncoder(image, stream, ImageFormat.Gif, null, false, quantizer, ditherer);
+        }
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> as a GIF image.
+        /// </summary>
+        /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="allowDithering"><see langword="true"/>&#160; to allow dithering high color images using a fix palette; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <remarks>
+        /// <para>This method is kept for compatibility reasons only and calls the <see cref="SaveAsGif(Image, Stream, IQuantizer, IDitherer)"/> overload with the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">SystemDefault8BppPalette</see> quantizer.</para>
+        /// <para>This method no longer relies on the dithering logic of the built-in GIF encoder. Instead, the ditherer is obtained by the <see cref="ErrorDiffusionDitherer.FloydSteinberg">ErrorDiffusionDitherer.FloydSteinberg</see> method if <paramref name="allowDithering"/> is <see langword="true"/>.</para>
+        /// </remarks>
+        [Obsolete("This overload is kept for compatibility reasons. Use the SaveAsGif(Image, Stream, IQuantizer, IDitherer) overload instead.")]
+        public static void SaveAsGif(this Image image, Stream stream, bool allowDithering)
+            => SaveAsGif(image, stream,
+                image is Bitmap bmp && bmp.PixelFormat.IsIndexed() ? null : PredefinedColorsQuantizer.SystemDefault8BppPalette(),
+                allowDithering ? ErrorDiffusionDitherer.FloydSteinberg() : null);
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> as a GIF image.
+        /// </summary>
+        /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="palette">The desired custom palette to use. If <see langword="null"/>, and a palette cannot be taken from the source image, then a default palette will be used.
+        /// This parameter is ignored if <paramref name="image"/> has already a palette.</param>
+        /// <remarks>
+        /// <para>This method is kept for compatibility reasons only and calls the <see cref="SaveAsGif(Image, Stream, IQuantizer, IDitherer)"/> overload with a quantizer obtained by the <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">PredefinedColorsQuantizer.FromCustomPalette</see> method.</para>
+        /// </remarks>
+        [Obsolete("This overload is kept for compatibility reasons. Use the SaveAsGif(Image, Stream, IQuantizer, IDitherer) overload instead.")]
+        public static void SaveAsGif(this Image image, Stream stream, Color[] palette)
+            => SaveAsGif(image, stream, PredefinedColorsQuantizer.FromCustomPalette(palette));
+
+        /// <summary>
+        /// Saves the specified <paramref name="image"/> using the built-in TIFF encoder if available on current operating system.
+        /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The image to save. If contains multiple images, then the frames to be saved can be specified by the <paramref name="currentFrameOnly"/> parameter.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="currentFrameOnly"><see langword="true"/>&#160;to save only the current frame of the specified <paramref name="image"/>;
+        /// <see langword="false"/>&#160;to save all frames. The frames can represent pages, animation and resolution dimensions but in any case they will be saved as pages.</param>
+        /// <remarks>
+        /// <para>The <paramref name="image"/> can only be saved if a built-in TIFF encoder is available in the current operating system.</para>
+        /// <para>If <paramref name="currentFrameOnly"/> is <see langword="false"/>&#160;and <paramref name="image"/> is an icon, then images of the same resolution but lower color depth might not be saved.</para>
+        /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
+        /// <list type="definition">
+        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>If palette is black and white (in this order), then pixel format will be preserved.
+        /// Otherwise, before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
+        /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
+        /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>If the original <paramref name="image"/> is already a 48 BPP TIFF image, then the pixel format is preserved (however,
+        /// channels might be quantized using a 13 BPP resolution); otherwise, the image will be saved with <see cref="PixelFormat.Format24bppRgb"/> pixel format.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// </list>
+        /// </para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails on current operating system.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
+        public static void SaveAsTiff(this Image image, Stream stream, bool currentFrameOnly = true)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+
+            Bitmap bmp = image as Bitmap;
+            if (!currentFrameOnly && bmp != null)
+            {
+                // checking if image has multiple frames
+                FrameDimension dimension = null;
+                Guid[] dimensions = bmp.FrameDimensionsList;
+                if (dimensions.Length > 0)
+                {
+                    if (dimensions[0] == FrameDimension.Page.Guid)
+                        dimension = FrameDimension.Page;
+                    else if (dimensions[0] == FrameDimension.Time.Guid)
+                        dimension = FrameDimension.Time;
+                    else if (dimensions[0] == FrameDimension.Resolution.Guid)
+                        dimension = FrameDimension.Resolution;
+                }
+
+                int frameCount = dimension != null ? bmp.GetFrameCount(dimension) : 0;
+                if (frameCount > 1 || frameCount <= 1 && bmp.RawFormat.Guid == ImageFormat.Icon.Guid)
+                {
+                    Bitmap[] frames = bmp.ExtractIconImages();
+                    try
+                    {
+                        frames.SaveAsMultipageTiff(stream);
+                        return;
+                    }
+                    finally
+                    {
+                        frames.ForEach(b => b.Dispose());
+                    }
+                }
+            }
+
+            if (bmp != null && bmp.PixelFormat == PixelFormat.Format1bppIndexed)
+            {
+                var palette = bmp.Palette.Entries;
+                if (palette[0].ToArgb() != Color.Black.ToArgb() || palette[1].ToArgb() != Color.White.ToArgb())
+                    bmp = bmp.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
+            }
+
+            try
+            {
+                using (var encoderParams = new EncoderParameters(1))
+                {
+                    // On Windows 10 it doesn't make any difference; otherwise, this provides the best compression
+                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+                    SaveByEncoder(bmp != image ? bmp : image, stream, ImageFormat.Tiff, encoderParams, false);
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(image, bmp))
+                    bmp.Dispose();
+            }
+        }
 
         /// <summary>
         /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
@@ -423,7 +880,6 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>When <paramref name="images"/> contain multi-page instances, this method takes only the current page. You can extract
         /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
-        /// <para>Compression mode and bit depth is chosen for each page based on pixel format.</para>
         /// <note>On non-Windows platform this method may throw a <see cref="NotSupportedException"/> if <paramref name="images"/> has multiple elements.</note>
         /// </remarks>
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
@@ -433,7 +889,7 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            ImageCodecInfo tiffEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
+            ImageCodecInfo tiffEncoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
             if (tiffEncoder == null)
                 throw new InvalidOperationException(Res.ImageExtensionsNoTiffEncoder);
 
@@ -443,23 +899,26 @@ namespace KGySoft.Drawing
                 if (page == null)
                     throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                using (var encoderParams = new EncoderParameters(3))
+                using (var encoderParams = new EncoderParameters(2))
                 {
-                    // LZW is always shorter, and non-BW palette is enabled, too
-                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)(/*page.PixelFormat == PixelFormat.Format1bppIndexed ? EncoderValue.CompressionCCITT4 : */EncoderValue.CompressionLZW));
-                    encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
+                    // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
+                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+
+                    // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
+                    // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
+                    //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
 
                     // saving the first page with MultiFrame parameter
                     if (tiff == null)
                     {
                         tiff = page;
-                        encoderParams.Param[2] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
+                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
                         tiff.Save(stream, tiffEncoder, encoderParams);
                     }
                     // saving subsequent pages
                     else
                     {
-                        encoderParams.Param[2] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
+                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
                         tiff.SaveAdd(page, encoderParams);
                     }
                 }
@@ -478,39 +937,67 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Saves the specified <paramref name="image"/> as a GIF image.
-        /// <br/>See the <strong>Remarks</strong> section for the differences compared to the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method.
+        /// Saves the specified <paramref name="image"/> with a custom Icon encoder.
+        /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/> and does not save a PNG stream when no Icon encoder can be found.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
+        /// <param name="image">The image to save. If image contains multiple images other than multi resolution icon bitmaps, then only the current image will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
-        /// <param name="allowDithering"><see langword="true"/>&#160; to allow dithering high color images using a fix palette; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force saving an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <remarks>
-        /// <para>When an image is saved by the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method using the GIF image format, then
-        /// the original palette of an indexed source image and transparency can be lost in many cases.
-        /// Unless the source image is already a 8 bpp one, the built-in encoder will use a fixed palette and dithers the image,
-        /// while transparency will be lost.</para>
-        /// <para>This method preserves transparency of fully transparent pixels even if <paramref name="allowDithering"/> is <see langword="true"/>.</para>
+        /// <para>The <paramref name="image"/> can be saved even without a registered Icon encoder in the current operating system.</para>
+        /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
+        /// <list type="definition">
+        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>If palette is black and white (in this order), then pixel format will be preserved.
+        /// Otherwise, before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
+        /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
+        /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>If the original <paramref name="image"/> is already a 48 BPP TIFF image, then the pixel format is preserved (however,
+        /// channels might be quantized using a 13 BPP resolution); otherwise, the image will be saved with <see cref="PixelFormat.Format24bppRgb"/> pixel format.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// </list>
+        /// </para>
         /// </remarks>
-        public static void SaveAsGif(this Image image, Stream stream, bool allowDithering = false)
-            => SaveAsGif(image, stream, null, allowDithering);
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static void SaveAsIcon(this Image image, Stream stream, bool forceUncompressedResult = false)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-        /// <summary>
-        /// Saves the specified <paramref name="image"/> as a GIF image.
-        /// <br/>See the <strong>Remarks</strong> section for the differences compared to the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method.
-        /// </summary>
-        /// <param name="image">The image to save. If image contains multiple images or frames, then the current image will be saved. Animated GIF can be saved only if <paramref name="palette"/> is <see langword="null"/>.</param>
-        /// <param name="stream">The stream to save the image into.</param>
-        /// <param name="palette">The desired custom palette to use. If <see langword="null"/>, and a palette cannot be taken from the source image, then a default palette will be used.</param>
-        /// <remarks>
-        /// <para>When an image is saved by the <see cref="Image.Save(Stream,ImageFormat)">Image.Save(Stream,ImageFormat)</see> method using the GIF image format, then
-        /// the original palette of an indexed source image and transparency can be lost in many cases.
-        /// Unless the source image is already a 8 bpp one, the built-in encoder will use a fixed palette and dithers the image,
-        /// while transparency will be lost.</para>
-        /// <para>This method preserves transparency of fully transparent pixels unless <paramref name="palette"/> is specified and does not contain the transparent color.</para>
-        /// </remarks>
-        public static void SaveAsGif(this Image image, Stream stream, Color[] palette)
-            => SaveAsGif(image, stream, palette, false);
+            using (RawIcon rawIcon = new RawIcon())
+            {
+                Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+
+                try
+                {
+                    rawIcon.Add(bmp);
+                    rawIcon.Save(stream, forceUncompressedResult);
+                }
+                finally
+                {
+                    if (!ReferenceEquals(bmp, image))
+                        bmp.Dispose();
+                }
+            }
+        }
 
         /// <summary>
         /// Gets the bits per pixel (bpp) value of the image.
@@ -599,169 +1086,6 @@ namespace KGySoft.Drawing
             }
         }
 
-        // TODO: delete, no longer needed
-        private static Bitmap ToIndexedWindows(Image image, int bpp, Color[] palette = null)
-        {
-            PixelFormat sourcePixelFormat = image.PixelFormat;
-
-            // using GDI+ natively
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            bool isMetafile = image is Metafile;
-            var targetPalette = new RGBQUAD[256];
-            int colorCount = InitPalette(targetPalette, bpp, bmp.Palette, palette, out int transparentIndex);
-            var bmi = new BITMAPINFO
-            {
-                icHeader =
-                {
-                    biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER)),
-                    biWidth = image.Width,
-                    biHeight = image.Height,
-                    biPlanes = 1,
-                    biBitCount = (ushort)bpp,
-                    biCompression = BitmapCompressionMode.BI_RGB,
-                    biSizeImage = (uint)(((image.Width + 7) & 0xFFFFFFF8) * image.Height / (8 / bpp)),
-                    biXPelsPerMeter = 0,
-                    biYPelsPerMeter = 0,
-                    biClrUsed = (uint)colorCount,
-                    biClrImportant = (uint)colorCount
-                },
-                icColors = targetPalette
-            };
-
-            // Creating the indexed bitmap
-            IntPtr hbmResult = Gdi32.CreateDibSectionRgb(IntPtr.Zero, ref bmi, out var _);
-
-            // Obtaining screen DC
-            IntPtr dcScreen = User32.GetDC(IntPtr.Zero);
-
-            // DC for the original hbitmap
-            IntPtr hbmSource = bmp.GetHbitmap();
-            IntPtr dcSource = Gdi32.CreateCompatibleDC(dcScreen);
-            Gdi32.SelectObject(dcSource, hbmSource);
-
-            // DC for the indexed hbitmap
-            IntPtr dcTarget = Gdi32.CreateCompatibleDC(dcScreen);
-            Gdi32.SelectObject(dcTarget, hbmResult);
-
-            // Copy content
-            Gdi32.BitBlt(dcTarget, 0, 0, image.Width, image.Height, dcSource, 0, 0);
-
-            // obtaining result
-            Bitmap result = Image.FromHbitmap(hbmResult);
-            result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-
-            // cleanup
-            Gdi32.DeleteDC(dcSource);
-            Gdi32.DeleteDC(dcTarget);
-            User32.ReleaseDC(IntPtr.Zero, dcScreen);
-            Gdi32.DeleteObject(hbmSource);
-            Gdi32.DeleteObject(hbmResult);
-
-            ColorPalette resultPalette = result.Palette;
-            bool resetPalette = false;
-
-            // compacting palette is possible (eg. 8 bpp image uses only 14 colors: truncating to 16 entries)
-            if (colorCount <= result.Palette.Entries.Length >> 1)
-            {
-                Color[] truncatedPalette = resultPalette.Entries;
-                int desiredSize = resultPalette.Entries.Length >> 1;
-                while (desiredSize >> 1 >= colorCount)
-                    desiredSize >>= 1;
-
-                Array.Resize(ref truncatedPalette, desiredSize);
-                resultPalette.SetEntries(truncatedPalette);
-                resetPalette = true;
-            }
-
-            // restoring transparency
-            if (transparentIndex >= 0)
-            {
-                // updating palette if transparent color is not actually transparent
-                if (resultPalette.Entries[transparentIndex].A != 0)
-                {
-                    resultPalette.Entries[transparentIndex] = Color.Transparent;
-                    resetPalette = true;
-                }
-
-                if (sourcePixelFormat.HasTransparency() || isMetafile)
-                    ToIndexedTransparentByArgb(result, bmp, transparentIndex);
-                else if (sourcePixelFormat.ToBitsPerPixel() <= 8)
-                {
-                    int inputTransparentIndex = Array.FindIndex(bmp.Palette.Entries, c => c.A == 0);
-                    if (inputTransparentIndex >= 0)
-                        ToIndexedTransparentByIndexed(result, bmp, transparentIndex, inputTransparentIndex);
-                }
-            }
-
-            if (resetPalette)
-                result.Palette = resultPalette;
-
-            if (!ReferenceEquals(bmp, image))
-                bmp.Dispose();
-            return result;
-        }
-
-        // TODO: delete
-        private static int InitPalette(RGBQUAD[] targetPalette, int bpp, ColorPalette originalPalette, Color[] desiredPalette, out int transparentIndex)
-        {
-            int maxColors = 1 << bpp;
-
-            // using desired palette
-            Color[] sourcePalette = desiredPalette;
-
-            // or, using original palette if it has fewer or the same amount of colors as requested
-            if (sourcePalette == null && originalPalette != null && originalPalette.Entries.Length > 0 && originalPalette.Entries.Length <= maxColors)
-                sourcePalette = originalPalette.Entries;
-
-            // or, using default system palette
-            if (sourcePalette == null)
-            {
-                using (Bitmap bmpReference = new Bitmap(1, 1, bpp.ToPixelFormat()))
-                    sourcePalette = bmpReference.Palette.Entries;
-            }
-
-            // it is ignored if source has too few colors (rest of the entries will be black)
-            transparentIndex = -1;
-            bool hasBlack = false;
-            int colorCount = Math.Min(maxColors, sourcePalette.Length);
-            for (int i = 0; i < colorCount; i++)
-            {
-                targetPalette[i] = new RGBQUAD(sourcePalette[i]);
-                if (transparentIndex == -1 && sourcePalette[i].A == 0)
-                    transparentIndex = i;
-                if (!hasBlack && (sourcePalette[i].ToArgb() & 0xFFFFFF) == 0)
-                    hasBlack = true;
-            }
-
-            // if there is transparency and there are more than 2 colors, then 
-            if (transparentIndex != -1)
-            {
-                // two colors image: preventing the result to be completely blank
-                if (maxColors == 2)
-                {
-                    int nonTrIndex = 1 - transparentIndex;
-                    if (targetPalette[nonTrIndex].EqualsWithColor(sourcePalette[transparentIndex]))
-                        targetPalette[transparentIndex] = new RGBQUAD(sourcePalette[transparentIndex].G >= 128 ? Color.Black : Color.White);
-                }
-                // non 2 colors image: making sure the transparent index is not used during the conversion
-                else if (transparentIndex == 0)
-                {
-                    // relocating transparent index to be the 2nd color
-                    targetPalette[0] = targetPalette[1];
-                    transparentIndex = 1;
-                }
-                else
-                    // otherwise, setting the color of transparent index the same as the previous color
-                    targetPalette[transparentIndex] = targetPalette[transparentIndex - 1];
-            }
-
-            // if black color is not found in palette, counting 1 extra colors because it can be used in conversion
-            if (colorCount < maxColors && !hasBlack)
-                colorCount++;
-
-            return colorCount;
-        }
-
         private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
         {
             int bpp = newPixelFormat.ToBitsPerPixel();
@@ -789,189 +1113,6 @@ namespace KGySoft.Drawing
             if (setEntries)
                 targetPalette.SetEntries(targetColors);
             target.Palette = targetPalette;
-        }
-
-        // TODO: delete
-        /// <summary>
-        /// Makes an indexed bitmap transparent based on a non-indexed source
-        /// </summary>
-#if !NET35
-        [SecuritySafeCritical]
-#endif
-        private static unsafe void ToIndexedTransparentByArgb(Bitmap target, Bitmap source, int transparentIndex)
-        {
-            Debug.Assert(target.Size == source.Size, "Sizes are different in ToIndexedTransparentByArgb");
-            int sourceBpp = source.PixelFormat.ToBitsPerPixel();
-            int targetBpp = target.PixelFormat.ToBitsPerPixel();
-
-            Debug.Assert(sourceBpp >= 32, "Source bpp should be 32 or 64 in ToIndexedTransparentByArgb");
-            Debug.Assert(targetBpp <= 8, "Target bpp should be 8 or less in ToIndexedTransparentByArgb");
-            Debug.Assert(transparentIndex < (1 << targetBpp), "transparentIndex has too high value in ToIndexedTransparentByArgb");
-
-            BitmapData dataTarget = target.LockBits(new Rectangle(Point.Empty, target.Size), ImageLockMode.ReadWrite, target.PixelFormat);
-            BitmapData dataSource = source.LockBits(new Rectangle(Point.Empty, source.Size), ImageLockMode.ReadOnly, source.PixelFormat);
-            try
-            {
-                byte* lineSource = (byte*)dataSource.Scan0;
-                byte* lineTarget = (byte*)dataTarget.Scan0;
-                bool is32Bpp = sourceBpp == 32;
-
-                // ReSharper disable PossibleNullReferenceException
-                // scanning through the lines
-                for (int y = 0; y < dataSource.Height; y++)
-                {
-                    // scanning through the pixels within the line
-                    for (int x = 0; x < dataSource.Width; x++)
-                    {
-                        // testing if pixel is transparent (applies both argb and pargb)
-                        if (is32Bpp && ((uint*)lineSource)[x] >> 24 == 0
-                            || !is32Bpp && ((ulong*)lineSource)[x] >> 48 == 0UL)
-                        {
-                            switch (targetBpp)
-                            {
-                                case 8:
-                                    lineTarget[x] = (byte)transparentIndex;
-                                    break;
-                                case 4:
-                                    // First pixel is the high nibble
-                                    int pos = x >> 1;
-                                    byte nibbles = lineTarget[pos];
-                                    if ((x & 1) == 0)
-                                    {
-                                        nibbles &= 0x0F;
-                                        nibbles |= (byte)(transparentIndex << 4);
-                                    }
-                                    else
-                                    {
-                                        nibbles &= 0xF0;
-                                        nibbles |= (byte)transparentIndex;
-                                    }
-
-                                    lineTarget[pos] = nibbles;
-                                    break;
-                                case 1:
-                                    // First pixel is MSB.
-                                    pos = x >> 3;
-                                    byte mask = (byte)(128 >> (x & 7));
-                                    if (transparentIndex == 0)
-                                        lineTarget[pos] &= (byte)~mask;
-                                    else
-                                        lineTarget[pos] |= mask;
-                                    break;
-                            }
-                        }
-                    }
-
-                    lineSource += dataSource.Stride;
-                    lineTarget += dataTarget.Stride;
-                }
-                // ReSharper restore PossibleNullReferenceException
-            }
-            finally
-            {
-                target.UnlockBits(dataTarget);
-                source.UnlockBits(dataSource);
-            }
-        }
-
-        // TODO: delete
-#if !NET35
-        [SecuritySafeCritical]
-#endif
-        private static unsafe void ToIndexedTransparentByIndexed(Bitmap target, Bitmap source, int targetTransparentIndex, int sourceTransparentIndex)
-        {
-            Debug.Assert(target.Size == source.Size, "Sizes are different in ToIndexedTransparentByIndexed");
-            int sourceBpp = source.PixelFormat.ToBitsPerPixel();
-            int targetBpp = target.PixelFormat.ToBitsPerPixel();
-
-            Debug.Assert(sourceBpp <= 8 && targetBpp <= 8, "Target and source bpp should be 8 or less in ToIndexedTransparentByIndexed");
-            Debug.Assert(targetTransparentIndex < (1 << targetBpp) && sourceTransparentIndex < (1 << sourceBpp), "Target or source transparentIndex has too high value in ToIndexedTransparentByArgb");
-
-            BitmapData dataTarget = target.LockBits(new Rectangle(Point.Empty, target.Size), ImageLockMode.ReadWrite, target.PixelFormat);
-            BitmapData dataSource = source.LockBits(new Rectangle(Point.Empty, source.Size), ImageLockMode.ReadOnly, source.PixelFormat);
-            try
-            {
-                byte* lineSource = (byte*)dataSource.Scan0;
-                byte* lineTarget = (byte*)dataTarget.Scan0;
-
-                // ReSharper disable PossibleNullReferenceException
-                // scanning through the lines
-                for (int y = 0; y < dataSource.Height; y++)
-                {
-                    // scanning through the pixels within the line
-                    for (int x = 0; x < dataSource.Width; x++)
-                    {
-                        bool transparent;
-                        switch (sourceBpp)
-                        {
-                            case 8:
-                                transparent = lineSource[x] == sourceTransparentIndex;
-                                break;
-                            case 4:
-                                // First pixel is the high nibble
-                                byte nibbles = lineSource[x >> 1];
-                                transparent = (x & 1) == 0
-                                    ? nibbles >> 4 == sourceTransparentIndex
-                                    : (nibbles & 0x0F) == sourceTransparentIndex;
-                                break;
-                            case 1:
-                                // First pixel is MSB.
-                                byte mask = (byte)(128 >> (x & 7));
-                                byte bits = lineSource[x >> 3];
-                                transparent = sourceTransparentIndex == 0 ^ (bits & mask) != 0;
-                                break;
-                            default:
-                                throw new InvalidOperationException(Res.InternalError("Unexpected bits per pixel"));
-                        }
-
-                        // transparent pixel found
-                        if (transparent)
-                        {
-                            switch (targetBpp)
-                            {
-                                case 8:
-                                    lineTarget[x] = (byte)targetTransparentIndex;
-                                    break;
-                                case 4:
-                                    // First pixel is the high nibble
-                                    int pos = x >> 1;
-                                    byte nibbles = lineTarget[pos];
-                                    if ((x & 1) == 0)
-                                    {
-                                        nibbles &= 0x0F;
-                                        nibbles |= (byte)(targetTransparentIndex << 4);
-                                    }
-                                    else
-                                    {
-                                        nibbles &= 0xF0;
-                                        nibbles |= (byte)targetTransparentIndex;
-                                    }
-
-                                    lineTarget[pos] = nibbles;
-                                    break;
-                                case 1:
-                                    // First pixel is MSB.
-                                    pos = x >> 3;
-                                    byte mask = (byte)(128 >> (x & 7));
-                                    if (targetTransparentIndex == 0)
-                                        lineTarget[pos] &= (byte)~mask;
-                                    else
-                                        lineTarget[pos] |= mask;
-                                    break;
-                            }
-                        }
-                    }
-
-                    lineSource += dataSource.Stride;
-                    lineTarget += dataTarget.Stride;
-                }
-                // ReSharper restore PossibleNullReferenceException
-            }
-            finally
-            {
-                target.UnlockBits(dataTarget);
-                source.UnlockBits(dataSource);
-            }
         }
 
         private static void DrawIntoDirect(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation)
@@ -1122,73 +1263,80 @@ namespace KGySoft.Drawing
             }
         }
 
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream in using passed to Bitmap constructor. MemoryStream is not sensitive to multiple closing.")]
-        private static void SaveAsGif(Image image, Stream stream, Color[] palette, bool allowDithering)
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
+        private static void SaveByEncoder(Image image, Stream stream, ImageFormat imageFormat, EncoderParameters encoderParameters, bool isFallback, IQuantizer quantizer = null, IDitherer ditherer = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            ImageCodecInfo gifEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == ImageFormat.Gif.Guid);
-            if (gifEncoder == null)
-                throw new InvalidOperationException(Res.ImageExtensionsNoGifEncoder);
+            Bitmap bmp = image as Bitmap;
 
-            Guid format = image.RawFormat.Guid;
-            PixelFormat pixelFormat = image.PixelFormat;
-            int bpp = pixelFormat.ToBitsPerPixel();
-
-            // 0.) Metafile: recursion with bitmap
-            if (image is Metafile)
+            // Metafile: recursion with bitmap
+            if (bmp == null)
             {
-                using (var bmp = new Bitmap(image, image.Size))
+                using (bmp = new Bitmap(image, image.Size))
                 {
-                    SaveAsGif(bmp, stream, palette, allowDithering);
+                    SaveByEncoder(bmp, stream, imageFormat, encoderParameters, isFallback, quantizer, ditherer);
                     return;
                 }
             }
 
-            // 1.) Simply saving by GIF encoder (handles also animated GIFs), if there is no custom palette, and...
-            if (palette.IsNullOrEmpty() && (
-                // ... image is already a GIF or 8bpp memory BMP...
-                (format == ImageFormat.Gif.Guid || (bpp == 8 && format == ImageFormat.MemoryBmp.Guid))
-                // ... or image is not an indexed one, dithering is allowed and the source cannot have transparency
-                || (bpp > 8 && allowDithering && !Image.IsAlphaPixelFormat(pixelFormat))))
+            ImageCodecInfo encoder = Encoders.FirstOrDefault(e => e.FormatID == imageFormat.Guid);
+            if (encoder == null)
+                throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(imageFormat));
+
+            // To avoid various issues with some encoders and pixel formats we may convert pixel format before saving
+            Dictionary<PixelFormat, PixelFormat> transformations = saveConversions[imageFormat.Guid];
+            PixelFormat srcPixelFormat = image.PixelFormat;
+            if (transformations.TryGetValue(srcPixelFormat, out PixelFormat dstPixelFormat))
             {
-                image.Save(stream, gifEncoder, null);
-                return;
+                int srcBpp = srcPixelFormat.ToBitsPerPixel();
+                int dstBpp = dstPixelFormat.ToBitsPerPixel();
+                if (quantizer == null && dstPixelFormat.IsIndexed() && srcBpp > dstBpp)
+                {
+                    // auto setting quantizer if target is indexed and conversion is from higher BPP
+                    quantizer = srcPixelFormat == PixelFormat.Format16bppGrayScale
+                        ? PredefinedColorsQuantizer.Grayscale8bpp()
+                        : (IQuantizer)OptimizedPaletteQuantizer.Octree();
+                }
+                else if (quantizer != null && dstPixelFormat.IsIndexed() && srcBpp < dstBpp)
+                {
+                    // ignoring quantizer if (using source palette) if converting to higher indexed BPP
+                    quantizer = null;
+                    ditherer = null;
+                }
+
+                if (ditherer != null && !dstPixelFormat.CanBeDithered())
+                    ditherer = null;
+
+                bmp = ConvertPixelFormat(image, dstPixelFormat, quantizer, ditherer);
             }
 
-            // 2.) Indexed image or hi-color image without dithering: converting to 8bpp with desired or original palette.
-            //     Transparency is preserved if the palette has a transparent color.
-            if (bpp <= 8 || !allowDithering)
+            try
             {
-                using (Image image8Bpp = image.ConvertPixelFormat(PixelFormat.Format8bppIndexed, palette))
-                {
-                    image8Bpp.Save(stream, gifEncoder, null);
-                    return;
-                }
+                bmp.Save(stream, encoder, encoderParameters);
             }
-
-            // 3.) Hi-color image with dithering and transparency
-            using (var ms = new MemoryStream())
+            catch (Exception e)
             {
-                // a.) saving by GIF encoder into a temp stream, which makes a dithered image with no transparency
-                image.Save(ms, gifEncoder, null);
-
-                // b.) reloading the stream as a bitmap with the dithered image
-                ms.Position = 0L;
-                using (var ditheredGif = new Bitmap(ms))
+                // On failure trying to use a fallback pixel format and omitting all parameters. This should not occur on Windows.
+                if (!isFallback && transformations.TryGetValue(PixelFormat.Undefined, out PixelFormat fallbackPixelFormat) && fallbackPixelFormat != bmp.PixelFormat)
                 {
-                    int transparentIndex = Array.FindIndex(ditheredGif.Palette.Entries, c => c.A == 0);
-
-                    // c.) restoring transparency in the dithered image
-                    if (transparentIndex >= 0)
-                        ToIndexedTransparentByArgb(ditheredGif, (Bitmap)image, transparentIndex);
-
-                    // d.) saving the restored transparent image
-                    ditheredGif.Save(stream, gifEncoder, null);
+                    using (var fallbackBmp = bmp.ConvertPixelFormat(fallbackPixelFormat))
+                    {
+                        SaveByEncoder(fallbackBmp, stream, imageFormat, null, true, quantizer, ditherer);
+                        return;
+                    }
                 }
+
+                // Otherwise, we give up
+                throw new InvalidOperationException(Res.ImageExtensionsEncoderSaveFail(imageFormat), e);
+            }
+            finally
+            {
+                if (!ReferenceEquals(image, bmp))
+                    bmp.Dispose();
             }
         }
 

@@ -58,6 +58,16 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
     - Images with the same stride size were considered different if the absolute value of their stride were
       different (a top-down image was compared to a bottom-up image).
   + New DrawInto methods: Similar to Graphics.DrawImage but supports every PixelFormat
+  ! The old SaveAsGif overloads are marked Obsolete. They are improved though and use the new quantizers/ditherers
+    rather than relying on the dithering of the built-in GIF encoder.
+  - SaveAsMultipageTiff method: Handling of some PixelFormats have been fixed.
+  + New ToIcon overload: allows to convert non-squared images to icons, the result may have more images.
+  + New SaveAsBmp method
+  + New SaveAsGif overload with custom quantizer and ditherer
+  + New SaveAsIcon method
+  + New SaveAsJpeg method
+  + New SaveAsPng method
+  + New SaveAsTiff method
 - MetafileExtensions class:
   - Save method: Fixing an ArgumentException if the raw format of the metafile to save is WMF rather than EMF.
 

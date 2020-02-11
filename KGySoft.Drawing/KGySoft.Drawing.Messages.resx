@@ -163,10 +163,16 @@
     <value>The target palette can have up to {0} colors for pixel format '{1}'.</value>
   </data>
   <data name="ImageExtensions_NoTiffEncoder" xml:space="preserve">
-    <value>TIFF encoder not found.</value>
+    <value>No TIFF encoder was found.</value>
   </data>
   <data name="ImageExtensions_NoGifEncoder" xml:space="preserve">
-    <value>GIF encoder not found.</value>
+    <value>No GIF encoder was found.</value>
+  </data>
+  <data name="ImageExtensions_NoEncoderFormat" xml:space="preserve">
+    <value>No encoder was found for the '{0}' format.</value>
+  </data>
+  <data name="ImageExtensions_EncoderSaveFailFormat" xml:space="preserve">
+    <value>Could not save the image by the '{0}' encoder.</value>
   </data>
   <data name="Accessors_InstanceFieldDoesNotExistFormat" xml:space="preserve">
     <value>Instance field "{0}" not found on type "{1}".</value>

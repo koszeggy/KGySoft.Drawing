@@ -82,7 +82,7 @@ namespace KGySoft.ComponentModel
             var bitmap = (Bitmap)value;
             if (bitmap.RawFormat.Guid == ImageFormat.Icon.Guid)
             {
-                Bitmap[] images = bitmap.ExtractBitmaps();
+                Bitmap[] images = bitmap.ExtractIconImages();
                 using (Icon icon = Icons.Combine(images))
                 {
                     images.ForEach(i => i.Dispose());

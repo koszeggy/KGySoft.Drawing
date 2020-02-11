@@ -20,7 +20,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
+
 using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;

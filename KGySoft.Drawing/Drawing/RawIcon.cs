@@ -560,7 +560,7 @@ namespace KGySoft.Drawing
 
                 // If the image bpp is less than 32, transparent color cannot have transparency
                 if (bpp < 32)
-                    transparentColor = Color.FromArgb(255, transparentColor.R, transparentColor.G, transparentColor.B);
+                    transparentColor = Color.FromArgb(255, transparentColor);
 
                 GenerateRawData(strideColor, strideMask);
             }
@@ -568,7 +568,8 @@ namespace KGySoft.Drawing
             private void GenerateRawData(int strideColor, int strideMask)
             {
                 // rawColor now contains the provided bitmap data with the original background, while rawMask is still totally empty.
-                // Here we generate rawMask based on transparentColor and 
+                // Here we generate rawMask based on transparentColor
+                // TODO: make it possible to omit transparency (solid mask)
                 for (int y = 0; y < size.Height; y++)
                 {
                     int posColorY = strideColor * y;
@@ -887,18 +888,18 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Adds an image to the raw icon.
+        /// Adds an image to the raw icon. If it contains icons, all images are added.
         /// </summary>
         internal void Add(Bitmap image)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            Add(image, image.PixelFormat.In(PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb, PixelFormat.Format64bppArgb, PixelFormat.Format64bppPArgb) ? Color.Transparent : image.GetPixel(0, 0));
+            Add(image, Color.Transparent);
         }
 
         /// <summary>
-        /// Adds an image to the raw icon.
+        /// Adds an image to the raw icon. If it contains icons, all images are added.
         /// </summary>
         internal void Add(Bitmap image, Color transparentColor)
         {
@@ -906,13 +907,17 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             int bpp = image.GetBitsPerPixel();
-            if (bpp.In(16, 48, 64))
-                image = image.ConvertPixelFormat(PixelFormat.Format32bppArgb);
-            else
-                image = (Bitmap)image.Clone();
+            Bitmap[] bitmaps;
 
-            RawIconImage iconImage = new RawIconImage(image, transparentColor);
-            iconImages.Add(iconImage);
+            if (bpp.In(16, 48, 64))
+                bitmaps = new[] { image.ConvertPixelFormat(PixelFormat.Format32bppArgb) };
+            else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
+                bitmaps = image.ExtractIconImages();
+            else
+                bitmaps = new[] { (Bitmap)image.Clone() };
+
+            foreach (Bitmap bitmap in bitmaps)
+                iconImages.Add(new RawIconImage(bitmap, transparentColor));
         }
 
         /// <summary>

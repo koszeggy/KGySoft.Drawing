@@ -684,37 +684,28 @@ namespace KGySoft.Drawing
             return new CursorHandle(User32.CreateIconIndirect(ref iconInfo));
         }
 
-        /// <summary>
-        /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
-        /// </summary>
-        /// <param name="image">The image to be converted to an icon.</param>
-        /// <param name="size">The required size of the icon.</param>
-        /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
-        /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
-        /// <remarks>The result icon will be always square sized. To create a non-square icon, use <see cref="Combine(Bitmap[])"/> instead.</remarks>
-        [SecurityCritical]
-        internal static Icon FromImage(Image image, int size, bool keepAspectRatio)
+        [SecurityCritical] // GetHicon
+        internal static Icon FromImage(Image image, Size targetSize, bool keepAspectRatio)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             // Same size and image is Bitmap
-            if (image is Bitmap bitmap && size == image.Width && size == image.Height)
+            if (image is Bitmap bitmap && bitmap.Size == targetSize)
                 return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
 
             // Different size or image is not a Bitmap
-            Size targetSize = new Size(size, size);
             Size sourceSize = image.Size;
             Point targetLocation = Point.Empty;
 
             if (keepAspectRatio && targetSize != sourceSize)
             {
-                float ratio = Math.Min((float)size / sourceSize.Width, (float)size / sourceSize.Height);
+                float ratio = Math.Min((float)targetSize.Width / sourceSize.Width, (float)targetSize.Height / sourceSize.Height);
                 targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
-                targetLocation = new Point(size / 2 - targetSize.Width / 2, size / 2 - targetSize.Height / 2);
+                targetLocation = new Point(targetSize.Width / 2 - targetSize.Width / 2, targetSize.Height / 2 - targetSize.Height / 2);
             }
 
-            using (bitmap = new Bitmap(size, size))
+            using (bitmap = new Bitmap(targetSize.Width, targetSize.Height))
             {
                 using (Graphics g = Graphics.FromImage(bitmap))
                 {

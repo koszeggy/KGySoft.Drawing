@@ -31,38 +31,6 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Methods
 
-        #region Static Methods
-
-        private static Metafile GenerateMetafile()
-        {
-            //Set up reference Graphic
-            Graphics refGraph = Graphics.FromHwnd(IntPtr.Zero);
-            IntPtr hdc = refGraph.GetHdc();
-            Metafile result = new Metafile(hdc, new Rectangle(0, 0, 100, 100), MetafileFrameUnit.Pixel, EmfType.EmfOnly, "Test");
-
-            //Draw some silly drawing
-            using (var g = Graphics.FromImage(result))
-            {
-                var r = new Rectangle(0, 0, 100, 100);
-                var leftEye = new Rectangle(20, 20, 20, 30);
-                var rightEye = new Rectangle(60, 20, 20, 30);
-                g.FillEllipse(Brushes.Yellow, r);
-                g.FillEllipse(Brushes.White, leftEye);
-                g.FillEllipse(Brushes.White, rightEye);
-                g.DrawEllipse(Pens.Black, leftEye);
-                g.DrawEllipse(Pens.Black, rightEye);
-                g.DrawBezier(Pens.Red, new Point(10, 50), new Point(10, 100), new Point(90, 100), new Point(90, 50));
-            }
-
-            refGraph.ReleaseHdc(hdc); //cleanup
-            refGraph.Dispose();
-            return result;
-        }
-
-        #endregion
-
-        #region Instance Methods
-
         [Test]
         public void ToBitmapTest()
         {
@@ -108,8 +76,6 @@ namespace KGySoft.Drawing.UnitTests
                 }
             }, PlatformID.Win32NT);
         }
-
-        #endregion
 
         #endregion
     }

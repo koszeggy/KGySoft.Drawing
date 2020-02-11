@@ -20,6 +20,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using NUnit.Framework;
 
@@ -165,8 +166,9 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [Test]
-        public void ToIconTest()
+        public void ToIconSquaredTest(PixelFormat pixelFormat)
         {
+            // TODO: test every pixel format
             using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256)).Resize(new Size(256, 128), true);
             SaveImage("Reference", bmpRef);
 
@@ -180,27 +182,25 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [Test]
-        public void SaveAsMultipageTiffTest()
+        public void ToIconTest(PixelFormat pixelFormat, uint transparentColor)
         {
-            AssertPlatformDependent(() =>
-            {
-                using var ms = new MemoryStream();
-                var pages = Icons.Information.ExtractBitmaps();
-                pages.SaveAsMultipageTiff(ms);
-                ms.Position = 0;
-                var tiff = new Bitmap(ms);
-                Assert.AreEqual(ImageFormat.Tiff, tiff.RawFormat);
-                Assert.AreEqual(pages.Length, tiff.GetFrameCount(FrameDimension.Page));
-            }, PlatformID.Win32NT);
+            // TODO: test with different pixel formats and transparent colors
+            // TODO: Hint: Information with White is wrong: white colors will not be transparent but black
+            using var bmpRef = Icons.Information.ToMultiResBitmap();
+
+            using Icon icon = bmpRef.ToIcon();
+            Assert.AreEqual(7, icon.GetImagesCount());
+            SaveIcon(null, icon);
         }
 
         [Test]
-        public void SaveAsGifTest()
+        public void SaveAsGifObsoleteTest()
         {
+#pragma warning disable 618 // obsolete methods are tested here
             var ms = new MemoryStream();
             var refImage = Icons.Information.ExtractBitmap(new Size(256, 256));
 
-            refImage.SaveAsGif(ms);
+            refImage.SaveAsGif(ms, false);
             ms.Position = 0;
             var gif = new Bitmap(ms);
             Assert.AreEqual(ImageFormat.Gif, gif.RawFormat);
@@ -222,6 +222,232 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(ImageFormat.Gif, gif.RawFormat);
             Assert.AreEqual(8, gif.GetBitsPerPixel());
             SaveImage("dithered", gif);
+#pragma warning restore 618
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb, PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb, PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format48bppRgb, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb, PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format32bppPArgb, PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format32bppRgb, PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb555, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppArgb1555, PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format16bppGrayScale, PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format1bppIndexed)]
+        public void SaveAsBmpTest(PixelFormat pixelFormat, PixelFormat savedFormat)
+        {
+            var ms = new MemoryStream();
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
+            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+
+            refImage.SaveAsBmp(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Bmp, bmp.RawFormat);
+            Assert.AreEqual(savedFormat, bmp.PixelFormat);
+            SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [Test]
+        public void SaveMetafileAsBmpTest()
+        {
+            var ms = new MemoryStream();
+            GenerateMetafile().SaveAsBmp(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+            Assert.AreEqual(ImageFormat.Bmp, bmp.RawFormat);
+            SaveImage(null, bmp, true);
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void SaveAsGifTest(PixelFormat pixelFormat)
+        {
+            var ms = new MemoryStream();
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
+            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+
+            refImage.SaveAsGif(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Gif, bmp.RawFormat);
+            Assert.AreEqual(PixelFormat.Format8bppIndexed, bmp.PixelFormat);
+            SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void SaveAsJpegTest(PixelFormat pixelFormat)
+        {
+            var ms = new MemoryStream();
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
+            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+
+            refImage.SaveAsJpeg(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Jpeg, bmp.RawFormat);
+            Assert.AreEqual(PixelFormat.Format24bppRgb, bmp.PixelFormat);
+            SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format48bppRgb, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format24bppRgb, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb555, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppArgb1555, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format16bppGrayScale, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format32bppArgb)]
+        public void SaveAsPngTest(PixelFormat pixelFormat, PixelFormat savedFormat)
+        {
+            var ms = new MemoryStream();
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
+            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+
+            refImage.SaveAsPng(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Png, bmp.RawFormat);
+            Assert.AreEqual(savedFormat, bmp.PixelFormat);
+            SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format48bppRgb, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format24bppRgb, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb555, PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppArgb1555, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format16bppGrayScale, PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format4bppIndexed)]
+        public void SaveAsTiffTest(PixelFormat pixelFormat, PixelFormat savedFormat)
+        {
+            var ms = new MemoryStream();
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
+            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+
+            refImage.SaveAsTiff(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Tiff, bmp.RawFormat);
+            Assert.AreEqual(savedFormat, bmp.PixelFormat);
+            SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [Test]
+        public void SaveAsTiffAllFramesTest()
+        {
+            AssertPlatformDependent(() =>
+            {
+                using var ms = new MemoryStream();
+                using var refImage = Icons.Information.ToMultiResBitmap();
+
+                refImage.SaveAsTiff(ms, false);
+                ms.Position = 0;
+                var bmp = new Bitmap(ms);
+
+                Assert.AreEqual(ImageFormat.Tiff, bmp.RawFormat);
+                Assert.AreEqual(Icons.Information.GetImagesCount(), bmp.GetFrameCount(FrameDimension.Page));
+
+                string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+                if (!Directory.Exists(dir))
+                    Directory.CreateDirectory(dir);
+
+                string fileName = Path.Combine(dir, $"IconAsTiff.{DateTime.Now:yyyyMMddHHmmssffff}.tiff");
+                ms.Position = 0;
+                File.WriteAllBytes(fileName, ms.ToArray());
+            }, PlatformID.Win32NT);
+        }
+
+        [Test]
+        public void SaveAsMultipageTiffTest()
+        {
+            AssertPlatformDependent(() =>
+            {
+                using var ms = new MemoryStream();
+                var pages = Icons.Information.ExtractBitmaps();
+                pages.SaveAsMultipageTiff(ms);
+                ms.Position = 0;
+                var tiff = new Bitmap(ms);
+                Assert.AreEqual(ImageFormat.Tiff, tiff.RawFormat);
+                Assert.AreEqual(pages.Length, tiff.GetFrameCount(FrameDimension.Page));
+            }, PlatformID.Win32NT);
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void SaveAsIconTest(PixelFormat pixelFormat)
+        {
+            var ms = new MemoryStream();
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
+            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+
+            refImage.SaveAsIcon(ms);
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Icon, bmp.RawFormat);
+            Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
+            SaveImage($"{pixelFormat}", bmp, true);
         }
 
         #endregion
