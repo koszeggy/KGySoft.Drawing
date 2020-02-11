@@ -707,14 +707,14 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The <paramref name="image"/> can only be saved if a built-in GIF encoder is available in the current operating system.</para>
         /// <para>If <paramref name="image"/> is an animated GIF, then the whole animation will be saved (can depend on the operating system).</para>
-        /// <para>The saved GIF will always have a <see cref="PixelFormat.Format8bppIndexed"/> format, though the palette can have less than 256 colors.</para>
+        /// <para>The <paramref name="image"/> will be saved always with a <see cref="PixelFormat.Format8bppIndexed"/> format, though the palette can have less than 256 colors.</para>
         /// <para>The GIF format supports single bit transparency only.</para>
         /// <para>Images with <see cref="PixelFormat"/>s other than <see cref="PixelFormat.Format8bppIndexed"/> are converted to <see cref="PixelFormat.Format8bppIndexed"/> before saving (including other indexed formats);
         /// otherwise, the built-in GIF encoder (at least on Windows) would save the image with a fixed palette and transparency would be lost.</para>
         /// <para>If <paramref name="quantizer"/> is <see langword="null"/>&#160;and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
         /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale8bpp">PredefinedColorsQuantizer.Grayscale8bpp</see> method
         /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Octree">OptimizedPaletteQuantizer.Octree</see> method for any other pixel formats.</para>
-        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, the no ditherer will be auto-selected for the quantization.</para>
+        /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, then no ditherer will be auto-selected for the quantization.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails on current operating system.</exception>
@@ -948,53 +948,61 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <remarks>
         /// <para>The <paramref name="image"/> can be saved even without a registered Icon encoder in the current operating system.</para>
-        /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
-        /// <list type="definition">
-        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>If palette is black and white (in this order), then pixel format will be preserved.
-        /// Otherwise, before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.</description></item>
-        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
-        /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
-        /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>If the original <paramref name="image"/> is already a 48 BPP TIFF image, then the pixel format is preserved (however,
-        /// channels might be quantized using a 13 BPP resolution); otherwise, the image will be saved with <see cref="PixelFormat.Format24bppRgb"/> pixel format.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
-        /// </list>
-        /// </para>
+        /// <para>If the saved image is reloaded by the <see cref="Bitmap(Stream)"/> constructor, then it will have always <see cref="PixelFormat.Format32bppArgb"/> pixel format.
+        /// The indexed and 24 BPP pixel formats are preserved though if the saved stream is reloaded by the <see cref="Icon(Stream)"/> constructor.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
+        public static void SaveAsIcon(this Image image, Stream stream, bool forceUncompressedResult = false)
+            => SaveAsIcon(new[] { image }, stream, forceUncompressedResult);
+
+        /// <summary>
+        /// Saves the specified <paramref name="images"/> with a custom Icon encoder.
+        /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/> and does not save a PNG stream when no Icon encoder can be found.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="images">The images to save as a single icon.</param>
+        /// <param name="stream">The stream to save the images into.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force saving an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <remarks>
+        /// <para>The icon can be saved even without a registered Icon encoder in the current operating system.</para>
+        /// <para>If the saved image is reloaded by the <see cref="Bitmap(Stream)"/> constructor, then it will have always <see cref="PixelFormat.Format32bppArgb"/> pixel format.
+        /// The indexed and 24 BPP pixel formats are preserved though if the saved stream is reloaded by the <see cref="Icon(Stream)"/> constructor.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="images"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="images"/> contains a <see langword="null"/>&#160;element.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static void SaveAsIcon(this Image image, Stream stream, bool forceUncompressedResult = false)
+        public static void SaveAsIcon(this IEnumerable<Image> images, Stream stream, bool forceUncompressedResult = false)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (images == null)
+                throw new ArgumentNullException(nameof(images), PublicResources.ArgumentNull);
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
             using (RawIcon rawIcon = new RawIcon())
             {
-                Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+                foreach (Image image in images)
+                {
+                    if (image == null)
+                        throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                try
-                {
-                    rawIcon.Add(bmp);
-                    rawIcon.Save(stream, forceUncompressedResult);
-                }
-                finally
-                {
-                    if (!ReferenceEquals(bmp, image))
-                        bmp.Dispose();
+                    Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+
+                    try
+                    {
+                        rawIcon.Add(bmp); // bmp can be an icon with more images
+                        rawIcon.Save(stream, forceUncompressedResult);
+                    }
+                    finally
+                    {
+                        if (!ReferenceEquals(bmp, image))
+                            bmp.Dispose();
+                    }
                 }
             }
         }

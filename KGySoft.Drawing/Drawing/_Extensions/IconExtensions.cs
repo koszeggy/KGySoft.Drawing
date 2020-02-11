@@ -556,7 +556,7 @@ namespace KGySoft.Drawing
         /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
         /// </returns>
         /// <remarks>
-        /// <para><paramref name="icon"/> may already contain multiple icons.</para>
+        /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, params Bitmap[] images) => Combine(icon, OSUtils.IsXpOrEarlier, images);
@@ -571,7 +571,7 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
         /// </returns>
-        /// <remarks><paramref name="icon"/> may already contain multiple icons.</remarks>
+        /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -600,7 +600,7 @@ namespace KGySoft.Drawing
         /// An <see cref="Icon" /> instance that contains the source <paramref name="image" />.
         /// </returns>
         /// <remarks>
-        /// <para><paramref name="icon"/> may already contain multiple icons.</para>
+        /// <para>Both <paramref name="icon"/> and <paramref name="image"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
         public static Icon Combine(this Icon icon, Bitmap image, Color transparentColor) => Combine(icon, image, transparentColor, OSUtils.IsXpOrEarlier);
@@ -616,7 +616,9 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon" /> instance that contains the source <paramref name="image" />.
         /// </returns>
-        /// <remarks><paramref name="icon"/> may already contain multiple icons.</remarks>
+        /// <remarks>
+        /// <para>Both <paramref name="icon"/> and <paramref name="image"/> may contain multiple icons.</para>
+        /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -662,6 +664,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to convert.</param>
         /// <returns>An <see cref="Icon"/> instance that contains only uncompressed images.</returns>
+        /// <remarks>Compressed icons (which contain PNG images) cannot be displayed by the standard ways in Windows XP.
+        /// Calling this method is supported though in any operating system if there is registered built-in PNG decoder.</remarks>
         public static Icon ToUncompressedIcon(this Icon icon) => Icons.Combine(true, icon);
 
         /// <summary>

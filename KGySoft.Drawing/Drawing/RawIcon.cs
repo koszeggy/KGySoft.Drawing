@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
@@ -28,6 +29,7 @@ using System.Runtime.InteropServices;
 using System.Security;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Serialization.Binary;
 
@@ -114,7 +116,8 @@ namespace KGySoft.Drawing
             /// </summary>
             private Bitmap bmpColor;
 
-            private Color transparentColor;
+            private readonly Color32 transparentColor;
+            private readonly HashSet<int> transparentIndices;
 
             /// <summary>
             /// Color image or the raw image itself when PNG
@@ -188,16 +191,27 @@ namespace KGySoft.Drawing
             internal RawIconImage(Bitmap bmpColor, Color transparentColor)
             {
                 // bitmaps are clones so they can be disposed with the RawIconImage instance
-                if (bmpColor.PixelFormat == PixelFormat.Format32bppArgb
-                    && (transparentColor == Color.Transparent || transparentColor == Color.Empty))
+                if (bmpColor.PixelFormat == PixelFormat.Format32bppArgb && transparentColor.A == 0)
                 {
                     bmpComposite = bmpColor;
-                    this.transparentColor = Color.Transparent;
+                    this.transparentColor = default;
                 }
                 else
                 {
                     this.bmpColor = bmpColor;
-                    this.transparentColor = transparentColor;
+                    this.transparentColor = new Color32(transparentColor);
+                }
+
+                if (bmpColor.PixelFormat.IsIndexed())
+                {
+                    transparentIndices = new HashSet<int>();
+                    var entries = bmpColor.Palette.Entries;
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        ref var c = ref entries[i];
+                        if (c.ToArgb() == transparentColor.ToArgb() || c.A == 0 && transparentColor.A == 0)
+                            transparentIndices.Add(i);
+                    }
                 }
 
                 size = bmpColor.Size;
@@ -478,8 +492,6 @@ namespace KGySoft.Drawing
                 {
                     // ReSharper disable once AssignNullToNotNullAttribute - if generatedAsPng is true, then rawColor contains its raw data
                     bmpColor = new Bitmap(new MemoryStream(rawColor));
-                    if (transparentColor == Color.Empty)
-                        transparentColor = Color.Transparent;
                 }
 
                 Bitmap bmp = bmpColor ?? bmpComposite;
@@ -558,88 +570,64 @@ namespace KGySoft.Drawing
                 int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * bpp + 31) / 32)
                 rawMask = new byte[strideMask * size.Height];
 
-                // If the image bpp is less than 32, transparent color cannot have transparency
-                if (bpp < 32)
-                    transparentColor = Color.FromArgb(255, transparentColor);
-
                 GenerateRawData(strideColor, strideMask);
             }
 
             private void GenerateRawData(int strideColor, int strideMask)
             {
                 // rawColor now contains the provided bitmap data with the original background, while rawMask is still totally empty.
-                // Here we generate rawMask based on transparentColor
-                // TODO: make it possible to omit transparency (solid mask)
+                // Here we generate rawMask
+
+                // we know that the icon will not be transparent: returning a solid mask
+                if (bpp <= 8 && transparentIndices.IsNullOrEmpty())
+                    return;
+
                 for (int y = 0; y < size.Height; y++)
                 {
                     int posColorY = strideColor * y;
                     int posMaskY = strideMask * y;
                     for (int x = 0; x < size.Width; x++)
                     {
-                        int color;
-                        RGBQUAD paletteColor;
+                        int mask = 128 >> (x & 7);
                         switch (bpp)
                         {
                             case 1:
-                                // TODO: the following code if transparentColor is the first palette entry. If the second one, then negate rawMask. If none of them, 0xFF
-                                rawMask[(x >> 3) + posColorY] = rawColor[(x >> 3) + posColorY];
-                                x += 7; // otherwise, bytes would be set 8 times
-                                continue;
+                                int bits = rawColor[(x >> 3) + posColorY];
+                                int colorIndex = (bits & mask) != 0 ? 1 : 0;
+                                if (transparentIndices.Contains(colorIndex))
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
+                                break;
+
                             case 4:
-                                color = rawColor[(x >> 1) + posColorY];
-                                paletteColor = palette[(x & 1) == 0 ? color >> 4 : color & 0x0F];
-                                if (paletteColor.EqualsWithColor(transparentColor))
-                                {
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                    rawColor[(x >> 1) + posColorY] &= (byte)((x & 1) == 0 ? 0x0F : 0xF0);
-                                }
-
+                                bits = rawColor[(x >> 1) + posColorY];
+                                colorIndex = (x & 1) == 0 ? bits >> 4 : bits & 0b00001111;
+                                if (transparentIndices.Contains(colorIndex))
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
                                 break;
+
                             case 8:
-                                color = rawColor[x + posColorY];
-                                paletteColor = palette[color];
-                                if (paletteColor.EqualsWithColor(transparentColor))
-                                {
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                    rawColor[x + posColorY] = 0;
-                                }
+                                if (transparentIndices.Contains(rawColor[x + posColorY]))
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
+                                break;
 
-                                break;
-                            case 16:
-                            case 48:
-                            case 64:
-                                throw new NotSupportedException(Res.RawIconUnsupportedBpp);
                             case 24:
-                                int posColorX = x * 3;
-                                Color pixelColor = Color.FromArgb(0, rawColor[posColorX + posColorY + 0],
-                                        rawColor[posColorX + posColorY + 1],
-                                        rawColor[posColorX + posColorY + 2]);
+                                int pos = posColorY + x * 3;
+                                Color32 pixelColor = new Color32(rawColor[pos + 2],
+                                    rawColor[pos + 1],
+                                    rawColor[pos]);
                                 if (pixelColor == transparentColor)
-                                    rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
                                 break;
+
                             case 32:
-                                if (transparentColor == Color.Transparent)
-                                {
-                                    if (rawColor[(x << 2) + posColorY + 3] == 0)
-                                        rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                }
-                                else
-                                {
-                                    if (transparentColor != Color.Empty &&
-                                        rawColor[(x << 2) + posColorY + 0] == transparentColor.B &&
-                                        rawColor[(x << 2) + posColorY + 1] == transparentColor.G &&
-                                        rawColor[(x << 2) + posColorY + 2] == transparentColor.R)
-                                    {
-                                        rawMask[(x >> 3) + posMaskY] |= (byte)(0x80 >> (x & 7));
-                                        rawColor[(x << 2) + posColorY + 0] = 0;
-                                        rawColor[(x << 2) + posColorY + 1] = 0;
-                                        rawColor[(x << 2) + posColorY + 2] = 0;
-                                    }
-                                    else
-                                    {
-                                        rawColor[(x << 2) + posColorY + 3] = 255;
-                                    }
-                                }
+                                pos = posColorY + (x << 2);
+                                pixelColor = new Color32(rawColor[pos + 3],
+                                    rawColor[pos + 2],
+                                    rawColor[pos + 1],
+                                    rawColor[pos]);
+
+                                if (pixelColor == transparentColor || pixelColor.A == 0 && transparentColor.A == 0)
+                                    rawMask[(x >> 3) + posMaskY] |= (byte)mask;
 
                                 break;
                         }
@@ -715,9 +703,7 @@ namespace KGySoft.Drawing
                 {
                     bitmapInfo.icColors = new RGBQUAD[256];
                     for (int i = 0; i < palette.Length; i++)
-                    {
                         bitmapInfo.icColors[i] = palette[i];
-                    }
                 }
 
                 // creating color raw bitmap (XOR)

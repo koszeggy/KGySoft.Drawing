@@ -18,6 +18,7 @@
 
 using System.Drawing;
 using System.Runtime.InteropServices;
+using KGySoft.Drawing.Imaging;
 
 #endregion
 
@@ -50,24 +51,6 @@ namespace KGySoft.Drawing.WinApi
         /// This member is reserved and must be zero.
         /// </summary>
         internal byte rgbReserved;
-
-        #endregion
-
-        #region Constructors
-
-        internal RGBQUAD(Color color)
-        {
-            rgbRed = color.R;
-            rgbGreen = color.G;
-            rgbBlue = color.B;
-            rgbReserved = 0;
-        }
-
-        #endregion
-
-        #region Methods
-
-        internal bool EqualsWithColor(Color color) => color != Color.Empty && rgbRed == color.R && rgbGreen == color.G && rgbBlue == color.B;
 
         #endregion
     }

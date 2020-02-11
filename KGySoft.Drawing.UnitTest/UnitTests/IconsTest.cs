@@ -16,11 +16,8 @@
 
 #region Usings
 
-using System;
 using System.Drawing;
-using System.IO;
 
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 
 using NUnit.Framework;

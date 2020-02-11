@@ -597,7 +597,10 @@ namespace KGySoft.Drawing
         /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
-        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// </remarks>
         public static Icon Combine(params Bitmap[] images) => Combine(OSUtils.IsXpOrEarlier, images);
 
         /// <summary>
@@ -608,6 +611,9 @@ namespace KGySoft.Drawing
         /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
+        /// <remarks>
+        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
@@ -633,7 +639,10 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
         /// </returns>
-        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// </remarks>
         public static Icon Combine(Bitmap[] images, Color[] transparentColors) => Combine(images, transparentColors, OSUtils.IsXpOrEarlier);
 
         /// <summary>
@@ -646,6 +655,9 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
         /// </returns>
+        /// <remarks>
+        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif

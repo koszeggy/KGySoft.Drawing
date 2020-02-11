@@ -41,6 +41,7 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
 - IconExtensions class:
   - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
     keepOriginalFormat parameter was true.
+  - Combine methods have been fixed for indexed bitmaps with specified transparent color
 + ImageExtensions class:
   + ConvertPixelFormat method:
     + Supporting every pixel formats, including Format16bppGrayScale and Format16bppArgb1555.
@@ -64,7 +65,7 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
   + New ToIcon overload: allows to convert non-squared images to icons, the result may have more images.
   + New SaveAsBmp method
   + New SaveAsGif overload with custom quantizer and ditherer
-  + New SaveAsIcon method
+  + New SaveAsIcon methods
   + New SaveAsJpeg method
   + New SaveAsPng method
   + New SaveAsTiff method
