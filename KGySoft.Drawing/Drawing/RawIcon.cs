@@ -298,37 +298,6 @@ namespace KGySoft.Drawing
 
             #region Methods
 
-            #region Static Methods
-
-            [SecurityCritical]
-            private static void FlipImageY(Bitmap bitmap)
-            {
-                if (bitmap.PixelFormat != PixelFormat.Format1bppIndexed)
-                {
-                    bitmap.RotateFlip(RotateFlipType.RotateNoneFlipY);
-                    return;
-                }
-
-                // Workaround: flipping 1bpp image manually because Image.RotateFlip cannot do it properly
-                BitmapData bitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadWrite, PixelFormat.Format1bppIndexed);
-
-                IntPtr pixelPtr = bitmapData.Scan0;
-                byte[] tmpBuffer = new byte[Math.Abs(bitmapData.Stride)];
-
-                for (int i = 0; i < bitmap.Height >> 1; i++)
-                {
-                    Marshal.Copy(new IntPtr(pixelPtr.ToInt64() + (i * bitmapData.Stride)), tmpBuffer, 0, bitmapData.Stride);
-                    MemoryHelper.CopyMemory(new IntPtr(pixelPtr.ToInt64() + (i * bitmapData.Stride)), new IntPtr(pixelPtr.ToInt64() + (((bitmap.Height - 1) - i) * bitmapData.Stride)), bitmapData.Stride);
-                    Marshal.Copy(tmpBuffer, 0, new IntPtr(pixelPtr.ToInt64() + (((bitmap.Height - 1) - i) * bitmapData.Stride)), bitmapData.Stride);
-                }
-
-                bitmap.UnlockBits(bitmapData);
-            }
-
-            #endregion
-
-            #region Instance Methods
-
             #region Public Methods
 
             /// <summary>
@@ -538,33 +507,37 @@ namespace KGySoft.Drawing
 
                 // Color image (XOR): copying from input bitmap
                 int strideColor;
-                // ReSharper disable once PossibleNullReferenceException
-                using (bmp = (Bitmap)bmp.Clone())
-                {
-                    // TODO: remove clone+using and flip rawColor similarly to the fallback in FlipImageY. See the TODO below this block.
-                    FlipImageY(bmp);
 
-                    BitmapData dataColor = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
-                    try
+                // ReSharper disable once PossibleNullReferenceException - bmp cannot be null here
+                BitmapData dataColor = bmp.LockBits(new Rectangle(0, 0, bmp.Width, bmp.Height), ImageLockMode.ReadOnly, bmp.PixelFormat);
+                try
+                {
+                    strideColor = dataColor.Stride;
+                    rawColor = new byte[Math.Abs(strideColor) * dataColor.Height];
+                    bmpHeader.biSizeImage = (uint)rawColor.Length;
+
+                    // Theoretically negative stride cannot occur here because Bitmap fields are clones but just in case...
+                    if (strideColor < 0)
                     {
-                        IntPtr scanColor = dataColor.Scan0;
-                        strideColor = dataColor.Stride;
-                        rawColor = new byte[Math.Abs(strideColor) * dataColor.Height];
-                        Marshal.Copy(scanColor, rawColor, 0, rawColor.Length);
+                        IntPtr startAddress = new IntPtr(dataColor.Scan0.ToInt64() + (dataColor.Height - 1) * strideColor);
+                        Marshal.Copy(startAddress, rawColor, 0, rawColor.Length);
+                        strideColor = -strideColor;
                     }
-                    finally
+                    else
                     {
-                        bmp.UnlockBits(dataColor);
+                        // If stride is positive, then flipping the image horizontally because a bottom-up BMP has to be saved
+                        for (int i = 0; i < size.Height; i++)
+                        {
+                            IntPtr offsetSrc = new IntPtr(dataColor.Scan0.ToInt64() + i * strideColor);
+                            int offsetDst = (size.Height - 1 - i) * strideColor;
+                            Marshal.Copy(offsetSrc, rawColor, offsetDst, strideColor);
+                        }
                     }
                 }
-
-                bmpHeader.biSizeImage = (uint)rawColor.Length;
-                if (strideColor > 0)
+                finally
                 {
-                    // TODO: Flip rawColor here
+                    bmp.UnlockBits(dataColor);
                 }
-                else
-                    strideColor *= -1;
 
                 // Mask image (AND): Creating from color image and provided transparent color.
                 int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * bpp + 31) / 32)
@@ -760,8 +733,6 @@ namespace KGySoft.Drawing
             #endregion
 
             #endregion
-
-            #endregion
         }
 
         #endregion
@@ -831,6 +802,8 @@ namespace KGySoft.Drawing
         }
 
         [SecurityCritical]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "Stream must not be disposed and leaveOpen parameter is not available for all platforms.")]
         internal RawIcon(Stream stream)
         {
             if (stream == null)
