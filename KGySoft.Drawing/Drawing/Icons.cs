@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -697,37 +698,53 @@ namespace KGySoft.Drawing
         }
 
         [SecurityCritical] // GetHicon
-        internal static Icon FromImage(Image image, Size targetSize, bool keepAspectRatio)
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bitmap is disposed if it is not the same as image.")]
+        internal static Icon FromImage(Image image, int size, bool keepAspectRatio)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            // Same size and image is Bitmap
-            if (image is Bitmap bitmap && bitmap.Size == targetSize)
-                return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
+            Size resultSize = new Size(size, size);
+            Size targetSize = resultSize;
+            Bitmap bitmap = image as Bitmap;
 
-            // Different size or image is not a Bitmap
-            Size sourceSize = image.Size;
-            Point targetLocation = Point.Empty;
+            if (bitmap != null && bitmap.PixelFormat == PixelFormat.Format16bppGrayScale)
+                bitmap = bitmap.ConvertPixelFormat(PixelFormat.Format32bppArgb);
 
-            if (keepAspectRatio && targetSize != sourceSize)
+            try
             {
-                float ratio = Math.Min((float)targetSize.Width / sourceSize.Width, (float)targetSize.Height / sourceSize.Height);
-                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
-                targetLocation = new Point(targetSize.Width / 2 - targetSize.Width / 2, targetSize.Height / 2 - targetSize.Height / 2);
-            }
-
-            using (bitmap = new Bitmap(targetSize.Width, targetSize.Height))
-            {
-                using (Graphics g = Graphics.FromImage(bitmap))
-                {
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    g.DrawImage(image, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
-                    g.Flush();
-
+                // Same size and image is Bitmap
+                if (bitmap != null && bitmap.Size == targetSize)
                     return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
+
+                // Different size or image is not a Bitmap
+                Size sourceSize = image.Size;
+                Point targetLocation = Point.Empty;
+
+                if (keepAspectRatio && targetSize != sourceSize)
+                {
+                    float ratio = Math.Min((float)targetSize.Width / sourceSize.Width, (float)targetSize.Height / sourceSize.Height);
+                    targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                    targetLocation = new Point((resultSize.Width >> 1) - (targetSize.Width >> 1), (resultSize.Height >> 1) - (targetSize.Height >> 1));
                 }
+
+                using (var result = new Bitmap(resultSize.Width, resultSize.Height))
+                {
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        g.DrawImage(bitmap ?? image, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                        g.Flush();
+
+                        return Icon.FromHandle(result.GetHicon()).ToManagedIcon();
+                    }
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmap, image))
+                    bitmap?.Dispose();
             }
         }
 

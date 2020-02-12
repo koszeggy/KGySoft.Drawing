@@ -88,14 +88,27 @@ namespace KGySoft.Drawing
             Bitmap result = new Bitmap(newSize.Width, newSize.Height);
             if (OSUtils.IsWindows)
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
-            using (Graphics g = Graphics.FromImage(result))
-            {
-                g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                g.DrawImage(image, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
-                g.Flush();
 
-                return result;
+            Bitmap source = image;
+            if (source.PixelFormat == PixelFormat.Format16bppGrayScale)
+                source = image.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+
+            try
+            {
+                using (Graphics g = Graphics.FromImage(result))
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.DrawImage(source, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                    g.Flush();
+
+                    return result;
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(source, image))
+                    source.Dispose();
             }
         }
 
@@ -248,6 +261,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default)
         {
             if (bitmap == null)
@@ -255,14 +269,25 @@ namespace KGySoft.Drawing
             if (!OSUtils.IsWindows)
                 throw new PlatformNotSupportedException(Res.RequiresWindows);
 
-            IntPtr iconHandle = bitmap.GetHicon();
+            Bitmap source = bitmap;
+            if (bitmap.PixelFormat == PixelFormat.Format16bppGrayScale)
+                source = bitmap.ConvertPixelFormat(PixelFormat.Format32bppArgb);
             try
             {
-                return Icons.ToCursorHandle(iconHandle, cursorHotspot);
+                IntPtr iconHandle = source.GetHicon();
+                try
+                {
+                    return Icons.ToCursorHandle(iconHandle, cursorHotspot);
+                }
+                finally
+                {
+                    User32.DestroyIcon(iconHandle);
+                }
             }
             finally
             {
-                User32.DestroyIcon(iconHandle);
+                if (!ReferenceEquals(source, bitmap))
+                    source.Dispose();
             }
         }
 
@@ -692,19 +717,7 @@ namespace KGySoft.Drawing
         {
             Debug.Assert(image.RawFormat.Guid == ImageFormat.Icon.Guid);
 
-            // // first try: trying to save it officially (does not work if there is no icon encoder registered in OS)
-            // ImageCodecInfo iconEncoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(enc => enc.FormatID == ImageFormat.Icon.Guid);
-            // if (iconEncoder != null)
-            // {
-            //    using (var ms = new System.IO.MemoryStream())
-            //    {
-            //        image.Save(ms, iconEncoder, null);
-            //        ms.Position = 0L;
-            //        return new Icon(ms).ExtractBitmaps(false);
-            //    }
-            // }
-
-            // second try: guessing by official sizes (every size will be extracted with the same pixel format)
+            // guessing by official sizes (every size will be extracted with the same pixel format)
             List<Bitmap> result = new List<Bitmap>();
             int nextSize = iconSizes[0];
             HashSet<long> foundSizes = new HashSet<long>();

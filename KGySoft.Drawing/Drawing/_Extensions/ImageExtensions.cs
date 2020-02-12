@@ -18,18 +18,15 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.InteropServices;
 using System.Security;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
-using KGySoft.Drawing.WinApi;
 
 #endregion
 
@@ -161,6 +158,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
         {
             if (image == null)
@@ -274,6 +272,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
         {
             if (image == null)
@@ -471,27 +470,29 @@ namespace KGySoft.Drawing
         /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
         /// </summary>
         /// <param name="image">The image to be converted to an icon.</param>
-        /// <param name="size">The required size of the icon.</param>
+        /// <param name="size">The required width and height of the icon.</param>
         /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
         /// <remarks>The result icon will be always square sized and will contain only a single image.
-        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, new Size(size, size), keepAspectRatio);
+        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio);
 
         /// <summary>
         /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
         /// </summary>
         /// <param name="image">The image to be converted to an icon.</param>
-        /// <param name="transparentColor">A color that represents transparent color for the icon to be created. This parameter is optional.
+        /// <param name="transparentColor">A color that represents transparent color for the icon to be created. Ignored if the <paramref name="image"/> is large and will be PNG compressed. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which keeps only already transparent pixels.</param>
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/> that has the same size as the specified <paramref name="image"/>.</returns>
         /// <remarks>
         /// <para>The result icon will have the same size as the specified <paramref name="image"/>.
         /// To create a squared icon, use the <see cref="ToIcon(Image,int,bool)"/> overload instead.</para>
         /// <para>If the raw format of <paramref name="image"/> is an icon that contains multiple images, then the result will also contain multiple resolutions.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <para>To disable PNG compression also for large images regardless of the current operating system call the <see cref="Icons.Combine(Bitmap[], Color[], bool)"/> method instead.</para>
         /// </remarks>
         public static Icon ToIcon(this Image image, Color transparentColor = default)
         {
@@ -848,6 +849,7 @@ namespace KGySoft.Drawing
                 }
             }
 
+            // converting non BW 1 BPP image to 4 BPP in order to preserve palette colors
             if (bmp != null && bmp.PixelFormat == PixelFormat.Format1bppIndexed)
             {
                 var palette = bmp.Palette.Entries;
@@ -867,7 +869,7 @@ namespace KGySoft.Drawing
             finally
             {
                 if (!ReferenceEquals(image, bmp))
-                    bmp.Dispose();
+                    bmp?.Dispose();
             }
         }
 
@@ -1123,6 +1125,7 @@ namespace KGySoft.Drawing
             target.Palette = targetPalette;
         }
 
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void DrawIntoDirect(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation)
         {
             #region Local Methods
@@ -1227,6 +1230,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void DrawIntoWithDithering(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer)
         {
             #region Local Methods

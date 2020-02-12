@@ -165,27 +165,74 @@ namespace KGySoft.Drawing.UnitTests
             Assert.IsFalse(Icons.Information.ExtractBitmap(large).EqualsByContent(Icons.Question.ExtractBitmap(large)));
         }
 
-        [Test]
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
         public void ToIconSquaredTest(PixelFormat pixelFormat)
         {
-            // TODO: test every pixel format
-            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256)).Resize(new Size(256, 128), true);
-            SaveImage("Reference", bmpRef);
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256)).Resize(new Size(256, 128), true).ConvertPixelFormat(pixelFormat);
+            SaveImage($"{pixelFormat} Reference", bmpRef);
 
             using var noKeepRatio128 = bmpRef.ToIcon(128, false);
-            Assert.AreEqual(128, noKeepRatio128.Width);
-            SaveIcon("noKeepRatio128", noKeepRatio128);
+            Assert.AreEqual(new Size(128, 128), noKeepRatio128.Size);
+            SaveIcon($"{pixelFormat} noKeepRatio128", noKeepRatio128);
 
             using var keepRatio128 = bmpRef.ToIcon(128, true);
-            Assert.AreEqual(128, keepRatio128.Width);
-            SaveIcon("keepRatio128", keepRatio128);
+            Assert.AreEqual(new Size(128, 128), keepRatio128.Size);
+            SaveIcon($"{pixelFormat} keepRatio128", keepRatio128);
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb, 0xFF000000)]
+        [TestCase(PixelFormat.Format64bppArgb, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format64bppPArgb, 0xFF000000)]
+        [TestCase(PixelFormat.Format64bppPArgb, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format48bppRgb, 0xFF000000)]
+        [TestCase(PixelFormat.Format48bppRgb, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format32bppArgb, 0xFF000000)]
+        [TestCase(PixelFormat.Format32bppArgb, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format32bppPArgb, 0xFF000000)]
+        [TestCase(PixelFormat.Format32bppPArgb, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format32bppRgb, 0xFF000000)]
+        [TestCase(PixelFormat.Format32bppRgb, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format24bppRgb, 0xFF000000)]
+        [TestCase(PixelFormat.Format24bppRgb, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format16bppRgb565, 0xFF000000)]
+        [TestCase(PixelFormat.Format16bppRgb565, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format16bppRgb555, 0xFF000000)]
+        [TestCase(PixelFormat.Format16bppRgb555, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format16bppArgb1555, 0xFF000000)]
+        [TestCase(PixelFormat.Format16bppArgb1555, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format16bppGrayScale, 0xFF000000)]
+        [TestCase(PixelFormat.Format16bppGrayScale, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format8bppIndexed, 0xFF000000)]
+        [TestCase(PixelFormat.Format8bppIndexed, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format4bppIndexed, 0xFF000000)]
+        [TestCase(PixelFormat.Format4bppIndexed, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF000000)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
+        public void ToIconWithCustomBackColorTest(PixelFormat pixelFormat, uint transparentColor)
+        {
+            Color backColor = Color.FromArgb((int)transparentColor);
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(64, 64)).ConvertPixelFormat(pixelFormat, backColor);
+
+            using Icon icon = bmpRef.ToIcon(backColor);
+            SaveIcon($"{pixelFormat} {backColor.ToArgb():X8}", icon);
         }
 
         [Test]
-        public void ToIconTest(PixelFormat pixelFormat, uint transparentColor)
+        public void ToIconFromIconBitmapTest()
         {
-            // TODO: test with different pixel formats and transparent colors
-            // TODO: Hint: Information with White is wrong: white colors will not be transparent but black
             using var bmpRef = Icons.Information.ToMultiResBitmap();
 
             using Icon icon = bmpRef.ToIcon();

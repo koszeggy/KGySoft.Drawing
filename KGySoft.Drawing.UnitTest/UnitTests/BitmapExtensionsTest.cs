@@ -160,6 +160,29 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage("KeepAspectRatioEnlargeY", keepAspectRatioEnlargeY);
         }
 
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void ResizeWithFormatTest(PixelFormat pixelFormat)
+        {
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            var newSize = new Size(256, 64);
+            using var resized = bmpRef.Resize(newSize, false);
+            Assert.AreEqual(newSize, resized.Size);
+            SaveImage($"{pixelFormat}", resized);
+        }
+
         [Test]
         public void ExtractBitmapsTest()
         {
@@ -180,6 +203,13 @@ namespace KGySoft.Drawing.UnitTests
             clone = png.CloneCurrentFrame();
             Assert.IsTrue(png.EqualsByContent(clone));
             SaveImage("PngClone", clone);
+
+            // Cloning an Icon (multi frames -> single frame)
+            using var icon = Icons.Information.ToMultiResBitmap();
+            clone = icon.CloneCurrentFrame();
+            Assert.AreEqual(1, clone.ExtractBitmaps().Length);
+            Assert.AreEqual(7, icon.ExtractBitmaps().Length);
+            SaveImage("IconClone", clone);
         }
 
         [Test]
