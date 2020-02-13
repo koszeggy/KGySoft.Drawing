@@ -84,16 +84,6 @@ namespace KGySoft
 
         #endregion
 
-        #region ImageExtensions
-
-        /// <summary>No TIFF encoder was found.</summary>
-        internal static string ImageExtensionsNoTiffEncoder => Get("ImageExtensions_NoTiffEncoder");
-
-        /// <summary>No GIF encoder was found.</summary>
-        internal static string ImageExtensionsNoGifEncoder => Get("ImageExtensions_NoGifEncoder");
-
-        #endregion
-
         #region RawIcon
 
         /// <summary>Too many images in the icon collection.</summary>
@@ -102,9 +92,6 @@ namespace KGySoft
         /// <summary>Bad icon format.</summary>
         internal static string RawIconBadIconFormat => Get("RawIcon_BadIconFormat");
 
-        /// <summary>16/48/64 bpp images are not supported for icons.</summary>
-        internal static string RawIconUnsupportedBpp => Get("RawIcon_UnsupportedBpp");
-        
         #endregion
 
         #region User32
@@ -152,9 +139,6 @@ namespace KGySoft
         #endregion
 
         #region ImageExtensions
-
-        /// <summary>Pixel format '{0}' is not supported by GDI+.</summary>
-        internal static string ImageExtensionsPixelFormatNotSupported(PixelFormat pixelFormat) => Get("ImageExtensions_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         /// <summary>The target palette can have up to {0} colors for pixel format '{1}'.</summary>
         internal static string ImageExtensionsPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("ImageExtensions_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));

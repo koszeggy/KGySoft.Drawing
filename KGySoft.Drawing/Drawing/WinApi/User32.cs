@@ -18,6 +18,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -27,10 +28,12 @@ using System.Security;
 namespace KGySoft.Drawing.WinApi
 {
     [SecurityCritical]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class User32
     {
         #region NativeMethods class
 
+        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         private static class NativeMethods
         {
             #region Methods

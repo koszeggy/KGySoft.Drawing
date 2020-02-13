@@ -18,6 +18,7 @@
 
 using System;
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -30,10 +31,12 @@ namespace KGySoft.Drawing.WinApi
     /// Contains external methods for Gdi32.dll
     /// </summary>
     [SecurityCritical]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class Gdi32
     {
         #region NativeMethods class
 
+        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         private static class NativeMethods
         {
             #region Methods

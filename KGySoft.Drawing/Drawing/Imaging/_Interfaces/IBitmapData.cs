@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Drawing.Imaging;
 
 #endregion
@@ -39,17 +38,13 @@ namespace KGySoft.Drawing.Imaging
 
         PixelFormat PixelFormat { get; }
 
-        //int Stride { get; }
-
-        //IntPtr Scan0 { get; }
-
         Palette Palette { get; }
 
         #endregion
 
         #region Methods
 
-        //BitmapData ToBitmapData();
+        BitmapData ToBitmapData();
 
         #endregion
     }

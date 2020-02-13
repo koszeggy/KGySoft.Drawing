@@ -174,6 +174,17 @@ namespace KGySoft.Drawing.Imaging
             GetRow(y).SetColor(x, color);
         }
 
+        public BitmapData ToBitmapData()
+            => new BitmapData
+            {
+                Reserved = handle,
+                Width = Width,
+                Height = Height,
+                Stride = Stride,
+                PixelFormat = PixelFormat,
+                Scan0 = Scan0
+            };
+
         public void Dispose()
         {
             Dispose(true);
@@ -188,20 +199,9 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Private Methods
+        #region Protected Methods
 
-        private BitmapData ToBitmapData()
-            => new BitmapData
-            {
-                Reserved = handle,
-                Width = Width,
-                Height = Height,
-                Stride = Stride,
-                PixelFormat = PixelFormat,
-                Scan0 = Scan0
-            };
-
-        private void Dispose(bool disposing)
+        protected virtual void Dispose(bool disposing)
         {
             if (disposed)
                 return;

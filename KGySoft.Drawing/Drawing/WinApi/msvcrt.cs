@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -25,6 +26,7 @@ using System.Security;
 namespace KGySoft.Drawing.WinApi
 {
     [SecurityCritical]
+    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class msvcrt
     {
         #region NativeMethods class

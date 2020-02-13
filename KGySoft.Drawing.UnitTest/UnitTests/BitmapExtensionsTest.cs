@@ -39,6 +39,60 @@ namespace KGySoft.Drawing.UnitTests
         private static object[][] quantizeTestSource =
         {
             new object[] { "RGB888 Black", PredefinedColorsQuantizer.Rgb888(), 1 << 24 },
+            new object[] { "RGB888 White", PredefinedColorsQuantizer.Rgb888(Color.White), 1 << 24 },
+            new object[] { "RGB565 Black", PredefinedColorsQuantizer.Rgb565(), 1 << 16 },
+            new object[] { "RGB565 White", PredefinedColorsQuantizer.Rgb565(Color.White), 1 << 16 },
+            new object[] { "RGB555 Black", PredefinedColorsQuantizer.Rgb555(), 1 << 15 },
+            new object[] { "RGB555 White", PredefinedColorsQuantizer.Rgb555(Color.White), 1 << 15 },
+            new object[] { "ARGB1555 Black 50%", PredefinedColorsQuantizer.Argb1555(), (1 << 15) + 1 },
+            new object[] { "ARGB1555 White 50%", PredefinedColorsQuantizer.Argb1555(Color.White), (1 << 15) + 1 },
+            new object[] { "ARGB1555 Black 0", PredefinedColorsQuantizer.Argb1555(default, 0), (1 << 15) + 1 },
+            new object[] { "ARGB1555 Black 1", PredefinedColorsQuantizer.Argb1555(default, 1), (1 << 15) + 1 },
+            new object[] { "ARGB1555 Black 254", PredefinedColorsQuantizer.Argb1555(default, 254), (1 << 15) + 1 },
+            new object[] { "RGB332 Black Slow", PredefinedColorsQuantizer.Rgb332(), 256 },
+            new object[] { "RGB332 Black Fast", PredefinedColorsQuantizer.Rgb332(directMapping: true), 256 },
+            new object[] { "RGB332 White Slow", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
+            new object[] { "Grayscale256 Black", PredefinedColorsQuantizer.Grayscale8bpp(), 256 },
+            new object[] { "Grayscale256 White", PredefinedColorsQuantizer.Grayscale8bpp(Color.White), 256 },
+            new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale4bpp(), 16 },
+            new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale4bpp(directMapping: true), 16 },
+            new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale2bpp(), 4 },
+            new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale2bpp(directMapping: true), 4 },
+            new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
+            new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
+            new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
+            new object[] { "BW Blue", PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), 2 },
+            new object[] { "Default8Bpp Black", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
+            new object[] { "Default8Bpp White", PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.White), 256 },
+            new object[] { "Default4Bpp Black", PredefinedColorsQuantizer.SystemDefault4BppPalette(), 16 },
+            new object[] { "Default4Bpp White", PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White), 16 },
+            new object[] { "Default1Bpp Black", PredefinedColorsQuantizer.SystemDefault1BppPalette(), 2 },
+            new object[] { "Default1Bpp White", PredefinedColorsQuantizer.SystemDefault1BppPalette(Color.White), 2 },
+            new object[] { "Custom Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
+            new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
+
+            new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
+            new object[] { "Octree 16 Black", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0), 16 },
+            new object[] { "Octree 4 Black", OptimizedPaletteQuantizer.Octree(4, Color.Black, 0), 4 },
+            new object[] { "Octree 2 Black", OptimizedPaletteQuantizer.Octree(2, Color.Black, 0), 2 },
+            new object[] { "Octree 256 White", OptimizedPaletteQuantizer.Octree(256, Color.White, 0), 256 },
+
+            new object[] { "MedianCut 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
+            new object[] { "MedianCut 16 Black", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0), 16 },
+            new object[] { "MedianCut 4 Black", OptimizedPaletteQuantizer.MedianCut(4, Color.Black, 0), 4 },
+            new object[] { "MedianCut 256 White", OptimizedPaletteQuantizer.MedianCut(256, Color.White, 0), 256 },
+
+            new object[] { "Wu 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
+            new object[] { "Wu 16 Black", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0), 16 },
+            new object[] { "Wu 4 Black", OptimizedPaletteQuantizer.MedianCut(4, Color.Black, 0), 4 },
+            new object[] { "Wu 2 Black", OptimizedPaletteQuantizer.MedianCut(2, Color.Black, 0), 2 },
+            new object[] { "Wu 256 White", OptimizedPaletteQuantizer.MedianCut(256, Color.White, 0), 256 },
+            new object[] { "Wu 256 TR", OptimizedPaletteQuantizer.MedianCut(256, Color.White), 256 },
+        };
+
+        private static object[][] quantizerBatchTestSource =
+        {
+            //new object[] { "RGB888 Black", PredefinedColorsQuantizer.Rgb888(), 1 << 24 },
             //new object[] { "RGB888 White", PredefinedColorsQuantizer.Rgb888(Color.White), 1 << 24 },
             //new object[] { "RGB565 Black", PredefinedColorsQuantizer.Rgb565(), 1 << 16 },
             //new object[] { "RGB565 White", PredefinedColorsQuantizer.Rgb565(Color.White), 1 << 16 },
@@ -49,17 +103,17 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "ARGB1555 Black 0", PredefinedColorsQuantizer.Argb1555(default, 0), (1 << 15) + 1 },
             //new object[] { "ARGB1555 Black 1", PredefinedColorsQuantizer.Argb1555(default, 1), (1 << 15) + 1 },
             //new object[] { "ARGB1555 Black 254", PredefinedColorsQuantizer.Argb1555(default, 254), (1 << 15) + 1 },
-            new object[] { "RGB332 Black Slow", PredefinedColorsQuantizer.Rgb332(), 256 },
-            new object[] { "RGB332 Black Fast", PredefinedColorsQuantizer.Rgb332(directMapping: true), 256 },
+            //new object[] { "RGB332 Black Slow", PredefinedColorsQuantizer.Rgb332(), 256 },
+            //new object[] { "RGB332 Black Fast", PredefinedColorsQuantizer.Rgb332(directMapping: true), 256 },
             //new object[] { "RGB332 White Slow", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
-            new object[] { "Grayscale Black", PredefinedColorsQuantizer.Grayscale8bpp(), 256 },
-            //new object[] { "Grayscale White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
-            new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale4bpp(), 16 },
-            new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale4bpp(directMapping: true), 16 },
-            //new object[] { "Grayscale5 black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
-            new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale2bpp(), 4 },
-            new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale2bpp(directMapping: true), 4 },
-            //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new [] { Color.Black, Color.Gray, Color.White }), 3 },
+            new object[] { "Grayscale256 Black", PredefinedColorsQuantizer.Grayscale8bpp(), 256 },
+            //new object[] { "Grayscale256 White", PredefinedColorsQuantizer.Grayscale8bpp(Color.White), 256 },
+            //new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale4bpp(), 16 },
+            //new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale4bpp(directMapping: true), 16 },
+            //new object[] { "Grayscale5 black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
+            //new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale2bpp(), 4 },
+            //new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale2bpp(directMapping: true), 4 },
+            //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.Gray, Color.White }), 3 },
             //new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
             //new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
             //new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
@@ -73,7 +127,7 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "Custom Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
             //new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
 
-            //new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
+            new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
             //new object[] { "Octree 32 Black", OptimizedPaletteQuantizer.Octree(32, Color.Black, 0), 32 },
             //new object[] { "Octree 16 Black", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0), 16 },
             //new object[] { "Octree 8 Black", OptimizedPaletteQuantizer.Octree(8, Color.Black, 0), 8 },
@@ -267,7 +321,7 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, ref32bpp);
         }
 
-        [TestCaseSource(nameof(quantizeTestSource)), Explicit]
+        [TestCaseSource(nameof(quantizerBatchTestSource)), Explicit]
         public void BatchQuantizeTest(string testName, IQuantizer quantizer, int maxColors)
         {
             var files = new string[]
@@ -302,19 +356,7 @@ namespace KGySoft.Drawing.UnitTests
             }
         }
 
-        [Test, Explicit]
-        public void QuantizerPerformanceTest()
-        {
-            using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
-            new PerformanceTest { Iterations = 1 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(PredefinedColorsQuantizer.Grayscale2bpp()))
-                //.AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.Octree()))
-                //.AddCase(() => ref32bpp.CloneCurrentFrame().Quantize(OptimizedPaletteQuantizer.MedianCut()))
-                .DoTest()
-                .DumpResults(Console.Out);
-        }
-
-        [TestCaseSource(nameof(quantizeTestSource)), Explicit]
+        [TestCaseSource(nameof(quantizerBatchTestSource)), Explicit]
         public void BatchDitherTest(string testName, IQuantizer quantizer, int maxColors)
         {
             string[] files =
@@ -383,18 +425,6 @@ namespace KGySoft.Drawing.UnitTests
                     SaveImage($"{Path.GetFileNameWithoutExtension(file)} {maxColors} {testName} {ditherer.Name}", bmp);
                 }
             }
-        }
-
-        [Test, Explicit]
-        public void DithererPerformanceTest()
-        {
-            using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\GrangerRainbow.png");
-            new PerformanceTest { Iterations = 10 }
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg()), "NoClip, int")
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg()), "Clip")
-                .AddCase(() => ref32bpp.CloneCurrentFrame().Dither(PredefinedColorsQuantizer.BlackAndWhite(), ErrorDiffusionDitherer.FloydSteinberg()), "float")
-                .DoTest()
-                .DumpResults(Console.Out);
         }
 
         [Test, Explicit]

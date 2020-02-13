@@ -42,7 +42,9 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
 - IconExtensions class:
   - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
     keepOriginalFormat parameter was true.
-  - Combine methods have been fixed for indexed bitmaps with specified transparent color
+  - Combine methods:
+    - Have been fixed for indexed bitmaps with specified transparent color
+    - If a Bitmap instance contain multiple icons all of them are added
 + ImageExtensions class:
   + ConvertPixelFormat method:
     + Supporting every pixel formats, including Format16bppGrayScale and Format16bppArgb1555.

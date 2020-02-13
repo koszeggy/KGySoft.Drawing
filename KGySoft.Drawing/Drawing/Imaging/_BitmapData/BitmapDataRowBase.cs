@@ -18,9 +18,6 @@
 
 using System;
 using System.Drawing;
-#if !(NET35 || NET40)
-using System.Security;
-#endif
 
 #endregion
 

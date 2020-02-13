@@ -786,7 +786,6 @@ namespace KGySoft.Drawing
                     result = new RawIcon((Icon)ResourceManager.GetObject(resourceName, CultureInfo.InvariantCulture));
                     resourceIconsCache[resourceName] = result;
                 }
-
             }
 
             return result.ToIcon(OSUtils.IsXpOrEarlier);

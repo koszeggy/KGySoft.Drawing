@@ -893,7 +893,7 @@ namespace KGySoft.Drawing
 
             ImageCodecInfo tiffEncoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
             if (tiffEncoder == null)
-                throw new InvalidOperationException(Res.ImageExtensionsNoTiffEncoder);
+                throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Tiff));
 
             Image tiff = null;
             foreach (Image page in images)

@@ -150,23 +150,11 @@
   <data name="RawIcon_BadIconFormat" xml:space="preserve">
     <value>Bad icon format.</value>
   </data>
-  <data name="RawIcon_UnsupportedBpp" xml:space="preserve">
-    <value>16/48/64 bpp images are not supported for icons.</value>
-  </data>
   <data name="IconExtensions_ImagesColorsDifferentLength" xml:space="preserve">
     <value>Length of images and transparentColors must be the same.</value>
   </data>
-  <data name="ImageExtensions_PixelFormatNotSupportedFormat" xml:space="preserve">
-    <value>Pixel format '{0}' is not supported by GDI+.</value>
-  </data>
   <data name="ImageExtensions_PaletteTooLargeFormat" xml:space="preserve">
     <value>The target palette can have up to {0} colors for pixel format '{1}'.</value>
-  </data>
-  <data name="ImageExtensions_NoTiffEncoder" xml:space="preserve">
-    <value>No TIFF encoder was found.</value>
-  </data>
-  <data name="ImageExtensions_NoGifEncoder" xml:space="preserve">
-    <value>No GIF encoder was found.</value>
   </data>
   <data name="ImageExtensions_NoEncoderFormat" xml:space="preserve">
     <value>No encoder was found for the '{0}' format.</value>
