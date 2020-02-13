@@ -783,7 +783,7 @@ namespace KGySoft.Drawing
             {
                 if (!resourceIconsCache.TryGetValue(resourceName, out result))
                 {
-                    result = new RawIcon((Icon)ResourceManager.GetObject(resourceName, CultureInfo.InvariantCulture));
+                    result = new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture));
                     resourceIconsCache[resourceName] = result;
                 }
             }

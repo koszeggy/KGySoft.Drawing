@@ -60,36 +60,36 @@
 	</resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
   <data name="SecurityShield" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\SecurityShield.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\SecurityShield.ico;System.IO.MemoryStream</value>
   </data>
   <data name="Shield" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Shield.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\Shield.ico;System.IO.MemoryStream</value>
   </data>
   <data name="Information" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Information.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\Information.ico;System.IO.MemoryStream</value>
   </data>
   <data name="Warning" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Warning.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\Warning.ico;System.IO.MemoryStream</value>
   </data>
   <data name="Question" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Question.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\Question.ico;System.IO.MemoryStream</value>
   </data>
   <data name="Error" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Error.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\Error.ico;System.IO.MemoryStream</value>
   </data>
   <data name="SecurityError" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\SecurityError.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\SecurityError.ico;System.IO.MemoryStream</value>
   </data>
   <data name="SecurityQuestion" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\SecurityQuestion.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\SecurityQuestion.ico;System.IO.MemoryStream</value>
   </data>
   <data name="SecuritySuccess" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\SecuritySuccess.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\SecuritySuccess.ico;System.IO.MemoryStream</value>
   </data>
   <data name="SecurityWarning" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\SecurityWarning.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\SecurityWarning.ico;System.IO.MemoryStream</value>
   </data>
   <data name="Application" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>Resources\Application.ico;System.Drawing.Icon, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+    <value>Resources\Application.ico;System.IO.MemoryStream</value>
   </data>
 </root>

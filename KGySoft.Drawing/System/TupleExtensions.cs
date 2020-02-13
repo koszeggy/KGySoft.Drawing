@@ -1,4 +1,4 @@
-﻿#if NET35 || NET40 || NET45
+﻿#if NET40 || NET45
 
 // ReSharper disable once CheckNamespace
 namespace System

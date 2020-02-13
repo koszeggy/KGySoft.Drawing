@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.CompilerServices;
 using KGySoft.CoreLibraries;
 using NUnit.Framework;
@@ -58,7 +59,8 @@ namespace KGySoft.Drawing.UnitTests
             if (!saveToFile || icon == null)
                 return;
 
-            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+            // TODO: restore Files.GetExecutingAssembly if fixed for .NET Core 2.0
+            string dir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
             string fileName = Path.Combine(dir, $"{testName}_{iconName}.{DateTime.Now:yyyyMMddHHmmssffff}.ico");
@@ -71,7 +73,8 @@ namespace KGySoft.Drawing.UnitTests
             if (!saveToFile)
                 return;
 
-            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+            // TODO: restore Files.GetExecutingAssembly if fixed for .NET Core 2.0
+            string dir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 

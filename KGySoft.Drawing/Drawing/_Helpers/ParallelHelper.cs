@@ -153,7 +153,8 @@ namespace KGySoft.Drawing
                 Thread.Sleep(0);
 
             if (error != null)
-                ExceptionDispatchInfo.Capture(error).Throw();
+                throw error;
+            // TODO ExceptionDispatchInfo.Capture(error).Throw();
 #else
             // we allow a bit more fine resolution than actual core counts
             int rangeSize = (count / CoreCount) >> 2;
