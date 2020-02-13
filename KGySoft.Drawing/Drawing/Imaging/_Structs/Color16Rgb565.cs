@@ -49,6 +49,13 @@ namespace KGySoft.Drawing.Imaging
                 | ((uint)c.B >> 3));
         }
 
+        internal Color16Rgb565(byte r, byte g, byte b)
+        {
+            value = (ushort)((((uint)r << 8) & redMask)
+                | (((uint)g << 3) & greenMask)
+                | ((uint)b >> 3));
+        }
+
         #endregion
 
         #region Methods

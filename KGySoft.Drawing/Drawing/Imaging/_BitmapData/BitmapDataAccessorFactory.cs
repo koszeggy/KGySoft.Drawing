@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.WinApi;
 
 #endregion
 
@@ -62,10 +63,14 @@ namespace KGySoft.Drawing.Imaging
                     return new BitmapDataAccessor<BitmapDataRow48Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format16bppRgb565:
-                    return new BitmapDataAccessor<BitmapDataRow16Rgb565>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return OSUtils.IsWindows
+                        ? (BitmapDataAccessorBase)new BitmapDataAccessor<BitmapDataRow16Rgb565>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
+                        : new BitmapDataAccessor<BitmapDataRow16Rgb565Via24Bpp>(bitmap, PixelFormat.Format24bppRgb, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format16bppRgb555:
-                    return new BitmapDataAccessor<BitmapDataRow16Rgb555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return OSUtils.IsWindows
+                        ? (BitmapDataAccessorBase)new BitmapDataAccessor<BitmapDataRow16Rgb555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
+                        : new BitmapDataAccessor<BitmapDataRow16Rgb555Via24Bpp>(bitmap, PixelFormat.Format24bppRgb, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format16bppArgb1555:
                     return new BitmapDataAccessor<BitmapDataRow16Argb1555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);

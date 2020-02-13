@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using KGySoft.Drawing.WinApi;
 
 #endregion
 
@@ -31,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly Bitmap bitmap;
-        private readonly int handle;
+        private readonly BitmapData bitmapData;
 
         private bool disposed;
 
@@ -43,13 +44,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Properties
 
-        public int Height { get; }
+        public int Height => bitmapData.Height;
 
-        public int Width { get; }
+        public int Width => bitmapData.Width;
 
-        public PixelFormat PixelFormat { get; }
-
-        public int Stride { get; }
+        public PixelFormat PixelFormat => bitmapData.PixelFormat;
 
         public byte AlphaThreshold { get; }
 
@@ -60,12 +59,8 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Properties
 
         internal Color32 BackColor { get; }
-
-        #endregion
-
-        #region Protected Internal Properties
-        
-        protected internal IntPtr Scan0 { get; }
+        internal int Stride => bitmapData.Stride;
+        internal IntPtr Scan0 => bitmapData.Scan0;
 
         #endregion
 
@@ -106,8 +101,8 @@ namespace KGySoft.Drawing.Imaging
 
         protected BitmapDataAccessorBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette palette)
         {
-            // Pixel format is passed only to avoid doubled retrieval but it must be the same as bitmap format.
-            Debug.Assert(bitmap.PixelFormat == pixelFormat, "Unmatching pixel format");
+            // It must be the same as bitmap format except if LockBits is not supported with the original pixel format (occurs on Linux).
+            Debug.Assert(bitmap.PixelFormat == pixelFormat || !OSUtils.IsWindows, "Unmatching pixel format");
 
             // If palette is passed it must match with actual palette
             Debug.Assert(palette == null || bitmap.Palette.Entries.Length == palette.Entries.Length
@@ -117,16 +112,7 @@ namespace KGySoft.Drawing.Imaging
             BackColor = backColor;
             AlphaThreshold = alphaThreshold;
 
-            BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);
-
-            // Instead of single BitmapData property it is safer if we store all of the data because anyone could
-            // mutate a BitmapData instance. If a BitmapData is needed we create a new one always with these values.
-            Width = bitmapData.Width;
-            Height = bitmapData.Height;
-            Stride = bitmapData.Stride;
-            PixelFormat = bitmapData.PixelFormat;
-            Scan0 = bitmapData.Scan0;
-            handle = bitmapData.Reserved; // used as a handle, required for UnlockBits
+            bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);
 
             if (bitmapData.PixelFormat.IsIndexed())
                 Palette = palette ?? new Palette(bitmap.Palette.Entries);
@@ -174,17 +160,6 @@ namespace KGySoft.Drawing.Imaging
             GetRow(y).SetColor(x, color);
         }
 
-        public BitmapData ToBitmapData()
-            => new BitmapData
-            {
-                Reserved = handle,
-                Width = Width,
-                Height = Height,
-                Stride = Stride,
-                PixelFormat = PixelFormat,
-                Scan0 = Scan0
-            };
-
         public void Dispose()
         {
             Dispose(true);
@@ -199,14 +174,28 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Protected Methods
+        #region Private Methods
 
-        protected virtual void Dispose(bool disposing)
+        private void Dispose(bool disposing)
         {
             if (disposed)
                 return;
-            bitmap.UnlockBits(ToBitmapData());
-            disposed = true;
+
+            try
+            {
+                // On Linux this may throw an exception after LockBits failed.
+                bitmap.UnlockBits(bitmapData);
+            }
+            catch (Exception)
+            {
+                // From explicit dispose we throw it further but we ignore it from destructor.
+                if (disposing)
+                    throw;
+            }
+            finally
+            {
+                disposed = true;
+            }
         }
 
         #endregion

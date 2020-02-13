@@ -41,11 +41,5 @@ namespace KGySoft.Drawing.Imaging
         Palette Palette { get; }
 
         #endregion
-
-        #region Methods
-
-        BitmapData ToBitmapData();
-
-        #endregion
     }
 }
