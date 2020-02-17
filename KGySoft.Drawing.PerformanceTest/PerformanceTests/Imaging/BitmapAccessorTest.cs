@@ -47,6 +47,9 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
         {
             static int Argb(int a, int l) => (a << 24) | (l << 16) | (l << 8) | l;
 
+            if (!pixelFormat.IsSupported())
+                Assert.Inconclusive($"Pixel format {pixelFormat} is not supported on current platform");
+
             var size = new Size(256, 256);
             using var bmp = new Bitmap(size.Width, size.Height, pixelFormat);
 

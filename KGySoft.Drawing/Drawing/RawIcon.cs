@@ -377,22 +377,47 @@ namespace KGySoft.Drawing
 
                     // returning icon
                     ms.Position = 0L;
-                    return new Icon(ms);
+                    try
+                    {
+                        return new Icon(ms);
+                    }
+                    catch (Exception)
+                    {
+                        if (OSUtils.IsWindows)
+                            throw;
+
+                        // On Linux 256x256 icons may not be supported even with BMP format.
+                        // Unlike in RawIcon.ToIcon we do not throw an exception here so the other extracted icons can be returned.
+                        // By this solution we try to be forward compatible if it will be fixed later...
+                        return null;
+                    }
                 }
             }
 
             [SecurityCritical]
-            internal Bitmap ToBitmap(bool keepOriginalFormat)
+            internal Bitmap ToBitmap(bool keepOriginalFormat, bool throwError)
             {
                 AssureBitmapsGenerated(!keepOriginalFormat);
-                if (keepOriginalFormat)
-                    return (Bitmap)bmpColor.Clone();
+                if (keepOriginalFormat && bmpColor != null)
+                    return bmpColor.Clone(new Rectangle(Point.Empty, bmpColor.Size), bmpColor.PixelFormat);
+
+                if (bmpComposite == null)
+                {
+                    Debug.Assert(!OSUtils.IsWindows, "Bitmaps should have been able to be generated on Windows");
+                    if (bmpColor != null)
+                    return bmpColor.Clone(new Rectangle(Point.Empty, bmpColor.Size), bmpColor.PixelFormat);
+                    if (!throwError)
+                        return null;
+                    throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsBitmap);
+                }
 
                 // When not original format is requested, returning a new bitmap instead of cloning for PNGs,
                 // because for PNG images may cause troubles in some cases (eg. OutOfMemoryException when used as background image)
                 if (bmpComposite.RawFormat.Guid == ImageFormat.Png.Guid)
                     return new Bitmap(bmpComposite);
-                return (Bitmap)bmpComposite.Clone();
+
+                // Cloning by Bitmap.Clone instead of Image.Clone because the latter may return a blank result on Linux
+                return bmpComposite.Clone(new Rectangle(Point.Empty, bmpComposite.Size), bmpComposite.PixelFormat);
             }
 
             #endregion
@@ -631,10 +656,14 @@ namespace KGySoft.Drawing
                 {
                     using (Icon icon = ToIcon(true))
                     {
-                        // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
-                        // because BPP is always set well in ICONDIRENTRY so ToAlphaBitmap is not required here.
-                        bmpComposite = icon.ToBitmap();
-                        return;
+                        // On Linux it may return null, in which case we fall back to non-compisite image
+                        if (icon != null)
+                        {
+                            // ToBitmap works well here because PNG would have been returned above. Semi-transparent pixels will never be black
+                            // because BPP is always set well in ICONDIRENTRY so ToAlphaBitmap is not required here.
+                            bmpComposite = icon.ToBitmap();
+                            return;
+                        }
                     }
                 }
 
@@ -698,7 +727,24 @@ namespace KGySoft.Drawing
                 var ms = new MemoryStream();
                 Save(ms, true);
                 ms.Position = 0;
-                bmpColor = new Bitmap(ms);
+                try
+                {
+                    var bmp = new Bitmap(ms);
+
+                    // On Linux an uncompressed 256x256 icon will be instantiated as a 0x0 bitmap
+                    if (!bmp.Size.IsEmpty)
+                        bmpColor = bmp;
+                    else if (bmpColor == null)
+                        bmpColor = bmpComposite;
+                }
+                catch (Exception)
+                {
+                    if (OSUtils.IsWindows)
+                        throw;
+
+                    // As a fallback we use the composite image (if any)
+                    bmpColor = bmpComposite;
+                }
             }
 
             private void AssurePngBitmapsGenerated(bool isCompositeRequired)
@@ -865,15 +911,16 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            int bpp = image.GetBitsPerPixel();
+            PixelFormat pixelFormat = image.PixelFormat;
             Bitmap[] bitmaps;
 
-            if (bpp.In(16, 48, 64))
+            if (pixelFormat.ToBitsPerPixel().In(16, 48, 64))
                 bitmaps = new[] { image.ConvertPixelFormat(PixelFormat.Format32bppArgb) };
             else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                 bitmaps = image.ExtractIconImages();
             else
-                bitmaps = new[] { (Bitmap)image.Clone() };
+                // Image.Clone() could result in a blank Bitmap on Linux if its content was drawn by Graphics
+                bitmaps = new[] { image.Clone(new Rectangle(Point.Empty, image.Size), pixelFormat) };
 
             foreach (Bitmap bitmap in bitmaps)
                 iconImages.Add(new RawIconImage(bitmap, transparentColor));
@@ -895,7 +942,16 @@ namespace KGySoft.Drawing
                 {
                     Save(bw, forceBmpImages);
                     ms.Position = 0L;
-                    return new Icon(ms);
+                    try
+                    {
+                        return new Icon(ms);                        
+                    }
+                    catch (Exception e)
+                    {
+                        if (OSUtils.IsWindows)
+                            throw;
+                        throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsIcon, e);
+                    }
                 }
             }
         }
@@ -915,7 +971,17 @@ namespace KGySoft.Drawing
             var bw = new BinaryWriter(ms);
             Save(bw, forceBmpFormat);
             ms.Position = 0L;
-            return new Bitmap(ms);
+
+            try
+            {
+                return new Bitmap(ms);
+            }
+            catch (Exception e)
+            {
+                if (OSUtils.IsWindows)
+                    throw;
+                throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsBitmap, e);
+            }
         }
 
         /// <summary>
@@ -956,7 +1022,7 @@ namespace KGySoft.Drawing
         {
             if (index < 0 || index >= iconImages.Count)
                 return null;
-            return iconImages[index].ToBitmap(keepOriginalFormat);
+            return iconImages[index].ToBitmap(keepOriginalFormat, true);
         }
 
         /// <summary>
@@ -968,7 +1034,7 @@ namespace KGySoft.Drawing
             Bitmap[] result = new Bitmap[iconImages.Count];
             for (int i = 0; i < result.Length; i++)
             {
-                result[i] = iconImages[i].ToBitmap(keepOriginalFormat);
+                result[i] = iconImages[i].ToBitmap(keepOriginalFormat, false);
             }
 
             return result;
@@ -984,13 +1050,18 @@ namespace KGySoft.Drawing
                 return null;
 
             if (iconImages.Count == 1)
-                return iconImages[0].ToBitmap(keepOriginalFormat);
+                return iconImages[0].ToBitmap(keepOriginalFormat, false);
 
-            return GetNearestImage(bpp, size).ToBitmap(keepOriginalFormat);
+            RawIconImage nearestImage = GetNearestImage(bpp, size);
+            Bitmap result = nearestImage.ToBitmap(keepOriginalFormat, false);
+            if (result != null)
+                return result;
+
+            return GetNextLargestResult(nearestImage, bpp, img => img.ToBitmap(keepOriginalFormat, false));
         }
 
         /// <summary>
-        /// Gets the nearest icon to the specified color depth and size. Bpp is matched first.
+        /// Gets the nearest icon to the specified color depth and size.
         /// </summary>
         [SecurityCritical]
         internal Icon ExtractNearestIcon(int bpp, Size size, bool forceBmpFormat)
@@ -1001,7 +1072,12 @@ namespace KGySoft.Drawing
             if (iconImages.Count == 1)
                 return iconImages[0].ToIcon(forceBmpFormat);
 
-            return GetNearestImage(bpp, size).ToIcon(forceBmpFormat);
+            RawIconImage nearestImage = GetNearestImage(bpp, size);
+            Icon result = nearestImage.ToIcon(forceBmpFormat);
+            if (result != null)
+                return result;
+
+            return GetNextLargestResult(nearestImage, bpp, img => img.ToIcon(forceBmpFormat));
         }
 
         #endregion
@@ -1109,6 +1185,39 @@ namespace KGySoft.Drawing
             }
 
             return preferredImage;
+        }
+
+        private TResult GetNextLargestResult<TResult>(RawIconImage nearestImage, int bpp, Func<RawIconImage, TResult> getResult)
+            where TResult : class
+        {
+            // On Linux large icons might not be supported. Looking for the next largest one then.
+            Debug.Assert(!OSUtils.IsWindows, "null result is not expected on Windows");
+            int lastSize, nextSize;
+
+            do
+            {
+                lastSize = nearestImage.Size.Width;
+                nextSize = lastSize;
+                foreach (RawIconImage image in iconImages)
+                {
+                    // looking for the next largest size
+                    if (image.Size.Width < lastSize && (nextSize == lastSize || nextSize < image.Size.Width))
+                        nextSize = image.Size.Width;
+                }
+
+                // no smaller icon was found
+                if (nextSize == lastSize)
+                    return null;
+
+                // trying the next size
+                nearestImage = GetNearestImage(bpp, new Size(nextSize, nextSize));
+                TResult result = getResult.Invoke(nearestImage);
+                if (result != null)
+                    return result;
+
+            } while (nearestImage.Size.Width < lastSize);
+
+            return null;
         }
 
         #endregion

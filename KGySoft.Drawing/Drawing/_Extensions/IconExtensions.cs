@@ -126,6 +126,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>If the method is executed in a Windows XP or non-Windows environment, the result <see cref="Bitmap"/> will contain only uncompressed images.</para>
         /// <para>Windows XP may display alpha channel incorrectly (semi-transparent pixels may be black).</para>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
         /// </remarks>
 #if !NET35
         [SecuritySafeCritical]
@@ -164,6 +165,9 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning a <see cref="Bitmap"/> instance with non-compressed images only;
         /// <see langword="false"/>&#160;to allow compressing larger images by PNG encoding, which is supported by Windows Vista and above.</param>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
+        /// </remarks>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
 #if !NET35
         [SecuritySafeCritical]
@@ -198,6 +202,9 @@ namespace KGySoft.Drawing
         /// <returns>
         /// An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
         /// </returns>
+        /// <remarks>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large uncompressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractIcons(Icon)" />
         public static Bitmap[] ExtractBitmaps(this Icon icon, bool keepOriginalFormat = false) => ExtractBitmaps(icon, null, null, keepOriginalFormat);
 
@@ -210,6 +217,9 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
+        /// <remarks>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large uncompressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractIcons(Icon,Size)"/>
         public static Bitmap[] ExtractBitmaps(this Icon icon, Size size, bool keepOriginalFormat = false) => ExtractBitmaps(icon, size, null, keepOriginalFormat);
 
@@ -222,6 +232,9 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
+        /// <remarks>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large uncompressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractIcons(Icon,PixelFormat)"/>
         public static Bitmap[] ExtractBitmaps(this Icon icon, PixelFormat pixelFormat, bool keepOriginalFormat = false)
             => ExtractBitmaps(icon, null, pixelFormat.ToBitsPerPixel(), keepOriginalFormat);
@@ -236,6 +249,9 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/>&#160;if no image was found in the <paramref name="icon"/>.</returns>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ToAlphaBitmap"/>
         public static Bitmap ExtractBitmap(this Icon icon, bool keepOriginalFormat = false) => ExtractFirstBitmap(icon, null, null, keepOriginalFormat);
 
@@ -249,6 +265,9 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractIcon(Icon,Size)"/>
         public static Bitmap ExtractBitmap(this Icon icon, Size size, bool keepOriginalFormat = false) => ExtractFirstBitmap(icon, size, null, keepOriginalFormat);
 
@@ -263,6 +282,9 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractIcon(Icon,Size,PixelFormat)"/>
         public static Bitmap ExtractBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat = false)
             => ExtractFirstBitmap(icon, size, pixelFormat.ToBitsPerPixel(), keepOriginalFormat);
@@ -277,6 +299,9 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
         /// or <see langword="null"/>&#160;if the specified <paramref name="index"/> was too large.</returns>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractIcon(Icon,int)"/>
 #if !NET35
         [SecuritySafeCritical]
@@ -303,6 +328,9 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>. If no
         /// icon was found with the specified size and format the nearest image (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
+        /// <remarks>
+        /// <para>On some platforms it may happen that a smaller result is returned than requested if the requested size and format is not supported.</para>
+        /// </remarks>
         /// <seealso cref="ExtractNearestIcon(Icon,Size,PixelFormat)"/>
 #if !NET35
         [SecuritySafeCritical]
@@ -322,9 +350,13 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
-        /// <remarks>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon) => ExtractIcons(icon, null, null, OSUtils.IsXpOrEarlier);
+        public static Icon[] ExtractIcons(this Icon icon)
+            => ExtractIcons(icon, null, null, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
         /// Extracts every icon from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
@@ -333,6 +365,9 @@ namespace KGySoft.Drawing
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning uncompressed icons only;
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
+        /// <remarks>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,bool)"/>
         public static Icon[] ExtractIcons(this Icon icon, bool forceUncompressedResult) => ExtractIcons(icon, null, null, forceUncompressedResult);
 
@@ -342,9 +377,13 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
-        /// <remarks>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,Size,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon, Size size) => ExtractIcons(icon, size, null, OSUtils.IsXpOrEarlier);
+        public static Icon[] ExtractIcons(this Icon icon, Size size)
+            => ExtractIcons(icon, size, null, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
         /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
@@ -354,8 +393,12 @@ namespace KGySoft.Drawing
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning uncompressed icons only;
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
+        /// <remarks>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,Size,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon, Size size, bool forceUncompressedResult) => ExtractIcons(icon, size, null, forceUncompressedResult);
+        public static Icon[] ExtractIcons(this Icon icon, Size size, bool forceUncompressedResult)
+            => ExtractIcons(icon, size, null, forceUncompressedResult);
 
         /// <summary>
         /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
@@ -363,9 +406,13 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
-        /// <remarks>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,PixelFormat,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon, PixelFormat pixelFormat) => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), OSUtils.IsXpOrEarlier);
+        public static Icon[] ExtractIcons(this Icon icon, PixelFormat pixelFormat)
+            => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
         /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
@@ -375,8 +422,12 @@ namespace KGySoft.Drawing
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning uncompressed icons only;
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
+        /// <remarks>
+        /// <note>On some platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,PixelFormat,bool)"/>
-        public static Icon[] ExtractIcons(this Icon icon, PixelFormat pixelFormat, bool forceUncompressedResult) => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), forceUncompressedResult);
+        public static Icon[] ExtractIcons(this Icon icon, PixelFormat pixelFormat, bool forceUncompressedResult)
+            => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), forceUncompressedResult);
 
         /// <summary>
         /// Extracts the first icon of specified size from an <see cref="Icon"/> instance.
@@ -386,9 +437,13 @@ namespace KGySoft.Drawing
         /// <param name="size">The required icon size to retrieve.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
-        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, Size size) => ExtractFirstIcon(icon, size, null, OSUtils.IsXpOrEarlier);
+        public static Icon ExtractIcon(this Icon icon, Size size)
+            => ExtractFirstIcon(icon, size, null, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
         /// Extracts the first icon of specified size from an <see cref="Icon"/> instance.
@@ -400,6 +455,9 @@ namespace KGySoft.Drawing
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large or compressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,bool)"/>
         public static Icon ExtractIcon(this Icon icon, Size size, bool forceUncompressedResult) => ExtractFirstIcon(icon, size, null, forceUncompressedResult);
 
@@ -412,9 +470,13 @@ namespace KGySoft.Drawing
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
-        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,PixelFormat,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), OSUtils.IsXpOrEarlier);
+        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat)
+            => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
         /// Extracts the icon of specified size and pixel format from an <see cref="Icon"/> instance.
@@ -427,8 +489,12 @@ namespace KGySoft.Drawing
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large or compressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,Size,PixelFormat,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat, bool forceUncompressedResult) => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), forceUncompressedResult);
+        public static Icon ExtractIcon(this Icon icon, Size size, PixelFormat pixelFormat, bool forceUncompressedResult)
+            => ExtractFirstIcon(icon, size, pixelFormat.ToBitsPerPixel(), forceUncompressedResult);
 
         /// <summary>
         /// Extracts the icon of specified index from an <see cref="Icon"/> instance.
@@ -437,9 +503,12 @@ namespace KGySoft.Drawing
         /// <param name="index">The zero-based index of the icon image to retrieve.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if the specified <paramref name="index"/> was too large.</returns>
-        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,int,bool)"/>
-        public static Icon ExtractIcon(this Icon icon, int index) => ExtractIcon(icon, index, OSUtils.IsXpOrEarlier);
+        public static Icon ExtractIcon(this Icon icon, int index) => ExtractIcon(icon, index, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
         /// Extracts the icon of specified index from an <see cref="Icon"/> instance.
@@ -450,6 +519,9 @@ namespace KGySoft.Drawing
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
         /// or <see langword="null"/>&#160;if the specified <paramref name="index"/> was too large.</returns>
+        /// <remarks>
+        /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large or compressed icons.</note>
+        /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,int,bool)"/>
 #if !NET35
         [SecuritySafeCritical]
@@ -473,10 +545,12 @@ namespace KGySoft.Drawing
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image. If no
-        /// icon was found with the specified size and format the nearest icon (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
-        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
+        /// icon was found with the specified size and format the nearest icon (<paramref name="size"/> match has preference over <paramref name="pixelFormat"/>) is returned.</returns>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <para>On some platforms it may happen that a smaller icon is returned than requested if the requested icon size is not supported.</para>
+        /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
-        /// <remarks>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</remarks>
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractNearestIcon(icon, size, pixelFormat, OSUtils.IsXpOrEarlier);
 
         /// <summary>
@@ -489,7 +563,10 @@ namespace KGySoft.Drawing
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image. If no
-        /// icon was found with the specified size and format the nearest icon (<paramref name="pixelFormat"/> matches first, then <paramref name="size"/>) is returned.</returns>
+        /// icon was found with the specified size and format the nearest icon (<paramref name="size"/> match have preference over <paramref name="pixelFormat"/>) is returned.</returns>
+        /// <remarks>
+        /// <para>On some platforms it may happen that a smaller icon is returned than requested if the requested icon size is not supported.</para>
+        /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
 #if !NET35
         [SecuritySafeCritical]

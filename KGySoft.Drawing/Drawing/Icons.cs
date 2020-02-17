@@ -708,14 +708,14 @@ namespace KGySoft.Drawing
             Size targetSize = resultSize;
             Bitmap bitmap = image as Bitmap;
 
-            if (bitmap != null && bitmap.PixelFormat == PixelFormat.Format16bppGrayScale)
+            if (bitmap != null && !bitmap.PixelFormat.CanBeDrawn())
                 bitmap = bitmap.ConvertPixelFormat(PixelFormat.Format32bppArgb);
 
             try
             {
                 // Same size and image is Bitmap
                 if (bitmap != null && bitmap.Size == targetSize)
-                    return Icon.FromHandle(bitmap.GetHicon()).ToManagedIcon();
+                    return FromBitmap(bitmap);
 
                 // Different size or image is not a Bitmap
                 Size sourceSize = image.Size;
@@ -736,9 +736,9 @@ namespace KGySoft.Drawing
                         g.PixelOffsetMode = PixelOffsetMode.HighQuality;
                         g.DrawImage(bitmap ?? image, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
                         g.Flush();
-
-                        return Icon.FromHandle(result.GetHicon()).ToManagedIcon();
                     }
+
+                    return FromBitmap(result);
                 }
             }
             finally
@@ -751,6 +751,18 @@ namespace KGySoft.Drawing
         #endregion
 
         #region Private Methods
+
+        private static Icon FromBitmap(Bitmap bmp)
+        {
+            if (OSUtils.IsWindows)
+                return Icon.FromHandle(bmp.GetHicon()).ToManagedIcon();
+            
+            using (RawIcon rawIcon = new RawIcon())
+            {
+                rawIcon.Add(bmp);
+                return rawIcon.ToIcon(true);
+            }
+        }
 
 #if !NET35
         [SecuritySafeCritical]

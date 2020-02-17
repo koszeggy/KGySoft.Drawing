@@ -129,6 +129,9 @@ namespace KGySoft.Drawing.PerformanceTests
         [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
         public void DrawIntoTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
+            if (!formatSrc.IsSupported())
+                Assert.Inconclusive($"Pixel format {formatSrc} is not supported on current platform");
+
             Size targetSize = new Size(300, 300);
             Size sourceSize = new Size(250, 250);
             Point offset = new Point(targetSize - sourceSize);

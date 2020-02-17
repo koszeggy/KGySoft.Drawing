@@ -21,7 +21,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
@@ -230,7 +229,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format1bppIndexed)]
         public void ResizeWithFormatTest(PixelFormat pixelFormat)
         {
-            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            using var bmpRef = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat);
             var newSize = new Size(256, 64);
             using var resized = bmpRef.Resize(newSize, false);
             Assert.AreEqual(newSize, resized.Size);
@@ -262,7 +261,7 @@ namespace KGySoft.Drawing.UnitTests
             using var icon = Icons.Information.ToMultiResBitmap();
             clone = icon.CloneCurrentFrame();
             Assert.AreEqual(1, clone.ExtractBitmaps().Length);
-            Assert.AreEqual(7, icon.ExtractBitmaps().Length);
+            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, icon.ExtractBitmaps().Length);
             SaveImage("IconClone", clone);
         }
 
@@ -467,7 +466,7 @@ namespace KGySoft.Drawing.UnitTests
             const int size = 17;
             Color color = Color.FromArgb((int)argb);
 
-            using var bmp = new Bitmap(size, size, pixelFormat);
+            using var bmp = CreateBitmap(size, pixelFormat);
             bmp.Clear(color);
             using (IReadableBitmapData bitmapData = bmp.GetReadableBitmapData())
             {
