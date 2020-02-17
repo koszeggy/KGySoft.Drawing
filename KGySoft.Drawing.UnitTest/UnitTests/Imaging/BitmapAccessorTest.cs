@@ -123,6 +123,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCaseSource(nameof(setGetPixelTestSource))]
         public void SetGetPixelTest(string testName, PixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValue)
         {
+            if (!pixelFormat.IsSupported())
+                Assert.Inconclusive($"Pixel format {pixelFormat} is not supported on this platform");
+
             Color actualColor;
             long actualRawValue;
 
@@ -163,12 +166,14 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 actualRawValue = GetRawValue(pixelFormat, accessor.Scan0);
                 Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
-                Assert.AreEqual(expectedRawValue, actualRawValue);
+                if (pixelFormat == accessor.PixelFormat) // can differ in Linux for 16 bpp formats
+                    Assert.AreEqual(expectedRawValue, actualRawValue);
 
                 // by indexer
                 accessor.GetRow(0)[0] = new Color32(testColor);
                 Assert.AreEqual(expectedResult.ToArgb(), accessor.GetRow(0)[0].ToArgb());
-                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, accessor.Scan0));
+                if (pixelFormat == accessor.PixelFormat) // can differ in Linux for 16 bpp formats
+                    Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, accessor.Scan0));
             }
         }
 

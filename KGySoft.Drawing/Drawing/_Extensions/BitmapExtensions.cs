@@ -91,7 +91,7 @@ namespace KGySoft.Drawing
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             Bitmap source = image;
-            if (source.PixelFormat == PixelFormat.Format16bppGrayScale)
+            if (!source.PixelFormat.CanBeDrawn())
                 source = image.ConvertPixelFormat(PixelFormat.Format32bppArgb);
 
             try
@@ -271,7 +271,7 @@ namespace KGySoft.Drawing
                 throw new PlatformNotSupportedException(Res.RequiresWindows);
 
             Bitmap source = bitmap;
-            if (bitmap.PixelFormat == PixelFormat.Format16bppGrayScale)
+            if (!bitmap.PixelFormat.CanBeDrawn())
                 source = bitmap.ConvertPixelFormat(PixelFormat.Format32bppArgb);
             try
             {

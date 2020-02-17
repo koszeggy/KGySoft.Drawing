@@ -92,6 +92,12 @@ namespace KGySoft
         /// <summary>Bad icon format.</summary>
         internal static string RawIconBadIconFormat => Get("RawIcon_BadIconFormat");
 
+        /// <summary>On this platform this icon cannot be instantiated with the current size or compression.</summary>
+        internal static string RawIconCannotBeInstantiatedAsIcon  => Get("RawIcon_CannotBeInstantiatedAsIcon");
+
+        /// <summary>On this platform this icon cannot be instantiated as a bitmap with the current size or compression.</summary>
+        internal static string RawIconCannotBeInstantiatedAsBitmap => Get("RawIcon_CannotBeInstantiatedAsBitmap");
+
         #endregion
 
         #region User32
@@ -153,7 +159,7 @@ namespace KGySoft
 
         #region Imaging
 
-        /// <summary>Pixel format '{0}' is not supported.</summary>
+        /// <summary>Pixel format '{0}' is not supported on the current platform.</summary>
         internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion

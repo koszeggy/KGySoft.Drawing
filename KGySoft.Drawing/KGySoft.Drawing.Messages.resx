@@ -150,6 +150,12 @@
   <data name="RawIcon_BadIconFormat" xml:space="preserve">
     <value>Bad icon format.</value>
   </data>
+  <data name="RawIcon_CannotBeInstantiatedAsIcon" xml:space="preserve">
+    <value>On this platform this icon cannot be instantiated with the current size or compression.</value>
+  </data>
+  <data name="RawIcon_CannotBeInstantiatedAsBitmap" xml:space="preserve">
+    <value>On this platform this icon cannot be instantiated as a bitmap with the current size or compression.</value>
+  </data>
   <data name="IconExtensions_ImagesColorsDifferentLength" xml:space="preserve">
     <value>Length of images and transparentColors must be the same.</value>
   </data>
@@ -169,7 +175,7 @@
     <value>This method can be used only on bitmaps with indexed pixel format.</value>
   </data>
   <data name="Imaging_PixelFormatNotSupportedFormat" xml:space="preserve">
-    <value>Pixel format '{0}' is not supported.</value>
+    <value>Pixel format '{0}' is not supported on the current platform.</value>
   </data>
   <data name="Imaging_QuantizerInitializeNull" xml:space="preserve">
     <value>The IQuantizer.Initialize method returned a null value.</value>

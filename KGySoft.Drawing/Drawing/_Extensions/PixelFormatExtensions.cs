@@ -18,6 +18,8 @@
 
 using System;
 using System.Drawing.Imaging;
+using KGySoft.CoreLibraries;
+using KGySoft.Drawing.WinApi;
 
 #endregion
 
@@ -74,6 +76,21 @@ namespace KGySoft.Drawing
 
         internal static bool CanBeDithered(this PixelFormat dstFormat)
             => dstFormat.ToBitsPerPixel() <= 16 && dstFormat != PixelFormat.Format16bppGrayScale;
+
+        internal static bool IsSupported(this PixelFormat pixelFormat)
+        {
+            if (OSUtils.IsWindows)
+                return true;
+            return !pixelFormat.In(PixelFormat.Format16bppArgb1555, PixelFormat.Format16bppGrayScale,
+                PixelFormat.Format48bppRgb, PixelFormat.Format64bppArgb, PixelFormat.Format64bppPArgb);
+        }
+
+        internal static bool CanBeDrawn(this PixelFormat pixelFormat)
+        {
+            if (OSUtils.IsWindows)
+                return pixelFormat != PixelFormat.Format16bppGrayScale;
+            return !pixelFormat.In(PixelFormat.Format16bppRgb555, PixelFormat.Format16bppRgb565) && pixelFormat.IsSupported();
+        }
 
         internal static PixelFormat ToPixelFormat(this int bpp)
         {

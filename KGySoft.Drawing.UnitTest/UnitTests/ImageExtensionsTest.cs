@@ -20,8 +20,11 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.WinApi;
+
 using NUnit.Framework;
 
 #endregion
@@ -39,7 +42,6 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "To 8bpp 256 color dithering", PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer2x2() },
             new object[] { "To 8bpp 16 color no dithering", PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.SystemDefault4BppPalette(), null },
             new object[] { "To 4bpp 2 color dithering", PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.Halftone5Rectangular() },
-            //new object[] { "To 4bpp 256 color dithering", PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Halftone5Rectangular() },
             new object[] { "To ARGB1555 256 color dithering", PixelFormat.Format16bppArgb1555, PredefinedColorsQuantizer.SystemDefault8BppPalette(), new RandomNoiseDitherer(), }, 
             new object[] { "To ARGB1555 32K color dithering", PixelFormat.Format16bppArgb1555, PredefinedColorsQuantizer.Argb1555(), new RandomNoiseDitherer(), },
             new object[] { "To ARGB1555 16.7M color dithering", PixelFormat.Format16bppArgb1555, PredefinedColorsQuantizer.Rgb888(), new RandomNoiseDitherer(), }, 
@@ -78,6 +80,9 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format48bppRgb, 0xFFFFFF, 0)]
         public void ConvertPixelFormatDirectTest(PixelFormat pixelFormat, int backColorArgb, byte alphaThreshold)
         {
+            if (!pixelFormat.IsSupported())
+                Assert.Inconclusive($"Pixel format is not supported: {pixelFormat}");
+
             //using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
             using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
             Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
@@ -91,6 +96,9 @@ namespace KGySoft.Drawing.UnitTests
         [TestCaseSource(nameof(convertPixelFormatCustomTestSource))]
         public void ConvertPixelFormatCustomTest(string testName, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer)
         {
+            if (!pixelFormat.IsSupported())
+                Assert.Inconclusive($"Pixel format is not supported: {pixelFormat}");
+
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256));
             using var converted = source.ConvertPixelFormat(pixelFormat, quantizer, ditherer);
             Assert.AreEqual(pixelFormat, converted.PixelFormat);
@@ -112,6 +120,11 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
         public void DrawIntoTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
+            if (!formatSrc.IsSupported())
+                Assert.Inconclusive($"Pixel format is not supported: {formatSrc}");
+            if (!formatDst.IsSupported())
+                Assert.Inconclusive($"Pixel format is not supported: {formatDst}");
+
             Size targetSize = new Size(300, 300);
             Size sourceSize = new Size(300, 300);
             Point offset = new Point(-50, -50);
@@ -181,7 +194,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format1bppIndexed)]
         public void ToIconSquaredTest(PixelFormat pixelFormat)
         {
-            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256)).Resize(new Size(256, 128), true).ConvertPixelFormat(pixelFormat);
+            using var bmpRef = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)).Resize(new Size(256, 128), true), pixelFormat);
             SaveImage($"{pixelFormat} Reference", bmpRef);
 
             using var noKeepRatio128 = bmpRef.ToIcon(128, false);
@@ -224,7 +237,7 @@ namespace KGySoft.Drawing.UnitTests
         public void ToIconWithCustomBackColorTest(PixelFormat pixelFormat, uint transparentColor)
         {
             Color backColor = Color.FromArgb((int)transparentColor);
-            using var bmpRef = Icons.Information.ExtractBitmap(new Size(64, 64)).ConvertPixelFormat(pixelFormat, backColor);
+            using var bmpRef = Convert(Icons.Information.ExtractBitmap(new Size(64, 64)), pixelFormat, backColor);
 
             using Icon icon = bmpRef.ToIcon(backColor);
             SaveIcon($"{pixelFormat} {backColor.ToArgb():X8}", icon);
@@ -236,7 +249,7 @@ namespace KGySoft.Drawing.UnitTests
             using var bmpRef = Icons.Information.ToMultiResBitmap();
 
             using Icon icon = bmpRef.ToIcon();
-            Assert.AreEqual(7, icon.GetImagesCount());
+            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, icon.GetImagesCount());
             SaveIcon(null, icon);
         }
 
@@ -259,7 +272,7 @@ namespace KGySoft.Drawing.UnitTests
             ms.Position = 0;
             gif = new Bitmap(ms);
             Assert.AreEqual(ImageFormat.Gif, gif.RawFormat);
-            Assert.AreEqual(4, gif.Palette.Entries.Length);
+            Assert.AreEqual(OSUtils.IsWindows ? 4 : 256, gif.Palette.Entries.Length);
             SaveImage("customPalette", gif);
 
             ms = new MemoryStream();
@@ -290,7 +303,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+            var refImage = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat, quantizer);
 
             refImage.SaveAsBmp(ms);
             ms.Position = 0;
@@ -330,7 +343,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+            var refImage = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat, quantizer);
 
             refImage.SaveAsGif(ms);
             ms.Position = 0;
@@ -359,7 +372,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+            var refImage = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat, quantizer);
 
             refImage.SaveAsJpeg(ms);
             ms.Position = 0;
@@ -381,21 +394,21 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format16bppRgb555, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format16bppArgb1555, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format16bppGrayScale, PixelFormat.Format24bppRgb)]
-        [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format32bppArgb)]
-        public void SaveAsPngTest(PixelFormat pixelFormat, PixelFormat savedFormat)
+        [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb, PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed)]
+        public void SaveAsPngTest(PixelFormat pixelFormat, PixelFormat savedFormat, PixelFormat? savedFormatLinux = null)
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+            var refImage = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat, quantizer);
 
             refImage.SaveAsPng(ms);
             ms.Position = 0;
             var bmp = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Png, bmp.RawFormat);
-            Assert.AreEqual(savedFormat, bmp.PixelFormat);
+            Assert.AreEqual(OSUtils.IsWindows ? savedFormat : savedFormatLinux ?? savedFormat, bmp.PixelFormat);
             SaveImage($"{pixelFormat}", bmp, true);
         }
 
@@ -410,21 +423,21 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format16bppRgb555, PixelFormat.Format24bppRgb)]
         [TestCase(PixelFormat.Format16bppArgb1555, PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format16bppGrayScale, PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format4bppIndexed)]
-        public void SaveAsTiffTest(PixelFormat pixelFormat, PixelFormat savedFormat)
+        [TestCase(PixelFormat.Format8bppIndexed, PixelFormat.Format8bppIndexed, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format4bppIndexed, PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format1bppIndexed, PixelFormat.Format4bppIndexed, PixelFormat.Format32bppArgb)]
+        public void SaveAsTiffTest(PixelFormat pixelFormat, PixelFormat savedFormat, PixelFormat? savedFormatLinux = null)
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+            var refImage = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat, quantizer);
 
             refImage.SaveAsTiff(ms);
             ms.Position = 0;
             var bmp = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Tiff, bmp.RawFormat);
-            Assert.AreEqual(savedFormat, bmp.PixelFormat);
+            Assert.AreEqual(OSUtils.IsWindows ? savedFormat : savedFormatLinux ?? savedFormat, bmp.PixelFormat);
             SaveImage($"{pixelFormat}", bmp, true);
         }
 
@@ -486,7 +499,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+            var refImage = Convert(Icons.Information.ExtractBitmap(new Size(64, 64)), pixelFormat, quantizer);
 
             refImage.SaveAsIcon(ms);
             ms.Position = 0;

@@ -27,6 +27,7 @@ using System.Security;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.WinApi;
 
 #endregion
 
@@ -47,56 +48,62 @@ namespace KGySoft.Drawing
 
         private static ImageCodecInfo[] encoders = ImageCodecInfo.GetImageEncoders();
 
-        private static readonly Dictionary<Guid, Dictionary<PixelFormat, PixelFormat>> saveConversions = new Dictionary<Guid, Dictionary<PixelFormat, PixelFormat>>
+        private static readonly Dictionary<Guid, Dictionary<PixelFormat, (PixelFormat TargetFormat, bool NonWindowsOnly)>> saveConversions = new Dictionary<Guid, Dictionary<PixelFormat, (PixelFormat, bool)>>
         {
-            [ImageFormat.Bmp.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            [ImageFormat.Bmp.Guid] = new Dictionary<PixelFormat, (PixelFormat, bool)>
             {
-                [PixelFormat.Format16bppRgb565] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format16bppRgb555] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format16bppArgb1555] = PixelFormat.Format32bppArgb,
-                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Undefined] = PixelFormat.Format24bppRgb
+                [PixelFormat.Format16bppRgb565] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format16bppRgb555] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format16bppArgb1555] = (PixelFormat.Format32bppArgb, false),
+                [PixelFormat.Format16bppGrayScale] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Undefined] = (PixelFormat.Format24bppRgb, false)
             },
-            [ImageFormat.Gif.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            [ImageFormat.Gif.Guid] = new Dictionary<PixelFormat, (PixelFormat, bool)>
             {
-                [PixelFormat.Format1bppIndexed] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format4bppIndexed] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format16bppArgb1555] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format16bppRgb555] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format16bppRgb565] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format24bppRgb] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format32bppRgb] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format32bppPArgb] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format32bppArgb] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format48bppRgb] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format64bppArgb] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Format64bppPArgb] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Undefined] = PixelFormat.Format8bppIndexed
+                [PixelFormat.Format1bppIndexed] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format4bppIndexed] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format16bppGrayScale] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format16bppArgb1555] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format16bppRgb555] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format16bppRgb565] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format24bppRgb] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format32bppRgb] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format32bppPArgb] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format32bppArgb] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format48bppRgb] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format64bppArgb] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format64bppPArgb] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Undefined] = (PixelFormat.Format8bppIndexed, false)
             },
-            [ImageFormat.Jpeg.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            [ImageFormat.Jpeg.Guid] = new Dictionary<PixelFormat, (PixelFormat, bool)>
             {
-                [PixelFormat.Format16bppArgb1555] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format32bppArgb] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format64bppArgb] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format64bppPArgb] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Undefined] = PixelFormat.Format24bppRgb
+                [PixelFormat.Format16bppRgb565] = (PixelFormat.Format24bppRgb, true),
+                [PixelFormat.Format16bppRgb555] = (PixelFormat.Format24bppRgb, true),
+                [PixelFormat.Format16bppArgb1555] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format16bppGrayScale] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format32bppArgb] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format64bppArgb] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format64bppPArgb] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Undefined] = (PixelFormat.Format24bppRgb, false)
             },
-            [ImageFormat.Png.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            [ImageFormat.Png.Guid] = new Dictionary<PixelFormat, (PixelFormat, bool)>
             {
-                [PixelFormat.Format16bppRgb565] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format16bppRgb555] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format48bppRgb] = PixelFormat.Format24bppRgb,
-                [PixelFormat.Format64bppArgb] = PixelFormat.Format32bppArgb,
-                [PixelFormat.Format64bppPArgb] = PixelFormat.Format32bppArgb,
-                [PixelFormat.Undefined] = PixelFormat.Format32bppArgb
+                [PixelFormat.Format16bppRgb565] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format16bppRgb555] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format16bppGrayScale] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format32bppPArgb] = (PixelFormat.Format32bppArgb, true),
+                [PixelFormat.Format48bppRgb] = (PixelFormat.Format24bppRgb, false),
+                [PixelFormat.Format64bppArgb] = (PixelFormat.Format32bppArgb, false),
+                [PixelFormat.Format64bppPArgb] = (PixelFormat.Format32bppArgb, false),
+                [PixelFormat.Undefined] = (PixelFormat.Format32bppArgb, false)
             },
-            [ImageFormat.Tiff.Guid] = new Dictionary<PixelFormat, PixelFormat>
+            [ImageFormat.Tiff.Guid] = new Dictionary<PixelFormat, (PixelFormat, bool)>
             {
-                [PixelFormat.Format16bppGrayScale] = PixelFormat.Format8bppIndexed,
-                [PixelFormat.Undefined] = PixelFormat.Format32bppArgb
+                [PixelFormat.Format16bppRgb565] = (PixelFormat.Format24bppRgb, true),
+                [PixelFormat.Format16bppRgb555] = (PixelFormat.Format24bppRgb, true),
+                [PixelFormat.Format16bppGrayScale] = (PixelFormat.Format8bppIndexed, false),
+                [PixelFormat.Format32bppPArgb] = (PixelFormat.Format32bppArgb, true),
+                [PixelFormat.Undefined] = (PixelFormat.Format32bppArgb, false)
             },
         };
 
@@ -157,6 +164,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
+        /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
@@ -165,6 +173,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!Enum<PixelFormat>.IsDefined(newPixelFormat))
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.EnumOutOfRange(newPixelFormat));
+            if (!newPixelFormat.IsSupported())
+                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
 
             Bitmap bmp = image as Bitmap ?? new Bitmap(image);
             Bitmap result = null;
@@ -244,6 +254,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
+        /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
 
@@ -271,6 +282,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
+        /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
@@ -281,6 +293,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.EnumOutOfRange(newPixelFormat));
             if (quantizer == null)
                 return ConvertPixelFormat(image, newPixelFormat);
+            if (!newPixelFormat.IsSupported())
+                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
 
             Bitmap bmp = image as Bitmap ?? new Bitmap(image);
             Bitmap result = null;
@@ -531,7 +545,7 @@ namespace KGySoft.Drawing
         /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
         /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format32bppArgb"/>.
+        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format32bppArgb"/>.
         /// Though reloading such an image will not have transparency but it can be restored (see also the example below).</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
         /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
@@ -607,21 +621,23 @@ namespace KGySoft.Drawing
         /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
         /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
         /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.
+        /// On Linux, before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>; otherwise, saving would fail.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.
+        /// On Linux, before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>; otherwise, saving would fail.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>;
         /// otherwise, the built-in encoder may save transparent pixels with nonzero color information incorrectly. Transparency will be lost.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
         /// because otherwise GDI+ would throw an exception.</description></item>
         /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>;
         /// otherwise, the built-in encoder may save pixels with alpha incorrectly. Transparency will be lost.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>. Transparency will be lost.</description></item>
         /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>;
         /// otherwise, the built-in encoder may save pixels with alpha incorrectly. Transparency will be lost.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format24bppRgb"/>;
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>;
         /// otherwise, the built-in encoder may save pixels with alpha incorrectly. Transparency will be lost.</description></item>
         /// </list>
         /// </para>
@@ -665,9 +681,12 @@ namespace KGySoft.Drawing
         /// <para>On Windows PNG is never saved with indexed format.</para>
         /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
         /// <list type="definition">
-        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.
+        /// On Linux, when realoading the the saved image the pixel format is preserved, though transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.
+        /// On Linux, when realoading the the saved image the pixel format is preserved, though transparency will be lost.</description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.
+        /// On Linux, when realoading the the saved image the pixel format is preserved, though transparency will be lost.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
         /// because the built-in encoder would save a 32 BPP image otherwise, which is just a waste of space.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
@@ -678,12 +697,13 @@ namespace KGySoft.Drawing
         /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.
+        /// On Linux, before saving the image pixel format will be converted to <see cref="PixelFormat.Format32bppArgb"/>; otherwise, the alpha channel in the saved image would be corrupted.</description></item>
         /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>
         /// because the built-in encoder would save a 32 BPP image with incorrect colors otherwise.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format32bppArgb"/>
+        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format32bppArgb"/>
         /// because the built-in encoder would save the image incorrectly otherwise.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Before saving the image pixel format will converted to <see cref="PixelFormat.Format32bppArgb"/>
+        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format32bppArgb"/>
         /// because the built-in encoder would save the image incorrectly otherwise.</description></item>
         /// </list>
         /// </para>
@@ -711,7 +731,8 @@ namespace KGySoft.Drawing
         /// <para>The <paramref name="image"/> will be saved always with a <see cref="PixelFormat.Format8bppIndexed"/> format, though the palette can have less than 256 colors.</para>
         /// <para>The GIF format supports single bit transparency only.</para>
         /// <para>Images with <see cref="PixelFormat"/>s other than <see cref="PixelFormat.Format8bppIndexed"/> are converted to <see cref="PixelFormat.Format8bppIndexed"/> before saving (including other indexed formats);
-        /// otherwise, the built-in GIF encoder (at least on Windows) would save the image with a fixed palette and transparency would be lost.</para>
+        /// otherwise, the built-in GIF encoder (at least on Windows) would save the image with a fixed palette and transparency would be lost.
+        /// <note>On Linux the built-in GIF encoder turns transparent palette entries opaque.</note></para>
         /// <para>If <paramref name="quantizer"/> is <see langword="null"/>&#160;and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
         /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale8bpp">PredefinedColorsQuantizer.Grayscale8bpp</see> method
         /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Octree">OptimizedPaletteQuantizer.Octree</see> method for any other pixel formats.</para>
@@ -791,15 +812,18 @@ namespace KGySoft.Drawing
         /// Otherwise, before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.</description></item>
         /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
         /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
-        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.
+        /// On Linux, before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>; otherwise, the saved image would be corrupted.</description></item>
+        /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.
+        /// On Linux, before saving the image pixel format will be converted to <see cref="PixelFormat.Format24bppRgb"/>; otherwise, the saved image would be corrupted.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
         /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
         /// <item><term><see cref="PixelFormat.Format24bppRgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppRgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
         /// <item><term><see cref="PixelFormat.Format32bppArgb"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.
+        /// On Linux, before saving the image pixel format will be converted to <see cref="PixelFormat.Format32bppArgb"/>; otherwise, the alpha channel in the saved image would be corrupted.</description></item>
         /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>If the original <paramref name="image"/> is already a 48 BPP TIFF image, then the pixel format is preserved (however,
         /// channels might be quantized using a 13 BPP resolution); otherwise, the image will be saved with <see cref="PixelFormat.Format24bppRgb"/> pixel format.</description></item>
         /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>When reloading the saved image the pixel format will turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
@@ -1212,7 +1236,7 @@ namespace KGySoft.Drawing
             using (BitmapDataAccessorBase src = BitmapDataAccessorFactory.CreateAccessor(source, ImageLockMode.ReadOnly))
             using (BitmapDataAccessorBase dst = BitmapDataAccessorFactory.CreateAccessor(target, ImageLockMode.ReadWrite))
             {
-                Action<int, BitmapDataAccessorBase, BitmapDataAccessorBase, Rectangle, Point> processRow = dst.PixelFormat == PixelFormat.Format32bppPArgb
+                Action<int, BitmapDataAccessorBase, BitmapDataAccessorBase, Rectangle, Point> processRow = dst.PixelFormat == PixelFormat.Format32bppPArgb && ColorExtensions.IsPremultiplicationSupported
                     ? (Action<int, BitmapDataAccessorBase, BitmapDataAccessorBase, Rectangle, Point>)ProcessRowPremultiplied
                     : ProcessRowStraight;
 
@@ -1300,30 +1324,31 @@ namespace KGySoft.Drawing
                 throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(imageFormat));
 
             // To avoid various issues with some encoders and pixel formats we may convert pixel format before saving
-            Dictionary<PixelFormat, PixelFormat> transformations = saveConversions[imageFormat.Guid];
+            var transformations = saveConversions[imageFormat.Guid];
             PixelFormat srcPixelFormat = image.PixelFormat;
-            if (transformations.TryGetValue(srcPixelFormat, out PixelFormat dstPixelFormat))
+            if (transformations.TryGetValue(srcPixelFormat, out var transformation)
+                && (!transformation.NonWindowsOnly || !OSUtils.IsWindows))
             {
                 int srcBpp = srcPixelFormat.ToBitsPerPixel();
-                int dstBpp = dstPixelFormat.ToBitsPerPixel();
-                if (quantizer == null && dstPixelFormat.IsIndexed() && srcBpp > dstBpp)
+                int dstBpp = transformation.TargetFormat.ToBitsPerPixel();
+                if (quantizer == null && transformation.TargetFormat.IsIndexed() && srcBpp > dstBpp)
                 {
                     // auto setting quantizer if target is indexed and conversion is from higher BPP
                     quantizer = srcPixelFormat == PixelFormat.Format16bppGrayScale
                         ? PredefinedColorsQuantizer.Grayscale8bpp()
                         : (IQuantizer)OptimizedPaletteQuantizer.Octree();
                 }
-                else if (quantizer != null && dstPixelFormat.IsIndexed() && srcBpp < dstBpp)
+                else if (quantizer != null && transformation.TargetFormat.IsIndexed() && srcBpp < dstBpp)
                 {
                     // ignoring quantizer if (using source palette) if converting to higher indexed BPP
                     quantizer = null;
                     ditherer = null;
                 }
 
-                if (ditherer != null && !dstPixelFormat.CanBeDithered())
+                if (ditherer != null && !transformation.TargetFormat.CanBeDithered())
                     ditherer = null;
 
-                bmp = ConvertPixelFormat(image, dstPixelFormat, quantizer, ditherer);
+                bmp = ConvertPixelFormat(image, transformation.TargetFormat, quantizer, ditherer);
             }
 
             try
@@ -1333,9 +1358,10 @@ namespace KGySoft.Drawing
             catch (Exception e)
             {
                 // On failure trying to use a fallback pixel format and omitting all parameters. This should not occur on Windows.
-                if (!isFallback && transformations.TryGetValue(PixelFormat.Undefined, out PixelFormat fallbackPixelFormat) && fallbackPixelFormat != bmp.PixelFormat)
+                if (!isFallback && transformations.TryGetValue(PixelFormat.Undefined, out var fallbackTransformation)
+                    && fallbackTransformation.TargetFormat != bmp.PixelFormat)
                 {
-                    using (var fallbackBmp = bmp.ConvertPixelFormat(fallbackPixelFormat))
+                    using (var fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat))
                     {
                         SaveByEncoder(fallbackBmp, stream, imageFormat, null, true, quantizer, ditherer);
                         return;

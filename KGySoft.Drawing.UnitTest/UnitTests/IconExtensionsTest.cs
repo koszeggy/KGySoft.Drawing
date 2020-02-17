@@ -38,7 +38,8 @@ namespace KGySoft.Drawing.UnitTests
         {
             using var bmp = SystemIcons.Information.ToBitmap();
             using var abmp = SystemIcons.Information.ToAlphaBitmap();
-            Assert.IsFalse(bmp.EqualsByContent(abmp));
+            if (OSUtils.IsWindows)
+                Assert.IsFalse(bmp.EqualsByContent(abmp));
             SaveImage(nameof(Icon.ToBitmap), bmp);
             SaveImage(nameof(IconExtensions.ToAlphaBitmap), abmp);
         }
@@ -46,7 +47,7 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ToMultiResBitmapTest()
         {
-            AssertPlatformDependent(() => Assert.AreEqual(7, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length), PlatformID.Win32NT);
+            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length);
         }
 
         [Test]
@@ -86,14 +87,10 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ExtractIconsTest()
         {
-            // On Linux extracting a standalone 256x256 icon may fail both in BMP and PNG format...
-            AssertPlatformDependent(() =>
-            {
-                Assert.AreEqual(7, Icons.Information.ExtractIcons().Length);
-                Assert.AreEqual(1, Icons.Information.ExtractIcons(new Size(16, 16)).Length);
-                Assert.AreEqual(0, Icons.Information.ExtractIcons(Size.Empty).Length);
-                Assert.AreEqual(7, Icons.Information.ExtractIcons(PixelFormat.Format32bppArgb).Length);
-            }, PlatformID.Win32NT);
+            Assert.AreEqual(7, Icons.Information.ExtractIcons().Length);
+            Assert.AreEqual(1, Icons.Information.ExtractIcons(new Size(16, 16)).Length);
+            Assert.AreEqual(0, Icons.Information.ExtractIcons(Size.Empty).Length);
+            Assert.AreEqual(7, Icons.Information.ExtractIcons(PixelFormat.Format32bppArgb).Length);
         }
 
         [Test]
@@ -111,7 +108,7 @@ namespace KGySoft.Drawing.UnitTests
         public void ExtractNearestIconTest()
         {
             Assert.IsNotNull(Icons.Information.ExtractNearestIcon(Size.Empty, PixelFormat.Format1bppIndexed));
-            Assert.AreEqual(64, Icons.Information.ExtractNearestIcon(new Size(64, 64), PixelFormat.Format1bppIndexed).Width);
+            Assert.AreEqual(OSUtils.IsWindows ? 256 : 64, Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format1bppIndexed).Width);
         }
 
         [Test]
@@ -128,7 +125,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.IsFalse(Icons.Information.ToUncompressedIcon().IsCompressed());
             
             // On Linux extracting a standalone 256x256 icon may fail both in BMP and PNG format...
-            AssertPlatformDependent(() => Assert.IsTrue(OSUtils.IsXpOrEarlier || Icons.Information.ExtractIcon(new Size(256, 256)).IsCompressed()), PlatformID.Win32NT);
+            Assert.IsTrue(OSUtils.IsXpOrEarlier || Icons.Information.ExtractIcon(new Size(256, 256))?.IsCompressed() == true || !OSUtils.IsWindows);
         }
 
         [Test]

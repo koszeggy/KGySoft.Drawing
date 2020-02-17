@@ -115,7 +115,7 @@ namespace KGySoft.Drawing.Imaging
             bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);
 
             if (bitmapData.PixelFormat.IsIndexed())
-                Palette = palette ?? new Palette(bitmap.Palette.Entries);
+                Palette = palette ?? new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
         }
 
         #endregion

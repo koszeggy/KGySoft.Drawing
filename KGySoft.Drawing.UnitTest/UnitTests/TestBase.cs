@@ -23,7 +23,11 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Runtime.CompilerServices;
+
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.WinApi;
+
 using NUnit.Framework;
 
 #endregion
@@ -96,7 +100,16 @@ namespace KGySoft.Drawing.UnitTests
             {
                 if (encoder != null)
                 {
-                    image.Save(fs, encoder, null);
+                    if (encoder.FormatID == ImageFormat.Bmp.Guid)
+                        image.SaveAsBmp(fs);
+                    else if (encoder.FormatID == ImageFormat.Jpeg.Guid)
+                        image.SaveAsJpeg(fs);
+                    else if (encoder.FormatID == ImageFormat.Png.Guid)
+                        image.SaveAsPng(fs);
+                    else if (encoder.FormatID == ImageFormat.Gif.Guid)
+                        image.SaveAsGif(fs);
+                    else if (encoder.FormatID == ImageFormat.Tiff.Guid)
+                        image.SaveAsTiff(fs);
                     return;
                 }
 
@@ -110,13 +123,57 @@ namespace KGySoft.Drawing.UnitTests
                     image.SaveAsIcon(fs);
                 else if (toGif)
                     image.SaveAsGif(fs);
-                else if (image.PixelFormat == PixelFormat.Format16bppGrayScale || image.PixelFormat.ToBitsPerPixel() > 32)
-                {
-                    using var toSave = image.ConvertPixelFormat(PixelFormat.Format32bppArgb);
-                    toSave.Save(fs, ImageFormat.Png);
-                }
                 else
-                    image.Save(fs, ImageFormat.Png);
+                    image.SaveAsPng(fs);
+            }
+        }
+
+        protected static Bitmap CreateBitmap(int size, PixelFormat pixelFormat)
+        {
+            try
+            {
+                return new Bitmap(size, size, pixelFormat);
+            }
+            catch (Exception e)
+            {
+                if (OSUtils.IsWindows || pixelFormat.IsSupported())
+                    throw;
+                Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported on Linux: {e.Message}");
+                throw;
+            }
+        }
+
+        protected static Bitmap Convert(Bitmap bitmap, PixelFormat pixelFormat, IQuantizer quantizer = null)
+        {
+            try
+            {
+                if (bitmap.PixelFormat == pixelFormat)
+                    return bitmap;
+                return bitmap.ConvertPixelFormat(pixelFormat, quantizer);
+            }
+            catch (Exception e)
+            {
+                if (pixelFormat.IsSupported())
+                    throw;
+                Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported: {e.Message}");
+                throw;
+            }
+        }
+
+        protected static Bitmap Convert(Bitmap bitmap, PixelFormat pixelFormat, Color backColor)
+        {
+            try
+            {
+                if (bitmap.PixelFormat == pixelFormat)
+                    return bitmap;
+                return bitmap.ConvertPixelFormat(pixelFormat, backColor);
+            }
+            catch (Exception e)
+            {
+                if (pixelFormat.IsSupported())
+                    throw;
+                Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported: {e.Message}");
+                throw;
             }
         }
 

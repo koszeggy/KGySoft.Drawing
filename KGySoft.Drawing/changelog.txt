@@ -40,8 +40,11 @@ A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and
   + New AdjustContrast method
   + New AdjustGamma method
 - IconExtensions class:
-  - ExtractBitmap/ExtractBitmaps: Fixing ArgumentNullException if the icon was created from a handle and
-    keepOriginalFormat parameter was true.
+  - ExtractBitmap/ExtractBitmaps:
+    - Fixing ArgumentNullException if the icon was created from a handle and keepOriginalFormat parameter was true.
+    - Returning null instances on Linux for unsupported icon sizes instead of throwing an exception.
+  - ExtractNearestBitmap method: On Linux if large icon size is not supported returning the next largest icon
+    instead of throwing an exception.
   - Combine methods:
     - Have been fixed for indexed bitmaps with specified transparent color
     - If a Bitmap instance contain multiple icons all of them are added

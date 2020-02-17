@@ -21,6 +21,7 @@ using System.Drawing.Imaging;
 using System.IO;
 
 using KGySoft.Drawing.Imaging;
+using KGySoft.Drawing.WinApi;
 
 using NUnit.Framework;
 
@@ -51,7 +52,8 @@ namespace KGySoft.Drawing.UnitTests
         {
             var ms = new MemoryStream();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat, quantizer);
+            var size = OSUtils.IsWindows ? new Size(256, 256) : new Size(64, 64);
+            var refImage = Convert(Icons.Information.ExtractBitmap(size), pixelFormat, quantizer);
 
             using (RawIcon icon = new RawIcon())
             {
@@ -81,7 +83,8 @@ namespace KGySoft.Drawing.UnitTests
         public void AddBitmapCustomBackgroundSaveUncompressedTest(string testName, PixelFormat pixelFormat, uint backColor)
         {
             var ms = new MemoryStream();
-            var refImage = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            var size = OSUtils.IsWindows ? new Size(256, 256) : new Size(64, 64);
+            var refImage = Icons.Information.ExtractBitmap(size).ConvertPixelFormat(pixelFormat);
 
             using (RawIcon icon = new RawIcon())
             {
@@ -94,6 +97,7 @@ namespace KGySoft.Drawing.UnitTests
 
             Assert.AreEqual(ImageFormat.Icon, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
+
             SaveImage(testName, bmp, true);
         }
 
@@ -114,7 +118,7 @@ namespace KGySoft.Drawing.UnitTests
 
             Assert.AreEqual(ImageFormat.Icon, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
-            Assert.AreEqual(7, bmp.ExtractIconImages().Length);
+            Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, bmp.ExtractIconImages().Length);
             SaveImage("result", bmp, true);
         }
 
