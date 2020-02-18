@@ -17,7 +17,10 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
+using System.Drawing;
 using System.Drawing.Imaging;
+
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 
@@ -30,41 +33,18 @@ namespace KGySoft.Drawing
     /// </summary>
     internal static class PixelFormatExtensions
     {
+        #region Fields
+
+        private static Dictionary<PixelFormat, bool> supportedFormats;
+
+        #endregion
+
         #region Methods
 
         /// <summary>
         /// Gets the bits per pixel (bpp) value of a <see cref="PixelFormat"/> value.
         /// </summary>
-        internal static int ToBitsPerPixel(this PixelFormat pixelFormat)
-        {
-            switch (pixelFormat)
-            {
-                case PixelFormat.Format1bppIndexed:
-                    return 1;
-                case PixelFormat.Format4bppIndexed:
-                    return 4;
-                case PixelFormat.Format8bppIndexed:
-                    return 8;
-                case PixelFormat.Format16bppArgb1555:
-                case PixelFormat.Format16bppGrayScale:
-                case PixelFormat.Format16bppRgb555:
-                case PixelFormat.Format16bppRgb565:
-                    return 16;
-                case PixelFormat.Format24bppRgb:
-                    return 24;
-                case PixelFormat.Format32bppArgb:
-                case PixelFormat.Format32bppPArgb:
-                case PixelFormat.Format32bppRgb:
-                    return 32;
-                case PixelFormat.Format48bppRgb:
-                    return 48;
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
-                    return 64;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.EnumOutOfRange(pixelFormat));
-            }
-        }
+        internal static int ToBitsPerPixel(this PixelFormat pixelFormat) => ((int)pixelFormat >> 8) & 0xFF;
 
         internal static bool HasTransparency(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
@@ -77,12 +57,36 @@ namespace KGySoft.Drawing
         internal static bool CanBeDithered(this PixelFormat dstFormat)
             => dstFormat.ToBitsPerPixel() <= 16 && dstFormat != PixelFormat.Format16bppGrayScale;
 
+        internal static bool IsValidFormat(this PixelFormat pixelFormat)
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => pixelFormat.IsDefined() && (pixelFormat & PixelFormat.Max) != 0;
+
         internal static bool IsSupported(this PixelFormat pixelFormat)
         {
             if (OSUtils.IsWindows)
                 return true;
-            return !pixelFormat.In(PixelFormat.Format16bppArgb1555, PixelFormat.Format16bppGrayScale,
-                PixelFormat.Format48bppRgb, PixelFormat.Format64bppArgb, PixelFormat.Format64bppPArgb);
+
+            Dictionary<PixelFormat, bool> map = supportedFormats;
+            if (map != null && map.TryGetValue(pixelFormat, out bool result))
+                return result;
+
+            // Format is not in the dictionary yet: we check if the format can be created and replace the dictionary (so no locking is needed)
+            try
+            {
+                using var _ = new Bitmap(1, 1, pixelFormat);
+                map = new Dictionary<PixelFormat, bool>(map);
+                map[pixelFormat] = true;
+                supportedFormats = map;
+                return true;
+            }
+            catch (Exception e) when (!(e is StackOverflowException))
+            {
+                // catching even OutOfMemoryException because GDI can throw it for unsupported formats
+                map = new Dictionary<PixelFormat, bool>(map);
+                map[pixelFormat] = false;
+                supportedFormats = map;
+                return false;
+            }
         }
 
         internal static bool CanBeDrawn(this PixelFormat pixelFormat)

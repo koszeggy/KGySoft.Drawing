@@ -286,13 +286,13 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>
         /// The icon contains the following images:<br/>
-        /// <img src="../Help/Images/Shield256.png" alt="Security Shield 256x256"/>
-        /// <img src="../Help/Images/Shield128.png" alt="Security Shield 128x128"/>
-        /// <img src="../Help/Images/Shield48.png" alt="Security Shield 48x48"/>
-        /// <img src="../Help/Images/Shield32.png" alt="Security Shield 32x32"/>
-        /// <img src="../Help/Images/Shield24.png" alt="Security Shield 24x24"/>
-        /// <img src="../Help/Images/Shield16.png" alt="Security Shield 16x16"/>
-        /// <img src="../Help/Images/Shield8.png" alt="Security Shield 8x8"/>
+        /// <img src="../Help/Images/Shield256.png" alt="Windows Shield 256x256"/>
+        /// <img src="../Help/Images/Shield128.png" alt="Windows Shield 128x128"/>
+        /// <img src="../Help/Images/Shield48.png" alt="Windows Shield 48x48"/>
+        /// <img src="../Help/Images/Shield32.png" alt="Windows Shield 32x32"/>
+        /// <img src="../Help/Images/Shield24.png" alt="Windows Shield 24x24"/>
+        /// <img src="../Help/Images/Shield16.png" alt="Windows Shield 16x16"/>
+        /// <img src="../Help/Images/Shield8.png" alt="Windows Shield 8x8"/>
         /// </para>
         /// </remarks>
         public static Icon Shield => GetResourceIcon(nameof(Shield));

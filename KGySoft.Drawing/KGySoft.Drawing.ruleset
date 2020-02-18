@@ -1,5 +1,5 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<RuleSet Name="Rules for KGySoft.Drawing" Description="Code analysis rules for KGySoft.Drawing.csproj." ToolsVersion="15.0">
+<RuleSet Name="Rules for KGySoft.Drawing" Description="Code analysis rules for KGySoft.Drawing.csproj." ToolsVersion="16.0">
   <IncludeAll Action="Warning" />
   <Rules AnalyzerId="Microsoft.Analyzers.ManagedCodeAnalysis" RuleNamespace="Microsoft.Rules.Managed">
     <Rule Id="CA1000" Action="None" />
@@ -51,5 +51,8 @@
     <Rule Id="CS3024" Action="Error" />
     <Rule Id="CS3026" Action="Error" />
     <Rule Id="CS3027" Action="Error" />
+  </Rules>
+  <Rules AnalyzerId="Microsoft.CodeQuality.CSharp.Analyzers" RuleNamespace="Microsoft.CodeQuality.CSharp.Analyzers">
+    <Rule Id="CA1200" Action="None" />
   </Rules>
 </RuleSet>

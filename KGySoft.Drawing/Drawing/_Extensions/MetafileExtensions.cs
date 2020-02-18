@@ -197,6 +197,37 @@ namespace KGySoft.Drawing
             }
         }
 
+        public static void SaveAsEmf(this Metafile metafile, Stream stream)
+        {
+            if (metafile == null)
+                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
+            if (metafile.RawFormat.Guid != ImageFormat.Emf.Guid)
+                throw new ArgumentException(Res.MetafileExtensionsCannotBeSavedAsEmf, nameof(metafile));
+            Save(metafile, stream, false);
+        }
+
+        public static void SaveAsEmf(this Metafile metafile, string fileName)
+        {
+            if (metafile == null)
+                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+            using (FileStream fs = FileHelper.Create(fileName))
+                SaveAsEmf(metafile, fs);
+        }
+
+        public static void SaveAsWmf(this Metafile metafile, Stream stream) => Save(metafile, stream, true);
+
+        public static void SaveAsWmf(this Metafile metafile, string fileName)
+        {
+            if (metafile == null)
+                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+            using (FileStream fs = FileHelper.Create(fileName))
+                SaveAsWmf(metafile, fs);
+        }
+
         #endregion
 
         #region Private Methods

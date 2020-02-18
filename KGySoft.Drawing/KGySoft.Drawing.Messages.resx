@@ -168,6 +168,9 @@
   <data name="ImageExtensions_EncoderSaveFailFormat" xml:space="preserve">
     <value>Could not save the image by the '{0}' encoder.</value>
   </data>
+  <data name="ImageExtensions_PixelFormatInvalidFormat" xml:space="preserve">
+    <value>Pixel format '{0}' does not represent an actual format.</value>
+  </data>
   <data name="Accessors_InstanceFieldDoesNotExistFormat" xml:space="preserve">
     <value>Instance field "{0}" not found on type "{1}".</value>
   </data>
@@ -182,5 +185,8 @@
   </data>
   <data name="Imaging_DithererInitializeNull" xml:space="preserve">
     <value>The IDitherer.Initialize method returned a null value.</value>
+  </data>
+  <data name="MetafileExtensions_CannotBeSavesAsEmf" xml:space="preserve">
+    <value>The specified metafile can only be saved as WMF.</value>
   </data>
 </root>

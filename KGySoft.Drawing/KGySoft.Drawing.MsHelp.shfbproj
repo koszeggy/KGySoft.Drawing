@@ -30,8 +30,8 @@
     </FeedbackEMailAddress>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <DocumentationSources>
-      <DocumentationSource sourceFile="bin\Release_NET45\KGySoft.Drawing.dll" />
-      <DocumentationSource sourceFile="bin\Release_NET45\KGySoft.Drawing.xml" />
+      <DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.dll" />
+      <DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.xml" />
     </DocumentationSources>
     <NamespaceSummaries>
     </NamespaceSummaries>
@@ -467,6 +467,20 @@
     <Content Include="icons\logo.png">
       <ImageId>logo</ImageId>
       <AlternateText>logo</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat24bppCyan.png">
+      <ImageId>ConvertPixelFormat24bppCyan</ImageId>
+      <AlternateText>Convert Pixel Format 24bpp Cyan</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ConvertPixelFormat24bppBlack.png">
+      <ImageId>ConvertPixelFormat24bppBlack</ImageId>
+      <AlternateText>Convert Pixel Format 24bpp Black</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ConvertPixelFormat8bppWebsafe.gif">
+      <ImageId>ConvertPixelFormat8bppWebsafe</ImageId>
+      <AlternateText>Convert Pixel Format 8bpp Websafe</AlternateText>
     </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->

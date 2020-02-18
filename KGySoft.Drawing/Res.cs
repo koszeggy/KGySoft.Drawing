@@ -84,6 +84,13 @@ namespace KGySoft
 
         #endregion
 
+        #region MetafileExtensions
+
+        /// <summary>The specified metafile can only be saved as WMF.</summary>
+        internal static string MetafileExtensionsCannotBeSavedAsEmf => Get("MetafileExtensions_CannotBeSavesAsEmf");
+
+        #endregion
+
         #region RawIcon
 
         /// <summary>Too many images in the icon collection.</summary>
@@ -154,6 +161,9 @@ namespace KGySoft
 
         /// <summary>Could not save the image by the '{0}' encoder.</summary>
         internal static string ImageExtensionsEncoderSaveFail(ImageFormat imageFormat) => Get("ImageExtensions_EncoderSaveFailFormat", imageFormat);
+
+        /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
+        internal static string ImageExtensionsPixelFormatInvalid(PixelFormat pixelFormat) => Get("ImageExtensions_PixelFormatInvalidFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion
 

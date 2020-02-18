@@ -93,39 +93,34 @@ namespace KGySoft.Drawing.UnitTests
 
             bool toIcon = image.RawFormat.Guid == ImageFormat.Icon.Guid;
             bool toGif = !toIcon && encoder == null && image.GetBitsPerPixel() <= 8;
-            if (encoder == null)
-                fileName += $".{(toIcon ? "ico" : toGif ? "gif" : "png")}";
 
-            using (var fs = File.Create(fileName))
+            if (encoder != null)
             {
-                if (encoder != null)
-                {
-                    if (encoder.FormatID == ImageFormat.Bmp.Guid)
-                        image.SaveAsBmp(fs);
-                    else if (encoder.FormatID == ImageFormat.Jpeg.Guid)
-                        image.SaveAsJpeg(fs);
-                    else if (encoder.FormatID == ImageFormat.Png.Guid)
-                        image.SaveAsPng(fs);
-                    else if (encoder.FormatID == ImageFormat.Gif.Guid)
-                        image.SaveAsGif(fs);
-                    else if (encoder.FormatID == ImageFormat.Tiff.Guid)
-                        image.SaveAsTiff(fs);
-                    return;
-                }
-
-                if (image is Metafile metafile)
-                {
-                    metafile.Save(fs);
-                    return;
-                }
-
-                if (toIcon)
-                    image.SaveAsIcon(fs);
-                else if (toGif)
-                    image.SaveAsGif(fs);
-                else
-                    image.SaveAsPng(fs);
+                if (encoder.FormatID == ImageFormat.Bmp.Guid)
+                    image.SaveAsBmp($"{fileName}.bmp");
+                else if (encoder.FormatID == ImageFormat.Jpeg.Guid)
+                    image.SaveAsJpeg($"{fileName}.jpeg");
+                else if (encoder.FormatID == ImageFormat.Png.Guid)
+                    image.SaveAsPng($"{fileName}.png");
+                else if (encoder.FormatID == ImageFormat.Gif.Guid)
+                    image.SaveAsGif($"{fileName}.gif");
+                else if (encoder.FormatID == ImageFormat.Tiff.Guid)
+                    image.SaveAsTiff($"{fileName}.tiff");
+                return;
             }
+
+            if (image is Metafile metafile)
+            {
+                metafile.SaveAsWmf($"{fileName}.wmf");
+                return;
+            }
+
+            if (toIcon)
+                image.SaveAsIcon($"{fileName}.ico");
+            else if (toGif)
+                image.SaveAsGif($"{fileName}.gif");
+            else
+                image.SaveAsPng($"{fileName}.png");
         }
 
         protected static Bitmap CreateBitmap(int size, PixelFormat pixelFormat)

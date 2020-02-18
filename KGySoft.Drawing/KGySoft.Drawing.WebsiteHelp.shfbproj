@@ -30,15 +30,14 @@
     </FeedbackEMailAddress>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <DocumentationSources>
-      <DocumentationSource sourceFile="bin\Release_NET45\KGySoft.Drawing.dll" />
-      <DocumentationSource sourceFile="bin\Release_NET45\KGySoft.Drawing.xml" />
-    </DocumentationSources>
+      <DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.dll" />
+<DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.xml" /></DocumentationSources>
     <NamespaceSummaries>
     </NamespaceSummaries>
     <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected, EditorBrowsableNever, NonBrowsable</VisibleItems>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
-    <HelpFileFormat>Website</HelpFileFormat>
+    <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <IndentHtml>False</IndentHtml>
     <NamingMethod>MemberName</NamingMethod>
     <KeepLogFile>False</KeepLogFile>
@@ -61,6 +60,7 @@
       <Argument Key="defaultLanguage" Value="cs" xmlns="" />
     </TransformComponentArguments>
     <HelpFileVersion>6.4.0</HelpFileVersion>
+    <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -461,13 +461,75 @@
   </ItemGroup>
   <ItemGroup>
     <Reference Include="KGySoft.Libraries">
-      <HintPath>..\Libraries\bin\Release_NET45\KGySoft.Libraries.dll</HintPath>
+      <HintPath>bin\Release\net45\KGySoft.Libraries.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="icons\logo.png">
       <ImageId>logo</ImageId>
       <AlternateText>logo</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat24bppCyan.png">
+      <ImageId>ConvertPixelFormat24bppCyan</ImageId>
+      <AlternateText>Convert Pixel Format 24bpp Cyan</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ConvertPixelFormat24bppBlack.png">
+      <ImageId>ConvertPixelFormat24bppBlack</ImageId>
+      <AlternateText>Convert Pixel Format 24bpp Black</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ConvertPixelFormat8bppWebsafe.gif">
+      <ImageId>ConvertPixelFormat8bppWebsafe</ImageId>
+      <AlternateText>Convert Pixel Format 8bpp Websafe</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat8bppCustom.gif">
+      <ImageId>ConvertPixelFormat8bppCustom</ImageId>
+      <AlternateText>Convert Pixel Format 8bpp Custom</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat8bppCustomDithered.gif">
+      <ImageId>ConvertPixelFormat8bppCustomDithered</ImageId>
+      <AlternateText>Convert Pixel Format 8bpp Custom Dithered</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat8bppWebsafeDithered.gif">
+      <ImageId>ConvertPixelFormat8bppWebsafeDithered</ImageId>
+      <AlternateText>Convert Pixel Format 8bpp Websafe Dithered</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat8bppOptimized.gif">
+      <ImageId>ConvertPixelFormat8bppOptimized</ImageId>
+      <AlternateText>Convert Pixel Format 8bpp Optimized</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat1bppBW.gif">
+      <ImageId>ConvertPixelFormat1bppBW</ImageId>
+      <AlternateText>Convert Pixel Format 1bppBW</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat1bppBWDithered.gif">
+      <ImageId>ConvertPixelFormat1bppBWDithered</ImageId>
+      <AlternateText>Convert Pixel Format 1bppBWDithered</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat16bppGrayscale.png">
+      <ImageId>ConvertPixelFormat16bppGrayscale</ImageId>
+      <AlternateText>Convert Pixel Format 16bpp Grayscale</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ConvertPixelFormat8bppOptimizedDithered.gif">
+      <ImageId>ConvertPixelFormat8bppOptimizedDithered</ImageId>
+      <AlternateText>Convert Pixel Format 8bpp Optimized Dithered</AlternateText>
     </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->

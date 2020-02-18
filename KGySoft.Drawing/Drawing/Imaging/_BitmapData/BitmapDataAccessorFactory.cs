@@ -45,9 +45,7 @@ namespace KGySoft.Drawing.Imaging
                     return new BitmapDataAccessor<BitmapDataRow32Argb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format32bppPArgb:
-                    return ColorExtensions.IsPremultiplicationSupported
-                    ? (BitmapDataAccessorBase)new BitmapDataAccessor<BitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
-                    : new BitmapDataAccessor<BitmapDataRow32Argb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new BitmapDataAccessor<BitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format32bppRgb:
                     return new BitmapDataAccessor<BitmapDataRow32Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
