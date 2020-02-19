@@ -160,7 +160,7 @@ namespace KGySoft.Drawing
         /// On Windows this contains the web-safe palette, the standard 16 Windows colors and the transparent color.</para>
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then the standard 16 color palette will be used.</para>
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then black and white colors will be used.</para>
-        /// <note>For information about possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
+        /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates the possible results of this method:
@@ -187,18 +187,25 @@ namespace KGySoft.Drawing
         ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed, palette))
         ///         converted8Bpp.SaveAsGif(@"c:\temp\8bpp custom palette.gif");
         /// }]]></code>
-        /// The example above produces the following results:
+        /// <para>The example above produces the following results:
         /// <list type="table">
-        /// <item><c>original.png</c><term></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
-        /// <item><c>24bpp.png</c><term></term><term><img src="../Help/Images/ConvertPixelFormat24bppBlack.png" alt="24 BPP image with black background"/></term></item>
-        /// <item><c>8bpp custom palette.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustom.gif" alt="8 BPP image with custom palette of 12 colors"/></term></item>
+        /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
+        /// <item><term><c>24bpp.png</c></term><term><img src="../Help/Images/ConvertPixelFormat24bppBlack.png" alt="24 BPP image with black background"/></term></item>
+        /// <item><term><c>8bpp custom palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustom.gif" alt="8 BPP image with custom palette of 12 colors"/></term></item>
+        /// </list></para>
+        /// <note type="tip">
+        /// <list type="bullet">
+        /// <item>To use a custom quantizer or to produce a dithered result use the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload.</item>
+        /// <item>To reduce the number of colors of an image in-place, without changing its <see cref="Image.PixelFormat"/> use the <see cref="BitmapExtensions.Quantize">Quantize</see>
+        /// or <see cref="BitmapExtensions.Dither">Dither</see> extension methods.</item>
         /// </list>
-        /// <note type="tip">To use a custom quantizer or to produce a dithered result use the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload.</note>
+        /// </note>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
+        /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
@@ -266,7 +273,7 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example, as well as for information about possible usable <see cref="PixelFormat"/>s on different platforms.
+        /// <br/>See the <strong>Remarks</strong> section for details and an example, as well as for information about the possible usable <see cref="PixelFormat"/>s on different platforms.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -476,15 +483,21 @@ namespace KGySoft.Drawing
         ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed, Color.Silver, 160))
         ///         converted8Bpp.SaveAsGif(@"c:\temp\8 bpp websafe palette.gif");
         /// }]]></code>
-        /// The example above produces the following results:
+        /// <para>The example above produces the following results:
         /// <list type="table">
-        /// <item><c>original.png</c><term></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
-        /// <item><c>24 bpp black.png</c><term></term><term><img src="../Help/Images/ConvertPixelFormat24bppBlack.png" alt="24 BPP image with black background"/></term></item>
-        /// <item><c>24 bpp cyan.png</c><term></term><term><img src="../Help/Images/ConvertPixelFormat24bppCyan.png" alt="24 BPP image with cyan background"/></term></item>
-        /// <item><c>16 bpp grayscale.png</c><term></term><term><img src="../Help/Images/ConvertPixelFormat16bppGrayscale.png" alt="16 BPP image grayscale image. The cyan background turns light gray."/></term></item>
-        /// <item><c>8 bpp websafe palette.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafe.gif" alt="8 BPP image with websafe palette"/></term></item>
+        /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
+        /// <item><term><c>24 bpp black.png</c></term><term><img src="../Help/Images/ConvertPixelFormat24bppBlack.png" alt="24 BPP image with black background"/></term></item>
+        /// <item><term><c>24 bpp cyan.png</c></term><term><img src="../Help/Images/ConvertPixelFormat24bppCyan.png" alt="24 BPP image with cyan background"/></term></item>
+        /// <item><term><c>16 bpp grayscale.png</c></term><term><img src="../Help/Images/ConvertPixelFormat16bppGrayscale.png" alt="16 BPP image grayscale image. The cyan background turns light gray."/></term></item>
+        /// <item><term><c>8 bpp websafe palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafe.gif" alt="8 BPP image with websafe palette"/></term></item>
+        /// </list></para>
+        /// <note type="tip">
+        /// <list type="bullet">
+        /// <item>To use a custom quantizer or to produce a dithered result use the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload.</item>
+        /// <item>To reduce the number of colors of an image in-place, without changing its <see cref="Image.PixelFormat"/> use the <see cref="BitmapExtensions.Quantize">Quantize</see>
+        /// or <see cref="BitmapExtensions.Dither">Dither</see> extension methods.</item>
         /// </list>
-        /// <note type="tip">To use a custom quantizer or to produce a dithered result use the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload.</note>
+        /// </note>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
@@ -513,7 +526,7 @@ namespace KGySoft.Drawing
         /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
         /// <para>To quantize a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Quantize">BitmapExtensions.Quantize</see> method.</para>
         /// <para>To dither a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Dither">BitmapExtensions.Dither</see> method.</para>
-        /// <note>For information about possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
+        /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates the possible results of this method:
@@ -584,23 +597,29 @@ namespace KGySoft.Drawing
         ///         converted1Bpp.SaveAsTiff(@"c:\temp\black and white with dithering.tiff");
         ///     }
         /// }]]></code>
-        /// The example above produces the following results:
+        /// <para>The example above produces the following results:
         /// <list type="table">
-        /// <item><c>original.png</c><term></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
-        /// <item><c>8bpp custom palette.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustom.gif" alt="8 BPP image with custom palette of 12 colors without dithering"/></term></item>
-        /// <item><c>8bpp custom palette with dithering.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustomDithered.gif" alt="8 BPP image with custom palette of 12 colors with Floyd-Steinberg dithering"/></term></item>
-        /// <item><c>8 bpp websafe palette.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafe.gif" alt="8 BPP image with websafe palette without dithering"/></term></item>
-        /// <item><c>8 bpp websafe palette with dithering.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafeDithered.gif" alt="8 BPP image with websafe palette with Bayer 8x8 dithering"/></term></item>
-        /// <item><c>8 bpp optimized palette.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppOptimized.gif" alt="8 BPP image with optimized palette using the Median Cut algorithm without dithering"/></term></item>
-        /// <item><c>8 bpp optimized palette with dithering.gif</c><term></term><term><img src="../Help/Images/ConvertPixelFormat8bppOptimizedDithered.gif" alt="8 BPP image with optimized palette using the Median Cut algorithm with blue noise dithering"/></term></item>
-        /// <item><c>black and white.tiff</c><term></term><term><img src="../Help/Images/ConvertPixelFormat1bppBW.gif" alt="1 BPP image without dithering. The blue background turned completely black."/></term></item>
-        /// <item><c>black and white with dithering.tiff</c><term></term><term><img src="../Help/Images/ConvertPixelFormat1bppBWDithered.gif" alt="1 BPP image with Floyd-Steinberg dithering. The blue background has a noticable effect in the result."/></term></item>
-        /// </list>
+        /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
+        /// <item><term><c>8bpp custom palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustom.gif" alt="8 BPP image with custom palette of 12 colors without dithering"/></term></item>
+        /// <item><term><c>8bpp custom palette with dithering.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustomDithered.gif" alt="8 BPP image with custom palette of 12 colors with Floyd-Steinberg dithering"/></term></item>
+        /// <item><term><c>8 bpp websafe palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafe.gif" alt="8 BPP image with websafe palette without dithering"/></term></item>
+        /// <item><term><c>8 bpp websafe palette with dithering.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafeDithered.gif" alt="8 BPP image with websafe palette with Bayer 8x8 dithering"/></term></item>
+        /// <item><term><c>8 bpp optimized palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppOptimized.gif" alt="8 BPP image with optimized palette using the Median Cut algorithm without dithering"/></term></item>
+        /// <item><term><c>8 bpp optimized palette with dithering.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppOptimizedDithered.gif" alt="8 BPP image with optimized palette using the Median Cut algorithm with blue noise dithering"/></term></item>
+        /// <item><term><c>black and white.tiff</c></term><term><img src="../Help/Images/ConvertPixelFormat1bppBW.gif" alt="1 BPP image without dithering. The blue background turned completely black."/></term></item>
+        /// <item><term><c>black and white with dithering.tiff</c></term><term><img src="../Help/Images/ConvertPixelFormat1bppBWDithered.gif" alt="1 BPP image with Floyd-Steinberg dithering. The blue background has a noticable effect in the result."/></term></item>
+        /// </list></para>
+        /// <note type="tip">To reduce the number of colors of an image in-place, without changing its <see cref="Image.PixelFormat"/> use the <see cref="BitmapExtensions.Quantize">Quantize</see>
+        /// or <see cref="BitmapExtensions.Dither">Dither</see> extension methods.</note>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
+        /// <seealso cref="IQuantizer"/>
+        /// <seealso cref="IDitherer"/>
+        /// <seealso cref="BitmapExtensions.Quantize"/>
+        /// <seealso cref="BitmapExtensions.Dither"/>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
@@ -722,6 +741,7 @@ namespace KGySoft.Drawing
         /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/></exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
         public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer = null)
         {
             if (source == null)
@@ -880,7 +900,7 @@ namespace KGySoft.Drawing
         /// </list>
         /// </para>
         /// </remarks>
-        /// <example>The following example demonstrates how to restore transparency from 32 BPP bitmaps saved by the <see cref="SaveAsBmp">SaveAsBmp</see> method:
+        /// <example>The following example demonstrates how to restore transparency from 32 BPP bitmaps saved by the <see cref="SaveAsBmp(Image, Stream)">SaveAsBmp</see> method:
         /// <code lang="C#"><![CDATA[
         /// // this is a 32 BPP ARGB bitmap with transparency:
         /// Bitmap toSave = Icons.Information.ExtractBitmap(new Size(256, 256));
@@ -981,7 +1001,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails on current operating system.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="quality"/> must be between 0 and 100.</exception>
-        /// <example>The following example demonstrates how to save an image with custom background color using the <see cref="SaveAsJpeg">SaveAsJpeg</see> method:
+        /// <example>The following example demonstrates how to save an image with custom background color using the <see cref="SaveAsJpeg(Image, Stream, int)">SaveAsJpeg</see> method:
         /// <code lang="C#"><![CDATA[
         /// // this is a 32 BPP ARGB bitmap with transparency:
         /// using Bitmap origBmp = Icons.Information.ExtractBitmap(new Size(256, 256));
@@ -1745,10 +1765,8 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            Bitmap bmp = image as Bitmap;
-
             // Metafile: recursion with bitmap
-            if (bmp == null)
+            if (!(image is Bitmap bmp))
             {
                 using (bmp = new Bitmap(image, image.Size))
                 {

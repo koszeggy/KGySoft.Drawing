@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Fields
 
-        private static object[][] convertPixelFormatCustomTestSource =
+        private static readonly object[][] convertPixelFormatCustomTestSource =
         {
             new object[] { "To 8bpp 256 color no dithering", PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.SystemDefault8BppPalette(), null }, 
             new object[] { "To 8bpp 256 color dithering", PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer2x2() },

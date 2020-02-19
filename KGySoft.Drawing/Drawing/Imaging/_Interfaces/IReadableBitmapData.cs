@@ -24,11 +24,17 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents a fast read-only access to the actual data of a <see cref="Bitmap"/>. The owner <see cref="Bitmap"/> can have any <see cref="PixelFormat"/>.
+    /// <br/>See the <strong>Remarks</strong> section for details.
+    /// </summary>
     /// Obtain an instance by the ... extension
     /// TODO: <para>For parallel processing you can retrieve multiple rows by the indexer and process them concurrently.</para>
     /// TODO: example: Processing by coordinates
     /// TODO: example: Line by line processing by FirstRow + MoveNextRow
     /// TODO: example: Parallel processing by FirstRow + MoveNextRow
+    /// <seealso cref="IWritableBitmapData"/>
+    /// <seealso cref="IReadWriteBitmapData"/>
     public interface IReadableBitmapData : IBitmapData
     {
         #region Properties and Indexers
@@ -60,10 +66,11 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If multiple pixels need to be retrieved process the bitmap line by line for better performance.</para>
         /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
         /// getting the pixels by its members and then moving to the next line by the <see cref="IBitmapDataRow.MoveNextRow">MoveNextRow</see> property.</para>
-        /// <para>To get 64 bit color information use the <see cref="IBitmapDataRow.GetPixelColor64">GetPixelColor64</see> method
-        /// on an <see cref="IBitmapDataRow"/> instance obtained by the <see cref="this">indexer</see>.</para>
+        /// <note>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
+        /// regardless of the underlying <see cref="PixelFormat"/>. To access the actual <see cref="PixelFormat"/>-dependent raw value
+        /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</note>
+        /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </remarks>
-        /// <seealso cref="SetPixel"/>
         /// <seealso cref="FirstRow"/>
         /// <seealso cref="this"/>
         Color GetPixel(int x, int y);

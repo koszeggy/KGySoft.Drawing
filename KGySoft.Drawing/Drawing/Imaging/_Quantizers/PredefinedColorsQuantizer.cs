@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24 bit RGB ones.
         /// </summary>
-        /// <param name="backColor">Colors with alpha (transparency) will be blended by the specified <paramref name="backColor"/> before quantization.
+        /// <param name="backColor">Colors with alpha (transparency) will be blended with the specified <paramref name="backColor"/> before quantization.
         /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24 bit RGB ones.</returns>
@@ -405,7 +405,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.
         /// </summary>
-        /// <param name="backColor">Colors with alpha (transparency) will be blended by the specified <paramref name="backColor"/> before quantization.
+        /// <param name="backColor">Colors with alpha (transparency) will be blended with the specified <paramref name="backColor"/> before quantization.
         /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="whiteThreshold">Non completely black and white pixels are measured by brightness, which must be greater or equal to the specified
@@ -443,9 +443,9 @@ namespace KGySoft.Drawing.Imaging
         public static PredefinedColorsQuantizer FromCustomPalette(Palette palette) => new PredefinedColorsQuantizer(palette);
 
         // The quantizer will have no palette. If the target is an indexed format consider to use the FromCustomPalette overloads instead.
-        // note: alphaThreshold default is 0, meaning, by default every color with alpha will be blended by backColor
+        // note: alphaThreshold default is 0, meaning, by default every color with alpha will be blended with backColor
         // The quantizingFunction will never get a color with alpha. Depending on alphaThreshold either a completely transparent color will be returned
-        // or the color will be blended by backColor. In order to process colors with alpha use the other FromCustomFunction overload instead
+        // or the color will be blended with backColor. In order to process colors with alpha use the other FromCustomFunction overload instead
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, byte alphaThreshold = 0)
             => new PredefinedColorsQuantizer(quantizingFunction, new Color32(backColor), alphaThreshold);
 
@@ -456,6 +456,9 @@ namespace KGySoft.Drawing.Imaging
 
         public static PredefinedColorsQuantizer FromBitmap(Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+
             switch (bitmap.PixelFormat)
             {
                 case PixelFormat.Format16bppArgb1555:

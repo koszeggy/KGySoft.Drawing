@@ -33,6 +33,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         private sealed class WuQuantizer : IOptimizedPaletteQuantizer
         {
+#pragma warning disable CA1814 // arrays in this class are better to be multidimensional than jagged ones as they are always cubic
+
             #region Nested types
 
             #region Enumerations

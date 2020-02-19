@@ -20,7 +20,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Indexers
 
-        Color32 this[int x] { get; set; }
+        new Color32 this[int x] { get; set; }
 
         #endregion
     }

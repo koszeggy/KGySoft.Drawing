@@ -54,6 +54,7 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Fields
 
         #region Public Fields
+#pragma warning disable CA1051 // Do not declare visible instance fields - the fields (and the whole struct) are read-only
 
         [FieldOffset(3)]
         public readonly byte A;
@@ -67,6 +68,7 @@ namespace KGySoft.Drawing.Imaging
         [FieldOffset(0)]
         public readonly byte B;
 
+#pragma warning restore CA1051
         #endregion
 
         #region Private Fields

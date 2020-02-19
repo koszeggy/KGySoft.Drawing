@@ -38,19 +38,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Fields
 
-        [CLSCompliant(false)]
         [FieldOffset(6)]
         public readonly ushort A;
 
-        [CLSCompliant(false)]
         [FieldOffset(4)]
         public readonly ushort R;
 
-        [CLSCompliant(false)]
         [FieldOffset(2)]
         public readonly ushort G;
 
-        [CLSCompliant(false)]
         [FieldOffset(0)]
         public readonly ushort B;
 

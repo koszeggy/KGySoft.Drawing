@@ -293,52 +293,151 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// 
+        /// Gets an <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.
+        /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
         /// </summary>
-        /// <param name="bitmap"></param>
-        /// <param name="lockMode"></param>
+        /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="backColor">In case of a read-only <see cref="IReadableBitmapData"/> affects indexed bitmaps only when <see cref="Palette.GetColorIndex">GetColorIndex</see>
+        /// and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods of the <see cref="IBitmapData.Palette"/> property are called with a color with alpha.
+        /// In such case determines the background color, which will be blended with the queried color.
+        /// The alpha value (<see cref="Color.A"/> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">In case of a read-only <see cref="IReadableBitmapData"/> affects indexed bitmaps with a transparent palette entry when <see cref="Palette.GetColorIndex">GetColorIndex</see>
+        /// and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods of the <see cref="IBitmapData.Palette"/> property are called with a color with alpha.
+        /// In such case determines the lowest alpha value of a color, which should not be considered as transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <seealso cref="GetWritableBitmapData"/>
+        /// <seealso cref="GetReadWriteBitmapData"/>
+        public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
+
+        /// <summary>
+        /// Gets an <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.
+        /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">When setting pixels of indexed bitmaps, bitmaps without alpha support or with single bit alpha, then specifies the
-        /// background color, which will be bended with color to set. The alpha value (<see cref="Color.A"/> property) of the specified background color is ignored. This parameter is optional.
+        /// background color, which will be blended with the color to set. The alpha value (<see cref="Color.A"/> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has transparent color, then determines the lowest
         /// alpha value of a color, which should not be considered as transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <returns></returns>
+        /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <seealso cref="GetReadableBitmapData"/>
+        /// <seealso cref="GetReadWriteBitmapData"/>
+        public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+
+        /// <summary>
+        /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
+        /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details and examples.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="backColor">When setting pixels of indexed bitmaps, bitmaps without alpha support or with single bit alpha, then specifies the
+        /// background color, which will be blended with the color to set. The alpha value (<see cref="Color.A"/> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has transparent color, then determines the lowest
+        /// alpha value of a color, which should not be considered as transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <remarks>
-        /// <para>If <paramref name="omitTrueAndDeepColorTransformations"/> is <see langword="false"/>, then the following transformations are performed when getting and setting pixels of bitmaps with specific pixel formats:
-        /// <list type="definition">
-        /// <item><term><see cref="PixelFormat.Format32bppPArgb"/></term><description>When pixels are set, color channels are premultiplied with alpha channel. When pixels are read, converting premultiplied colors to straight ones.</description></item>
-        /// <item><term><see cref="PixelFormat.Format48bppRgb"/></term><description>When pix Transforming to and from 13-bit color component range is omitted.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppArgb"/></term><description>Transforming to and from 13-bit color component range is omitted.</description></item>
-        /// <item><term><see cref="PixelFormat.Format64bppPArgb"/></term><description>Converting to premultiplied/straight color and transforming to and from 13-bit color component range are omitted.</description></item>
-        /// <item><term>All other pixel formats</term><description>The value of the <paramref name="omitTrueAndDeepColorTransformations"/> parameter is ignored.</description></item>
-        /// </list>
-        /// <note>Even if the <paramref name="omitTrueAndDeepColorTransformations"/> parameter is <see langword="false"/> the actual underlying data can be read and written
-        /// by the <see cref="IBitmapDataRow.ReadRaw{T}"><![CDATA[IBitmapDataRow.ReadDataDirect<T>]]></see> and <see cref="IBitmapDataRow.WriteRaw{T}"><![CDATA[IBitmapDataRow.WriteDataDirect<T>]]></see> methods.</note></para>
-        /// <para>If <paramref name="omitTrueAndDeepColorTransformations"/> is <see langword="true"/>, then for the best performance setting pixels of deep color formats by the
-        /// <see cref="IBitmapDataRow.SetPixelColor(int,Color64)">IBitmapDataRow.SetPixelColor(int,Color64)</see> method will transform the color components of the <see cref="Color64"/> structure to a 13-bit range by using a lookup table of 256 values.
-        /// In order to preserve all the possible 8192 shades per color component either set the <paramref name="omitTrueAndDeepColorTransformations"/> to <see langword="true"/>&#160;or use the
-        /// <see cref="IBitmapDataRow.WriteRaw{T}"><![CDATA[IBitmapDataRow.WriteDataDirect<T>]]></see> method with <see cref="Color64"/> type parameter and make sure that all
-        /// color components are in the 0..8192 range.
+        /// <para>All possible <see cref="PixelFormat"/>s are supported, of which a <see cref="Bitmap"/> can be created in the current operating system.
+        /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </para>
-        ///
         /// <para>If <paramref name="alphaThreshold"/> is zero, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
-        /// by a fully transparent pixel will be blended by <paramref name="backColor"/> even if the bitmap can handle transparent pixels.</para>
+        /// by a fully transparent pixel will be blended with <paramref name="backColor"/> even if the bitmap can handle transparent pixels.</para>
         /// <para>If <paramref name="alphaThreshold"/> is <c>1</c>, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
         /// will be transparent only if the color to set is completely transparent (has zero alpha).</para>
         /// <para>If <paramref name="alphaThreshold"/> is <c>255</c>, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
         /// will be opaque only if the color to set is completely opaque (its alpha value is <c>255</c>).</para>
-        /// <para>If a pixel of a bitmap without alpha gradient support is set by the <see cref="IBitmapData.SetPixel">IBitmapDataAccessor.SetPixel</see>/<see cref="IBitmapDataRow.SetColor">IBitmapDataRow.SetColor</see>
-        /// methods or by the <see cref="IBitmapDataRow.this">IBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
-        /// then the pixel to set will be blended by <paramref name="backColor"/>.</para>
+        /// <para>If a pixel of a bitmap without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
+        /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
+        /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
         /// </remarks>
-        /// TODO: backColor, alphaThreshold: only for indexed, affects <see cref="Palette.GetColorIndex"/> and <see cref="Palette.GetNearestColor"/>
-        public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
-
-        public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
-
+        /// <example>
+        /// <para>The following example demonstrates how easily you can copy the content of a 32-bit ARGB image into an 8-bit indexed one by
+        /// using the <see cref="GetReadableBitmapData">GetReadableBitmapData</see> and <see cref="GetWritableBitmapData">GetWritableBitmapData</see> methods:</para>
+        /// <code lang="C#"><![CDATA[
+        /// var targetFormat = PixelFormat.Format8bppIndexed; // feel free to try other formats as well
+        /// using (Bitmap bmpSrc = Icons.Shield.ExtractBitmap(new Size(256, 256)))
+        /// using (Bitmap bmpDst = new Bitmap(256, 256, targetFormat))
+        /// {
+        ///     using (IReadableBitmapData dataSrc = bmpSrc.GetReadableBitmapData())
+        ///     using (IWritableBitmapData dataDst = bmpDst.GetWritableBitmapData(Color.Silver, 160))
+        ///     {
+        ///         for (int y = 0; y < dataSrc.Height; y++)
+        ///         {
+        ///             for (int x = 0; x < dataSrc.Width; x++)
+        ///             {
+        ///                 // Please note that bmpDst.SetPixel would not work for indexed formats
+        ///                 // and even when it can be used it would be much slower.
+        ///                 dataDst.SetPixel(x, y, dataSrc.GetPixel(x, y));
+        ///             }
+        ///         }
+        ///     }
+        ///
+        ///     bmpSrc.SaveAsPng(@"c:\temp\bmpSrc.png");
+        ///     bmpDst.SaveAsPng(@"c:\temp\bmpDst.png"); // or saveAsGif/SaveAsTiff to preserve the indexed format
+        /// }]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>bmpSrc.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
+        /// <item><term><c>bmpDst.png</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafe.gif" alt="8 BPP image with system default websafe palette"/></term></item>
+        /// </list></para>
+        /// <para>If the pixels are not accessed randomly, then a sequential processing can be a bit faster by enumerating the rows:</para>
+        /// <code lang="C#"><![CDATA[
+        /// // Replace the body of the inner using block of the previous example with the following code:
+        /// IReadableBitmapDataRow rowSrc = dataSrc.FirstRow;
+        /// IWritableBitmapDataRow rowDst = dataDst.FirstRow;
+        /// do
+        /// {
+        ///     for (int x = 0; x < dataSrc.Width; x++)
+        ///         rowDst[x] = rowSrc[x];
+        /// } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());]]></code>
+        /// <para>When targeting .NET Framework 4.0 or newer, the example above can be easily re-written to use parallel processing:</para>
+        /// <code lang="C#"><![CDATA[
+        /// // The parallel version of same body as in the previous example:
+        /// Parallel.For(0, dataSrc.Height, y =>
+        /// {
+        ///     IReadableBitmapDataRow rowSrc = dataSrc[y];
+        ///     IWritableBitmapDataRow rowDst = dataDst[y];
+        ///     for (int x = 0; x < dataSrc.Width; x++)
+        ///         rowDst[x] = rowSrc[x];
+        /// });]]></code>
+        /// <note>The examples above are just for demonstration purpose. For the same result use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see>
+        /// methods for more flexibility and optimized parallel processing. The <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload allows using custom quantizer and ditherer implementations as well.</note>
+        /// <para>The following example demonstrates how to use the read-write <see cref="IReadWriteBitmapData"/> returned by the <see cref="GetReadWriteBitmapData">GetReadWriteBitmapData</see> method
+        /// to manipulate a <see cref="Bitmap"/> in-place:</para>
+        /// <code lang="C#"><![CDATA[
+        /// // This example produces the same result as the MakeGrayscale extension method without a ditherer:
+        /// using (Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256)))
+        /// {
+        ///     bmp.SaveAsPng(@"c:\temp\before.png");
+        ///
+        ///     using (IReadWriteBitmapData bmpData = bmp.GetReadWriteBitmapData())
+        ///     {
+        ///         IReadWriteBitmapDataRow row = bmpData.FirstRow;
+        ///         do
+        ///         {
+        ///             for (int x = 0; x < bmpData.Width; x++)
+        ///                 row[x] = row[x].ToGray();
+        ///         } while (row.MoveNextRow());
+        ///     }
+        ///
+        ///     bmp.SaveAsPng(@"c:\temp\after.png");
+        /// }]]></code>
+        /// <para>The example above produces the following results:
+        /// <list type="table">
+        /// <item><term><c>before.png</c></term><term><img src="../Help/Images/Information256.png" alt="Original test image"/></term></item>
+        /// <item><term><c>after.png</c></term><term><img src="../Help/Images/GetReadWriteBitmapDataToGrayExample.png" alt="The image after executing the example"/></term></item>
+        /// </list></para>
+        /// </example>
+        /// <seealso cref="GetReadableBitmapData"/>
+        /// <seealso cref="GetWritableBitmapData"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
             => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
 
@@ -514,7 +613,7 @@ namespace KGySoft.Drawing
                     do
                     {
                         for (int x = 0; x < bitmapData.Width; x++)
-                            row[x] = transformFunction.Invoke(row[x]);
+                            row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
                     } while (row.MoveNextRow());
 
                     return;
@@ -524,9 +623,8 @@ namespace KGySoft.Drawing
                 ParallelHelper.For(0, bitmapData.Height, y =>
                 {
                     BitmapDataRowBase row = bitmapData.GetRow(y);
-                    bool replaced = false;
                     for (int x = 0; x < bitmapData.Width; x++)
-                        row[x] = transformFunction.Invoke(row[x]);
+                        row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
                 });
             }
         }
@@ -561,7 +659,7 @@ namespace KGySoft.Drawing
                         do
                         {
                             for (int x = 0; x < bitmapData.Width; x++)
-                                row[x] = ditheringSession.GetDitheredColor(transformFunction.Invoke(row[x]), x, y);
+                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
                             y += 1;
                         } while (row.MoveNextRow());
 
@@ -573,7 +671,7 @@ namespace KGySoft.Drawing
                     {
                         BitmapDataRowBase row = bitmapData.GetRow(y);
                         for (int x = 0; x < bitmapData.Width; x++)
-                            row[x] = ditheringSession.GetDitheredColor(transformFunction.Invoke(row[x]), x, y);
+                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
                     });
                 }
             }
@@ -622,7 +720,7 @@ namespace KGySoft.Drawing
             bitmap.TransformColors(Transform, ditherer);
         }
 
-        public static void AdjustBrightness(this Bitmap bitmap, float brightness, IDitherer ditherer = null, ColorChannel channels = ColorChannel.Rgb)
+        public static void AdjustBrightness(this Bitmap bitmap, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -632,7 +730,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
-            if (channels == ColorChannel.None || brightness == 0f)
+            if (channels == ColorChannels.None || brightness == 0f)
                 return;
 
             if (brightness < 0f)
@@ -646,19 +744,19 @@ namespace KGySoft.Drawing
             #region Local Methods
 
             Color32 Darken(Color32 c) => new Color32(c.A,
-                (channels & ColorChannel.R) == ColorChannel.R ? (byte)(c.R * brightness) : c.R,
-                (channels & ColorChannel.G) == ColorChannel.G ? (byte)(c.G * brightness) : c.G,
-                (channels & ColorChannel.B) == ColorChannel.B ? (byte)(c.B * brightness) : c.B);
+                (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
 
             Color32 Lighten(Color32 c) => new Color32(c.A,
-                (channels & ColorChannel.R) == ColorChannel.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
-                (channels & ColorChannel.G) == ColorChannel.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
-                (channels & ColorChannel.B) == ColorChannel.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
+                (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
 
             #endregion
         }
 
-        public static void AdjustContrast(this Bitmap bitmap, float contrast, IDitherer ditherer = null, ColorChannel channels = ColorChannel.Rgb)
+        public static void AdjustContrast(this Bitmap bitmap, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -668,21 +766,21 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
-            if (channels == ColorChannel.None || contrast == 0f)
+            if (channels == ColorChannels.None || contrast == 0f)
                 return;
 
             contrast += 1f;
             contrast *= contrast;
 
             Color32 Transform(Color32 c) => new Color32(c.A,
-                (channels & ColorChannel.R) == ColorChannel.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
-                (channels & ColorChannel.G) == ColorChannel.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
-                (channels & ColorChannel.B) == ColorChannel.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
+                (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
 
             bitmap.TransformColors(Transform, ditherer);
         }
 
-        public static void AdjustGamma(this Bitmap bitmap, float gamma, IDitherer ditherer = null, ColorChannel channels = ColorChannel.Rgb)
+        public static void AdjustGamma(this Bitmap bitmap, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -692,15 +790,15 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
-            if (channels == ColorChannel.None || gamma == 1f)
+            if (channels == ColorChannels.None || gamma == 1f)
                 return;
 
             byte[] table = gammaLookupTableCache[gamma];
 
             Color32 Transform(Color32 c) => new Color32(c.A,
-                (channels & ColorChannel.R) == ColorChannel.R ? table[c.R] : c.R,
-                (channels & ColorChannel.G) == ColorChannel.G ? table[c.G] : c.G,
-                (channels & ColorChannel.B) == ColorChannel.B ? table[c.B] : c.B);
+                (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
+                (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
+                (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
 
             bitmap.TransformColors(Transform, ditherer);
         }
@@ -934,7 +1032,7 @@ namespace KGySoft.Drawing
                     do
                     {
                         for (int x = 0; x < bitmapData.Width; x++)
-                            row[x] = ditheringSession.GetDitheredColor(color, x, y);
+                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
                         y += 1;
                     } while (row.MoveNextRow());
 
@@ -946,7 +1044,7 @@ namespace KGySoft.Drawing
                 {
                     BitmapDataRowBase row = bitmapData.GetRow(y);
                     for (int x = 0; x < bitmapData.Width; x++)
-                        row[x] = ditheringSession.GetDitheredColor(color, x, y);
+                        row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
                 });
             }
         }

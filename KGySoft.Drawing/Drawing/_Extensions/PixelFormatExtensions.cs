@@ -96,31 +96,6 @@ namespace KGySoft.Drawing
             return !pixelFormat.In(PixelFormat.Format16bppRgb555, PixelFormat.Format16bppRgb565) && pixelFormat.IsSupported();
         }
 
-        internal static PixelFormat ToPixelFormat(this int bpp)
-        {
-            switch (bpp)
-            {
-                case 1:
-                    return PixelFormat.Format1bppIndexed;
-                case 4:
-                    return PixelFormat.Format4bppIndexed;
-                case 8:
-                    return PixelFormat.Format8bppIndexed;
-                case 16:
-                    return PixelFormat.Format16bppRgb565;
-                case 24:
-                    return PixelFormat.Format24bppRgb;
-                case 32:
-                    return PixelFormat.Format32bppArgb;
-                case 48:
-                    return PixelFormat.Format48bppRgb;
-                case 64:
-                    return PixelFormat.Format64bppArgb;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(bpp), PublicResources.ArgumentOutOfRange);
-            }
-        }
-
         #endregion
     }
 }

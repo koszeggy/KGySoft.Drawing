@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorChannel.cs
+//  File: ColorChannels.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -23,7 +23,7 @@ using System;
 namespace KGySoft.Drawing
 {
     [Flags]
-    public enum ColorChannel
+    public enum ColorChannels
     {
         None = 0,
         R = 1,

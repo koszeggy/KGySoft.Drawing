@@ -425,6 +425,8 @@ namespace KGySoft.Drawing
             #region Private Methods
 
             [SecurityCritical]
+            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+                Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
             private void Save(Stream stream, bool forceBmpFormat)
             {
                 BinaryWriter bw = new BinaryWriter(stream);
@@ -721,6 +723,8 @@ namespace KGySoft.Drawing
                 Gdi32.DeleteDC(dcColor);
             }
 
+            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+                Justification = "bmp must not be disposed as it is used to assign a field (which is disposed in Dispose).")]
             private void GenerateColorBitmapNonWindows()
             {
                 // On non-windows the original format will be the icon itself
@@ -988,6 +992,8 @@ namespace KGySoft.Drawing
         /// Saves the icon into a stream
         /// </summary>
         [SecurityCritical]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
         internal void Save(Stream stream, bool forceBmpImages)
         {
             BinaryWriter bw = new BinaryWriter(stream);

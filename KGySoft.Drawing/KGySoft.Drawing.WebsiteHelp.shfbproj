@@ -31,7 +31,8 @@
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <DocumentationSources>
       <DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.dll" />
-<DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.xml" /></DocumentationSources>
+      <DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.xml" />
+    </DocumentationSources>
     <NamespaceSummaries>
     </NamespaceSummaries>
     <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected, EditorBrowsableNever, NonBrowsable</VisibleItems>
@@ -530,6 +531,12 @@
     <Content Include="Help\Images\ConvertPixelFormat8bppOptimizedDithered.gif">
       <ImageId>ConvertPixelFormat8bppOptimizedDithered</ImageId>
       <AlternateText>Convert Pixel Format 8bpp Optimized Dithered</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\GetReadWriteBitmapDataToGrayExample.png">
+      <ImageId>GetReadWriteBitmapDataToGrayExample</ImageId>
+      <AlternateText>Get Read Write Bitmap Data To Gray Example</AlternateText>
     </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->

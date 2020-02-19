@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Security; 
 
 using KGySoft.Drawing.WinApi; 
@@ -104,6 +105,8 @@ namespace KGySoft.Drawing
 #endif
 
         [SecurityCritical]
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "Optimized for performance, long but very straightforward OR condition")]
         private static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
         {
             // we could use Vector<T> but this is actually faster and is available everywhere

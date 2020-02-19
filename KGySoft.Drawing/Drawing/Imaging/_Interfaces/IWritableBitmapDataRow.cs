@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 #endregion
@@ -27,6 +28,8 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Indexers
 
+        [SuppressMessage("Microsoft.Design", "CA1044: Properties should not be write only",
+            Justification = "The getter counterpart is in IReadableBitmapDataRow")]
         Color32 this[int x] { set; }
 
         #endregion

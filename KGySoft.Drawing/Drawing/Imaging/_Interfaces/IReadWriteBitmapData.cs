@@ -27,13 +27,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        IReadWriteBitmapDataRow FirstRow { get; }
+        new IReadWriteBitmapDataRow FirstRow { get; }
 
         #endregion
 
         #region Indexers
 
-        IReadWriteBitmapDataRow this[int y] { get; }
+        new IReadWriteBitmapDataRow this[int y] { get; }
 
         #endregion
 

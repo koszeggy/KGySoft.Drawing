@@ -45,47 +45,47 @@ namespace KGySoft.Drawing
             /// <summary>
             /// Magic number (always 9AC6CDD7h)
             /// </summary>
-            private uint key;
+            private readonly uint key;
 
             /// <summary>
             /// Metafile HANDLE number (always 0)
             /// </summary>
-            private ushort handle;
+            private readonly ushort handle;
 
             /// <summary>
             /// Left coordinate in metafile units
             /// </summary>
-            private short left;
+            private readonly short left;
 
             /// <summary>
             /// Top coordinate in metafile units
             /// </summary>
-            private short top;
+            private readonly short top;
 
             /// <summary>
             /// Right coordinate in metafile units
             /// </summary>
-            private short right;
+            private readonly short right;
 
             /// <summary>
             /// Bottom coordinate in metafile units
             /// </summary>
-            private short bottom;
+            private readonly short bottom;
 
             /// <summary>
             /// Number of metafile units per inch
             /// </summary>
-            private ushort inch;
+            private readonly ushort inch;
 
             /// <summary>
             /// Reserved (always 0)
             /// </summary>
-            private uint reserved;
+            private readonly uint reserved;
 
             /// <summary>
             /// Checksum value for previous 10 WORDs
             /// </summary>
-            private ushort checksum;
+            private readonly ushort checksum;
 
             #endregion
 
