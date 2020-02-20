@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal override Color32 DoGetColor32(int x) => Accessor.Palette.GetColor(DoGetColorIndex(x));
 
-        internal override void DoSetColor32(int x, Color32 c) => DoSetColorIndex(x, Accessor.Palette.GetColorIndex(c));
+        internal override void DoSetColor32(int x, Color32 c) => DoSetColorIndex(x, Accessor.Palette.GetNearestColorIndex(c));
 
         #endregion
 

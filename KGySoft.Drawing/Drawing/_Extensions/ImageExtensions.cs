@@ -127,7 +127,8 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Image"/> containing the grayscale version of the original <paramref name="image"/>.</returns>
         /// <remarks>
         /// <para>This method always returns a <see cref="Bitmap"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
-        /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat"/> overloads with a grayscale palette, quantizer or pixel format.</para>
+        /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat"/> overloads with a grayscale palette,
+        /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
         /// <para>To make a <see cref="Bitmap"/> grayscale without creating a new instance use the <see cref="BitmapExtensions.MakeGrayscale">BitmapExtensions.MakeGrayscale</see> method.</para>
         /// </remarks>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
@@ -144,11 +145,11 @@ namespace KGySoft.Drawing
         /// then the source palette is taken from the source image if it also has a palette of no more entries than the target indexed format can have;
         /// otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
         /// <param name="backColor">If <paramref name="newPixelFormat"/> does not have alpha or has only single-bit alpha, then specifies the color of the background.
-        /// Source pixels with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before setting the pixel in the result image.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color before setting the pixel in the result image.
         /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered to be transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If <c>0</c>,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
@@ -190,7 +191,7 @@ namespace KGySoft.Drawing
         /// <para>The example above produces the following results:
         /// <list type="table">
         /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
-        /// <item><term><c>24bpp.png</c></term><term><img src="../Help/Images/ConvertPixelFormat24bppBlack.png" alt="24 BPP image with black background"/></term></item>
+        /// <item><term><c>24bpp.png</c></term><term><img src="../Help/Images/ShieldRgb888Black.png" alt="24 BPP image with black background"/></term></item>
         /// <item><term><c>8bpp custom palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustom.gif" alt="8 BPP image with custom palette of 12 colors"/></term></item>
         /// </list></para>
         /// <note type="tip">
@@ -213,7 +214,7 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.ImageExtensionsPixelFormatInvalid(newPixelFormat));
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
             if (!newPixelFormat.IsSupported())
                 throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
 
@@ -282,7 +283,7 @@ namespace KGySoft.Drawing
         /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered to be transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If <c>0</c>,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
@@ -354,7 +355,7 @@ namespace KGySoft.Drawing
         /// (instead, you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods).</item>
         /// <item>The <see cref="Bitmap.LockBits(Rectangle, ImageLockMode, PixelFormat)">Bitmap.LockBits</see> method cannot be called with <see cref="PixelFormat.Format16bppRgb555"/> format (24 and 32 BPP formats are supported though).
         /// Therefore, <see cref="BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>, <see cref="BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> and <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see>
-        /// methods will also obtain a 24 BPP <see cref="IBitmapData"/> as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property will return <see cref="PixelFormat.Format24bppRgb"/>).</item>
+        /// methods will also obtain a 24 BPP <see cref="IBitmapData"/> as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property returns <see cref="PixelFormat.Format24bppRgb"/>).</item>
         /// <item>The <c>SaveAs...</c> members of the <see cref="ImageExtensions"/> class supports saving into any popular format but pixel format will not be preserved.</item>
         /// </list></term></item>
         /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term>
@@ -368,7 +369,7 @@ namespace KGySoft.Drawing
         /// (instead, you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods).</item>
         /// <item>The <see cref="Bitmap.LockBits(Rectangle, ImageLockMode, PixelFormat)">Bitmap.LockBits</see> method cannot be called with <see cref="PixelFormat.Format16bppRgb565"/> format (24 and 32 BPP formats are supported though).
         /// Therefore, <see cref="BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>, <see cref="BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> and <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see>
-        /// methods will also obtain a 24 BPP <see cref="IBitmapData"/> as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property will return <see cref="PixelFormat.Format24bppRgb"/>).</item>
+        /// methods will also obtain a 24 BPP <see cref="IBitmapData"/> as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property returns <see cref="PixelFormat.Format24bppRgb"/>).</item>
         /// <item>The <c>SaveAs...</c> members of the <see cref="ImageExtensions"/> class supports saving into any popular format but pixel format will not be preserved.</item>
         /// </list></term></item>
         /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term>
@@ -486,7 +487,7 @@ namespace KGySoft.Drawing
         /// <para>The example above produces the following results:
         /// <list type="table">
         /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
-        /// <item><term><c>24 bpp black.png</c></term><term><img src="../Help/Images/ConvertPixelFormat24bppBlack.png" alt="24 BPP image with black background"/></term></item>
+        /// <item><term><c>24 bpp black.png</c></term><term><img src="../Help/Images/ShieldRgb888Black.png" alt="24 BPP image with black background"/></term></item>
         /// <item><term><c>24 bpp cyan.png</c></term><term><img src="../Help/Images/ConvertPixelFormat24bppCyan.png" alt="24 BPP image with cyan background"/></term></item>
         /// <item><term><c>16 bpp grayscale.png</c></term><term><img src="../Help/Images/ConvertPixelFormat16bppGrayscale.png" alt="16 BPP image grayscale image. The cyan background turns light gray."/></term></item>
         /// <item><term><c>8 bpp websafe palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafe.gif" alt="8 BPP image with websafe palette"/></term></item>
@@ -558,13 +559,13 @@ namespace KGySoft.Drawing
         ///
         ///     // Using the system default palette without dithering
         ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed))
-        ///         converted8Bpp.SaveAsGif(@"c:\temp\8 bpp websafe palette.gif");
+        ///         converted8Bpp.SaveAsGif(@"c:\temp\8 bpp default palette.gif");
         ///
         ///     // Using the system default palette with Bayer 8x8 dithering
         ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed,
         ///         PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer8x8()))
         ///     {
-        ///         converted8Bpp.SaveAsGif(@"c:\temp\8 bpp websafe palette with dithering.gif");
+        ///         converted8Bpp.SaveAsGif(@"c:\temp\8 bpp default palette with dithering.gif");
         ///     }
         ///
         ///     // Using an optimized palette without dithering
@@ -602,15 +603,17 @@ namespace KGySoft.Drawing
         /// <item><term><c>original.png</c></term><term><img src="../Help/Images/Shield256.png" alt="Original test image (32 BPP with alpha)"/></term></item>
         /// <item><term><c>8bpp custom palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustom.gif" alt="8 BPP image with custom palette of 12 colors without dithering"/></term></item>
         /// <item><term><c>8bpp custom palette with dithering.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppCustomDithered.gif" alt="8 BPP image with custom palette of 12 colors with Floyd-Steinberg dithering"/></term></item>
-        /// <item><term><c>8 bpp websafe palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafe.gif" alt="8 BPP image with websafe palette without dithering"/></term></item>
-        /// <item><term><c>8 bpp websafe palette with dithering.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppWebsafeDithered.gif" alt="8 BPP image with websafe palette with Bayer 8x8 dithering"/></term></item>
-        /// <item><term><c>8 bpp optimized palette.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppOptimized.gif" alt="8 BPP image with optimized palette using the Median Cut algorithm without dithering"/></term></item>
+        /// <item><term><c>8 bpp default palette.gif</c></term><term><img src="../Help/Images/ShieldDefault8bppBlack.gif" alt="8 BPP image with websafe palette without dithering"/></term></item>
+        /// <item><term><c>8 bpp default palette with dithering.gif</c></term><term><img src="../Help/Images/ShieldDefault8bppBlackDitheredB8.gif" alt="8 BPP image with websafe palette with Bayer 8x8 dithering"/></term></item>
+        /// <item><term><c>8 bpp optimized palette.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256Black.gif" alt="8 BPP image with optimized palette using the Median Cut algorithm without dithering"/></term></item>
         /// <item><term><c>8 bpp optimized palette with dithering.gif</c></term><term><img src="../Help/Images/ConvertPixelFormat8bppOptimizedDithered.gif" alt="8 BPP image with optimized palette using the Median Cut algorithm with blue noise dithering"/></term></item>
-        /// <item><term><c>black and white.tiff</c></term><term><img src="../Help/Images/ConvertPixelFormat1bppBW.gif" alt="1 BPP image without dithering. The blue background turned completely black."/></term></item>
+        /// <item><term><c>black and white.tiff</c></term><term><img src="../Help/Images/ShieldBWBlack.gif" alt="1 BPP image without dithering. The blue background turned completely black."/></term></item>
         /// <item><term><c>black and white with dithering.tiff</c></term><term><img src="../Help/Images/ConvertPixelFormat1bppBWDithered.gif" alt="1 BPP image with Floyd-Steinberg dithering. The blue background has a noticable effect in the result."/></term></item>
         /// </list></para>
         /// <note type="tip">To reduce the number of colors of an image in-place, without changing its <see cref="Image.PixelFormat"/> use the <see cref="BitmapExtensions.Quantize">Quantize</see>
         /// or <see cref="BitmapExtensions.Dither">Dither</see> extension methods.</note>
+        /// <para>For built-in <see cref="IQuantizer"/> implementations see the <see cref="PredefinedColorsQuantizer"/> and <see cref="OptimizedPaletteQuantizer"/> classes.</para>
+        /// <para>For built-in <see cref="IDitherer"/> implementations see the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/> and <see cref="InterleavedGradientNoiseDitherer"/> classes.</para>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
@@ -630,7 +633,7 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.ImageExtensionsPixelFormatInvalid(newPixelFormat));
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
             if (!newPixelFormat.IsSupported())
                 throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
 
@@ -725,14 +728,33 @@ namespace KGySoft.Drawing
             }
         }
 
+        /// <summary>
+        /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/>.
+        /// This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> except that it never scales the image
+        /// and that works between any pair of source and target <see cref="PixelFormat"/>s. If <paramref name="target"/> can represent a narrower set
+        /// of colors, then the result will be automatically quantized to the colors of the target, and also an optional <paramref name="ditherer"/> can be specified.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>The method has the best performance if both source and target images have <see cref="PixelFormat.Format32bppPArgb"/> formats
+        /// but works between any combinations and it is always faster than the <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> method.</para>
+        /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the target.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/></exception>
         public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IDitherer ditherer = null)
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, ditherer);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/>.
-        /// This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> except that it never scales the images
+        /// This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> except that it never scales the image
         /// and that works between any pair of source and target <see cref="PixelFormat"/>s. If <paramref name="target"/> can represent a narrower set
         /// of colors, then the result will be automatically quantized to the colors of the target, and also an optional <paramref name="ditherer"/> can be specified.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -740,6 +762,11 @@ namespace KGySoft.Drawing
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>The method has the best performance if both source and target images have <see cref="PixelFormat.Format32bppPArgb"/> formats
+        /// but works between any combinations and it is always faster than the <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> method.</para>
+        /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the target.</para>
+        /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/></exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
         public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer = null)
@@ -796,7 +823,7 @@ namespace KGySoft.Drawing
 
             try
             {
-                if (ditherer == null || targetPixelFormat.ToBitsPerPixel() >= 24 || targetPixelFormat == PixelFormat.Format16bppGrayScale)
+                if (ditherer == null || !targetPixelFormat.CanBeDithered())
                     DrawIntoDirect(bmp, target, sourceRect, targetRect.Location);
                 else
                     DrawIntoWithDithering(bmp, target, sourceRect, targetRect.Location, ditherer);
@@ -1127,8 +1154,8 @@ namespace KGySoft.Drawing
         /// otherwise, the built-in GIF encoder (at least on Windows) would save the image with a fixed palette and transparency would be lost.
         /// <note>On Linux the built-in GIF encoder turns transparent palette entries opaque.</note></para>
         /// <para>If <paramref name="quantizer"/> is <see langword="null"/>&#160;and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
-        /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale8bpp">PredefinedColorsQuantizer.Grayscale8bpp</see> method
-        /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Octree">OptimizedPaletteQuantizer.Octree</see> method for any other pixel formats.</para>
+        /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method
+        /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method for any other pixel formats.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, then no ditherer will be auto-selected for the quantization.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
@@ -1336,6 +1363,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
         /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="images">The images to save into the TIFF data stream.</param>
         /// <param name="stream">The stream into the TIFF data is to be saved.</param>
@@ -1500,7 +1528,6 @@ namespace KGySoft.Drawing
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
-
             return image.PixelFormat.ToBitsPerPixel();
         }
 
@@ -1584,6 +1611,7 @@ namespace KGySoft.Drawing
 
             // if the quantized does not have a palette but converting to a higher bpp indexed image, then taking the source palette
             if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
+                // ReSharper disable once ConstantConditionalAccessQualifier
                 palette = source.Palette?.Entries;
 
             if (palette == null || palette.Length <= 0)
@@ -1791,8 +1819,8 @@ namespace KGySoft.Drawing
                 {
                     // auto setting quantizer if target is indexed and conversion is from higher BPP
                     quantizer = srcPixelFormat == PixelFormat.Format16bppGrayScale
-                        ? PredefinedColorsQuantizer.Grayscale8bpp()
-                        : (IQuantizer)OptimizedPaletteQuantizer.Octree();
+                        ? PredefinedColorsQuantizer.Grayscale()
+                        : (IQuantizer)OptimizedPaletteQuantizer.Wu();
                 }
                 else if (quantizer != null && transformation.TargetFormat.IsIndexed() && srcBpp < dstBpp)
                 {

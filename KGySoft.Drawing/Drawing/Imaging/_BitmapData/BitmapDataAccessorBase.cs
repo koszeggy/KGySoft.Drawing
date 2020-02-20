@@ -70,8 +70,6 @@ namespace KGySoft.Drawing.Imaging
         IWritableBitmapDataRow IWritableBitmapData.FirstRow => GetRow(0);
         IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => GetRow(0);
 
-        Color IWritableBitmapData.BackColor => BackColor.ToColor();
-
         #endregion
 
         #endregion

@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 #endregion
 
@@ -25,6 +26,17 @@ namespace KGySoft.Drawing.Imaging
 {
 #pragma warning disable CA1814 // arrays in this class are better to be matrices than jagged arrays as they are always rectangular
 
+    /// <summary>
+    /// Provides an <see cref="IDitherer"/> implementation for dithering patterns that are based on an ordered matrix.
+    /// Use the static members of this class to use predefined patterns or the constructor to create a custom ordered ditherer.
+    /// <br/>See the <strong>Remarks</strong> section of the static methods of this class for details and image examples.
+    /// </summary>
+    /// <seealso cref="IDitherer" />
+    /// <seealso cref="ErrorDiffusionDitherer"/>
+    /// <seealso cref="RandomNoiseDitherer"/>
+    /// <seealso cref="InterleavedGradientNoiseDitherer"/>
+    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+    /// <seealso cref="BitmapExtensions.Dither"/>
     public sealed class OrderedDitherer : IDitherer
     {
         #region OrderedDitheringSession class

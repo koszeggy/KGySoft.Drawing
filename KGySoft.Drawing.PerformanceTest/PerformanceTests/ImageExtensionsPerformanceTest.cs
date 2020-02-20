@@ -142,7 +142,7 @@ namespace KGySoft.Drawing.PerformanceTests
             using var bmpSrc2 = new Bitmap(sourceSize.Width, sourceSize.Height, formatSrc);
             bmpSrc2.Clear(Color.FromArgb(128, Color.Lime));
 
-            new ErrorTolerantPerformanceTest { TestName = testName, Iterations = 100, CpuAffinity = null }
+            new PerformanceTest { TestName = testName, Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
                     using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
@@ -159,7 +159,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     bmpSrc2.DrawInto(bmpDst, offset);
                 }, "ImageExtensions.DrawInto")
                 .DoTest()
-                .DumpResultsAndReturnValues(Console.Out);
+                .DumpResults(Console.Out);
         }
 
         #endregion

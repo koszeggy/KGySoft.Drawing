@@ -17,10 +17,11 @@
 #region Usings
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
@@ -51,12 +52,12 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "RGB332 Black Slow", PredefinedColorsQuantizer.Rgb332(), 256 },
             new object[] { "RGB332 Black Fast", PredefinedColorsQuantizer.Rgb332(directMapping: true), 256 },
             new object[] { "RGB332 White Slow", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
-            new object[] { "Grayscale256 Black", PredefinedColorsQuantizer.Grayscale8bpp(), 256 },
-            new object[] { "Grayscale256 White", PredefinedColorsQuantizer.Grayscale8bpp(Color.White), 256 },
-            new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale4bpp(), 16 },
-            new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale4bpp(directMapping: true), 16 },
-            new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale2bpp(), 4 },
-            new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale2bpp(directMapping: true), 4 },
+            new object[] { "Grayscale256 Black", PredefinedColorsQuantizer.Grayscale(), 256 },
+            new object[] { "Grayscale256 White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
+            new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale16(), 16 },
+            new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale16(directMapping: true), 16 },
+            new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale4(), 4 },
+            new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale4(directMapping: true), 4 },
             new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
             new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
             new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
@@ -105,13 +106,13 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "RGB332 Black Slow", PredefinedColorsQuantizer.Rgb332(), 256 },
             //new object[] { "RGB332 Black Fast", PredefinedColorsQuantizer.Rgb332(directMapping: true), 256 },
             //new object[] { "RGB332 White Slow", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
-            new object[] { "Grayscale256 Black", PredefinedColorsQuantizer.Grayscale8bpp(), 256 },
-            //new object[] { "Grayscale256 White", PredefinedColorsQuantizer.Grayscale8bpp(Color.White), 256 },
-            //new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale4bpp(), 16 },
-            //new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale4bpp(directMapping: true), 16 },
+            //new object[] { "Grayscale256 Black", PredefinedColorsQuantizer.Grayscale(), 256 },
+            //new object[] { "Grayscale256 White", PredefinedColorsQuantizer.Grayscale(Color.White), 256 },
+            //new object[] { "Grayscale16 Black Slow", PredefinedColorsQuantizer.Grayscale16(), 16 },
+            //new object[] { "Grayscale16 Black Fast", PredefinedColorsQuantizer.Grayscale16(directMapping: true), 16 },
             //new object[] { "Grayscale5 black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.FromArgb(64, 64, 64), Color.Gray, Color.FromArgb(192, 192, 192), Color.White }), 5 },
-            //new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale2bpp(), 4 },
-            //new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale2bpp(directMapping: true), 4 },
+            //new object[] { "Grayscale4 Black Slow", PredefinedColorsQuantizer.Grayscale4(), 4 },
+            //new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale4(directMapping: true), 4 },
             //new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.Gray, Color.White }), 3 },
             //new object[] { "BW Black", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
             //new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
@@ -136,48 +137,48 @@ namespace KGySoft.Drawing.UnitTests
             //new object[] { "Octree 4 Black", OptimizedPaletteQuantizer.Octree(4, Color.Black, 0), 4 },
             //new object[] { "Octree 3 Black", OptimizedPaletteQuantizer.Octree(3, Color.Black, 0), 3 },
             //new object[] { "Octree 2 Black", OptimizedPaletteQuantizer.Octree(2, Color.Black, 0), 2 },
-            //new object[] { "Octree 256 White", OptimizedPaletteQuantizer.Octree(256, Color.White, 0), 256 },
-            //new object[] { "Octree 16 White", OptimizedPaletteQuantizer.Octree(16, Color.White, 0), 16 },
-            //new object[] { "Octree 4 White", OptimizedPaletteQuantizer.Octree(4, Color.White, 0), 4 },
-            //new object[] { "Octree 3 White", OptimizedPaletteQuantizer.Octree(3, Color.White, 0), 3 },
-            //new object[] { "Octree 2 White", OptimizedPaletteQuantizer.Octree(2, Color.White, 0), 2 },
-            //new object[] { "Octree 256 TR", OptimizedPaletteQuantizer.Octree(256, Color.White), 256 },
-            //new object[] { "Octree 16 TR", OptimizedPaletteQuantizer.Octree(16, Color.White), 16 },
-            //new object[] { "Octree 4 TR", OptimizedPaletteQuantizer.Octree(4, Color.White), 4 },
-            //new object[] { "Octree 3 TR", OptimizedPaletteQuantizer.Octree(3, Color.White), 3 },
-            //new object[] { "Octree 2 TR", OptimizedPaletteQuantizer.Octree(2, Color.White), 2 },
+            //new object[] { "Octree 256 Silver", OptimizedPaletteQuantizer.Octree(256, Color.Silver, 0), 256 },
+            //new object[] { "Octree 16 Silver", OptimizedPaletteQuantizer.Octree(16, Color.Silver, 0), 16 },
+            //new object[] { "Octree 4 Silver", OptimizedPaletteQuantizer.Octree(4, Color.Silver, 0), 4 },
+            //new object[] { "Octree 3 Silver", OptimizedPaletteQuantizer.Octree(3, Color.Silver, 0), 3 },
+            //new object[] { "Octree 2 Silver", OptimizedPaletteQuantizer.Octree(2, Color.Silver, 0), 2 },
+            //new object[] { "Octree 256 TR", OptimizedPaletteQuantizer.Octree(256), 256 },
+            //new object[] { "Octree 16 TR", OptimizedPaletteQuantizer.Octree(16), 16 },
+            //new object[] { "Octree 4 TR", OptimizedPaletteQuantizer.Octree(4), 4 },
+            //new object[] { "Octree 3 TR", OptimizedPaletteQuantizer.Octree(3), 3 },
+            //new object[] { "Octree 2 TR", OptimizedPaletteQuantizer.Octree(2), 2 },
 
-            //new object[] { "MedianCut 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
+            new object[] { "MedianCut 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
             //new object[] { "MedianCut 16 Black", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0), 16 },
             //new object[] { "MedianCut 4 Black", OptimizedPaletteQuantizer.MedianCut(4, Color.Black, 0), 4 },
             //new object[] { "MedianCut 3 Black", OptimizedPaletteQuantizer.MedianCut(3, Color.Black, 0), 3 },
             //new object[] { "MedianCut 2 Black", OptimizedPaletteQuantizer.MedianCut(2, Color.Black, 0), 2 },
-            //new object[] { "MedianCut 256 White", OptimizedPaletteQuantizer.MedianCut(256, Color.White, 0), 256 },
-            //new object[] { "MedianCut 16 White", OptimizedPaletteQuantizer.MedianCut(16, Color.White, 0), 16 },
-            //new object[] { "MedianCut 4 White", OptimizedPaletteQuantizer.MedianCut(4, Color.White, 0), 4 },
-            //new object[] { "MedianCut 3 White", OptimizedPaletteQuantizer.MedianCut(3, Color.White, 0), 3 },
-            //new object[] { "MedianCut 2 White", OptimizedPaletteQuantizer.MedianCut(2, Color.White, 0), 2 },
-            //new object[] { "MedianCut 256 TR", OptimizedPaletteQuantizer.MedianCut(256, Color.White), 256 },
-            //new object[] { "MedianCut 16 TR", OptimizedPaletteQuantizer.MedianCut(16, Color.White), 16 },
-            //new object[] { "MedianCut 4 TR", OptimizedPaletteQuantizer.MedianCut(4, Color.White), 4 },
-            //new object[] { "MedianCut 3 TR", OptimizedPaletteQuantizer.MedianCut(3, Color.White), 3 },
-            //new object[] { "MedianCut 2 TR", OptimizedPaletteQuantizer.MedianCut(2, Color.White), 2 },
+            //new object[] { "MedianCut 256 Silver", OptimizedPaletteQuantizer.MedianCut(256, Color.Silver, 0), 256 },
+            //new object[] { "MedianCut 16 Silver", OptimizedPaletteQuantizer.MedianCut(16, Color.Silver, 0), 16 },
+            //new object[] { "MedianCut 4 Silver", OptimizedPaletteQuantizer.MedianCut(4, Color.Silver, 0), 4 },
+            //new object[] { "MedianCut 3 Silver", OptimizedPaletteQuantizer.MedianCut(3, Color.Silver, 0), 3 },
+            //new object[] { "MedianCut 2 Silver", OptimizedPaletteQuantizer.MedianCut(2, Color.Silver, 0), 2 },
+            //new object[] { "MedianCut 256 TR", OptimizedPaletteQuantizer.MedianCut(256), 256 },
+            //new object[] { "MedianCut 16 TR", OptimizedPaletteQuantizer.MedianCut(16), 16 },
+            //new object[] { "MedianCut 4 TR", OptimizedPaletteQuantizer.MedianCut(4), 4 },
+            //new object[] { "MedianCut 3 TR", OptimizedPaletteQuantizer.MedianCut(3), 3 },
+            //new object[] { "MedianCut 2 TR", OptimizedPaletteQuantizer.MedianCut(2), 2 },
 
-            //new object[] { "Wu 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
-            //new object[] { "Wu 16 Black", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0), 16 },
-            //new object[] { "Wu 4 Black", OptimizedPaletteQuantizer.MedianCut(4, Color.Black, 0), 4 },
-            //new object[] { "Wu 3 Black", OptimizedPaletteQuantizer.MedianCut(3, Color.Black, 0), 3 },
-            //new object[] { "Wu 2 Black", OptimizedPaletteQuantizer.MedianCut(2, Color.Black, 0), 2 },
-            //new object[] { "Wu 256 White", OptimizedPaletteQuantizer.MedianCut(256, Color.White, 0), 256 },
-            //new object[] { "Wu 16 White", OptimizedPaletteQuantizer.MedianCut(16, Color.White, 0), 16 },
-            //new object[] { "Wu 4 White", OptimizedPaletteQuantizer.MedianCut(4, Color.White, 0), 4 },
-            //new object[] { "Wu 3 White", OptimizedPaletteQuantizer.MedianCut(3, Color.White, 0), 3 },
-            //new object[] { "Wu 2 White", OptimizedPaletteQuantizer.MedianCut(2, Color.White, 0), 2 },
-            //new object[] { "Wu 256 TR", OptimizedPaletteQuantizer.MedianCut(256, Color.White), 256 },
-            //new object[] { "Wu 16 TR", OptimizedPaletteQuantizer.MedianCut(16, Color.White), 16 },
-            //new object[] { "Wu 4 TR", OptimizedPaletteQuantizer.MedianCut(4, Color.White), 4 },
-            //new object[] { "Wu 3 TR", OptimizedPaletteQuantizer.MedianCut(3, Color.White), 3 },
-            //new object[] { "Wu 2 TR", OptimizedPaletteQuantizer.MedianCut(2, Color.White), 2 },
+            new object[] { "Wu 256 Black", OptimizedPaletteQuantizer.Wu(256, Color.Black, 0), 256 },
+            //new object[] { "Wu 16 Black", OptimizedPaletteQuantizer.Wu(16, Color.Black, 0), 16 },
+            //new object[] { "Wu 4 Black", OptimizedPaletteQuantizer.Wu(4, Color.Black, 0), 4 },
+            //new object[] { "Wu 3 Black", OptimizedPaletteQuantizer.Wu(3, Color.Black, 0), 3 },
+            //new object[] { "Wu 2 Black", OptimizedPaletteQuantizer.Wu(2, Color.Black, 0), 2 },
+            //new object[] { "Wu 256 Silver", OptimizedPaletteQuantizer.Wu(256, Color.Silver, 0), 256 },
+            //new object[] { "Wu 16 Silver", OptimizedPaletteQuantizer.Wu(16, Color.Silver, 0), 16 },
+            //new object[] { "Wu 4 Silver", OptimizedPaletteQuantizer.Wu(4, Color.Silver, 0), 4 },
+            //new object[] { "Wu 3 Silver", OptimizedPaletteQuantizer.Wu(3, Color.Silver, 0), 3 },
+            //new object[] { "Wu 2 Silver", OptimizedPaletteQuantizer.Wu(2, Color.Silver, 0), 2 },
+            //new object[] { "Wu 256 TR", OptimizedPaletteQuantizer.Wu(256), 256 },
+            //new object[] { "Wu 16 TR", OptimizedPaletteQuantizer.Wu(16), 16 },
+            //new object[] { "Wu 4 TR", OptimizedPaletteQuantizer.Wu(4), 4 },
+            //new object[] { "Wu 3 TR", OptimizedPaletteQuantizer.Wu(3), 3 },
+            //new object[] { "Wu 2 TR", OptimizedPaletteQuantizer.Wu(2), 2 },
         };
 
         #endregion
@@ -325,34 +326,29 @@ namespace KGySoft.Drawing.UnitTests
         {
             var files = new string[]
             {
-                @"D:\Dokumentumok\Képek\Formats\_test\Information.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
                 @"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\lena.png",
-                //@"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
-                //@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
-                @"D:\Letolt\MYSTY8RQER62.jpg",
-                @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
+
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Shield256.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Cameraman.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\GrayShades.gif",
             };
 
+            var stopwatch = new Stopwatch();
+            stopwatch.Start();
             foreach (string file in files)
             {
-                using var bitmap = new Bitmap(file);
+                string fileName = Path.IsPathRooted(file) ? file : Path.Combine(Files.GetExecutingPath(), file);
+                using var bitmap = new Bitmap(fileName);
                 bitmap.Quantize(quantizer);
                 int colors = bitmap.GetColors(forceScanningContent: true).Length;
                 Console.WriteLine($"{testName} - {colors} colors");
                 Assert.LessOrEqual(colors, maxColors);
                 SaveImage($"{Path.GetFileNameWithoutExtension(file)} {maxColors} {testName}", bitmap);
             }
+            stopwatch.Stop();
+            Console.WriteLine(stopwatch.Elapsed);
         }
 
         [TestCaseSource(nameof(quantizerBatchTestSource)), Explicit]
@@ -360,32 +356,18 @@ namespace KGySoft.Drawing.UnitTests
         {
             string[] files =
             {
-                @"D:\Dokumentumok\Képek\Formats\_test\Information.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\Shield.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\color_wheel.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\grayshades.png",
-
-                @"D:\Dokumentumok\Képek\Formats\_test\baboon.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\barbara.bmp",
-                //////@"D:\Dokumentumok\Képek\Formats\_test\Quantum_frog.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\lena.png",
-                //////@"D:\Dokumentumok\Képek\Formats\_test\Earth.bmp",
-                //////@"D:\Dokumentumok\Képek\Formats\_test\pens.bmp",
-                //////@"D:\Dokumentumok\Képek\Formats\_test\peppers.png",
-                @"D:\Letolt\MYSTY8RQER62.jpg",
-                @"D:\Dokumentumok\Képek\Formats\_test\Portal_Companion_Cube.jpg",
-
-                @"D:\Dokumentumok\Képek\Formats\_test\gradients.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\cameraman.png",
-                @"D:\Dokumentumok\Képek\Formats\_test\clown.bmp",
-                @"D:\Dokumentumok\Képek\Formats\_test\Michelangelo's_David.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Information256.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Shield256.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
+                @"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png",
+                @"..\..\..\..\KGySoft.Drawing\Help\Images\Cameraman.png",
+                @"..\..\..\..\KGySoft.Drawing\Help\Images\GrayShades.gif",
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
             {
                 (null, " No Dithering"),
-                (OrderedDitherer.Bayer2x2(), nameof(OrderedDitherer.Bayer2x2)),
+                //(OrderedDitherer.Bayer2x2(), nameof(OrderedDitherer.Bayer2x2)),
                 //(OrderedDitherer.Bayer3x3(), nameof(OrderedDitherer.Bayer3x3)),
                 //(OrderedDitherer.Bayer4x4(), nameof(OrderedDitherer.Bayer4x4)),
                 (OrderedDitherer.Bayer8x8(), nameof(OrderedDitherer.Bayer8x8)),
@@ -395,7 +377,7 @@ namespace KGySoft.Drawing.UnitTests
                 //(OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
                 //(OrderedDitherer.Halftone8Hex(), nameof(OrderedDitherer.Halftone8Hex)),
                 //(OrderedDitherer.Halftone8Diagonal(), nameof(OrderedDitherer.Halftone8Diagonal)),
-                (OrderedDitherer.BlueNoise(), nameof(OrderedDitherer.BlueNoise)),
+                //(OrderedDitherer.BlueNoise(), nameof(OrderedDitherer.BlueNoise)),
                 (ErrorDiffusionDitherer.FloydSteinberg(), nameof(ErrorDiffusionDitherer.FloydSteinberg)),
                 //(ErrorDiffusionDitherer.JarvisJudiceNinke(), nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
                 //(ErrorDiffusionDitherer.Stucki(), nameof(ErrorDiffusionDitherer.Stucki)),
@@ -405,12 +387,13 @@ namespace KGySoft.Drawing.UnitTests
                 //(ErrorDiffusionDitherer.SierraLite(), nameof(ErrorDiffusionDitherer.SierraLite)),
                 //(ErrorDiffusionDitherer.StevensonArce(), nameof(ErrorDiffusionDitherer.StevensonArce)),
                 //(new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
-                (new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
+                //(new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
             };
 
             foreach (string file in files)
             {
-                using var bitmap = new Bitmap(file);
+                string fileName = Path.IsPathRooted(file) ? file : Path.Combine(Files.GetExecutingPath(), file);
+                using var bitmap = new Bitmap(fileName);
                 foreach (var ditherer in ditherers)
                 {
                     using var bmp = bitmap.CloneCurrentFrame();

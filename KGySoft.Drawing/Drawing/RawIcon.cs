@@ -405,7 +405,7 @@ namespace KGySoft.Drawing
                 {
                     Debug.Assert(!OSUtils.IsWindows, "Bitmaps should have been able to be generated on Windows");
                     if (bmpColor != null)
-                    return bmpColor.Clone(new Rectangle(Point.Empty, bmpColor.Size), bmpColor.PixelFormat);
+                        return bmpColor.Clone(new Rectangle(Point.Empty, bmpColor.Size), bmpColor.PixelFormat);
                     if (!throwError)
                         return null;
                     throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsBitmap);

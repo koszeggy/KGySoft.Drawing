@@ -22,13 +22,18 @@ using System;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents a disposable dithering session returned by the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method
+    /// that is used to dither the result of a quantizing session for a specific <see cref="IReadableBitmapData"/> source.
+    /// </summary>
+    /// <seealso cref="IDitherer" />
     public interface IDitheringSession : IDisposable
     {
         #region Properties
 
         /// <summary>
-        /// Gets whether this ditherer allows only sequential processing (line by line). Even returning <see langword="true"/>&#160;
-        /// does not guarantee that every pixel will be queried. It just enforces that queried rows are processed sequentially.
+        /// Gets whether this ditherer allows only sequential processing (line by line). Even returning <see langword="true"/>&#160;does
+        /// not guarantee that every pixel will be queried. It just enforces that queried rows are processed sequentially.
         /// </summary>
         /// <value>
         /// If <see langword="true"/>, then the <see cref="GetDitheredColor">GetDitheredColor</see> method will be called sequentially for each queried pixels.
@@ -40,6 +45,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        /// <summary>
+        /// Gets the dithered color of the specified <paramref name="origColor"/> that may depend on the specified coordinates.
+        /// The returned color should be quantized by the <see cref="IQuantizingSession"/> passed to the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method,
+        /// which was used to create this <see cref="IDitheringSession"/> instance.
+        /// </summary>
+        /// <param name="origColor">The original color to be quantized.</param>
+        /// <param name="x">The x-coordinate of the pixel to be dithered represented by the specified <paramref name="origColor"/>.</param>
+        /// <param name="y">The y-coordinate of the pixel to be dithered represented by the specified <paramref name="origColor"/>.</param>
+        /// <returns>The location-dependent dithered color of the specified <paramref name="origColor"/> that may depend on the specified coordinates.</returns>
         Color32 GetDitheredColor(Color32 origColor, int x, int y);
 
         #endregion

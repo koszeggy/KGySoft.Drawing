@@ -87,13 +87,13 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var bmp = new Bitmap(size, size, pixelFormat);
-                    IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmap(bmp);
+                    using BitmapDataAccessorBase acc = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite);
+                    IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(acc);
                     var c = new Color32(color);
-                    using (IReadWriteBitmapData acc = bmp.GetReadWriteBitmapData())
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(acc, quantizingSession))
                     {
-                        IReadWriteBitmapDataRow row = acc.FirstRow;
+                        IReadWriteBitmapDataRow row = acc.GetRow(0);
                         do
                         {
                             for (int x = 0; x < acc.Width; x++)
