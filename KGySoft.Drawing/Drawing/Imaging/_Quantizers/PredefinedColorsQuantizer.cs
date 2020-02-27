@@ -27,8 +27,8 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a quantizer with predefined set of colors. Use the static members to retrieve an instance.
-    /// <br/>See the <strong>Examples</strong> section of each static member of this class to see some image examples.
-    /// <br/>For using optimized colors for a specific source image see also the <see cref="OptimizedPaletteQuantizer"/> class.
+    /// For using optimized colors for a specific source image see the <see cref="OptimizedPaletteQuantizer"/> class.
+    /// <br/>See the <strong>Remarks</strong> section of the static methods of this class for details and image examples.
     /// </summary>
     /// <seealso cref="IQuantizer" />
     /// <seealso cref="OptimizedPaletteQuantizer"/>
@@ -157,6 +157,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Static Properties
+
         private static Color32[] Rgb332Palette
         {
             get
@@ -269,6 +271,18 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Instance Properties
+
+        /// <summary>
+        /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="PredefinedColorsQuantizer"/>.
+        /// For non-custom transformations this is always the lowest bits-per-pixel value format, which is compatible with this <see cref="PredefinedColorsQuantizer"/> instance
+        /// </summary>
+        public PixelFormat PixelFormatHint { get; }
+
+        #endregion
+
+        #endregion
+
         #region Constructors
 
         private PredefinedColorsQuantizer(Palette palette)
@@ -276,6 +290,10 @@ namespace KGySoft.Drawing.Imaging
             this.palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
             backColor = palette.BackColor;
             alphaThreshold = palette.AlphaThreshold;
+            PixelFormatHint = palette.Count > 256 ? PixelFormat.Format32bppArgb // we could detect if 24bpp but it's not worth the cost
+                : palette.Count > 16 ? PixelFormat.Format8bppIndexed
+                : palette.Count > 2 ? PixelFormat.Format4bppIndexed
+                : PixelFormat.Format1bppIndexed;
         }
 
         private PredefinedColorsQuantizer(Color[] colors, Color backColor, byte alphaThreshold = 0)
@@ -288,16 +306,21 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, Color32 backColor, byte alphaThreshold = 0)
-            : this(quantizingFunction)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0)
+            : this(quantizingFunction, pixelFormatHint)
         {
             this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
             this.alphaThreshold = alphaThreshold;
             blendAlphaBeforeQuantize = true;
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction)
-            => this.quantizingFunction = quantizingFunction ?? throw new ArgumentNullException(nameof(quantizingFunction), PublicResources.ArgumentNull);
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint)
+        {
+            this.quantizingFunction = quantizingFunction ?? throw new ArgumentNullException(nameof(quantizingFunction), PublicResources.ArgumentNull);
+            if (!pixelFormatHint.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormatHint), Res.PixelFormatInvalid(pixelFormatHint));
+            PixelFormatHint = pixelFormatHint;
+        }
 
         #endregion
 
@@ -369,7 +392,7 @@ namespace KGySoft.Drawing.Imaging
             // just returning the already blended color
             static Color32 Quantize(Color32 c) => c;
 
-            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format24bppRgb, new Color32(backColor));
         }
 
         /// <summary>
@@ -441,7 +464,7 @@ namespace KGySoft.Drawing.Imaging
         {
             static Color32 Quantize(Color32 c) => new Color16Rgb565(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format16bppRgb565, new Color32(backColor));
         }
 
         /// <summary>
@@ -511,7 +534,7 @@ namespace KGySoft.Drawing.Imaging
         {
             static Color32 Quantize(Color32 c) => new Color16Rgb555(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format16bppRgb555, new Color32(backColor));
         }
 
         /// <summary>
@@ -587,7 +610,7 @@ namespace KGySoft.Drawing.Imaging
         {
             static Color32 Quantize(Color32 c) => new Color16Argb1555(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Quantize, new Color32(backColor), alphaThreshold);
+            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format16bppArgb1555, new Color32(backColor), alphaThreshold);
         }
 
         /// <summary>
@@ -1418,9 +1441,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before invoking the <paramref name="quantizingFunction"/> delegate.
         /// The <see cref="Color.A"/> property of the background color is ignored.</param>
+        /// <param name="pixelFormatHint">The <see cref="PixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
+        /// <br/>Default value: <see cref="PixelFormat.Format24bppRgb"/>, which is valid only if <paramref name="alphaThreshold"/> has the default zero value.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
         /// If <c>0</c>, then even the completely transparent colors will be blended with <paramref name="backColor"/> before invoking the <paramref name="quantizingFunction"/> delegate. This parameter is optional.
-        /// <br/>Default value: <c>128</c>.</param>
+        /// <br/>Default value: <c>0</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
         /// <para>The quantizer returned by this method does not have a palette. If you need to create indexed using a custom mapping function that
@@ -1469,8 +1494,8 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, byte alphaThreshold = 0)
-            => new PredefinedColorsQuantizer(quantizingFunction, new Color32(backColor), alphaThreshold);
+        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, PixelFormat pixelFormatHint = PixelFormat.Format24bppRgb, byte alphaThreshold = 0)
+            => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
@@ -1478,6 +1503,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="quantizingFunction">A delegate that specifies the custom quantization logic. It must be thread-safe for parallel invoking and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
+        /// <param name="pixelFormatHint">The <see cref="PixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
+        /// <br/>Default value: <see cref="PixelFormat.Format32bppArgb"/>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
         /// <para>The quantizer returned by this method does not have a palette. If you need to create indexed using a custom mapping function that
@@ -1521,8 +1548,8 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction)
-            => new PredefinedColorsQuantizer(quantizingFunction);
+        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint = PixelFormat.Format32bppArgb)
+            => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint);
 
         #endregion
 

@@ -33,6 +33,16 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="BitmapExtensions.Quantize"/>
     public interface IQuantizer
     {
+        #region Properties
+
+        /// <summary>
+        /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="IQuantizer"/>.
+        /// It is recommended to return the format with the lowest bits-per-pixel value that is still compatible with this instance.
+        /// </summary>
+        PixelFormat PixelFormatHint { get; }
+
+        #endregion
+
         #region Methods
 
         /// <summary>

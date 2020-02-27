@@ -142,6 +142,9 @@ namespace KGySoft
         /// <remarks>Use this method to avoid CA1303 for using string literals in internal errors that never supposed to occur.</remarks>
         internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
 
+        /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
+        internal static string PixelFormatInvalid(PixelFormat pixelFormat) => Get("General_PixelFormatInvalidFormat", Enum<PixelFormat>.ToString(pixelFormat));
+
         #endregion
 
         #region Accessors
@@ -161,9 +164,6 @@ namespace KGySoft
 
         /// <summary>Could not save the image by the '{0}' encoder.</summary>
         internal static string ImageExtensionsEncoderSaveFail(ImageFormat imageFormat) => Get("ImageExtensions_EncoderSaveFailFormat", imageFormat);
-
-        /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
-        internal static string ImageExtensionsPixelFormatInvalid(PixelFormat pixelFormat) => Get("ImageExtensions_PixelFormatInvalidFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion
 

@@ -248,6 +248,18 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        /// <summary>
+        /// Gets a <see cref="PixelFormat"/> representing the lowest bits-per-pixel value format, which is compatible with this <see cref="OptimizedPaletteQuantizer"/> instance.
+        /// </summary>
+        public PixelFormat PixelFormatHint
+            => maxColors > 16 ? PixelFormat.Format8bppIndexed
+                : maxColors > 2 ? PixelFormat.Format4bppIndexed
+                : PixelFormat.Format1bppIndexed;
+
+        #endregion
+
         #region Constructors
 
         private OptimizedPaletteQuantizer(Algorithm algorithm, int maxColors, Color backColor, byte alphaThreshold)

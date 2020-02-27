@@ -123,6 +123,9 @@
   <data name="General_InternalErrorFormat" xml:space="preserve">
     <value>Internal Error: {0}</value>
   </data>
+  <data name="General_PixelFormatInvalidFormat" xml:space="preserve">
+    <value>Pixel format '{0}' does not represent an actual format.</value>
+  </data>
   <data name="Gdi32_InvalidHandle" xml:space="preserve">
     <value>Invalid GDI object handle.</value>
   </data>
@@ -167,9 +170,6 @@
   </data>
   <data name="ImageExtensions_EncoderSaveFailFormat" xml:space="preserve">
     <value>Could not save the image by the '{0}' encoder.</value>
-  </data>
-  <data name="ImageExtensions_PixelFormatInvalidFormat" xml:space="preserve">
-    <value>Pixel format '{0}' does not represent an actual format.</value>
   </data>
   <data name="Accessors_InstanceFieldDoesNotExistFormat" xml:space="preserve">
     <value>Instance field "{0}" not found on type "{1}".</value>
