@@ -17,6 +17,8 @@
 #region Usings
 
 using System;
+using System.Drawing;
+using System.Drawing.Imaging;
 
 using KGySoft.Collections;
 
@@ -26,6 +28,95 @@ namespace KGySoft.Drawing.Imaging
 {
 #pragma warning disable CA1814 // arrays in this class are better to be matrices than jagged arrays as they are always rectangular
 
+    /// <summary>
+    /// Provides an <see cref="IDitherer"/> implementation for error diffusion dithering.
+    /// Use the static members of this class to use predefined parameters or the <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool?)">constructor</see> to create a custom error diffusion ditherer.
+    /// <br/>See the <strong>Remarks</strong> section for details and results comparison.
+    /// </summary>
+    /// <remarks>
+    /// <para>The <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool?)">constructor</see> can be used to create an error diffusion ditherer using a custom matrix.</para>
+    /// <para>Use the static methods to create an instance with predefined parameters.</para>
+    /// <para>The <see cref="ErrorDiffusionDitherer"/> class uses an adaptive dithering technique, which disperses the quantization error of each pixels to the neighboring ones.
+    /// Thereby the strength of the dithering is automatically adjusted by the algorithm itself, which provides good results also for palettes with uneven color distribution
+    /// (which is not the case for <see cref="OrderedDitherer">ordered dithering</see>, for example).</para>
+    /// <para>As the dithered result of a pixel depends on the already processed pixels, the <see cref="ErrorDiffusionDitherer"/> does not support parallel processing, which makes
+    /// it slower than most of the other dithering methods.</para>
+    /// <para>The following table demonstrates the effect of the dithering:
+    /// <list type="table">
+    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
+    /// <item>
+    /// <term><div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+    /// <br/>Color hues with alpha gradient</para></div></term>
+    /// <term>
+    /// <div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilver.gif" alt="Color hues with system default 8 BPP palette and silver background"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see>, no dithering</para>
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFS.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering</para>
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredS3.gif" alt="Color hues with system default 8 BPP palette, using silver background and Sierra 3 dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="Sierra3">Sierra 3</see> dithering</para>
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredSA.gif" alt="Color hues with system default 8 BPP palette, using silver background and Stevenson-Arce dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="StevensonArce">Stevenson-Arce</see> dithering</para></div></term>
+    /// </item>
+    /// <item>
+    /// <term><div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+    /// <br/>Grayscale color shades</para></div></term>
+    /// <term>
+    /// <div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see>, no dithering</para>
+    /// <para><img src="../Help/Images/GrayShadesBWDitheredFS.gif" alt="Grayscale color shades with black and white palette, using Floyd-Steinberg dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering</para>
+    /// <para><img src="../Help/Images/GrayShadesBWDitheredS3.gif" alt="Grayscale color shades with black and white palette using Sierra 3 dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="Sierra3">Sierra 3</see> dithering</para>
+    /// <para><img src="../Help/Images/GrayShadesBWDitheredSA.gif" alt="Grayscale color shades with black and white palette using Stevenson-Arce dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="StevensonArce">Stevenson-Arce</see> dithering</para></div></term>
+    /// </item>
+    /// </list></para>
+    /// <para>Calculation of the quantization error may happen in two ways. The publicly available algorithms usually calculate the error for each color channels,
+    /// which usually provide good results with color palettes. However, when quantizing color images with a black and white or grayscale palette,
+    /// this approach may fail. For example, if the quantizer returns black for a fully saturated blue pixel, the quantization error is zero on the red and green channels and
+    /// 100% on the blue channel. The problem is that this error cannot be propagated to the neighboring pixels if they have the same color because adding any more blue
+    /// to already fully saturated blue pixels will not change anything. Therefore, the <see cref="ErrorDiffusionDitherer"/> can propagate quantization error
+    /// by brightness based on human perception, which is more appropriate for palettes with grayscale colors.
+    /// The <see cref="ErrorDiffusionDitherer"/> tries to auto detect the strategy for each dithering session but this can be overridden by
+    /// the <see cref="WithStrategy">WithStrategy</see> method. </para>
+    /// <para>The following table demonstrates the effect of different strategies:
+    /// <list type="table">
+    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
+    /// <item>
+    /// <term><div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+    /// <br/>Color hues with alpha gradient</para></div></term>
+    /// <term>
+    /// <div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFS.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering, using error diffusion by RGB channels"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see>, using error diffusion by RGB channels (the default strategy for non-grayscale palettes)</para>
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFSByBr.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering, using error diffusion by brightness"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see>, using error diffusion by brightness</para></div></term>
+    /// </item>
+    /// <item>
+    /// <term><div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/ColorWheel.png" alt="Color wheel"/>
+    /// <br/>Color wheel</para></div></term>
+    /// <term>
+    /// <div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/ColorWheelBWBlueDitheredFSByBr.gif" alt="Color wheel with black and white palette, blue background and Floyd-Steinberg dithering, using error diffusion by brightness (the default strategy for grayscale palettes)"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see>, using blue background and error diffusion by brightness (the default strategy for grayscale palettes). All colors appear in the result with different patterns.</para>
+    /// <para><img src="../Help/Images/ColorWheelBWBlueDitheredFSByRgb.gif" alt="Color wheel with black and white palette, blue background and Floyd-Steinberg dithering, using error diffusion by RGB channels"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see>, using blue background and error diffusion by RGB channels. The fully saturated colors turned completely black or white.</para></div></term>
+    /// </item>
+    /// </list></para>
+    /// <note type="tip">See the <strong>Examples</strong> section of the static methods for more examples.</note>
+    /// </remarks>
+    /// <seealso cref="IDitherer" />
+    /// <seealso cref="OrderedDitherer"/>
+    /// <seealso cref="RandomNoiseDitherer"/>
+    /// <seealso cref="InterleavedGradientNoiseDitherer"/>
+    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+    /// <seealso cref="BitmapExtensions.Dither"/>
     public sealed class ErrorDiffusionDitherer : IDitherer
     {
         #region ErrorDiffusionDitheringSession class
@@ -308,7 +399,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by P. Stucki in 1981.
-        /// Uses a 5x3 matrix so the processing is slower than by the original Floyd-Steinberg filter  but distributes errors in a wider range.
+        /// Uses a 5x3 matrix so the processing is slower than by the original Floyd-Steinberg filter but distributes errors in a wider range.
         /// </summary>
         public static ErrorDiffusionDitherer Stucki(bool? byBrightness = null)
             => new ErrorDiffusionDitherer(stuckiMatrix, 42, 3, byBrightness);

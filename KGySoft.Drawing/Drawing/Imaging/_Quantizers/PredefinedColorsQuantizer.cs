@@ -274,8 +274,9 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Properties
 
         /// <summary>
-        /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="PredefinedColorsQuantizer"/>.
-        /// For non-custom transformations this is always the lowest bits-per-pixel value format, which is compatible with this <see cref="PredefinedColorsQuantizer"/> instance
+        /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="PredefinedColorsQuantizer"/> instance.
+        /// If this <see cref="PredefinedColorsQuantizer"/> was not initialized with custom color mapping logic,
+        /// then this is the possible lowest bits-per-pixel value format.
         /// </summary>
         public PixelFormat PixelFormatHint { get; }
 
@@ -667,7 +668,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Silver background, nearest color lookup</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb332SilverDM.gif" alt="Color hues with RGB332 palette and silver background using direct color mapping"/>
         /// <br/>Silver background, direct color mapping</para>
-        /// <para><img src="../Help/Images/AlphaGradientRgb332SilverDMDithered.gif" alt="Color hues with RGB332 palette, silver background, using direct color mapping and Bayer 8x8 ordered dithering"/>
+        /// <para><img src="../Help/Images/AlphaGradientRgb332SilverDMDitheredB8.gif" alt="Color hues with RGB332 palette, silver background, using direct color mapping and Bayer 8x8 ordered dithering"/>
         /// <br/>Silver background, direct color mapping, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
         /// </item>
         /// <item>
@@ -1173,7 +1174,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default optional parameter values (black background, alpha threshold = 128). The bottom half of the image is transparent.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverA1.gif" alt="Color hues with system default 8 BPP palette, silver background and alpha threshold = 1"/>
         /// <br/>Silver background, alpha threshold = 1. Only the bottom line is transparent.</para>
-        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB8.gif" alt="Color hues with system default 8 BPP palette, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverA128DitheredB8.gif" alt="Color hues with system default 8 BPP palette, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
         /// <br/>Silver background, default alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The bottom half of the image is transparent.</para></div></term>
         /// </item>
         /// <item>
@@ -1207,6 +1208,8 @@ namespace KGySoft.Drawing.Imaging
         /// <div style="text-align:center;width:512px">
         /// <para><img src="../Help/Images/LenaDefault8bpp.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette"/>
         /// <br/>Default optional parameter values</para>
+        /// <para><img src="../Help/Images/LenaDefault8bppDitheredB8.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para>
         /// <para><img src="../Help/Images/LenaDefault8bppDitheredFS.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Floyd-Steinberg dithering"/>
         /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
         /// </item>
@@ -1277,9 +1280,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/GrayShadesDefault4bpp.gif" alt="Grayscale color shades with system default 4 BPP palette"/>
         /// <br/>Default optional parameter values. The asymmetry is due to the uneven distribution of gray shades of this palette.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
-        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering with auto strength. Darker shades have banding.</para>
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
-        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering with strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></term>
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></term>
         /// </item>
         /// <item>
         /// <term><div style="text-align:center;width:512px">
@@ -1452,7 +1455,7 @@ namespace KGySoft.Drawing.Imaging
         /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Palette)"/> method instead.</para>
         /// <para>This overload never calls the <paramref name="quantizingFunction"/> delegate with a color with alpha. Depending on <paramref name="alphaThreshold"/> either a completely
         /// transparent color will be returned or the color will be blended with <paramref name="backColor"/> before invoking the delegate.
-        /// In order to invoke <paramref name="quantizingFunction"/> alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32})"/> overload instead.</para>
+        /// In order to invoke <paramref name="quantizingFunction"/> alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32},PixelFormat)"/> overload instead.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1510,7 +1513,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The quantizer returned by this method does not have a palette. If you need to create indexed using a custom mapping function that
         /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Palette)"/> method instead.</para>
         /// <para>This overload always calls the <paramref name="quantizingFunction"/> delegate without preprocessing the input colors.
-        /// In order to pass blended colors only to the <paramref name="quantizingFunction"/> delegate use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, byte)"/> overload instead.</para>
+        /// In order to pass blended colors only to the <paramref name="quantizingFunction"/> delegate use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, PixelFormat, byte)"/> overload instead.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:

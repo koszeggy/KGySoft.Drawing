@@ -28,9 +28,78 @@ namespace KGySoft.Drawing.Imaging
 
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for dithering patterns that are based on an ordered matrix.
-    /// Use the static members of this class to use predefined patterns or the constructor to create a custom ordered ditherer.
-    /// <br/>See the <strong>Remarks</strong> section of the static methods of this class for details and image examples.
+    /// Use the static members of this class to use predefined patterns or the <see cref="OrderedDitherer(byte[,],float)">constructor</see> to create a custom ordered ditherer.
+    /// <br/>See the <strong>Remarks</strong> section for details and results comparison.
     /// </summary>
+    /// <remarks>
+    /// <para>The <see cref="OrderedDitherer(byte[,],float)">constructor</see> can be used to create an ordered ditherer using a custom matrix.</para>
+    /// <para>Use the static methods to create an instance with a predefined pattern. For the best results use the <see cref="Bayer8x8">Bayer8x8</see>
+    /// or <see cref="BlueNoise">BlueNoise</see> methods. Or for artistic purposes you can use the dotted halftone patterns
+    /// such as the <see cref="DottedHalftone8Diagonal">DottedHalftone8Diagonal</see> method.</para>
+    /// <para>The <see cref="OrderedDitherer"/> class offers a very fast dithering technique based on an ordered pattern specified in a matrix of bytes.
+    /// The more different values the matrix has the more number of different patterns can be mapped to the shades of the original pixels.
+    /// While quantizing lighter and lighter colors, the different patterns appear in the order of the values in the specified matrix.</para>
+    /// <para>The following table demonstrates the effect of the dithering:
+    /// <list type="table">
+    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
+    /// <item>
+    /// <term><div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+    /// <br/>Color hues with alpha gradient</para></div></term>
+    /// <term>
+    /// <div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilver.gif" alt="Color hues with system default 8 BPP palette and silver background"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see>, no dithering</para>
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB8.gif" alt="Color hues with system default 8 BPP palette, silver background and Bayer 8x8 ordered dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering</para>
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredBN.gif" alt="Color hues with system default 8 BPP palette, using silver background and blue noise dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="BlueNoise">blue noise</see> dithering</para>
+    /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH7.gif" alt="Color hues with system default 8 BPP palette, using silver background and rectangular 7x7 dotted halftone pattern dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="DottedHalftone7Rectangular">rectangular 7x7 dotted halftone pattern</see> dithering</para></div></term>
+    /// </item>
+    /// <item>
+    /// <term><div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+    /// <br/>Grayscale color shades</para></div></term>
+    /// <term>
+    /// <div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see>, no dithering</para>
+    /// <para><img src="../Help/Images/GrayShadesBWDitheredB8.gif" alt="Grayscale color shades with black and white palette, using Bayer 8x8 ordered dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering</para>
+    /// <para><img src="../Help/Images/GrayShadesBWDitheredBN.gif" alt="Grayscale color shades with black and white palette using blue noise dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="BlueNoise">blue noise</see> dithering</para>
+    /// <para><img src="../Help/Images/GrayShadesBWDitheredDH7.gif" alt="Grayscale color shades with black and white palette using rectangular 7x7 dotted halftone pattern dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="DottedHalftone7Rectangular">rectangular 7x7 dotted halftone pattern</see> dithering</para></div></term>
+    /// </item>
+    /// </list></para>
+    /// <para>Unlike in case of the <see cref="ErrorDiffusionDitherer"/>, ordered dithering does not adjust strength to the quantization error of a pixel
+    /// but simply uses the specified matrix values based on pixel coordinates to determine the quantized result.
+    /// Therefore, a strength can be specified, whose ideal value depends on the colors that a quantizer can return.
+    /// If the strength is too low, then banding may appear in the result in place of gradients in the original image;
+    /// whereas if the strength is too high, then dithering patterns may appear even in colors without quantization error (overdithering).</para>
+    /// <para>Every public member of the <see cref="OrderedDitherer"/> class has a <em>strength</em> parameter. If the <em>strength</em> parameter is <c>0</c>,
+    /// then strength will be calibrated so that neither the black, nor the white colors will suffer from overdithering in the result.
+    /// The auto value is usually correct if the quantizer returns evenly distributed colors.</para>
+    /// <para>The following table demonstrates the effect of different strengths:
+    /// <list type="table">
+    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
+    /// <item>
+    /// <term>
+    /// <div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+    /// <br/>Grayscale color shades</para></div></term>
+    /// <term><div style="text-align:center;width:512px">
+    /// <para><img src="../Help/Images/GrayShadesDefault4bpp.gif" alt="Grayscale color shades with system default 4 BPP palette"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see>, no dithering. The asymmetry is due to the uneven distribution of gray shades of this palette.</para>
+    /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
+    /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></term>
+    /// </item>
+    /// </list></para>
+    /// <note type="tip">See the <strong>Examples</strong> section of the static methods for more examples.</note>
+    /// </remarks>
     /// <seealso cref="IDitherer" />
     /// <seealso cref="ErrorDiffusionDitherer"/>
     /// <seealso cref="RandomNoiseDitherer"/>
@@ -331,15 +400,71 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="OrderedDitherer" /> class using the specified <paramref name="matrix"/> and <paramref name="strength"/>.
-        /// <br/>For some predefined ordered patterns see the static methods.
+        /// Initializes a new instance of the <see cref="OrderedDitherer"/> class using the specified <paramref name="matrix"/> and <paramref name="strength"/>.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
-        /// <param name="matrix">A matrix to be used as the coefficients of the dithering. Ideally contains every value from 0
-        /// up to the total size of the matrix (excluding upper bound) to have the most possible patterns but this is just a recommendation.</param>
-        /// <param name="strength">The strength of the dithering effect between 0 and 1.
-        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
+        /// <param name="matrix">A matrix to be used as the coefficients of the dithering. Ideally contains every value between zero
+        /// and the maximum value in the matrix. Repeated values will always together for the same input pixels.</param>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using the specified <paramref name="matrix"/> and <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="matrix"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="matrix"/> is empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use a custom ditherer using the <see cref="OrderedDitherer"/> constructor:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToCustomDithered(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     // Using a vertically striped pattern. Not quite optimal for dithering
+        ///     // but demonstrates the behavior of the ordered dithering quite well.
+        ///     byte[,] matrix =
+        ///     {
+        ///         { 0, 5 },
+        ///         { 1, 6 },
+        ///         { 2, 7 },
+        ///         { 3, 8 },
+        ///         { 4, 9 },
+        ///     };
+        ///
+        ///     IDitherer ditherer = new OrderedDitherer(matrix);
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredOC.gif" alt="Color hues with system default 8 BPP palette, using silver background and a custom ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and custom ordered dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredOC.gif" alt="Grayscale color shades with black and white palette using a custom ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and custom ordered dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip"><list type="bullet">
+        /// <item>Use the static methods to perform dithering with predefined patterns.</item>
+        /// <item>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</item>
+        /// </list></note>
+        /// </example>
         public OrderedDitherer(byte[,] matrix, float strength = 0f)
         {
             if (matrix == null)
@@ -354,7 +479,7 @@ namespace KGySoft.Drawing.Imaging
             matrixHeight = matrix.GetUpperBound(0) + 1;
             int shades = 0;
 
-            // extensions cannot be used on matrices (unsafe would work though)
+            // matrix.Max() cannot be used so using explicit loop
             foreach (byte b in matrix)
             {
                 if (b <= shades)
@@ -395,38 +520,584 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
-        /// <param name="strength">The strength of the dithering effect between 0 and 1.
-        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredBayer2x2(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.Bayer2x2();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB2.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 2x2 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and Bayer 2x2 dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredB2.gif" alt="Grayscale color shades with black and white palette using Bayer 2x2 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and Bayer 2x2 dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
         public static OrderedDitherer Bayer2x2(float strength = 0f) => new OrderedDitherer(bayer2x2, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredBayer3x3(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.Bayer3x3();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB3.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 3x3 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and Bayer 3x3 dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredB3.gif" alt="Grayscale color shades with black and white palette using Bayer 3x3 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and Bayer 3x3 dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
         public static OrderedDitherer Bayer3x3(float strength = 0f) => new OrderedDitherer(bayer3x3, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredBayer4x4(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.Bayer4x4();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB4.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 4x4 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and Bayer 4x4 dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredB4.gif" alt="Grayscale color shades with black and white palette using Bayer 4x4 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and Bayer 4x4 dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
         public static OrderedDitherer Bayer4x4(float strength = 0f) => new OrderedDitherer(bayer4x4, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using the standard Bayer 2x2 matrix and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredBayer8x8(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.Bayer8x8();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB8.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 8x8 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and Bayer 8x8 dithering</para>
+        /// <para><img src="../Help/Images/AlphaGradientRgb111SilverDitheredB8.gif" alt="Color hues with RGB111 palette and silver background, using Bayer 8x8 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">custom 8-color palette</see> and Bayer 8x8 dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredB8.gif" alt="Grayscale color shades with black and white palette using Bayer 8x8 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and Bayer 8x8 dithering</para>
+        /// <para><img src="../Help/Images/GrayShades2bppDitheredB8.gif" alt="Grayscale color shades with 2 BPP grayscale palette, using nearest color lookup and Bayer 8x8 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.Grayscale4">4-color grayscale palette</see> and Bayer 8x8 dithering</para>
+        /// </div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
+        /// <br/>Shield icon with transparency</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/ShieldDefault8bppBlackDitheredB8.gif" alt="Shield icon with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and Bayer 8x8 dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
+        /// <br/>Original test image "Lena"</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/LenaDefault8bppDitheredB8.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and Bayer 8x8 dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
         public static OrderedDitherer Bayer8x8(float strength = 0f) => new OrderedDitherer(bayer8x8, strength);
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
-        /// using a 5x5 halftone pattern matrix with 8 different patterns.
+        /// using a rectangular 5x5 dotted halftone pattern matrix of 8 different values.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
-        /// <param name="strength">The strength of the dithering effect between 0 and 1.
-        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using a 5x5 halftone matrix of 8 patterns and the specified <paramref name="strength"/>.</returns>
-        public static OrderedDitherer Halftone5Rectangular(float strength = 0f) => new OrderedDitherer(halftone5, strength);
-        public static OrderedDitherer Halftone6Hexagonal(float strength = 0f) => new OrderedDitherer(halftone6hexagonal, strength);
-        public static OrderedDitherer Halftone6Diagonal(float strength = 0f) => new OrderedDitherer(halftone6diagonal, strength);
-        public static OrderedDitherer Halftone7Rectangular(float strength = 0f) => new OrderedDitherer(halftone7, strength);
-        public static OrderedDitherer Halftone8Hexagonal(float strength = 0f) => new OrderedDitherer(halftone8hexagonal, strength);
-        public static OrderedDitherer Halftone8Diagonal(float strength = 0f) => new OrderedDitherer(halftone8diagonal, strength);
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.DottedHalftone5Rectangular();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH5.gif" alt="Color hues with system default 8 BPP palette, using silver background and rectangular 5x5 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and rectangular 5x5 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredDH5.gif" alt="Grayscale color shades with black and white palette using rectangular 5x5 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and rectangular 5x5 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
+        public static OrderedDitherer DottedHalftone5Rectangular(float strength = 0f) => new OrderedDitherer(halftone5, strength);
 
         /// <summary>
-        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/> using a fixed 64x64 blue noise pattern.
+        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
+        /// using a hexagonal 6x6 dotted halftone pattern matrix of 8 different values.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
-        /// <param name="strength">The strength of the dithering effect between 0 and 1.
-        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer. This parameter is optional.
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using a 5x5 halftone matrix of 8 patterns and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.DottedHalftone6Hexagonal();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH6Hex.gif" alt="Color hues with system default 8 BPP palette, using silver background and hexagonal 6x6 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and hexagonal 6x6 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredDH6Hex.gif" alt="Grayscale color shades with black and white palette using hexagonal 6x6 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and hexagonal 6x6 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
+        public static OrderedDitherer DottedHalftone6Hexagonal(float strength = 0f) => new OrderedDitherer(halftone6hexagonal, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
+        /// using a diagonal 6x6 dotted halftone pattern matrix of 8 different values.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using a 5x5 halftone matrix of 8 patterns and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.DottedHalftone6Diagonal();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH6Diag.gif" alt="Color hues with system default 8 BPP palette, using silver background and diagonal 6x6 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and diagonal 6x6 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredDH6Diag.gif" alt="Grayscale color shades with black and white palette using diagonal 6x6 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and diagonal 6x6 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
+        public static OrderedDitherer DottedHalftone6Diagonal(float strength = 0f) => new OrderedDitherer(halftone6diagonal, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
+        /// using a rectangular 7x7 dotted halftone pattern matrix of 11 different values.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using a 7x7 halftone matrix of 8 patterns and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.DottedHalftone7Rectangular();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH7.gif" alt="Color hues with system default 8 BPP palette, using silver background and rectangular 7x7 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and rectangular 7x7 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredDH7.gif" alt="Grayscale color shades with black and white palette using rectangular 7x7 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and rectangular 7x7 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
+        public static OrderedDitherer DottedHalftone7Rectangular(float strength = 0f) => new OrderedDitherer(halftone7, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
+        /// using a hexagonal 8x8 dotted halftone pattern matrix of 12 different values.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using a 5x5 halftone matrix of 8 patterns and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.DottedHalftone8Hexagonal();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH8Hex.gif" alt="Color hues with system default 8 BPP palette, using silver background and hexagonal 8x8 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and hexagonal 8x8 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredDH8Hex.gif" alt="Grayscale color shades with black and white palette using hexagonal 8x8 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and hexagonal 8x8 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
+        public static OrderedDitherer DottedHalftone8Hexagonal(float strength = 0f) => new OrderedDitherer(halftone8hexagonal, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/>
+        /// using a diagonal 8x8 dotted halftone pattern matrix of 12 different values.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <returns>An <see cref="OrderedDitherer"/> instance using a 5x5 halftone matrix of 8 patterns and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.DottedHalftone8Diagonal();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH8Diag.gif" alt="Color hues with system default 8 BPP palette, using silver background and diagonal 8x8 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and diagonal 8x8 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredDH8Diag.gif" alt="Grayscale color shades with black and white palette using diagonal 8x8 dotted halftone pattern dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and diagonal 8x8 dotted halftone pattern dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
+        public static OrderedDitherer DottedHalftone8Diagonal(float strength = 0f) => new OrderedDitherer(halftone8diagonal, strength);
+
+        /// <summary>
+        /// Gets an <see cref="OrderedDitherer"/> with the specified <paramref name="strength"/> using a fixed 64x64 blue noise pattern of 256 different values.
+        /// <br/>See the <strong>Examples</strong> section for some examples.
+        /// </summary>
+        /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
+        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for details about dithering strength. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using a fixed 64x64 blue noise matrix and the specified <paramref name="strength"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        /// <remarks>
+        /// <note>Generating random blue noise patterns is a very resource intensive operation but this method uses a pre-generated fix pattern, which is very fast.
+        /// To dither images with real random noise use the <see cref="RandomNoiseDitherer"/>, which applies white noise to the quantized source.</note>
+        /// </remarks>
+        /// <example>
+        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToDitheredBlueNoise(Bitmap source, IQuantizer quantizer)
+        /// {
+        ///     IDitherer ditherer = OrderedDitherer.BlueNoise();
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredBN.gif" alt="Color hues with system default 8 BPP palette, using silver background and blue noise dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and blue noise dithering</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
+        /// <br/>Grayscale color shades</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/GrayShadesBWDitheredBN.gif" alt="Grayscale color shades with black and white palette using blue noise dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and blue noise dithering</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
+        /// </example>
         public static OrderedDitherer BlueNoise(float strength = 0f) => new OrderedDitherer(blueNoise64, strength);
 
         #endregion

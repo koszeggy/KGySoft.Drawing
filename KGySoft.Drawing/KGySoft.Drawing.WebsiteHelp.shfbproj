@@ -626,7 +626,7 @@
       <ImageId>AlphaGradientRgb332SilverDM</ImageId>
       <AlternateText>Alpha Gradient Rgb 332 SilverDM</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientRgb332SilverDMDithered.gif">
+    <Content Include="Help\Images\AlphaGradientRgb332SilverDMDitheredB8.gif">
       <ImageId>AlphaGradientRgb332SilverDMDithered</ImageId>
       <AlternateText>Alpha Gradient Rgb 332 SilverDMDithered</AlternateText>
     </Content>
@@ -890,7 +890,7 @@
       <ImageId>AlphaGradientDefault8bppSilverA1</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver A 1</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredB8.gif">
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverA128DitheredB8.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredB8</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver Dithered B 8</AlternateText>
     </Content>
@@ -1057,6 +1057,160 @@
     <Content Include="Help\Images\ShieldWu256Black.gif">
       <ImageId>ShieldWu256Black</ImageId>
       <AlternateText>Shield Wu 256 Black</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilver.gif">
+      <ImageId>AlphaGradientDefault8bppSilver</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredB8.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredB8</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered B 8</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredOC.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredOC</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredOC</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredOC.gif">
+      <ImageId>GrayShadesBWDitheredOC</ImageId>
+      <AlternateText>Gray ShadesBWDitheredOC</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredB2.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredB2</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered B 2</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredB2.gif">
+      <ImageId>GrayShadesBWDitheredB2</ImageId>
+      <AlternateText>Gray ShadesBWDithered B 2</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredB3.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredB3</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered B 3</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredB4.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredB4</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered B 4</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredB3.gif">
+      <ImageId>GrayShadesBWDitheredB3</ImageId>
+      <AlternateText>Gray ShadesBWDithered B 3</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredB4.gif">
+      <ImageId>GrayShadesBWDitheredB4</ImageId>
+      <AlternateText>Gray ShadesBWDithered B 4</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\LenaDefault8bppDitheredB8.gif">
+      <ImageId>LenaDefault8bppDitheredB8</ImageId>
+      <AlternateText>Lena Default 8bpp Dithered B 8</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredBN.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredBN</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredBN</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredBN.gif">
+      <ImageId>GrayShadesBWDitheredBN</ImageId>
+      <AlternateText>Gray ShadesBWDitheredBN</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredBrk.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredBrk</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered Brk</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredFS.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredFS</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredFSByBr.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredFSByBr</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredFSBy Br</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredJJN.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredJJN</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredJJN</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredS2.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredS2</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered S 2</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredS3.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredS3</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered S 3</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredSA.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredSA</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredSA</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredSL.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredSL</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredSL</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredSt.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredSt</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered St</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ColorWheel.png">
+      <ImageId>ColorWheel</ImageId>
+      <AlternateText>Color Wheel</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ColorWheelBWBlueDitheredFSByBr.gif">
+      <ImageId>ColorWheelBWBlueDitheredFSByBr</ImageId>
+      <AlternateText>Color WheelBWBlue DitheredFSBy Br</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ColorWheelBWBlueDitheredFSByRgb.gif">
+      <ImageId>ColorWheelBWBlueDitheredFSByRgb</ImageId>
+      <AlternateText>Color WheelBWBlue DitheredFSBy Rgb</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredBrk.gif">
+      <ImageId>GrayShadesBWDitheredBrk</ImageId>
+      <AlternateText>Gray ShadesBWDithered Brk</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredFS.gif">
+      <ImageId>GrayShadesBWDitheredFS</ImageId>
+      <AlternateText>Gray ShadesBWDitheredFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredJJN.gif">
+      <ImageId>GrayShadesBWDitheredJJN</ImageId>
+      <AlternateText>Gray ShadesBWDitheredJJN</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredS2.gif">
+      <ImageId>GrayShadesBWDitheredS2</ImageId>
+      <AlternateText>Gray ShadesBWDithered S 2</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredS3.gif">
+      <ImageId>GrayShadesBWDitheredS3</ImageId>
+      <AlternateText>Gray ShadesBWDithered S 3</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredSA.gif">
+      <ImageId>GrayShadesBWDitheredSA</ImageId>
+      <AlternateText>Gray ShadesBWDitheredSA</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredSL.gif">
+      <ImageId>GrayShadesBWDitheredSL</ImageId>
+      <AlternateText>Gray ShadesBWDitheredSL</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredSt.gif">
+      <ImageId>GrayShadesBWDitheredSt</ImageId>
+      <AlternateText>Gray ShadesBWDithered St</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredDH.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredDH</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredDH</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredDH.gif">
+      <ImageId>GrayShadesBWDitheredDH</ImageId>
+      <AlternateText>Gray ShadesBWDitheredDH</AlternateText>
     </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->
