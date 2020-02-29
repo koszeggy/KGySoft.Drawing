@@ -367,17 +367,11 @@ namespace KGySoft.Drawing.UnitTests
             (IDitherer Ditherer, string Name)[] ditherers =
             {
                 (null, " No Dithering"),
-                //(OrderedDitherer.Bayer2x2(), nameof(OrderedDitherer.Bayer2x2)),
-                //(OrderedDitherer.Bayer3x3(), nameof(OrderedDitherer.Bayer3x3)),
-                //(OrderedDitherer.Bayer4x4(), nameof(OrderedDitherer.Bayer4x4)),
-                (OrderedDitherer.Bayer8x8(), nameof(OrderedDitherer.Bayer8x8)),
-                //(OrderedDitherer.Halftone5(), nameof(OrderedDitherer.Halftone5)),
-                //(OrderedDitherer.Halftone6Hex(), nameof(OrderedDitherer.Halftone6Hex)),
-                //(OrderedDitherer.Halftone6Diagonal(), nameof(OrderedDitherer.Halftone6Diagonal)),
-                //(OrderedDitherer.Halftone7(), nameof(OrderedDitherer.Halftone7)),
-                //(OrderedDitherer.Halftone8Hex(), nameof(OrderedDitherer.Halftone8Hex)),
-                //(OrderedDitherer.Halftone8Diagonal(), nameof(OrderedDitherer.Halftone8Diagonal)),
-                //(OrderedDitherer.BlueNoise(), nameof(OrderedDitherer.BlueNoise)),
+                //(OrderedDitherer.Bayer2x2, nameof(OrderedDitherer.Bayer2x2)),
+                //(OrderedDitherer.Bayer3x3, nameof(OrderedDitherer.Bayer3x3)),
+                //(OrderedDitherer.Bayer4x4, nameof(OrderedDitherer.Bayer4x4)),
+                (OrderedDitherer.Bayer8x8, nameof(OrderedDitherer.Bayer8x8)),
+                //(OrderedDitherer.BlueNoise, nameof(OrderedDitherer.BlueNoise)),
                 (ErrorDiffusionDitherer.FloydSteinberg(), nameof(ErrorDiffusionDitherer.FloydSteinberg)),
                 //(ErrorDiffusionDitherer.JarvisJudiceNinke(), nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
                 //(ErrorDiffusionDitherer.Stucki(), nameof(ErrorDiffusionDitherer.Stucki)),
@@ -475,7 +469,7 @@ namespace KGySoft.Drawing.UnitTests
             Color color = Color.FromArgb((int)argb);
 
             using var bmp = new Bitmap(size, size, pixelFormat);
-            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8());
+            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8);
             SaveImage($"{pixelFormat} {(errorDiffusion ? "Error diffusion" : "Ordered")}", bmp);
         }
 
@@ -495,7 +489,7 @@ namespace KGySoft.Drawing.UnitTests
             static Color32 Transform(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
 
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.TransformColors(Transform, useDithering ? OrderedDitherer.Bayer8x8() : null));
+            Assert.DoesNotThrow(() => bmp.TransformColors(Transform, useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 
@@ -505,7 +499,7 @@ namespace KGySoft.Drawing.UnitTests
         public void InverseTest(string testName, PixelFormat pixelFormat, bool useDithering)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.Inverse(useDithering ? OrderedDitherer.Bayer8x8() : null));
+            Assert.DoesNotThrow(() => bmp.Inverse(useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 
@@ -515,7 +509,7 @@ namespace KGySoft.Drawing.UnitTests
         public void MakeOpaqueTest(string testName, PixelFormat pixelFormat, bool useDithering)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.MakeOpaque(Color.Blue, useDithering ? OrderedDitherer.Bayer8x8() : null));
+            Assert.DoesNotThrow(() => bmp.MakeOpaque(Color.Blue, useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 
@@ -525,7 +519,7 @@ namespace KGySoft.Drawing.UnitTests
         public void MakeGrayscaleTest(string testName, PixelFormat pixelFormat, bool useDithering)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.MakeGrayscale(useDithering ? OrderedDitherer.Bayer8x8() : null));
+            Assert.DoesNotThrow(() => bmp.MakeGrayscale(useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 
@@ -544,7 +538,7 @@ namespace KGySoft.Drawing.UnitTests
         public void AdjustBrightnessTest(string testName, PixelFormat pixelFormat, bool useDithering, float brightness)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.AdjustBrightness(brightness, useDithering ? OrderedDitherer.Bayer8x8() : null));
+            Assert.DoesNotThrow(() => bmp.AdjustBrightness(brightness, useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 
@@ -563,7 +557,7 @@ namespace KGySoft.Drawing.UnitTests
         public void AdjustContrastTest(string testName, PixelFormat pixelFormat, bool useDithering, float contrast)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.AdjustContrast(contrast, useDithering ? OrderedDitherer.Bayer8x8() : null));
+            Assert.DoesNotThrow(() => bmp.AdjustContrast(contrast, useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 
@@ -582,7 +576,7 @@ namespace KGySoft.Drawing.UnitTests
         public void AdjustGammaTest(string testName, PixelFormat pixelFormat, bool useDithering, float gamma)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.AdjustGamma(gamma, useDithering ? OrderedDitherer.Bayer8x8() : null));
+            Assert.DoesNotThrow(() => bmp.AdjustGamma(gamma, useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 

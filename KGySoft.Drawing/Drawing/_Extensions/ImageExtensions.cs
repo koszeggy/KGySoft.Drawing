@@ -563,7 +563,7 @@ namespace KGySoft.Drawing
         ///
         ///     // Using the system default palette with Bayer 8x8 dithering
         ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed,
-        ///         PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer8x8()))
+        ///         PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer8x8))
         ///     {
         ///         converted8Bpp.SaveAsGif(@"c:\temp\8 bpp default palette with dithering.gif");
         ///     }
@@ -577,7 +577,7 @@ namespace KGySoft.Drawing
         ///
         ///     // Using an optimized palette with blue noise dithering
         ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed,
-        ///         OptimizedPaletteQuantizer.MedianCut(), OrderedDitherer.BlueNoise()))
+        ///         OptimizedPaletteQuantizer.MedianCut(), OrderedDitherer.BlueNoise))
         ///     {
         ///         converted8Bpp.SaveAsGif(@"c:\temp\8 bpp optimized palette with dithering.gif");
         ///     }
