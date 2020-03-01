@@ -20,8 +20,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using KGySoft.Collections;
-
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -82,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
     /// to already fully saturated blue pixels will not change anything. Therefore, the <see cref="ErrorDiffusionDitherer"/> can propagate quantization error
     /// by brightness based on human perception, which is more appropriate for palettes with grayscale colors.
     /// The <see cref="ErrorDiffusionDitherer"/> tries to auto detect the strategy for each dithering session but this can be overridden by
-    /// the <see cref="WithStrategy">WithStrategy</see> method. </para>
+    /// the <see cref="ConfigureErrorDiffusionMode">ConfigureErrorDiffusionMode</see> method. </para>
     /// <para>The following table demonstrates the effect of different strategies:
     /// <list type="table">
     /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
@@ -117,149 +115,8 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="InterleavedGradientNoiseDitherer"/>
     /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
     /// <seealso cref="BitmapExtensions.Dither"/>
-    public sealed class ErrorDiffusionDitherer : IDitherer
+    public sealed partial class ErrorDiffusionDitherer : IDitherer
     {
-        #region ErrorDiffusionDitheringSession class
-
-        private class ErrorDiffusionDitheringSession : IDitheringSession
-        {
-            #region Fields
-
-            private readonly IQuantizingSession quantizer;
-            private readonly ErrorDiffusionDitherer ditherer;
-            private readonly int imageWidth;
-            private readonly int imageHeight;
-            private readonly bool byBrightness;
-            private readonly CircularList<(float R, float G, float B)[]> errorsBuffer;
-
-            private int lastRow;
-
-            #endregion
-
-            #region Properties
-
-            public bool IsSequential => true;
-
-            #endregion
-
-            #region Constructors
-
-            internal ErrorDiffusionDitheringSession(IQuantizingSession quantizer, ErrorDiffusionDitherer ditherer, IBitmapData source)
-            {
-                this.quantizer = quantizer;
-                this.ditherer = ditherer;
-                imageWidth = source.Width;
-                imageHeight = source.Height;
-                byBrightness = ditherer.byBrightness ?? quantizer.Palette?.IsGrayscale ?? false;
-
-                // Initializing a circular buffer for the diffused errors.
-                // This helps to minimize used memory because it needs only a few lines to be stored.
-                // Another solution could be to store resulting colors instead of just the errors but then the color
-                // entries would be clipped not just in the end but in every iteration, and small errors would be lost
-                // that could stack up otherwise.
-                // See also the ErrorDiffusionDitherer constructor for more comments on why using floats.
-                errorsBuffer = new CircularList<(float, float, float)[]>(ditherer.matrixHeight);
-                for (int i = 0; i < ditherer.matrixHeight; i++)
-                    errorsBuffer.Add(new (float, float, float)[imageWidth]);
-            }
-
-            #endregion
-
-            #region Methods
-
-            public void Dispose()
-            {
-            }
-
-            public Color32 GetDitheredColor(Color32 origColor, int x, int y)
-            {
-                // new line
-                if (y != lastRow)
-                {
-                    errorsBuffer.RemoveFirst();
-
-                    if (y + ditherer.matrixHeight <= imageHeight)
-                        errorsBuffer.AddLast(new (float, float, float)[imageWidth]);
-
-                    lastRow = y;
-                }
-
-                Color32 currentColor;
-
-                // handling alpha
-                if (origColor.A != Byte.MaxValue)
-                {
-                    currentColor = quantizer.BlendOrMakeTransparent(origColor);
-                    if (currentColor.A == 0)
-                        return currentColor;
-                }
-                else
-                    currentColor = origColor;
-
-                // applying propagated errors to the current pixel
-                ref var error = ref errorsBuffer[0][x];
-                currentColor = new Color32((currentColor.R + (int)error.R).ClipToByte(),
-                    (currentColor.G + (int)error.G).ClipToByte(),
-                    (currentColor.B + (int)error.B).ClipToByte());
-
-                // getting the quantized result for the current pixel + errors
-                Color32 quantizedColor = quantizer.GetQuantizedColor(currentColor);
-
-                // determining the quantization error for the current pixel
-                int errR;
-                int errG;
-                int errB;
-
-                if (byBrightness)
-                    errR = errG = errB = currentColor.GetBrightness() - quantizedColor.GetBrightness();
-                else
-                {
-                    errR = currentColor.R - quantizedColor.R;
-                    errG = currentColor.G - quantizedColor.G;
-                    errB = currentColor.B - quantizedColor.B;
-                }
-
-                // no error, nothing to propagate further
-                if (errR == 0 && errG == 0 && errB == 0)
-                    return quantizedColor;
-
-                // processing the whole matrix and propagating the current error to neighbors
-                for (int my = 0; my < ditherer.matrixHeight; my++)
-                {
-                    // beyond last row
-                    if (y + my >= imageHeight)
-                        continue;
-
-                    for (int mx = 0; mx < ditherer.matrixWidth; mx++)
-                    {
-                        int targetX = x + mx - ditherer.matrixFirstPixelIndex + 1;
-
-                        // ignored coefficient or beyond first / last column
-                        if (my == 0 && mx < ditherer.matrixFirstPixelIndex || targetX <= 0 || targetX >= imageWidth)
-                            continue;
-
-                        float coefficient = ditherer.coefficientsMatrix[my, mx];
-
-                        // ReSharper disable once CompareOfFloatsByEqualityOperator - this is intended
-                        if (coefficient == 0f)
-                            continue;
-
-                        // applying the error in our buffer
-                        error = ref errorsBuffer[my][targetX];
-                        error.R += errR * coefficient;
-                        error.G += errG * coefficient;
-                        error.B += errB * coefficient;
-                    }
-                }
-
-                return quantizedColor;
-            }
-
-            #endregion
-        }
-
-        #endregion
-
         #region Fields
 
         #region Static Fields
@@ -282,6 +139,7 @@ namespace KGySoft.Drawing.Imaging
         private readonly int matrixHeight;
         private readonly int matrixFirstPixelIndex;
         private readonly bool? byBrightness;
+        private readonly bool isSerpentineProcessing;
 
         #endregion
 
@@ -385,7 +243,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
-        
+
         #region Public Constructors
 
         /// <summary>
@@ -402,7 +260,7 @@ namespace KGySoft.Drawing.Imaging
         /// Deciding by brightness can produce a better result when fully saturated colors are mapped to a grayscale palette. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="OrderedDitherer"/> instance using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.</returns>
-        public ErrorDiffusionDitherer(byte[,] matrix, int divisor, int matrixFirstPixelIndex, bool? byBrightness = null)
+        public ErrorDiffusionDitherer(byte[,] matrix, int divisor, int matrixFirstPixelIndex, bool isSerpentineProcessing = false, bool? byBrightness = null)
         {
             if (matrix == null)
                 throw new ArgumentNullException(nameof(matrix), PublicResources.ArgumentNull);
@@ -417,6 +275,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(matrixFirstPixelIndex), PublicResources.ArgumentMustBeBetween(0, matrixWidth - 1));
 
             this.matrixFirstPixelIndex = matrixFirstPixelIndex;
+            this.isSerpentineProcessing = isSerpentineProcessing;
             this.byBrightness = byBrightness;
 
             // Applying divisor to the provided matrix elements into a new float matrix. This has two benefits:
@@ -436,8 +295,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Constructors
 
-        private ErrorDiffusionDitherer(ErrorDiffusionDitherer original, bool? byBrightness)
+        private ErrorDiffusionDitherer(ErrorDiffusionDitherer original, bool isSerpentineProcessing, bool? byBrightness)
         {
+            this.isSerpentineProcessing = isSerpentineProcessing;
             this.byBrightness = byBrightness;
             coefficientsMatrix = original.coefficientsMatrix;
             matrixWidth = original.matrixWidth;
@@ -453,14 +313,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public ErrorDiffusionDitherer WithStrategy(bool? byBrightness) => new ErrorDiffusionDitherer(this, byBrightness);
+        public ErrorDiffusionDitherer ConfigureErrorDiffusionMode(bool? byBrightness) => new ErrorDiffusionDitherer(this, isSerpentineProcessing, byBrightness);
+
+        public ErrorDiffusionDitherer ConfigureProcessingDirection(bool serpentine) => new ErrorDiffusionDitherer(this, serpentine, byBrightness);
 
         #endregion
 
         #region Explicitly Implemented Interface Methods
 
         IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer)
-            => new ErrorDiffusionDitheringSession(quantizer, this, source);
+            => isSerpentineProcessing
+                ? new DitheringSessionSerpentine(quantizer, this, source)
+                : (IDitheringSession)new DitheringSessionRaster(quantizer, this, source);
 
         #endregion
 
