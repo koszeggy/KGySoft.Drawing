@@ -372,14 +372,14 @@ namespace KGySoft.Drawing.UnitTests
                 //(OrderedDitherer.Bayer4x4, nameof(OrderedDitherer.Bayer4x4)),
                 (OrderedDitherer.Bayer8x8, nameof(OrderedDitherer.Bayer8x8)),
                 //(OrderedDitherer.BlueNoise, nameof(OrderedDitherer.BlueNoise)),
-                (ErrorDiffusionDitherer.FloydSteinberg(), nameof(ErrorDiffusionDitherer.FloydSteinberg)),
-                //(ErrorDiffusionDitherer.JarvisJudiceNinke(), nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
-                //(ErrorDiffusionDitherer.Stucki(), nameof(ErrorDiffusionDitherer.Stucki)),
-                //(ErrorDiffusionDitherer.Burkes(), nameof(ErrorDiffusionDitherer.Burkes)),
-                //(ErrorDiffusionDitherer.Sierra3(), nameof(ErrorDiffusionDitherer.Sierra3)),
-                //(ErrorDiffusionDitherer.Sierra2(), nameof(ErrorDiffusionDitherer.Sierra2)),
-                //(ErrorDiffusionDitherer.SierraLite(), nameof(ErrorDiffusionDitherer.SierraLite)),
-                //(ErrorDiffusionDitherer.StevensonArce(), nameof(ErrorDiffusionDitherer.StevensonArce)),
+                (ErrorDiffusionDitherer.FloydSteinberg, nameof(ErrorDiffusionDitherer.FloydSteinberg)),
+                //(ErrorDiffusionDitherer.JarvisJudiceNinke, nameof(ErrorDiffusionDitherer.JarvisJudiceNinke)),
+                //(ErrorDiffusionDitherer.Stucki, nameof(ErrorDiffusionDitherer.Stucki)),
+                //(ErrorDiffusionDitherer.Burkes, nameof(ErrorDiffusionDitherer.Burkes)),
+                //(ErrorDiffusionDitherer.Sierra3, nameof(ErrorDiffusionDitherer.Sierra3)),
+                //(ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
+                //(ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
+                //(ErrorDiffusionDitherer.StevensonArce, nameof(ErrorDiffusionDitherer.StevensonArce)),
                 //(new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
                 //(new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
             };
@@ -469,7 +469,7 @@ namespace KGySoft.Drawing.UnitTests
             Color color = Color.FromArgb((int)argb);
 
             using var bmp = new Bitmap(size, size, pixelFormat);
-            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8);
+            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8);
             SaveImage($"{pixelFormat} {(errorDiffusion ? "Error diffusion" : "Ordered")}", bmp);
         }
 

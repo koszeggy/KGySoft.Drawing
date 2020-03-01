@@ -552,7 +552,7 @@ namespace KGySoft.Drawing
         ///
         ///     // Using the custom palette with Floyd-Steinberg dithering
         ///     using (Bitmap converted8Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed,
-        ///         PredefinedColorsQuantizer.FromCustomPalette(palette), ErrorDiffusionDitherer.FloydSteinberg()))
+        ///         PredefinedColorsQuantizer.FromCustomPalette(palette), ErrorDiffusionDitherer.FloydSteinberg))
         ///     {
         ///         converted8Bpp.SaveAsGif(@"c:\temp\8bpp custom palette with dithering.gif");
         ///     }
@@ -593,7 +593,7 @@ namespace KGySoft.Drawing
         ///     // Converting to black-and-white with Floyd-Steinberg dithering
         ///     // Alpha pixels will be blended with blue color, which also affects the result.
         ///     using (Bitmap converted1Bpp = original.ConvertPixelFormat(PixelFormat.Format8bppIndexed,
-        ///         PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), ErrorDiffusionDitherer.FloydSteinberg()))
+        ///         PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), ErrorDiffusionDitherer.FloydSteinberg))
         ///     {
         ///         converted1Bpp.SaveAsTiff(@"c:\temp\black and white with dithering.tiff");
         ///     }
@@ -1220,7 +1220,7 @@ namespace KGySoft.Drawing
         public static void SaveAsGif(this Image image, Stream stream, bool allowDithering)
             => SaveAsGif(image, stream,
                 image is Bitmap bmp && bmp.PixelFormat.IsIndexed() ? null : PredefinedColorsQuantizer.SystemDefault8BppPalette(),
-                allowDithering ? ErrorDiffusionDitherer.FloydSteinberg() : null);
+                allowDithering ? ErrorDiffusionDitherer.FloydSteinberg : null);
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> as a GIF image.

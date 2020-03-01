@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             const int size = 512;
             Color color = Color.FromArgb((int)argb);
-            var ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8;
+            var ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8;
 
             new PerformanceTest { TestName = $"{pixelFormat} {size}x{size} {(errorDiffusion ? "Error Diffusion" : "Ordered Dithering")}", Iterations = 10, CpuAffinity = null }
                 .AddCase(() =>
@@ -147,7 +147,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
             IQuantizer quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette();
-            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8;
+            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8;
             new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()} {(errorDiffusion ? "Error Diffusion" : "Ordered")}", Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {

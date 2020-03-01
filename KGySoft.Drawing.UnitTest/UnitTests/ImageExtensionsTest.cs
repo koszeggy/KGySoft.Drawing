@@ -163,7 +163,7 @@ namespace KGySoft.Drawing.UnitTests
             using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
 
             // drawing sources into destination
-            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg() : OrderedDitherer.Bayer8x8;
+            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8;
             Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset, ditherer));
             Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height), ditherer));
 
