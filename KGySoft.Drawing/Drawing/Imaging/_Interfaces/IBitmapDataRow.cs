@@ -49,10 +49,12 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         /// <summary>
-        /// Moves the next row.
+        /// If not already in the last row (<see cref="Index"/> is less than <see cref="IBitmapData.Height">Height</see> of the owner <see cref="IBitmapData"/>),
+        /// then advances the position of the current <see cref="IBitmapDataRow"/> instance so it points to the next row.
         /// <br/>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.
         /// </summary>
-        /// <returns></returns>
+        /// <returns><see langword="true"/>, if this <see cref="IBitmapDataRow"/> has been advanced to another row;
+        /// <see langword="false"/>, if this <see cref="IBitmapDataRow"/> had already pointed to the last row before this method was called.</returns>
         bool MoveNextRow();
 
         #endregion

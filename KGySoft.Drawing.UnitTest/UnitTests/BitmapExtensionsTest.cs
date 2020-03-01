@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Fields
 
-        private static object[][] quantizeTestSource =
+        private static readonly object[][] quantizeTestSource =
         {
             new object[] { "RGB888 Black", PredefinedColorsQuantizer.Rgb888(), 1 << 24 },
             new object[] { "RGB888 White", PredefinedColorsQuantizer.Rgb888(Color.White), 1 << 24 },
@@ -90,7 +90,7 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "Wu 256 TR", OptimizedPaletteQuantizer.MedianCut(256, Color.White), 256 },
         };
 
-        private static object[][] quantizerBatchTestSource =
+        private static readonly object[][] quantizerBatchTestSource =
         {
             //new object[] { "RGB888 Black", PredefinedColorsQuantizer.Rgb888(), 1 << 24 },
             //new object[] { "RGB888 White", PredefinedColorsQuantizer.Rgb888(Color.White), 1 << 24 },
@@ -496,10 +496,10 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase("32 bit ARGB", PixelFormat.Format32bppArgb, false)]
         [TestCase("8 bit by palette", PixelFormat.Format8bppIndexed, false)]
         [TestCase("32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
-        public void InverseTest(string testName, PixelFormat pixelFormat, bool useDithering)
+        public void InvertTest(string testName, PixelFormat pixelFormat, bool useDithering)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.Inverse(useDithering ? OrderedDitherer.Bayer8x8 : null));
+            Assert.DoesNotThrow(() => bmp.Invert(useDithering ? OrderedDitherer.Bayer8x8 : null));
             SaveImage(testName, bmp);
         }
 

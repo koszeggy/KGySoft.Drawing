@@ -28,9 +28,6 @@ namespace KGySoft.Drawing.Imaging
     /// Represents the same 32-bit ARGB color as the <see cref="Color"/> structure does but in a more optimized way
     /// for better performance and smaller memory consumption.
     /// </summary>
-    // Comment TODO:
-    // - Implicit conversion from and to Color exists.
-    //   Note: Does not contain known color properties. Just use Color32 c = Color.Blue, for example.
     [StructLayout(LayoutKind.Explicit)]
     public readonly struct Color32 : IEquatable<Color32>
     {
@@ -56,15 +53,27 @@ namespace KGySoft.Drawing.Imaging
         #region Public Fields
 #pragma warning disable CA1051 // Do not declare visible instance fields - the fields (and the whole struct) are read-only
 
+        /// <summary>
+        /// Gets the alpha component value of this <see cref="Color32"/> structure.
+        /// </summary>
         [FieldOffset(3)]
         public readonly byte A;
 
+        /// <summary>
+        /// Gets the red component value of this <see cref="Color32"/> structure.
+        /// </summary>
         [FieldOffset(2)]
         public readonly byte R;
 
+        /// <summary>
+        /// Gets the green component value of this <see cref="Color32"/> structure.
+        /// </summary>
         [FieldOffset(1)]
         public readonly byte G;
 
+        /// <summary>
+        /// Gets the blue component value of this <see cref="Color32"/> structure.
+        /// </summary>
         [FieldOffset(0)]
         public readonly byte B;
 
@@ -84,9 +93,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Operators
 
-        public static bool operator ==(Color32 a, Color32 b) => a.Equals(b);
+        /// <summary>
+        /// Gets whether two <see cref="Color32"/> structures are equal.
+        /// </summary>
+        /// <param name="left">The <see cref="Color32"/> instance that is to the left of the equality operator.</param>
+        /// <param name="right">The <see cref="Color32"/> instance that is to the right of the equality operator.</param>
+        /// <returns><see langword="true"/>&#160;if the two <see cref="Color32"/> structures are equal; otherwise, <see langword="false"/>.</returns>
+        public static bool operator ==(Color32 left, Color32 right) => left.Equals(right);
 
-        public static bool operator !=(Color32 a, Color32 b) => !a.Equals(b);
+        /// <summary>
+        /// Gets whether two <see cref="Color32"/> structures are different.
+        /// </summary>
+        /// <param name="left">The <see cref="Color32"/> instance that is to the left of the inequality operator.</param>
+        /// <param name="right">The <see cref="Color32"/> instance that is to the right of the inequality operator.</param>
+        /// <returns><see langword="true"/>&#160;if the two <see cref="Color32"/> structures are different; otherwise, <see langword="false"/>.</returns>
+        public static bool operator !=(Color32 left, Color32 right) => !left.Equals(right);
 
         #endregion
 
@@ -94,6 +115,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Constructors
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Color32"/> struct from ARGB (alpha, red, green, and blue) values.
+        /// </summary>
+        /// <param name="a">The alpha component.</param>
+        /// <param name="r">The red component.</param>
+        /// <param name="g">The green component.</param>
+        /// <param name="b">The blue component.</param>
         public Color32(byte a, byte r, byte g, byte b)
             : this() // so the compiler does not complain about not initializing value
         {
@@ -103,11 +131,21 @@ namespace KGySoft.Drawing.Imaging
             A = a;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Color32"/> struct from RGB (red, green, and blue) values.
+        /// </summary>
+        /// <param name="r">The red component.</param>
+        /// <param name="g">The green component.</param>
+        /// <param name="b">The blue component.</param>
         public Color32(byte r, byte g, byte b)
             : this(Byte.MaxValue, r, g, b)
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Color32"/> struct from a <see cref="Color"/> instance.
+        /// </summary>
+        /// <param name="c">A <see cref="Color"/> structure to initialize a new instance of <see cref="Color32"/> from.</param>
         public Color32(Color c) : this((uint)c.ToArgb()) { }
 
         #endregion
@@ -128,33 +166,90 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
+        /// <summary>
+        /// Creates a <see cref="Color32"/> structure from a 32-bit ARGB value.
+        /// </summary>
+        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>AARRGGBB</c> where <c>AA</c>
+        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB).</param>
+        /// <returns>A <see cref="Color32"/> structure from the specified 32-bit ARGB value.</returns>
         public static Color32 FromArgb(int argb) => new Color32((uint)argb);
 
+        /// <summary>
+        /// Creates a <see cref="Color32"/> instance from the specified <see cref="Color32"/> structure, but with the new specified alpha value.
+        /// </summary>
+        /// <param name="a">The alpha value for the new <see cref="Color32"/> instance.</param>
+        /// <param name="baseColor">The <see cref="Color32"/> instance from which to create the new one.</param>
+        /// <returns>A <see cref="Color32"/> instance from the specified <see cref="Color32"/> structure and alpha value.</returns>
         public static Color32 FromArgb(byte a, Color32 baseColor)
             => new Color32(((uint)a << 24) | (baseColor.value & rgbMask));
 
+        /// <summary>
+        /// Creates a <see cref="Color32"/> structure from a 24-bit RGB value. The highest byte of the specified integer is ignored
+        /// and the <see cref="A">A</see> property of the result will be 255.
+        /// </summary>
+        /// <param name="rgb">A value specifying the 24-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
+        /// <returns>A <see cref="Color32"/> structure from a 24-bit RGB value.</returns>
         public static Color32 FromRgb(int rgb) => new Color32(alphaMask | (uint)rgb);
 
-        public static Color32 FromGray(byte level) => new Color32(level, level, level);
+        /// <summary>
+        /// Creates a <see cref="Color32"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.
+        /// </summary>
+        /// <param name="brightness">The brightness of the gray color to be created where 0 represents the black color and 255 represents the white color.</param>
+        /// <returns>A <see cref="Color32"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.</returns>
+        public static Color32 FromGray(byte brightness) => new Color32(brightness, brightness, brightness);
 
         #endregion
 
         #region Instance Methods
 
+        /// <summary>
+        /// Converts this <see cref="Color32"/> instance to a <see cref="Color"/> structure.
+        /// </summary>
+        /// <returns>A <see cref="Color"/> structure converted from this <see cref="Color32"/> instance.</returns>
         public Color ToColor() => Color.FromArgb(ToArgb());
 
+        /// <summary>
+        /// Gets the 32-bit ARGB value of this <see cref="Color32"/> instance.
+        /// </summary>
+        /// <returns>The 32-bit ARGB value of this <see cref="Color32"/> instance</returns>
         public int ToArgb() => (int)value;
 
+        /// <summary>
+        /// Gets the 24-bit RGB value of this <see cref="Color32"/> instance. The most significant byte of the returned integer is zero.
+        /// </summary>
+        /// <returns>The 24-bit RGB value of this <see cref="Color32"/> instance. The most significant byte of the returned integer is zero.</returns>
         public int ToRgb() => (int)(~alphaMask & value);
 
+        /// <summary>
+        /// Gets a <see cref="Color32"/> instance that represents the matching gray shade of this <see cref="Color32"/> instance based on human perception.
+        /// </summary>
+        /// <returns>A <see cref="Color32"/> instance that represents the matching gray shade of this <see cref="Color32"/> instance based on human perception.</returns>
         public Color32 ToGray() => FromArgb(A, FromGray(this.GetBrightness()));
 
+        /// <summary>
+        /// Determines whether the current <see cref="Color32"/> instance is equal to another one.
+        /// </summary>
+        /// <param name="other">A <see cref="Color32"/> structure to compare with this <see cref="Color32"/> instance.</param>
+        /// <returns><see langword="true"/>, if the current <see cref="Color32"/> instance is equal to the <paramref name="other" /> parameter; otherwise, <see langword="false" />.</returns>
         public bool Equals(Color32 other) => value == other.value;
 
+        /// <summary>
+        /// Determines whether the specified <see cref="object"/> is equal to this <see cref="Color32"/> instance.
+        /// </summary>
+        /// <param name="obj">The <see cref="object" /> to compare with this <see cref="Color32"/> instance.</param>
+        /// <returns><see langword="true"/>, if the current <see cref="Color32"/> instance is equal to the <paramref name="obj" /> parameter; otherwise, <see langword="false" />.</returns>
         public override bool Equals(object obj) => obj is Color32 other && Equals(other);
 
+        /// <summary>
+        /// Returns a hash code for this instance.
+        /// </summary>
+        /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public override int GetHashCode() => (int)value;
 
+        /// <summary>
+        /// Gets the string representation of this <see cref="Color32"/> instance.
+        /// </summary>
+        /// <returns>A <see cref="string"/> that represents this <see cref="Color32"/> instance.</returns>
         public override string ToString() => $"{value:X8} [A={A}; R={R}; G={G}; B={B}]";
 
         #endregion

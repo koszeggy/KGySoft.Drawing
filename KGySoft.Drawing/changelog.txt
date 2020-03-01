@@ -17,6 +17,28 @@
 + KGySoft.Frawing.Imaging namespace:
 ====================================
 A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and managed way.
+Additionally, provides types for quantization and dithering.
+The new public types in this namespace:
++ IBitmapData interface
++ IReadableBitmapData interface
++ IWritableBitmapData interface
++ IReadWriteBitmapData interface
++ IBitmapDataRow interface
++ IReadableBitmapDataRow interface
++ IWritableBitmapDataRow interface
++ IReadWriteBitmapDataRow interface
++ IDitherer interface
++ IDitheringSession interface
++ IQuantizer interface
++ IQuantizingSession interface
++ PredefinedColorsQuantizer class
++ OptimizedPaletteQuantizer class
++ OrderedDitherer class
++ ErrorDiffusionDitherer class
++ InterleavedGradientNoiseDitherer class
++ RandomNoiseDitherer class
++ Palette class
++ Color32 structure
 
 - KGySoft.Drawing namespace:
 ============================

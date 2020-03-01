@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// The <c>KGySoft.Drawing.Imaging</c> namespace provides advanced imaging functionality such as low-level bitmap data access for any pixel format,
     /// interfaces for quantization and dithering along with some built-in implementations, etc.
-    /// Basic functionality is provided by the <see cref="N:KGySoft.Drawing"/> namespace, which .
+    /// <br/>See also the <see cref="N:KGySoft.Drawing"/> namespace, which provides more basic functionality.
     /// </summary>
     [CompilerGenerated]
     internal static class NamespaceDoc

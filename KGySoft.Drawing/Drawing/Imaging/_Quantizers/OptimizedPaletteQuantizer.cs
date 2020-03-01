@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
     /// palette of up to 256 colors where the palette entries are optimized for the quantized image.</para>
     /// <para>This class supports palette optimization by three different algorithms (see the
     /// <see cref="Octree">Octree</see>, <see cref="MedianCut">MedianCut</see> and <see cref="Wu">Wu</see> methods)</para>
-    /// <para>The following list compares the algorithms supported by the <see cref="OptimizedPaletteQuantizer"/> class:
+    /// <para>The following table compares the algorithms supported by the <see cref="OptimizedPaletteQuantizer"/> class:
     /// <list type="table">
     /// <listheader><term></term><term><see cref="Octree">Octree</see></term><term><see cref="MedianCut">MedianCut</see></term><term><see cref="Wu">Wu</see></term></listheader>
     /// <item>
@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
     /// <para>On the other hand, the <see cref="IQuantizingSession"/> can also consume a large amount of memory during the quantization
     /// because its <see cref="Palette"/> caches the quantization results of the source image pixels, though this caching does not
     /// depend on the chosen algorithm and can also be reclaimed when the <see cref="IQuantizingSession"/> is disposed.</para>
-    /// <para>So keeping a reference to an <see cref="OptimizedPaletteQuantizer"/> consumes also no memory when there is no active quantization session in progress.</para>
+    /// <para>So keeping a reference to an <see cref="OptimizedPaletteQuantizer"/> consumes almost no memory when there is no active quantization session in progress.</para>
     /// </note>
     /// </para>
     /// <para>The following table compares the results of the <see cref="OptimizedPaletteQuantizer"/> instances returned by the
@@ -283,16 +283,16 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for an example,
         /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
-        /// <param name="maxColors">The upper limit of generated colors. Must be between <c>2</c> and <c>256</c>, inclusive. This parameter is optional.
+        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 256, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
-        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
-        /// If <c>0</c>, then the quantized colors will never be transparent. This parameter is optional.
+        /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Octree quantizing algorithm.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between <c>2</c> and <c>256</c>, inclusive bounds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 256, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
@@ -320,16 +320,16 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for an example,
         /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
-        /// <param name="maxColors">The upper limit of generated colors. Must be between <c>2</c> and <c>256</c>, inclusive. This parameter is optional.
+        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 256, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
-        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
-        /// If <c>0</c>, then the quantized colors will never be transparent. This parameter is optional.
+        /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Median Cut quantizing algorithm.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between <c>2</c> and <c>256</c>, inclusive bounds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 256, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
@@ -357,16 +357,16 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for an example,
         /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
-        /// <param name="maxColors">The upper limit of generated colors. Must be between <c>2</c> and <c>256</c>, inclusive. This parameter is optional.
+        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 256, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
-        /// The <see cref="Color.A"/> property of the background color is ignored. This parameter is optional.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
-        /// If <c>0</c>, then the quantized colors will never be transparent. This parameter is optional.
+        /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image by Xiaolin Wu's quantizing algorithm.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between <c>2</c> and <c>256</c>, inclusive bounds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 256, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[

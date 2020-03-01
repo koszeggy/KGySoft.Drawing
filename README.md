@@ -2,7 +2,8 @@
 
 # KGy SOFT Drawing Libraries
 
-KGy SOFT Drawing Libraries provides advanced features for System.Drawing types.
+KGy SOFT Drawing Libraries offer advanced features for System.Drawing types.
+Multiple versions of .NET Framework and .NET Core are supported. Tested on Windows and Linux (both in Mono and .NET Core environments).
 
 [![Website](https://img.shields.io/website/https/kgysoft.net/corelibraries.svg)](https://kgysoft.net/drawing)
 [![Online Help](https://img.shields.io/website/https/docs.kgysoft.net/drawing.svg?label=online%20help&up_message=available)](https://docs.kgysoft.net/drawing)
@@ -17,7 +18,11 @@ KGy SOFT Drawing Libraries provides advanced features for System.Drawing types.
 2. [Project Site](#project-site)
 3. [Documentation](#documentation)
 4. [Release Notes](#release-notes)
-5. [License](#license)
+5. [Examples](#examples)
+   - [Icon Manipulation](#icon-manipulation)
+   - [Fast Bitmap Manipulation](#fast-bitmap-manipulation)
+   - [Quantizing and Dithering](#quantizing-and-dithering)
+6. [License](#license)
 
 ## Download:
 
@@ -47,6 +52,68 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 ## Release Notes
 
 See the [change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt).
+
+## Examples
+
+### Icon Manipulation
+
+Icon images of different resolutions and color depth can be extracted from an `Icon`, whereas `Bitmap` and `Icon` instances can be combined into a new `Icon`. PNG compressed icons are also supported.
+
+```cs
+// extracting the 256x256 image from an icon:
+Bitmap bmp = Icons.ExtractBitmap(new Size(256, 256));
+
+// combining an existing icon with a bitmap:
+Icon combined = myIcon.Combine(bmp);
+```
+
+> _Tip:_ See more details at the [Icons](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Icons.htm) and [IconExtensions](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_IconExtensions.htm) classes.
+
+### Fast Bitmap Manipulation
+
+As it is well known, `Bitmap.SetPixel`/`GetPixel` methods are very slow. Additionally, they do not support every pixel format. A typical solution can be to obtain a `BitmapData` by the `LockBits` method, which has further drawbacks: you need to use unsafe code and pointers and the way you need to access the bitmap data depends on the actual `PixelFormat` of the bitmap.
+
+KGy SOFT Drawing Libraries offer very fast and convenient way to overcome these issues. A managed accessor can be obtained by the [`GetReadableBitmapData`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadableBitmapData.htm), [`GetWritableBitmapData`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetWritableBitmapData.htm) and [`GetReadWriteBitmapData`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) methods:
+
+```cs
+var targetFormat = PixelFormat.Format8bppIndexed; // feel free to try other formats as well
+using (Bitmap bmpSrc = Icons.Shield.ExtractBitmap(new Size(256, 256)))
+using (Bitmap bmpDst = new Bitmap(256, 256, targetFormat))
+{
+    using (IReadableBitmapData dataSrc = bmpSrc.GetReadableBitmapData())
+    using (IWritableBitmapData dataDst = bmpDst.GetWritableBitmapData())
+    {
+        IReadableBitmapDataRow rowSrc = dataSrc.FirstRow;
+        IWritableBitmapDataRow rowDst = dataDst.FirstRow;
+        do
+        {
+            for (int x = 0; x < dataSrc.Width; x++)
+                rowDst[x] = rowSrc[x]; // works also between different pixel formats
+
+        } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+    }
+
+    bmpSrc.SaveAsPng(@"c:\temp\bmpSrc.png");
+    bmpDst.SaveAsPng(@"c:\temp\bmpDst.png"); // or saveAsGif/SaveAsTiff to preserve the indexed format
+}
+```
+
+> _Tip:_ See more examples with image examples at the [`GetReadWriteBitmapData`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) extension method.
+
+If you know the actual pixel format you can also access the raw data in a managed way. See the [`IReadableBitmapDataRow.ReadRaw`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) method for details and examples.
+
+### Quantizing and Dithering
+
+KGy SOFT Drawing Libraries offer quantizing (reducing the number of colors on an image) and dithering (techniques for preserving the details of a quantized image) in several ways:
+
+* The [`ConvertPixelFormat`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm) extension method returns a new `Bitmap` as the result of the quantizing/dithering.
+* The [`Quantize`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_Quantize.htm) and [`Dither`](http://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_Dither.htm) extension methods modify the original `Bitmap`.
+* The [`DrawInto`](http://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_DrawInto.htm) overloads can use dithering when drawing an `Image` into a `Bitmap` if they have different pixel formats.
+* Several further extension methods in the [`BitmapExtensions`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_BitmapExtensions.htm) class have an [`IDitherer`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_IDitherer.htm) parameter.
+
+> _Tip:_
+> * For built-in quantizers see the [`PredefinedColorsQuantizer`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer.htm) and [`OptimizedPaletteQuantizer`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer.htm) classes. See their members for code samples and image examples.
+> * For built-in ditherers see the [`OrderedDitherer`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm), [`ErrorDiffusionDitherer`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm), [`RandomNoiseDitherer`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm) and [`InterleavedGradientNoiseDitherer`](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) classes. See their members for code samples and image examples.
 
 ## License
 This repository is under the [CC BY-ND 4.0](https://creativecommons.org/licenses/by-nd/4.0/legalcode) license (see a short summary [here](https://creativecommons.org/licenses/by-nd/4.0)). It allows you to copy and redistribute the material in any medium or format for any purpose, even commercially. The only thing is not allowed is to distribute a modified material as yours.

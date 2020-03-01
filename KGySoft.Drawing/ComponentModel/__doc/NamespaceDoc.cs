@@ -18,14 +18,15 @@
 
 using System.ComponentModel;
 using System.Runtime.CompilerServices;
-using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.ComponentModel
 {
     /// <summary>
-    /// Contains <see cref="TypeConverter"/> implementations.
+    /// In KGy SOFT Drawing Libraries the <c>KGySoft.ComponentModel</c> namespace contains a single <see cref="TypeConverter"/> implementation.
+    /// <br/>For more <c>KGySoft.ComponentModel</c> types see the <a href="http://docs.kgysoft.net/corelibraries/?topic=html/N_KGySoft_ComponentModel.htm" target="_blank">KGySoft.ComponentModel</a> namespace of the KGy SOFT Core Libraries.
+    /// <br/>For the main KGy SOFT Drawing Libraries features see the <see cref="N:KGySoft.Drawing">KGySoft.Drawing</see> and <see cref="N:KGySoft.Drawing.Imaging">KGySoft.Drawing.Imaging</see> namespaces.
     /// </summary>
     [CompilerGenerated]
     internal static class NamespaceDoc

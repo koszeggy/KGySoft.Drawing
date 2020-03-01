@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -38,6 +39,7 @@ namespace KGySoft.Drawing
         #region WmfHeader struct
 
         [StructLayout(LayoutKind.Sequential, Pack = 2)]
+        [SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable", Justification = "Serialized structure")]
         private struct WmfHeader
         {
             #region Fields
@@ -197,6 +199,17 @@ namespace KGySoft.Drawing
             }
         }
 
+        /// <summary>
+        /// Saves the specified <paramref name="metafile"/> as an EMF (Enhanced Metafile) using Windows API.
+        /// </summary>
+        /// <param name="metafile">The <see cref="Metafile"/> instance to save. It must have <see cref="ImageFormat.Emf"/> raw format.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The <see cref="Image.RawFormat"/> of the specified <paramref name="metafile"/> is not the <see cref="ImageFormat.Emf"/> format.</exception>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
         public static void SaveAsEmf(this Metafile metafile, Stream stream)
         {
             if (metafile == null)
@@ -206,6 +219,17 @@ namespace KGySoft.Drawing
             Save(metafile, stream, false);
         }
 
+        /// <summary>
+        /// Saves the specified <paramref name="metafile"/> to the specified file as an EMF (Enhanced Metafile) using Windows API.
+        /// </summary>
+        /// <param name="metafile">The <see cref="Metafile"/> instance to save. It must have <see cref="ImageFormat.Emf"/> raw format.</param>
+        /// <param name="fileName">The name of the file to which to save the <paramref name="metafile"/>. The directory of the specified path is created if it does not exist.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="fileName"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException">The <see cref="Image.RawFormat"/> of the specified <paramref name="metafile"/> is not the <see cref="ImageFormat.Emf"/> format.</exception>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
         public static void SaveAsEmf(this Metafile metafile, string fileName)
         {
             if (metafile == null)
@@ -216,8 +240,28 @@ namespace KGySoft.Drawing
                 SaveAsEmf(metafile, fs);
         }
 
+        /// <summary>
+        /// Saves the specified <paramref name="metafile"/> as a WMF (Windows Metafile) using Windows API.
+        /// </summary>
+        /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
         public static void SaveAsWmf(this Metafile metafile, Stream stream) => Save(metafile, stream, true);
 
+        /// <summary>
+        /// Saves the specified <paramref name="metafile"/> to the specified file as a WMF (Windows Metafile) using Windows API.
+        /// </summary>
+        /// <param name="metafile">The <see cref="Metafile"/> instance to save.</param>
+        /// <param name="fileName">The name of the file to which to save the <paramref name="metafile"/>. The directory of the specified path is created if it does not exist.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="metafile"/> or <paramref name="fileName"/> is <see langword="null"/>.</exception>
+        /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
+        /// <remarks>
+        /// <note>This method is supported on Windows only.</note>
+        /// </remarks>
         public static void SaveAsWmf(this Metafile metafile, string fileName)
         {
             if (metafile == null)

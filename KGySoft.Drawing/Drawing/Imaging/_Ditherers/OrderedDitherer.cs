@@ -29,12 +29,12 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for dithering patterns that are based on an ordered matrix.
     /// Use the static properties of this class to use predefined patterns or the <see cref="OrderedDitherer(byte[,],float)">constructor</see> to create a custom ordered ditherer.
-    /// <br/>See the <strong>Remarks</strong> section for details and results comparison.
+    /// <br/>See the <strong>Remarks</strong> section for details and some image examples.
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="OrderedDitherer(byte[,],float)">constructor</see> can be used to create an ordered ditherer using a custom matrix.</para>
-    /// <para>Use the static properties to create an instance with a predefined pattern. For the best results use the <see cref="Bayer8x8">Bayer8x8</see>
-    /// or <see cref="BlueNoise">BlueNoise</see> properties. Or you can use <see cref="DottedHalftone">DottedHalftone</see> property for artistic results.</para>
+    /// <para>Use the static properties to obtain an instance with a predefined pattern. For the best results use the <see cref="Bayer8x8">Bayer8x8</see>
+    /// or <see cref="BlueNoise">BlueNoise</see> properties. Or you can use the <see cref="DottedHalftone">DottedHalftone</see> property for artistic results.</para>
     /// <para>The <see cref="OrderedDitherer"/> class offers a very fast dithering technique based on an ordered pattern specified in a matrix of bytes.
     /// The more different values the matrix has the more number of different patterns can be mapped to the shades of the original pixels.
     /// While quantizing lighter and lighter colors, the different patterns appear in the order of the values in the specified matrix.</para>
@@ -74,13 +74,13 @@ namespace KGySoft.Drawing.Imaging
     /// </list></para>
     /// <para>Unlike in case of the <see cref="ErrorDiffusionDitherer"/>, ordered dithering does not adjust strength to the quantization error of a pixel
     /// but simply uses the specified matrix values based on pixel coordinates to determine the quantized result.
-    /// Therefore, a strength can be specified (see the <see cref="OrderedDitherer(byte[,],float)">constructor</see> and the <see cref="WithStrength">WithStrength</see> method),
+    /// Therefore, a strength can be specified (see the <see cref="OrderedDitherer(byte[,],float)">constructor</see> and the <see cref="ConfigureStrength">ConfigureStrength</see> method),
     /// whose ideal value depends on the colors that a quantizer can return. If the strength is too low, then banding may appear in the result in place of gradients in the original image;
     /// whereas if the strength is too high, then dithering patterns may appear even in colors without quantization error (overdithering).</para>
     /// <para>Every static property in the <see cref="OrderedDitherer"/> returns an instance with auto strength, meaning that
     /// strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
     /// The auto value is usually correct if the quantizer returns evenly distributed colors. To obtain an <see cref="OrderedDitherer"/> instance with custom strength
-    /// use the <see cref="WithStrength">WithStrength</see> method.</para>
+    /// use the <see cref="ConfigureStrength">ConfigureStrength</see> method.</para>
     /// <para>The following table demonstrates the effect of different strengths:
     /// <list type="table">
     /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
@@ -144,10 +144,7 @@ namespace KGySoft.Drawing.Imaging
             #region Methods
 
             protected override sbyte GetOffset(int x, int y)
-            {
-                // applying the matrix and strength adjustments
-                return ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
-            }
+                => ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
 
             #endregion
         }
@@ -190,7 +187,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
-        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
         /// public static Bitmap ToDitheredBayer2x2(Bitmap source, IQuantizer quantizer)
         /// {
@@ -239,7 +236,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
-        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
         /// public static Bitmap ToDitheredBayer3x3(Bitmap source, IQuantizer quantizer)
         /// {
@@ -289,7 +286,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
-        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
         /// public static Bitmap ToDitheredBayer4x4(Bitmap source, IQuantizer quantizer)
         /// {
@@ -340,7 +337,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
-        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
         /// public static Bitmap ToDitheredBayer8x8(Bitmap source, IQuantizer quantizer)
         /// {
@@ -417,7 +414,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
-        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
         /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
         /// {
@@ -477,7 +474,7 @@ namespace KGySoft.Drawing.Imaging
         /// To dither images with real random noise use the <see cref="RandomNoiseDitherer"/>, which applies white noise to the quantized source.</note>
         /// </remarks>
         /// <example>
-        /// The following example demonstrates how to use the ditherer returned by this method:
+        /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
         /// public static Bitmap ToDitheredBlueNoise(Bitmap source, IQuantizer quantizer)
         /// {
@@ -595,18 +592,17 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <param name="matrix">A matrix to be used as the coefficients of the dithering. Ideally contains every value between zero
-        /// and the maximum value in the matrix. Repeated values will always together for the same input pixels.</param>
+        /// and the maximum value in the matrix. Repeated values will appear always together for the same input colors.</param>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
-        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WithStrength">WithStrength</see> method for details about dithering strength. This parameter is optional.
+        /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ConfigureStrength">ConfigureStrength</see> method for details about dithering strength. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
-        /// <returns>An <see cref="OrderedDitherer"/> instance using the specified <paramref name="matrix"/> and <paramref name="strength"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="matrix"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="matrix"/> is empty.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use a custom ditherer using the <see cref="OrderedDitherer"/> constructor.
-        /// It produces a similar dotted halftone pattern to the result <see cref="DottedHalftone"/> property but in a rectangular
+        /// It produces a similar dotted halftone pattern to the result of the <see cref="DottedHalftone"/> property but in a rectangular
         /// arrangement and with less different patterns:
         /// <code lang="C#"><![CDATA[
         /// public static Bitmap ToCustomDithered(Bitmap source, IQuantizer quantizer)
@@ -657,7 +653,7 @@ namespace KGySoft.Drawing.Imaging
         /// </list></para>
         /// <note type="tip"><list type="bullet">
         /// <item>Use the static properties to perform dithering with predefined patterns.</item>
-        /// <item>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</item>
+        /// <item>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and image examples.</item>
         /// </list></note>
         /// </example>
         public OrderedDitherer(byte[,] matrix, float strength = 0f)
@@ -735,7 +731,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
-        /// Specify <c>0</c> to use an auto value for each dithering session based on the used quantizer.</param>
+        /// Specify 0 to use an auto value for each dithering session based on the used quantizer.</param>
         /// <returns>A new <see cref="OrderedDitherer"/> instance that has the specified dithering <paramref name="strength"/>.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         /// <remarks>
@@ -743,7 +739,7 @@ namespace KGySoft.Drawing.Imaging
         /// This is required for the static properties so they can return a cached instance.</note>
         /// <para>If <paramref name="strength"/> is too low, then banding may appear in the result in place of gradients in the original image;
         /// whereas if <paramref name="strength"/> is too high, then dithering patterns may appear even in colors without quantization error (overdithering).</para>
-        /// <para>If <paramref name="strength"/> is <c>0</c>, then strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
+        /// <para>If <paramref name="strength"/> is 0, then strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
         /// This is the default for <see cref="OrderedDitherer"/> instances returned by the static properties.</para>
         /// <para>The following table demonstrates the effect of different strengths:
         /// <list type="table">
@@ -767,11 +763,11 @@ namespace KGySoft.Drawing.Imaging
         /// The following example demonstrates how to specify the strength for a predefined ordered ditherer:
         /// <code lang="C#"><![CDATA[
         /// // getting a predefined ditherer with custom strength:
-        /// IDitherer ditherer = OrderedDitherer.Bayer8x8.WithStrength(0.5f);
+        /// IDitherer ditherer = OrderedDitherer.Bayer8x8.ConfigureStrength(0.5f);
         /// ]]></code>
         /// </example>
         // ReSharper disable once ParameterHidesMember
-        public OrderedDitherer WithStrength(float strength) => new OrderedDitherer(this, strength);
+        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength);
 
         #endregion
 

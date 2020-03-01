@@ -35,10 +35,10 @@
     </DocumentationSources>
     <NamespaceSummaries>
     </NamespaceSummaries>
-    <VisibleItems>Attributes, InheritedMembers, InheritedFrameworkMembers, Protected, ProtectedInternalAsProtected, EditorBrowsableNever, NonBrowsable</VisibleItems>
+    <VisibleItems>Attributes, InheritedMembers, Protected, ProtectedInternalAsProtected, EditorBrowsableNever, NonBrowsable</VisibleItems>
     <MissingTags>Summary, Parameter, Returns, AutoDocumentCtors, Namespace, TypeParameter, AutoDocumentDispose</MissingTags>
     <BuildAssemblerVerbosity>OnlyWarningsAndErrors</BuildAssemblerVerbosity>
-    <HelpFileFormat>HtmlHelp1</HelpFileFormat>
+    <HelpFileFormat>HtmlHelp1, Website</HelpFileFormat>
     <IndentHtml>False</IndentHtml>
     <NamingMethod>MemberName</NamingMethod>
     <KeepLogFile>False</KeepLogFile>
@@ -472,37 +472,19 @@
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Help\Images\ConvertPixelFormat24bppCyan.png">
+    <Content Include="Help\Images\Shield24bppCyan.png">
       <ImageId>ConvertPixelFormat24bppCyan</ImageId>
       <AlternateText>Convert Pixel Format 24bpp Cyan</AlternateText>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Help\Images\ConvertPixelFormat8bppCustom.gif">
-      <ImageId>ConvertPixelFormat8bppCustom</ImageId>
-      <AlternateText>Convert Pixel Format 8bpp Custom</AlternateText>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Help\Images\ConvertPixelFormat8bppCustomDithered.gif">
-      <ImageId>ConvertPixelFormat8bppCustomDithered</ImageId>
-      <AlternateText>Convert Pixel Format 8bpp Custom Dithered</AlternateText>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Help\Images\ConvertPixelFormat1bppBWDithered.gif">
-      <ImageId>ConvertPixelFormat1bppBWDithered</ImageId>
-      <AlternateText>Convert Pixel Format 1bppBWDithered</AlternateText>
-    </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Content Include="Help\Images\ConvertPixelFormat16bppGrayscale.png">
+    <Content Include="Help\Images\ShieldGrayscaleCyan.png">
       <ImageId>ConvertPixelFormat16bppGrayscale</ImageId>
       <AlternateText>Convert Pixel Format 16bpp Grayscale</AlternateText>
     </Content>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Help\Images\ConvertPixelFormat8bppOptimizedDithered.gif">
+    <Content Include="Help\Images\ShieldMedianCut256BlackDitheredBN.gif">
       <ImageId>ConvertPixelFormat8bppOptimizedDithered</ImageId>
       <AlternateText>Convert Pixel Format 8bpp Optimized Dithered</AlternateText>
     </Content>
@@ -1211,6 +1193,74 @@
     <Content Include="Help\Images\GrayShadesBWDitheredDH.gif">
       <ImageId>GrayShadesBWDitheredDH</ImageId>
       <AlternateText>Gray ShadesBWDitheredDH</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\CameramanBWDitheredFS.gif">
+      <ImageId>CameramanBWBDitheredFS</ImageId>
+      <AlternateText>CameramanBWBDitheredFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\CameramanBWDitheredFSSerpentine.gif">
+      <ImageId>CameramanBWBDitheredFSSerpentine</ImageId>
+      <AlternateText>CameramanBWBDitheredFSSerpentine</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredFan.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredFan</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered Fan</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredFan.gif">
+      <ImageId>GrayShadesBWDitheredFan</ImageId>
+      <AlternateText>Gray ShadesBWDithered Fan</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredAtk.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredAtk</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver Dithered Atk</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredAtk.gif">
+      <ImageId>GrayShadesBWDitheredAtk</ImageId>
+      <AlternateText>Gray ShadesBWDithered Atk</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredIGN.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredIGN</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredIGN</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredRN.gif">
+      <ImageId>AlphaGradientDefault8bppSilverDitheredRN</ImageId>
+      <AlternateText>Alpha Gradient Default 8bpp Silver DitheredRN</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredIGN.gif">
+      <ImageId>GrayShadesBWDitheredIGN</ImageId>
+      <AlternateText>Gray ShadesBWDitheredIGN</AlternateText>
+    </Content>
+    <Content Include="Help\Images\GrayShadesBWDitheredRN.gif">
+      <ImageId>GrayShadesBWDitheredRN</ImageId>
+      <AlternateText>Gray ShadesBWDitheredRN</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ShieldMedianCut256TrGrayDitheredFS.gif">
+      <ImageId>ShieldMedianCut256TrGrayDitheredFS</ImageId>
+      <AlternateText>Shield Median Cut 256 Tr Gray DitheredFS</AlternateText>
+    </Content>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="Help\Images\ShieldMedianCut256TrBrightnessFS.gif">
+      <ImageId>ShieldMedianCut256TrBrightnessFS</ImageId>
+      <AlternateText>Shield Median Cut 256 Tr BrightnessFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ShieldMedianCut256TrContrastFS.gif">
+      <ImageId>ShieldMedianCut256TrContrastFS</ImageId>
+      <AlternateText>Shield Median Cut 256 Tr ContrastFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ShieldMedianCut256TrGammaFS.gif">
+      <ImageId>ShieldMedianCut256TrGammaFS</ImageId>
+      <AlternateText>Shield Median Cut 256 Tr GammaFS</AlternateText>
     </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->

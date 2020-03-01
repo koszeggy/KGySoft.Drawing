@@ -49,7 +49,7 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="icon"/> is not from a native handle, then this method calls the <see cref="ExtractNearestBitmap">ExtractBitmap</see> method using the icon size
         /// and <see cref="PixelFormat.Format32bppArgb"/> pixel format as parameters.</para>
         /// <para>If the <paramref name="icon"/> contains multiple images consider to use either the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap">ExtractBitmap</see>
-        /// or <see cref="ExtractNearestBitmap">ExtractBitmap</see> methods to specify the exact image to return,
+        /// or <see cref="ExtractNearestBitmap">ExtractNearestBitmap</see> methods to specify the exact image to return,
         /// or the <see cref="O:KGySoft.Drawing.IconExtensions.ToMultiResBitmap">ToMultiResBitmap</see> methods, which return every images in a single combined <see cref="Bitmap"/>.</para>
         /// </remarks>
         /// <seealso cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap"/>
@@ -768,12 +768,12 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Gets the bits per pixel (bpp) value of the icon.
+        /// Gets the bits per pixel (BPP) value of the icon.
         /// </summary>
         /// <param name="icon">The icon.</param>
-        /// <param name="index">The index to check. If <see langword="null"/>, then the result determines the highest bpp value if the icon images. This parameter is optional.
+        /// <param name="index">The index to check. If <see langword="null"/>, then the result determines the highest bpp value of the icon images. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>The bits per pixel (bpp) value of the icon.</returns>
+        /// <returns>The bits per pixel (BPP) value of the icon.</returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif

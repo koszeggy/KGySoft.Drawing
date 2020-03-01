@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <remarks>
         /// <para>The value of this property determines how the raw underlying values should be interpreted if the pixels
-        /// are accessed by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">IWritableBitmapDataRow.WriteRaw</see>
+        /// are accessed by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see>
         /// methods. Otherwise, in most cases using the members of the interfaces derived from the <see cref="IBitmapData"/> and <see cref="IBitmapDataRow"/> interfaces
         /// work seamlessly.</para>
         /// <para>If this property returns an indexed format (<see cref="System.Drawing.Imaging.PixelFormat.Format8bppIndexed"/>, <see cref="System.Drawing.Imaging.PixelFormat.Format4bppIndexed"/> or <see cref="System.Drawing.Imaging.PixelFormat.Format1bppIndexed"/>),
@@ -68,7 +68,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="Imaging.Palette"/> instance representing the colors of the owner <see cref="Bitmap"/> if it has an indexed <see cref="System.Drawing.Imaging.PixelFormat"/>,
-        /// or <see langword="null"/>&#160;if the owner <see cref="Bitmap"/> is not indexed one. For indexed bitmaps the <see cref="PixelFormat"/>
+        /// or <see langword="null"/>&#160;if the owner <see cref="Bitmap"/> is not an indexed one. For indexed bitmaps the <see cref="PixelFormat"/>
         /// property returns <see cref="System.Drawing.Imaging.PixelFormat.Format8bppIndexed"/>, <see cref="System.Drawing.Imaging.PixelFormat.Format4bppIndexed"/> or <see cref="System.Drawing.Imaging.PixelFormat.Format1bppIndexed"/>.
         /// </summary>
         Palette Palette { get; }

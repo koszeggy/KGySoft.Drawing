@@ -53,11 +53,11 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <remarks>
         /// <para>If this <see cref="IQuantizingSession"/> can produce transparent pixels, and <see cref="GetQuantizedColor">GetQuantizedColor</see> is called with a color,
-        /// whose <see cref="Color32.A">Color32.A</see> property is lower than the threshold, then the returned color will be transparent.</para>
+        /// whose <see cref="Color32.A">Color32.A</see> field is lower than the threshold, then the returned color will be transparent.</para>
         /// <para>If this <see cref="IQuantizingSession"/> cannot produce transparent pixels, or <see cref="GetQuantizedColor">GetQuantizedColor</see> is called with a color,
-        /// whose <see cref="Color32.A">Color32.A</see> property is greater than or equal to the threshold, then the returned color will be will be blended with <see cref="BackColor"/> before quantizing.</para>
-        /// <para>If <see cref="AlphaThreshold"/> is <c>0</c>, then the quantized color will never be transparent.</para>
-        /// <para>If <see cref="AlphaThreshold"/> is <c>255</c>, then only fully opaque colors will not be considered transparent.</para>
+        /// whose <see cref="Color32.A">Color32.A</see> field is greater than or equal to the threshold, then the returned color will be will be blended with <see cref="BackColor"/> before quantizing.</para>
+        /// <para>If <see cref="AlphaThreshold"/> is 0, then the quantized color will never be transparent.</para>
+        /// <para>If <see cref="AlphaThreshold"/> is 255, then only fully opaque colors will not be considered transparent.</para>
         /// </remarks>
         byte AlphaThreshold { get; }
 

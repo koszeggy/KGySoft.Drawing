@@ -417,7 +417,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,
-        /// when no icon found or Windows version is below Vista.</returns>
+        /// when no icon found or Windows version is below Vista, or the method is called in a non-Windows environment.</returns>
         /// <remarks>
         /// <note>On non-Windows platforms this method always returns <see langword="null"/>.</note>
         /// </remarks>

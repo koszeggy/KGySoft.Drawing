@@ -22,13 +22,35 @@ using System;
 
 namespace KGySoft.Drawing
 {
+    /// <summary>
+    /// Represents the RGB color channels when manipulating images.
+    /// </summary>
     [Flags]
     public enum ColorChannels
     {
+        /// <summary>
+        /// Represents none of the color channels.
+        /// </summary>
         None = 0,
+
+        /// <summary>
+        /// Represents the Red color channel.
+        /// </summary>
         R = 1,
+
+        /// <summary>
+        /// Represents the Green color channel.
+        /// </summary>
         G = 1 << 1,
+
+        /// <summary>
+        /// Represents the Blue color channel.
+        /// </summary>
         B = 1 << 2,
+
+        /// <summary>
+        /// Represents the R, G and B color channels.
+        /// </summary>
         Rgb = R | G | B
     }
 }

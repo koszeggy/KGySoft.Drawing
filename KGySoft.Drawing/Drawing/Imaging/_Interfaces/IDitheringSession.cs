@@ -50,7 +50,7 @@ namespace KGySoft.Drawing.Imaging
         /// The returned color should be quantized by the <see cref="IQuantizingSession"/> passed to the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method,
         /// which was used to create this <see cref="IDitheringSession"/> instance.
         /// </summary>
-        /// <param name="origColor">The original color to be quantized.</param>
+        /// <param name="origColor">The original color to be dithered.</param>
         /// <param name="x">The x-coordinate of the pixel to be dithered represented by the specified <paramref name="origColor"/>.</param>
         /// <param name="y">The y-coordinate of the pixel to be dithered represented by the specified <paramref name="origColor"/>.</param>
         /// <returns>The location-dependent dithered color of the specified <paramref name="origColor"/> that may depend on the specified coordinates.</returns>

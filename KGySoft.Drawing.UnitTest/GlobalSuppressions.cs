@@ -7,3 +7,4 @@ using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "Decided individually")]
 [assembly: SuppressMessage("Style", "IDE0066:Convert switch statement to expression", Justification = "Decided individually")]
+[assembly: SuppressMessage("Style", "IDE0042:Deconstruct variable declaration", Justification = "Decided individually")]

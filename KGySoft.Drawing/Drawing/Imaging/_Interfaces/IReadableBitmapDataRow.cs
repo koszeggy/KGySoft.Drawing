@@ -96,7 +96,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
-        /// <exception cref="InvalidOperationException">This <see cref="IReadWriteBitmapDataRow"/> does not belong to a row of an indexed <see cref="Bitmap"/>.</exception>
+        /// <exception cref="InvalidOperationException">This <see cref="IReadableBitmapDataRow"/> does not belong to a row of an indexed <see cref="Bitmap"/>.</exception>
         /// <seealso cref="this"/>
         /// <seealso cref="GetColor"/>
         /// <seealso cref="ReadRaw{T}"/>
