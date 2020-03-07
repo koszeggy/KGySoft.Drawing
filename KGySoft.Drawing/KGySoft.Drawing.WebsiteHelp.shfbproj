@@ -62,6 +62,11 @@
     </TransformComponentArguments>
     <HelpFileVersion>6.4.0</HelpFileVersion>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
+    <HeaderText>
+    </HeaderText>
+    <FooterText>Find the complete KGy SOFT Libraries documentation at the &amp;lt%3ba href=&amp;quot%3bhttps://docs.kgysoft.net&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGy SOFT Docs&amp;lt%3b/a&amp;gt%3b page.
+&amp;lt%3bbr/&amp;gt%3bProject Site: &amp;lt%3ba href=&amp;quot%3bhttps://kgysoft.net/drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://kgysoft.net/drawing&amp;lt%3b/a&amp;gt%3b
+&amp;lt%3bbr/&amp;gt%3bGitHub Repository: &amp;lt%3ba href=&amp;quot%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b</FooterText>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -476,20 +481,14 @@
       <ImageId>ConvertPixelFormat24bppCyan</ImageId>
       <AlternateText>Convert Pixel Format 24bpp Cyan</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldGrayscaleCyan.png">
       <ImageId>ConvertPixelFormat16bppGrayscale</ImageId>
       <AlternateText>Convert Pixel Format 16bpp Grayscale</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldMedianCut256BlackDitheredBN.gif">
       <ImageId>ConvertPixelFormat8bppOptimizedDithered</ImageId>
       <AlternateText>Convert Pixel Format 8bpp Optimized Dithered</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradient.png">
       <ImageId>AlphaGradient</ImageId>
       <AlternateText>Alpha Gradient</AlternateText>
@@ -506,8 +505,6 @@
       <ImageId>ShieldRgb888Silver</ImageId>
       <AlternateText>Shield Rgb 888 Silver</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientRgb565Black.png">
       <ImageId>AlphaGradientRgb565Black</ImageId>
       <AlternateText>Alpha Gradient Rgb 565 Black</AlternateText>
@@ -524,8 +521,6 @@
       <ImageId>ShieldRgb565Silver</ImageId>
       <AlternateText>Shield Rgb 565 Silver</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientRgb555Black.png">
       <ImageId>AlphaGradientRgb555Black</ImageId>
       <AlternateText>Alpha Gradient Rgb 555 Black</AlternateText>
@@ -542,8 +537,6 @@
       <ImageId>ShieldRgb555Silver</ImageId>
       <AlternateText>Shield Rgb 555 Silver</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientRgb565SilverDithered.png">
       <ImageId>AlphaGradientRgb565SilverDithered</ImageId>
       <AlternateText>Alpha Gradient Rgb 565 Silver Dithered</AlternateText>
@@ -552,8 +545,6 @@
       <ImageId>ShieldRgb565SilverDithered</ImageId>
       <AlternateText>Shield Rgb 565 Silver Dithered</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientRgb555SilverDithered.png">
       <ImageId>AlphaGradientRgb555SilverDithered</ImageId>
       <AlternateText>Alpha Gradient Rgb 555 Silver Dithered</AlternateText>
@@ -562,8 +553,6 @@
       <ImageId>ShieldRgb555SilverDithered</ImageId>
       <AlternateText>Shield Rgb 555 Silver Dithered</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientArgb1555SilverBlackA128.png">
       <ImageId>AlphaGradientArgb1555SilverBlackA128</ImageId>
       <AlternateText>Alpha Gradient Argb 1555 Silver Black A 128</AlternateText>
@@ -588,14 +577,10 @@
       <ImageId>ShieldArgb1555SilverA128Dithered</ImageId>
       <AlternateText>Shield Argb 1555 Silver A 128 Dithered</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\Lena.png">
       <ImageId>Lena</ImageId>
       <AlternateText>Lena</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientRgb332Black.gif">
       <ImageId>AlphaGradientRgb332Black</ImageId>
       <AlternateText>Alpha Gradient Rgb 332 Black</AlternateText>
@@ -640,8 +625,6 @@
       <ImageId>ShieldRgb332SilverDMDithered</ImageId>
       <AlternateText>Shield Rgb 332 SilverDMDithered</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientGray8bppBlack.gif">
       <ImageId>AlphaGradientGray8bppBlack</ImageId>
       <AlternateText>Alpha Gradient Gray 8bpp Black</AlternateText>
@@ -658,26 +641,18 @@
       <ImageId>ShieldGray8bppSilver</ImageId>
       <AlternateText>Shield Gray 8bpp Silver</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\Cameraman.png">
       <ImageId>Cameraman</ImageId>
       <AlternateText>Cameraman</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldGrayscale.png">
       <ImageId>ShieldGrayscale</ImageId>
       <AlternateText>Shield Grayscale</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldRgb888Black.png">
       <ImageId>ShieldRgb888Black</ImageId>
       <AlternateText>Shield Rgb 888 Black</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientGray2bppBlack.gif">
       <ImageId>AlphaGradient2bppBlack</ImageId>
       <AlternateText>Alpha Gradient 2bpp Black</AlternateText>
@@ -734,14 +709,10 @@
       <ImageId>Shield2bppSilverDirectDitheredFS</ImageId>
       <AlternateText>Shield 2bpp Silver Direct DitheredFS</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\GrayShades.gif">
       <ImageId>GrayShades</ImageId>
       <AlternateText>Gray Shades</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientGray4bppBlack.gif">
       <ImageId>AlphaGradientGray4bppBlack</ImageId>
       <AlternateText>Alpha Gradient Gray 4bpp Black</AlternateText>
@@ -786,8 +757,6 @@
       <ImageId>ShieldGray4bppSilverDirectDitheredFS</ImageId>
       <AlternateText>Shield Gray 4bpp Silver Direct DitheredFS</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\GrayShadesRgb332.gif">
       <ImageId>GrayShadesRgb332</ImageId>
       <AlternateText>Gray Shades Rgb 332</AlternateText>
@@ -804,8 +773,6 @@
       <ImageId>GrayShadesRgb332DitheredB8</ImageId>
       <AlternateText>Gray Shades Rgb 332 Dithered B 8</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientBWBlack.gif">
       <ImageId>AlphaGradientBWBlack</ImageId>
       <AlternateText>Alpha GradientBWBlack</AlternateText>
@@ -862,8 +829,6 @@
       <ImageId>ShieldBWSilverDitheredFS</ImageId>
       <AlternateText>ShieldBWSilver DitheredFS</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppBlackA128.gif">
       <ImageId>AlphaGradientDefault8bppBlackA128</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Black A 128</AlternateText>
@@ -904,8 +869,6 @@
       <ImageId>ShieldDefault8bppSilverA1DitheredFS</ImageId>
       <AlternateText>Shield Default 8bpp Silver A 1 DitheredFS</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault4bppBlack.gif">
       <ImageId>AlphaGradientDefault4bppBlack</ImageId>
       <AlternateText>Alpha Gradient Default 4bpp Black</AlternateText>
@@ -942,8 +905,6 @@
       <ImageId>ShieldDefault4bppSilverDitheredFS</ImageId>
       <AlternateText>Shield Default 4bpp Silver DitheredFS</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientRgb111Black.gif">
       <ImageId>AlphaGradientRgb111Black</ImageId>
       <AlternateText>Alpha Gradient Rgb 111 Black</AlternateText>
@@ -976,14 +937,10 @@
       <ImageId>ShieldRgb111SilverDitheredFS</ImageId>
       <AlternateText>Shield Rgb 111 Silver DitheredFS</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientGrayscale.png">
       <ImageId>AlphaGradientGrayscale</ImageId>
       <AlternateText>Alpha Gradient Grayscale</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientMedianCut256Silver.gif">
       <ImageId>AlphaGradientMedianCut256Silver</ImageId>
       <AlternateText>Alpha Gradient Median Cut 256 Silver</AlternateText>
@@ -996,14 +953,10 @@
       <ImageId>AlphaGradientWu256Silver</ImageId>
       <AlternateText>Alpha Gradient Wu 256 Silver</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldMedianCut256Black.gif">
       <ImageId>ShieldMedianCut256Black</ImageId>
       <AlternateText>Shield Median Cut 256 Black</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\InformationMedianCut256Black.gif">
       <ImageId>InformationMedianCut256Black</ImageId>
       <AlternateText>Information Median Cut 256 Black</AlternateText>
@@ -1028,20 +981,14 @@
       <ImageId>InformationWu4Silver</ImageId>
       <AlternateText>Information Wu 4 Silver</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldOctree256Black.gif">
       <ImageId>ShieldOctree256Black</ImageId>
       <AlternateText>Shield Octree 256 Black</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldWu256Black.gif">
       <ImageId>ShieldWu256Black</ImageId>
       <AlternateText>Shield Wu 256 Black</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilver.gif">
       <ImageId>AlphaGradientDefault8bppSilver</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver</AlternateText>
@@ -1058,8 +1005,6 @@
       <ImageId>GrayShadesBWDitheredOC</ImageId>
       <AlternateText>Gray ShadesBWDitheredOC</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredB2.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredB2</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver Dithered B 2</AlternateText>
@@ -1068,8 +1013,6 @@
       <ImageId>GrayShadesBWDitheredB2</ImageId>
       <AlternateText>Gray ShadesBWDithered B 2</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredB3.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredB3</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver Dithered B 3</AlternateText>
@@ -1086,14 +1029,10 @@
       <ImageId>GrayShadesBWDitheredB4</ImageId>
       <AlternateText>Gray ShadesBWDithered B 4</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\LenaDefault8bppDitheredB8.gif">
       <ImageId>LenaDefault8bppDitheredB8</ImageId>
       <AlternateText>Lena Default 8bpp Dithered B 8</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredBN.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredBN</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver DitheredBN</AlternateText>
@@ -1102,8 +1041,6 @@
       <ImageId>GrayShadesBWDitheredBN</ImageId>
       <AlternateText>Gray ShadesBWDitheredBN</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredBrk.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredBrk</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver Dithered Brk</AlternateText>
@@ -1184,8 +1121,6 @@
       <ImageId>GrayShadesBWDitheredSt</ImageId>
       <AlternateText>Gray ShadesBWDithered St</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredDH.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredDH</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver DitheredDH</AlternateText>
@@ -1194,8 +1129,6 @@
       <ImageId>GrayShadesBWDitheredDH</ImageId>
       <AlternateText>Gray ShadesBWDitheredDH</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\CameramanBWDitheredFS.gif">
       <ImageId>CameramanBWBDitheredFS</ImageId>
       <AlternateText>CameramanBWBDitheredFS</AlternateText>
@@ -1204,8 +1137,6 @@
       <ImageId>CameramanBWBDitheredFSSerpentine</ImageId>
       <AlternateText>CameramanBWBDitheredFSSerpentine</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredFan.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredFan</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver Dithered Fan</AlternateText>
@@ -1214,8 +1145,6 @@
       <ImageId>GrayShadesBWDitheredFan</ImageId>
       <AlternateText>Gray ShadesBWDithered Fan</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredAtk.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredAtk</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver Dithered Atk</AlternateText>
@@ -1224,8 +1153,6 @@
       <ImageId>GrayShadesBWDitheredAtk</ImageId>
       <AlternateText>Gray ShadesBWDithered Atk</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredIGN.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredIGN</ImageId>
       <AlternateText>Alpha Gradient Default 8bpp Silver DitheredIGN</AlternateText>
@@ -1242,14 +1169,10 @@
       <ImageId>GrayShadesBWDitheredRN</ImageId>
       <AlternateText>Gray ShadesBWDitheredRN</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldMedianCut256TrGrayDitheredFS.gif">
       <ImageId>ShieldMedianCut256TrGrayDitheredFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr Gray DitheredFS</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Help\Images\ShieldMedianCut256TrBrightnessFS.gif">
       <ImageId>ShieldMedianCut256TrBrightnessFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr BrightnessFS</AlternateText>

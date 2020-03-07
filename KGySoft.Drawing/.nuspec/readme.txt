@@ -1,8 +1,15 @@
 Thank you for installing KGy SOFT Drawing Libraries
 
-Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
+KGy SOFT Drawing Libraries offer advanced features built around the System.Drawing types.
 
-KGy SOFT Drawing Libraries provides advanced features for System.Drawing types.
+Main new features in 5.0.x:
+- Targeting .NET Core 2.0 and .NET Core 3.0 (additionally to .NET Framework 3.5, 4.0 and 4.5)
+- Supporting Linux/Unix platforms (requires libgdiplus and libX11). Tested with Mono and .NET Core.
+  For Mono use the .NET Framework builds. Some APIs may throw a PlatformNotSupportedException on Linux/Unix. 
+- Fast direct Bitmap access for every PixelFormat
+- Quantizing and dithering
+
+Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
 
                                                  ~~*~~
 
@@ -22,10 +29,12 @@ GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
 Some Highlights of KGy SOFT Drawing Libraries:
 
+- Fast direct Bitmap data access for every PixelFormat
+- Quantizing and dithering
 - Several built-in icons as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.
 - Creating combined icons and multi-resolution bitmaps.
 - Saving metafiles in EMF/WMF formats.
-- Advanced support for saving Icon, GIF and TIFF formats.
+- Advanced support for saving images as Icon, BMP, JPEG, PNG, GIF and TIFF formats.
 - Converting between various pixel formats preserving transparency if possible.
 - Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.
