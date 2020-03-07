@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Security;
 
 #endregion
 
@@ -28,7 +29,10 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         internal BitmapDataAccessorBase Accessor;
+        
+        [SecurityCritical]
         internal unsafe byte* Address;
+
         internal int RowIndex;
 
         #endregion
@@ -45,12 +49,18 @@ namespace KGySoft.Drawing.Imaging
 
         public Color32 this[int x]
         {
+#if !NET35
+            [SecuritySafeCritical]
+#endif
             get
             {
                 if ((uint)x >= Accessor.Width)
                     ThrowXOutOfRange();
                 return DoGetColor32(x);
             }
+#if !NET35
+            [SecuritySafeCritical]
+#endif
             set
             {
                 if ((uint)x >= Accessor.Width)
@@ -71,6 +81,9 @@ namespace KGySoft.Drawing.Imaging
 
         public void SetColor(int x, Color color) => this[x] = new Color32(color);
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public int GetColorIndex(int x)
         {
             if ((uint)x >= Accessor.Width)
@@ -78,6 +91,9 @@ namespace KGySoft.Drawing.Imaging
             return DoGetColorIndex(x);
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public virtual void SetColorIndex(int x, int colorIndex)
         {
             if ((uint)x >= Accessor.Width)
@@ -85,6 +101,9 @@ namespace KGySoft.Drawing.Imaging
             DoSetColorIndex(x, colorIndex);
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public unsafe T ReadRaw<T>(int x)
             where T : unmanaged
         {
@@ -93,6 +112,9 @@ namespace KGySoft.Drawing.Imaging
             return DoReadRaw<T>(x);
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public unsafe void WriteRaw<T>(int x, T data)
             where T : unmanaged
         {
@@ -101,6 +123,9 @@ namespace KGySoft.Drawing.Imaging
             DoWriteRaw(x, data);
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         public unsafe bool MoveNextRow()
         {
             if (RowIndex == Accessor.Height - 1)
@@ -114,12 +139,22 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        [SecurityCritical]
         internal abstract Color32 DoGetColor32(int x);
+
+        [SecurityCritical]
         internal abstract void DoSetColor32(int x, Color32 c);
+
+        [SecurityCritical]
         internal abstract int DoGetColorIndex(int x);
+
+        [SecurityCritical]
         internal abstract void DoSetColorIndex(int x, int colorIndex);
 
+        [SecurityCritical]
         internal unsafe T DoReadRaw<T>(int x) where T : unmanaged => ((T*)Address)[x];
+
+        [SecurityCritical]
         internal unsafe void DoWriteRaw<T>(int x, T data) where T : unmanaged => ((T*)Address)[x] = data;
 
         #endregion

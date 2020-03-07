@@ -18,6 +18,7 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Security;
 
 #endregion
 
@@ -52,6 +53,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         internal sealed override unsafe BitmapDataRowBase GetRow(int row)
         {
             // If the same row is accessed repeatedly we return the cached last row.

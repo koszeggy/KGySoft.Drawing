@@ -42,6 +42,7 @@ namespace KGySoft.Drawing
         #region Fields
 
         private static ResourceManager resourceManager;
+
         private static readonly Dictionary<StockIcon, RawIcon> systemIconsCache = new Dictionary<StockIcon, RawIcon>(EnumComparer<StockIcon>.Comparer);
         private static readonly Dictionary<string, RawIcon> resourceIconsCache = new Dictionary<string, RawIcon>();
 
@@ -752,6 +753,7 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
+        [SecurityCritical] // GetHicon, RawIcon.ToIcon
         private static Icon FromBitmap(Bitmap bmp)
         {
             if (OSUtils.IsWindows)

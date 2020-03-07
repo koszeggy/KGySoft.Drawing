@@ -36,6 +36,9 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Contains extension methods for the <see cref="Image"/> type.
     /// </summary>
+#if !NET35
+    [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
+#endif
     public static class ImageExtensions
     {
         #region Constants
@@ -206,6 +209,9 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
@@ -627,6 +633,9 @@ namespace KGySoft.Drawing
         /// <seealso cref="IDitherer"/>
         /// <seealso cref="BitmapExtensions.Quantize"/>
         /// <seealso cref="BitmapExtensions.Dither"/>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
@@ -773,6 +782,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/></exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
+        [SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "source is cast to Bitmap in different branches")]
         public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer = null)
         {
             if (source == null)
@@ -1639,6 +1649,9 @@ namespace KGySoft.Drawing
             target.Palette = targetPalette;
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void DrawIntoDirect(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation)
         {

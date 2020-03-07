@@ -14,6 +14,12 @@
 
 #endregion
 
+#region Usings
+
+using System.Security;
+
+#endregion
+
 namespace KGySoft.Drawing.Imaging
 {
     internal class BitmapDataRow8I : BitmapDataRowIndexedBase
@@ -26,8 +32,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SecurityCritical]
         internal override unsafe int DoGetColorIndex(int x) => Address[x];
 
+        [SecurityCritical]
         internal override unsafe void DoSetColorIndex(int x, int colorIndex) => Address[x] = (byte)colorIndex;
 
         #endregion

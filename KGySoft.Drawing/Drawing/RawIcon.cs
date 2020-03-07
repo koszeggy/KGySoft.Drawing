@@ -41,6 +41,9 @@ namespace KGySoft.Drawing
     /// Provides low-level support for an icon. This class is internal because it can process and produce <see cref="Icon"/> and <see cref="Bitmap"/>
     /// instances and every functionality is accessible via extensions for those classes.
     /// </summary>
+#if !NET35
+    [SecuritySafeCritical]
+#endif
     internal sealed class RawIcon : IDisposable
     {
         #region Nested classes
@@ -221,7 +224,6 @@ namespace KGySoft.Drawing
             /// <summary>
             /// From raw data
             /// </summary>
-            [SecurityCritical]
             internal RawIconImage(byte[] rawData)
             {
                 int signature = BitConverter.ToInt32(rawData, 0);
@@ -313,7 +315,6 @@ namespace KGySoft.Drawing
 
             #region Internal Methods
 
-            [SecurityCritical]
             internal void WriteDirEntry(BinaryWriter bw, bool forceBmpFormat, ref uint offset)
             {
                 AssureRawFormatGenerated(forceBmpFormat);
@@ -343,7 +344,6 @@ namespace KGySoft.Drawing
                 offset += entry.dwBytesInRes;
             }
 
-            [SecurityCritical]
             internal void WriteRawImage(BinaryWriter bw, bool forceBmpFormat)
             {
                 AssureRawFormatGenerated(forceBmpFormat);
@@ -367,7 +367,6 @@ namespace KGySoft.Drawing
                 bw.Write(rawMask);
             }
 
-            [SecurityCritical]
             [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
             internal Icon ToIcon(bool forceBmpFormat)
             {
@@ -394,7 +393,6 @@ namespace KGySoft.Drawing
                 }
             }
 
-            [SecurityCritical]
             internal Bitmap ToBitmap(bool keepOriginalFormat, bool throwError)
             {
                 AssureBitmapsGenerated(!keepOriginalFormat);
@@ -424,7 +422,6 @@ namespace KGySoft.Drawing
 
             #region Private Methods
 
-            [SecurityCritical]
             [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
                 Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
             private void Save(Stream stream, bool forceBmpFormat)
@@ -471,7 +468,6 @@ namespace KGySoft.Drawing
                 }
             }
 
-            [SecurityCritical]
             [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
                 Justification = "MemoryStream must not be disposed in new Bitmap(new MemoryStream(rawColor)) because it corrupts the Bitmap.")]
             private void AssureRawFormatGenerated(bool forceBmpFormat)
@@ -635,7 +631,6 @@ namespace KGySoft.Drawing
                 }
             }
 
-            [SecurityCritical]
             [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The stream must not be disposed if passed to a Bitmap constructor.")]
             private void AssureBitmapsGenerated(bool isCompositeRequired)
             {
@@ -691,7 +686,6 @@ namespace KGySoft.Drawing
                     GenerateColorBitmapNonWindows();
             }
 
-            [SecurityCritical]
             private void GenerateColorBitmapWindows()
             {
                 // BMP format - original image format required
@@ -815,7 +809,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Initializes a new instance of the <see cref="RawIcon"/> class from an <see cref="Icon"/>.
         /// </summary>
-        [SecurityCritical]
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
         internal RawIcon(Icon icon, Size? size = null, int? bpp = null, int? index = null)
         {
@@ -851,7 +844,6 @@ namespace KGySoft.Drawing
             }
         }
 
-        [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
             Justification = "Stream must not be disposed and leaveOpen parameter is not available for all platforms.")]
         internal RawIcon(Stream stream)
@@ -882,7 +874,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Adds an icon to the raw icon. <param name="icon"> is deserialized from stream.</param>
         /// </summary>
-        [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Disposing the new RawIcon would dispose the added images.")]
         internal void Add(Icon icon)
         {
@@ -933,7 +924,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the icons of the <see cref="RawIcon"/> instance as a single, combined <see cref="Icon"/>.
         /// </summary>
-        [SecurityCritical]
         [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
         internal Icon ToIcon(bool forceBmpImages)
         {
@@ -963,7 +953,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets a <see cref="Bitmap"/> instance, which contains every images of the <see cref="RawIcon"/> instance as a single, multi-resolution <see cref="Bitmap"/>.
         /// </summary>
-        [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Stream must not be disposed; otherwise, a Generic GDI+ Error will occur when using the result Bitmap.")]
         internal Bitmap ToBitmap(bool forceBmpFormat)
         {
@@ -991,7 +980,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the icon into a stream
         /// </summary>
-        [SecurityCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
             Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
         internal void Save(Stream stream, bool forceBmpImages)
@@ -1000,7 +988,6 @@ namespace KGySoft.Drawing
             Save(bw, forceBmpImages);
         }
 
-        [SecurityCritical]
         internal Icon ExtractIcon(int index, bool forceBmpFormat)
         {
             if (index < 0 || index >= iconImages.Count)
@@ -1011,7 +998,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the icons of the <see cref="RawIcon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
-        [SecurityCritical]
         internal Icon[] ExtractIcons(bool forceBmpFormat)
         {
             Icon[] result = new Icon[iconImages.Count];
@@ -1023,7 +1009,6 @@ namespace KGySoft.Drawing
             return result;
         }
 
-        [SecurityCritical]
         internal Bitmap ExtractBitmap(int index, bool keepOriginalFormat)
         {
             if (index < 0 || index >= iconImages.Count)
@@ -1034,7 +1019,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the images of the <see cref="RawIcon"/> instance as separated <see cref="Bitmap"/> instances.
         /// </summary>
-        [SecurityCritical]
         internal Bitmap[] ExtractBitmaps(bool keepOriginalFormat)
         {
             Bitmap[] result = new Bitmap[iconImages.Count];
@@ -1049,7 +1033,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the nearest bitmap to the specified color depth and size. Bpp is matched first.
         /// </summary>
-        [SecurityCritical]
         internal Bitmap ExtractNearestBitmap(int bpp, Size size, bool keepOriginalFormat)
         {
             if (iconImages.Count == 0)
@@ -1069,7 +1052,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the nearest icon to the specified color depth and size.
         /// </summary>
-        [SecurityCritical]
         internal Icon ExtractNearestIcon(int bpp, Size size, bool forceBmpFormat)
         {
             if (iconImages.Count == 0)
@@ -1090,7 +1072,6 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-        [SecurityCritical]
         private void Save(BinaryWriter bw, bool forceBmpImages)
         {
             // Icon header
@@ -1113,7 +1094,6 @@ namespace KGySoft.Drawing
                 image.WriteRawImage(bw, forceBmpImages);
         }
 
-        [SecurityCritical]
         private void Load(BinaryReader br, Size? size, int? bpp, int? index)
         {
             byte[] buf = br.ReadBytes(Marshal.SizeOf(typeof(ICONDIR)));

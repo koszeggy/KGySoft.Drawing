@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Security;
 
 #endregion
 
@@ -26,7 +27,10 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
+        [SecurityCritical]
         internal override int DoGetColorIndex(int i) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+
+        [SecurityCritical]
         internal override void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
 
         #endregion

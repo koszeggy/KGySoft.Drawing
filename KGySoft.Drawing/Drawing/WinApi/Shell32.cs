@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
 
@@ -114,6 +115,7 @@ namespace KGySoft.Drawing.WinApi
 
         #region Methods
 
+        [SuppressMessage("Microsoft.Performance", "CA1825:AvoidZeroLengthArrayAllocations", Justification = "Array.Empty is not available in all targets")]
         internal static IntPtr[][] ExtractIconHandles(string fileName, SystemIconSize? size)
         {
             // gets the number of icons in the file

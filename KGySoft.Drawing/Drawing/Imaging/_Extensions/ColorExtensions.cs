@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Security;
 
 #endregion
 
@@ -54,6 +55,9 @@ namespace KGySoft.Drawing.Imaging
 
         private static ushort Max16BppValue
         {
+#if !NET35
+            [SecuritySafeCritical]
+#endif
             get
             {
                 if (!lookupTable8To16BppInitialized)
@@ -93,6 +97,9 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (byte)0 : (byte)(c.B * Byte.MaxValue / c.A));
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         internal static Color64 ToArgb64(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
@@ -108,6 +115,9 @@ namespace KGySoft.Drawing.Imaging
             return new Color64(a, lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         internal static Color32 ToArgb32(this Color64 c)
         {
             if (!lookupTable16To8BppInitialized)
@@ -152,6 +162,9 @@ namespace KGySoft.Drawing.Imaging
             return ToArgb32(straight);
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         internal static Color48 ToRgb48(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
@@ -162,6 +175,9 @@ namespace KGySoft.Drawing.Imaging
                 : new Color48(lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         internal static Color32 ToArgb32(this Color48 c)
         {
             if (!lookupTable16To8BppInitialized)
@@ -221,6 +237,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
+        [SecurityCritical]
         private static unsafe void InitializeLookupTable8To16Bpp()
         {
             // Shared sync root is not a problem, lock will acquired only once per table
@@ -272,6 +289,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecurityCritical]
         private static unsafe void InitializeLookupTable16To8Bpp()
         {
             // Shared sync root is not a problem, lock will acquired only once per table

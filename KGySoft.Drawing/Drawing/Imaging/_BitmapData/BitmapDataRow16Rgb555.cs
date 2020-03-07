@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Security;
 
 #endregion
 
@@ -26,8 +27,10 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
+        [SecurityCritical]
         internal override unsafe Color32 DoGetColor32(int x) => ((Color16Rgb555*)Address)[x].ToColor32();
 
+        [SecurityCritical]
         internal override unsafe void DoSetColor32(int x, Color32 c)
             => ((Color16Rgb555*)Address)[x] = new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(Accessor.BackColor));
 

@@ -38,6 +38,9 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Contains extension methods for the <see cref="Bitmap"/> type.
     /// </summary>
+#if !NET35
+    [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
+#endif
     public static class BitmapExtensions
     {
         #region Constants
@@ -490,6 +493,9 @@ namespace KGySoft.Drawing
         /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void Quantize(this Bitmap bitmap, IQuantizer quantizer)
         {
@@ -555,6 +561,9 @@ namespace KGySoft.Drawing
         /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
         /// </list></note>
         /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void Dither(this Bitmap bitmap, IQuantizer quantizer, IDitherer ditherer)
         {
@@ -674,6 +683,9 @@ namespace KGySoft.Drawing
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmap"/>, or you want to transform the actual
         /// pixels of an indexed <see cref="Bitmap"/> instead of modifying the palette, then use the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, Color backColor = default, byte alphaThreshold = 128)
         {
@@ -1214,6 +1226,9 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         private static ICollection<Color32> DoGetColors(Bitmap bitmap, int maxColors)
         {
             if (maxColors < 0)
@@ -1241,6 +1256,9 @@ namespace KGySoft.Drawing
             return colors;
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearDirect(BitmapDataAccessorBase bitmapData, Color32 color)
         {
@@ -1355,6 +1373,9 @@ namespace KGySoft.Drawing
             }
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         private static void ClearRaw<T>(BitmapDataAccessorBase bitmapData, int width, T data)
             where T : unmanaged
         {
@@ -1379,6 +1400,9 @@ namespace KGySoft.Drawing
             });
         }
 
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearWithDithering(BitmapDataAccessorBase bitmapData, Color32 color, IDitherer ditherer)
         {

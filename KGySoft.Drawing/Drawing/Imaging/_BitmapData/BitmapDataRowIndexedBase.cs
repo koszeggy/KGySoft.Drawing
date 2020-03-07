@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Security;
 
 #endregion
 
@@ -45,8 +46,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        [SecurityCritical]
         internal override Color32 DoGetColor32(int x) => Accessor.Palette.GetColor(DoGetColorIndex(x));
 
+        [SecurityCritical]
         internal override void DoSetColor32(int x, Color32 c) => DoSetColorIndex(x, Accessor.Palette.GetNearestColorIndex(c));
 
         #endregion

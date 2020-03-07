@@ -14,14 +14,22 @@
 
 #endregion
 
+#region Usings
+
+using System.Security; 
+
+#endregion
+
 namespace KGySoft.Drawing.Imaging
 {
     internal sealed class BitmapDataRow32PArgb : BitmapDataRowNonIndexedBase
     {
         #region Methods
 
+        [SecurityCritical]
         internal override unsafe Color32 DoGetColor32(int x) => ((Color32*)Address)[x].ToStraight();
 
+        [SecurityCritical]
         internal override unsafe void DoSetColor32(int x, Color32 c) => ((Color32*)Address)[x] = c.ToPremultiplied();
 
         #endregion

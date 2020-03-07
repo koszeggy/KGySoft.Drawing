@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-     <!-- <TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>  -->
-    <TargetFrameworks>net45</TargetFrameworks>
+    <TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
+    <!--<TargetFrameworks>net45</TargetFrameworks>-->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>KGySoft</RootNamespace>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.CoreLibraries" Version="5.0.0" />
+    <PackageReference Include="KGySoft.CoreLibraries" Version="5.0.1" />
     <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>

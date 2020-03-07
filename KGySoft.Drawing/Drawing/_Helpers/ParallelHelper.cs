@@ -50,9 +50,17 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
+
+
+#if NET35
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
+#endif
         /// <summary>
         /// Similar to <see cref="Parallel.For(int,int,Action{int})"/> but tries to balance resources and works also in .NET 3.5.
         /// </summary>
+#if NET35
+#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved  
+#endif
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Exceptions in pool threads must not be thrown in place but from the caller thread.")]
         internal static void For(int fromInclusive, int toExclusive, Action<int> body)

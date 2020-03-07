@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -766,6 +767,8 @@ namespace KGySoft.Drawing.Imaging
         /// IDitherer ditherer = OrderedDitherer.Bayer8x8.ConfigureStrength(0.5f);
         /// ]]></code>
         /// </example>
+        [SuppressMessage("Microsoft.Maintainability", "CA1500:VariableNamesShouldNotMatchFieldNames",
+            Justification = "No conflict, a new instance is created")]
         // ReSharper disable once ParameterHidesMember
         public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength);
 

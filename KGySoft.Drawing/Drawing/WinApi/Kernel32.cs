@@ -42,8 +42,8 @@ namespace KGySoft.Drawing.WinApi
             /// <param name="src">A pointer to the starting address of the block of memory to copy.</param>
             /// <param name="length">The size of the block of memory to copy, in bytes.</param>
             [DllImport("kernel32.dll", EntryPoint =
-#if NET35
-                "RtlMoveMemory"
+#if NETFRAMEWORK
+                "CopyMemory"
 #else
                 "RtlCopyMemory"
 #endif
