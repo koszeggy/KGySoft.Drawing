@@ -260,11 +260,14 @@ namespace KGySoft.Drawing.Imaging
                 if (lockFreeCount == 0 && lockingCount >= minCacheSize
                     || lockFreeCount >= minCacheSize && lockingCount >= Math.Min(lockFreeCount << 1, maxCacheSize))
                 {
-                    lockFreeCache = lockingCache;
-
                     // We clear (reinitialize) the locking cache only if it reaches the maximum capacity
                     if (lockingCache.Count >= maxCacheSize)
+                    {
                         lockingCache = new Dictionary<Color32, int>(maxCacheSize);
+                        lockFreeCache = lockingCache;
+                    }
+                    else
+                        lockFreeCache = new Dictionary<Color32, int>(lockingCache);
                 }
             }
 

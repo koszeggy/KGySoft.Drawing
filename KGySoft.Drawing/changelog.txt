@@ -6,11 +6,25 @@
 ===============================================================================
 
 ~~~~~~~~~
-* v5.0.0:
+! v5.1.0:
 ~~~~~~~~~
 
-* Assembly changes:
+! Assembly changes:
 ===================
+! Referencing KGySoft.CoreLibraries 5.1.0
+
+- KGySoft.Drawing.Imaging namespace:
+====================================
+- Palette class: Fixing a possible issue in default caching logic for concurrent access.
+
+
+~~~~~~~~~
+! v5.0.0:
+~~~~~~~~~
+
+! Assembly changes:
+===================
+! Referencing KGySoft.CoreLibraries 5.0.1
 + Targeting also .NET Core 2.0.
 + Targeting also .NET Core 3.0.
 
@@ -102,10 +116,10 @@ The new public types in this namespace:
 
 
 ~~~~~~~~~
-* v4.7.0:
+! v4.7.0:
 ~~~~~~~~~
 
-* Assembly: Referencing KGySoft.CoreLibraries v4.7.0
+! Assembly: Referencing KGySoft.CoreLibraries v4.7.0
 
 ! KGySoft.Drawing namespace:
 ============================
