@@ -23,7 +23,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security;
+#if !NET35
+using System.Security; 
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
@@ -993,7 +995,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsBmp(image, fs);
         }
 
@@ -1081,7 +1083,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsJpeg(image, fs, quality);
         }
 
@@ -1143,7 +1145,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsPng(image, fs);
         }
 
@@ -1215,7 +1217,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsGif(image, fs, quantizer, ditherer);
         }
 
@@ -1370,7 +1372,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsTiff(image, fs, currentFrameOnly);
         }
 
@@ -1477,7 +1479,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsIcon(image, fs, forceUncompressedResult);
         }
 

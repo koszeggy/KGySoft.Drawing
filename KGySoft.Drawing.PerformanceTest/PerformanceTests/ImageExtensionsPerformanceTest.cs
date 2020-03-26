@@ -94,7 +94,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
 
-            new ErrorTolerantPerformanceTest { TestName = $"{newFormat}", Iterations = 100, CpuAffinity = null }
+            new PerformanceTest { TestName = $"{newFormat}", Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
                     using var result = new Bitmap(bmp.Width, bmp.Height, newFormat);
@@ -119,7 +119,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     using var _ = bmp.ConvertPixelFormat(newFormat);
                 }, "ImageExtensions.ConvertPixelFormat")
                 .DoTest()
-                .DumpResultsAndReturnValues(Console.Out);
+                .DumpResults(Console.Out);
         }
 
         [TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]

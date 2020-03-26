@@ -45,7 +45,7 @@ namespace KGySoft.Drawing.PerformanceTests
             const int size = 512;
             Color color = Color.FromArgb((int)argb);
 
-            new ErrorTolerantPerformanceTest { TestName = $"{pixelFormat} {size}x{size}", Iterations = 10, CpuAffinity = null }
+            new PerformanceTest { TestName = $"{pixelFormat} {size}x{size}", Iterations = 10, CpuAffinity = null }
                 .AddCase(() =>
                 {
                     using var bmp = new Bitmap(size, size, pixelFormat);
@@ -70,7 +70,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     bmp.Clear(color);
                 }, "BitmapDataAccessor.Clear")
                 .DoTest()
-                .DumpResultsAndReturnValues(Console.Out);
+                .DumpResults(Console.Out);
         }
 
         [TestCase(PixelFormat.Format1bppIndexed, 0xFF333333, false)]

@@ -24,6 +24,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Serialization.Binary;
 
@@ -236,7 +237,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsEmf(metafile, fs);
         }
 
@@ -268,7 +269,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsWmf(metafile, fs);
         }
 

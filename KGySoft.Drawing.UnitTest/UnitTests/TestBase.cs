@@ -64,8 +64,7 @@ namespace KGySoft.Drawing.UnitTests
             if (!saveToFile || icon == null)
                 return;
 
-            // TODO: restore Files.GetExecutingAssembly if fixed for .NET Core 2.0
-            string dir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestResults");
+            string dir = Path.Combine(Path.GetDirectoryName(Files.GetExecutingPath()), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
             string fileName = Path.Combine(dir, $"{testName}_{iconName}.{DateTime.Now:yyyyMMddHHmmssffff}.ico");
@@ -78,8 +77,7 @@ namespace KGySoft.Drawing.UnitTests
             if (!saveToFile)
                 return;
 
-            // TODO: restore Files.GetExecutingAssembly if fixed for .NET Core 2.0
-            string dir = Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "TestResults");
+            string dir = Path.Combine(Path.GetDirectoryName(Files.GetExecutingPath()), "TestResults");
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
