@@ -330,7 +330,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For the <see cref="GetReadableBitmapData">GetReadableBitmapData</see> method affects indexed bitmaps only when <see cref="Palette.GetNearestColorIndex">GetColorIndex</see>
         /// and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods are called with an alpha color on the <see cref="IBitmapData.Palette"/> property of the returned <see cref="IReadableBitmapData"/> instance.
-        /// In such case determines the lowest alpha value of a color, which should not be considered as transparent. If <c>0</c>,
+        /// In such case determines the lowest alpha value of a color, which should not be considered as transparent. If 0,
         /// then a color lookup will never return a transparent color. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
@@ -350,7 +350,7 @@ namespace KGySoft.Drawing
         /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the pixels to be set will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
@@ -370,7 +370,7 @@ namespace KGySoft.Drawing
         /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the pixels to be set will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.</returns>
@@ -445,7 +445,7 @@ namespace KGySoft.Drawing
         /// to manipulate a <see cref="Bitmap"/> in-place:</para>
         /// <code lang="C#"><![CDATA[
         /// // This example produces the same result as the MakeGrayscale extension method without a ditherer:
-        /// using (Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256)))
+        /// using (Bitmap bmp = Icons.Shield.ExtractBitmap(new Size(256, 256)))
         /// {
         ///     bmp.SaveAsPng(@"c:\temp\before.png");
         ///
@@ -617,7 +617,7 @@ namespace KGySoft.Drawing
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="bitmap"/> has only single-bit alpha or its palette contains a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the specified <paramref name="color"/> is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the specified <paramref name="color"/> is considered transparent. If 0,
         /// then the cleared <paramref name="bitmap"/> will not be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         public static void Clear(this Bitmap bitmap, Color color, Color backColor = default, byte alphaThreshold = 128)
@@ -639,7 +639,7 @@ namespace KGySoft.Drawing
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="bitmap"/> has only single-bit alpha or its palette contains a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the specified <paramref name="color"/> is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the specified <paramref name="color"/> is considered transparent. If 0,
         /// then the cleared <paramref name="bitmap"/> will not be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <paramref name="bitmap"/>&#160;<see cref="PixelFormat"/> has at least 24 bits-per-pixel size.
@@ -670,7 +670,7 @@ namespace KGySoft.Drawing
         /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="transformFunction"/> returns colors with alpha and <paramref name="bitmap"/> supports single bit alpha only,
-        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which the color is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which the color is considered transparent. If 0,
         /// then the pixels to be set will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
@@ -745,7 +745,7 @@ namespace KGySoft.Drawing
         /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="transformFunction"/> returns colors with alpha and <paramref name="bitmap"/> supports single bit alpha only,
-        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which the color is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which the color is considered transparent. If 0,
         /// then the pixels to be set will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>

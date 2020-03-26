@@ -152,7 +152,7 @@ namespace KGySoft.Drawing
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
@@ -288,7 +288,7 @@ namespace KGySoft.Drawing
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If <c>0</c>,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>

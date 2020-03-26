@@ -14,7 +14,7 @@
 + Targeting also .NET Core 2.0.
 + Targeting also .NET Core 3.0.
 
-+ KGySoft.Frawing.Imaging namespace:
++ KGySoft.Drawing.Imaging namespace:
 ====================================
 A New namespace for fast and direct Bitmap pixel manipulation in a type-safe and managed way.
 Additionally, provides types for quantizing and dithering.
