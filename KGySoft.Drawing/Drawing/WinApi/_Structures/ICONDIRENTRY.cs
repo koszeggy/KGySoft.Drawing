@@ -28,12 +28,12 @@ namespace KGySoft.Drawing.WinApi
         #region Fields
 
         /// <summary>
-        /// The icon width in pixels. 0 for 256 width.
+        /// The icon width in pixels. 0 for >=256 width or PNG compressed icons.
         /// </summary>
         internal byte bWidth;
 
         /// <summary>
-        /// The icon height in pixels. 0 for 256 height.
+        /// The icon height in pixels. 0 for >=256 height or PNG compressed icons.
         /// </summary>
         internal byte bHeight;
 

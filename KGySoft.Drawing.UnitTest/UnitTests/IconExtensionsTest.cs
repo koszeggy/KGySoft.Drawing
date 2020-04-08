@@ -48,6 +48,15 @@ namespace KGySoft.Drawing.UnitTests
         public void ToMultiResBitmapTest()
         {
             Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length);
+
+            // 128x128 PNG compressed icons are problematic even in Windows
+            var reqSize = new Size(128, 128);
+            Icon origIcon = Icons.Information;
+            Icon combined = origIcon.Combine(origIcon.ExtractBitmap(new Size(256, 256)).Resize(reqSize));
+            Bitmap multiRes = combined.ToMultiResBitmap();
+
+            // ToMultiResBitmap does not use compressed icons anymore: it just caused problems and doesn't even matter as a Bitmap
+            Assert.AreEqual(OSUtils.IsWindows ? 8 : 1, multiRes.ExtractBitmaps().Length);
         }
 
         [Test]
@@ -109,6 +118,25 @@ namespace KGySoft.Drawing.UnitTests
         {
             Assert.IsNotNull(Icons.Information.ExtractNearestIcon(Size.Empty, PixelFormat.Format1bppIndexed));
             Assert.AreEqual(OSUtils.IsWindows ? 256 : 64, Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format1bppIndexed).Width);
+        }
+
+        [TestCase(512)]
+        [TestCase(128)]
+        [TestCase(30)]
+        [TestCase(8)]
+        public void ExtractIconBySizeTest(int newSize)
+        {
+            var reqSize = new Size(newSize, newSize);
+            Icon origIcon = Icons.Information;
+            Icon combined = origIcon.Combine(origIcon.ExtractBitmap(new Size(256, 256)).Resize(reqSize));
+            SaveIcon($"Combined{newSize}", combined);
+
+            Icon extracted = combined.ExtractIcon(reqSize);
+            SaveIcon($"Extracted{newSize}", extracted);
+
+            Assert.IsNotNull(extracted);
+            Assert.AreEqual(reqSize, extracted.Size);
+            Assert.AreEqual(extracted.IsCompressed(), newSize >= RawIcon.MinCompressedSize && OSUtils.IsVistaOrLater);
         }
 
         [Test]

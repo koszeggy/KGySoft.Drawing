@@ -6,17 +6,26 @@
 ===============================================================================
 
 ~~~~~~~~~
-- v5.1.0:
+! v5.1.0:
 ~~~~~~~~~
 
 * Assembly changes:
 ===================
 * Referencing KGySoft.CoreLibraries 5.1.0
 
-- KGySoft.Drawing namespace:
+! KGySoft.Drawing namespace:
 ============================
 - ImageExtensions class:
   - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
+! IconExtensions class:
+  ! SaveHighQuality method has been renamed to SaveAsIcon to match with its ImageExtensions counterpart.
+  ! ToMultiResBitmap methods: They don't return compressed results on any platforms anymore because PNG compressed
+    sub-images could cause problems even on Windows systems. The overload with the forceUncompressedResult parameter
+    is now obsolete.
+  - ExtractIcon and ExtractBitmap overloads: Requested icon size did not work for larger than 256x256 icon sizes or
+    PNG compressed icons smaller than 256x256 pixels.
+  - ExtractIcon: It could return null if the requested icon was not supported (just like ExtractNearestIcon) though
+    according to the documentation this method should throw PlatformNotSupportedExteption in such cases.
 
 - KGySoft.Drawing.Imaging namespace:
 ====================================
