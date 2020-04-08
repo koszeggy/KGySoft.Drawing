@@ -1317,9 +1317,10 @@ namespace KGySoft.Drawing
                 }
 
                 int frameCount = dimension != null ? bmp.GetFrameCount(dimension) : 0;
-                if (frameCount > 1 || frameCount <= 1 && bmp.RawFormat.Guid == ImageFormat.Icon.Guid)
+                bool isIcon = bmp.RawFormat.Guid == ImageFormat.Icon.Guid;
+                if (frameCount > 1 || frameCount <= 1 && isIcon)
                 {
-                    Bitmap[] frames = bmp.ExtractIconImages();
+                    Bitmap[] frames = isIcon ? bmp.ExtractIconImages() : bmp.ExtractBitmaps();
                     try
                     {
                         frames.SaveAsMultipageTiff(stream);

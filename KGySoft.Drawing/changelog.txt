@@ -6,12 +6,17 @@
 ===============================================================================
 
 ~~~~~~~~~
-! v5.1.0:
+- v5.1.0:
 ~~~~~~~~~
 
-! Assembly changes:
+* Assembly changes:
 ===================
-! Referencing KGySoft.CoreLibraries 5.1.0
+* Referencing KGySoft.CoreLibraries 5.1.0
+
+- KGySoft.Drawing namespace:
+============================
+- ImageExtensions class:
+  - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
 
 - KGySoft.Drawing.Imaging namespace:
 ====================================
