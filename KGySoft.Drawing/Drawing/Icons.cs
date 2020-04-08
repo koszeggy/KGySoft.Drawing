@@ -27,8 +27,10 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Security;
+
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
+using KGySoft.Reflection;
 
 #endregion
 
@@ -445,11 +447,7 @@ namespace KGySoft.Drawing
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
             if (!OSUtils.IsWindows)
-#if NETFRAMEWORK
-                return new Icon[0];
-#else
-                return Array.Empty<Icon>();
-#endif
+                Reflector.EmptyArray<Icon>();
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
             Icon[] result = new Icon[handles.Length];
@@ -478,11 +476,7 @@ namespace KGySoft.Drawing
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
             if (!OSUtils.IsWindows)
-#if NETFRAMEWORK
-                return new Icon[0];
-#else
-                return Array.Empty<Icon>();
-#endif
+                Reflector.EmptyArray<Icon>();
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
             Icon[] result = new Icon[handles.Length];

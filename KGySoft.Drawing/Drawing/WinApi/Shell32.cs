@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
+using KGySoft.Reflection;
 
 #endregion
 
@@ -126,7 +127,7 @@ namespace KGySoft.Drawing.WinApi
 
             // extracts the icons by the size that was selected.
             if (NativeMethods.ExtractIconEx(fileName, 0, large, small, iconCount) == 0)
-                return new IntPtr[0][];
+                return Reflector.EmptyArray<IntPtr[]>();
             IntPtr[][] result = new IntPtr[iconCount][];
             for (int i = 0; i < iconCount; i++)
             {
