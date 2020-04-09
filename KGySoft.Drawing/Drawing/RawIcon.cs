@@ -626,7 +626,7 @@ namespace KGySoft.Drawing
                                     rawColor[pos + 1],
                                     rawColor[pos]);
 
-                                if (pixelColor == transparentColor || pixelColor.A == 0 && transparentColor.A == 0)
+                                if (pixelColor == transparentColor || transparentColor.A == 0 && pixelColor.A < 128)
                                     rawMask[(x >> 3) + posMaskY] |= (byte)mask;
 
                                 break;
@@ -789,7 +789,11 @@ namespace KGySoft.Drawing
 
         #region Constants
 
-        internal const int MinCompressedSize = 65;
+        /// <summary>
+        /// The minimum size for compressed icons. If smaller than 256, then loading the icon as Bitmap fails even on Windows 10,
+        /// though in Explorer the icons with sizes 49-255 look better with PNG compression.
+        /// </summary>
+        internal const int MinCompressedSize = 256;
 
         #endregion
 

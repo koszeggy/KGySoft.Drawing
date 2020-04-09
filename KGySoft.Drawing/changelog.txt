@@ -20,6 +20,7 @@
   ! ToMultiResBitmap methods: They don't return compressed results on any platforms anymore because PNG compressed
     sub-images could cause problems even on Windows systems. The overload with the forceUncompressedResult parameter
     is now obsolete.
+  - Improving appearance of 32bpp icons on Windows XP when saving uncompressed.
   - ExtractIcon and ExtractBitmap overloads: Requested icon size did not work for larger than 256x256 icon sizes or
     PNG compressed icons smaller than 256x256 pixels.
   - ExtractIcon: It could return null if the requested icon was not supported (just like ExtractNearestIcon) though
