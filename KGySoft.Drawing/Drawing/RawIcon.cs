@@ -321,20 +321,20 @@ namespace KGySoft.Drawing
                 ICONDIRENTRY entry = new ICONDIRENTRY
                 {
                     dwImageOffset = offset,
-                    //bWidth = size.Width > Byte.MaxValue ? (byte)0 : (byte)size.Width,
-                    //bHeight = size.Height > Byte.MaxValue ? (byte)0 : (byte)size.Height,
                 };
 
                 if (isPng)
                 {
+                    // For PNGs the header entry size is always 0
                     entry.wPlanes = 1;
                     entry.wBitCount = (ushort)bpp;
                     entry.dwBytesInRes = (uint)rawColor.Length;
                 }
                 else
                 {
-                    //entry.bWidth = size.Width > Byte.MaxValue ? (byte)0 : (byte)size.Width;
-                    //entry.bHeight = size.Height > Byte.MaxValue ? (byte)0 : (byte)size.Height;
+                    // For BMPs the header entry size is set if smaller than 256x256
+                    entry.bWidth = size.Width > Byte.MaxValue ? (byte)0 : (byte)size.Width;
+                    entry.bHeight = size.Height > Byte.MaxValue ? (byte)0 : (byte)size.Height;
                     entry.bColorCount = (byte)bmpHeader.biClrUsed;
                     entry.wPlanes = bmpHeader.biPlanes;
                     entry.wBitCount = bmpHeader.biBitCount;

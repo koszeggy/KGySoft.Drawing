@@ -104,7 +104,7 @@ namespace KGySoft.Drawing
             try
             {
                 using var _ = new Bitmap(1, 1, pixelFormat);
-                map = new Dictionary<PixelFormat, bool>(map);
+                map = map == null ? new Dictionary<PixelFormat, bool>() : new Dictionary<PixelFormat, bool>(map);
                 map[pixelFormat] = true;
                 supportedFormats = map;
                 return true;
@@ -112,7 +112,7 @@ namespace KGySoft.Drawing
             catch (Exception e) when (!(e is StackOverflowException))
             {
                 // catching even OutOfMemoryException because GDI can throw it for unsupported formats
-                map = new Dictionary<PixelFormat, bool>(map);
+                map = map == null ? new Dictionary<PixelFormat, bool>() : new Dictionary<PixelFormat, bool>(map);
                 map[pixelFormat] = false;
                 supportedFormats = map;
                 return false;

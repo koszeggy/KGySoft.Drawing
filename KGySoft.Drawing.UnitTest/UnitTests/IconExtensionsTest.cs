@@ -131,12 +131,16 @@ namespace KGySoft.Drawing.UnitTests
             Icon combined = origIcon.Combine(origIcon.ExtractBitmap(new Size(256, 256)).Resize(reqSize));
             SaveIcon($"Combined{newSize}", combined);
 
-            Icon extracted = combined.ExtractIcon(reqSize);
-            SaveIcon($"Extracted{newSize}", extracted);
+            AssertPlatformDependent(() =>
+            {
+                Icon extracted = combined.ExtractIcon(reqSize);
+                SaveIcon($"Extracted{newSize}", extracted);
+                SaveImage($"Extracted{newSize}", extracted.ToAlphaBitmap());
 
-            Assert.IsNotNull(extracted);
-            Assert.AreEqual(reqSize, extracted.Size);
-            Assert.AreEqual(extracted.IsCompressed(), newSize >= RawIcon.MinCompressedSize && OSUtils.IsVistaOrLater);
+                Assert.IsNotNull(extracted);
+                Assert.AreEqual(reqSize, extracted.Size);
+                Assert.AreEqual(extracted.IsCompressed(), newSize >= RawIcon.MinCompressedSize && OSUtils.IsVistaOrLater);
+            }, PlatformID.Win32NT);
         }
 
         [Test]
@@ -149,11 +153,11 @@ namespace KGySoft.Drawing.UnitTests
         public void IsCompressedTest()
         {
             Assert.IsFalse(Icons.Information.ExtractIcon(new Size(16, 16)).IsCompressed());
-            Assert.IsTrue(OSUtils.IsXpOrEarlier || Icons.Information.IsCompressed());
+            Assert.IsTrue(OSUtils.IsXpOrEarlier ^ Icons.Information.IsCompressed());
             Assert.IsFalse(Icons.Information.ToUncompressedIcon().IsCompressed());
             
-            // On Linux extracting a standalone 256x256 icon may fail both in BMP and PNG format...
-            Assert.IsTrue(OSUtils.IsXpOrEarlier || Icons.Information.ExtractIcon(new Size(256, 256))?.IsCompressed() == true || !OSUtils.IsWindows);
+            // On Linux this extracts the uncompressed 64x64 icon...
+            Assert.IsTrue(OSUtils.IsVistaOrLater ^ !Icons.Information.ExtractNearestIcon(new Size(256, 256), PixelFormat.Format32bppArgb).IsCompressed());
         }
 
         [Test]
