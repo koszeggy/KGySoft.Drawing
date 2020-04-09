@@ -15,8 +15,6 @@
 
 ! KGySoft.Drawing namespace:
 ============================
-- ImageExtensions class:
-  - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
 ! IconExtensions class:
   ! SaveHighQuality method has been renamed to SaveAsIcon to match with its ImageExtensions counterpart.
   ! ToMultiResBitmap methods: They don't return compressed results on any platforms anymore because PNG compressed
@@ -26,6 +24,13 @@
     PNG compressed icons smaller than 256x256 pixels.
   - ExtractIcon: It could return null if the requested icon was not supported (just like ExtractNearestIcon) though
     according to the documentation this method should throw PlatformNotSupportedExteption in such cases.
+- ImageExtensions class:
+  - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
++ The PixelFormatExtensions class has been made public along with some methods:
+  + ToBitsPerPixel
+  + IsIndexed
+  + IsValidFormat
+  + IsSupported
 
 - KGySoft.Drawing.Imaging namespace:
 ====================================
