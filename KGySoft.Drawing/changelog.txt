@@ -31,18 +31,20 @@
       for better compatibility with some applications/platforms.
     ! Icon images with lower than 32 bits-per-pixel are not compressed anymore. Even Windows has problems with 24
       BPP compressed icons and transparency mask for lower BPPs can be generated only for uncompressed images.
+  + New GetIconInfo methods
   - Improving appearance of 32bpp icons on Windows XP when saving uncompressed.
   - ExtractIcon and ExtractBitmap overloads: Requested icon size did not work for larger than 256x256 icon sizes or
     PNG compressed icons smaller than 256x256 pixels.
   - ExtractIcon: It could return null if the requested icon was not supported (just like ExtractNearestIcon) though
     according to the documentation this method should throw PlatformNotSupportedExteption in such cases.
-- ImageExtensions class:
-  - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
++ New IconInfo type
 + The PixelFormatExtensions class has been made public along with some methods:
   + ToBitsPerPixel
   + IsIndexed
   + IsValidFormat
   + IsSupported
+- ImageExtensions class:
+  - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
 
 - KGySoft.Drawing.Imaging namespace:
 ====================================

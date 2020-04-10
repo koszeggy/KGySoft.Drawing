@@ -167,6 +167,19 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [Test]
+        public void GetIconInfoTest()
+        {
+            using Icon icon = Icons.Information;
+            IconInfo[] info = icon.GetIconInfo();
+            
+            Assert.AreEqual(7, info.Length);
+            Assert.AreEqual(new Size(256, 256), info[0].Size);
+            Assert.AreEqual(new Size(16, 16), info[6].Size);
+            Assert.IsTrue(info[0].IsCompressed);
+            Assert.IsFalse(info[1].IsCompressed);
+        }
+
+        [Test]
         public void ToCursorHandleTest()
         {
             AssertPlatformDependent(() => Assert.AreNotEqual(IntPtr.Zero, (IntPtr)Icons.Information.ToCursorHandle()), PlatformID.Win32NT);

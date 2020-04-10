@@ -155,7 +155,7 @@ namespace KGySoft.Drawing
             /// </summary>
             internal Size Size => size;
 
-            public bool IsCompressed => isPng;
+            internal bool IsCompressed => isPng;
 
             #endregion
 
@@ -179,6 +179,8 @@ namespace KGySoft.Drawing
                     return bpp > 8 ? 0 : 1 << bpp;
                 }
             }
+
+            private bool IsPngPreferred => bpp >= 32 && (size.Width >= MinCompressedSize || size.Height >= MinCompressedSize);
 
             #endregion
 
@@ -407,6 +409,31 @@ namespace KGySoft.Drawing
                 return bmpComposite.Clone(new Rectangle(Point.Empty, bmpComposite.Size), bmpComposite.PixelFormat);
             }
 
+            internal IconInfo GetIconInfo()
+            {
+                var result = new IconInfo
+                {
+                    Size = size,
+                    BitsPerPixel = bpp,
+                    IsCompressed = isPng
+                };
+
+                if (bpp <= 8)
+                {
+                    if (palette != null)
+                        result.Palette = palette.Select(c => c.ToColor()).ToArray();
+                    else
+                    {
+                        Debug.Assert(isPng, "Palette should exist for non-PNG image here");
+                        AssureBitmapsGenerated(false);
+                        Debug.Assert(bmpColor != null && bmpColor.GetBitsPerPixel() == bpp);
+                        result.Palette = bmpColor.Palette.Entries;
+                    }
+                }
+
+                return result;
+            }
+
             #endregion
 
             #region Private Methods
@@ -511,7 +538,7 @@ namespace KGySoft.Drawing
                 bmp = bmpColor ?? bmpComposite;
 
                 // When (re)generating we allow PNG only for 32 BPP formats. Even Windows does not support 24 BPP PNG icons correctly.
-                isPng = !forceBmpFormat && bpp >= 32 && (size.Width >= MinCompressedSize || size.Height >= MinCompressedSize);
+                isPng = !forceBmpFormat && IsPngPreferred;
                 if (isPng)
                 {
                     using (MemoryStream ms = new MemoryStream())
@@ -693,8 +720,7 @@ namespace KGySoft.Drawing
                 {
                     // Unless the we decide to handle the image as if it was PNG. In this case the icon was created
                     // from a large bitmap but isPng should remain false because we don't create rawColor.
-                    bool asPng = bpp >= 24 && size.Width >= MinCompressedSize && size.Height >= MinCompressedSize;
-                    if (asPng)
+                    if (IsPngPreferred)
                     {
                         AssurePngBitmapsGenerated(false);
                         return;
@@ -787,7 +813,7 @@ namespace KGySoft.Drawing
                     else
                     {
                         // generating a lower bpp image
-                        // note: this code should theoretically be never executed if the decoder sets the same BPP as it is in the stream.
+                        // note: this code theoretically executes only for indexed PNG if the decoder restored it with higher BPP
                         Color[] paletteBmpColor = null;
                         if (bpp <= 8)
                             paletteBmpColor = result.GetColors(1 << bpp);
@@ -1107,6 +1133,8 @@ namespace KGySoft.Drawing
 
             return GetNextLargestResult(nearestImage, bpp, img => img.ToIcon(forceBmpFormat, false));
         }
+
+        internal IconInfo GetIconInfo(int index) => iconImages[index].GetIconInfo();
 
         #endregion
 

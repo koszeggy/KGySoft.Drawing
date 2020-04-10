@@ -770,7 +770,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Gets the bits per pixel (BPP) value of the icon.
+        /// Gets the bits per pixel (BPP) value of the <paramref name="icon"/>.
         /// </summary>
         /// <param name="icon">The icon.</param>
         /// <param name="index">The index to check. If <see langword="null"/>, then the result determines the highest bpp value of the icon images. This parameter is optional.
@@ -788,6 +788,53 @@ namespace KGySoft.Drawing
                 if (index != null && rawIcon.ImageCount == 0)
                     throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
                 return rawIcon.Bpp;
+            }
+        }
+
+        /// <summary>
+        /// Gets an array of <see cref="IconInfo"/> instances containing information about the images of an <see cref="Icon"/>.
+        /// </summary>
+        /// <param name="icon">The icon.</param>
+        /// <returns>An array of <see cref="IconInfo"/> instances containing information about the images of an <see cref="Icon"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static IconInfo[] GetIconInfo(this Icon icon)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            
+            using (var rawIcon = new RawIcon(icon))
+            {
+                var result = new IconInfo[rawIcon.ImageCount];
+                for (int i = 0; i < result.Length; i++)
+                    result[i] = rawIcon.GetIconInfo(i);
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Gets an <see cref="IconInfo"/> instance containing information about an <see cref="Icon"/> image of the specified <paramref name="index"/>.
+        /// </summary>
+        /// <param name="icon">The icon.</param>
+        /// <param name="index">The index of the icon image to obtain information for.</param>
+        /// <returns>An <see cref="IconInfo"/> instance containing information about an <see cref="Icon"/> image of the specified <paramref name="index"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static IconInfo GetIconInfo(this Icon icon, int index)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
+
+            using (var rawIcon = new RawIcon(icon, null, null, index))
+            {
+                if (rawIcon.ImageCount == 0)
+                    throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
+                return rawIcon.GetIconInfo(0);
             }
         }
 
