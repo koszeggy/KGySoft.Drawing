@@ -99,8 +99,11 @@ namespace KGySoft.Drawing
         {
             #region Fields
 
-            private readonly Size size;
-            private readonly int bpp;
+            private readonly Color32 transparentColor;
+
+            private Size size;
+            private int bpp;
+            private HashSet<int> transparentIndices;
 
             /// <summary>
             /// Gets whether <see cref="rawColor"/> contains PNG data.
@@ -118,9 +121,6 @@ namespace KGySoft.Drawing
             /// Out: Result image of ToBitmap(true)
             /// </summary>
             private Bitmap bmpColor;
-
-            private readonly Color32 transparentColor;
-            private readonly HashSet<int> transparentIndices;
 
             /// <summary>
             /// Color image or the raw image itself when PNG
@@ -205,20 +205,7 @@ namespace KGySoft.Drawing
                     this.transparentColor = new Color32(transparentColor);
                 }
 
-                if (bmpColor.PixelFormat.IsIndexed())
-                {
-                    transparentIndices = new HashSet<int>();
-                    var entries = bmpColor.Palette.Entries;
-                    for (int i = 0; i < entries.Length; i++)
-                    {
-                        ref var c = ref entries[i];
-                        if (c.ToArgb() == transparentColor.ToArgb() || c.A == 0 && transparentColor.A == 0)
-                            transparentIndices.Add(i);
-                    }
-                }
-
-                size = bmpColor.Size;
-                bpp = bmpColor.GetBitsPerPixel();
+                InitFromBitmap(bmpColor);
             }
 
             /// <summary>
@@ -235,6 +222,8 @@ namespace KGySoft.Drawing
                     rawColor = rawData;
 
                     // byte 24: bpp per channel
+                    // Note: When re-saving from generated data always 32 BPP is used for PNG images because even 24 BPP PNG
+                    // bitmaps are not really supported by Windows (neither in Explorer nor by apps) and because transparency would be lost otherwise.
                     bpp = rawData[24];
                     switch (rawData[25])
                     {
@@ -248,10 +237,6 @@ namespace KGySoft.Drawing
                             bpp <<= 2;
                             break;
                     }
-
-                    // Eg. alpha grayscale. Setting 32 bit ensures that format will be alright when BMP format is forced.
-                    if (bpp.In(16, 48, 64))
-                        bpp = 32;
 
                     // size is at 16 and 20 DWORD big endian so reading last 2 bytes only
                     size = new Size((rawData[18] << 8) + rawData[19], (rawData[22] << 8) + rawData[23]);
@@ -426,6 +411,26 @@ namespace KGySoft.Drawing
 
             #region Private Methods
 
+            private void InitFromBitmap(Bitmap bitmap)
+            {
+                if (bitmap.PixelFormat.IsIndexed())
+                {
+                    transparentIndices = new HashSet<int>();
+                    Color[] entries = bitmap.Palette.Entries;
+                    for (int i = 0; i < entries.Length; i++)
+                    {
+                        ref Color c = ref entries[i];
+                        if (c.ToArgb() == transparentColor.ToArgb() || c.A == 0 && transparentColor.A == 0)
+                            transparentIndices.Add(i);
+                    }
+                }
+                else
+                    transparentIndices = null;
+
+                size = bitmap.Size;
+                bpp = bitmap.GetBitsPerPixel();
+            }
+
             [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
                 Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
             private void Save(Stream stream, bool forceBmpFormat)
@@ -479,19 +484,34 @@ namespace KGySoft.Drawing
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
-                // exiting, if raw data of the desired format is already generated
+                // Exiting, if raw data of the desired format is already generated.
+                // This is the only case when we allow low-res/BPP PNGs (so already existing icons are not converted unless forced).
                 if (rawColor != null && !(forceBmpFormat && isPng))
                     return;
+
+                Bitmap bmp;
 
                 // if there is only a raw PNG we create the bitmap from it to create the raw format from
                 if (forceBmpFormat && bmpColor == null && bmpComposite == null && isPng)
                 {
-                    // ReSharper disable once AssignNullToNotNullAttribute - if generatedAsPng is true, then rawColor contains its raw data
-                    bmpColor = new Bitmap(new MemoryStream(rawColor));
+                    // ReSharper disable once AssignNullToNotNullAttribute - rawColor cannot be null here, see the first check
+                    bmp = new Bitmap(new MemoryStream(rawColor));
+                    if (bmp.GetBitsPerPixel().In(invalidIconFormats))
+                    {
+                        // not very likely that we reach this point, at least in Windows PNG decoder does not return 16/48/64 BPP formats...
+                        bmpColor = bmp.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+                        bmp.Dispose();
+                    }
+                    else
+                        bmpColor = bmp;
+
+                    InitFromBitmap(bmpColor);
                 }
 
-                Bitmap bmp = bmpColor ?? bmpComposite;
-                isPng = !forceBmpFormat && (bpp >= 32 && size.Width >= MinCompressedSize || size.Height >= MinCompressedSize);
+                bmp = bmpColor ?? bmpComposite;
+
+                // When (re)generating we allow PNG only for 32 BPP formats. Even Windows does not support 24 BPP PNG icons correctly.
+                isPng = !forceBmpFormat && bpp >= 32 && (size.Width >= MinCompressedSize || size.Height >= MinCompressedSize);
                 if (isPng)
                 {
                     using (MemoryStream ms = new MemoryStream())
@@ -799,7 +819,17 @@ namespace KGySoft.Drawing
 
         #region Fields
 
+        #region Static Fields
+        
+        private static readonly int[] invalidIconFormats = { 16, 48, 64 };
+
+        #endregion
+
+        #region Instance Fields
+
         private readonly RawIconImageCollection iconImages = new RawIconImageCollection();
+        
+        #endregion
 
         #endregion
 
@@ -923,7 +953,7 @@ namespace KGySoft.Drawing
             PixelFormat pixelFormat = image.PixelFormat;
             Bitmap[] bitmaps;
 
-            if (pixelFormat.ToBitsPerPixel().In(16, 48, 64))
+            if (pixelFormat.ToBitsPerPixel().In(invalidIconFormats))
                 bitmaps = new[] { image.ConvertPixelFormat(PixelFormat.Format32bppArgb) };
             else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                 bitmaps = image.ExtractIconImages();

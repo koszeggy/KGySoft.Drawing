@@ -15,11 +15,22 @@
 
 ! KGySoft.Drawing namespace:
 ============================
+! Icons class:
+  ! Combine methods:
+    ! Icons larger than 64x64 were saved as compressed by default. Now compressing icons with size at least 256x256
+      for better compatibility with some applications/platforms.
+    ! Icon images with lower than 32 bits-per-pixel are not compressed anymore. Even Windows has problems with 24
+      BPP compressed icons and transparency mask for lower BPPs can be generated only for uncompressed images.
 ! IconExtensions class:
   ! SaveHighQuality method has been renamed to SaveAsIcon to match with its ImageExtensions counterpart.
   ! ToMultiResBitmap methods: They don't return compressed results on any platforms anymore because PNG compressed
     sub-images could cause problems even on Windows systems. The overload with the forceUncompressedResult parameter
     is now obsolete.
+  ! Combine methods:
+    ! Icons larger than 64x64 were saved as compressed by default. Now compressing icons with size at least 256x256
+      for better compatibility with some applications/platforms.
+    ! Icon images with lower than 32 bits-per-pixel are not compressed anymore. Even Windows has problems with 24
+      BPP compressed icons and transparency mask for lower BPPs can be generated only for uncompressed images.
   - Improving appearance of 32bpp icons on Windows XP when saving uncompressed.
   - ExtractIcon and ExtractBitmap overloads: Requested icon size did not work for larger than 256x256 icon sizes or
     PNG compressed icons smaller than 256x256 pixels.
