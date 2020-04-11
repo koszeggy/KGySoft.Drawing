@@ -73,7 +73,7 @@ namespace KGySoft.Drawing
         /// <returns><see langword="true"/>, if this <see cref="PixelFormat"/> instance represents a valid format; otherwise, <see langword="false"/>.</returns>
         public static bool IsValidFormat(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            =>  (pixelFormat & PixelFormat.Max) != 0 && pixelFormat.IsDefined();
+            => pixelFormat != PixelFormat.Max && (pixelFormat & PixelFormat.Max) != 0 && pixelFormat.IsDefined();
 
         /// <summary>
         /// Gets whether the specified <paramref name="pixelFormat"/> is supported on the current operating system.
