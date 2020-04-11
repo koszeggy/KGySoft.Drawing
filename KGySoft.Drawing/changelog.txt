@@ -46,8 +46,10 @@
 - ImageExtensions class:
   - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
 
-- KGySoft.Drawing.Imaging namespace:
++ KGySoft.Drawing.Imaging namespace:
 ====================================
++ IBitmapData interface: Exposing the Stride property, which can be useful when using IReadableBitmapDataRow.ReadRow
+  and IWritableBitmapDataRow.WriteRaw methods.
 - Palette class: Fixing a possible issue in default caching logic for concurrent access.
 
 

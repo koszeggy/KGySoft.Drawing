@@ -56,12 +56,13 @@ namespace KGySoft.Drawing.Imaging
 
         public Palette Palette { get; }
 
+        public int Stride => bitmapData.Stride;
+
         #endregion
 
         #region Internal Properties
 
         internal Color32 BackColor { get; }
-        internal int Stride => bitmapData.Stride;
         internal IntPtr Scan0 => bitmapData.Scan0;
 
         #endregion
