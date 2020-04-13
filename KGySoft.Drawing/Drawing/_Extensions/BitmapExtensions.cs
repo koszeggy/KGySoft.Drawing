@@ -24,7 +24,6 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Security;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -235,6 +234,7 @@ namespace KGySoft.Drawing
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
         /// <para>Every <see cref="PixelFormat"/> is supported, though wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
         /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
+        /// To get the actual <em>number</em> of colors, which is accurate even for wide color formats, use the <see cref="GetColorCount">GetColorCount</see> method.
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </para>
         /// </remarks>
@@ -257,10 +257,8 @@ namespace KGySoft.Drawing
         /// <returns>The actual number of colors of the specified <paramref name="bitmap"/>.</returns>
         /// <remarks>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
-        /// <para>Every <see cref="PixelFormat"/> is supported, though wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
-        /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
-        /// So for example, if <paramref name="bitmap"/> has <see cref="PixelFormat.Format16bppGrayScale"/>&#160;<see cref="PixelFormat"/>, then the returned value
-        /// will not be more than 256.
+        /// <para>Every <see cref="PixelFormat"/> is supported, and an accurate result is returned even for wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
+        /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>).
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </para>
         /// </remarks>
@@ -268,7 +266,18 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            return DoGetColors(bitmap, 0).Count;
+            switch (bitmap.PixelFormat)
+            {
+                case PixelFormat.Format16bppGrayScale:
+                    return GetColorCount<Color16Gray>(bitmap);
+                case PixelFormat.Format48bppRgb:
+                    return GetColorCount<Color48>(bitmap);
+                case PixelFormat.Format64bppArgb:
+                case PixelFormat.Format64bppPArgb:
+                    return GetColorCount<Color64>(bitmap);
+                default:
+                    return DoGetColors(bitmap, 0).Count;
+            }
         }
 
         /// <summary>
@@ -1254,6 +1263,31 @@ namespace KGySoft.Drawing
             }
 
             return colors;
+        }
+
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        private static int GetColorCount<T>(Bitmap bitmap) where T : unmanaged
+        {
+            var colors = new HashSet<T>();
+            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
+            {
+                BitmapDataRowBase line = data.GetRow(0);
+
+                do
+                {
+                    for (int x = 0; x < data.Width; x++)
+                    {
+                        T color = line.DoReadRaw<T>(x);
+                        if (color is Color64 c64 && c64.A == 0)
+                            color = default;
+                        colors.Add(color);
+                    }
+                } while (line.MoveNextRow());
+            }
+
+            return colors.Count;
         }
 
 #if !NET35
