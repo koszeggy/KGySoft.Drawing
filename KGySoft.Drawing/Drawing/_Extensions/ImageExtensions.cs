@@ -1292,7 +1292,8 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "toSave is disposed if it is not the same as image.")]
         public static void SaveAsTiff(this Image image, Stream stream, bool currentFrameOnly = true)
         {
             if (image == null)
@@ -1369,6 +1370,7 @@ namespace KGySoft.Drawing
                 SaveAsTiff(image, fs, currentFrameOnly);
         }
 
+
         /// <summary>
         /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
         /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
@@ -1381,6 +1383,8 @@ namespace KGySoft.Drawing
         /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
         /// <note>On non-Windows platform this method may throw a <see cref="NotSupportedException"/> if <paramref name="images"/> has multiple elements.</note>
         /// </remarks>
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "Replaced images are disposed at the end of the method. Cannot be done earlier if the first page is also replaced.")]
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
             if (images == null)
@@ -1393,54 +1397,52 @@ namespace KGySoft.Drawing
                 throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Tiff));
 
             Image tiff = null;
+            var pagesToDispose = new List<Image>();
             foreach (Image image in images)
             {
                 if (image == null)
                     throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
                 Image page = AdjustTiffImage(image);
-                try
+                if (page != image)
+                    pagesToDispose.Add(page);
+                using (var encoderParams = new EncoderParameters(2))
                 {
-                    using (var encoderParams = new EncoderParameters(2))
+                    // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
+                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+
+                    // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
+                    // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
+                    //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
+
+                    // saving the first page with MultiFrame parameter
+                    if (tiff == null)
                     {
-                        // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
-                        encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-
-                        // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
-                        // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
-                        //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
-
-                        // saving the first page with MultiFrame parameter
-                        if (tiff == null)
-                        {
-                            tiff = page;
-                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
-                            tiff.Save(stream, tiffEncoder, encoderParams);
-                        }
-                        // saving subsequent pages
-                        else
-                        {
-                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
-                            tiff.SaveAdd(page, encoderParams);
-                        }
+                        tiff = page;
+                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
+                        tiff.Save(stream, tiffEncoder, encoderParams);
+                    }
+                    // saving subsequent pages
+                    else
+                    {
+                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
+                        tiff.SaveAdd(page, encoderParams);
                     }
                 }
-                finally
-                {
-                    if (!ReferenceEquals(page, image))
-                        page?.Dispose();
-                }
             }
+
+            if (tiff == null)
+                throw new ArgumentException(PublicResources.CollectionEmpty, nameof(images));
 
             // finishing save
             using (var encoderParams = new EncoderParameters(1))
             {
                 encoderParams.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.Flush);
-
-                // ReSharper disable once PossibleNullReferenceException
                 tiff.SaveAdd(encoderParams);
             }
 
+            // disposing the replaced images, if any
+            pagesToDispose.ForEach(img => img.Dispose());
             stream.Flush();
         }
 

@@ -24,6 +24,7 @@
       for better compatibility with some applications/platforms.
     ! Icon images with lower than 32 bits-per-pixel are not compressed anymore. Even Windows has problems with 24
       BPP compressed icons and transparency mask for lower BPPs can be generated only for uncompressed images.
+    + Adding new overloads with IEnumerable<Icon> and IEnumerable<Bitmap> parameters.
 ! IconExtensions class:
   ! SaveHighQuality method has been renamed to SaveAsIcon to match with its ImageExtensions counterpart.
   ! ToMultiResBitmap methods: They don't return compressed results on any platforms anymore because PNG compressed
@@ -34,6 +35,7 @@
       for better compatibility with some applications/platforms.
     ! Icon images with lower than 32 bits-per-pixel are not compressed anymore. Even Windows has problems with 24
       BPP compressed icons and transparency mask for lower BPPs can be generated only for uncompressed images.
+    + Adding new overloads with IEnumerable<Icon> and IEnumerable<Bitmap> parameters.
   + New GetIconInfo methods
   - Improving appearance of 32bpp icons on Windows XP when saving uncompressed.
   - ExtractIcon and ExtractBitmap overloads: Requested icon size did not work for larger than 256x256 icon sizes or
@@ -51,7 +53,7 @@
   - The SaveAsMultipageTiff method now preserves the colors of non-BW 1bpp pages. When reloaded, the affected pages
     will have 4bpp PixelFormat.
 
-+ KGySoft.Drawing.Imaging namespace:
+* KGySoft.Drawing.Imaging namespace:
 ====================================
 + IBitmapData interface: Exposing the Stride property, which can be useful when using IReadableBitmapDataRow.ReadRow
   and IWritableBitmapDataRow.WriteRaw methods.
