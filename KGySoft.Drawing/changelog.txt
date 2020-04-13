@@ -45,6 +45,8 @@
   + IsSupported
 - ImageExtensions class:
   - Fixing SaveAsTiff if currentFrameOnly = false and image contains non-icon images.
+  - The SaveAsMultipageTiff method now preserves the colors of non-BW 1bpp pages. When reloaded, the affected pages
+    will have 4bpp PixelFormat.
 
 + KGySoft.Drawing.Imaging namespace:
 ====================================

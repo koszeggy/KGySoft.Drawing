@@ -1300,8 +1300,7 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            Bitmap bmp = image as Bitmap;
-            if (!currentFrameOnly && bmp != null)
+            if (!currentFrameOnly && image is Bitmap bmp)
             {
                 // checking if image has multiple frames
                 FrameDimension dimension = null;
@@ -1333,27 +1332,20 @@ namespace KGySoft.Drawing
                 }
             }
 
-            // converting non BW 1 BPP image to 4 BPP in order to preserve palette colors
-            if (bmp != null && bmp.PixelFormat == PixelFormat.Format1bppIndexed)
-            {
-                var palette = bmp.Palette.Entries;
-                if (palette[0].ToArgb() != Color.Black.ToArgb() || palette[1].ToArgb() != Color.White.ToArgb())
-                    bmp = bmp.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
-            }
-
+            Image toSave = AdjustTiffImage(image);
             try
             {
                 using (var encoderParams = new EncoderParameters(1))
                 {
                     // On Windows 10 it doesn't make any difference; otherwise, this provides the best compression
                     encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-                    SaveByEncoder(bmp != image ? bmp : image, stream, ImageFormat.Tiff, encoderParams, false);
+                    SaveByEncoder(toSave, stream, ImageFormat.Tiff, encoderParams, false);
                 }
             }
             finally
             {
-                if (!ReferenceEquals(image, bmp))
-                    bmp?.Dispose();
+                if (!ReferenceEquals(image, toSave))
+                    toSave?.Dispose();
             }
         }
 
@@ -1401,33 +1393,42 @@ namespace KGySoft.Drawing
                 throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Tiff));
 
             Image tiff = null;
-            foreach (Image page in images)
+            foreach (Image image in images)
             {
-                if (page == null)
+                if (image == null)
                     throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                using (var encoderParams = new EncoderParameters(2))
+                Image page = AdjustTiffImage(image);
+                try
                 {
-                    // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
-                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-
-                    // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
-                    // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
-                    //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
-
-                    // saving the first page with MultiFrame parameter
-                    if (tiff == null)
+                    using (var encoderParams = new EncoderParameters(2))
                     {
-                        tiff = page;
-                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
-                        tiff.Save(stream, tiffEncoder, encoderParams);
+                        // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
+                        encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+
+                        // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
+                        // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
+                        //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
+
+                        // saving the first page with MultiFrame parameter
+                        if (tiff == null)
+                        {
+                            tiff = page;
+                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
+                            tiff.Save(stream, tiffEncoder, encoderParams);
+                        }
+                        // saving subsequent pages
+                        else
+                        {
+                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
+                            tiff.SaveAdd(page, encoderParams);
+                        }
                     }
-                    // saving subsequent pages
-                    else
-                    {
-                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
-                        tiff.SaveAdd(page, encoderParams);
-                    }
+                }
+                finally
+                {
+                    if (!ReferenceEquals(page, image))
+                        page?.Dispose();
                 }
             }
 
@@ -1650,6 +1651,18 @@ namespace KGySoft.Drawing
             if (setEntries)
                 targetPalette.SetEntries(targetColors);
             target.Palette = targetPalette;
+        }
+
+        private static Image AdjustTiffImage(Image image)
+        {
+            if (image == null || image.PixelFormat != PixelFormat.Format1bppIndexed)
+                return image;
+
+            // converting non BW 1 BPP image to 4 BPP in order to preserve palette colors
+            Color[] palette = image.Palette.Entries;
+            return palette[0].ToArgb() == Color.Black.ToArgb() && palette[1].ToArgb() == Color.White.ToArgb()
+                ? image
+                : image.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
         }
 
 #if !NET35
