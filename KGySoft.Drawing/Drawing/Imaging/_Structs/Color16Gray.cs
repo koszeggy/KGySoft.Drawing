@@ -14,9 +14,16 @@
 
 #endregion
 
+using System;
+using System.Collections.Generic;
+
 namespace KGySoft.Drawing.Imaging
 {
-    internal readonly struct Color16Gray
+    /// <summary>
+    /// Represents a 16-bit grayscale color.
+    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapExtensions.GetColorCount{T}"/>
+    /// </summary>
+    internal readonly struct Color16Gray : IEquatable<Color16Gray>
     {
         #region Fields
 
@@ -38,7 +45,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        public override int GetHashCode() => Value;
+
+        public bool Equals(Color16Gray other) => Value == other.Value;
+
+        public override bool Equals(object obj) => obj is Color16Gray other && Equals(other);
+
+        #endregion
+
+        #region Internal Methods
+
         internal Color32 ToColor32() => Color32.FromGray((byte)(Value >> 8));
+
+        #endregion
 
         #endregion
     }

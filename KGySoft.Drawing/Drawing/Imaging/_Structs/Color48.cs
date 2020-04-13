@@ -16,14 +16,20 @@
 
 #region Usings
 
+using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents a 48-bit RGB color.
+    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapExtensions.GetColorCount{T}"/>
+    /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 6)]
-    internal readonly struct Color48
+    internal readonly struct Color48 : IEquatable<Color48>
     {
         #region Fields
 
@@ -56,8 +62,22 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        public override int GetHashCode() => new Color64(R, G, B).GetHashCode();
+
+        public bool Equals(Color48 other) => R == other.R && G == other.G && B == other.B;
+
+        public override bool Equals(object obj) => obj is Color48 other && Equals(other);
+
+        #endregion
+
+        #region Internal Methods
+
         internal Color32 ToColor32() => new Color32((byte)(R >> 8), (byte)(G >> 8), (byte)(B >> 8));
 
+        #endregion
+        
         #endregion
     }
 }
