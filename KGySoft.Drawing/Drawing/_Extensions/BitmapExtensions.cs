@@ -1308,7 +1308,7 @@ namespace KGySoft.Drawing
                     row = bitmapData.GetRow(0);
                     row.DoSetColor32(0, color);
                     var rawColor = row.DoReadRaw<Color32>(0);
-                    int longWidth = bitmapData.Stride >> 3;
+                    int longWidth = bitmapData.RowSize >> 3;
 
                     // writing as longs
                     if (longWidth > 0)
@@ -1343,18 +1343,18 @@ namespace KGySoft.Drawing
                     row = bitmapData.GetRow(0);
                     row.DoSetColor32(0, color);
                     var shortValue = row.DoReadRaw<ushort>(0);
-                    longWidth = bitmapData.Stride >> 3;
+                    longWidth = bitmapData.RowSize >> 3;
                     uint uintValue = (uint)((shortValue << 16) | shortValue);
 
                     // writing as longs
                     if (longWidth > 0)
                         ClearRaw(bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
 
-                    // if stride can be divided by 8, then we are done
-                    if ((bitmapData.Stride & 0b111) == 0)
+                    // if row width can be divided by 8, then we are done
+                    if ((bitmapData.RowSize & 0b111) == 0)
                         return;
 
-                    // otherwise, we clear the last 1..3 columns (on Windows: 1..2 because stride always can be divided by 4)
+                    // otherwise, we clear the last 1..3 columns (on Windows: 1..2 because row width always can be divided by 4)
                     int to = bitmapData.Width;
                     int from = to - (bitmapData.Width & 0b11);
                     row = bitmapData.GetRow(0);
@@ -1375,12 +1375,12 @@ namespace KGySoft.Drawing
                         : bpp == 4 ? (byte)((index << 4) | index)
                         : index == 1 ? Byte.MaxValue : Byte.MinValue;
 
-                    // writing as 32-bit integers (on Windows Stride is always the multiple of 4)
-                    if ((bitmapData.Stride & 0b11) == 0)
-                        ClearRaw(bitmapData, bitmapData.Stride >> 2, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
+                    // writing as 32-bit integers (on Windows row width is always the multiple of 4)
+                    if ((bitmapData.RowSize & 0b11) == 0)
+                        ClearRaw(bitmapData, bitmapData.RowSize >> 2, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
                     // fallback: writing as bytes (will not occur on Windows)
                     else
-                        ClearRaw(bitmapData, bitmapData.Stride, byteValue);
+                        ClearRaw(bitmapData, bitmapData.RowSize, byteValue);
                     return;
 
                 // Direct color-based clear (24/48 bit formats)

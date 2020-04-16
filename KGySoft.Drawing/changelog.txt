@@ -18,6 +18,7 @@
 ! BitmapExtensions class
   ! The GetColorCount method does not transform pixels of wide color formats to 32-bit colors anymore so it may
     return a different result (an accurate one) for Bitmaps with 16-bit grayscale, 48-bit and 64-bit PixelFormats.
+  - Clear method: fixing direct clearing (when no ditherer is used) for bitmaps with negative stride.
 ! Icons class:
   ! Combine methods:
     ! Icons larger than 64x64 were saved as compressed by default. Now compressing icons with size at least 256x256
