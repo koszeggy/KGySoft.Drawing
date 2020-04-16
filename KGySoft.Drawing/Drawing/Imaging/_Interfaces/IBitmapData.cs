@@ -74,10 +74,10 @@ namespace KGySoft.Drawing.Imaging
         Palette Palette { get; }
 
         /// <summary>
-        /// Gets the stride (scan width) of a row in bytes. Can be useful for accessing the bitmap data
+        /// Gets the size of a row in bytes (similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property always returns a positive value). Can be useful when accessing the bitmap data
         /// by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.
         /// </summary>
-        int Stride { get; }
+        int RowSize { get; }
 
         #endregion
     }
