@@ -107,7 +107,7 @@ namespace KGySoft.Drawing.Imaging
         public unsafe T ReadRaw<T>(int x)
             where T : unmanaged
         {
-            if ((x + 1) * sizeof(T) > Accessor.Stride)
+            if ((x + 1) * sizeof(T) > Accessor.RowSize)
                 ThrowXOutOfRange();
             return DoReadRaw<T>(x);
         }
@@ -118,7 +118,7 @@ namespace KGySoft.Drawing.Imaging
         public unsafe void WriteRaw<T>(int x, T data)
             where T : unmanaged
         {
-            if ((x + 1) * sizeof(T) > Accessor.Stride)
+            if ((x + 1) * sizeof(T) > Accessor.RowSize)
                 ThrowXOutOfRange();
             DoWriteRaw(x, data);
         }
