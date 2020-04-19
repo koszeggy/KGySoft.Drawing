@@ -11,7 +11,7 @@
 
 * Assembly changes:
 ===================
-* Referencing KGySoft.CoreLibraries 5.1.0
+* Referencing KGySoft.CoreLibraries 5.1.1
 
 ! KGySoft.Drawing namespace:
 ============================
