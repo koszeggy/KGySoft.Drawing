@@ -134,10 +134,14 @@ namespace KGySoft.Drawing.UnitTests
 
             // <32 BPP icons are always saved uncompressed
             ms.Position = 0;
-            var icon = new Icon(ms);
-            Assert.AreEqual(24, icon.GetBitsPerPixel());
-            Assert.IsFalse(icon.IsCompressed());
-            SaveIcon("result", icon);
+
+            AssertPlatformDependent(() =>
+            {
+                var icon = new Icon(ms);
+                Assert.AreEqual(24, icon.GetBitsPerPixel());
+                Assert.IsFalse(icon.IsCompressed());
+                SaveIcon("result", icon);
+            });
         }
 
         #endregion
