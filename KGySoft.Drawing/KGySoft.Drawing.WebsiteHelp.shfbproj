@@ -60,7 +60,7 @@
       <Argument Key="maxVersionParts" Value="" xmlns="" />
       <Argument Key="defaultLanguage" Value="cs" xmlns="" />
     </TransformComponentArguments>
-    <HelpFileVersion>6.4.0</HelpFileVersion>
+    <HelpFileVersion>5.1.0</HelpFileVersion>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <HeaderText>
     </HeaderText>
