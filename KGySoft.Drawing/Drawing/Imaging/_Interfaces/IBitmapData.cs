@@ -73,6 +73,12 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         Palette Palette { get; }
 
+        /// <summary>
+        /// Gets the size of a row in bytes (similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property always returns a positive value). Can be useful when accessing the bitmap data
+        /// by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.
+        /// </summary>
+        int RowSize { get; }
+
         #endregion
     }
 }

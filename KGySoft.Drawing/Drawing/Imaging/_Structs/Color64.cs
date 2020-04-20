@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -24,6 +25,10 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents a 64-bit ARGB color.
+    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapExtensions.GetColorCount{T}"/>
+    /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     internal readonly struct Color64 : IEquatable<Color64>
     {

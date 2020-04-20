@@ -53,5 +53,11 @@ namespace KGySoft.Drawing.WinApi
         internal byte rgbReserved;
 
         #endregion
+
+        #region Methods
+        
+        internal Color ToColor() => Color.FromArgb(rgbRed, rgbGreen, rgbBlue);
+
+        #endregion
     }
 }

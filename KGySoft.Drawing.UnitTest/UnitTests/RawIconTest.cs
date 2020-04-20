@@ -122,6 +122,28 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage("result", bmp, true);
         }
 
+        [Test]
+        public void AddLarge24BppBitmapTest()
+        {
+            var ms = new MemoryStream();
+            using (var raw = new RawIcon())
+            {
+                raw.Add(Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(PixelFormat.Format24bppRgb), Color.Black);
+                raw.Save(ms, false);
+            }
+
+            // <32 BPP icons are always saved uncompressed
+            ms.Position = 0;
+
+            AssertPlatformDependent(() =>
+            {
+                var icon = new Icon(ms);
+                Assert.AreEqual(24, icon.GetBitsPerPixel());
+                Assert.IsFalse(icon.IsCompressed());
+                SaveIcon("result", icon);
+            });
+        }
+
         #endregion
     }
 }

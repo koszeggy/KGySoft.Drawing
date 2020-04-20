@@ -31,7 +31,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Contains extension methods for the <see cref="PixelFormat"/> type.
     /// </summary>
-    internal static class PixelFormatExtensions
+    public static class PixelFormatExtensions
     {
         #region Fields
 
@@ -41,28 +41,58 @@ namespace KGySoft.Drawing
 
         #region Methods
 
+        #region Public Methods
+
         /// <summary>
-        /// Gets the bits per pixel (bpp) value of a <see cref="PixelFormat"/> value.
+        /// Gets the bits per pixel (BPP) value of a <see cref="PixelFormat"/> value.
         /// </summary>
-        internal static int ToBitsPerPixel(this PixelFormat pixelFormat) => ((int)pixelFormat >> 8) & 0xFF;
+        /// <param name="pixelFormat">The pixel format to convert.</param>
+        /// <returns>The bits per pixel (BPP) value of a <see cref="PixelFormat"/> value.</returns>
+        /// <remarks>
+        /// <note>This method does not check whether the specified <paramref name="pixelFormat"/> represents a valid value.</note>
+        /// </remarks>
+        public static int ToBitsPerPixel(this PixelFormat pixelFormat) => ((int)pixelFormat >> 8) & 0xFF;
 
-        internal static bool HasTransparency(this PixelFormat pixelFormat)
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
-
+        /// <summary>
+        /// Gets whether this <see cref="PixelFormat"/> instance represents an indexed format.
+        /// </summary>
+        /// <param name="pixelFormat">The pixel format to be checked.</param>
+        /// <returns><see langword="true"/>, if this <see cref="PixelFormat"/> instance represents an indexed format; otherwise, <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method does not check whether the specified <paramref name="pixelFormat"/> represents a valid value.</note>
+        /// </remarks>
         internal static bool IsIndexed(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
-        internal static bool CanBeDithered(this PixelFormat dstFormat)
-            => dstFormat.ToBitsPerPixel() <= 16 && dstFormat != PixelFormat.Format16bppGrayScale;
-
-        internal static bool IsValidFormat(this PixelFormat pixelFormat)
+        /// <summary>
+        /// Gets whether this <see cref="PixelFormat"/> instance represents a valid format.
+        /// The valid format values are the ones, whose name starts with <c>Format</c>.
+        /// </summary>
+        /// <param name="pixelFormat">The pixel format to be checked.</param>
+        /// <returns><see langword="true"/>, if this <see cref="PixelFormat"/> instance represents a valid format; otherwise, <see langword="false"/>.</returns>
+        public static bool IsValidFormat(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            => pixelFormat.IsDefined() && (pixelFormat & PixelFormat.Max) != 0;
+            => pixelFormat != PixelFormat.Max && (pixelFormat & PixelFormat.Max) != 0 && pixelFormat.IsDefined();
 
-        internal static bool IsSupported(this PixelFormat pixelFormat)
+        /// <summary>
+        /// Gets whether the specified <paramref name="pixelFormat"/> is supported on the current operating system.
+        /// </summary>
+        /// <param name="pixelFormat">The pixel format to check.</param>
+        /// <returns><see langword="true"/>, if the specified <paramref name="pixelFormat"/> is supported on the current operating system; otherwise, <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>If <paramref name="pixelFormat"/> does not represent a valid format (the <see cref="IsValidFormat">IsValidFormat</see> method returns <see langword="false"/>), then
+        /// this method returns <see langword="false"/>.</para>
+        /// <para>This method returns <see langword="true"/>, if a <see cref="Bitmap"/> can be created with the specified <paramref name="pixelFormat"/>.
+        /// Even in such case there might be some limitations on the current operating system when using some <see cref="PixelFormat"/>s.</para>
+        /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong>
+        /// section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// </remarks>
+        public static bool IsSupported(this PixelFormat pixelFormat)
         {
+            if (!pixelFormat.IsValidFormat())
+                return false;
+
             if (OSUtils.IsWindows)
                 return true;
 
@@ -74,7 +104,7 @@ namespace KGySoft.Drawing
             try
             {
                 using var _ = new Bitmap(1, 1, pixelFormat);
-                map = new Dictionary<PixelFormat, bool>(map);
+                map = map == null ? new Dictionary<PixelFormat, bool>() : new Dictionary<PixelFormat, bool>(map);
                 map[pixelFormat] = true;
                 supportedFormats = map;
                 return true;
@@ -82,12 +112,23 @@ namespace KGySoft.Drawing
             catch (Exception e) when (!(e is StackOverflowException))
             {
                 // catching even OutOfMemoryException because GDI can throw it for unsupported formats
-                map = new Dictionary<PixelFormat, bool>(map);
+                map = map == null ? new Dictionary<PixelFormat, bool>() : new Dictionary<PixelFormat, bool>(map);
                 map[pixelFormat] = false;
                 supportedFormats = map;
                 return false;
             }
         }
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static bool HasTransparency(this PixelFormat pixelFormat)
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
+
+        internal static bool CanBeDithered(this PixelFormat dstFormat)
+            => dstFormat.ToBitsPerPixel() <= 16 && dstFormat != PixelFormat.Format16bppGrayScale;
 
         internal static bool CanBeDrawn(this PixelFormat pixelFormat)
         {
@@ -95,6 +136,8 @@ namespace KGySoft.Drawing
                 return pixelFormat != PixelFormat.Format16bppGrayScale;
             return !pixelFormat.In(PixelFormat.Format16bppRgb555, PixelFormat.Format16bppRgb565) && pixelFormat.IsSupported();
         }
+
+        #endregion
 
         #endregion
     }

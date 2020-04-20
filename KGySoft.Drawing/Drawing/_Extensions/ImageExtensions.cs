@@ -23,7 +23,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security;
+#if !NET35
+using System.Security; 
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
@@ -993,7 +995,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsBmp(image, fs);
         }
 
@@ -1081,7 +1083,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsJpeg(image, fs, quality);
         }
 
@@ -1143,7 +1145,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsPng(image, fs);
         }
 
@@ -1215,7 +1217,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsGif(image, fs, quantizer, ditherer);
         }
 
@@ -1290,7 +1292,8 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "toSave is disposed if it is not the same as image.")]
         public static void SaveAsTiff(this Image image, Stream stream, bool currentFrameOnly = true)
         {
             if (image == null)
@@ -1298,8 +1301,7 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            Bitmap bmp = image as Bitmap;
-            if (!currentFrameOnly && bmp != null)
+            if (!currentFrameOnly && image is Bitmap bmp)
             {
                 // checking if image has multiple frames
                 FrameDimension dimension = null;
@@ -1315,9 +1317,10 @@ namespace KGySoft.Drawing
                 }
 
                 int frameCount = dimension != null ? bmp.GetFrameCount(dimension) : 0;
-                if (frameCount > 1 || frameCount <= 1 && bmp.RawFormat.Guid == ImageFormat.Icon.Guid)
+                bool isIcon = bmp.RawFormat.Guid == ImageFormat.Icon.Guid;
+                if (frameCount > 1 || frameCount <= 1 && isIcon)
                 {
-                    Bitmap[] frames = bmp.ExtractIconImages();
+                    Bitmap[] frames = isIcon ? bmp.ExtractIconImages() : bmp.ExtractBitmaps();
                     try
                     {
                         frames.SaveAsMultipageTiff(stream);
@@ -1330,27 +1333,20 @@ namespace KGySoft.Drawing
                 }
             }
 
-            // converting non BW 1 BPP image to 4 BPP in order to preserve palette colors
-            if (bmp != null && bmp.PixelFormat == PixelFormat.Format1bppIndexed)
-            {
-                var palette = bmp.Palette.Entries;
-                if (palette[0].ToArgb() != Color.Black.ToArgb() || palette[1].ToArgb() != Color.White.ToArgb())
-                    bmp = bmp.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
-            }
-
+            Image toSave = AdjustTiffImage(image);
             try
             {
                 using (var encoderParams = new EncoderParameters(1))
                 {
                     // On Windows 10 it doesn't make any difference; otherwise, this provides the best compression
                     encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-                    SaveByEncoder(bmp != image ? bmp : image, stream, ImageFormat.Tiff, encoderParams, false);
+                    SaveByEncoder(toSave, stream, ImageFormat.Tiff, encoderParams, false);
                 }
             }
             finally
             {
-                if (!ReferenceEquals(image, bmp))
-                    bmp?.Dispose();
+                if (!ReferenceEquals(image, toSave))
+                    toSave?.Dispose();
             }
         }
 
@@ -1370,9 +1366,10 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsTiff(image, fs, currentFrameOnly);
         }
+
 
         /// <summary>
         /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
@@ -1386,6 +1383,8 @@ namespace KGySoft.Drawing
         /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
         /// <note>On non-Windows platform this method may throw a <see cref="NotSupportedException"/> if <paramref name="images"/> has multiple elements.</note>
         /// </remarks>
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "Replaced images are disposed at the end of the method. Cannot be done earlier if the first page is also replaced.")]
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
             if (images == null)
@@ -1398,11 +1397,15 @@ namespace KGySoft.Drawing
                 throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Tiff));
 
             Image tiff = null;
-            foreach (Image page in images)
+            var pagesToDispose = new List<Image>();
+            foreach (Image image in images)
             {
-                if (page == null)
+                if (image == null)
                     throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
+                Image page = AdjustTiffImage(image);
+                if (page != image)
+                    pagesToDispose.Add(page);
                 using (var encoderParams = new EncoderParameters(2))
                 {
                     // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
@@ -1428,15 +1431,18 @@ namespace KGySoft.Drawing
                 }
             }
 
+            if (tiff == null)
+                throw new ArgumentException(PublicResources.CollectionEmpty, nameof(images));
+
             // finishing save
             using (var encoderParams = new EncoderParameters(1))
             {
                 encoderParams.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.Flush);
-
-                // ReSharper disable once PossibleNullReferenceException
                 tiff.SaveAdd(encoderParams);
             }
 
+            // disposing the replaced images, if any
+            pagesToDispose.ForEach(img => img.Dispose());
             stream.Flush();
         }
 
@@ -1477,7 +1483,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
-            using (FileStream fs = FileHelper.Create(fileName))
+            using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsIcon(image, fs, forceUncompressedResult);
         }
 
@@ -1647,6 +1653,18 @@ namespace KGySoft.Drawing
             if (setEntries)
                 targetPalette.SetEntries(targetColors);
             target.Palette = targetPalette;
+        }
+
+        private static Image AdjustTiffImage(Image image)
+        {
+            if (image == null || image.PixelFormat != PixelFormat.Format1bppIndexed)
+                return image;
+
+            // converting non BW 1 BPP image to 4 BPP in order to preserve palette colors
+            Color[] palette = image.Palette.Entries;
+            return palette[0].ToArgb() == Color.Black.ToArgb() && palette[1].ToArgb() == Color.White.ToArgb()
+                ? image
+                : image.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
         }
 
 #if !NET35

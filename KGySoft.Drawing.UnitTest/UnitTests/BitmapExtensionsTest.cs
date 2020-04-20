@@ -281,9 +281,9 @@ namespace KGySoft.Drawing.UnitTests
             Assert.LessOrEqual(colorCount, bmp24bpp.Width * bmp24bpp.Height);
             SaveImage("24rgb", bmp24bpp);
 
-            // 48 bit
-            if (OSUtils.IsWindows)
+            AssertPlatformDependent(() =>
             {
+                // 48 bit
                 using var bmp48bpp = refBmp.ConvertPixelFormat(PixelFormat.Format48bppRgb);
                 colorCount = bmp48bpp.GetColorCount();
                 Assert.LessOrEqual(colorCount, bmp48bpp.Width * bmp48bpp.Height);
@@ -294,7 +294,7 @@ namespace KGySoft.Drawing.UnitTests
                 colorCount = bmp64bpp.GetColorCount();
                 Assert.LessOrEqual(colorCount, bmp64bpp.Width * bmp64bpp.Height);
                 SaveImage("64argb", bmp64bpp);
-            }
+            }, PlatformID.Win32NT);
 
             // 8 bit: returning actual palette
             using var bmp8bpp = refBmp.ConvertPixelFormat(PixelFormat.Format8bppIndexed);

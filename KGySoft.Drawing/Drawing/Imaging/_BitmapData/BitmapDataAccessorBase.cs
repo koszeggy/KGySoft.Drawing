@@ -56,13 +56,15 @@ namespace KGySoft.Drawing.Imaging
 
         public Palette Palette { get; }
 
+        public int RowSize { get; }
+
         #endregion
 
         #region Internal Properties
 
         internal Color32 BackColor { get; }
-        internal int Stride => bitmapData.Stride;
         internal IntPtr Scan0 => bitmapData.Scan0;
+        internal int Stride => bitmapData.Stride;
 
         #endregion
 
@@ -139,6 +141,7 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
 
             bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);
+            RowSize = Math.Abs(bitmapData.Stride);
 
             if (bitmapData.PixelFormat.IsIndexed())
                 Palette = palette ?? new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);

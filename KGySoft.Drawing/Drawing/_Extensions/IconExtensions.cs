@@ -17,6 +17,8 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
+using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -122,26 +124,28 @@ namespace KGySoft.Drawing
         /// When the returned <see cref="Bitmap"/> is used to create another <see cref="Bitmap"/> or is drawn into a <see cref="Graphics"/>, the best-fitting image is automatically applied.
         /// </summary>
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
-        /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
         /// <remarks>
-        /// <para>If the method is executed in a Windows XP or non-Windows environment, the result <see cref="Bitmap"/> will contain only uncompressed images.</para>
-        /// <para>Windows XP may display alpha channel incorrectly (semi-transparent pixels may be black).</para>
+        /// <para></para>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
         /// </remarks>
+        /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
 #if !NET35
         [SecuritySafeCritical]
 #endif
         public static Bitmap ToMultiResBitmap(this Icon icon)
         {
             if (!OSUtils.IsWindows || OSUtils.IsVistaOrLater)
-                // Forcing BMP only images also on Linux to prevent possible OutOfMemoryException from the Bitmap constructor
-                return ToMultiResBitmap(icon, !OSUtils.IsWindows);
+            {
+                using (RawIcon rawIcon = new RawIcon(icon))
+                    return rawIcon.ToBitmap();
+            }
 
-            // In Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor.
+            // In Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor and forcing always uncompressed result.
             using (var result = new RawIcon())
             {
                 foreach (Icon iconImage in icon.ExtractIcons())
                 {
+                    Debug.Assert(iconImage != null, "Null elements are expected only on non-Windows systems");
                     using (iconImage)
                     {
                         if (iconImage.GetBitsPerPixel() == 24)
@@ -154,7 +158,7 @@ namespace KGySoft.Drawing
                     }
                 }
 
-                return result.ToBitmap(true);
+                return result.ToBitmap();
             }
         }
 
@@ -163,8 +167,7 @@ namespace KGySoft.Drawing
         /// When the returned <see cref="Bitmap"/> is used to create another <see cref="Bitmap"/> or is drawn into a <see cref="Graphics"/>, the best-fitting image is automatically applied.
         /// </summary>
         /// <param name="icon">The icon to convert to a multi-resolution <see cref="Bitmap"/>.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning a <see cref="Bitmap"/> instance with non-compressed images only;
-        /// <see langword="false"/>&#160;to allow compressing larger images by PNG encoding, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult">This parameter is ignored.</param>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
         /// </remarks>
@@ -172,11 +175,9 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Bitmap ToMultiResBitmap(this Icon icon, bool forceUncompressedResult)
-        {
-            using (RawIcon rawIcon = new RawIcon(icon))
-                return rawIcon.ToBitmap(forceUncompressedResult);
-        }
+        [Obsolete("This overload is now obsolete because the forceUncompressedResult parameter is not used anymore in this method.")]
+        // ReSharper disable once UnusedParameter.Global
+        public static Bitmap ToMultiResBitmap(this Icon icon, bool forceUncompressedResult) => ToMultiResBitmap(icon);
 
         /// <summary>
         /// Gets the number of images in the <paramref name="icon"/>.
@@ -548,7 +549,8 @@ namespace KGySoft.Drawing
         /// icon was found with the specified size and format the nearest icon (<paramref name="size"/> match has preference over <paramref name="pixelFormat"/>) is returned.</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
-        /// <para>On some platforms it may happen that a smaller icon is returned than requested if the requested icon size is not supported.</para>
+        /// <para>On some platforms it may happen that a smaller icon is returned than requested size if the requested icon size is not supported.
+        /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/>&#160;is returned.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractNearestIcon(icon, size, pixelFormat, OSUtils.IsXpOrEarlier);
@@ -565,7 +567,8 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image. If no
         /// icon was found with the specified size and format the nearest icon (<paramref name="size"/> match have preference over <paramref name="pixelFormat"/>) is returned.</returns>
         /// <remarks>
-        /// <para>On some platforms it may happen that a smaller icon is returned than requested if the requested icon size is not supported.</para>
+        /// <para>On some platforms it may happen that a smaller icon is returned than requested size if the requested icon size is not supported.
+        /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/>&#160;is returned.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
 #if !NET35
@@ -591,7 +594,30 @@ namespace KGySoft.Drawing
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(this Icon icon, params Icon[] icons) => Combine(icon, OSUtils.IsXpOrEarlier, icons);
+        public static Icon Combine(this Icon icon, IEnumerable<Icon> icons) => Combine(icon, OSUtils.IsXpOrEarlier, icons);
+
+        /// <summary>
+        /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="icon">The icon to combine with other icons.</param>
+        /// <param name="icons">The icons to be combined with the specified <paramref name="icon"/>.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
+        /// <remarks>
+        /// <para>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// </remarks>
+        public static Icon Combine(this Icon icon, params Icon[] icons) => Combine(icon, OSUtils.IsXpOrEarlier, (IEnumerable<Icon>)icons);
+
+        /// <summary>
+        /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="icon">The icon to combine with other icons.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="icons">The icons to be combined with the specified <paramref name="icon"/>.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
+        /// <remarks>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</remarks>
+        public static Icon Combine(this Icon icon, bool forceUncompressedResult, params Icon[] icons) => Combine(icon, forceUncompressedResult, (IEnumerable<Icon>)icons);
 
         /// <summary>
         /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -605,11 +631,11 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon Combine(this Icon icon, bool forceUncompressedResult, params Icon[] icons)
+        public static Icon Combine(this Icon icon, bool forceUncompressedResult, IEnumerable<Icon> icons)
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
-            if ((icons == null || icons.Length == 0) && !forceUncompressedResult)
+            if (icons == null && !forceUncompressedResult)
                 return icon;
 
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -636,7 +662,34 @@ namespace KGySoft.Drawing
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(this Icon icon, params Bitmap[] images) => Combine(icon, OSUtils.IsXpOrEarlier, images);
+        public static Icon Combine(this Icon icon, params Bitmap[] images) => Combine(icon, OSUtils.IsXpOrEarlier, (IEnumerable<Bitmap>)images);
+
+        /// <summary>
+        /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
+        /// </summary>
+        /// <param name="icon">The icon to combine with other images.</param>
+        /// <param name="images">The images to be added to the <paramref name="icon"/>. Images can be non-squared ones.</param>
+        /// <returns>
+        /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
+        /// </returns>
+        /// <remarks>
+        /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// </remarks>
+        public static Icon Combine(this Icon icon, IEnumerable<Bitmap> images) => Combine(icon, OSUtils.IsXpOrEarlier, images);
+
+        /// <summary>
+        /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
+        /// </summary>
+        /// <param name="icon">The icon to combine with other images.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="images">The images to be added to the <paramref name="icon"/>. Images can be non-squared ones.</param>
+        /// <returns>
+        /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
+        /// </returns>
+        /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
+        public static Icon Combine(this Icon icon, bool forceUncompressedResult, params Bitmap[] images) => Combine(icon, forceUncompressedResult, (IEnumerable<Bitmap>)images);
 
         /// <summary>
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
@@ -652,17 +705,21 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon Combine(this Icon icon, bool forceUncompressedResult, params Bitmap[] images)
+        public static Icon Combine(this Icon icon, bool forceUncompressedResult, IEnumerable<Bitmap> images)
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
-            if (images == null || images.Length == 0)
+            if (images == null && !forceUncompressedResult)
                 return icon;
 
             using (RawIcon rawIcon = new RawIcon(icon))
             {
-                foreach (Bitmap image in images)
-                    rawIcon.Add(image);
+                if (images != null)
+                {
+                    foreach (Bitmap image in images)
+                        rawIcon.Add(image);
+                }
+
                 return rawIcon.ToIcon(forceUncompressedResult);
             }
         }
@@ -725,7 +782,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static void SaveHighQuality(this Icon icon, Stream stream, bool forceUncompressedResult = false)
+        public static void SaveAsIcon(this Icon icon, Stream stream, bool forceUncompressedResult = false)
         {
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
@@ -768,7 +825,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Gets the bits per pixel (BPP) value of the icon.
+        /// Gets the bits per pixel (BPP) value of the <paramref name="icon"/>.
         /// </summary>
         /// <param name="icon">The icon.</param>
         /// <param name="index">The index to check. If <see langword="null"/>, then the result determines the highest bpp value of the icon images. This parameter is optional.
@@ -786,6 +843,53 @@ namespace KGySoft.Drawing
                 if (index != null && rawIcon.ImageCount == 0)
                     throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
                 return rawIcon.Bpp;
+            }
+        }
+
+        /// <summary>
+        /// Gets an array of <see cref="IconInfo"/> instances containing information about the images of an <see cref="Icon"/>.
+        /// </summary>
+        /// <param name="icon">The icon.</param>
+        /// <returns>An array of <see cref="IconInfo"/> instances containing information about the images of an <see cref="Icon"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static IconInfo[] GetIconInfo(this Icon icon)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            
+            using (var rawIcon = new RawIcon(icon))
+            {
+                var result = new IconInfo[rawIcon.ImageCount];
+                for (int i = 0; i < result.Length; i++)
+                    result[i] = rawIcon.GetIconInfo(i);
+
+                return result;
+            }
+        }
+
+        /// <summary>
+        /// Gets an <see cref="IconInfo"/> instance containing information about an <see cref="Icon"/> image of the specified <paramref name="index"/>.
+        /// </summary>
+        /// <param name="icon">The icon.</param>
+        /// <param name="index">The index of the icon image to obtain information for.</param>
+        /// <returns>An <see cref="IconInfo"/> instance containing information about an <see cref="Icon"/> image of the specified <paramref name="index"/>.</returns>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static IconInfo GetIconInfo(this Icon icon, int index)
+        {
+            if (icon == null)
+                throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
+            if (index < 0)
+                throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
+
+            using (var rawIcon = new RawIcon(icon, null, null, index))
+            {
+                if (rawIcon.ImageCount == 0)
+                    throw new ArgumentOutOfRangeException(nameof(index), PublicResources.ArgumentOutOfRange);
+                return rawIcon.GetIconInfo(0);
             }
         }
 
@@ -849,7 +953,7 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon), PublicResources.ArgumentNull);
 
-            using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
+            using (RawIcon rawIcon = new RawIcon(icon, size, bpp))
                 return rawIcon.ExtractBitmaps(keepOriginalFormat);
         }
 
@@ -873,7 +977,7 @@ namespace KGySoft.Drawing
             if (icon == null)
                 throw new ArgumentNullException(nameof(icon));
 
-            using (RawIcon rawIcon = new RawIcon(icon, size, bpp, null))
+            using (RawIcon rawIcon = new RawIcon(icon, size, bpp))
                 return rawIcon.ExtractIcons(forceUncompressedResult);
         }
 

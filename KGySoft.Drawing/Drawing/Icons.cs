@@ -27,8 +27,10 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Security;
+
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
+using KGySoft.Reflection;
 
 #endregion
 
@@ -445,11 +447,7 @@ namespace KGySoft.Drawing
             if (!Enum<SystemIconSize>.IsDefined(size))
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.EnumOutOfRangeWithValues(size));
             if (!OSUtils.IsWindows)
-#if NETFRAMEWORK
-                return new Icon[0];
-#else
-                return Array.Empty<Icon>();
-#endif
+                Reflector.EmptyArray<Icon>();
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, size);
             Icon[] result = new Icon[handles.Length];
@@ -478,11 +476,7 @@ namespace KGySoft.Drawing
             if (fileName == null)
                 throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
             if (!OSUtils.IsWindows)
-#if NETFRAMEWORK
-                return new Icon[0];
-#else
-                return Array.Empty<Icon>();
-#endif
+                Reflector.EmptyArray<Icon>();
 
             IntPtr[][] handles = Shell32.ExtractIconHandles(fileName, null);
             Icon[] result = new Icon[handles.Length];
@@ -566,7 +560,28 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(params Icon[] icons) => Combine(OSUtils.IsXpOrEarlier, icons);
+        public static Icon Combine(IEnumerable<Icon> icons) => Combine(OSUtils.IsXpOrEarlier, icons);
+
+        /// <summary>
+        /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="icons">The icons to be combined.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
+        /// <remarks>
+        /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// </remarks>
+        public static Icon Combine(params Icon[] icons) => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Icon>)icons);
+
+        /// <summary>
+        /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="icons">The icons to be combined.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
+        /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
+        public static Icon Combine(bool forceUncompressedResult, params Icon[] icons) => Combine(forceUncompressedResult, (IEnumerable<Icon>)icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -579,9 +594,9 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon Combine(bool forceUncompressedResult, params Icon[] icons)
+        public static Icon Combine(bool forceUncompressedResult, IEnumerable<Icon> icons)
         {
-            if (icons == null || icons.Length == 0)
+            if (icons == null)
                 return null;
 
             using (RawIcon rawIcon = new RawIcon())
@@ -603,7 +618,19 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        public static Icon Combine(params Bitmap[] images) => Combine(OSUtils.IsXpOrEarlier, images);
+        public static Icon Combine(params Bitmap[] images) => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Bitmap>)images);
+
+        /// <summary>
+        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
+        /// Transparency is determined automatically by image format.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
+        /// <remarks>
+        /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
+        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// </remarks>
+        public static Icon Combine(IEnumerable<Bitmap> images) => Combine(OSUtils.IsXpOrEarlier, images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -619,9 +646,25 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
-        public static Icon Combine(bool forceUncompressedResult, params Bitmap[] images)
+        public static Icon Combine(bool forceUncompressedResult, params Bitmap[] images) => Combine(forceUncompressedResult, (IEnumerable<Bitmap>)images);
+
+        /// <summary>
+        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
+        /// Transparency is determined automatically by image format.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
+        /// <remarks>
+        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// </remarks>
+#if !NET35
+        [SecuritySafeCritical]
+#endif
+        public static Icon Combine(bool forceUncompressedResult, IEnumerable<Bitmap> images)
         {
-            if (images == null || images.Length == 0)
+            if (images == null)
                 return null;
 
             using (RawIcon rawIcon = new RawIcon())

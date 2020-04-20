@@ -24,7 +24,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+#if !NET35
 using System.Security;
+#endif
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -235,6 +237,7 @@ namespace KGySoft.Drawing
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
         /// <para>Every <see cref="PixelFormat"/> is supported, though wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
         /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
+        /// To get the actual <em>number</em> of colors, which is accurate even for wide color formats, use the <see cref="GetColorCount">GetColorCount</see> method.
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </para>
         /// </remarks>
@@ -257,10 +260,8 @@ namespace KGySoft.Drawing
         /// <returns>The actual number of colors of the specified <paramref name="bitmap"/>.</returns>
         /// <remarks>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
-        /// <para>Every <see cref="PixelFormat"/> is supported, though wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
-        /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
-        /// So for example, if <paramref name="bitmap"/> has <see cref="PixelFormat.Format16bppGrayScale"/>&#160;<see cref="PixelFormat"/>, then the returned value
-        /// will not be more than 256.
+        /// <para>Every <see cref="PixelFormat"/> is supported, and an accurate result is returned even for wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
+        /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>).
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </para>
         /// </remarks>
@@ -268,7 +269,18 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            return DoGetColors(bitmap, 0).Count;
+            switch (bitmap.PixelFormat)
+            {
+                case PixelFormat.Format16bppGrayScale:
+                    return GetColorCount<Color16Gray>(bitmap);
+                case PixelFormat.Format48bppRgb:
+                    return GetColorCount<Color48>(bitmap);
+                case PixelFormat.Format64bppArgb:
+                case PixelFormat.Format64bppPArgb:
+                    return GetColorCount<Color64>(bitmap);
+                default:
+                    return DoGetColors(bitmap, 0).Count;
+            }
         }
 
         /// <summary>
@@ -1259,6 +1271,31 @@ namespace KGySoft.Drawing
 #if !NET35
         [SecuritySafeCritical]
 #endif
+        private static int GetColorCount<T>(Bitmap bitmap) where T : unmanaged
+        {
+            var colors = new HashSet<T>();
+            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
+            {
+                BitmapDataRowBase line = data.GetRow(0);
+
+                do
+                {
+                    for (int x = 0; x < data.Width; x++)
+                    {
+                        T color = line.DoReadRaw<T>(x);
+                        if (color is Color64 c64 && c64.A == 0)
+                            color = default;
+                        colors.Add(color);
+                    }
+                } while (line.MoveNextRow());
+            }
+
+            return colors.Count;
+        }
+
+#if !NET35
+        [SecuritySafeCritical]
+#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearDirect(BitmapDataAccessorBase bitmapData, Color32 color)
         {
@@ -1271,7 +1308,7 @@ namespace KGySoft.Drawing
                     row = bitmapData.GetRow(0);
                     row.DoSetColor32(0, color);
                     var rawColor = row.DoReadRaw<Color32>(0);
-                    int longWidth = bitmapData.Stride >> 3;
+                    int longWidth = bitmapData.RowSize >> 3;
 
                     // writing as longs
                     if (longWidth > 0)
@@ -1306,18 +1343,18 @@ namespace KGySoft.Drawing
                     row = bitmapData.GetRow(0);
                     row.DoSetColor32(0, color);
                     var shortValue = row.DoReadRaw<ushort>(0);
-                    longWidth = bitmapData.Stride >> 3;
+                    longWidth = bitmapData.RowSize >> 3;
                     uint uintValue = (uint)((shortValue << 16) | shortValue);
 
                     // writing as longs
                     if (longWidth > 0)
                         ClearRaw(bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
 
-                    // if stride can be divided by 8, then we are done
-                    if ((bitmapData.Stride & 0b111) == 0)
+                    // if row width can be divided by 8, then we are done
+                    if ((bitmapData.RowSize & 0b111) == 0)
                         return;
 
-                    // otherwise, we clear the last 1..3 columns (on Windows: 1..2 because stride always can be divided by 4)
+                    // otherwise, we clear the last 1..3 columns (on Windows: 1..2 because row width always can be divided by 4)
                     int to = bitmapData.Width;
                     int from = to - (bitmapData.Width & 0b11);
                     row = bitmapData.GetRow(0);
@@ -1338,12 +1375,12 @@ namespace KGySoft.Drawing
                         : bpp == 4 ? (byte)((index << 4) | index)
                         : index == 1 ? Byte.MaxValue : Byte.MinValue;
 
-                    // writing as 32-bit integers (on Windows Stride is always the multiple of 4)
-                    if ((bitmapData.Stride & 0b11) == 0)
-                        ClearRaw(bitmapData, bitmapData.Stride >> 2, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
+                    // writing as 32-bit integers (on Windows row width is always the multiple of 4)
+                    if ((bitmapData.RowSize & 0b11) == 0)
+                        ClearRaw(bitmapData, bitmapData.RowSize >> 2, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
                     // fallback: writing as bytes (will not occur on Windows)
                     else
-                        ClearRaw(bitmapData, bitmapData.Stride, byteValue);
+                        ClearRaw(bitmapData, bitmapData.RowSize, byteValue);
                     return;
 
                 // Direct color-based clear (24/48 bit formats)

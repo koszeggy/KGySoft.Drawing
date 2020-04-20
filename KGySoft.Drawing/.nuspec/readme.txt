@@ -1,10 +1,10 @@
-Thank you for installing KGy SOFT Drawing Libraries
+Thank you for installing KGy SOFT Drawing Libraries 5.1.0
 
 KGy SOFT Drawing Libraries offer advanced features built around the System.Drawing types.
 
-Main new features in 5.0.x:
+Main new features in 5.x:
 - Targeting .NET Core 2.0 and .NET Core 3.0 (additionally to .NET Framework 3.5, 4.0 and 4.5)
-- Supporting Linux/Unix platforms (requires libgdiplus and libX11). Tested with Mono and .NET Core.
+- Supporting Linux/Unix platforms (requires libgdiplus). Tested with Mono and .NET Core.
   For Mono use the .NET Framework builds. Some APIs may throw a PlatformNotSupportedException on Linux/Unix. 
 - Fast direct Bitmap access for every PixelFormat
 - Quantizing and dithering
