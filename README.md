@@ -61,7 +61,7 @@ Icon images of different resolutions and color depth can be extracted from an `I
 
 ```cs
 // extracting the 256x256 image from an icon:
-Bitmap bmp = Icons.ExtractBitmap(new Size(256, 256));
+Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
 
 // combining an existing icon with a bitmap:
 Icon combined = myIcon.Combine(bmp);
