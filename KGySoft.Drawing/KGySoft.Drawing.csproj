@@ -18,20 +18,12 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="HelpOut\**" />
-    <EmbeddedResource Remove="HelpOut\**" />
     <None Remove="HelpOut\**" />
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\LICENSE"/>
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include=".nuspec\readme.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Include=".nuspec\readme.txt" />
     <None Include=".nuspec\KGySoft.Drawing.nuspec" />
     <None Include=".nuspec\readme.md" />
   </ItemGroup>
