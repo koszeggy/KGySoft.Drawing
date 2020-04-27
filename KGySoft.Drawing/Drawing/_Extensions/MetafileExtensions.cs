@@ -19,6 +19,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -121,11 +122,21 @@ namespace KGySoft.Drawing
         /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance provided in the <paramref name="metafile"/> parameter.
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
-        /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>.</param>
-        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>.
+        /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>. This overload does not maintain aspect ratio.</param>
+        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
-        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)
+        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false) => ToBitmap(metafile, requestedSize, antiAliased, false);
+
+        /// <summary>
+        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance provided in the <paramref name="metafile"/> parameter.
+        /// </summary>
+        /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
+        /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>.</param>
+        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>.</param>
+        /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="metafile"/>; otherwise, <see langword="false"/>.</param>
+        /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
+        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased, bool keepAspectRatio)
         {
             if (metafile == null)
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
@@ -133,12 +144,43 @@ namespace KGySoft.Drawing
             if (requestedSize.Width < 1 || requestedSize.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(requestedSize), PublicResources.ArgumentOutOfRange);
 
-            if (!antiAliased)
+            Size sourceSize = metafile.Size;
+            Size targetSize = requestedSize;
+            Point targetLocation = Point.Empty;
+
+            if (keepAspectRatio && requestedSize != sourceSize)
+            {
+                float ratio = Math.Min((float)requestedSize.Width / sourceSize.Width, (float)requestedSize.Height / sourceSize.Height);
+                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetLocation = new Point((requestedSize.Width >> 1) - (targetSize.Width >> 1), (requestedSize.Height >> 1) - (targetSize.Height >> 1));
+            }
+
+            if (!antiAliased && sourceSize == targetSize)
                 return new Bitmap(metafile, requestedSize);
 
-            using (Bitmap bmpDouble = new Bitmap(metafile, requestedSize.Width << 1, requestedSize.Height << 1))
+            var result = new Bitmap(requestedSize.Width, requestedSize.Height);
+            if (!antiAliased)
             {
-                return bmpDouble.Resize(requestedSize);
+                using (Graphics g = Graphics.FromImage(result))
+                {
+                    g.DrawImage(metafile, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                    g.Flush();
+                }
+
+                return result;
+            }
+
+            using (Bitmap bmpDouble = new Bitmap(metafile, targetSize.Width << 1, targetSize.Height << 1))
+            {
+                using (Graphics g = Graphics.FromImage(result))
+                {
+                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                    g.DrawImage(bmpDouble, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, bmpDouble.Size), GraphicsUnit.Pixel);
+                    g.Flush();
+                }
+
+                return result;
             }
         }
 

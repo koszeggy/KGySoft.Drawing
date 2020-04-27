@@ -68,7 +68,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to resize</param>
         /// <param name="newSize">The requested new size.</param>
-        /// <param name="keepAspectRatio">Determines whether the source <paramref name="image"/> should keep aspect ratio. This parameter is optional.
+        /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="image"/>; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
