@@ -183,12 +183,12 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 {
                     int diffs = 0;
                     using BitmapDataAccessorBase accessor = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadWrite);
-                    BitmapDataRowBase row = accessor.GetRow(0);
+                    IBitmapDataRowInternal row = accessor.GetRow(0);
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
                         {
-                            int argb = Argb(row.RowIndex, x);
+                            int argb = Argb(row.Index, x);
                             row.DoSetColor32(x, Color32.FromArgb(argb));
                             if (row.DoGetColor32(x).ToArgb() != argb)
                                 diffs++;

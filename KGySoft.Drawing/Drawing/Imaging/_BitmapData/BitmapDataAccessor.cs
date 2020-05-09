@@ -54,11 +54,11 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [SecurityCritical]
-        internal sealed override unsafe BitmapDataRowBase GetRow(int row)
+        public sealed override unsafe IBitmapDataRowInternal GetRow(int row)
         {
             // If the same row is accessed repeatedly we return the cached last row.
             TRow result = lastRow;
-            if (result?.RowIndex == row)
+            if (result?.Index == row)
                 return result;
 
             // Otherwise, we create and cache the result.
@@ -66,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 Address = row == 0 ? (byte*)Scan0 : (byte*)Scan0 + Stride * row,
                 Accessor = this,
-                RowIndex = row,
+                Index = row,
             };
 
             return lastRow = result;

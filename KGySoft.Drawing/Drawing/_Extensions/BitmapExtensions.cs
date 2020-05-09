@@ -24,6 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Numerics;
 #if !NET35
 using System.Security;
 #endif
@@ -526,7 +527,7 @@ namespace KGySoft.Drawing
                 if (bitmapData.Width < parallelThreshold)
                 {
                     int width = bitmapData.Width;
-                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
                     do
                     {
                         for (int x = 0; x < width; x++)
@@ -540,7 +541,7 @@ namespace KGySoft.Drawing
                 ParallelHelper.For(0, bitmapData.Height, y =>
                 {
                     int width = bitmapData.Width;
-                    BitmapDataRowBase row = bitmapData.GetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
                     for (int x = 0; x < width; x++)
                         row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
                 });
@@ -594,7 +595,7 @@ namespace KGySoft.Drawing
                 if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                 {
                     int width = bitmapData.Width;
-                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
                     int y = 0;
                     do
                     {
@@ -611,7 +612,7 @@ namespace KGySoft.Drawing
                 ParallelHelper.For(0, bitmapData.Height, y =>
                 {
                     int width = bitmapData.Width;
-                    BitmapDataRowBase row = bitmapData.GetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
                     for (int x = 0; x < width; x++)
                         row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
                 });
@@ -723,7 +724,7 @@ namespace KGySoft.Drawing
                 // Sequential processing
                 if (bitmapData.Width < parallelThreshold)
                 {
-                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
                     do
                     {
                         for (int x = 0; x < bitmapData.Width; x++)
@@ -736,7 +737,7 @@ namespace KGySoft.Drawing
                 // Parallel processing
                 ParallelHelper.For(0, bitmapData.Height, y =>
                 {
-                    BitmapDataRowBase row = bitmapData.GetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
                     for (int x = 0; x < bitmapData.Width; x++)
                         row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
                 });
@@ -822,7 +823,7 @@ namespace KGySoft.Drawing
                     // sequential processing
                     if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                     {
-                        BitmapDataRowBase row = bitmapData.GetRow(0);
+                        IBitmapDataRowInternal row = bitmapData.GetRow(0);
                         int y = 0;
                         do
                         {
@@ -837,7 +838,7 @@ namespace KGySoft.Drawing
                     // parallel processing
                     ParallelHelper.For(0, bitmapData.Height, y =>
                     {
-                        BitmapDataRowBase row = bitmapData.GetRow(y);
+                        IBitmapDataRowInternal row = bitmapData.GetRow(y);
                         for (int x = 0; x < bitmapData.Width; x++)
                             row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
                     });
@@ -1251,7 +1252,7 @@ namespace KGySoft.Drawing
             var colors = new HashSet<Color32>();
             using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
             {
-                BitmapDataRowBase line = data.GetRow(0);
+                IBitmapDataRowInternal line = data.GetRow(0);
 
                 do
                 {
@@ -1276,7 +1277,7 @@ namespace KGySoft.Drawing
             var colors = new HashSet<T>();
             using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
             {
-                BitmapDataRowBase line = data.GetRow(0);
+                IBitmapDataRowInternal line = data.GetRow(0);
 
                 do
                 {
@@ -1299,7 +1300,7 @@ namespace KGySoft.Drawing
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearDirect(BitmapDataAccessorBase bitmapData, Color32 color)
         {
-            BitmapDataRowBase row;
+            IBitmapDataRowInternal row;
             int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
             switch (bpp)
             {
@@ -1402,7 +1403,7 @@ namespace KGySoft.Drawing
                     ParallelHelper.For(0, bitmapData.Height, y =>
                     {
                         // ReSharper disable once VariableHidesOuterVariable
-                        BitmapDataRowBase row = bitmapData.GetRow(y);
+                        IBitmapDataRowInternal row = bitmapData.GetRow(y);
                         for (int x = 0; x < bitmapData.Width; x++)
                             row.DoSetColor32(x, color);
                     });
@@ -1431,7 +1432,7 @@ namespace KGySoft.Drawing
             // parallel clear
             ParallelHelper.For(0, bitmapData.Height, y =>
             {
-                BitmapDataRowBase row = bitmapData.GetRow(y);
+                IBitmapDataRowInternal row = bitmapData.GetRow(y);
                 for (int x = 0; x < width; x++)
                     row.DoWriteRaw(x, data);
             });
@@ -1450,7 +1451,7 @@ namespace KGySoft.Drawing
                 // sequential clear
                 if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                 {
-                    BitmapDataRowBase row = bitmapData.GetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
                     int y = 0;
                     do
                     {
@@ -1465,7 +1466,7 @@ namespace KGySoft.Drawing
                 // parallel clear
                 ParallelHelper.For(0, bitmapData.Height, y =>
                 {
-                    BitmapDataRowBase row = bitmapData.GetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
                     for (int x = 0; x < bitmapData.Width; x++)
                         row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
                 });

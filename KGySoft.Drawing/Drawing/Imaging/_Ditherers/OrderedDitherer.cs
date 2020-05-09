@@ -513,6 +513,8 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
         /// </example>
         public static OrderedDitherer BlueNoise => blueNoise64 ??=
+            // Credits to https://github.com/bartwronski/BlueNoiseGenerator from where this pattern is taken from
+            // The source repository is under the MIT license, which is available here: https://opensource.org/licenses/MIT
             new OrderedDitherer(new byte[,]
             {
                 { 65, 247, 203, 177, 54, 149, 96, 135, 122, 62, 109, 206, 27, 217, 152, 103, 250, 78, 122, 228, 3, 83, 233, 160, 45, 242, 108, 40, 125, 93, 201, 35, 231, 187, 254, 207, 147, 13, 87, 134, 246, 197, 177, 224, 59, 92, 132, 169, 49, 183, 140, 3, 58, 165, 27, 204, 12, 83, 196, 4, 159, 183, 92, 197 },

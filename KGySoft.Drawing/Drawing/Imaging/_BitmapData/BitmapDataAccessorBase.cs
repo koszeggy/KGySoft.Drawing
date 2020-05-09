@@ -29,7 +29,7 @@ using KGySoft.Drawing.WinApi;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class BitmapDataAccessorBase : IReadWriteBitmapData
+    internal abstract class BitmapDataAccessorBase : IBitmapDataInternal
     {
         #region Fields
 
@@ -52,6 +52,8 @@ namespace KGySoft.Drawing.Imaging
 
         public PixelFormat PixelFormat => bitmapData.PixelFormat;
 
+        public Color32 BackColor { get; }
+        
         public byte AlphaThreshold { get; }
 
         public Palette Palette { get; }
@@ -62,7 +64,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Properties
 
-        internal Color32 BackColor { get; }
         internal IntPtr Scan0 => bitmapData.Scan0;
         internal int Stride => bitmapData.Stride;
 
@@ -195,18 +196,14 @@ namespace KGySoft.Drawing.Imaging
             GetRow(y).SetColor(x, color);
         }
 
+        [SecurityCritical]
+        public abstract IBitmapDataRowInternal GetRow(int row);
+
         public void Dispose()
         {
             Dispose(true);
             GC.SuppressFinalize(this);
         }
-
-        #endregion
-
-        #region Internal Methods
-
-        [SecurityCritical]
-        internal abstract BitmapDataRowBase GetRow(int row);
 
         #endregion
 

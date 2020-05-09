@@ -1558,7 +1558,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static PredefinedColorsQuantizer FromBitmapData(BitmapDataAccessorBase bitmapData)
+        // TODO: desc, changelog
+        public static PredefinedColorsQuantizer FromBitmapData(IBitmapData bitmapData)
         {
             switch (bitmapData.PixelFormat)
             {

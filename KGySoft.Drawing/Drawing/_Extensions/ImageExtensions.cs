@@ -242,8 +242,8 @@ namespace KGySoft.Drawing
                     // Sequential processing
                     if (source.Width < parallelThreshold)
                     {
-                        BitmapDataRowBase rowSrc = source.GetRow(0);
-                        BitmapDataRowBase rowDst = target.GetRow(0);
+                        IBitmapDataRowInternal rowSrc = source.GetRow(0);
+                        IBitmapDataRowInternal rowDst = target.GetRow(0);
                         int width = source.Width;
                         do
                         {
@@ -256,8 +256,8 @@ namespace KGySoft.Drawing
                     {
                         ParallelHelper.For(0, source.Height, y =>
                         {
-                            BitmapDataRowBase rowSrc = source.GetRow(y);
-                            BitmapDataRowBase rowDst = target.GetRow(y);
+                            IBitmapDataRowInternal rowSrc = source.GetRow(y);
+                            IBitmapDataRowInternal rowDst = target.GetRow(y);
                             int width = source.Width;
                             for (int x = 0; x < width; x++)
                                 rowDst.DoSetColor32(x, rowSrc.DoGetColor32(x));
@@ -673,8 +673,8 @@ namespace KGySoft.Drawing
                             // Sequential processing
                             if (source.Width < parallelThreshold)
                             {
-                                BitmapDataRowBase rowSrc = source.GetRow(0);
-                                BitmapDataRowBase rowDst = target.GetRow(0);
+                                IBitmapDataRowInternal rowSrc = source.GetRow(0);
+                                IBitmapDataRowInternal rowDst = target.GetRow(0);
                                 int width = source.Width;
                                 do
                                 {
@@ -687,8 +687,8 @@ namespace KGySoft.Drawing
                             {
                                 ParallelHelper.For(0, source.Height, y =>
                                 {
-                                    BitmapDataRowBase rowSrc = source.GetRow(y);
-                                    BitmapDataRowBase rowDst = target.GetRow(y);
+                                    IBitmapDataRowInternal rowSrc = source.GetRow(y);
+                                    IBitmapDataRowInternal rowDst = target.GetRow(y);
                                     int width = source.Width;
                                     for (int x = 0; x < width; x++)
                                         rowDst.DoSetColor32(x, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x)));
@@ -703,13 +703,13 @@ namespace KGySoft.Drawing
                                 // Sequential processing
                                 if (ditheringSession.IsSequential || source.Width < parallelThreshold)
                                 {
-                                    BitmapDataRowBase rowSrc = source.GetRow(0);
-                                    BitmapDataRowBase rowDst = target.GetRow(0);
+                                    IBitmapDataRowInternal rowSrc = source.GetRow(0);
+                                    IBitmapDataRowInternal rowDst = target.GetRow(0);
                                     int width = source.Width;
                                     do
                                     {
                                         for (int x = 0; x < width; x++)
-                                            rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.RowIndex));
+                                            rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.Index));
                                     } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
                                 }
                                 // Parallel processing
@@ -717,11 +717,11 @@ namespace KGySoft.Drawing
                                 {
                                     ParallelHelper.For(0, source.Height, y =>
                                     {
-                                        BitmapDataRowBase rowSrc = source.GetRow(y);
-                                        BitmapDataRowBase rowDst = target.GetRow(y);
+                                        IBitmapDataRowInternal rowSrc = source.GetRow(y);
+                                        IBitmapDataRowInternal rowDst = target.GetRow(y);
                                         int width = source.Width;
                                         for (int x = 0; x < width; x++)
-                                            rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.RowIndex));
+                                            rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.Index));
                                     });
                                 }
                             }
@@ -773,7 +773,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
-        /// <param name="sourceRect">The source area to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="sourceRectangle">The source area to be drawn into the <paramref name="target"/>.</param>
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -785,64 +785,80 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/></exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
         [SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "source is cast to Bitmap in different branches")]
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer = null)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (target == null)
                 throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
 
-            // clipping source rectangle with actual source size
-            sourceRect.Intersect(new Rectangle(Point.Empty, source.Size));
-
-            // calculating target rectangle
-            Size targetSize = target.Size;
-            Rectangle targetRect = new Rectangle(targetLocation, sourceRect.Size);
-            if (targetRect.Right > targetSize.Width)
+            // just some quick checks if there is nothing to draw
+            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
+                || Rectangle.Intersect(new Rectangle(targetLocation, sourceRectangle.Size), new Rectangle(Point.Empty, target.Size)).IsEmpty)
             {
-                targetRect.Width -= targetRect.Right - targetSize.Width;
-                sourceRect.Width = targetRect.Width;
-            }
-
-            if (targetRect.Bottom > targetSize.Height)
-            {
-                targetRect.Height -= targetRect.Bottom - targetSize.Height;
-                sourceRect.Height = targetRect.Height;
-            }
-
-            if (targetRect.Left < 0)
-            {
-                sourceRect.Width += targetRect.Left;
-                sourceRect.X -= targetRect.Left;
-                targetRect.Width += targetRect.Left;
-                targetRect.X = 0;
-            }
-
-            if (targetRect.Top < 0)
-            {
-                sourceRect.Height += targetRect.Top;
-                sourceRect.Y -= targetRect.Top;
-                targetRect.Height += targetRect.Top;
-                targetRect.Y = 0;
-            }
-
-            // returning, if there is no remaining source to draw
-            if (sourceRect.Height <= 0 || sourceRect.Width <= 0)
                 return;
-
-            PixelFormat targetPixelFormat = target.PixelFormat;
+            }
 
             // Cloning source if target and source are the same, or creating a new bitmap is source is a metafile
+            // TODO: do not clone if not necessary but obtain a read/write ditmap data
             Bitmap bmp = ReferenceEquals(source, target)
                 ? ((Bitmap)source).CloneCurrentFrame()
                 : source as Bitmap ?? new Bitmap(source);
 
             try
             {
-                if (ditherer == null || !targetPixelFormat.CanBeDithered())
-                    DrawIntoDirect(bmp, target, sourceRect, targetRect.Location);
-                else
-                    DrawIntoWithDithering(bmp, target, sourceRect, targetRect.Location, ditherer);
+                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
+                using (IWritableBitmapData dst = bmp.GetWritableBitmapData())
+                    dst.DrawBitmapData(src, sourceRectangle, targetLocation, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, source))
+                    bmp.Dispose();
+            }
+        }
+
+        // TODO
+        internal static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, scalingMode, ditherer);
+
+        // TODO
+        internal static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        {
+            // TODO: is it needed here, or just in DrawBitmapData?
+            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+            {
+                DrawInto(source, target, sourceRectangle, targetRectangle.Location, ditherer);
+                return;
+            }
+
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+
+            // just some quick checks if there is nothing to draw
+            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
+                || Rectangle.Intersect(targetRectangle, new Rectangle(Point.Empty, target.Size)).IsEmpty)
+            {
+                return;
+            }
+
+            // Cloning source if target and source are the same, or creating a new bitmap is source is a metafile
+            // TODO: do not clone if not necessary but obtain a read/write ditmap data
+            Bitmap bmp = ReferenceEquals(source, target)
+                ? ((Bitmap)source).CloneCurrentFrame()
+                : source as Bitmap ?? new Bitmap(source);
+
+            try
+            {
+                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
+                using (IWritableBitmapData dst = bmp.GetWritableBitmapData())
+                {
+                    dst.DrawBitmapData(src, sourceRectangle, targetRectangle, scalingMode, ditherer);
+                }
             }
             finally
             {
@@ -1665,159 +1681,6 @@ namespace KGySoft.Drawing
             return palette[0].ToArgb() == Color.Black.ToArgb() && palette[1].ToArgb() == Color.White.ToArgb()
                 ? image
                 : image.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
-        }
-
-#if !NET35
-        [SecuritySafeCritical]
-#endif
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DrawIntoDirect(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation)
-        {
-            #region Local Methods
-
-            static void ProcessRowStraight(int y, BitmapDataAccessorBase src, BitmapDataAccessorBase dst, Rectangle rectSrc, Point locDst)
-            {
-                BitmapDataRowBase rowSrc = src.GetRow(rectSrc.Y + y);
-                BitmapDataRowBase rowDst = dst.GetRow(locDst.Y + y);
-                for (int x = 0; x < rectSrc.Width; x++)
-                {
-                    Color32 colorSrc = rowSrc.DoGetColor32(rectSrc.X + x);
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoSetColor32(locDst.X + x, colorSrc);
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    int pos = locDst.X + x;
-                    Color32 colorDst = rowDst.DoGetColor32(pos);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoSetColor32(pos, colorSrc);
-                        continue;
-                    }
-
-                    colorSrc = colorDst.A == Byte.MaxValue
-                        // target pixel is fully solid: simple blending
-                        ? colorSrc.BlendWithBackground(colorDst)
-                        // both source and target pixels are partially transparent: complex blending
-                        : colorSrc.BlendWith(colorDst);
-
-                    rowDst.DoSetColor32(pos, colorSrc);
-                }
-            }
-
-            static void ProcessRowPremultiplied(int y, BitmapDataAccessorBase src, BitmapDataAccessorBase dst, Rectangle rectSrc, Point locDst)
-            {
-                BitmapDataRowBase rowSrc = src.GetRow(rectSrc.Y + y);
-                BitmapDataRowBase rowDst = dst.GetRow(locDst.Y + y);
-                bool isPremultipliedSource = src.PixelFormat == PixelFormat.Format32bppPArgb;
-                for (int x = 0; x < rectSrc.Width; x++)
-                {
-                    Color32 colorSrc = isPremultipliedSource
-                        ? rowSrc.DoReadRaw<Color32>(rectSrc.X + x)
-                        : rowSrc.DoGetColor32(rectSrc.X + x).ToPremultiplied();
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoWriteRaw(locDst.X + x, colorSrc);
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    int pos = locDst.X + x;
-                    Color32 colorDst = rowDst.DoReadRaw<Color32>(pos);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoWriteRaw(pos, colorSrc);
-                        continue;
-                    }
-
-                    rowDst.DoWriteRaw(pos, colorSrc.BlendWithPremultiplied(colorDst));
-                }
-            } 
-            
-            #endregion
-
-            using (BitmapDataAccessorBase src = BitmapDataAccessorFactory.CreateAccessor(source, ImageLockMode.ReadOnly))
-            using (BitmapDataAccessorBase dst = BitmapDataAccessorFactory.CreateAccessor(target, ImageLockMode.ReadWrite))
-            {
-                Action<int, BitmapDataAccessorBase, BitmapDataAccessorBase, Rectangle, Point> processRow = dst.PixelFormat == PixelFormat.Format32bppPArgb
-                    ? (Action<int, BitmapDataAccessorBase, BitmapDataAccessorBase, Rectangle, Point>)ProcessRowPremultiplied
-                    : ProcessRowStraight;
-
-                // Sequential processing
-                if (sourceRect.Width < parallelThreshold)
-                {
-                    for (int y = 0; y < sourceRect.Height; y++)
-                        processRow.Invoke(y, src, dst, sourceRect, targetLocation);
-                    return;
-                }
-
-                // Parallel processing
-                ParallelHelper.For(0, sourceRect.Height,
-                    y => processRow.Invoke(y, src, dst, sourceRect, targetLocation));
-            }
-        }
-
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DrawIntoWithDithering(Bitmap source, Bitmap target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer)
-        {
-            #region Local Methods
-
-            static void ProcessRow(int y, IDitheringSession session, BitmapDataAccessorBase src, BitmapDataAccessorBase dst, Rectangle rectSrc, Point locDst)
-            {
-                int ySrc = y + rectSrc.Top;
-                BitmapDataRowBase rowSrc = src.GetRow(ySrc);
-                BitmapDataRowBase rowDst = dst.GetRow(y + locDst.Y);
-
-                for (int x = 0; x < rectSrc.Width; x++)
-                {
-                    int xSrc = x + rectSrc.Left;
-                    rowDst.DoSetColor32(x + locDst.X,
-                        session.GetDitheredColor(rowSrc.DoGetColor32(xSrc), xSrc, ySrc));
-                }
-            }
-
-            #endregion
-
-            using (BitmapDataAccessorBase src = BitmapDataAccessorFactory.CreateAccessor(source, ImageLockMode.ReadOnly))
-            using (BitmapDataAccessorBase dst = BitmapDataAccessorFactory.CreateAccessor(target, ImageLockMode.ReadWrite))
-            {
-                IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(dst);
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(src))
-                using (IDitheringSession ditheringSession = ditherer.Initialize(src, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                {
-                    // sequential processing
-                    if (ditheringSession.IsSequential || sourceRect.Width < parallelThreshold)
-                    {
-                        for (int y = 0; y < sourceRect.Height; y++)
-                            ProcessRow(y, ditheringSession, src, dst, sourceRect, targetLocation);
-                        return;
-                    }
-
-                    // parallel processing
-                    ParallelHelper.For(0, sourceRect.Height, y =>
-                    {
-                        ProcessRow(y, ditheringSession, src, dst, sourceRect, targetLocation);
-                    });
-                }
-            }
         }
 
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]

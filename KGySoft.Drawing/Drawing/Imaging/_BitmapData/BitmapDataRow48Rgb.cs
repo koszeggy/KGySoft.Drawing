@@ -28,10 +28,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [SecurityCritical]
-        internal override unsafe Color32 DoGetColor32(int x) => ((Color48*)Address)[x].ToArgb32();
+        public override unsafe Color32 DoGetColor32(int x) => ((Color48*)Address)[x].ToArgb32();
 
         [SecurityCritical]
-        internal override unsafe void DoSetColor32(int x, Color32 c)
+        public override unsafe void DoSetColor32(int x, Color32 c)
             => ((Color48*)Address)[x] = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(Accessor.BackColor)).ToRgb48();
 
         #endregion

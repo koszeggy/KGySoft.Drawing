@@ -24,7 +24,7 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class BitmapDataRowBase : IReadWriteBitmapDataRow
+    internal abstract class BitmapDataRowBase : IBitmapDataRowInternal
     {
         #region Fields
 
@@ -33,15 +33,13 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         internal unsafe byte* Address;
 
-        internal int RowIndex;
-
         #endregion
 
         #region Properties and Indexers
 
         #region Properties
 
-        int IBitmapDataRow.Index => RowIndex;
+        public int Index { get; internal set; }
 
         #endregion
 
@@ -128,34 +126,34 @@ namespace KGySoft.Drawing.Imaging
 #endif
         public unsafe bool MoveNextRow()
         {
-            if (RowIndex == Accessor.Height - 1)
+            if (Index == Accessor.Height - 1)
                 return false;
-            RowIndex += 1;
+            Index += 1;
             Address += Accessor.Stride;
             return true;
         }
+
+        [SecurityCritical]
+        public abstract Color32 DoGetColor32(int x);
+
+        [SecurityCritical]
+        public abstract void DoSetColor32(int x, Color32 c);
+
+        [SecurityCritical]
+        public unsafe T DoReadRaw<T>(int x) where T : unmanaged => ((T*)Address)[x];
+
+        [SecurityCritical]
+        public unsafe void DoWriteRaw<T>(int x, T data) where T : unmanaged => ((T*)Address)[x] = data;
 
         #endregion
 
         #region Internal Methods
 
         [SecurityCritical]
-        internal abstract Color32 DoGetColor32(int x);
-
-        [SecurityCritical]
-        internal abstract void DoSetColor32(int x, Color32 c);
-
-        [SecurityCritical]
         internal abstract int DoGetColorIndex(int x);
 
         [SecurityCritical]
         internal abstract void DoSetColorIndex(int x, int colorIndex);
-
-        [SecurityCritical]
-        internal unsafe T DoReadRaw<T>(int x) where T : unmanaged => ((T*)Address)[x];
-
-        [SecurityCritical]
-        internal unsafe void DoWriteRaw<T>(int x, T data) where T : unmanaged => ((T*)Address)[x] = data;
 
         #endregion
 

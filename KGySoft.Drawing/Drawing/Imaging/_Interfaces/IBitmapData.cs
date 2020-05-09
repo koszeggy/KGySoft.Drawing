@@ -79,6 +79,11 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         int RowSize { get; }
 
+        // TODO: desc, changelog
+        Color32 BackColor { get; }
+
+        byte AlphaThreshold { get; }
+
         #endregion
     }
 }

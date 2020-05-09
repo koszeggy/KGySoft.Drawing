@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: BitmapDataRow16Rgb565.cs
+//  File: IBitmapDataRowInternal.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2019 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution. If not, then this file is considered as
@@ -14,25 +14,16 @@
 
 #endregion
 
-#region Usings
-
-using System;
-using System.Security;
-
-#endregion
-
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class BitmapDataRow16Rgb565 : BitmapDataRowNonIndexedBase
+    internal interface IBitmapDataRowInternal : IReadWriteBitmapDataRow
     {
         #region Methods
 
-        [SecurityCritical]
-        public override unsafe Color32 DoGetColor32(int x) => ((Color16Rgb565*)Address)[x].ToColor32();
-
-        [SecurityCritical]
-        public override unsafe void DoSetColor32(int x, Color32 c)
-            => ((Color16Rgb565*)Address)[x] = new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(Accessor.BackColor));
+        Color32 DoGetColor32(int x);
+        void DoSetColor32(int x, Color32 c);
+        T DoReadRaw<T>(int x) where T : unmanaged;
+        void DoWriteRaw<T>(int x, T data) where T : unmanaged;
 
         #endregion
     }
