@@ -135,9 +135,7 @@ namespace KGySoft.Drawing
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {

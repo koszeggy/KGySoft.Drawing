@@ -41,9 +41,7 @@ namespace KGySoft.Drawing
     /// Provides low-level support for an icon. This class is internal because it can process and produce <see cref="Icon"/> and <see cref="Bitmap"/>
     /// instances and every functionality is accessible via extensions for those classes.
     /// </summary>
-#if !NET35
     [SecuritySafeCritical]
-#endif
     internal sealed class RawIcon : IDisposable
     {
         #region Nested classes

@@ -55,9 +55,7 @@ namespace KGySoft.Drawing
         /// or the <see cref="O:KGySoft.Drawing.IconExtensions.ToMultiResBitmap">ToMultiResBitmap</see> methods, which return every images in a single combined <see cref="Bitmap"/>.</para>
         /// </remarks>
         /// <seealso cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmap"/>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap ToAlphaBitmap(this Icon icon)
         {
@@ -129,9 +127,7 @@ namespace KGySoft.Drawing
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
         /// </remarks>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Bitmap ToMultiResBitmap(this Icon icon)
         {
             if (!OSUtils.IsWindows || OSUtils.IsVistaOrLater)
@@ -172,9 +168,7 @@ namespace KGySoft.Drawing
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> if <paramref name="icon"/> contains only a very large icon.</note>
         /// </remarks>
         /// <returns>A <see cref="Bitmap"/> instance, which contains every image of the <paramref name="icon"/>.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [Obsolete("This overload is now obsolete because the forceUncompressedResult parameter is not used anymore in this method.")]
         // ReSharper disable once UnusedParameter.Global
         public static Bitmap ToMultiResBitmap(this Icon icon, bool forceUncompressedResult) => ToMultiResBitmap(icon);
@@ -184,9 +178,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to check.</param>
         /// <returns>The number of images in the <paramref name="icon"/>.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static int GetImagesCount(this Icon icon)
         {
             using (RawIcon rawIcon = new RawIcon(icon))
@@ -304,9 +296,7 @@ namespace KGySoft.Drawing
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractIcon(Icon,int)"/>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Bitmap ExtractBitmap(this Icon icon, int index, bool keepOriginalFormat = false)
         {
             if (icon == null)
@@ -333,9 +323,7 @@ namespace KGySoft.Drawing
         /// <para>On some platforms it may happen that a smaller result is returned than requested if the requested size and format is not supported.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestIcon(Icon,Size,PixelFormat)"/>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Bitmap ExtractNearestBitmap(this Icon icon, Size size, PixelFormat pixelFormat, bool keepOriginalFormat = false)
         {
             if (icon == null)
@@ -524,9 +512,7 @@ namespace KGySoft.Drawing
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large or compressed icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmap(Icon,int,bool)"/>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon ExtractIcon(this Icon icon, int index, bool forceUncompressedResult)
         {
             if (icon == null)
@@ -571,9 +557,7 @@ namespace KGySoft.Drawing
         /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/>&#160;is returned.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat, bool forceUncompressedResult)
         {
             if (icon == null)
@@ -628,9 +612,7 @@ namespace KGySoft.Drawing
         /// <param name="icons">The icons to be combined with the specified <paramref name="icon"/>.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon Combine(this Icon icon, bool forceUncompressedResult, IEnumerable<Icon> icons)
         {
             if (icon == null)
@@ -702,9 +684,7 @@ namespace KGySoft.Drawing
         /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
         /// </returns>
         /// <para>Both <paramref name="icon"/> and elements of <paramref name="images"/> may contain multiple icons.</para>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon Combine(this Icon icon, bool forceUncompressedResult, IEnumerable<Bitmap> images)
         {
             if (icon == null)
@@ -753,9 +733,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>Both <paramref name="icon"/> and <paramref name="image"/> may contain multiple icons.</para>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon Combine(this Icon icon, Bitmap image, Color transparentColor, bool forceUncompressedResult)
         {
             if (icon == null)
@@ -779,9 +757,7 @@ namespace KGySoft.Drawing
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force saving an uncompressed icon;
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static void SaveAsIcon(this Icon icon, Stream stream, bool forceUncompressedResult = false)
         {
             if (icon == null)
@@ -809,9 +785,7 @@ namespace KGySoft.Drawing
         /// <param name="index">The index to check. If <see langword="null"/>, then the result determines whether the <paramref name="icon"/> has at least one compressed image. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns><see langword="true"/>&#160;if the icon or its image at the specified index is compressed.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static bool IsCompressed(this Icon icon, int? index = null)
         {
             if (icon == null)
@@ -831,9 +805,7 @@ namespace KGySoft.Drawing
         /// <param name="index">The index to check. If <see langword="null"/>, then the result determines the highest bpp value of the icon images. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>The bits per pixel (BPP) value of the icon.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static int GetBitsPerPixel(this Icon icon, int? index = null)
         {
             if (icon == null)
@@ -851,9 +823,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon.</param>
         /// <returns>An array of <see cref="IconInfo"/> instances containing information about the images of an <see cref="Icon"/>.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static IconInfo[] GetIconInfo(this Icon icon)
         {
             if (icon == null)
@@ -875,9 +845,7 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon.</param>
         /// <param name="index">The index of the icon image to obtain information for.</param>
         /// <returns>An <see cref="IconInfo"/> instance containing information about an <see cref="Icon"/> image of the specified <paramref name="index"/>.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static IconInfo GetIconInfo(this Icon icon, int index)
         {
             if (icon == null)
@@ -906,9 +874,7 @@ namespace KGySoft.Drawing
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static CursorHandle ToCursorHandle(this Icon icon, Point cursorHotspot = default)
         {
             if (icon == null)
@@ -929,9 +895,7 @@ namespace KGySoft.Drawing
         /// Needed for unmanaged icons returned by winapi methods because <see cref="Icon.FromHandle"/> does not
         /// take ownership of handle and does not dispose the icon.
         /// </summary>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         internal static Icon ToManagedIcon(this Icon unmanagedIcon)
         {
             if (!OSUtils.IsWindows)
@@ -945,9 +909,7 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static Bitmap[] ExtractBitmaps(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
         {
             if (icon == null)
@@ -957,9 +919,7 @@ namespace KGySoft.Drawing
                 return rawIcon.ExtractBitmaps(keepOriginalFormat);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static Bitmap ExtractFirstBitmap(Icon icon, Size? size, int? bpp, bool keepOriginalFormat)
         {
             if (icon == null)
@@ -969,9 +929,7 @@ namespace KGySoft.Drawing
                 return rawIcon.ExtractBitmap(0, keepOriginalFormat);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static Icon[] ExtractIcons(Icon icon, Size? size, int? bpp, bool forceUncompressedResult)
         {
             if (icon == null)
@@ -981,9 +939,7 @@ namespace KGySoft.Drawing
                 return rawIcon.ExtractIcons(forceUncompressedResult);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static Icon ExtractFirstIcon(Icon icon, Size size, int? bpp, bool forceUncompressedResult)
         {
             if (icon == null)

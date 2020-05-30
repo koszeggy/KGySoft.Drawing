@@ -21,6 +21,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Security;
 
 using KGySoft.Drawing.WinApi;
@@ -73,25 +74,22 @@ namespace KGySoft.Drawing.Imaging
 
         IReadableBitmapDataRow IReadableBitmapData.FirstRow
         {
-#if !NET35
             [SecuritySafeCritical]
-#endif
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             get => GetRow(0);
         }
 
         IWritableBitmapDataRow IWritableBitmapData.FirstRow
         {
-#if !NET35
             [SecuritySafeCritical]
-#endif
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             get => GetRow(0);
         }
 
         IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow
         {
-#if !NET35
             [SecuritySafeCritical]
-#endif
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             get => GetRow(0);
         }
 
@@ -103,9 +101,8 @@ namespace KGySoft.Drawing.Imaging
 
         IReadWriteBitmapDataRow IReadWriteBitmapData.this[int y]
         {
-#if !NET35
             [SecuritySafeCritical]
-#endif
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             get
             {
                 if ((uint)y >= Height)
@@ -125,9 +122,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         protected BitmapDataAccessorBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette palette)
         {
             // It must be the same as bitmap format except if LockBits is not supported with the original pixel format (occurs on Linux).
@@ -162,6 +157,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowYOutOfRange()
         {
 #pragma warning disable CA2208
@@ -176,9 +172,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public Color GetPixel(int x, int y)
         {
             if ((uint)y >= Height)
@@ -186,9 +181,8 @@ namespace KGySoft.Drawing.Imaging
             return GetRow(y).GetColor(x);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetPixel(int x, int y, Color color)
         {
             if ((uint)y >= Height)
@@ -209,9 +203,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private void Dispose(bool disposing)
         {
             if (disposed)

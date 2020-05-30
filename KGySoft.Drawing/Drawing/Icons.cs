@@ -437,9 +437,7 @@ namespace KGySoft.Drawing
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
         /// <note>On non-Windows platforms this method always returns an empty array.</note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon[] FromFile(string fileName, SystemIconSize size)
         {
             if (fileName == null)
@@ -468,9 +466,7 @@ namespace KGySoft.Drawing
         /// <para>The images of an <see cref="Icon"/> can be extracted by the <see cref="O:KGySoft.Drawing.IconExtensions.ExtractBitmaps">IconExtensions.ExtractBitmaps</see> methods.</para>
         /// <note>On non-Windows platforms this method always returns an empty array.</note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon[] FromFile(string fileName)
         {
             if (fileName == null)
@@ -503,9 +499,7 @@ namespace KGySoft.Drawing
         /// is usually the same as for the <see cref="Icon.ExtractAssociatedIcon">Icon.ExtractAssociatedIcon</see> method.</para>
         /// <note>On non-Windows platforms this method always returns the <see cref="SystemIcons.WinLogo">SystemIcons.WinLogo</see> icon.</note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon FromExtension(string fileOrExtension, SystemIconSize size)
         {
             if (fileOrExtension == null)
@@ -542,9 +536,7 @@ namespace KGySoft.Drawing
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>.</returns>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon FromStream(Stream stream, bool forceUncompressedResult)
         {
             using (var rawIcon = new RawIcon(stream))
@@ -591,9 +583,7 @@ namespace KGySoft.Drawing
         /// <param name="icons">The icons to be combined.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon Combine(bool forceUncompressedResult, IEnumerable<Icon> icons)
         {
             if (icons == null)
@@ -643,9 +633,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon Combine(bool forceUncompressedResult, params Bitmap[] images) => Combine(forceUncompressedResult, (IEnumerable<Bitmap>)images);
 
         /// <summary>
@@ -659,9 +647,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon Combine(bool forceUncompressedResult, IEnumerable<Bitmap> images)
         {
             if (images == null)
@@ -703,9 +689,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon Combine(Bitmap[] images, Color[] transparentColors, bool forceUncompressedResult)
         {
             int imageCount = images?.Length ?? 0;
@@ -809,9 +793,7 @@ namespace KGySoft.Drawing
             }
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static Icon GetSystemIcon(StockIcon id, Func<Icon> getLegacyIcon)
         {
             RawIcon result;
@@ -829,9 +811,7 @@ namespace KGySoft.Drawing
             return result?.ToIcon(false);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must be disposed by the caller.")]
         private static Icon GetResourceIcon(string resourceName)
         {

@@ -38,9 +38,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Contains extension methods for the <see cref="Image"/> type.
     /// </summary>
-#if !NET35
     [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
-#endif
     public static class ImageExtensions
     {
         #region Constants
@@ -211,9 +209,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
@@ -635,9 +631,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="IDitherer"/>
         /// <seealso cref="BitmapExtensions.Quantize"/>
         /// <seealso cref="BitmapExtensions.Dither"/>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
@@ -887,9 +881,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
         /// <remarks>The result icon will be always square sized and will contain only a single image.
         /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio);
 
         /// <summary>
@@ -1522,9 +1514,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="images"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="images"/> contains a <see langword="null"/>&#160;element.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static void SaveAsIcon(this IEnumerable<Image> images, Stream stream, bool forceUncompressedResult = false)
         {
             if (images == null)
@@ -1571,9 +1561,7 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static bool CompareImages(Image image1, Image image2)
         {
             if (ReferenceEquals(image1, image2))

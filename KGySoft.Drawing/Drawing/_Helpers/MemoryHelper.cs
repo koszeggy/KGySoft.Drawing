@@ -32,9 +32,7 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         internal static unsafe void CopyMemory(IntPtr dest, IntPtr src, int length)
         {
             if (OSUtils.IsWindows)
@@ -49,9 +47,7 @@ namespace KGySoft.Drawing
             }
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         internal static unsafe bool CompareMemory(IntPtr p1, IntPtr p2, int length)
             => OSUtils.IsWindows
                 ? msvcrt.CompareMemory(p1, p2, length)

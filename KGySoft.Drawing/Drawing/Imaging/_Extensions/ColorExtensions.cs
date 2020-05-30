@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 using System.Security;
 
 #endregion
@@ -55,9 +56,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static ushort Max16BppValue
         {
-#if !NET35
             [SecuritySafeCritical]
-#endif
             get
             {
                 if (!lookupTable8To16BppInitialized)
@@ -70,6 +69,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToPremultiplied(this Color32 c)
         {
             if (c.A == Byte.MaxValue)
@@ -83,6 +83,7 @@ namespace KGySoft.Drawing.Imaging
                 (byte)(c.B * c.A / Byte.MaxValue));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToStraight(this Color32 c)
         {
             if (c.A == Byte.MaxValue)
@@ -97,9 +98,8 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (byte)0 : (byte)(c.B * Byte.MaxValue / c.A));
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color64 ToArgb64(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
@@ -115,9 +115,8 @@ namespace KGySoft.Drawing.Imaging
             return new Color64(a, lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToArgb32(this Color64 c)
         {
             if (!lookupTable16To8BppInitialized)
@@ -133,6 +132,7 @@ namespace KGySoft.Drawing.Imaging
             return new Color32(a, lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color64 ToPArgb64(this Color32 c)
         {
             if (c.A == 0)
@@ -148,6 +148,7 @@ namespace KGySoft.Drawing.Imaging
                 (ushort)(c64.B * c64.A / max16BppValue));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToStraightArgb32(this Color64 c)
         {
             if (c.A == 0)
@@ -162,9 +163,8 @@ namespace KGySoft.Drawing.Imaging
             return ToArgb32(straight);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color48 ToRgb48(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
@@ -175,9 +175,8 @@ namespace KGySoft.Drawing.Imaging
                 : new Color48(lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToArgb32(this Color48 c)
         {
             if (!lookupTable16To8BppInitialized)
@@ -188,11 +187,13 @@ namespace KGySoft.Drawing.Imaging
                 : new Color32(lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static byte GetBrightness(this Color32 c)
             => c.R == c.G && c.R == c.B
                 ? c.R
                 : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
             // The blending is applied only to the color and not the resulting alpha, which is always considered opaque
@@ -206,6 +207,7 @@ namespace KGySoft.Drawing.Imaging
                 (byte)(c.B * alpha + backColor.B * inverseAlpha));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWith(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
@@ -221,6 +223,7 @@ namespace KGySoft.Drawing.Imaging
                 (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");

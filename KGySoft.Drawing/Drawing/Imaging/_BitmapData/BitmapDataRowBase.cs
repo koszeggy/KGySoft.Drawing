@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using System.Security;
 
 #endregion
@@ -47,18 +48,16 @@ namespace KGySoft.Drawing.Imaging
 
         public Color32 this[int x]
         {
-#if !NET35
             [SecuritySafeCritical]
-#endif
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             get
             {
                 if ((uint)x >= Accessor.Width)
                     ThrowXOutOfRange();
                 return DoGetColor32(x);
             }
-#if !NET35
             [SecuritySafeCritical]
-#endif
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             set
             {
                 if ((uint)x >= Accessor.Width)
@@ -79,9 +78,8 @@ namespace KGySoft.Drawing.Imaging
 
         public void SetColor(int x, Color color) => this[x] = new Color32(color);
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public int GetColorIndex(int x)
         {
             if ((uint)x >= Accessor.Width)
@@ -89,9 +87,8 @@ namespace KGySoft.Drawing.Imaging
             return DoGetColorIndex(x);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public virtual void SetColorIndex(int x, int colorIndex)
         {
             if ((uint)x >= Accessor.Width)
@@ -99,9 +96,8 @@ namespace KGySoft.Drawing.Imaging
             DoSetColorIndex(x, colorIndex);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public unsafe T ReadRaw<T>(int x)
             where T : unmanaged
         {
@@ -110,9 +106,8 @@ namespace KGySoft.Drawing.Imaging
             return DoReadRaw<T>(x);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public unsafe void WriteRaw<T>(int x, T data)
             where T : unmanaged
         {
@@ -121,9 +116,8 @@ namespace KGySoft.Drawing.Imaging
             DoWriteRaw(x, data);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public unsafe bool MoveNextRow()
         {
             if (Index == Accessor.Height - 1)
@@ -140,9 +134,11 @@ namespace KGySoft.Drawing.Imaging
         public abstract void DoSetColor32(int x, Color32 c);
 
         [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public unsafe T DoReadRaw<T>(int x) where T : unmanaged => ((T*)Address)[x];
 
         [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public unsafe void DoWriteRaw<T>(int x, T data) where T : unmanaged => ((T*)Address)[x] = data;
 
         #endregion
@@ -159,6 +155,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowXOutOfRange()
         {
 #pragma warning disable CA2208
