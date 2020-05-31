@@ -155,6 +155,7 @@ namespace KGySoft.Drawing
                 targetLocation = new Point((requestedSize.Width >> 1) - (targetSize.Width >> 1), (requestedSize.Height >> 1) - (targetSize.Height >> 1));
             }
 
+            // TODO: if not anti aliased, then new Bitmap(metafile, requestedSize). Return this if targetLocation is empty; otherwise, use DrawInto instead of DrawImage
             if (!antiAliased && sourceSize == targetSize)
                 return new Bitmap(metafile, requestedSize);
 
@@ -170,6 +171,7 @@ namespace KGySoft.Drawing
                 return result;
             }
 
+            // TODO: faster resize
             using (Bitmap bmpDouble = new Bitmap(metafile, targetSize.Width << 1, targetSize.Height << 1))
             {
                 using (Graphics g = Graphics.FromImage(result))
@@ -207,9 +209,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static void Save(this Metafile metafile, Stream stream, bool forceWmfFormat)
         {
             if (metafile == null)

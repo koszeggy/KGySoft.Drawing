@@ -23,9 +23,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-#if !NET35
 using System.Security; 
-#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
@@ -849,7 +847,7 @@ namespace KGySoft.Drawing
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IWritableBitmapData dst = bmp.GetWritableBitmapData())
+                using (IWritableBitmapData dst = target.GetWritableBitmapData())
                 {
                     dst.DrawBitmapData(src, sourceRectangle, targetRectangle, scalingMode, ditherer);
                 }

@@ -166,7 +166,7 @@ namespace KGySoft.Drawing.PerformanceTests
                         do
                         {
                             for (int x = 0; x < width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, row.RowIndex));
+                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, row.Index));
                         } while (row.MoveNextRow());
                     }
                 }, "Sequential dithering")
@@ -196,7 +196,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     {
                         Color32 from = new Color32(Color.Black);
                         Color32 to = new Color32(Color.Transparent);
-                        BitmapDataRowBase row = bitmapData.GetRow(0);
+                        IBitmapDataRowInternal row = bitmapData.GetRow(0);
                         do
                         {
                             for (int x = 0; x < bitmapData.Width; x++)

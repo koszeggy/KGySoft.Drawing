@@ -24,10 +24,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
-using System.Numerics;
-#if !NET35
 using System.Security;
-#endif
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -41,9 +38,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Contains extension methods for the <see cref="Bitmap"/> type.
     /// </summary>
-#if !NET35
     [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
-#endif
     public static class BitmapExtensions
     {
         #region Constants
@@ -117,6 +112,38 @@ namespace KGySoft.Drawing
                 if (!ReferenceEquals(source, image))
                     source.Dispose();
             }
+        }
+
+        // TODO: make other overload obsolete with no default aspect ratio (will it be ambiguous if keepAspectRatio is defined?)
+        internal static Bitmap Resize2(this Bitmap image, Size newSize, bool keepAspectRatio = false, ScalingMode scalingMode = ScalingMode.Auto)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (newSize.Width < 1 || newSize.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(newSize), PublicResources.ArgumentOutOfRange);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+
+            Size targetSize = newSize;
+            Size sourceSize = image.Size;
+            Point targetLocation = Point.Empty;
+
+            if (keepAspectRatio && newSize != sourceSize)
+            {
+                float ratio = Math.Min((float)newSize.Width / sourceSize.Width, (float)newSize.Height / sourceSize.Height);
+                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetLocation = new Point(newSize.Width / 2 - targetSize.Width / 2, newSize.Height / 2 - targetSize.Height / 2);
+            }
+
+            Bitmap result = new Bitmap(newSize.Width, newSize.Height);
+            if (OSUtils.IsWindows)
+                result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
+
+            using (IReadableBitmapData src = image.GetReadableBitmapData())
+            using (IWritableBitmapData dst = result.GetWritableBitmapData())
+                dst.DrawBitmapData(src, new Rectangle(Point.Empty, sourceSize), new Rectangle(targetLocation, targetSize), scalingMode);
+            
+            return result;
         }
 
         /// <summary>
@@ -297,9 +324,7 @@ namespace KGySoft.Drawing
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default)
         {
@@ -506,9 +531,7 @@ namespace KGySoft.Drawing
         /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void Quantize(this Bitmap bitmap, IQuantizer quantizer)
         {
@@ -574,9 +597,7 @@ namespace KGySoft.Drawing
         /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
         /// </list></note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void Dither(this Bitmap bitmap, IQuantizer quantizer, IDitherer ditherer)
         {
@@ -696,9 +717,7 @@ namespace KGySoft.Drawing
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmap"/>, or you want to transform the actual
         /// pixels of an indexed <see cref="Bitmap"/> instead of modifying the palette, then use the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, Color backColor = default, byte alphaThreshold = 128)
         {
@@ -1239,9 +1258,7 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static ICollection<Color32> DoGetColors(Bitmap bitmap, int maxColors)
         {
             if (maxColors < 0)
@@ -1269,9 +1286,7 @@ namespace KGySoft.Drawing
             return colors;
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static int GetColorCount<T>(Bitmap bitmap) where T : unmanaged
         {
             var colors = new HashSet<T>();
@@ -1294,9 +1309,7 @@ namespace KGySoft.Drawing
             return colors.Count;
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearDirect(BitmapDataAccessorBase bitmapData, Color32 color)
         {
@@ -1411,9 +1424,7 @@ namespace KGySoft.Drawing
             }
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         private static void ClearRaw<T>(BitmapDataAccessorBase bitmapData, int width, T data)
             where T : unmanaged
         {
@@ -1438,9 +1449,7 @@ namespace KGySoft.Drawing
             });
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static void ClearWithDithering(BitmapDataAccessorBase bitmapData, Color32 color, IDitherer ditherer)
         {
