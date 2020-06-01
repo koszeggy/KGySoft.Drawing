@@ -800,7 +800,7 @@ namespace KGySoft.Drawing
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IWritableBitmapData dst = bmp.GetWritableBitmapData())
+                using (IWritableBitmapData dst = target.GetWritableBitmapData())
                     dst.DrawBitmapData(src, sourceRectangle, targetLocation, ditherer);
             }
             finally

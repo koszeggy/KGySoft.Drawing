@@ -273,58 +273,100 @@ namespace KGySoft.Drawing.UnitTests
         {
             var sourceSize = new Size(size, size);
             var targetSize = new Size(100, 100);
-            using var bmpRef = Icons.Information.ExtractBitmap(sourceSize);
+            using var bmpSource = Icons.Information.ExtractBitmap(sourceSize);
+            using var bmpRef = new Bitmap(targetSize.Width, targetSize.Height);
             using var bmpResult = new Bitmap(targetSize.Width, targetSize.Height);
 
             Rectangle srcRect = Rectangle.Round(new RectangleF(size * 0.1f, size * 0.0625f, size * 0.75f, size * 0.85f));
 
-            // no cut
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(30, 30, 30, 30), scalingMode);
+            using (var g = Graphics.FromImage(bmpRef))
+            {
+                g.InterpolationMode = scalingMode == ScalingMode.NearestNeighbor ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
 
-            // cut left
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(-20, 5, 30, 30), scalingMode);
+                // no cut
+                var targetRect = new Rectangle(30, 30, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
 
-            // cut top
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(50, -20, 30, 30), scalingMode);
+                // cut left
+                targetRect = new Rectangle(-20, 5, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
 
-            // cut right
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(90, 50, 30, 30), scalingMode);
+                // cut top
+                targetRect = new Rectangle(50, -20, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
 
-            // cut bottom
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(10, 90, 30, 30), scalingMode);
+                // cut right
+                targetRect = new Rectangle(90, 50, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
 
+                // cut bottom
+                targetRect = new Rectangle(10, 90, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+            }
+
+            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height} Reference", bmpRef);
             SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height}", bmpResult);
         }
 
         [TestCase(256, ScalingMode.Bicubic)]
-        [TestCase(16, ScalingMode.Bicubic)]
-        [TestCase(256, ScalingMode.NearestNeighbor)]
-        [TestCase(16, ScalingMode.NearestNeighbor)]
+        //[TestCase(16, ScalingMode.Bicubic)]
+        //[TestCase(256, ScalingMode.NearestNeighbor)]
+        //[TestCase(16, ScalingMode.NearestNeighbor)]
         // TODO: to ImageExtensionsTest
         public void DrawIntoWithResizeTooLargeSourceRectangleTest(int size, ScalingMode scalingMode)
         {
             var sourceSize = new Size(size, size);
-            var targetSize = new Size(100, 100);
-            using var bmpRef = Icons.Information.ExtractBitmap(sourceSize);
+            var targetSize = new Size(size, size);
+            //var targetSize = new Size(100, 100);
+            using var bmpSource = Icons.Information.ExtractBitmap(sourceSize);
+            using var bmpRef = new Bitmap(targetSize.Width, targetSize.Height);
             using var bmpResult = new Bitmap(targetSize.Width, targetSize.Height);
 
-            Rectangle srcRect = Rectangle.Round(new RectangleF(size * 0.1f, size * 0.625f, size * 0.75f, size * 0.85f));
+            //Rectangle srcRect = Rectangle.Round(new RectangleF(size * 0.1f, size * 0.625f, size * 0.75f, size * 0.85f));
+            Rectangle srcRect = new Rectangle(192, -64, 128, 128);
 
-            // no cut
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(30, 30, 30, 30), scalingMode);
 
-            // cut left
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(-20, 5, 30, 30), scalingMode);
+            using (var g = Graphics.FromImage(bmpRef))
+            {
+                g.InterpolationMode = scalingMode == ScalingMode.NearestNeighbor ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
 
-            // cut top
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(50, -20, 30, 30), scalingMode);
+                // no cut
+                var targetRect = new Rectangle(0, 0, 128, 128);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
 
-            // cut right
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(90, 50, 30, 30), scalingMode);
+                //// no cut
+                //var targetRect = new Rectangle(30, 30, 30, 30);
+                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
 
-            // cut bottom
-            bmpRef.DrawInto(bmpResult, srcRect, new Rectangle(10, 90, 30, 30), scalingMode);
+                //// cut left
+                //targetRect = new Rectangle(-20, 5, 30, 30);
+                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
 
+                //// cut top
+                //targetRect = new Rectangle(50, -20, 30, 30);
+                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+
+                //// cut right
+                //targetRect = new Rectangle(90, 50, 30, 30);
+                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+
+                //// cut bottom
+                //targetRect = new Rectangle(10, 90, 30, 30);
+                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+            }
+
+            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height} Reference", bmpRef);
             SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height}", bmpResult);
         }
 

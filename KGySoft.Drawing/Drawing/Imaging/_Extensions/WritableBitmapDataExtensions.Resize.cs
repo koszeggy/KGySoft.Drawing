@@ -43,28 +43,26 @@ namespace KGySoft.Drawing.Imaging
 
             private readonly IReadableBitmapData source;
             private readonly IWritableBitmapData target;
-            private readonly Rectangle sourceRectangle;
-            private readonly Rectangle targetRectangle;
-            private readonly Rectangle actualTargetRectangle;
             private readonly KernelMap horizontalKernelMap;
             private readonly KernelMap verticalKernelMap;
 
+            private Rectangle sourceRectangle;
+            private Rectangle targetRectangle;
             private Array2D<ColorF> transposedFirstPassBuffer;
             private (int Top, int Bottom) currentWindow;
-            private ArraySection<ColorF> tempRowBuffer;
-            private ArraySection<ColorF> tempColumnBuffer;
+            private ArraySection<ColorF> sourceRowBuffer;
+            private ArraySection<ColorF> targetColumnBuffer;
 
             #endregion
 
             #region Constructors
 
-            internal ResizingSession(IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, Rectangle actualTargetRectangle, ScalingMode scalingMode)
+            internal ResizingSession(IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
             {
                 this.source = source;
                 this.target = target;
                 this.sourceRectangle = sourceRectangle;
                 this.targetRectangle = targetRectangle;
-                this.actualTargetRectangle = actualTargetRectangle;
                 // TODO: adjust source rectangle if targetRectangle != actualTargetRectangle - issue: target rectangle.Top/Left is negative
 
                 // TODO: handle ScalingMode.Auto
@@ -72,11 +70,11 @@ namespace KGySoft.Drawing.Imaging
                 horizontalKernelMap = KernelMap.Create(radius, interpolation, sourceRectangle.Width, targetRectangle.Width);
                 verticalKernelMap = KernelMap.Create(radius, interpolation, sourceRectangle.Height, targetRectangle.Height);
 
-                // flipping height/width is intended (hence transposed) so the pixels are enumerated column by column
-                transposedFirstPassBuffer = new Array2D<ColorF>(height: actualTargetRectangle.Width, width: sourceRectangle.Height);
+                // Flipping height/width is intended (hence transposed). It contains target width and source height dimensions, which is also intended.
+                transposedFirstPassBuffer = new Array2D<ColorF>(height: targetRectangle.Width, width: sourceRectangle.Height);
 
-                tempRowBuffer = new ArraySection<ColorF>(this.sourceRectangle.Width);
-                tempColumnBuffer = new ArraySection<ColorF>(actualTargetRectangle.Width);
+                sourceRowBuffer = new ArraySection<ColorF>(this.sourceRectangle.Width);
+                targetColumnBuffer = new ArraySection<ColorF>(targetRectangle.Width);
 
                 currentWindow = (0, sourceRectangle.Height);
 
@@ -94,8 +92,8 @@ namespace KGySoft.Drawing.Imaging
                 transposedFirstPassBuffer.Dispose();
                 horizontalKernelMap.Dispose();
                 verticalKernelMap.Dispose();
-                tempRowBuffer.Release();
-                tempColumnBuffer.Release();
+                sourceRowBuffer.Release();
+                targetColumnBuffer.Release();
             }
 
             #endregion
@@ -122,16 +120,16 @@ namespace KGySoft.Drawing.Imaging
 
                     int topLine = kernel.StartIndex - currentWindow.Top;
 
-                    for (int x = 0; x < actualTargetRectangle.Width; x++)
+                    for (int x = 0; x < targetRectangle.Width; x++)
                     {
                         // Destination color components
-                        tempColumnBuffer.GetElementReference(x) = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+                        targetColumnBuffer.GetElementReference(x) = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
                     }
 
                     IWritableBitmapDataRow row = target[y];
-                    for (int x = 0; x < actualTargetRectangle.Width; x++)
+                    for (int x = 0; x < targetRectangle.Width; x++)
                     {
-                        row[x + actualTargetRectangle.Left] = tempColumnBuffer[x].ToColor32();
+                        row[x + targetRectangle.Left] = targetColumnBuffer[x].ToColor32();
                     }
 
                 }
@@ -148,19 +146,19 @@ namespace KGySoft.Drawing.Imaging
                 // TODO: parallel if possible (note: from Slide we might be already in parallel; one temp buffer for each thread may be necessary)
                 for (int y = top; y < bottom; y++)
                 {
-                    var sourceRow = source[y + sourceRectangle.Top];
+                    IReadableBitmapDataRow sourceRow = source[y + sourceRectangle.Top];
 
                     for (int x = 0; x < sourceRectangle.Width; x++)
                     {
-                        tempRowBuffer.GetElementReference(x) = new ColorF(sourceRow[x + sourceRectangle.Left]);
+                        sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow[x + sourceRectangle.Left]);
                     }
 
                     int firstPassBaseIndex = y - currentWindow.Top;
-                    for (int x = 0; x < actualTargetRectangle.Width; x++)
+                    for (int x = 0; x < targetRectangle.Width; x++)
                     {
                         ResizeKernel kernel = horizontalKernelMap.GetKernel(x);
                         //buffer.GetElementReference(x * sourceRectangle.Height + firstPassBaseIndex) = kernel.ConvolveWith(ref tempRowBuffer, kernel.StartIndex);
-                        transposedFirstPassBuffer.GetElementReference(x, firstPassBaseIndex) = kernel.ConvolveWith(ref tempRowBuffer, kernel.StartIndex);
+                        transposedFirstPassBuffer.GetElementReference(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
                     }
 
                 }
@@ -252,7 +250,7 @@ namespace KGySoft.Drawing.Imaging
                     int bottomStartDest = targetLength - cornerInterval;
                     for (int i = startOfFirstRepeatedMosaic; i < bottomStartDest; i++)
                     {
-                        float center = (i + 0.5f) * ratio - 0.5f;
+                        float center = (i + 0.5f) * Ratio - 0.5f;
                         int left = (int)MathF.Ceiling(center - radius);
                         ResizeKernel kernel = kernels[i - period];
                         kernels[i] = kernel.WithOrigin(left);
@@ -275,7 +273,6 @@ namespace KGySoft.Drawing.Imaging
 
             private readonly int sourceLength;
             private readonly int targetLength;
-            private readonly float ratio;
             private readonly float scale;
             private readonly int radius;
             private readonly ResizeKernel[] kernels;
@@ -286,6 +283,8 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
+            internal float Ratio { get; }
+
             /// <summary>
             /// Gets the maximum diameter of the kernels.
             /// </summary>
@@ -295,16 +294,16 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            private KernelMap(int sourceLength, int destinationLength, int bufferHeight, float ratio, float scale, int radius)
+            private KernelMap(int sourceLength, int targetLength, int bufferHeight, float ratio, float scale, int radius)
             {
-                this.ratio = ratio;
+                this.Ratio = ratio;
                 this.scale = scale;
                 this.radius = radius;
                 this.sourceLength = sourceLength;
-                this.targetLength = destinationLength;
-                MaxDiameter = (radius * 2) + 1;
+                this.targetLength = targetLength;
+                MaxDiameter = (radius << 1) + 1;
                 data = new Array2D<float>(bufferHeight, MaxDiameter);
-                kernels = new ResizeKernel[destinationLength];
+                kernels = new ResizeKernel[targetLength];
             }
 
             #endregion
@@ -353,9 +352,7 @@ namespace KGySoft.Drawing.Imaging
                 // If firstNonNegativeLeftVal was an integral value, we need firstNonNegativeLeftVal+1
                 // instead of Ceiling:
                 if (Math.Abs(firstNonNegativeLeftVal - cornerInterval) < tolerance)
-                {
-                    cornerInterval++;
-                }
+                    cornerInterval += 1;
 
                 // If 'cornerInterval' is too big compared to 'period', we can't apply the periodic optimization.
                 // If we don't have at least 2 periods, we go with the basic implementation:
@@ -406,7 +403,7 @@ namespace KGySoft.Drawing.Imaging
             /// </summary>
             private unsafe ResizeKernel BuildKernel(Func<float, float> interpolation, int destRowIndex, int dataRowIndex)
             {
-                float center = (destRowIndex + 0.5f) * ratio - 0.5f;
+                float center = (destRowIndex + 0.5f) * Ratio - 0.5f;
 
                 int left = (int)MathF.Ceiling(center - radius);
                 if (left < 0)

@@ -44,44 +44,9 @@ namespace KGySoft.Drawing.Imaging
             if (target == null)
                 throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
 
-            var sourceSize = new Size(source.Width, source.Height);
-
-            // clipping source rectangle with actual source size
-            sourceRectangle.Intersect(new Rectangle(Point.Empty, sourceSize));
-
-            // calculating target rectangle
-            var targetSize = new Size(target.Width, target.Height);
-            var targetRectangle = new Rectangle(targetLocation, sourceRectangle.Size);
-            if (targetRectangle.Right > targetSize.Width)
-            {
-                targetRectangle.Width -= targetRectangle.Right - targetSize.Width;
-                sourceRectangle.Width = targetRectangle.Width;
-            }
-
-            if (targetRectangle.Bottom > targetSize.Height)
-            {
-                targetRectangle.Height -= targetRectangle.Bottom - targetSize.Height;
-                sourceRectangle.Height = targetRectangle.Height;
-            }
-
-            if (targetRectangle.Left < 0)
-            {
-                sourceRectangle.Width += targetRectangle.Left;
-                sourceRectangle.X -= targetRectangle.Left;
-                targetRectangle.Width += targetRectangle.Left;
-                targetRectangle.X = 0;
-            }
-
-            if (targetRectangle.Top < 0)
-            {
-                sourceRectangle.Height += targetRectangle.Top;
-                sourceRectangle.Y -= targetRectangle.Top;
-                targetRectangle.Height += targetRectangle.Top;
-                targetRectangle.Y = 0;
-            }
-
-            // returning, if there is no remaining source to draw
-            if (sourceRectangle.Height <= 0 || sourceRectangle.Width <= 0)
+            (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceRectangle, source.Width, source.Height,
+                targetLocation, target.Width, target.Height);
+            if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
                 return;
 
             PixelFormat targetPixelFormat = target.PixelFormat;
@@ -97,9 +62,9 @@ namespace KGySoft.Drawing.Imaging
                 IBitmapDataInternal src = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true);
                 IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false);
                 if (ditherer == null || !targetPixelFormat.CanBeDithered())
-                    DrawIntoDirect(src, dst, sourceRectangle, targetRectangle.Location);
+                    DrawIntoDirect(src, dst, actualSourceRectangle, actualTargetRectangle.Location);
                 else
-                    DrawIntoWithDithering(src, dst, sourceRectangle, targetRectangle.Location, ditherer);
+                    DrawIntoWithDithering(src, dst, actualSourceRectangle, actualTargetRectangle.Location, ditherer);
             }
             finally
             {
@@ -128,41 +93,37 @@ namespace KGySoft.Drawing.Imaging
             if (!scalingMode.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
 
-            Rectangle actualSrcRect = Rectangle.Intersect(sourceRectangle, new Rectangle(0, 0, source.Width, source.Height));
-            Rectangle actualDstRect = Rectangle.Intersect(targetRectangle, new Rectangle(0, 0, target.Width, target.Height));
-            if (actualSrcRect.IsEmpty || actualDstRect.IsEmpty)
+            (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceRectangle, source.Width, source.Height, targetRectangle, target.Width, target.Height);
+            if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
                 return;
 
-            // TODO: del
-            //var interest = destinationRectangle; //Rectangle.Intersect(destinationRectangle, destination.Bounds());
-
-            // Nearest neighbor - TODO: extract method
+            // Nearest neighbor - shortcut
             if (scalingMode == ScalingMode.NearestNeighbor)
             {
                 // Scaling factors
-                float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
-                float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
+                float widthFactor = actualSourceRectangle.Width / (float)actualTargetRectangle.Width;
+                float heightFactor = actualSourceRectangle.Height / (float)actualTargetRectangle.Height;
 
-                for (int y = actualDstRect.Top; y < actualDstRect.Bottom; y++)
+                for (int y = actualTargetRectangle.Top; y < actualTargetRectangle.Bottom; y++)
                 {
                     // TODO: cache calculated properties, parallel, consider clipping
-                    var sourceRow = source[(int)(((y - targetRectangle.Y) * heightFactor) + sourceRectangle.Y)];
+                    var sourceRow = source[(int)((y - actualTargetRectangle.Y) * heightFactor + actualSourceRectangle.Y)];
                     var targetRow = target[y];
 
-                    for (int x = targetRectangle.Left; x < targetRectangle.Right; x++)
+                    for (int x = actualTargetRectangle.Left; x < actualTargetRectangle.Right; x++)
                     {
                         // X coordinates of source points
-                        targetRow[x] = sourceRow[(int)(((x - targetRectangle.X) * widthFactor) + sourceRectangle.X)];
+                        targetRow[x] = sourceRow[(int)((x - actualTargetRectangle.X) * widthFactor + actualSourceRectangle.X)];
                     }
                 }
 
                 return;
             }
 
-            using (var resizingSession = new ResizingSession(source, target, sourceRectangle, targetRectangle, actualDstRect, scalingMode))
+            using (var resizingSession = new ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
             {
                 // TODO: parallel, ditherer (maybe inside DoResize)
-                resizingSession.DoResize(actualDstRect.Top, actualDstRect.Bottom, ditherer);
+                resizingSession.DoResize(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
             }
         }
 
@@ -307,6 +268,74 @@ namespace KGySoft.Drawing.Imaging
                     ProcessRow(y, ditheringSession, source, target, sourceRect, targetLocation);
                 });
             }
+        }
+
+        private static (Rectangle, Rectangle) GetActualRectangles(Rectangle sourceRectangle, int sourceWidth, int sourceHeight, Rectangle targetRectangle, int targetWidth, int targetHeight)
+        {
+            Rectangle sourceBounds = new Rectangle(Point.Empty, new Size(sourceWidth, sourceHeight));
+            Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);
+            if (actualSourceRectangle.IsEmpty)
+                return default;
+            Rectangle targetBounds = new Rectangle(Point.Empty, new Size(targetWidth, targetHeight));
+            Rectangle actualTargetRectangle = Rectangle.Intersect(targetRectangle, targetBounds);
+            if (actualTargetRectangle.IsEmpty)
+                return default;
+
+            float widthRatio = (float)sourceRectangle.Width / targetRectangle.Width;
+            float heightRatio = (float)sourceRectangle.Height / targetRectangle.Height;
+
+            // adjusting source by clipped target
+            if (targetRectangle != actualTargetRectangle)
+            {
+                int x = (int)MathF.Round((actualTargetRectangle.X - targetRectangle.X) * widthRatio + sourceRectangle.X);
+                int y = (int)MathF.Round((actualTargetRectangle.Y - targetRectangle.Y) * heightRatio + sourceRectangle.Y);
+                int w = (int)MathF.Round(actualTargetRectangle.Width * widthRatio);
+                int h = (int)MathF.Round(actualTargetRectangle.Height * heightRatio);
+                actualSourceRectangle.Intersect(new Rectangle(x, y, w, h));
+            }
+
+            // adjusting target by clipped source
+            if (sourceRectangle != actualSourceRectangle)
+            {
+                int x = (int)MathF.Round((actualSourceRectangle.X - sourceRectangle.X) / widthRatio + targetRectangle.X);
+                int y = (int)MathF.Round((actualSourceRectangle.Y - sourceRectangle.Y) / heightRatio + targetRectangle.Y);
+                int w = (int)MathF.Round(actualSourceRectangle.Width / widthRatio);
+                int h = (int)MathF.Round(actualSourceRectangle.Height / heightRatio);
+                actualTargetRectangle.Intersect(new Rectangle(x, y, w, h));
+            }
+
+            return (actualSourceRectangle, actualTargetRectangle);
+        }
+
+        private static (Rectangle, Rectangle) GetActualRectangles(Rectangle sourceRectangle, int sourceWidth, int sourceHeight, Point targetLocation, int targetWidth, int targetHeight)
+        {
+            Rectangle sourceBounds = new Rectangle(Point.Empty, new Size(sourceWidth, sourceHeight));
+            Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);
+            if (actualSourceRectangle.IsEmpty)
+                return default;
+            Rectangle targetRectangle = new Rectangle(targetLocation, sourceRectangle.Size);
+            Rectangle targetBounds = new Rectangle(Point.Empty, new Size(targetWidth, targetHeight));
+            Rectangle actualTargetRectangle = Rectangle.Intersect(targetRectangle, targetBounds);
+            if (actualTargetRectangle.IsEmpty)
+                return default;
+
+            // adjusting source by clipped target
+            if (targetRectangle != actualTargetRectangle)
+            {
+                int x = actualTargetRectangle.X - targetRectangle.X + sourceRectangle.X;
+                int y = actualTargetRectangle.Y - targetRectangle.Y + sourceRectangle.Y;
+                actualSourceRectangle.Intersect(new Rectangle(x, y, actualTargetRectangle.Width, actualTargetRectangle.Height));
+            }
+
+            // adjusting target by clipped source
+            if (sourceRectangle != actualSourceRectangle)
+            {
+                int x = actualSourceRectangle.X - sourceRectangle.X + targetRectangle.X;
+                int y = actualSourceRectangle.Y - sourceRectangle.Y + targetRectangle.Y;
+                actualTargetRectangle.Intersect(new Rectangle(x, y, actualSourceRectangle.Width, actualSourceRectangle.Height));
+            }
+
+            return (actualSourceRectangle, actualTargetRectangle);
         }
 
     }
