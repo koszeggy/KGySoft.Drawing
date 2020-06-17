@@ -5,6 +5,9 @@
     /// </summary>
     public enum ScalingMode
     {
+        /// <summary>
+        /// Represents an automatically selected scaling mode based on source/target sizes.
+        /// </summary>
         Auto,
 
         /// <summary>

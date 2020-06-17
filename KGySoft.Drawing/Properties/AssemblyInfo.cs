@@ -41,5 +41,5 @@ using System.Security;
 [assembly: AllowPartiallyTrustedCallers]
 
 #if !NET35
-[assembly: SecurityRules(SecurityRuleSet.Level2, SkipVerificationInFullTrust = true)]
+[assembly: SecurityRules(SecurityRuleSet.Level1, SkipVerificationInFullTrust = true)]
 #endif

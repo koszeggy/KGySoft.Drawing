@@ -61,6 +61,9 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Resizes the image with high quality. The result is always a 32 bit ARGB image.
+        /// <br/>This overload uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally,
+        /// which provides a good quality result but on Windows blocks every parallel <see cref="Graphics"/> call within the same process.
+        /// If that might be an issue use the <see cref="Resize(Bitmap, Size, ScalingMode, bool)"/> overload instead.
         /// </summary>
         /// <param name="image">The original image to resize</param>
         /// <param name="newSize">The requested new size.</param>
@@ -76,16 +79,10 @@ namespace KGySoft.Drawing
             if (newSize.Width < 1 || newSize.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(newSize), PublicResources.ArgumentOutOfRange);
 
-            Size targetSize = newSize;
             Size sourceSize = image.Size;
-            Point targetLocation = Point.Empty;
-
-            if (keepAspectRatio && newSize != sourceSize)
-            {
-                float ratio = Math.Min((float)newSize.Width / sourceSize.Width, (float)newSize.Height / sourceSize.Height);
-                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
-                targetLocation = new Point(newSize.Width / 2 - targetSize.Width / 2, newSize.Height / 2 - targetSize.Height / 2);
-            }
+            Rectangle targetRectangle = keepAspectRatio && newSize != sourceSize
+                ? GetTargetRectangleWithPreservedAspectRatio(newSize, sourceSize)
+                : new Rectangle(Point.Empty, newSize);
 
             Bitmap result = new Bitmap(newSize.Width, newSize.Height);
             if (OSUtils.IsWindows)
@@ -101,7 +98,7 @@ namespace KGySoft.Drawing
                 {
                     g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                     g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    g.DrawImage(source, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                    g.DrawImage(source, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
                     g.Flush();
 
                     return result;
@@ -114,8 +111,25 @@ namespace KGySoft.Drawing
             }
         }
 
-        // TODO: make other overload obsolete with no default aspect ratio (will it be ambiguous if keepAspectRatio is defined?)
-        internal static Bitmap Resize2(this Bitmap image, Size newSize, bool keepAspectRatio = false, ScalingMode scalingMode = ScalingMode.Auto)
+        /// <summary>
+        /// Resizes the image using the specified <paramref name="scalingMode"/>. The result is always a 32 bit ARGB image.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to resize</param>
+        /// <param name="newSize">The requested new size.</param>
+        /// <param name="scalingMode">A <see cref="ScalingMode"/> value, which determines the quality of the result as well as the processing time.</param>
+        /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="image"/>; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
+        /// <remarks>
+        /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppArgb"/> <see cref="PixelFormat"/>. To resize an image
+        /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
+        /// and use the <see cref="ImageExtensions.DrawInto(Image, Bitmap, Rectangle, Rectangle, ScalingMode, IDitherer)"/> extension method.</para>
+        /// <para>Generally, the best quality result can be achieved by the <see cref="Resize(Bitmap, Size, bool)"/> overload, which
+        /// uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally. On Windows some <see cref="Graphics"/>
+        /// members use process-wide locks, which prevent them to be called concurrently without blocking. If that can be an issue you should use this overload.</para>
+        /// </remarks>
+        public static Bitmap Resize(this Bitmap image, Size newSize, ScalingMode scalingMode, bool keepAspectRatio = false)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -124,16 +138,10 @@ namespace KGySoft.Drawing
             if (!scalingMode.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
 
-            Size targetSize = newSize;
             Size sourceSize = image.Size;
-            Point targetLocation = Point.Empty;
-
-            if (keepAspectRatio && newSize != sourceSize)
-            {
-                float ratio = Math.Min((float)newSize.Width / sourceSize.Width, (float)newSize.Height / sourceSize.Height);
-                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
-                targetLocation = new Point(newSize.Width / 2 - targetSize.Width / 2, newSize.Height / 2 - targetSize.Height / 2);
-            }
+            Rectangle targetRectangle = keepAspectRatio && newSize != sourceSize
+                ? GetTargetRectangleWithPreservedAspectRatio(newSize, sourceSize)
+                : new Rectangle(Point.Empty, newSize);
 
             Bitmap result = new Bitmap(newSize.Width, newSize.Height);
             if (OSUtils.IsWindows)
@@ -141,7 +149,7 @@ namespace KGySoft.Drawing
 
             using (IReadableBitmapData src = image.GetReadableBitmapData())
             using (IWritableBitmapData dst = result.GetWritableBitmapData())
-                dst.DrawBitmapData(src, new Rectangle(Point.Empty, sourceSize), new Rectangle(targetLocation, targetSize), scalingMode);
+                dst.DrawBitmapData(src, new Rectangle(Point.Empty, sourceSize), targetRectangle, scalingMode);
             
             return result;
         }
@@ -1257,6 +1265,14 @@ namespace KGySoft.Drawing
         #endregion
 
         #region Private Methods
+
+        private static Rectangle GetTargetRectangleWithPreservedAspectRatio(Size desiredSize, Size sourceSize)
+        {
+            float ratio = Math.Min((float)desiredSize.Width / sourceSize.Width, (float)desiredSize.Height / sourceSize.Height);
+            var targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+            var targetLocation = new Point((desiredSize.Width >> 1) - (targetSize.Width >> 1), (desiredSize.Height >> 1) - (targetSize.Height >> 1));
+            return new Rectangle(targetLocation, targetSize);
+        }
 
         [SecuritySafeCritical]
         private static ICollection<Color32> DoGetColors(Bitmap bitmap, int maxColors)

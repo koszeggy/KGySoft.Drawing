@@ -188,7 +188,7 @@ namespace KGySoft.Drawing.UnitTests
         #region Methods
 
         [Test]
-        public void ResizeTest()
+        public void ResizeWithDrawImageTest()
         {
             using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
             var newSize = new Size(256, 64);
@@ -216,291 +216,54 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage("KeepAspectRatioEnlargeY", keepAspectRatioEnlargeY);
         }
 
-        [TestCase(16, 16, 256, 256)]
-        [TestCase(256, 256, 16, 16)]
-        public void Resize12Test(int sw, int sh, int tw, int th)
+        [Test]
+        public void ResizeNoDrawImageTest()
         {
-            Size sourceSize = new Size(sw, sh);
-            Size targetSize = new Size(tw, th);
-            using var bmpRef = Icons.Information.ExtractBitmap(sourceSize);
+            throw new NotImplementedException("TODO: check");
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
+            var newSize = new Size(256, 64);
+            using var resizedNoAspectRatio = bmpRef.Resize(newSize, ScalingMode.Auto, false);
+            Assert.AreEqual(newSize, resizedNoAspectRatio.Size);
+            SaveImage("NoAspectRatio", resizedNoAspectRatio);
 
-            //using var drawImage = bmpRef.Resize(targetSize);
-            //using var bicubic1 = bmpRef.Resize1(tw, th);
-            using var bicubic2 = bmpRef.Resize2(targetSize);
-            //SaveImage($"{sw}x{sh} to {tw}x{th} {nameof(drawImage)}", drawImage);
-            //SaveImage($"{sw}x{sh} to {tw}x{th} {nameof(bicubic1)}", bicubic1);
-            //SaveImage($"{sw}x{sh} to {tw}x{th} {nameof(bicubic2)}", bicubic2);
+            using var keepAspectRatioShrinkY = bmpRef.Resize(newSize, ScalingMode.Auto, true);
+            Assert.AreEqual(newSize, keepAspectRatioShrinkY.Size);
+            SaveImage("KeepAspectRatioShrinkY", keepAspectRatioShrinkY);
+
+            newSize = new Size(64, 256);
+            using var keepAspectRatioShrinkX = bmpRef.Resize(newSize, ScalingMode.Auto, true);
+            Assert.AreEqual(newSize, keepAspectRatioShrinkX.Size);
+            SaveImage("KeepAspectRatioShrinkX", keepAspectRatioShrinkX);
+
+            newSize = new Size(300, 400);
+            using var keepAspectRatioEnlargeX = bmpRef.Resize(newSize, ScalingMode.Auto, true);
+            Assert.AreEqual(newSize, keepAspectRatioEnlargeX.Size);
+            SaveImage("KeepAspectRatioEnlargeX", keepAspectRatioEnlargeX);
+
+            newSize = new Size(400, 300);
+            using var keepAspectRatioEnlargeY = bmpRef.Resize(newSize, ScalingMode.Auto, true);
+            Assert.AreEqual(newSize, keepAspectRatioEnlargeY.Size);
+            SaveImage("KeepAspectRatioEnlargeY", keepAspectRatioEnlargeY);
         }
 
 
-        private static (Size Source, Size Target)[] sizes =
+        [TestCase(16, 256)]
+        [TestCase(256, 16)]
+        public void ResizeScalingModesTest(int sourceSize, int newSize)
         {
-            (new Size(16, 16), new Size(256, 256)),
-            (new Size(256, 256), new Size(16, 16)),
-        };
+            var sizeSrc = new Size(sourceSize, sourceSize);
+            var sizeDst = new Size(newSize, newSize);
+            //using var bmpSource = new Bitmap(@"D:\temp\Images\Resize1Test_256x256 to 16x16 drawImage.202005041804501683.png");
+            using var bmpSource = Icons.Information.ExtractBitmap(sizeSrc);
 
-        private static object[][] resizeSource =
-        {
-            new object[] { ScalingMode.NearestNeighbor, "NearestNeighbor" },
-            new object[] { ScalingMode.Box, "Box" },
-            new object[] { ScalingMode.Bicubic, "Bicubic" },
-            new object[] { ScalingMode.Bilinear, "Triangle" },
-            new object[] { ScalingMode.CatmullRom, "CatmullRom" },
-            new object[] { ScalingMode.MitchellNetravali, "MitchellNetravali" },
-            new object[] { ScalingMode.Robidoux, "Robidoux" },
-            new object[] { ScalingMode.Spline, "Spline" },
-            new object[] { ScalingMode.Lanczos2, "Lanczos2" },
-            new object[] { ScalingMode.Lanczos3, "Lanczos3" },
-        };
+            using var bmpRef = bmpSource.Resize(sizeDst);
+            SaveImage($"{sizeSrc.Width}x{sizeSrc.Height} to {sizeDst.Width}x{sizeDst.Height}  Graphics.DrawImage", bmpRef);
 
-        [TestCaseSource(nameof(resizeSource))]
-        public void Resize2Test(ScalingMode scalingMode, string name)
-        {
-            foreach (var size in sizes)
+            foreach (ScalingMode scalingMode in Enum<ScalingMode>.GetValues())
             {
-                using var bmpRef = Icons.Information.ExtractBitmap(size.Source);
-                using var bmpResult = bmpRef.Resize2(size.Target, false, scalingMode);
-                SaveImage($"{size.Source.Width}x{size.Source.Height} to {size.Target.Width}x{size.Target.Height} {name}", bmpResult);
+                using var bmpResult = bmpSource.Resize(sizeDst, scalingMode);
+                SaveImage($"{sizeSrc.Width}x{sizeSrc.Height} to {sizeDst.Width}x{sizeDst.Height} {scalingMode}", bmpResult);
             }
-        }
-
-        [TestCase(256, ScalingMode.Bicubic)]
-        [TestCase(16, ScalingMode.Bicubic)]
-        [TestCase(256, ScalingMode.NearestNeighbor)]
-        [TestCase(16, ScalingMode.NearestNeighbor)]
-        // TODO: to ImageExtensionsTest
-        public void DrawIntoWithResizeTest(int size, ScalingMode scalingMode)
-        {
-            var sourceSize = new Size(size, size);
-            var targetSize = new Size(100, 100);
-            using var bmpSource = Icons.Information.ExtractBitmap(sourceSize);
-            using var bmpRef = new Bitmap(targetSize.Width, targetSize.Height);
-            using var bmpResult = new Bitmap(targetSize.Width, targetSize.Height);
-
-            Rectangle srcRect = Rectangle.Round(new RectangleF(size * 0.1f, size * 0.0625f, size * 0.75f, size * 0.85f));
-
-            using (var g = Graphics.FromImage(bmpRef))
-            {
-                g.InterpolationMode = scalingMode == ScalingMode.NearestNeighbor ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
-
-                // no cut
-                var targetRect = new Rectangle(30, 30, 30, 30);
-                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                // cut left
-                targetRect = new Rectangle(-20, 5, 30, 30);
-                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                // cut top
-                targetRect = new Rectangle(50, -20, 30, 30);
-                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                // cut right
-                targetRect = new Rectangle(90, 50, 30, 30);
-                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                // cut bottom
-                targetRect = new Rectangle(10, 90, 30, 30);
-                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-            }
-
-            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height} Reference", bmpRef);
-            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height}", bmpResult);
-        }
-
-        [TestCase(256, ScalingMode.Bicubic)]
-        //[TestCase(16, ScalingMode.Bicubic)]
-        //[TestCase(256, ScalingMode.NearestNeighbor)]
-        //[TestCase(16, ScalingMode.NearestNeighbor)]
-        // TODO: to ImageExtensionsTest
-        public void DrawIntoWithResizeTooLargeSourceRectangleTest(int size, ScalingMode scalingMode)
-        {
-            var sourceSize = new Size(size, size);
-            var targetSize = new Size(size, size);
-            //var targetSize = new Size(100, 100);
-            using var bmpSource = Icons.Information.ExtractBitmap(sourceSize);
-            using var bmpRef = new Bitmap(targetSize.Width, targetSize.Height);
-            using var bmpResult = new Bitmap(targetSize.Width, targetSize.Height);
-
-            //Rectangle srcRect = Rectangle.Round(new RectangleF(size * 0.1f, size * 0.625f, size * 0.75f, size * 0.85f));
-            Rectangle srcRect = new Rectangle(192, -64, 128, 128);
-
-
-            using (var g = Graphics.FromImage(bmpRef))
-            {
-                g.InterpolationMode = scalingMode == ScalingMode.NearestNeighbor ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
-
-                // no cut
-                var targetRect = new Rectangle(0, 0, 128, 128);
-                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                //// no cut
-                //var targetRect = new Rectangle(30, 30, 30, 30);
-                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                //// cut left
-                //targetRect = new Rectangle(-20, 5, 30, 30);
-                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                //// cut top
-                //targetRect = new Rectangle(50, -20, 30, 30);
-                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                //// cut right
-                //targetRect = new Rectangle(90, 50, 30, 30);
-                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-
-                //// cut bottom
-                //targetRect = new Rectangle(10, 90, 30, 30);
-                //g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
-                //bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
-            }
-
-            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height} Reference", bmpRef);
-            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height}", bmpResult);
-        }
-
-        [TestCase(16, 16, 256, 256)]
-        [TestCase(256, 256, 16, 16)]
-        public void ResizePerfTest(int sw, int sh, int tw, int th)
-        {
-            Size sourceSize = new Size(sw, sh);
-            Size targetSize = new Size(tw, th);
-            using var bmpRef = Icons.Information.ExtractBitmap(sourceSize);
-
-            var perfTest = new PerformanceTest { Iterations = 10, CpuAffinity = null, TestName = $"{sw}x{sh} to {tw}x{th}" };
-            foreach (var mode in new[] { InterpolationMode.NearestNeighbor, InterpolationMode.Bilinear, InterpolationMode.HighQualityBicubic })
-            {
-                perfTest.AddCase(() =>
-                {
-                    using Bitmap result = new Bitmap(sw, sh);
-                    using (Graphics g = Graphics.FromImage(result))
-                    {
-                        g.InterpolationMode = mode;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        g.DrawImage(bmpRef, new Rectangle(Point.Empty, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
-                        g.Flush();
-                    }
-
-                }, $"DrawImage/{mode}");
-            }
-
-            foreach (var resampler in resizeSource)
-            {
-                perfTest.AddCase(() =>
-                {
-                    using var result = bmpRef.Resize2(targetSize, false, (ScalingMode)resampler[0]);
-                }, $"Resize/{resampler[1]}");
-            }
-
-            perfTest.DoTest().DumpResults(Console.Out);
-
-            //==[16x16 to 256x256 Results]================================================
-            // Iterations: 10
-            // Warming up: Yes
-            // Test cases: 19
-            // Calling GC.Collect: Yes
-            // Forced CPU Affinity: No
-            // Cases are sorted by time (quickest first)
-            // --------------------------------------------------
-            // 1. DrawImage/Bilinear: average time: 0,30 ms
-            // 2. DrawImage/NearestNeighbor: average time: 0,34 ms (+0,04 ms / 114,13%)
-            // 3. DrawImage/HighQualityBicubic: average time: 0,37 ms (+0,07 ms / 123,16%)
-            // 4. Resize/NearestNeighbor: average time: 9,73 ms (+9,43 ms / 3 221,05%)
-            // 5. Resize/RobidouxSharp: average time: 12,03 ms (+11,73 ms / 3 982,13%)
-            // 6. Resize/Spline: average time: 12,56 ms (+12,26 ms / 4 156,15%)
-            // 7. Resize/Lanczos2: average time: 12,72 ms (+12,42 ms / 4 209,20%)
-            //!8. Resize/Robidoux: average time: 13,33 ms (+13,03 ms / 4 410,19%)
-            // 9. Resize/Lanczos3: average time: 13,73 ms (+13,43 ms / 4 544,14%)
-            // 10. Resize/Box: average time: 15,29 ms (+14,99 ms / 5 060,36%)
-            //x12. Resize/CatmullRom: average time: 16,56 ms (+16,26 ms / 5 480,84%)
-            //!13. Resize/MitchellNetravali: average time: 16,87 ms (+16,57 ms / 5 583,36%)
-            // 14. Resize/Bicubic: average time: 18,18 ms (+17,88 ms / 6 017,41%)
-            //x15. Resize/Welch: average time: 18,28 ms (+17,98 ms / 6 048,08%)
-            // 17. Resize/Triangle: average time: 21,14 ms (+20,84 ms / 6 997,02%)
-
-            // ==[256x256 to 16x16 Results]================================================
-            // Iterations: 10
-            // Warming up: Yes
-            // Test cases: 19
-            // Calling GC.Collect: Yes
-            // Forced CPU Affinity: No
-            // Cases are sorted by time (quickest first)
-            // --------------------------------------------------
-            // 1. Resize/NearestNeighbor: average time: 0,21 ms
-            // 3. DrawImage/NearestNeighbor: average time: 2,68 ms (+2,46 ms / 1 259,51%)
-            // 4. DrawImage/Bilinear: average time: 2,90 ms (+2,69 ms / 1 364,60%)
-            // 5. Resize/Triangle: average time: 6,55 ms (+6,33 ms / 3 081,64%)
-            // 6. Resize/Box: average time: 6,62 ms (+6,41 ms / 3 118,69%)
-            // 7. DrawImage/HighQualityBicubic: average time: 7,47 ms (+7,25 ms / 3 514,92%)
-            // 8. Resize/Robidoux: average time: 8,07 ms (+7,85 ms / 3 797,65%)
-            // 9. Resize/RobidouxSharp: average time: 8,09 ms (+7,87 ms / 3 806,59%)
-            // 10. Resize/CatmullRom: average time: 8,15 ms (+7,94 ms / 3 835,97%)
-            // 11. Resize/Hermite: average time: 8,21 ms (+7,99 ms / 3 863,47%)
-            // 12. Resize/Spline: average time: 8,40 ms (+8,19 ms / 3 955,93%)
-            // 13. Resize/Lanczos2: average time: 8,60 ms (+8,39 ms / 4 049,01%)
-            // 14. Resize/MitchellNetravali: average time: 9,40 ms (+9,19 ms / 4 426,79%)
-            // 15. Resize/Lanczos3: average time: 9,94 ms (+9,73 ms / 4 680,27%)
-            // 16. Resize/Welch: average time: 11,11 ms (+10,90 ms / 5 231,17%)
-            // 17. Resize/Bicubic: average time: 11,67 ms (+11,45 ms / 5 492,84%)
-            // 18. Resize/Lanczos5: average time: 15,53 ms (+15,32 ms / 7 311,21%)
-            // 19. Resize/Lanczos8: average time: 16,49 ms (+16,28 ms / 7 765,44%)
-
-            /*
-            ==[16x16 to 256x256 Results]================================================
-            Iterations: 10
-            Warming up: Yes
-            Test cases: 13
-            Calling GC.Collect: Yes
-            Forced CPU Affinity: No
-            Cases are sorted by time (quickest first)
-            --------------------------------------------------
-            1. DrawImage/NearestNeighbor: average time: 0,23 ms
-            2. DrawImage/Bilinear: average time: 0,32 ms (+0,09 ms / 138,19%)
-            3. DrawImage/HighQualityBicubic: average time: 0,37 ms (+0,14 ms / 160,51%)
-            4. Resize/NearestNeighbor: average time: 12,93 ms (+12,70 ms / 5 605,50%)
-            5. Resize/Triangle: average time: 20,79 ms (+20,56 ms / 9 012,96%)
-            6. Resize/Box: average time: 25,69 ms (+25,46 ms / 11 135,02%)
-            7. Resize/MitchellNetravali: average time: 27,64 ms (+27,41 ms / 11 981,40%)
-            8. Resize/Bicubic: average time: 27,68 ms (+27,45 ms / 11 997,62%)
-            9. Resize/CatmullRom: average time: 28,04 ms (+27,81 ms / 12 155,27%)
-            10. Resize/Lanczos2: average time: 29,21 ms (+28,97 ms / 12 659,56%)
-            11. Resize/Robidoux: average time: 29,47 ms (+29,24 ms / 12 775,51%)
-            12. Resize/Lanczos3: average time: 35,74 ms (+35,51 ms / 15 493,28%)
-            13. Resize/Spline: average time: 36,55 ms (+36,32 ms / 15 843,87%) 
-            
-            ==[256x256 to 16x16 Results]================================================
-            Iterations: 10
-            Warming up: Yes
-            Test cases: 13
-            Calling GC.Collect: Yes
-            Forced CPU Affinity: No
-            Cases are sorted by time (quickest first)
-            --------------------------------------------------
-            1. Resize/NearestNeighbor: average time: 0,40 ms
-            2. DrawImage/Bilinear: average time: 2,45 ms (+2,04 ms / 604,20%)
-            3. DrawImage/NearestNeighbor: average time: 2,55 ms (+2,15 ms / 629,83%)
-            4. DrawImage/HighQualityBicubic: average time: 7,61 ms (+7,20 ms / 1 878,88%)
-            5. Resize/Box: average time: 18,04 ms (+17,63 ms / 4 455,37%)
-            6. Resize/Triangle: average time: 22,41 ms (+22,00 ms / 5 534,53%)
-            7. Resize/MitchellNetravali: average time: 23,62 ms (+23,22 ms / 5 833,56%)
-            8. Resize/Spline: average time: 23,80 ms (+23,40 ms / 5 879,18%)
-            9. Resize/Robidoux: average time: 23,83 ms (+23,42 ms / 5 885,18%)
-            10. Resize/Lanczos2: average time: 26,59 ms (+26,18 ms / 6 566,29%)
-            11. Resize/CatmullRom: average time: 30,35 ms (+29,94 ms / 7 494,52%)
-            12. Resize/Bicubic: average time: 30,73 ms (+30,33 ms / 7 589,87%)
-            13. Resize/Lanczos3: average time: 33,03 ms (+32,63 ms / 8 158,09%)
-            */
         }
 
         [TestCase(PixelFormat.Format64bppArgb)]
@@ -517,11 +280,36 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format8bppIndexed)]
         [TestCase(PixelFormat.Format4bppIndexed)]
         [TestCase(PixelFormat.Format1bppIndexed)]
-        public void ResizeWithFormatTest(PixelFormat pixelFormat)
+        public void ResizeWithDrawImageByFormatTest(PixelFormat pixelFormat)
         {
             using var bmpRef = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat);
             var newSize = new Size(256, 64);
             using var resized = bmpRef.Resize(newSize, false);
+            Assert.AreEqual(newSize, resized.Size);
+            SaveImage($"{pixelFormat}", resized);
+        }
+
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void ResizeNoDrawImageByFormatTest(PixelFormat pixelFormat)
+        {
+            throw new NotImplementedException("TODO: check");
+
+            using var bmpRef = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat);
+            var newSize = new Size(256, 64);
+            using var resized = bmpRef.Resize(newSize, ScalingMode.Auto);
             Assert.AreEqual(newSize, resized.Size);
             SaveImage($"{pixelFormat}", resized);
         }

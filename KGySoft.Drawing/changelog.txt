@@ -11,8 +11,11 @@
 
 + KGySoft.Drawing namespace:
 ============================
++ BitmapExtensions class:
+  + New Resize overload that does not use Graphics.DrawImage internally.
 + MetafileExtensions class:
   + New ToBitmap overload with keepAspectRatio parameter
++ New ScalingMode enum for BitmapExtensions.Resize
 
 
 ~~~~~~~~~

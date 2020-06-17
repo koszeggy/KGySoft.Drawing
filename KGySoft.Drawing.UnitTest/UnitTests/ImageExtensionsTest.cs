@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 
@@ -168,6 +169,84 @@ namespace KGySoft.Drawing.UnitTests
             Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height), ditherer));
 
             SaveImage(testName, bmpDst);
+        }
+
+        [TestCase(256, ScalingMode.Bicubic)]
+        [TestCase(16, ScalingMode.Bicubic)]
+        [TestCase(256, ScalingMode.NearestNeighbor)]
+        [TestCase(16, ScalingMode.NearestNeighbor)]
+        public void DrawIntoWithResizeTest(int size, ScalingMode scalingMode)
+        {
+            throw new NotImplementedException("TODO: check");
+            var sourceSize = new Size(size, size);
+            var targetSize = new Size(100, 100);
+            using var bmpSource = Icons.Information.ExtractBitmap(sourceSize);
+            using var bmpRef = new Bitmap(targetSize.Width, targetSize.Height);
+            using var bmpResult = new Bitmap(targetSize.Width, targetSize.Height);
+
+            Rectangle srcRect = Rectangle.Round(new RectangleF(size * 0.1f, size * 0.0625f, size * 0.75f, size * 0.85f));
+
+            using (var g = Graphics.FromImage(bmpRef))
+            {
+                g.InterpolationMode = scalingMode == ScalingMode.NearestNeighbor ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
+
+                // no cut
+                var targetRect = new Rectangle(30, 30, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+
+                // cut left
+                targetRect = new Rectangle(-20, 5, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+
+                // cut top
+                targetRect = new Rectangle(50, -20, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+
+                // cut right
+                targetRect = new Rectangle(90, 50, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+
+                // cut bottom
+                targetRect = new Rectangle(10, 90, 30, 30);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+            }
+
+            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height} Reference", bmpRef);
+            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height}", bmpResult);
+        }
+
+        [TestCase(256, ScalingMode.Bicubic)]
+        [TestCase(16, ScalingMode.Bicubic)]
+        [TestCase(256, ScalingMode.NearestNeighbor)]
+        [TestCase(16, ScalingMode.NearestNeighbor)]
+        public void DrawIntoWithResizeTooLargeSourceRectangleTest(int size, ScalingMode scalingMode)
+        {
+            throw new NotImplementedException("TODO: check");
+            var sourceSize = new Size(size, size);
+            var targetSize = new Size(256, 256);
+            //var targetSize = new Size(100, 100);
+            using var bmpSource = Icons.Information.ExtractBitmap(sourceSize);
+            using var bmpRef = new Bitmap(targetSize.Width, targetSize.Height);
+            using var bmpResult = new Bitmap(targetSize.Width, targetSize.Height);
+
+            Rectangle srcRect = Rectangle.Round(new RectangleF(size * 0.75f, size * 0.25f, size * 0.5f, size * 0.5f));
+
+            using (var g = Graphics.FromImage(bmpRef))
+            {
+                g.InterpolationMode = scalingMode == ScalingMode.NearestNeighbor ? InterpolationMode.NearestNeighbor : InterpolationMode.HighQualityBicubic;
+
+                var targetRect = new Rectangle(0, 0, 120, 120);
+                g.DrawImage(bmpSource, targetRect, srcRect, GraphicsUnit.Pixel);
+                bmpSource.DrawInto(bmpResult, srcRect, targetRect, scalingMode);
+            }
+
+            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height} Reference", bmpRef);
+            SaveImage($"{scalingMode} {sourceSize.Width}x{sourceSize.Height} to {bmpResult.Width}x{bmpResult.Height}", bmpResult);
         }
 
         [Test]

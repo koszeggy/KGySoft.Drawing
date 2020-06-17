@@ -18,8 +18,9 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
-
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -313,6 +314,42 @@ namespace KGySoft.Drawing.PerformanceTests
                 }, "Graphics.DrawImage(..., ImageAttributes)")
                 .DoTest()
                 .DumpResults(Console.Out);
+        }
+
+        [TestCase(16, 16, 256, 256)]
+        [TestCase(256, 256, 16, 16)]
+        public void ResizeTest(int sw, int sh, int tw, int th)
+        {
+            Size sourceSize = new Size(sw, sh);
+            Size targetSize = new Size(tw, th);
+            using var bmpRef = Icons.Information.ExtractBitmap(sourceSize);
+
+            var perfTest = new PerformanceTest { Iterations = 10, CpuAffinity = null, TestName = $"{sw}x{sh} to {tw}x{th}" };
+            foreach (var mode in new[] { InterpolationMode.NearestNeighbor, InterpolationMode.Bilinear, InterpolationMode.HighQualityBicubic })
+            {
+                perfTest.AddCase(() =>
+                {
+                    using Bitmap result = new Bitmap(sw, sh);
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        g.InterpolationMode = mode;
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        g.DrawImage(bmpRef, new Rectangle(Point.Empty, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                        g.Flush();
+                    }
+
+                }, $"DrawImage/{mode}");
+            }
+
+            foreach (ScalingMode scalingMode in Enum<ScalingMode>.GetValues())
+            {
+                perfTest.AddCase(() =>
+                {
+                    using var result = bmpRef.Resize(targetSize, scalingMode);
+                }, $"Resize/{scalingMode}");
+            }
+
+            perfTest.DoTest().DumpResults(Console.Out);
         }
 
         #endregion
