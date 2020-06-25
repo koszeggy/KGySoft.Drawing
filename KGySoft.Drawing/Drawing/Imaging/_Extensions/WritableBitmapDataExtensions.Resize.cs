@@ -33,6 +33,8 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     internal static partial class WritableBitmapDataExtensions
     {
+        #region Nested Types
+        
         #region ResizingSession class
 
         /// <summary>
@@ -85,8 +87,7 @@ namespace KGySoft.Drawing.Imaging
             private static ScalingMode GetAutoScalingMode(Size sourceSize, Size targetSize)
             {
                 Debug.Assert(sourceSize != targetSize, "Different sizes are expected");
-                // TODO: handle ScalingMode.Auto
-                return ScalingMode.Bicubic;
+                return targetSize.Width > sourceSize.Width || targetSize.Height > sourceSize.Height ? ScalingMode.MitchellNetravali : ScalingMode.Bicubic;
             }
 
             private static unsafe void CopyColumns<T>(ref Array2D<T> array2d, int sourceIndex, int destIndex, int columnCount)
@@ -524,6 +525,46 @@ namespace KGySoft.Drawing.Imaging
                 : kernelBuffer.Slice(StartIndex, Length).Join("; ");
 
             #endregion
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Methods
+
+        private static void ResizeNearestNeighborDirect(IWritableBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle)
+        {
+            // Scaling factors
+            float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
+            float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
+
+            #region Local Methods
+
+            void ProcessRow(int y)
+            {
+                IReadableBitmapDataRow sourceRow = source[(int)((y - targetRectangle.Y) * heightFactor + sourceRectangle.Y)];
+                IWritableBitmapDataRow targetRow = target[y];
+
+                for (int x = targetRectangle.Left; x < targetRectangle.Right; x++)
+                {
+                    // X coordinates of source points
+                    targetRow[x] = sourceRow[(int)((x - targetRectangle.X) * widthFactor + sourceRectangle.X)];
+                }
+            }
+
+            #endregion
+
+            // Sequential processing
+            if (targetRectangle.Width < parallelThreshold)
+            {
+                for (int y = targetRectangle.Top; y < targetRectangle.Bottom; y++)
+                    ProcessRow(y);
+                return;
+            }
+
+            // Parallel processing
+            ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, ProcessRow);
         }
 
         #endregion

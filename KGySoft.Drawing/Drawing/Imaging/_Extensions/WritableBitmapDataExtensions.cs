@@ -100,29 +100,13 @@ namespace KGySoft.Drawing.Imaging
             // Nearest neighbor - shortcut
             if (scalingMode == ScalingMode.NearestNeighbor)
             {
-                // Scaling factors
-                float widthFactor = actualSourceRectangle.Width / (float)actualTargetRectangle.Width;
-                float heightFactor = actualSourceRectangle.Height / (float)actualTargetRectangle.Height;
-
-                for (int y = actualTargetRectangle.Top; y < actualTargetRectangle.Bottom; y++)
-                {
-                    // TODO: cache calculated properties, parallel, consider clipping
-                    var sourceRow = source[(int)((y - actualTargetRectangle.Y) * heightFactor + actualSourceRectangle.Y)];
-                    var targetRow = target[y];
-
-                    for (int x = actualTargetRectangle.Left; x < actualTargetRectangle.Right; x++)
-                    {
-                        // X coordinates of source points
-                        targetRow[x] = sourceRow[(int)((x - actualTargetRectangle.X) * widthFactor + actualSourceRectangle.X)];
-                    }
-                }
+                ResizeNearestNeighborDirect(target, source, actualSourceRectangle, actualTargetRectangle);
 
                 return;
             }
 
             using (var resizingSession = new ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
             {
-                // TODO: parallel, ditherer (maybe inside DoResize)
                 resizingSession.DoResize(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
             }
         }
@@ -337,6 +321,5 @@ namespace KGySoft.Drawing.Imaging
 
             return (actualSourceRectangle, actualTargetRectangle);
         }
-
     }
 }

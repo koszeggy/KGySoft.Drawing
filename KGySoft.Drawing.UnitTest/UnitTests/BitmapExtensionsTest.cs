@@ -253,7 +253,6 @@ namespace KGySoft.Drawing.UnitTests
         {
             var sizeSrc = new Size(sourceSize, sourceSize);
             var sizeDst = new Size(newSize, newSize);
-            //using var bmpSource = new Bitmap(@"D:\temp\Images\Resize1Test_256x256 to 16x16 drawImage.202005041804501683.png");
             using var bmpSource = Icons.Information.ExtractBitmap(sizeSrc);
 
             using var bmpRef = bmpSource.Resize(sizeDst);

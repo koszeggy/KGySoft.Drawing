@@ -7,6 +7,9 @@
     {
         /// <summary>
         /// Represents an automatically selected scaling mode based on source/target sizes.
+        /// In practice, the <see cref="MitchellNetravali"/> scaling mode is selected if either the width or height is enlarged,
+        /// and the <see cref="Bicubic"/> scaling mode, if there is shrinking in both dimensions.
+        /// If source and target sizes are the same, then <see cref="NoScaling"/> is selected.
         /// </summary>
         Auto,
 
