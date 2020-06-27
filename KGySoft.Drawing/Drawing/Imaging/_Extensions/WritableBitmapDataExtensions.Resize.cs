@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -44,8 +45,8 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Fields
 
-            private readonly IReadableBitmapData source;
-            private readonly IWritableBitmapData target;
+            private readonly IBitmapDataInternal source;
+            private readonly IBitmapDataInternal target;
             private readonly KernelMap horizontalKernelMap;
             private readonly KernelMap verticalKernelMap;
 
@@ -60,8 +61,8 @@ namespace KGySoft.Drawing.Imaging
 
             internal ResizingSession(IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
             {
-                this.source = source;
-                this.target = target;
+                this.source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true);
+                this.target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false);
                 this.sourceRectangle = sourceRectangle;
                 this.targetRectangle = targetRectangle;
                 if (scalingMode == ScalingMode.Auto)
@@ -127,17 +128,14 @@ namespace KGySoft.Drawing.Imaging
 
             #region Internal Methods
 
-            internal void DoResize(int top, int bottom, IDitherer ditherer)
+            internal void DoResizeDirect(int top, int bottom)
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-
                 ParallelHelper.For(top, bottom, y =>
                 {
-                    var targetColumnBuffer = new ArraySection<ColorF>(targetRectangle.Width);
+                    var targetRowBuffer = new ArraySection<ColorF>(targetRectangle.Width);
 
-                    // Ensure offsets are normalized for cropping and padding.
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y - targetRectangle.Y);
-
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
                         Slide();
 
@@ -146,17 +144,126 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < targetRectangle.Width; x++)
                     {
                         // Destination color components
-                        targetColumnBuffer.GetElementReference(x) = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+                        targetRowBuffer.GetElementReference(x) = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
                     }
 
-                    IWritableBitmapDataRow row = target[y];
+                    IBitmapDataRowInternal row = target.GetRow(y);
+                    int targetWidth = targetRectangle.Width;
+                    int targetLeft = targetRectangle.Left;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        ref ColorF refColorF = ref targetRowBuffer.GetElementReference(x);
+
+                        // fully transparent source: skip
+                        if (refColorF.A <= 0f)
+                            continue;
+
+                        Color32 colorSrc = refColorF.ToColor32();
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            row.DoSetColor32(x + targetLeft, colorSrc);
+                            continue;
+                        }
+
+                        // checking full transparency again (means almost zero refColorF.A)
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int targetX = x + targetLeft;
+                        Color32 colorDst = row.DoGetColor32(targetX);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            row.DoSetColor32(targetX, colorSrc);
+                            continue;
+                        }
+
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst);
+
+                        row.DoSetColor32(targetX, colorSrc);
+                    }
+
+                    targetRowBuffer.Release();
+                });
+            }
+
+            internal void DoResizeWithDithering(int top, int bottom, IDitherer ditherer)
+            {
+                // creating a temporal buffer for the non-dithered result because a quantizer/ditherer may need the resized image source
+                using var result = new BitmapDataBuffer(targetRectangle.Size);
+                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+
+                ParallelHelper.For(top, bottom, y =>
+                {
+                    var targetRowBuffer = new ArraySection<ColorF>(targetRectangle.Width);
+
+                    ResizeKernel kernel = verticalKernelMap.GetKernel(y - targetRectangle.Y);
+                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                        Slide();
+
+                    int topLine = kernel.StartIndex - currentWindow.Top;
+
                     for (int x = 0; x < targetRectangle.Width; x++)
                     {
-                        row[x + targetRectangle.Left] = targetColumnBuffer[x].ToColor32();
+                        // Destination color components
+                        targetRowBuffer.GetElementReference(x) = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
                     }
 
-                    targetColumnBuffer.Release();
+                    IBitmapDataRowInternal row = result.GetRow(y - targetRectangle.Y);
+                    int targetWidth = targetRectangle.Width;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        ref ColorF refColorF = ref targetRowBuffer.GetElementReference(x);
+
+                        // fully transparent source: skip
+                        if (refColorF.A <= 0f)
+                            continue;
+
+                        Color32 colorSrc = refColorF.ToColor32();
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            row.DoSetColor32(x, colorSrc);
+                            continue;
+                        }
+
+                        // checking full transparency again (means almost zero refColorF.A)
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        Color32 colorDst = row.DoGetColor32(x);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            row.DoSetColor32(x, colorSrc);
+                            continue;
+                        }
+
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst);
+
+                        row.DoSetColor32(x, colorSrc);
+                    }
+
+                    targetRowBuffer.Release();
                 });
+
+                // Drawing result to actual target with dithering
+                target.DrawBitmapData(result, targetRectangle.Location, ditherer);
             }
 
             #endregion
@@ -165,15 +272,15 @@ namespace KGySoft.Drawing.Imaging
 
             private void CalculateFirstPassValues(int top, int bottom, bool parallel)
             {
+                #region Local Methods
+                
                 void ProcessRow(int y)
                 {
                     var sourceRowBuffer = new ArraySection<ColorF>(sourceRectangle.Width);
-                    IReadableBitmapDataRow sourceRow = source[y + sourceRectangle.Top];
+                    IBitmapDataRowInternal sourceRow = source.GetRow(y + sourceRectangle.Top);
 
                     for (int x = 0; x < sourceRectangle.Width; x++)
-                    {
-                        sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow[x + sourceRectangle.Left]);
-                    }
+                        sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow.DoGetColor32(x + sourceRectangle.Left));
 
                     int firstPassBaseIndex = y - currentWindow.Top;
                     for (int x = 0; x < targetRectangle.Width; x++)
@@ -184,6 +291,8 @@ namespace KGySoft.Drawing.Imaging
 
                     sourceRowBuffer.Release();
                 }
+
+                #endregion
 
                 if (parallel)
                     ParallelHelper.For(top, bottom, ProcessRow);
@@ -533,7 +642,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        private static void ResizeNearestNeighborDirect(IWritableBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle)
+        private static void ResizeNearestNeighborDirect(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle)
         {
             // Scaling factors
             float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
@@ -541,15 +650,156 @@ namespace KGySoft.Drawing.Imaging
 
             #region Local Methods
 
-            void ProcessRow(int y)
+            void ProcessRowStraight(int y)
             {
-                IReadableBitmapDataRow sourceRow = source[(int)((y - targetRectangle.Y) * heightFactor + sourceRectangle.Y)];
-                IWritableBitmapDataRow targetRow = target[y];
+                IBitmapDataRowInternal rowSrc = source.GetRow((int)((y - targetRectangle.Y) * heightFactor + sourceRectangle.Y));
+                IBitmapDataRowInternal rowDst = target.GetRow(y);
 
-                for (int x = targetRectangle.Left; x < targetRectangle.Right; x++)
+                int targetLeft = targetRectangle.Left;
+                int targetRight = targetRectangle.Right;
+                int sourceLeft = sourceRectangle.Left;
+                for (int x = targetLeft; x < targetRight; x++)
                 {
-                    // X coordinates of source points
-                    targetRow[x] = sourceRow[(int)((x - targetRectangle.X) * widthFactor + sourceRectangle.X)];
+                    Color32 colorSrc = rowSrc.DoGetColor32((int)((x - targetLeft) * widthFactor + sourceLeft));
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoSetColor32(x, colorSrc);
+                        continue;
+                    }
+
+                    // source here has a partial transparency: we need to read the target color
+                    Color32 colorDst = rowDst.DoGetColor32(x);
+
+                    // fully transparent target: we can overwrite with source
+                    if (colorDst.A == 0)
+                    {
+                        rowDst.DoSetColor32(x, colorSrc);
+                        continue;
+                    }
+
+                    colorSrc = colorDst.A == Byte.MaxValue
+                        // target pixel is fully solid: simple blending
+                        ? colorSrc.BlendWithBackground(colorDst)
+                        // both source and target pixels are partially transparent: complex blending
+                        : colorSrc.BlendWith(colorDst);
+
+                    rowDst.DoSetColor32(x, colorSrc);
+                }
+            }
+
+            void ProcessRowPremultiplied(int y)
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRow((int)((y - targetRectangle.Y) * heightFactor + sourceRectangle.Y));
+                IBitmapDataRowInternal rowDst = target.GetRow(y);
+                bool isPremultipliedSource = source.PixelFormat == PixelFormat.Format32bppPArgb;
+
+                int targetLeft = targetRectangle.Left;
+                int targetRight = targetRectangle.Right;
+                int sourceLeft = sourceRectangle.Left;
+                for (int x = targetLeft; x < targetRight; x++)
+                {
+                    Color32 colorSrc = isPremultipliedSource
+                        ? rowSrc.DoReadRaw<Color32>((int)((x - targetLeft) * widthFactor + sourceLeft))
+                        : rowSrc.DoGetColor32((int)((x - targetLeft) * widthFactor + sourceLeft)).ToPremultiplied();
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoWriteRaw(x, colorSrc);
+                        continue;
+                    }
+
+                    // source here has a partial transparency: we need to read the target color
+                    Color32 colorDst = rowDst.DoReadRaw<Color32>(x);
+
+                    // fully transparent target: we can overwrite with source
+                    if (colorDst.A == 0)
+                    {
+                        rowDst.DoWriteRaw(x, colorSrc);
+                        continue;
+                    }
+
+                    rowDst.DoWriteRaw(x, colorSrc.BlendWithPremultiplied(colorDst));
+                }
+            }
+
+            #endregion
+
+            Action<int> processRow = target.PixelFormat == PixelFormat.Format32bppPArgb
+                ? ProcessRowPremultiplied
+                : (Action<int>)ProcessRowStraight;
+
+            // Sequential processing
+            if (targetRectangle.Width < parallelThreshold)
+            {
+                for (int y = targetRectangle.Top; y < targetRectangle.Bottom; y++)
+                    processRow.Invoke(y);
+                return;
+            }
+
+            // Parallel processing
+            ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, processRow);
+        }
+
+        private static void ResizeNearestNeighborWithDithering(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer)
+        {
+            using var result = new BitmapDataBuffer(targetRectangle.Size);
+
+            // Scaling factors
+            float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
+            float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
+
+            #region Local Methods
+
+            void ProcessRowStraight(int y)
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRow((int)(y * heightFactor + sourceRectangle.Y));
+                IBitmapDataRowInternal rowDst = result.GetRow(y);
+
+                int sourceLeft = sourceRectangle.Left;
+                int width = result.Width;
+                for (int x = 0; x < width; x++)
+                {
+                    Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoSetColor32(x, colorSrc);
+                        continue;
+                    }
+
+                    // source here has a partial transparency: we need to read the target color
+                    Color32 colorDst = rowDst.DoGetColor32(x);
+
+                    // fully transparent target: we can overwrite with source
+                    if (colorDst.A == 0)
+                    {
+                        rowDst.DoSetColor32(x, colorSrc);
+                        continue;
+                    }
+
+                    colorSrc = colorDst.A == Byte.MaxValue
+                        // target pixel is fully solid: simple blending
+                        ? colorSrc.BlendWithBackground(colorDst)
+                        // both source and target pixels are partially transparent: complex blending
+                        : colorSrc.BlendWith(colorDst);
+
+                    rowDst.DoSetColor32(x, colorSrc);
                 }
             }
 
@@ -558,13 +808,15 @@ namespace KGySoft.Drawing.Imaging
             // Sequential processing
             if (targetRectangle.Width < parallelThreshold)
             {
-                for (int y = targetRectangle.Top; y < targetRectangle.Bottom; y++)
-                    ProcessRow(y);
-                return;
+                for (int y = 0; y < targetRectangle.Height; y++)
+                    ProcessRowStraight(y);
             }
-
             // Parallel processing
-            ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, ProcessRow);
+            else
+                ParallelHelper.For(0, targetRectangle.Height, ProcessRowStraight);
+
+            // Drawing result to actual target with dithering
+            target.DrawBitmapData(result, targetRectangle.Location, ditherer);
         }
 
         #endregion

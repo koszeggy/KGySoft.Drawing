@@ -104,9 +104,9 @@ namespace KGySoft.Drawing.Imaging
             if (scalingMode == ScalingMode.NearestNeighbor)
             {
                 if (ditherer == null || !target.PixelFormat.CanBeDithered())
-                    ResizeNearestNeighborDirect(dst, src, actualSourceRectangle, actualTargetRectangle);
+                    ResizeNearestNeighborDirect(src, dst, actualSourceRectangle, actualTargetRectangle);
                 else
-                    ResizeNearestNeighborWithDithering(dst, src, actualSourceRectangle, actualTargetRectangle, ditherer);
+                    ResizeNearestNeighborWithDithering(src, dst, actualSourceRectangle, actualTargetRectangle, ditherer);
 
                 return;
             }
