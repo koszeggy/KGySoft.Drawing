@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
         {
-            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
 
             float inverseAlphaSrc = (255 - src.A) / 255f;
 

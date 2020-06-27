@@ -97,17 +97,26 @@ namespace KGySoft.Drawing.Imaging
             if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
                 return;
 
+            IBitmapDataInternal src = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true);
+            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false);
+
             // Nearest neighbor - shortcut
             if (scalingMode == ScalingMode.NearestNeighbor)
             {
-                ResizeNearestNeighborDirect(target, source, actualSourceRectangle, actualTargetRectangle);
+                if (ditherer == null || !target.PixelFormat.CanBeDithered())
+                    ResizeNearestNeighborDirect(dst, src, actualSourceRectangle, actualTargetRectangle);
+                else
+                    ResizeNearestNeighborWithDithering(dst, src, actualSourceRectangle, actualTargetRectangle, ditherer);
 
                 return;
             }
 
             using (var resizingSession = new ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
             {
-                resizingSession.DoResize(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
+                if (ditherer == null || !target.PixelFormat.CanBeDithered())
+                    resizingSession.DoResizeDirect(actualTargetRectangle.Top, actualTargetRectangle.Bottom);
+                else
+                    resizingSession.DoResizeWithDithering(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
             }
         }
 
@@ -227,14 +236,43 @@ namespace KGySoft.Drawing.Imaging
                 for (int x = 0; x < rectSrc.Width; x++)
                 {
                     int xSrc = x + rectSrc.Left;
-                    rowDst.DoSetColor32(x + locDst.X,
-                        session.GetDitheredColor(rowSrc.DoGetColor32(xSrc), xSrc, ySrc));
+                    Color32 colorSrc = rowSrc.DoGetColor32(xSrc);
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoSetColor32(x + locDst.X, session.GetDitheredColor(colorSrc, xSrc, ySrc));
+                        continue;
+                    }
+
+                    // source here has a partial transparency: we need to read the target color
+                    int xDst = locDst.X + x;
+                    Color32 colorDst = rowDst.DoGetColor32(xDst);
+
+                    // fully transparent target: we can overwrite with source
+                    if (colorDst.A == 0)
+                    {
+                        rowDst.DoSetColor32(xDst, session.GetDitheredColor(colorSrc, xSrc, ySrc));
+                        continue;
+                    }
+
+                    colorSrc = colorDst.A == Byte.MaxValue
+                        // target pixel is fully solid: simple blending
+                        ? colorSrc.BlendWithBackground(colorDst)
+                        // both source and target pixels are partially transparent: complex blending
+                        : colorSrc.BlendWith(colorDst);
+
+                    rowDst.DoSetColor32(xDst, session.GetDitheredColor(colorSrc, xSrc, ySrc));
                 }
             }
 
             #endregion
 
-            IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(source);
+            IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
             using (IQuantizingSession quantizingSession = quantizer.Initialize(source))
             using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
             {
