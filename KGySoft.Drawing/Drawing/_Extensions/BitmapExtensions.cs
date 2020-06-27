@@ -1262,6 +1262,11 @@ namespace KGySoft.Drawing
             return result.ToArray();
         }
 
+        /// <summary>
+        /// Returns a clone of a bitmap in a way that works also on Linux where Image.Clone may return a fully transparent image.
+        /// </summary>
+        internal static Bitmap CloneBitmap(this Bitmap bmp) => bmp.Clone(new Rectangle(Point.Empty, bmp.Size), bmp.PixelFormat);
+
         #endregion
 
         #region Private Methods
