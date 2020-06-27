@@ -196,9 +196,11 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
+            Debug.Assert(backColor.A == 255, "Solid back color is expected");
+
             // The blending is applied only to the color and not the resulting alpha, which is always considered opaque
             if (c.A == 0)
-                return Color32.FromArgb(Byte.MaxValue, backColor);
+                return backColor;
             float alpha = c.A / 255f;
             float inverseAlpha = 1f - alpha;
             return new Color32(Byte.MaxValue,

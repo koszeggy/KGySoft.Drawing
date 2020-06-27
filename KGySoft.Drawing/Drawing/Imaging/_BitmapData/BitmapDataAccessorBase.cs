@@ -133,7 +133,7 @@ namespace KGySoft.Drawing.Imaging
                 && bitmap.Palette.Entries.Zip(palette.Entries, (c1, c2) => new Color32(c1) == c2).All(b => b), "Unmatching palette");
 
             this.bitmap = bitmap;
-            BackColor = backColor;
+            BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
 
             bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);

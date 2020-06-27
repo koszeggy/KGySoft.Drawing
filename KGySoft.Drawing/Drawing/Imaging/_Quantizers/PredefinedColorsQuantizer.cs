@@ -310,7 +310,7 @@ namespace KGySoft.Drawing.Imaging
         private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0)
             : this(quantizingFunction, pixelFormatHint)
         {
-            this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
+            this.backColor = backColor.ToOpaque();
             this.alphaThreshold = alphaThreshold;
             blendAlphaBeforeQuantize = true;
         }

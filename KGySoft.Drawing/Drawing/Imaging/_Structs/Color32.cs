@@ -227,6 +227,12 @@ namespace KGySoft.Drawing.Imaging
         public Color32 ToGray() => FromArgb(A, FromGray(this.GetBrightness()));
 
         /// <summary>
+        /// Gets a <see cref="Color32"/> instance that represents this <see cref="Color32"/> without alpha (transparency).
+        /// </summary>
+        /// <returns>A <see cref="Color32"/> instance that represents this <see cref="Color32"/> without alpha.</returns>
+        public Color32 ToOpaque() => new Color32(Byte.MaxValue, R, G, B);
+
+        /// <summary>
         /// Determines whether the current <see cref="Color32"/> instance is equal to another one.
         /// </summary>
         /// <param name="other">A <see cref="Color32"/> structure to compare with this <see cref="Color32"/> instance.</param>

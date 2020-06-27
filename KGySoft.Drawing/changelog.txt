@@ -17,6 +17,9 @@
   + New ToBitmap overload with keepAspectRatio parameter
 + New ScalingMode enum for BitmapExtensions.Resize
 
++ KGySoft.Drawing.Imaging namespace:
+====================================
++ Color32 struct: new ToOpaque method
 
 ~~~~~~~~~
 ! v5.1.0:
