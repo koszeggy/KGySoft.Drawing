@@ -237,6 +237,14 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
         }
 
+        internal BitmapDataBuffer(IReadableBitmapData source)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            buffer = new Array2D<Color32>(source.Height, source.Width);
+            this.DrawBitmapData(source, Point.Empty);
+        }
+
         #endregion
 
         #region Methods

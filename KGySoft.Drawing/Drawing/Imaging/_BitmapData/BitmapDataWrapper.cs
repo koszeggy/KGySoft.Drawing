@@ -88,7 +88,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        public void Dispose() => bitmapData.Dispose();
+        public void Dispose()
+        {
+            // not disposing the wrapped instance here, which is intended
+        }
+
         public Color GetPixel(int x, int y) => readableBitmapData.GetPixel(x, y);
         public void SetPixel(int x, int y, Color color) => writableBitmapData.SetPixel(x, y, color);
 

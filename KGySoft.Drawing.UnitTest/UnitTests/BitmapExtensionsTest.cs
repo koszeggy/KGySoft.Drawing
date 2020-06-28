@@ -219,7 +219,6 @@ namespace KGySoft.Drawing.UnitTests
         [Test]
         public void ResizeNoDrawImageTest()
         {
-            throw new NotImplementedException("TODO: check");
             using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
             var newSize = new Size(256, 64);
             using var resizedNoAspectRatio = bmpRef.Resize(newSize, ScalingMode.Auto, false);
@@ -304,8 +303,6 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format1bppIndexed)]
         public void ResizeNoDrawImageByFormatTest(PixelFormat pixelFormat)
         {
-            throw new NotImplementedException("TODO: check");
-
             using var bmpRef = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat);
             var newSize = new Size(256, 64);
             using var resized = bmpRef.Resize(newSize, ScalingMode.Auto);

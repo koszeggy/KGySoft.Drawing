@@ -23,7 +23,13 @@
 
 + KGySoft.Drawing.Imaging namespace:
 ====================================
++ New WritableBitmapDataExtensions class to provide some drawing methods for IWritableBitmapData instances.
 + Color32 struct: new ToOpaque method
++ IBitmapData interface: The BackColor and AlphaThreshold properties that can be specified when obtaining the bitmap
+  data are now exposed also by this interface.
++ PredefinedColorsQuantizer class:
+  + The FromBitmapData method has been made public
+
 
 ~~~~~~~~~
 ! v5.1.0:

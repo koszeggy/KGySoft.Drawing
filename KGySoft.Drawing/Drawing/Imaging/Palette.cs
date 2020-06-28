@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 
@@ -125,7 +124,7 @@ namespace KGySoft.Drawing.Imaging
         public Palette(Color32[] entries, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, int> customGetNearestColorIndex = null)
         {
             Entries = entries ?? throw new ArgumentNullException(nameof(entries), PublicResources.ArgumentNull);
-            BackColor = Color32.FromArgb(Byte.MaxValue, backColor);
+            BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
 
             // initializing color32ToIndex, which is the 1st level of caching

@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -32,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
     /// Credit to ImageSharp resize, on which this code partially based on (see https://github.com/SixLabors/ImageSharp/tree/master/src/ImageSharp/Processing/Processors/Transforms/Resize)
     /// ImageSharp is under the GNU Affero General Public License v3.0, which is available here: https://www.gnu.org/licenses/agpl-3.0.html
     /// </summary>
-    internal static partial class WritableBitmapDataExtensions
+    public static partial class WritableBitmapDataExtensions
     {
         #region Nested Types
         
@@ -582,6 +583,8 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Fields
 
+            [SuppressMessage("Style", "IDE0044:Add readonly modifier",
+                Justification = "False alarm, dispose mutates instance, and if it was read-only, a defensive copy would be created")]
             private ArraySection<float> kernelBuffer;
 
             #endregion
@@ -761,7 +764,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Local Methods
 
-            void ProcessRowStraight(int y)
+            void ProcessRow(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRow((int)(y * heightFactor + sourceRectangle.Y));
                 IBitmapDataRowInternal rowDst = result.GetRow(y);
@@ -809,11 +812,11 @@ namespace KGySoft.Drawing.Imaging
             if (targetRectangle.Width < parallelThreshold)
             {
                 for (int y = 0; y < targetRectangle.Height; y++)
-                    ProcessRowStraight(y);
+                    ProcessRow(y);
             }
             // Parallel processing
             else
-                ParallelHelper.For(0, targetRectangle.Height, ProcessRowStraight);
+                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
 
             // Drawing result to actual target with dithering
             target.DrawBitmapData(result, targetRectangle.Location, ditherer);

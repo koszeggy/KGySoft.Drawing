@@ -1,9 +1,33 @@
-﻿using System;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: ScalingModeExtensions.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {
     internal static class ScalingModeExtensions
     {
+        #region Methods
+
+        #region Internal Methods
+
         internal static (float, Func<float, float>) GetInterpolation(this ScalingMode scalingMode)
         {
             switch (scalingMode)
@@ -33,6 +57,10 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        #endregion
+
+        #region Private Methods
+
         private static float BoxInterpolation(float value) => value > -0.5f && value <= 0.5f ? 1f : 0f;
 
         private static float BilinearInterpolation(float value)
@@ -59,6 +87,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         private static float Lanczos2Interpolation(float value) => LanczosInterpolation(value, 2f);
+
         private static float Lanczos3Interpolation(float value) => LanczosInterpolation(value, 3f);
 
         private static float CubicInterpolation(float value, float bspline, float cardinal)
@@ -89,8 +118,11 @@ namespace KGySoft.Drawing.Imaging
         }
 
         private static float SplineInterpolation(float value) => CubicInterpolation(value, 1f, 0f);
+
         private static float CatmullRomInterpolation(float value) => CubicInterpolation(value, 0f, 0.5f);
+
         private static float MitchellNetravaliInterpolation(float value) => CubicInterpolation(value, 0.33333333f, 0.33333333f);
+
         private static float RobidouxInterpolation(float value) => CubicInterpolation(value, 0.37821576f, 0.310892122f);
 
         /// <summary>
@@ -103,8 +135,13 @@ namespace KGySoft.Drawing.Imaging
             return (float)(Math.Sin(d) / d);
 #else
             x *= MathF.PI;
-            return MathF.Sin(x) / x; 
+            return MathF.Sin(x) / x;
 #endif
+
         }
+
+        #endregion
+
+        #endregion
     }
 }

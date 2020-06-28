@@ -79,9 +79,18 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         int RowSize { get; }
 
-        // TODO: desc, changelog
+        /// <summary>
+        /// Gets the background color. When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, it specifies the color of the background.
+        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method for details and examples.
+        /// </summary>
         Color32 BackColor { get; }
 
+        /// <summary>
+        /// If this <see cref="IBitmapData"/> represents a bitmap with single bit alpha or with a palette that has a transparent color,
+        /// then gets a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
+        /// then the pixels to be set will never be transparent.
+        /// </summary>
         byte AlphaThreshold { get; }
 
         #endregion

@@ -16,7 +16,9 @@
 
 #region Usings
 
-using System;
+using System.Drawing;
+
+using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
 
@@ -25,14 +27,32 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class WritableBitmapDataExtensionsTest
+    public class WritableBitmapDataExtensionsTest : TestBase
     {
         #region Methods
 
         [Test]
-        public void DrawBitmapDataOverlappingTest()
+        public void DrawBitmapDataSameInstanceOverlappingTest()
         {
-            throw new NotImplementedException("TODO: DrawBitmapData");
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
+            {
+                Assert.DoesNotThrow(() => bitmapData.DrawBitmapData(bitmapData, new Point(64, 64)));
+            }
+
+            SaveImage("result", bmp);
+        }
+
+        [Test]
+        public void DrawBitmapDataWithResizeSameInstanceOverlappingTest()
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
+            {
+                Assert.DoesNotThrow(() => bitmapData.DrawBitmapData(bitmapData, new Rectangle(64, 64, 64, 64)));
+            }
+
+            SaveImage("result", bmp);
         }
 
         #endregion
