@@ -1,9 +1,30 @@
-﻿using KGySoft.CoreLibraries;
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: WritableBitmapDataExtensions.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Security;
+
+using KGySoft.CoreLibraries;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {
@@ -17,6 +38,10 @@ namespace KGySoft.Drawing.Imaging
         private const int parallelThreshold = 100;
 
         #endregion
+
+        #region Methods
+
+        #region Public Methods
 
         public static void DrawImage(this IWritableBitmapData target, Image image, Point targetLocation, IDitherer ditherer = null)
             => DrawImage(target, image, new Rectangle(Point.Empty, image?.Size ?? default), targetLocation, ditherer);
@@ -77,6 +102,12 @@ namespace KGySoft.Drawing.Imaging
         public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
             => DrawBitmapData(target, source, new Rectangle(Point.Empty, new Size(source?.Width ?? default, source?.Height ?? default)), targetRectangle, scalingMode, ditherer);
 
+        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle targetRectangle, IDitherer ditherer)
+            => DrawBitmapData(target, source, new Rectangle(Point.Empty, new Size(source?.Width ?? default, source?.Height ?? default)), targetRectangle, ScalingMode.Auto, ditherer);
+
+        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer)
+            => DrawBitmapData(target, source, sourceRectangle, targetRectangle, ScalingMode.Auto, ditherer);
+
         public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
         {
             // no scaling is necessary
@@ -119,6 +150,10 @@ namespace KGySoft.Drawing.Imaging
                     resizingSession.DoResizeWithDithering(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
             }
         }
+
+        #endregion
+
+        #region Private Methods
 
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
@@ -174,8 +209,8 @@ namespace KGySoft.Drawing.Imaging
                 for (int x = 0; x < rectSrc.Width; x++)
                 {
                     Color32 colorSrc = isPremultipliedSource
-                        ? rowSrc.DoReadRaw<Color32>(rectSrc.X + x)
-                        : rowSrc.DoGetColor32(rectSrc.X + x).ToPremultiplied();
+                            ? rowSrc.DoReadRaw<Color32>(rectSrc.X + x)
+                            : rowSrc.DoGetColor32(rectSrc.X + x).ToPremultiplied();
 
                     // fully transparent source: skip
                     if (colorSrc.A == 0)
@@ -206,8 +241,8 @@ namespace KGySoft.Drawing.Imaging
             #endregion
 
             Action<int, IBitmapDataInternal, IBitmapDataInternal, Rectangle, Point> processRow = target.PixelFormat == PixelFormat.Format32bppPArgb
-                ? (Action<int, IBitmapDataInternal, IBitmapDataInternal, Rectangle, Point>)ProcessRowPremultiplied
-                : ProcessRowStraight;
+                    ? (Action<int, IBitmapDataInternal, IBitmapDataInternal, Rectangle, Point>)ProcessRowPremultiplied
+                    : ProcessRowStraight;
 
             // Sequential processing
             if (sourceRect.Width < parallelThreshold)
@@ -359,5 +394,9 @@ namespace KGySoft.Drawing.Imaging
 
             return (actualSourceRectangle, actualTargetRectangle);
         }
+
+        #endregion
+
+        #endregion
     }
 }

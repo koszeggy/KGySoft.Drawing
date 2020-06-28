@@ -106,20 +106,20 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, converted);
         }
 
-        //[TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
-        //[TestCase("32bpp PARGB to 32bpp PARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppPArgb)]
-        //[TestCase("32bpp ARGB to 32bpp RGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppRgb)]
-        //[TestCase("32bpp RGB to 32bpp ARGB", PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
-        //[TestCase("32bpp ARGB to 32bpp PARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb)]
-        //[TestCase("32bpp PARGB to 32bpp ARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
-        //[TestCase("32bpp ARGB to 16bpp Grayscale", PixelFormat.Format32bppArgb, PixelFormat.Format16bppGrayScale)]
-        //[TestCase("32bpp ARGB to 16bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format16bppArgb1555)]
-        //[TestCase("32bpp ARGB to 8bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed)]
-        //[TestCase("32bpp ARGB to 4bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format4bppIndexed)]
+        [TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp PARGB to 32bpp PARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppPArgb)]
+        [TestCase("32bpp ARGB to 32bpp RGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppRgb)]
+        [TestCase("32bpp RGB to 32bpp ARGB", PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp ARGB to 32bpp PARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb)]
+        [TestCase("32bpp PARGB to 32bpp ARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp ARGB to 16bpp Grayscale", PixelFormat.Format32bppArgb, PixelFormat.Format16bppGrayScale)]
+        [TestCase("32bpp ARGB to 16bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format16bppArgb1555)]
+        [TestCase("32bpp ARGB to 8bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed)]
+        [TestCase("32bpp ARGB to 4bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format4bppIndexed)]
         [TestCase("32bpp ARGB to 1bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed)]
-        //[TestCase("64bpp ARGB to 64bpp ARGB", PixelFormat.Format64bppArgb, PixelFormat.Format64bppArgb)]
-        //[TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
-        public void DrawIntoTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
+        [TestCase("64bpp ARGB to 64bpp ARGB", PixelFormat.Format64bppArgb, PixelFormat.Format64bppArgb)]
+        [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
+        public void DrawIntoNoScalingTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
             if (!formatSrc.IsSupported())
                 Assert.Inconclusive($"Pixel format is not supported: {formatSrc}");
@@ -149,7 +149,7 @@ namespace KGySoft.Drawing.UnitTests
 
         [TestCase("32bpp ARGB to 1bpp Indexed ErrorDiffusion", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed, true)]
         [TestCase("32bpp ARGB to 1bpp Indexed Ordered", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed, false)]
-        public void DrawIntoWithDitheringTest(string testName, PixelFormat formatSrc, PixelFormat formatDst, bool errorDiffusion)
+        public void DrawIntoNoScalingWithDitheringTest(string testName, PixelFormat formatSrc, PixelFormat formatDst, bool errorDiffusion)
         {
             Size targetSize = new Size(300, 300);
             Size sourceSize = new Size(300, 300);
@@ -173,11 +173,19 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, bmpDst);
         }
 
+        [Test]
+        public void DrawIntoNoScalingSameInstanceTest()
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.DoesNotThrow(() => bmp.DrawInto(bmp, new Point(128, 128)));
+            SaveImage("result", bmp);
+        }
+
         [TestCase(256, ScalingMode.Bicubic)]
         [TestCase(16, ScalingMode.Bicubic)]
         [TestCase(256, ScalingMode.NearestNeighbor)]
         [TestCase(16, ScalingMode.NearestNeighbor)]
-        public void DrawIntoWithResizeTest(int size, ScalingMode scalingMode)
+        public void DrawIntoWithResizeTargetOutOfBoundsTest(int size, ScalingMode scalingMode)
         {
             var sourceSize = new Size(size, size);
             var targetSize = new Size(100, 100);
@@ -225,7 +233,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(16, ScalingMode.Bicubic)]
         [TestCase(256, ScalingMode.NearestNeighbor)]
         [TestCase(16, ScalingMode.NearestNeighbor)]
-        public void DrawIntoWithResizeTooLargeSourceRectangleTest(int size, ScalingMode scalingMode)
+        public void DrawIntoWithResizeSourceOutOfBoundsTest(int size, ScalingMode scalingMode)
         {
             var sourceSize = new Size(size, size);
             var targetSize = new Size(256, 256);
@@ -287,6 +295,14 @@ namespace KGySoft.Drawing.UnitTests
             targetRect = new Rectangle(160, 160, 100, 100);
             Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto(bmpDst, targetRect, scalingMode, ditherer));
             SaveImage(testName, bmpDst);
+        }
+
+        [Test]
+        public void DrawIntoWithResizeSameInstanceTest()
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.DoesNotThrow(() => bmp.DrawInto(bmp, new Rectangle(128, 128, 100, 100)));
+            SaveImage("result", bmp);
         }
 
         [Test]

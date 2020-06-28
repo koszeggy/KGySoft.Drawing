@@ -14,10 +14,12 @@
 + BitmapExtensions class:
   + New Resize overload that does not use Graphics.DrawImage internally.
 * ImageExtensions class:
-  - DrawInto methods: Using alpha blending even if a ditherer is used for the drawing.
+  * DrawInto methods:
+    + New overloads that allow resizing.
+    - Using alpha blending even if a ditherer is used for the drawing.
 + MetafileExtensions class:
   + New ToBitmap overload with keepAspectRatio parameter
-+ New ScalingMode enum for BitmapExtensions.Resize
++ New ScalingMode enum for Resize, DrawInto, DrawImage and DrawBitmapData extension methods
 
 + KGySoft.Drawing.Imaging namespace:
 ====================================
