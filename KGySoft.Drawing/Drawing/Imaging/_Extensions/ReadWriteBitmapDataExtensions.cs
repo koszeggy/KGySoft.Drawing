@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: WritableBitmapDataExtensions.cs
+//  File: ReadWriteBitmapDataExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -29,9 +29,9 @@ using KGySoft.CoreLibraries;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="IWritableBitmapData"/> type.
+    /// Contains extension methods for the <see cref="IReadWriteBitmapData"/> type.
     /// </summary>
-    public static partial class WritableBitmapDataExtensions
+    public static partial class ReadWriteBitmapDataExtensions
     {
         #region Constants
 
@@ -43,31 +43,31 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        //public static void DrawImage(this IWritableBitmapData target, Image image, Point targetLocation, IDitherer ditherer = null)
+        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Point targetLocation, IDitherer ditherer = null)
         //    => DrawImage(target, image, new Rectangle(Point.Empty, image?.Size ?? default), targetLocation, ditherer);
 
-        //public static void DrawImage(this IWritableBitmapData target, Image image, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
+        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
         //{
         //    throw new NotImplementedException("TODO");
         //}
 
-        //public static void DrawImage(this IWritableBitmapData target, Image image, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
         //    => DrawImage(target, image, new Rectangle(Point.Empty, image?.Size ?? default), targetRectangle, scalingMode, ditherer);
 
-        //public static void DrawImage(this IWritableBitmapData target, Image image, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
         //{
         //    throw new NotImplementedException("TODO");
         //}
 
         /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> without scaling
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> without scaling
         /// (for scaling use the overloads with <c>targetRectangle</c> parameter). This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
         /// except that this one guarantees that the image preserves its size in pixels and that it works between any pair of source and target <see cref="PixelFormat"/>s.
         /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
         /// and also an optional <paramref name="ditherer"/> can be specified.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
@@ -79,18 +79,18 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This overload does not resize the image even if <paramref name="source"/> and <paramref name="target"/> have different DPI resolution.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Point targetLocation, IDitherer ditherer = null)
+        public static void DrawBitmapData(this IReadWriteBitmapData target, IReadableBitmapData source, Point targetLocation, IDitherer ditherer = null)
             => DrawBitmapData(target, source, new Rectangle(Point.Empty, new Size(source?.Width ?? default, source?.Height ?? default)), targetLocation, ditherer);
 
         /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> without scaling
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> without scaling
         /// (for scaling use the overloads with <c>targetRectangle</c> parameter). This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
         /// except that this one guarantees that the image preserves its size in pixels and that it works between any pair of source and target <see cref="PixelFormat"/>s.
         /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
         /// and also an optional <paramref name="ditherer"/> can be specified.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="sourceRectangle">The source area to be drawn into the <paramref name="target"/>.</param>
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
@@ -104,7 +104,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
-        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
+        public static void DrawBitmapData(this IReadWriteBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
@@ -121,8 +121,8 @@ namespace KGySoft.Drawing.Imaging
             // Cloning source if target and source are the same and source/target rectangles overlap
             IBitmapDataInternal src = ReferenceEquals(source, target) && actualSourceRectangle.IntersectsWith(actualTargetRectangle)
                 ? new BitmapDataBuffer(source)
-                : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true);
-            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false);
+                : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
 
             try
             {
@@ -141,14 +141,14 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> with possible scaling.
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
         /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
         /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
         /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
         /// and also an optional <paramref name="ditherer"/> can be specified.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="targetRectangle">The target area to be drawn the source image.</param>
         /// <param name="scalingMode">Specifies the scaling mode if the image to be drawn needs to be resized. This parameter is optional.
@@ -162,18 +162,18 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        public static void DrawBitmapData(this IReadWriteBitmapData target, IReadableBitmapData source, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
             => DrawBitmapData(target, source, new Rectangle(Point.Empty, new Size(source?.Width ?? default, source?.Height ?? default)), targetRectangle, scalingMode, ditherer);
 
         /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> with possible scaling.
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
         /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
         /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
         /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
         /// and also an optional <paramref name="ditherer"/> can be specified.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="targetRectangle">The target area to be drawn the source image.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size.
@@ -183,18 +183,18 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> is exceeds target bounds.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle targetRectangle, IDitherer ditherer)
+        public static void DrawBitmapData(this IReadWriteBitmapData target, IReadableBitmapData source, Rectangle targetRectangle, IDitherer ditherer)
             => DrawBitmapData(target, source, new Rectangle(Point.Empty, new Size(source?.Width ?? default, source?.Height ?? default)), targetRectangle, ScalingMode.Auto, ditherer);
 
         /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> with possible scaling.
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
         /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
         /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
         /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
         /// and also an optional <paramref name="ditherer"/> can be specified.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="sourceRectangle">The source area to be drawn into the <paramref name="target"/>.</param>
         /// <param name="targetRectangle">The target area to be drawn the source image.</param>
@@ -205,18 +205,18 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer)
+        public static void DrawBitmapData(this IReadWriteBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer)
             => DrawBitmapData(target, source, sourceRectangle, targetRectangle, ScalingMode.Auto, ditherer);
 
         /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> with possible scaling.
+        /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
         /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
         /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
         /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
         /// and also an optional <paramref name="ditherer"/> can be specified.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="target">The target <see cref="IWritableBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="target">The target <see cref="IReadWriteBitmapData"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="sourceRectangle">The source area to be drawn into the <paramref name="target"/>.</param>
         /// <param name="targetRectangle">The target area to be drawn the source image.</param>
@@ -232,7 +232,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
-        public static void DrawBitmapData(this IWritableBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        public static void DrawBitmapData(this IReadWriteBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
         {
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
@@ -257,8 +257,8 @@ namespace KGySoft.Drawing.Imaging
             // Cloning source if target and source are the same and source/target rectangles overlap
             IBitmapDataInternal src = ReferenceEquals(source, target) && actualSourceRectangle.IntersectsWith(actualTargetRectangle)
                 ? new BitmapDataBuffer(source)
-                : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true);
-            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false);
+                : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
 
             try
             {

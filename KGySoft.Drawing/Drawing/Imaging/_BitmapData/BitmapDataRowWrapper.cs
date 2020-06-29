@@ -16,7 +16,6 @@
 
 #region Usings
 
-using System.Diagnostics;
 using System.Drawing;
 
 #endregion
@@ -55,13 +54,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal BitmapDataRowWrapper(IBitmapDataRow row, bool isReading)
+        internal BitmapDataRowWrapper(IBitmapDataRow row, bool isReading, bool isWriting)
         {
-            Debug.Assert(!(row is IBitmapDataRowInternal), "No wrapping is needed");
             this.row = row;
             if (isReading)
                 readableBitmapDataRow = (IReadableBitmapDataRow)row;
-            else
+            if (isWriting)
                 writableBitmapDataRow = (IWritableBitmapDataRow)row;
         }
 

@@ -802,7 +802,7 @@ namespace KGySoft.Drawing
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IWritableBitmapData dst = target.GetWritableBitmapData())
+                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                     dst.DrawBitmapData(src, sourceRectangle, targetLocation, ditherer);
             }
             finally
@@ -937,7 +937,7 @@ namespace KGySoft.Drawing
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IWritableBitmapData dst = target.GetWritableBitmapData())
+                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                 {
                     dst.DrawBitmapData(src, sourceRectangle, targetRectangle, scalingMode, ditherer);
                 }

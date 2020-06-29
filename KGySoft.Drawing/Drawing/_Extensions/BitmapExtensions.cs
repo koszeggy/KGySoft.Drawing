@@ -148,7 +148,7 @@ namespace KGySoft.Drawing
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             using (IReadableBitmapData src = image.GetReadableBitmapData())
-            using (IWritableBitmapData dst = result.GetWritableBitmapData())
+            using (IReadWriteBitmapData dst = result.GetReadWriteBitmapData())
                 dst.DrawBitmapData(src, new Rectangle(Point.Empty, sourceSize), targetRectangle, scalingMode);
             
             return result;
@@ -952,7 +952,6 @@ namespace KGySoft.Drawing
 
             bitmap.TransformColors(Transform, ditherer, backColor, 0);
         }
-
 
         /// <summary>
         /// Makes a <paramref name="bitmap"/> grayscale.

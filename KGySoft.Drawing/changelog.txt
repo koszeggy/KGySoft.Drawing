@@ -6,10 +6,10 @@
 ===============================================================================
 
 ~~~~~~~~~
-+ v5.2.0:
+! v5.2.0:
 ~~~~~~~~~
 
-+ KGySoft.Drawing namespace:
+* KGySoft.Drawing namespace:
 ============================
 + BitmapExtensions class:
   + New Resize overload that does not use Graphics.DrawImage internally.
@@ -21,12 +21,11 @@
   + New ToBitmap overload with keepAspectRatio parameter
 + New ScalingMode enum for Resize, DrawInto, DrawImage and DrawBitmapData extension methods
 
-+ KGySoft.Drawing.Imaging namespace:
+! KGySoft.Drawing.Imaging namespace:
 ====================================
-+ New WritableBitmapDataExtensions class to provide some drawing methods for IWritableBitmapData instances.
+! IBitmapData interface: New BackColor and AlphaThreshold properties.
++ New ReadWriteBitmapDataExtensions class to provide some drawing methods for IReadWriteBitmapData instances.
 + Color32 struct: new ToOpaque method
-+ IBitmapData interface: The BackColor and AlphaThreshold properties that can be specified when obtaining the bitmap
-  data are now exposed also by this interface.
 + PredefinedColorsQuantizer class:
   + The FromBitmapData method has been made public
 

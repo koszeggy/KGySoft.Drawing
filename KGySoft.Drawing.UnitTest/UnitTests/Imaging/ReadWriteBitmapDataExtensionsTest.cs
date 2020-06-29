@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: WritableBitmapDataExtensionsTest.cs
+//  File: ReadWriteBitmapDataExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -27,7 +27,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class WritableBitmapDataExtensionsTest : TestBase
+    public class ReadWriteBitmapDataExtensionsTest : TestBase
     {
         #region Methods
 

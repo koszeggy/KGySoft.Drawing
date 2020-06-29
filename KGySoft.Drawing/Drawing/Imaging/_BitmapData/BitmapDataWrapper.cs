@@ -16,7 +16,6 @@
 
 #region Usings
 
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -24,14 +23,19 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Provides a wrapper for custom <see cref="IBitmapData"/> implementations that do not implement <see cref="IBitmapDataInternal"/>.
+    /// </summary>
     internal class BitmapDataWrapper : IBitmapDataInternal
     {
         #region Fields
 
         private readonly IBitmapData bitmapData;
+        private readonly bool isReading;
+        private readonly bool isWriting;
         private readonly IReadableBitmapData readableBitmapData;
         private readonly IWritableBitmapData writableBitmapData;
-        private readonly bool isReading;
+        private readonly IReadWriteBitmapData readWriteBitmapData;
 
         #endregion
 
@@ -55,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
 
         IReadableBitmapDataRow IReadableBitmapData.FirstRow => readableBitmapData.FirstRow;
         IWritableBitmapDataRow IWritableBitmapData.FirstRow => writableBitmapData.FirstRow;
-        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => default;
+        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => readWriteBitmapData.FirstRow;
 
         #endregion
 
@@ -65,7 +69,7 @@ namespace KGySoft.Drawing.Imaging
 
         IReadableBitmapDataRow IReadableBitmapData.this[int y] => readableBitmapData[y];
         IWritableBitmapDataRow IWritableBitmapData.this[int y] => writableBitmapData[y];
-        IReadWriteBitmapDataRow IReadWriteBitmapData.this[int y] => default;
+        IReadWriteBitmapDataRow IReadWriteBitmapData.this[int y] => readWriteBitmapData[y];
 
         #endregion
 
@@ -73,14 +77,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal BitmapDataWrapper(IBitmapData bitmapData, bool isReading)
+        internal BitmapDataWrapper(IBitmapData bitmapData, bool isReading, bool isWriting)
         {
             Debug.Assert(!(bitmapData is IBitmapDataInternal), "No wrapping is needed");
+
             this.bitmapData = bitmapData;
             this.isReading = isReading;
+            this.isWriting = isWriting;
+            if (isReading && isWriting)
+                readWriteBitmapData = (IReadWriteBitmapData)bitmapData;
             if (isReading)
                 readableBitmapData = (IReadableBitmapData)bitmapData;
-            else
+            if (isWriting)
                 writableBitmapData = (IWritableBitmapData)bitmapData;
         }
 
@@ -96,9 +104,7 @@ namespace KGySoft.Drawing.Imaging
         public Color GetPixel(int x, int y) => readableBitmapData.GetPixel(x, y);
         public void SetPixel(int x, int y, Color color) => writableBitmapData.SetPixel(x, y, color);
 
-        public IBitmapDataRowInternal GetRow(int y) => isReading
-            ? new BitmapDataRowWrapper(readableBitmapData[y], true)
-            : new BitmapDataRowWrapper(writableBitmapData[y], false);
+        public IBitmapDataRowInternal GetRow(int y) => new BitmapDataRowWrapper(isReading ? readableBitmapData[y] : (IBitmapDataRow)writableBitmapData[y], isReading, isWriting);
 
         #endregion
     }

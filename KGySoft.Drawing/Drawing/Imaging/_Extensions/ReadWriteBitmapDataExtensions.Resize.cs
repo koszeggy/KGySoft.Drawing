@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: WritableBitmapDataExtensions.Resize.cs
+//  File: ReadWriteBitmapDataExtensions.Resize.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
     /// Credit to ImageSharp resize, on which this code partially based on (see https://github.com/SixLabors/ImageSharp/tree/master/src/ImageSharp/Processing/Processors/Transforms/Resize)
     /// ImageSharp is under the GNU Affero General Public License v3.0, which is available here: https://www.gnu.org/licenses/agpl-3.0.html
     /// </summary>
-    public static partial class WritableBitmapDataExtensions
+    public static partial class ReadWriteBitmapDataExtensions
     {
         #region Nested Types
         
@@ -60,10 +60,10 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal ResizingSession(IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
+            internal ResizingSession(IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
             {
-                this.source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true);
-                this.target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false);
+                this.source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+                this.target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
                 this.sourceRectangle = sourceRectangle;
                 this.targetRectangle = targetRectangle;
                 if (scalingMode == ScalingMode.Auto)

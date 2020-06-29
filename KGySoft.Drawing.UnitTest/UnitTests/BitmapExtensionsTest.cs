@@ -534,16 +534,17 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(pixelFormat.ToString(), bmp);
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, false)]
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, true)]
-        public void ClearWithDitheringTest(PixelFormat pixelFormat, uint argb, bool errorDiffusion)
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, false, false)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, true, false)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, true, true)]
+        public void ClearWithDitheringTest(PixelFormat pixelFormat, uint argb, bool errorDiffusion, bool serpentine)
         {
             const int size = 17;
             Color color = Color.FromArgb((int)argb);
 
             using var bmp = new Bitmap(size, size, pixelFormat);
-            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8);
-            SaveImage($"{pixelFormat} {(errorDiffusion ? "Error diffusion" : "Ordered")}", bmp);
+            bmp.Clear(color, errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(serpentine) : OrderedDitherer.Bayer8x8);
+            SaveImage($"{pixelFormat} {(errorDiffusion ? $"Error diffusion {(serpentine ? "serpentine" : "raster")}" : "Ordered")}", bmp);
         }
 
         [Test]
@@ -554,15 +555,15 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(null, bmp);
         }
 
-        [TestCase("Inverting 32 bit ARGB", PixelFormat.Format32bppArgb, false)]
-        [TestCase("Inverting 8 bit by palette", PixelFormat.Format8bppIndexed, false)]
+        //[TestCase("Inverting 32 bit ARGB", PixelFormat.Format32bppArgb, false)]
+        //[TestCase("Inverting 8 bit by palette", PixelFormat.Format8bppIndexed, false)]
         [TestCase("Inverting 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
         public void TransformColors(string testName, PixelFormat pixelFormat, bool useDithering)
         {
             static Color32 Transform(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
 
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.TransformColors(Transform, useDithering ? OrderedDitherer.Bayer8x8 : null));
+            Assert.DoesNotThrow(() => bmp.TransformColors(Transform, useDithering ? ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) : null));
             SaveImage(testName, bmp);
         }
 
