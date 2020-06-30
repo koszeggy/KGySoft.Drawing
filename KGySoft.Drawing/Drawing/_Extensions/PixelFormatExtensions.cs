@@ -54,18 +54,6 @@ namespace KGySoft.Drawing
         public static int ToBitsPerPixel(this PixelFormat pixelFormat) => ((int)pixelFormat >> 8) & 0xFF;
 
         /// <summary>
-        /// Gets whether this <see cref="PixelFormat"/> instance represents an indexed format.
-        /// </summary>
-        /// <param name="pixelFormat">The pixel format to be checked.</param>
-        /// <returns><see langword="true"/>, if this <see cref="PixelFormat"/> instance represents an indexed format; otherwise, <see langword="false"/>.</returns>
-        /// <remarks>
-        /// <note>This method does not check whether the specified <paramref name="pixelFormat"/> represents a valid value.</note>
-        /// </remarks>
-        internal static bool IsIndexed(this PixelFormat pixelFormat)
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
-
-        /// <summary>
         /// Gets whether this <see cref="PixelFormat"/> instance represents a valid format.
         /// The valid format values are the ones, whose name starts with <c>Format</c>.
         /// </summary>
@@ -76,7 +64,8 @@ namespace KGySoft.Drawing
             => pixelFormat != PixelFormat.Max && (pixelFormat & PixelFormat.Max) != 0 && pixelFormat.IsDefined();
 
         /// <summary>
-        /// Gets whether the specified <paramref name="pixelFormat"/> is supported on the current operating system.
+        /// Gets whether the specified <paramref name="pixelFormat"/> is supported natively on the current operating system.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="pixelFormat">The pixel format to check.</param>
         /// <returns><see langword="true"/>, if the specified <paramref name="pixelFormat"/> is supported on the current operating system; otherwise, <see langword="false"/>.</returns>
@@ -88,7 +77,7 @@ namespace KGySoft.Drawing
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong>
         /// section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
-        public static bool IsSupported(this PixelFormat pixelFormat)
+        public static bool IsSupportedNatively(this PixelFormat pixelFormat)
         {
             if (!pixelFormat.IsValidFormat())
                 return false;
@@ -123,6 +112,18 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
+        /// <summary>
+        /// Gets whether this <see cref="PixelFormat"/> instance represents an indexed format.
+        /// </summary>
+        /// <param name="pixelFormat">The pixel format to be checked.</param>
+        /// <returns><see langword="true"/>, if this <see cref="PixelFormat"/> instance represents an indexed format; otherwise, <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <note>This method does not check whether the specified <paramref name="pixelFormat"/> represents a valid value.</note>
+        /// </remarks>
+        internal static bool IsIndexed(this PixelFormat pixelFormat)
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
+
         internal static bool HasTransparency(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
@@ -134,7 +135,7 @@ namespace KGySoft.Drawing
         {
             if (OSUtils.IsWindows)
                 return pixelFormat != PixelFormat.Format16bppGrayScale;
-            return !pixelFormat.In(PixelFormat.Format16bppRgb555, PixelFormat.Format16bppRgb565) && pixelFormat.IsSupported();
+            return !pixelFormat.In(PixelFormat.Format16bppRgb555, PixelFormat.Format16bppRgb565) && pixelFormat.IsSupportedNatively();
         }
 
         #endregion

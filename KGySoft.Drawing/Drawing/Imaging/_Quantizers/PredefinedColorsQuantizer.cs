@@ -19,7 +19,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 
 #endregion
 
@@ -137,9 +136,6 @@ namespace KGySoft.Drawing.Imaging
         private static Color32[] grayscale16Palette;
         private static Color32[] grayscale4Palette;
         private static Color32[] blackAndWhitePalette;
-        private static Color32[] system8BppPalette;
-        private static Color32[] system4BppPalette;
-        private static Color32[] system1BppPalette;
 
         #endregion
 
@@ -228,42 +224,6 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 return grayscale4Palette = result;
-            }
-        }
-
-        private static Color32[] System8BppPalette
-        {
-            get
-            {
-                if (system8BppPalette != null)
-                    return system8BppPalette;
-
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
-                    return system8BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
-            }
-        }
-
-        private static Color32[] System4BppPalette
-        {
-            get
-            {
-                if (system4BppPalette != null)
-                    return system4BppPalette;
-
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format4bppIndexed))
-                    return system4BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
-            }
-        }
-
-        private static Color32[] System1BppPalette
-        {
-            get
-            {
-                if (system1BppPalette != null)
-                    return system1BppPalette;
-
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format1bppIndexed))
-                    return system1BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
             }
         }
 
@@ -1214,7 +1174,7 @@ namespace KGySoft.Drawing.Imaging
         /// </list></para>
         /// </example>
         public static PredefinedColorsQuantizer SystemDefault8BppPalette(Color backColor = default, byte alphaThreshold = 128)
-            => new PredefinedColorsQuantizer(System8BppPalette, new Color32(backColor), alphaThreshold);
+            => new PredefinedColorsQuantizer(Palette.System8BppPalette, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 4-bit palette.
@@ -1297,7 +1257,7 @@ namespace KGySoft.Drawing.Imaging
         /// </list></para>
         /// </example>
         public static PredefinedColorsQuantizer SystemDefault4BppPalette(Color backColor = default)
-            => new PredefinedColorsQuantizer(System4BppPalette, new Color32(backColor));
+            => new PredefinedColorsQuantizer(Palette.System4BppPalette, new Color32(backColor));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 1-bit palette.
@@ -1317,7 +1277,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         public static PredefinedColorsQuantizer SystemDefault1BppPalette(Color backColor = default)
-            => new PredefinedColorsQuantizer(System1BppPalette, new Color32(backColor));
+            => new PredefinedColorsQuantizer(Palette.System1BppPalette, new Color32(backColor));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the colors in the specified <paramref name="palette"/>.

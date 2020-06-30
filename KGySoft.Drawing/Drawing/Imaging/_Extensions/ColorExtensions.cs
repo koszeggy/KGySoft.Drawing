@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
@@ -84,6 +83,20 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToPremultiplied(this Color64 c)
+        {
+            if (c.A == UInt16.MaxValue)
+                return c;
+            if (c.A == 0)
+                return default;
+
+            return new Color64(c.A,
+                (ushort)((uint)c.R * c.A / UInt16.MaxValue),
+                (ushort)((uint)c.G * c.A / UInt16.MaxValue),
+                (ushort)((uint)c.B * c.A / UInt16.MaxValue));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToStraight(this Color32 c)
         {
             if (c.A == Byte.MaxValue)
@@ -98,9 +111,24 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (byte)0 : (byte)(c.B * Byte.MaxValue / c.A));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToStraight(this Color64 c)
+        {
+            if (c.A == UInt16.MaxValue)
+                return c;
+            if (c.A == 0)
+                return default;
+
+            return new Color64(
+                c.A,
+                c.A == 0 ? (ushort)0 : (ushort)((uint)c.R * UInt16.MaxValue / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)((uint)c.G * UInt16.MaxValue / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)((uint)c.B * UInt16.MaxValue / c.A));
+        }
+
         [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToArgb64(this Color32 c)
+        internal static Color64 ToColor64PlatformDependent(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
                 InitializeLookupTable8To16Bpp();
@@ -117,7 +145,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToArgb32(this Color64 c)
+        internal static Color32 ToColor32PlatformDependent(this Color64 c)
         {
             if (!lookupTable16To8BppInitialized)
                 InitializeLookupTable16To8Bpp();
@@ -133,12 +161,12 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToPArgb64(this Color32 c)
+        internal static Color64 ToPremultiplied64PlatformDependent(this Color32 c)
         {
             if (c.A == 0)
                 return default;
 
-            Color64 c64 = c.ToArgb64();
+            Color64 c64 = c.ToColor64PlatformDependent();
             if (c.A == Byte.MaxValue)
                 return c64;
 
@@ -149,7 +177,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToStraightArgb32(this Color64 c)
+        internal static Color32 ToStraight32PlatformDependent(this Color64 c)
         {
             if (c.A == 0)
                 return default;
@@ -160,12 +188,12 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.R * max / c.A),
                 c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.G * max / c.A),
                 c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.B * max / c.A));
-            return ToArgb32(straight);
+            return ToColor32PlatformDependent(straight);
         }
 
         [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color48 ToRgb48(this Color32 c)
+        internal static Color48 ToColor48PlatformDependent(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
                 InitializeLookupTable8To16Bpp();
@@ -177,7 +205,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToArgb32(this Color48 c)
+        internal static Color32 ToColor32PlatformDependent(this Color48 c)
         {
             if (!lookupTable16To8BppInitialized)
                 InitializeLookupTable16To8Bpp();

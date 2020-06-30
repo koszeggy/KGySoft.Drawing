@@ -156,9 +156,6 @@ namespace KGySoft
 
         #region ImageExtensions
 
-        /// <summary>The target palette can have up to {0} colors for pixel format '{1}'.</summary>
-        internal static string ImageExtensionsPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("ImageExtensions_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));
-
         /// <summary>No encoder was found for the '{0}' format.</summary>
         internal static string ImageExtensionsNoEncoder(ImageFormat imageFormat) => Get("ImageExtensions_NoEncoderFormat", imageFormat);
 
@@ -171,6 +168,9 @@ namespace KGySoft
 
         /// <summary>Pixel format '{0}' is not supported on the current platform.</summary>
         internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
+
+        /// <summary>Palette must not have more than {0} colors for pixel format '{1}'.</summary>
+        internal static string ImagingPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("Imaging_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion
 

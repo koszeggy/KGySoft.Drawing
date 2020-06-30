@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -81,7 +82,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format48bppRgb, 0xFFFFFF, 0)]
         public void ConvertPixelFormatDirectTest(PixelFormat pixelFormat, int backColorArgb, byte alphaThreshold)
         {
-            if (!pixelFormat.IsSupported())
+            if (!pixelFormat.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format is not supported: {pixelFormat}");
 
             //using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
@@ -97,7 +98,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCaseSource(nameof(convertPixelFormatCustomTestSource))]
         public void ConvertPixelFormatCustomTest(string testName, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer)
         {
-            if (!pixelFormat.IsSupported())
+            if (!pixelFormat.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format is not supported: {pixelFormat}");
 
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256));
@@ -121,9 +122,9 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
         public void DrawIntoNoScalingTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
-            if (!formatSrc.IsSupported())
+            if (!formatSrc.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format is not supported: {formatSrc}");
-            if (!formatDst.IsSupported())
+            if (!formatDst.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format is not supported: {formatDst}");
 
             Size targetSize = new Size(300, 300);
@@ -138,39 +139,62 @@ namespace KGySoft.Drawing.UnitTests
 
             // creating target image
             using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
+            if (formatDst == PixelFormat.Format8bppIndexed)
+                bmpDst.Clear(Color.Transparent);
 
             // drawing sources into destination
             Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset));
             Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height)));
             Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(64, 64)).DrawInto(bmpDst, new Point(100, 100)));
 
+            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png");
+            bmp.DrawInto(bmpDst, Point.Empty);
+
             SaveImage(testName, bmpDst);
+
+            throw new NotImplementedException("TODO: gradient");
         }
 
-        [TestCase("32bpp ARGB to 1bpp Indexed ErrorDiffusion", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed, true)]
-        [TestCase("32bpp ARGB to 1bpp Indexed Ordered", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed, false)]
-        public void DrawIntoNoScalingWithDitheringTest(string testName, PixelFormat formatSrc, PixelFormat formatDst, bool errorDiffusion)
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        public void DrawIntoNoScalingWithDitheringTest(PixelFormat formatDst)
         {
-            Size targetSize = new Size(300, 300);
-            Size sourceSize = new Size(300, 300);
-            Point offset = new Point(-50, -50);
+            var ditherers = new Dictionary<string, IDitherer>
+            {
+                //["Ordered"] = OrderedDitherer.Bayer8x8,
+                //["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+            };
 
-            // creating source images: alpha rectangles
-            using var bmpSrc1 = new Bitmap(sourceSize.Width, sourceSize.Height, formatSrc);
-            bmpSrc1.Clear(Color.FromArgb(128, Color.Red));
-            using var bmpSrc2 = new Bitmap(sourceSize.Width, sourceSize.Height, formatSrc);
-            bmpSrc2.Clear(Color.FromArgb(128, Color.Lime));
+            foreach (KeyValuePair<string, IDitherer> ditherer in ditherers)
+            {
+                Size targetSize = new Size(300, 300);
+                Size sourceSize = new Size(300, 300);
+                Point offset = new Point(-50, -50);
 
-            // creating target image
-            using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
+                // creating source images: alpha rectangles
+                using var bmpSrc1 = new Bitmap(sourceSize.Width, sourceSize.Height);
+                bmpSrc1.Clear(Color.FromArgb(128, Color.Red));
+                using var bmpSrc2 = new Bitmap(sourceSize.Width, sourceSize.Height);
+                bmpSrc2.Clear(Color.FromArgb(128, Color.Lime));
 
-            // drawing sources into destination
-            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8;
-            Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset, ditherer));
-            Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height), ditherer));
-            Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(64, 64)).DrawInto(bmpDst, new Point(100, 100), ditherer));
+                // creating target image
+                using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
+                if (formatDst == PixelFormat.Format8bppIndexed)
+                    bmpDst.Clear(Color.Transparent);
 
-            SaveImage(testName, bmpDst);
+                // drawing sources into destination
+                Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset, ditherer.Value));
+                Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height), ditherer.Value));
+                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(64, 64)).DrawInto(bmpDst, new Point(100, 100), ditherer.Value));
+
+                using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png");
+                bmp.DrawInto(bmpDst, Point.Empty, ditherer.Value);
+
+                SaveImage($"{formatDst} {ditherer.Key}", bmpDst);
+            }
+
+            throw new NotImplementedException("TODO: fix");
         }
 
         [Test]
@@ -273,28 +297,74 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage($"{pixelFormat}, {scalingMode}", bmp);
         }
 
-        [TestCase("1bpp Indexed ErrorDiffusion NearestNeighbor", PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor, true)]
-        [TestCase("1bpp Indexed Ordered NearestNeighbor", PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor, false)]
-        [TestCase("1bpp Indexed ErrorDiffusion Auto scaling mode", PixelFormat.Format1bppIndexed, ScalingMode.Auto, true)]
-        [TestCase("1bpp Indexed Ordered Auto scaling mode", PixelFormat.Format1bppIndexed, ScalingMode.Auto, false)]
-        public void DrawIntoWithResizeDitheringTest(string testName, PixelFormat formatDst, ScalingMode scalingMode, bool errorDiffusion)
+        //[TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        //[TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        //[TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        public void DrawIntoWithResizeDitheringTest(PixelFormat formatDst, ScalingMode scalingMode)
         {
-            IDitherer ditherer = errorDiffusion ? (IDitherer)ErrorDiffusionDitherer.FloydSteinberg : OrderedDitherer.Bayer8x8;
-            using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using var bmpDst = new Bitmap(bmpSrc.Width, bmpSrc.Height, formatDst);
-            
-            bmpDst.Clear(Color.Lime, ditherer);
-            
-            var targetRect = new Rectangle(Point.Empty, bmpSrc.Size);
-            targetRect.Inflate(-32, -32);
+            var ditherers = new Dictionary<string, IDitherer>
+            {
+                //["Ordered"] = OrderedDitherer.Bayer8x8,
+                //["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+            };
 
-            // shrink
-            Assert.DoesNotThrow(() => bmpSrc.DrawInto(bmpDst, targetRect, scalingMode, ditherer));
+            foreach (KeyValuePair<string, IDitherer> ditherer in ditherers)
+            {
+                using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256));
+                using var bmpDst = new Bitmap(bmpSrc.Width, bmpSrc.Height, formatDst);
 
-            // enlarge
-            targetRect = new Rectangle(160, 160, 100, 100);
-            Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto(bmpDst, targetRect, scalingMode, ditherer));
-            SaveImage(testName, bmpDst);
+                bmpDst.Clear(Color.Transparent, ditherer.Value, Color.Lime);
+
+                var targetRect = new Rectangle(Point.Empty, bmpSrc.Size);
+                targetRect.Inflate(-32, -32);
+
+                // shrink
+                Assert.DoesNotThrow(() => bmpSrc.DrawInto(bmpDst, targetRect, scalingMode, ditherer.Value));
+
+                // enlarge
+                targetRect = new Rectangle(160, 160, 100, 100);
+                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto(bmpDst, targetRect, scalingMode, ditherer.Value));
+                SaveImage($"{formatDst} {scalingMode} {ditherer.Key}", bmpDst);
+            }
+
+            throw new NotImplementedException("TODO: fix");
+        }
+
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        public void DrawIntoWithResizeDitheringTest2(PixelFormat formatDst, ScalingMode scalingMode)
+        {
+            var ditherers = new Dictionary<string, IDitherer>
+            {
+                ["Ordered"] = OrderedDitherer.Bayer8x8,
+                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+            };
+
+            foreach (KeyValuePair<string, IDitherer> ditherer in ditherers)
+            {
+                using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256));
+                using var bmpDst = new Bitmap(bmpSrc.Width, bmpSrc.Height, formatDst);
+
+                bmpDst.Clear(Color.Transparent, ditherer.Value, Color.Lime);
+
+                var targetRect = new Rectangle(Point.Empty, bmpSrc.Size);
+                targetRect.Inflate(-32, -32);
+
+                // shrink
+                Assert.DoesNotThrow(() => bmpSrc.DrawInto2(bmpDst, targetRect, scalingMode, ditherer.Value));
+
+                // enlarge
+                targetRect = new Rectangle(160, 160, 100, 100);
+                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto2(bmpDst, targetRect, scalingMode, ditherer.Value));
+                SaveImage($"{formatDst} {scalingMode} {ditherer.Key}", bmpDst);
+            }
+
+            throw new NotImplementedException("TODO: in the end, remove 2");
         }
 
         [Test]

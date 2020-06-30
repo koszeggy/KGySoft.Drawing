@@ -1,0 +1,133 @@
+﻿#region Copyright
+
+///////////////////////////////////////////////////////////////////////////////
+//  File: ManagedBitmapData.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution. If not, then this file is considered as
+//  an illegal copy.
+//
+//  Unauthorized copying of this file, via any medium is strictly prohibited.
+///////////////////////////////////////////////////////////////////////////////
+
+#endregion
+
+#region Usings
+
+using System.Drawing;
+using System.Drawing.Imaging;
+
+using KGySoft.Collections;
+
+#endregion
+
+namespace KGySoft.Drawing.Imaging
+{
+    internal sealed class ManagedBitmapData<TColor, TRow> : BitmapDataBase
+        where TColor : unmanaged
+        where TRow : ManagedBitmapDataRowBase<TColor, TRow>, new()
+    {
+        #region Fields
+
+        #region Internal Fields
+
+        internal Array2D<TColor> Buffer;
+
+        #endregion
+
+        #region Private Fields
+
+        private TRow lastRow;
+
+        #endregion
+
+        #endregion
+
+        #region Properties
+
+        public override PixelFormat PixelFormat { get; }
+
+        public override int Width { get; }
+
+        public override int Height => Buffer.Height;
+
+        public override int RowSize { get; }
+
+        #endregion
+
+        #region Constructors
+
+        internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        {
+            Debug.Assert(size.Width > 0 && size.Height > 0, "Non-empty size expected");
+            Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
+            Debug.Assert(!pixelFormat.IsIndexed() || typeof(TColor) == typeof(byte), "For indexed pixel formats byte elements are expected");
+
+            BackColor = backColor.ToOpaque();
+            AlphaThreshold = alphaThreshold;
+            PixelFormat = pixelFormat;
+            Width = size.Width;
+
+            // Unlike native bitmaps our stride have 1 byte alignment so Stride = (Width * bpp + 7) / 8)
+            int bpp = pixelFormat.ToBitsPerPixel();
+            int byteWidth = (size.Width * pixelFormat.ToBitsPerPixel() + 7) >> 3;
+            RowSize = byteWidth;
+            Buffer = new Array2D<TColor>(size.Height, bpp <= 8 ? byteWidth : size.Width);
+            Palette = palette;
+
+            if (pixelFormat.IsIndexed() && palette == null)
+            {
+                Palette = pixelFormat switch
+                {
+                    PixelFormat.Format8bppIndexed => new Palette(Palette.System8BppPalette, backColor, alphaThreshold),
+                    PixelFormat.Format4bppIndexed => new Palette(Palette.System4BppPalette, backColor, alphaThreshold),
+                    _ => new Palette(Palette.System1BppPalette, backColor, alphaThreshold)
+                };
+            }
+
+        }
+
+        #endregion
+
+        #region Methods
+
+        #region Public Methods
+
+        public override IBitmapDataRowInternal GetRow(int y)
+        {
+            // If the same row is accessed repeatedly we return the cached last row.
+            TRow result = lastRow;
+            if (result?.Index == y)
+                return result;
+
+            // Otherwise, we create and cache the result.
+            result = new TRow
+            {
+                Row = Buffer[y],
+                BitmapData = this,
+                Index = y,
+            };
+
+            return lastRow = result;
+        }
+
+        #endregion
+
+        #region Protected Methods
+
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            if (disposing)
+                Buffer.Dispose();
+            base.Dispose(disposing);
+        }
+
+        #endregion
+
+        #endregion
+    }
+}

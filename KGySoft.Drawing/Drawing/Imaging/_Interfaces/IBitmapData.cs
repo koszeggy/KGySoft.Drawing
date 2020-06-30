@@ -74,14 +74,15 @@ namespace KGySoft.Drawing.Imaging
         Palette Palette { get; }
 
         /// <summary>
-        /// Gets the size of a row in bytes (similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property always returns a positive value). Can be useful when accessing the bitmap data
-        /// by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.
+        /// Gets the size of a row in bytes (similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property always returns a positive value).
+        /// Can be useful when accessing the bitmap data by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.
+        /// As <see cref="IBitmapData"/> can represent also a managed bitmap data, row size is not guaranteed to be a multiple of 4.
         /// </summary>
         int RowSize { get; }
 
         /// <summary>
-        /// Gets the background color. When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, it specifies the color of the background.
-        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel.
+        /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, it specifies the color of the background.
+        /// For example, when setting color values with alpha, which are considered opaque the color to set will be blended with this color before setting the pixel.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method for details and examples.
         /// </summary>
         Color32 BackColor { get; }

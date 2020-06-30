@@ -130,7 +130,7 @@ namespace KGySoft.Drawing.UnitTests
             }
             catch (Exception e)
             {
-                if (OSUtils.IsWindows || pixelFormat.IsSupported())
+                if (OSUtils.IsWindows || pixelFormat.IsSupportedNatively())
                     throw;
                 Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported on Linux: {e.Message}");
                 throw;
@@ -147,7 +147,7 @@ namespace KGySoft.Drawing.UnitTests
             }
             catch (Exception e)
             {
-                if (pixelFormat.IsSupported())
+                if (pixelFormat.IsSupportedNatively())
                     throw;
                 Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported: {e.Message}");
                 throw;
@@ -164,7 +164,7 @@ namespace KGySoft.Drawing.UnitTests
             }
             catch (Exception e)
             {
-                if (pixelFormat.IsSupported())
+                if (pixelFormat.IsSupportedNatively())
                     throw;
                 Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported: {e.Message}");
                 throw;

@@ -145,7 +145,7 @@ namespace KGySoft.Drawing
         /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>, then
         /// then the source palette is taken from the source image if it also has a palette of no more entries than the target indexed format can have;
         /// otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
-        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not have alpha or has only single-bit alpha, then specifies the color of the background.
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color before setting the pixel in the result image.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -216,7 +216,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!newPixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
-            if (!newPixelFormat.IsSupported())
+            if (!newPixelFormat.IsSupportedNatively())
                 throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
 
             Bitmap bmp = image as Bitmap ?? new Bitmap(image);
@@ -230,8 +230,8 @@ namespace KGySoft.Drawing
                 if (newPixelFormat.IsIndexed())
                     InitPalette(newPixelFormat, bmp, result, palette);
 
-                using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly))
-                using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold))
+                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
+                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold))
                 {
                     // Sequential processing
                     if (source.Width < parallelThreshold)
@@ -641,7 +641,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!newPixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
-            if (!newPixelFormat.IsSupported())
+            if (!newPixelFormat.IsSupportedNatively())
                 throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
 
             Bitmap bmp = image as Bitmap ?? new Bitmap(image);
@@ -650,14 +650,14 @@ namespace KGySoft.Drawing
             try
             {
                 result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using (BitmapDataAccessorBase source = BitmapDataAccessorFactory.CreateAccessor(bmp, ImageLockMode.ReadOnly))
+                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(source) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
                 {
                     // validating and initializing palette
                     if (newPixelFormat.IsIndexed())
                         InitPalette(newPixelFormat, bmp, result, quantizingSession.Palette?.Entries?.Select(c => c.ToColor()).ToArray());
 
-                    using (BitmapDataAccessorBase target = BitmapDataAccessorFactory.CreateAccessor(result, ImageLockMode.WriteOnly, quantizingSession))
+                    using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
                     {
                         // quantization without dithering
                         if (ditherer == null)
@@ -848,6 +848,31 @@ namespace KGySoft.Drawing
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="targetRectangle">The target area to be drawn the source image.</param>
+        /// <param name="scalingMode">Specifies the scaling mode if the image to be drawn needs to be resized. This parameter is optional.
+        /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>The method has the best performance if <paramref name="targetRectangle"/> has the same size as the source image, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
+        /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> is exceeds target bounds or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
+        /// and <paramref name="targetRectangle"/> is smaller than the source image.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
+        public static void DrawInto2(this Image source, Bitmap target, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+            => DrawInto2(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, scalingMode, ditherer);
+
+        /// <summary>
+        /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
+        /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
+        /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
+        /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
+        /// and also an optional <paramref name="ditherer"/> can be specified.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="targetRectangle">The target area to be drawn the source image.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size.
         /// If <see langword="null"/>, then no dithering will be used.</param>
         /// <remarks>
@@ -940,6 +965,75 @@ namespace KGySoft.Drawing
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                 {
                     dst.DrawBitmapData(src, sourceRectangle, targetRectangle, scalingMode, ditherer);
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, source))
+                    bmp.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
+        /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
+        /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
+        /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
+        /// and also an optional <paramref name="ditherer"/> can be specified.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
+        /// <param name="sourceRectangle">The source area to be drawn into the <paramref name="target"/>.</param>
+        /// <param name="targetRectangle">The target area to be drawn the source image.</param>
+        /// <param name="scalingMode">Specifies the scaling mode if the image to be drawn needs to be resized. This parameter is optional.
+        /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
+        /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
+        /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>,
+        /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
+        public static void DrawInto2(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        {
+            // Fallback to non-resizing mode if possible
+            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+            {
+                if (scalingMode != ScalingMode.NoScaling && !scalingMode.IsDefined())
+                    throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+                DrawInto(source, target, sourceRectangle, targetRectangle.Location, ditherer);
+                return;
+            }
+
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+
+            // just some quick checks if there is nothing to draw
+            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
+                || Rectangle.Intersect(targetRectangle, new Rectangle(Point.Empty, target.Size)).IsEmpty)
+            {
+                return;
+            }
+
+            // Cloning source if target and source are the same, or creating a new bitmap is source is a metafile
+            Bitmap bmp = ReferenceEquals(source, target)
+                ? ((Bitmap)source).CloneCurrentFrame()
+                : source as Bitmap ?? new Bitmap(source);
+
+            try
+            {
+                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
+                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
+                {
+                    dst.DrawBitmapData2(src, sourceRectangle, targetRectangle, scalingMode, ditherer);
                 }
             }
             finally
@@ -1732,7 +1826,7 @@ namespace KGySoft.Drawing
             // there is a desired palette to apply
             int maxColors = 1 << bpp;
             if (palette.Length > maxColors)
-                throw new ArgumentException(Res.ImageExtensionsPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
+                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
 
             ColorPalette targetPalette = target.Palette;
             bool setEntries = palette.Length != targetPalette.Entries.Length;

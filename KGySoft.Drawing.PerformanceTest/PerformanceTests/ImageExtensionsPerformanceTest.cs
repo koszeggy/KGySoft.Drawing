@@ -130,7 +130,7 @@ namespace KGySoft.Drawing.PerformanceTests
         [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
         public void DrawIntoTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
-            if (!formatSrc.IsSupported())
+            if (!formatSrc.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format {formatSrc} is not supported on current platform");
 
             Size targetSize = new Size(300, 300);
@@ -166,7 +166,7 @@ namespace KGySoft.Drawing.PerformanceTests
         [TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
         public void DrawIntoWithResizeTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
-            if (!formatSrc.IsSupported())
+            if (!formatSrc.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format {formatSrc} is not supported on current platform");
 
             //using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(formatSrc);

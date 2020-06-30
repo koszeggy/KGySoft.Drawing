@@ -9,8 +9,11 @@
 ! v5.2.0:
 ~~~~~~~~~
 
-* KGySoft.Drawing namespace:
+! KGySoft.Drawing namespace:
 ============================
+! PixelFormatExtensions:
+  ! The IsSupported method has been renamed to IsSupportedNatively because BitmapDataFactory can create a managed
+    bitmap data of any pixel formats.
 + BitmapExtensions class:
   + New Resize overload that does not use Graphics.DrawImage internally.
 * ImageExtensions class:
@@ -23,7 +26,8 @@
 
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
-! IBitmapData interface: New BackColor and AlphaThreshold properties.
+! IBitmapData interface: BackColor and AlphaThreshold properties are now exposed by this interface. You can
+  define these anyway when you use the Get[Readable/Writable/ReadWrite]BitmapData methods.
 + New ReadWriteBitmapDataExtensions class to provide some drawing methods for IReadWriteBitmapData instances.
 + Color32 struct: new ToOpaque method
 + PredefinedColorsQuantizer class:

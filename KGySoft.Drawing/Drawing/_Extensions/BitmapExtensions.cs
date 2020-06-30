@@ -383,7 +383,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetWritableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
         public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
+            => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets an <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.
@@ -403,7 +403,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
         public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+            => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
@@ -425,10 +425,10 @@ namespace KGySoft.Drawing
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </para>
         /// <para>If <paramref name="alphaThreshold"/> is zero, then setting a fully transparent pixel in a bitmap with indexed or single-bit-alpha pixel format
-        /// will be blended with <paramref name="backColor"/> even if the bitmap can handle transparent pixels.</para>
-        /// <para>If <paramref name="alphaThreshold"/> is <c>1</c>, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
+        /// will blend the pixel to set with <paramref name="backColor"/> even if the bitmap can handle transparent pixels.</para>
+        /// <para>If <paramref name="alphaThreshold"/> is <c>1</c>, then the result color of setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
         /// will be transparent only if the color to set is completely transparent (has zero alpha).</para>
-        /// <para>If <paramref name="alphaThreshold"/> is <c>255</c>, then setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
+        /// <para>If <paramref name="alphaThreshold"/> is <c>255</c>, then the result color of setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
         /// will be opaque only if the color to set is completely opaque (its alpha value is <c>255</c>).</para>
         /// <para>If a pixel of a bitmap without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
@@ -516,7 +516,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetWritableBitmapData"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
+            => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Quantizes a <paramref name="bitmap"/> using the specified <paramref name="quantizer"/> (reduces the number of colors).
@@ -548,7 +548,7 @@ namespace KGySoft.Drawing
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite))
+            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite))
             using (IQuantizingSession session = quantizer.Initialize(bitmapData))
             {
                 if (session == null)
@@ -616,7 +616,7 @@ namespace KGySoft.Drawing
             if (ditherer == null)
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
-            using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite))
+            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite))
             using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
             using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
             {
@@ -666,7 +666,7 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            using (var accessor = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            using (IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
                 ClearDirect(accessor, new Color32(color));
         }
 
@@ -692,7 +692,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
             Color32 c = new Color32(color);
-            using (var accessor = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            using (IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
             {
                 if (ditherer == null || !accessor.PixelFormat.CanBeDithered())
                     ClearDirect(accessor, c);
@@ -746,7 +746,7 @@ namespace KGySoft.Drawing
             }
 
             // Non-indexed format: processing the pixels
-            using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
             {
                 // Sequential processing
                 if (bitmapData.Width < parallelThreshold)
@@ -841,7 +841,7 @@ namespace KGySoft.Drawing
             if (transformFunction == null)
                 throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
 
-            using (BitmapDataAccessorBase bitmapData = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
             {
                 IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
@@ -1287,7 +1287,7 @@ namespace KGySoft.Drawing
                 maxColors = Int32.MaxValue;
 
             var colors = new HashSet<Color32>();
-            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
+            using (IBitmapDataInternal data = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly))
             {
                 IBitmapDataRowInternal line = data.GetRow(0);
 
@@ -1310,7 +1310,7 @@ namespace KGySoft.Drawing
         private static int GetColorCount<T>(Bitmap bitmap) where T : unmanaged
         {
             var colors = new HashSet<T>();
-            using (BitmapDataAccessorBase data = BitmapDataAccessorFactory.CreateAccessor(bitmap, ImageLockMode.ReadOnly))
+            using (IBitmapDataInternal data = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly))
             {
                 IBitmapDataRowInternal line = data.GetRow(0);
 
@@ -1331,7 +1331,7 @@ namespace KGySoft.Drawing
 
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void ClearDirect(BitmapDataAccessorBase bitmapData, Color32 color)
+        private static void ClearDirect(IBitmapDataInternal bitmapData, Color32 color)
         {
             IBitmapDataRowInternal row;
             int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
@@ -1445,7 +1445,7 @@ namespace KGySoft.Drawing
         }
 
         [SecuritySafeCritical]
-        private static void ClearRaw<T>(BitmapDataAccessorBase bitmapData, int width, T data)
+        private static void ClearRaw<T>(IBitmapDataInternal bitmapData, int width, T data)
             where T : unmanaged
         {
             // small width: going with sequential clear
@@ -1471,7 +1471,7 @@ namespace KGySoft.Drawing
 
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void ClearWithDithering(BitmapDataAccessorBase bitmapData, Color32 color, IDitherer ditherer)
+        private static void ClearWithDithering(IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
             using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))

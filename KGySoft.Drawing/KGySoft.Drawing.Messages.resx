@@ -162,9 +162,6 @@
   <data name="IconExtensions_ImagesColorsDifferentLength" xml:space="preserve">
     <value>Length of images and transparentColors must be the same.</value>
   </data>
-  <data name="ImageExtensions_PaletteTooLargeFormat" xml:space="preserve">
-    <value>The target palette can have up to {0} colors for pixel format '{1}'.</value>
-  </data>
   <data name="ImageExtensions_NoEncoderFormat" xml:space="preserve">
     <value>No encoder was found for the '{0}' format.</value>
   </data>
@@ -185,6 +182,9 @@
   </data>
   <data name="Imaging_DithererInitializeNull" xml:space="preserve">
     <value>The IDitherer.Initialize method returned a null value.</value>
+  </data>
+  <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
+    <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>
   </data>
   <data name="MetafileExtensions_CannotBeSavesAsEmf" xml:space="preserve">
     <value>The specified metafile can only be saved as WMF.</value>

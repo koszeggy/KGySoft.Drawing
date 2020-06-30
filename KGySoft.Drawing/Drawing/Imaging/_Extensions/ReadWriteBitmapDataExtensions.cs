@@ -106,6 +106,7 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
         public static void DrawBitmapData(this IReadWriteBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
         {
+            throw new NotImplementedException("TODO: shortcut to Copy if source has no alpha");
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (target == null)
@@ -120,7 +121,7 @@ namespace KGySoft.Drawing.Imaging
 
             // Cloning source if target and source are the same and source/target rectangles overlap
             IBitmapDataInternal src = ReferenceEquals(source, target) && actualSourceRectangle.IntersectsWith(actualTargetRectangle)
-                ? new BitmapDataBuffer(source)
+                ? (IBitmapDataInternal)source.Clone()
                 : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
 
@@ -256,7 +257,7 @@ namespace KGySoft.Drawing.Imaging
 
             // Cloning source if target and source are the same and source/target rectangles overlap
             IBitmapDataInternal src = ReferenceEquals(source, target) && actualSourceRectangle.IntersectsWith(actualTargetRectangle)
-                ? new BitmapDataBuffer(source)
+                ? (IBitmapDataInternal)source.Clone()
                 : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
 
@@ -279,6 +280,65 @@ namespace KGySoft.Drawing.Imaging
                         resizingSession.DoResizeDirect(actualTargetRectangle.Top, actualTargetRectangle.Bottom);
                     else
                         resizingSession.DoResizeWithDithering(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(src, source))
+                    src.Dispose();
+                if (!ReferenceEquals(dst, target))
+                    dst.Dispose();
+            }
+        }
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
+        public static void DrawBitmapData2(this IReadWriteBitmapData target, IReadableBitmapData source, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        {
+            // no scaling is necessary
+            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+            {
+                if (scalingMode != ScalingMode.NoScaling && !scalingMode.IsDefined())
+                    throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+                DrawBitmapData(target, source, sourceRectangle, targetRectangle.Location, ditherer);
+                return;
+            }
+
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+
+            (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceRectangle, source.Width, source.Height, targetRectangle, target.Width, target.Height);
+            if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
+                return;
+
+            // Cloning source if target and source are the same and source/target rectangles overlap
+            IBitmapDataInternal src = ReferenceEquals(source, target) && actualSourceRectangle.IntersectsWith(actualTargetRectangle)
+                ? (IBitmapDataInternal)source.Clone()
+                : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
+
+            try
+            {
+                // Nearest neighbor - shortcut
+                if (scalingMode == ScalingMode.NearestNeighbor)
+                {
+                    if (ditherer == null || !target.PixelFormat.CanBeDithered())
+                        ResizeNearestNeighborDirect(src, dst, actualSourceRectangle, actualTargetRectangle);
+                    else
+                        ResizeNearestNeighborWithDithering(src, dst, actualSourceRectangle, actualTargetRectangle, ditherer);
+
+                    return;
+                }
+
+                using (var resizingSession = new ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
+                {
+                    if (ditherer == null || !target.PixelFormat.CanBeDithered())
+                        resizingSession.DoResizeDirect(actualTargetRectangle.Top, actualTargetRectangle.Bottom);
+                    else
+                        resizingSession.DoResizeWithDithering2(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
                 }
             }
             finally

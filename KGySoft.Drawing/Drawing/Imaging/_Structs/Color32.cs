@@ -230,7 +230,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="Color32"/> instance that represents this <see cref="Color32"/> without alpha (transparency).
         /// </summary>
         /// <returns>A <see cref="Color32"/> instance that represents this <see cref="Color32"/> without alpha.</returns>
-        public Color32 ToOpaque() => new Color32(Byte.MaxValue, R, G, B);
+        public Color32 ToOpaque() => A == Byte.MaxValue ? this : new Color32(Byte.MaxValue, R, G, B);
 
         /// <summary>
         /// Determines whether the current <see cref="Color32"/> instance is equal to another one.

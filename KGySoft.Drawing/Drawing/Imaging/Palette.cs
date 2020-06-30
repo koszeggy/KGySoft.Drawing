@@ -20,6 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 
 #endregion
@@ -52,10 +53,20 @@ namespace KGySoft.Drawing.Imaging
         
         private const int minCacheSize = 128;
         private const int maxCacheSize = 1 << 18;
-        
+
         #endregion
 
         #region Fields
+
+        #region Static Fields
+
+        private static Color32[] system8BppPalette;
+        private static Color32[] system4BppPalette;
+        private static Color32[] system1BppPalette;
+
+        #endregion
+
+        #region Instance Fields
 
         private readonly int transparentIndex = -1;
         private readonly Dictionary<Color32, int> color32ToIndex;
@@ -67,7 +78,53 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #endregion
+
         #region Properties
+
+        #region Static Properties
+
+        #region Static Properties
+
+        internal static Color32[] System8BppPalette
+        {
+            get
+            {
+                if (system8BppPalette != null)
+                    return system8BppPalette;
+
+                using (var bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
+                    return system8BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
+            }
+        }
+
+        internal static Color32[] System4BppPalette
+        {
+            get
+            {
+                if (system4BppPalette != null)
+                    return system4BppPalette;
+
+                using (var bmp = new Bitmap(1, 1, PixelFormat.Format4bppIndexed))
+                    return system4BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
+            }
+        }
+
+        internal static Color32[] System1BppPalette
+        {
+            get
+            {
+                if (system1BppPalette != null)
+                    return system1BppPalette;
+
+                using (var bmp = new Bitmap(1, 1, PixelFormat.Format1bppIndexed))
+                    return system1BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
+            }
+        }
+
+        #endregion
+
+        #endregion
 
         #region Public Properties
 

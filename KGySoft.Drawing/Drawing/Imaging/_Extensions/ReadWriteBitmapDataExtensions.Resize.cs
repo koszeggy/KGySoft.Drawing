@@ -142,14 +142,14 @@ namespace KGySoft.Drawing.Imaging
 
                     int topLine = kernel.StartIndex - currentWindow.Top;
 
-                    for (int x = 0; x < targetRectangle.Width; x++)
+                    int targetWidth = targetRectangle.Width;
+                    for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
                         targetRowBuffer.GetElementReference(x) = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
                     }
 
                     IBitmapDataRowInternal row = target.GetRow(y);
-                    int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
                     for (int x = 0; x < targetWidth; x++)
                     {
@@ -199,7 +199,8 @@ namespace KGySoft.Drawing.Imaging
             internal void DoResizeWithDithering(int top, int bottom, IDitherer ditherer)
             {
                 // creating a temporal buffer for the non-dithered result because a quantizer/ditherer may need the resized image source
-                using var result = new BitmapDataBuffer(targetRectangle.Size);
+                using var result = BitmapDataFactory.CreateManagedBitmapData(targetRectangle.Size);
+                throw new NotImplementedException("TODO: do not blend here, target buffer is always transparent");
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
 
                 ParallelHelper.For(top, bottom, y =>
@@ -265,6 +266,87 @@ namespace KGySoft.Drawing.Imaging
 
                 // Drawing result to actual target with dithering
                 target.DrawBitmapData(result, targetRectangle.Location, ditherer);
+            }
+
+            internal void DoResizeWithDithering2(int top, int bottom, IDitherer ditherer)
+            {
+                // TODO: this is now drawing directly to target but initialized with a potentially too large bitmapData
+                // TODO: use this with tolerant ditherer, initialize with dummy target with correct backcolor/alphathreshold
+                //// creating a temporal buffer for the non-dithered result because a quantizer/ditherer may need the resized image source
+                //using var result = new BitmapDataBuffer(targetRectangle.Size);
+                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+                IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
+                using var quantizingSession = quantizer.Initialize(target);
+                using var ditheringSession = ditherer.Initialize(target, quantizingSession);
+
+                ParallelHelper.For(top, bottom, y =>
+                {
+                    var targetRowBuffer = new ArraySection<ColorF>(targetRectangle.Width);
+
+                    ResizeKernel kernel = verticalKernelMap.GetKernel(y - targetRectangle.Y);
+                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                        Slide();
+
+                    int topLine = kernel.StartIndex - currentWindow.Top;
+
+                    for (int x = 0; x < targetRectangle.Width; x++)
+                    {
+                        // Destination color components
+                        targetRowBuffer.GetElementReference(x) = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+                    }
+
+                    // TODO
+                    //IBitmapDataRowInternal row = result.GetRow(y - targetRectangle.Y);
+                    IBitmapDataRowInternal row = target.GetRow(y);
+                    int targetWidth = targetRectangle.Width;
+                    int targetLeft = targetRectangle.Left;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        ref ColorF refColorF = ref targetRowBuffer.GetElementReference(x);
+
+                        // fully transparent source: skip
+                        if (refColorF.A <= 0f)
+                            continue;
+
+                        Color32 colorSrc = refColorF.ToColor32();
+                        int targetX = x + targetLeft;
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            row.DoSetColor32(targetX, ditheringSession.GetDitheredColor(colorSrc, targetX, y));
+                            continue;
+                        }
+
+                        // checking full transparency again (means almost zero refColorF.A)
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        Color32 colorDst = row.DoGetColor32(targetX);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            row.DoSetColor32(targetX, ditheringSession.GetDitheredColor(colorSrc, targetX, y));
+                            continue;
+                        }
+
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst);
+
+                        row.DoSetColor32(targetX, ditheringSession.GetDitheredColor(colorSrc, targetX, y));
+                    }
+
+                    targetRowBuffer.Release();
+                });
+
+                // TODO:
+                //// Drawing result to actual target with dithering
+                //target.DrawBitmapData(result, targetRectangle.Location, ditherer);
             }
 
             #endregion
@@ -756,7 +838,10 @@ namespace KGySoft.Drawing.Imaging
 
         private static void ResizeNearestNeighborWithDithering(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer)
         {
-            using var result = new BitmapDataBuffer(targetRectangle.Size);
+            // TODO - this is the intolerant ditherer version. No blending is needed here as target is always transparent
+            // TODO: Use direct version if possible - see session
+            throw new NotImplementedException("TODO");
+            using var result = BitmapDataFactory.CreateManagedBitmapData(targetRectangle.Size);
 
             // Scaling factors
             float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
