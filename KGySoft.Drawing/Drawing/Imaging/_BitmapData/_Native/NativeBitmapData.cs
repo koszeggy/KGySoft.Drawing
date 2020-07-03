@@ -40,8 +40,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold)
-            : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, null)
+        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette palette = null)
+            : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette)
         {
         }
 
@@ -64,14 +64,12 @@ namespace KGySoft.Drawing.Imaging
                 return result;
 
             // Otherwise, we create and cache the result.
-            result = new TRow
+            return lastRow = new TRow
             {
                 Address = row == 0 ? (byte*)Scan0 : (byte*)Scan0 + Stride * row,
                 BitmapData = this,
                 Index = row,
             };
-
-            return lastRow = result;
         }
 
         #endregion

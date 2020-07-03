@@ -226,12 +226,21 @@ namespace KGySoft.Drawing
             {
                 result = new Bitmap(image.Width, image.Height, newPixelFormat);
 
-                // validating and initializing palette
+                // validating and initializing palette in target bitmap
                 if (newPixelFormat.IsIndexed())
                     InitPalette(newPixelFormat, bmp, result, palette);
 
+                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
+                Palette targetPalette =
+                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
+                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
+                        // using the custom colors
+                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
+                        // using the default palette from target
+                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
+
                 using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold))
+                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
                 {
                     // Sequential processing
                     if (source.Width < parallelThreshold)
@@ -634,7 +643,7 @@ namespace KGySoft.Drawing
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
         {
-            if (quantizer == null)
+            if (quantizer == null/*TODO: && ditherer == null - if only ditherer is specified: test CanBeDithered and if so obtain quantizer from bitmap data*/)
                 return ConvertPixelFormat(image, newPixelFormat);
 
             if (image == null)
@@ -1811,6 +1820,9 @@ namespace KGySoft.Drawing
             }
         }
 
+        /// <summary>
+        /// Initializes target bitmap palette.
+        /// </summary>
         private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
         {
             int bpp = newPixelFormat.ToBitsPerPixel();

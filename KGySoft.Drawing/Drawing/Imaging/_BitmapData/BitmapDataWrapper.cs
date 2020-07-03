@@ -37,6 +37,8 @@ namespace KGySoft.Drawing.Imaging
         private readonly IWritableBitmapData writableBitmapData;
         private readonly IReadWriteBitmapData readWriteBitmapData;
 
+        private IBitmapDataRowInternal lastRow;
+
         #endregion
 
         #region Properties and Indexers
@@ -104,7 +106,16 @@ namespace KGySoft.Drawing.Imaging
         public Color GetPixel(int x, int y) => readableBitmapData.GetPixel(x, y);
         public void SetPixel(int x, int y, Color color) => writableBitmapData.SetPixel(x, y, color);
 
-        public IBitmapDataRowInternal GetRow(int y) => new BitmapDataRowWrapper(isReading ? readableBitmapData[y] : (IBitmapDataRow)writableBitmapData[y], isReading, isWriting);
+        public IBitmapDataRowInternal GetRow(int y)
+        {
+            // If the same row is accessed repeatedly we return the cached last row.
+            IBitmapDataRowInternal result = lastRow;
+            if (result?.Index == y)
+                return result;
+
+            // Otherwise, we create and cache the result.
+            return lastRow = new BitmapDataRowWrapper(isReading ? readableBitmapData[y] : (IBitmapDataRow)writableBitmapData[y], isReading, isWriting);
+        }
 
         #endregion
     }

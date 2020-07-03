@@ -19,7 +19,7 @@ namespace KGySoft.Drawing.UnitTests
             fixed (byte* pSrc = src)
             fixed (byte* pDest = dest)
             {
-                MemoryHelper.CopyMemory(new IntPtr(pDest), new IntPtr(pSrc), testLength);
+                MemoryHelper.CopyMemory(pSrc, pDest, testLength);
                 Assert.IsTrue(MemoryHelper.CompareMemory(new IntPtr(pSrc), new IntPtr(pDest), testLength));
             }
         }

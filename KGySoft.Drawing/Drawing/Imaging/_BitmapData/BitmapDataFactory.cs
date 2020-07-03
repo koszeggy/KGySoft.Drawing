@@ -90,7 +90,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a native <see cref="IBitmapDataInternal"/> from a <see cref="Bitmap"/>.
         /// </summary>
-        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128)
+        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -113,13 +113,13 @@ namespace KGySoft.Drawing.Imaging
                     return new NativeBitmapData<NativeBitmapDataRow24Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format8bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow8I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new NativeBitmapData<NativeBitmapDataRow8I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette);
 
                 case PixelFormat.Format4bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow4I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new NativeBitmapData<NativeBitmapDataRow4I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette);
 
                 case PixelFormat.Format1bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow1I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new NativeBitmapData<NativeBitmapDataRow1I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette);
 
                 case PixelFormat.Format64bppArgb:
                     return new NativeBitmapData<NativeBitmapDataRow64Argb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
@@ -164,9 +164,7 @@ namespace KGySoft.Drawing.Imaging
                 return CreateBitmapData(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold);
 
             // checking if bitmap and quantizer palette has the same entries
-            var bmpPalette = bitmap.Palette.Entries;
-            var quantizerPalette = quantizingSession.Palette.Entries;
-            if (bmpPalette.Length != quantizerPalette.Length || bmpPalette.Zip(quantizerPalette, (c1, c2) => new Color32(c1) != c2).Any(b => b))
+            if (!quantizingSession.Palette.Equals(bitmap.Palette.Entries))
                 return CreateBitmapData(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold);
 
             if (!lockMode.IsDefined())
@@ -239,7 +237,7 @@ namespace KGySoft.Drawing.Imaging
                     return new ManagedBitmapData<Color16Gray, ManagedBitmapDataRow16Gray>(size, pixelFormat, backColor, alphaThreshold);
 
                 default:
-                    throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"));
+                    throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
             }
         }
 

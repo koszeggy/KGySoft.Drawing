@@ -97,8 +97,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 int elementSize = sizeof(T);
                 int width = array2d.Width * elementSize;
-                int sOffset = sourceIndex * elementSize;
-                int dOffset = destIndex * elementSize;
+                int srcOffset = sourceIndex * elementSize;
+                int dstOffset = destIndex * elementSize;
                 int count = columnCount * elementSize;
 
                 fixed (T* ptr = array2d)
@@ -106,7 +106,7 @@ namespace KGySoft.Drawing.Imaging
                     byte* basePtr = (byte*)ptr;
                     for (int y = 0; y < array2d.Height; y++)
                     {
-                        MemoryHelper.CopyMemory(new IntPtr(basePtr + dOffset), new IntPtr(basePtr + sOffset), count);
+                        MemoryHelper.CopyMemory(basePtr + srcOffset, basePtr + dstOffset, count);
                         basePtr += width;
                     }
                 }

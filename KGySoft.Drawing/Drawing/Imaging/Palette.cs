@@ -160,6 +160,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
+        #region Public Constructors
+        
         /// <summary>
         /// Initializes a new instance of the <see cref="Palette"/> class.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
@@ -246,7 +248,32 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Constructors
+
+        internal Palette(PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold)
+            : this(GetColorsByPixelFormat(pixelFormat), backColor, alphaThreshold)
+        {
+        }
+
+        #endregion
+
+        #endregion
+
         #region Methods
+
+        #region Static Methods
+
+        private static Color32[] GetColorsByPixelFormat(PixelFormat pixelFormat) => pixelFormat switch
+        {
+            PixelFormat.Format8bppIndexed => System8BppPalette,
+            PixelFormat.Format4bppIndexed => System4BppPalette,
+            PixelFormat.Format1bppIndexed => System1BppPalette,
+            _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
+        };
+
+        #endregion
+
+        #region Instance Methods
 
         #region Public Methods
 
@@ -355,6 +382,49 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Methods
+
+        internal bool Equals(Color[] colors)
+        {
+            if (customGetNearestColorIndex != null || Entries.Length != colors.Length)
+                return false;
+            for (int i = 0; i < colors.Length; i++)
+            {
+                if (colors[i].ToArgb() != Entries[i].ToArgb())
+                    return false;
+            }
+
+            return true;
+        }
+
+        internal bool Equals(Palette other, bool quickCheck)
+        {
+            if (other == null || customGetNearestColorIndex != other.customGetNearestColorIndex)
+                return false;
+
+            if (ReferenceEquals(other.Entries, Entries))
+                return true;
+
+            if (quickCheck)
+                return false;
+
+            Color32[] colors = other.Entries;
+            if (colors.Length != Entries.Length)
+                return false;
+
+            // ReSharper disable once LoopCanBeConvertedToQuery - performance
+            for (int i = 0; i < colors.Length; i++)
+            {
+                if (!colors[i].Equals(Entries[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+
+        #endregion
+
         #region Private Methods
 
         private int FindNearestColorIndex(Color32 color)
@@ -419,6 +489,8 @@ namespace KGySoft.Drawing.Imaging
             throw new ArgumentOutOfRangeException("index", PublicResources.ArgumentMustBeBetween(0, Entries.Length - 1));
 #pragma warning restore CA2208
         }
+
+        #endregion
 
         #endregion
 

@@ -591,16 +591,27 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(null, bmp);
         }
 
-        //[TestCase("Inverting 32 bit ARGB", PixelFormat.Format32bppArgb, false)]
-        //[TestCase("Inverting 8 bit by palette", PixelFormat.Format8bppIndexed, false)]
-        [TestCase("Inverting 32 bit by pixels using dithering", PixelFormat.Format8bppIndexed, true)]
-        public void TransformColors(string testName, PixelFormat pixelFormat, bool useDithering)
+        //[TestCase(PixelFormat.Format32bppArgb)]
+        //[TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        public void TransformColors(PixelFormat pixelFormat)
         {
             static Color32 Transform(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
 
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            Assert.DoesNotThrow(() => bmp.TransformColors(Transform, useDithering ? ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true) : null));
-            SaveImage(testName, bmp);
+            (IDitherer Ditherer, string Name)[] ditherers =
+            {
+                //(null, " No Dithering"),
+                //(OrderedDitherer.Bayer8x8, nameof(OrderedDitherer.Bayer8x8)),
+                //(ErrorDiffusionDitherer.FloydSteinberg, $"{nameof(ErrorDiffusionDitherer.FloydSteinberg)} (raster)"),
+                (ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true), $"{nameof(ErrorDiffusionDitherer.FloydSteinberg)} (serpentine)"),
+            };
+
+            foreach (var ditherer in ditherers)
+            {
+                using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+                Assert.DoesNotThrow(() => bmp.TransformColors(Transform, ditherer.Ditherer));
+                SaveImage($"{pixelFormat} {ditherer.Name}", bmp);
+            }
         }
 
         [TestCase("32 bit ARGB", PixelFormat.Format32bppArgb, false)]

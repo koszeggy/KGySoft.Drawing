@@ -53,7 +53,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        private static ushort Max16BppValue
+        internal static ushort Max16BppValue
         {
             [SecuritySafeCritical]
             get

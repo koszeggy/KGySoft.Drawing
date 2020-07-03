@@ -33,6 +33,56 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     {
         #region Methods
 
+        [TestCase(PixelFormat.Format64bppArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format32bppRgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format16bppGrayScale)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void CloneTest(PixelFormat pixelFormat)
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            using (var bitmapData = bmp.GetReadableBitmapData())
+            {
+                using (IReadWriteBitmapData clone = bitmapData.Clone())
+                {
+                    AssertAreEqual(bitmapData, clone);
+                    SaveImage($"{pixelFormat} - Complete", clone.ToBitmap());
+                }
+
+                var sourceRectangle = new Rectangle(16, 16, 128, 128);
+                using (IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat))
+                {
+                    AssertAreEqual(bitmapData, clone, sourceRectangle);
+                    SaveImage($"{pixelFormat} - Clipped", clone.ToBitmap());
+                }
+            }
+        }
+
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void CloneLowBppForcedDirectProcessingTest(PixelFormat pixelFormat)
+        {
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            using (var bitmapData = bmp.GetReadableBitmapData())
+            {
+                var sourceRectangle = new Rectangle(15, 15, 127, 127);
+                using (IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat))
+                {
+                    AssertAreEqual(bitmapData, clone, sourceRectangle);
+                    SaveImage($"{pixelFormat} - Clipped", clone.ToBitmap());
+                }
+            }
+        }
+
         [Test]
         public void CopyToSameInstanceOverlappingTest()
         {

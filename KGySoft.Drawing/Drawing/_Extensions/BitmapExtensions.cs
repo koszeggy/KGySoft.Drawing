@@ -232,14 +232,14 @@ namespace KGySoft.Drawing
                     IntPtr lineTarget = targetData.Scan0;
                     if (sourceData.Stride > 0)
                     {
-                        MemoryHelper.CopyMemory(lineTarget, lineSource, sourceData.Stride * sourceData.Height);
+                        MemoryHelper.CopyMemory(lineSource, lineTarget, sourceData.Stride * sourceData.Height);
                         return result;
                     }
 
                     int lineWidth = Math.Abs(sourceData.Stride);
                     for (int y = 0; y < sourceData.Height; y++)
                     {
-                        MemoryHelper.CopyMemory(lineTarget, lineSource, lineWidth);
+                        MemoryHelper.CopyMemory(lineSource, lineTarget, lineWidth);
                         lineSource = new IntPtr(lineSource.ToInt64() + sourceData.Stride);
                         lineTarget = new IntPtr(lineTarget.ToInt64() + targetData.Stride);
                     }

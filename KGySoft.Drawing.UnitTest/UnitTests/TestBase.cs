@@ -29,6 +29,7 @@ using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 #endregion
 
@@ -195,6 +196,40 @@ namespace KGySoft.Drawing.UnitTests
             refGraph.ReleaseHdc(hdc); //cleanup
             refGraph.Dispose();
             return result;
+        }
+
+        protected  static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, Rectangle sourceRectangle = default, Point targetLocation = default)
+        {
+            if (sourceRectangle == default)
+                sourceRectangle = new Rectangle(Point.Empty, source.GetSize());
+
+            Assert.AreEqual(sourceRectangle.Size, target.GetSize());
+            Assert.AreEqual(source.PixelFormat, target.PixelFormat);
+            
+            IReadableBitmapDataRow rowSrc = source[sourceRectangle.Y];
+            IReadableBitmapDataRow rowDst = target[targetLocation.Y];
+
+            bool tolerantCompare = source.GetType() != target.GetType() && source.PixelFormat.ToBitsPerPixel() > 32;
+            for (int y = 0; y < sourceRectangle.Height; y++)
+            {
+                if (tolerantCompare)
+                {
+                    for (int x = 0; x < sourceRectangle.Width; x++)
+                    {
+                        Color32 c1 = rowSrc[x + sourceRectangle.X];
+                        Color32 c2 = rowDst[x + targetLocation.X];
+                        Assert.AreEqual(c1.A, c2.A, $"Diff at {x}; {rowSrc.Index}");
+                        Assert.That(() => Math.Abs(c1.R - c2.R), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                        Assert.That(() => Math.Abs(c1.G - c2.G), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                        Assert.That(() => Math.Abs(c1.B - c2.B), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                    }
+
+                    continue;
+                }
+
+                for (int x = 0; x < sourceRectangle.Width; x++)
+                    Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
+            } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
         }
 
         #endregion

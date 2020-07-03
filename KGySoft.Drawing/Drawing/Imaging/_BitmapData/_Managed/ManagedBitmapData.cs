@@ -18,14 +18,14 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using System.Runtime.CompilerServices;
 using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapData<TColor, TRow> : BitmapDataBase
+    internal sealed class ManagedBitmapData<TColor, TRow> : ManagedBitmapDataBase
         where TColor : unmanaged
         where TRow : ManagedBitmapDataRowBase<TColor, TRow>, new()
     {
@@ -103,14 +103,30 @@ namespace KGySoft.Drawing.Imaging
                 return result;
 
             // Otherwise, we create and cache the result.
-            result = new TRow
+            return lastRow = new TRow
             {
                 Row = Buffer[y],
                 BitmapData = this,
                 Index = y,
             };
+        }
 
-            return lastRow = result;
+        #endregion
+
+        #region Internal Methods
+
+        internal override ref byte GetPinnableReference()
+        {
+#if NET35 || NET40 || NET45
+            ref TColor head = ref Buffer.GetPinnableReference();
+            unsafe
+            {
+                fixed (TColor* pHead = &head)
+                    return ref *(byte*)pHead;
+            } 
+#else
+            return ref Unsafe.As<TColor, byte>(ref Buffer.GetPinnableReference());
+#endif
         }
 
         #endregion
