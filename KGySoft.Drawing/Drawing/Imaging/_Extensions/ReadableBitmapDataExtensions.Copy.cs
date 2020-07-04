@@ -46,12 +46,6 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-            #region Properties
-
-            internal bool IsOverlap => SourceRectangle.IntersectsWith(TargetRectangle);
-
-            #endregion
-
             #region Methods
 
             #region Internal Methods
@@ -63,8 +57,12 @@ namespace KGySoft.Drawing.Imaging
             internal bool TryPerformRawCopy()
             {
                 // same pixel format and a well-known bitmap data type is required
-                if (Source.PixelFormat != Target.PixelFormat || Source is BitmapDataWrapper || Target is BitmapDataWrapper)
+                if (Source.PixelFormat != Target.PixelFormat
+                    || !(Source is NativeBitmapDataBase || Source is ManagedBitmapDataBase)
+                    || !(Target is NativeBitmapDataBase || Target is ManagedBitmapDataBase))
+                {
                     return false;
+                }
 
                 int bpp = Source.PixelFormat.ToBitsPerPixel();
 
@@ -84,7 +82,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // for indexed images we need some further checks
                 // palette must be the same (only a reference check for better performance)
-                if (Source.Palette?.Equals(Target.Palette, true) != true)
+                if (Source.Palette?.Equals(Target.Palette) != true)
                     return false;
 
                 if (bpp == 8)
@@ -99,10 +97,10 @@ namespace KGySoft.Drawing.Imaging
 
                 // left edge: must be aligned to byte boundary
                 if (!((SourceRectangle.X & alignmentMask) == 0 && (TargetRectangle.X & alignmentMask) == 0
-                        // right edge: either byte boundary...
-                        && ((SourceRectangle.Width & alignmentMask) == 0
-                                // ...or copying to the last column so the rest of the bits are padding
-                                || SourceRectangle.Right == Source.Width && TargetRectangle.Right == Target.Width)))
+                    // right edge: either byte boundary...
+                    && ((SourceRectangle.Width & alignmentMask) == 0
+                        // ...or copying to the last column so the rest of the bits are padding
+                        || SourceRectangle.Right == Source.Width && TargetRectangle.Right == Target.Width)))
                 {
                     return false;
                 }
@@ -114,7 +112,7 @@ namespace KGySoft.Drawing.Imaging
                 int width = SourceRectangle.Width >> shift;
 
                 // right edge can be the part of line padding
-                if ((width & (bpp == 1 ? 7 : 1)) != 0)
+                if ((width & alignmentMask) != 0)
                     width++;
 
                 SourceRectangle.Width = TargetRectangle.Width = width;
@@ -155,6 +153,80 @@ namespace KGySoft.Drawing.Imaging
                     int len = width;
                     for (int x = 0; x < len; x++)
                         rowDst.DoSetColor32(x + offsetDst, rowSrc.DoGetColor32(x + offsetSrc));
+                });
+            }
+
+            internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession)
+            {
+                // Sequential processing
+                if (SourceRectangle.Width < parallelThreshold)
+                {
+                    IBitmapDataRowInternal rowSrc = Source.GetRow(SourceRectangle.Y);
+                    IBitmapDataRowInternal rowDst = Target.GetRow(TargetRectangle.Y);
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        for (int x = 0; x < SourceRectangle.Width; x++)
+                            rowDst.DoSetColor32(x + TargetRectangle.X, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x + SourceRectangle.X)));
+                        rowSrc.MoveNextRow();
+                        rowDst.MoveNextRow();
+                    }
+
+                    return;
+                }
+
+                IBitmapDataInternal source = Source;
+                IBitmapDataInternal target = Target;
+                Point sourceLocation = SourceRectangle.Location;
+                Point targetLocation = TargetRectangle.Location;
+                int width = SourceRectangle.Width;
+                ParallelHelper.For(0, SourceRectangle.Height, y =>
+                {
+                    IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
+                    IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
+                    int offsetSrc = sourceLocation.X;
+                    int offsetDst = targetLocation.X;
+                    int len = width;
+                    for (int x = 0; x < len; x++)
+                        rowDst.DoSetColor32(x + offsetDst, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x + offsetSrc)));
+                });
+            }
+
+            internal void PerformCopyWithDithering(IDitheringSession ditheringSession)
+            {
+                // Sequential processing
+                if (SourceRectangle.Width < parallelThreshold || ditheringSession.IsSequential)
+                {
+                    IBitmapDataRowInternal rowSrc = Source.GetRow(SourceRectangle.Y);
+                    IBitmapDataRowInternal rowDst = Target.GetRow(TargetRectangle.Y);
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
+                        for (int x = 0; x < SourceRectangle.Width; x++)
+                            rowDst.DoSetColor32(x + TargetRectangle.X, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x + SourceRectangle.X), x, y));
+                        rowSrc.MoveNextRow();
+                        rowDst.MoveNextRow();
+                    }
+
+                    return;
+                }
+
+                // Parallel processing
+                IBitmapDataInternal source = Source;
+                IBitmapDataInternal target = Target;
+                Point sourceLocation = SourceRectangle.Location;
+                Point targetLocation = TargetRectangle.Location;
+                int width = SourceRectangle.Width;
+                ParallelHelper.For(0, SourceRectangle.Height, y =>
+                {
+                    IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
+                    IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
+                    int offsetSrc = sourceLocation.X;
+                    int offsetDst = targetLocation.X;
+                    int len = width;
+
+                    // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
+                    for (int x = 0; x < len; x++)
+                        rowDst.DoSetColor32(x + offsetDst, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x + offsetSrc), x, y));
                 });
             }
 

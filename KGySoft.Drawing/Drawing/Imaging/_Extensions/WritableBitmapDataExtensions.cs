@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow8I.cs
+//  File: WritableBitmapDataExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -16,30 +16,25 @@
 
 #region Usings
 
-using System.Runtime.CompilerServices;
-using System.Security;
+using System;
+using System.Drawing;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class NativeBitmapDataRow8I : NativeBitmapDataRowIndexedBase
+    public static class WritableBitmapDataExtensions
     {
-        #region Properties
-
-        protected override uint MaxIndex => 255;
-
-        #endregion
-
         #region Methods
 
-        [SecurityCritical]
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe int DoGetColorIndex(int x) => Address[x];
-
-        [SecurityCritical]
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColorIndex(int x, int colorIndex) => Address[x] = (byte)colorIndex;
+        public static IWritableBitmapData Clip(this IWritableBitmapData source, Rectangle clippingRegion)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.GetSize()
+                ? source
+                : new ClippedBitmapData(source, clippingRegion);
+        }
 
         #endregion
     }

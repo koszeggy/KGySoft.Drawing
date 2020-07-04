@@ -268,7 +268,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentMustBeBetween(2, 256));
             this.algorithm = algorithm;
             this.maxColors = maxColors;
-            this.backColor = new Color32(backColor);
+            this.backColor = new Color32(backColor).ToOpaque();
             this.alphaThreshold = alphaThreshold;
         }
 

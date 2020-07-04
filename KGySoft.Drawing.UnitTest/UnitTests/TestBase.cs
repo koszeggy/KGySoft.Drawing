@@ -82,7 +82,7 @@ namespace KGySoft.Drawing.UnitTests
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = Path.Combine(dir, $"{testName}_{imageName}.{DateTime.Now:yyyyMMddHHmmssffff}");
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : "_")}{imageName}.{DateTime.Now:yyyyMMddHHmmssffff}");
             ImageCodecInfo encoder = null;
             if (origFormat)
             {
@@ -198,13 +198,14 @@ namespace KGySoft.Drawing.UnitTests
             return result;
         }
 
-        protected  static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, Rectangle sourceRectangle = default, Point targetLocation = default)
+        protected  static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default)
         {
             if (sourceRectangle == default)
                 sourceRectangle = new Rectangle(Point.Empty, source.GetSize());
 
             Assert.AreEqual(sourceRectangle.Size, target.GetSize());
-            Assert.AreEqual(source.PixelFormat, target.PixelFormat);
+            if (!allowDifferentPixelFormats)
+                Assert.AreEqual(source.PixelFormat, target.PixelFormat);
             
             IReadableBitmapDataRow rowSrc = source[sourceRectangle.Y];
             IReadableBitmapDataRow rowDst = target[targetLocation.Y];

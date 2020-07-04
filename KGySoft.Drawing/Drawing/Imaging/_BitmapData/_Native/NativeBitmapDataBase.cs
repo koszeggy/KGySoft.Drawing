@@ -71,8 +71,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(bitmap.PixelFormat == pixelFormat || !OSUtils.IsWindows, "Unmatching pixel format");
 
             // If palette is passed it must match with actual palette
-            Debug.Assert(palette == null || bitmap.Palette.Entries.Length == palette.Entries.Length
-                && bitmap.Palette.Entries.Zip(palette.Entries, (c1, c2) => new Color32(c1) == c2).All(b => b), "Unmatching palette");
+            Debug.Assert(palette == null || palette.Equals(bitmap.Palette.Entries), "Unmatching palette");
 
             this.bitmap = bitmap;
             BackColor = backColor.ToOpaque();

@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override unsafe int DoGetColorIndex(int x)
+        public override unsafe int DoGetColorIndex(int x)
         {
             int mask = 128 >> (x & 7);
             int bits = Address[x >> 3];
@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override unsafe void DoSetColorIndex(int x, int colorIndex)
+        public override unsafe void DoSetColorIndex(int x, int colorIndex)
         {
             int pos = x >> 3;
             int mask = 128 >> (x & 7);

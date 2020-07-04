@@ -946,7 +946,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         public static void MakeOpaque(this Bitmap bitmap, Color backColor, IDitherer ditherer = null)
         {
-            Color32 backColor32 = new Color32(backColor);
+            Color32 backColor32 = new Color32(backColor).ToOpaque();
 
             Color32 Transform(Color32 c) => c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor32);
 
@@ -1265,6 +1265,37 @@ namespace KGySoft.Drawing
         /// Returns a clone of a bitmap in a way that works also on Linux where Image.Clone may return a fully transparent image.
         /// </summary>
         internal static Bitmap CloneBitmap(this Bitmap bmp) => bmp.Clone(new Rectangle(Point.Empty, bmp.Size), bmp.PixelFormat);
+
+        internal static void SetPalette(this Bitmap target, Color[] palette)
+        {
+            ColorPalette targetPalette = target.Palette;
+            bool setEntries = palette.Length != targetPalette.Entries.Length;
+            Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
+
+            // copying even if it could be just set so we can spare a
+            for (int i = 0; i < palette.Length; i++)
+                targetColors[i] = palette[i];
+
+            if (setEntries)
+                targetPalette.SetEntries(targetColors);
+            target.Palette = targetPalette;
+        }
+
+        internal static void SetPalette(this Bitmap target, Palette palette)
+        {
+            ColorPalette targetPalette = target.Palette;
+            Color32[] sourceColors = palette.Entries;
+            bool setEntries = sourceColors.Length != targetPalette.Entries.Length;
+            Color[] targetColors = setEntries ? new Color[sourceColors.Length] : targetPalette.Entries;
+
+            // copying even if it could be just set to prevent change of entries
+            for (int i = 0; i < sourceColors.Length; i++)
+                targetColors[i] = sourceColors[i].ToColor();
+
+            if (setEntries)
+                targetPalette.SetEntries(targetColors);
+            target.Palette = targetPalette;
+        }
 
         #endregion
 

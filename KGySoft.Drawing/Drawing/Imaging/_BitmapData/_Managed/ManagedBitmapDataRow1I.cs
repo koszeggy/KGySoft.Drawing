@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override int DoGetColorIndex(int x)
+        public override int DoGetColorIndex(int x)
         {
             int mask = 128 >> (x & 7);
             int bits = Row[x >> 3];
@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override void DoSetColorIndex(int x, int colorIndex)
+        public override void DoSetColorIndex(int x, int colorIndex)
         {
             int pos = x >> 3;
             int mask = 128 >> (x & 7);

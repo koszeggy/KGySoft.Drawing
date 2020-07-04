@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override int DoGetColorIndex(int x)
+        public override int DoGetColorIndex(int x)
         {
             int nibbles = Row[x >> 1];
             return (x & 1) == 0
@@ -43,7 +43,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override void DoSetColorIndex(int x, int colorIndex)
+        public override void DoSetColorIndex(int x, int colorIndex)
         {
             int pos = x >> 1;
             int nibbles = Row[pos];

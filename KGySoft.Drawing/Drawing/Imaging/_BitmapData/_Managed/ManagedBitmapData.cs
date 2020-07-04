@@ -75,17 +75,23 @@ namespace KGySoft.Drawing.Imaging
             int byteWidth = (size.Width * pixelFormat.ToBitsPerPixel() + 7) >> 3;
             RowSize = byteWidth;
             Buffer = new Array2D<TColor>(size.Height, bpp <= 8 ? byteWidth : size.Width);
-            Palette = palette;
+            if (!pixelFormat.IsIndexed())
+                return;
 
-            if (pixelFormat.IsIndexed() && palette == null)
+            if (palette != null)
             {
-                Palette = pixelFormat switch
-                {
-                    PixelFormat.Format8bppIndexed => new Palette(Palette.System8BppPalette, backColor, alphaThreshold),
-                    PixelFormat.Format4bppIndexed => new Palette(Palette.System4BppPalette, backColor, alphaThreshold),
-                    _ => new Palette(Palette.System1BppPalette, backColor, alphaThreshold)
-                };
+                Debug.Assert(palette.Entries.Length <= (1 << bpp), "Too many colors");
+                Palette = palette;
+                return;
             }
+
+            // if there was no palette specified we use a default one
+            Palette = pixelFormat switch
+            {
+                PixelFormat.Format8bppIndexed => Palette.SystemDefault8BppPalette(backColor, alphaThreshold),
+                PixelFormat.Format4bppIndexed => Palette.SystemDefault4BppPalette(backColor),
+                _ => Palette.SystemDefault1BppPalette(backColor)
+            };
 
         }
 

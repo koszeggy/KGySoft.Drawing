@@ -31,6 +31,7 @@
 + New ReadWriteBitmapDataExtensions class to provide some drawing methods for IReadWriteBitmapData instances.
 + Color32 struct: new ToOpaque method
 + PredefinedColorsQuantizer class:
+  + New Argb8888 method
   + The FromBitmapData method has been made public
 
 

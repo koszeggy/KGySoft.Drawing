@@ -24,6 +24,8 @@ namespace KGySoft.Drawing.Imaging
         void DoSetColor32(int x, Color32 c);
         T DoReadRaw<T>(int x) where T : unmanaged;
         void DoWriteRaw<T>(int x, T data) where T : unmanaged;
+        int DoGetColorIndex(int x);
+        void DoSetColorIndex(int x, int colorIndex);
 
         #endregion
     }

@@ -25,7 +25,8 @@ using System.Drawing.Imaging;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides a fast write-only access to the actual data of a <see cref="Bitmap"/>. The owner <see cref="Bitmap"/> can have any <see cref="PixelFormat"/>.
+    /// Represents a writable <see cref="IBitmapData"/> instance.
+    /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <see cref="BitmapExtensions.GetWritableBitmapData">BitmapExtensions.GetWritableBitmapData</see> extension method.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapData"/>

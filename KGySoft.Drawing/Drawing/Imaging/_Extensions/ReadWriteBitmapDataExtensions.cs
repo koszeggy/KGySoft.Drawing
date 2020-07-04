@@ -349,6 +349,15 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        public static IReadWriteBitmapData Clip(this IReadWriteBitmapData source, Rectangle clippingRegion)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.GetSize()
+                ? source
+                : new ClippedBitmapData(source, clippingRegion);
+        }
+
         #endregion
 
         #region Private Methods

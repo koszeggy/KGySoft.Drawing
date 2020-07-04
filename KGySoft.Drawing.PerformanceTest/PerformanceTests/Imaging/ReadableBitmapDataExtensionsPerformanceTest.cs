@@ -74,6 +74,20 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 .DumpResults(Console.Out);
         }
 
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void CopyToClippedTest(PixelFormat pixelFormat)
+        {
+            using IReadableBitmapData src = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat).GetReadableBitmapData();
+            Size targetSize = new Size(128, 128);
+            using IReadWriteBitmapData dst = BitmapDataFactory.CreateBitmapData(targetSize, pixelFormat);
+
+            new PerformanceTest { CpuAffinity = null, Iterations = 10_000 }
+                .AddCase(() => src.CopyTo(dst, new Rectangle(default, targetSize), Point.Empty), "CopyTo")
+                .AddCase(() => src.Clip(new Rectangle(default, targetSize)).CopyTo(dst, Point.Empty), "Clip+CopyTo")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
         #endregion
     }
 }

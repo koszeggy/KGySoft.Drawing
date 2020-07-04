@@ -25,9 +25,9 @@ using System.Drawing.Imaging;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents the raw data of a <see cref="Bitmap"/>. To obtain a readable or writable instance call the <see cref="BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>,
-    /// <see cref="BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> or <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension methods
-    /// on a <see cref="Bitmap"/> instance.
+    /// Represents the raw data of a bitmap. To create a managed instance use the <see cref="BitmapDataFactory"/> class.
+    /// To obtain a readable or writable instance for a native <see cref="Bitmap"/> instance call the <see cref="BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>,
+    /// <see cref="BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> or <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension methods.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapData"/>
@@ -74,10 +74,16 @@ namespace KGySoft.Drawing.Imaging
         Palette Palette { get; }
 
         /// <summary>
-        /// Gets the size of a row in bytes (similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property always returns a positive value).
-        /// Can be useful when accessing the bitmap data by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.
-        /// As <see cref="IBitmapData"/> can represent also a managed bitmap data, row size is not guaranteed to be a multiple of 4.
+        /// Gets the raw size of a row in bytes or zero, if this <see cref="IBitmapData"/> instance does not have an actual raw buffer to access
+        /// Otherwise, <see cref="RowSize"/> is similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property never returns a negative value.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
+        /// <para>This property can be useful when accessing the bitmap data by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</para>
+        /// <para>As <see cref="IBitmapData"/> can represent also a managed bitmap data, row size is not guaranteed to be a multiple of 4.</para>
+        /// <note>This property can return 0 if the current <see cref="IBitmapData"/> instance represents bitmap data without actual raw data or represents a clipped
+        /// region where the clipping is not on byte boundary (can occur with indexed <see cref="PixelFormat"/>s).</note>
+        /// <remarks>
+        /// </remarks>
         int RowSize { get; }
 
         /// <summary>

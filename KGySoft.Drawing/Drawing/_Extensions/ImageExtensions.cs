@@ -1840,17 +1840,7 @@ namespace KGySoft.Drawing
             if (palette.Length > maxColors)
                 throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
 
-            ColorPalette targetPalette = target.Palette;
-            bool setEntries = palette.Length != targetPalette.Entries.Length;
-            Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
-
-            // copying even if it could be just set to prevent change of entries
-            for (int i = 0; i < palette.Length; i++)
-                targetColors[i] = palette[i];
-
-            if (setEntries)
-                targetPalette.SetEntries(targetColors);
-            target.Palette = targetPalette;
+            target.SetPalette(palette);
         }
 
         private static Image AdjustTiffImage(Image image)

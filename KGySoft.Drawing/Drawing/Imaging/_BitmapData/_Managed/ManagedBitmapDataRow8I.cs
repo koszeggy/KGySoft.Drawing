@@ -33,10 +33,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override int DoGetColorIndex(int x) => Row[x];
+        public override int DoGetColorIndex(int x) => Row[x];
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override void DoSetColorIndex(int x, int colorIndex) => Row[x] = (byte)colorIndex;
+        public override void DoSetColorIndex(int x, int colorIndex) => Row[x] = (byte)colorIndex;
 
         #endregion
     }

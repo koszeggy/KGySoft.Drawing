@@ -29,6 +29,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents an indexed set of colors and provides efficient color lookup with caching.
+    /// To create an instance use the static methods or the constructors.
     /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
     /// <remarks>
@@ -63,6 +64,11 @@ namespace KGySoft.Drawing.Imaging
         private static Color32[] system8BppPalette;
         private static Color32[] system4BppPalette;
         private static Color32[] system1BppPalette;
+        private static Color32[] rgb332Palette;
+        private static Color32[] grayscale256Palette;
+        private static Color32[] grayscale16Palette;
+        private static Color32[] grayscale4Palette;
+        private static Color32[] blackAndWhitePalette;
 
         #endregion
 
@@ -84,9 +90,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Properties
 
-        #region Static Properties
-
-        internal static Color32[] System8BppPalette
+        private static Color32[] System8BppPalette
         {
             get
             {
@@ -98,7 +102,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        internal static Color32[] System4BppPalette
+        private static Color32[] System4BppPalette
         {
             get
             {
@@ -110,7 +114,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        internal static Color32[] System1BppPalette
+        private static Color32[] System1BppPalette
         {
             get
             {
@@ -122,7 +126,79 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        #endregion
+        private static Color32[] Rgb332Palette
+        {
+            get
+            {
+                if (rgb332Palette != null)
+                    return rgb332Palette;
+
+                var result = new Color32[256];
+                for (int i = 0; i < 256; i++)
+                {
+                    byte r = (byte)(i & 0b11100000);
+                    r |= (byte)((r >> 3) | (r >> 6));
+                    byte g = (byte)((i & 0b00011100) << 3);
+                    g |= (byte)((g >> 3) | (g >> 6));
+                    byte b = (byte)((i & 0b00000011) << 6);
+                    b |= (byte)((b >> 2) | (b >> 4) | (b >> 6));
+                    result[i] = new Color32(r, g, b);
+                }
+
+                return rgb332Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale256Palette
+        {
+            get
+            {
+                if (grayscale256Palette != null)
+                    return grayscale256Palette;
+
+                var result = new Color32[256];
+                for (int i = 0; i < 256; i++)
+                    result[i] = Color32.FromGray((byte)i);
+
+                return grayscale256Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale16Palette
+        {
+            get
+            {
+                if (grayscale16Palette != null)
+                    return grayscale16Palette;
+
+                var result = new Color32[16];
+                for (int i = 0; i < 16; i++)
+                    result[i] = Color32.FromGray((byte)((i << 4) | i));
+
+                return grayscale16Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale4Palette
+        {
+            get
+            {
+                if (grayscale4Palette != null)
+                    return grayscale4Palette;
+
+                var result = new Color32[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    byte br = (byte)((i & 0b00000011) << 6);
+                    br |= (byte)((br >> 2) | (br >> 4) | (br >> 6));
+                    result[i] = Color32.FromGray(br);
+                }
+
+                return grayscale4Palette = result;
+            }
+        }
+
+        private static Color32[] BlackAndWhitePalette => blackAndWhitePalette ??= new[] { Color32.Black, Color32.White };
 
         #endregion
 
@@ -263,6 +339,85 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
+        #region Public Methods
+
+        public static Palette SystemDefault8BppPalette(Color32 backColor = default, byte alphaThreshold = 128)
+            => new Palette(System8BppPalette, backColor, alphaThreshold);
+
+        public static Palette SystemDefault4BppPalette(Color32 backColor = default)
+            => new Palette(System4BppPalette, backColor);
+
+        public static Palette SystemDefault1BppPalette(Color32 backColor = default)
+            => new Palette(System1BppPalette, backColor);
+
+        public static Palette Rgb332(Color32 backColor = default, bool directMapping = false)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+
+                return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
+            }
+
+            return new Palette(Rgb332Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+        }
+
+        public static Palette Grayscale256(Color32 backColor = default)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+                return c.GetBrightness();
+            }
+
+            return new Palette(Grayscale256Palette, backColor, 0, GetNearestColorIndex);
+        }
+
+        public static Palette Grayscale16(Color32 backColor = default, bool directMapping = false)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+                return c.GetBrightness() >> 4;
+            }
+
+            return new Palette(Grayscale16Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+        }
+
+        public static Palette Grayscale4(Color32 backColor = default, bool directMapping = false)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+                return c.GetBrightness() >> 6;
+            }
+
+            return new Palette(Grayscale4Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+        }
+
+        public static Palette BlackAndWhite(Color32 backColor = default, byte whiteThreshold = 128)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+
+                return c == Color32.Black ? 0
+                    : c == Color32.White ? 1
+                    : c.GetBrightness() >= whiteThreshold ? 1 : 0;
+            }
+
+            return new Palette(BlackAndWhitePalette, backColor, 0, GetNearestColorIndex);
+        }
+
+        #endregion
+
+        #region Private Methods
+
         private static Color32[] GetColorsByPixelFormat(PixelFormat pixelFormat) => pixelFormat switch
         {
             PixelFormat.Format8bppIndexed => System8BppPalette,
@@ -270,6 +425,8 @@ namespace KGySoft.Drawing.Imaging
             PixelFormat.Format1bppIndexed => System1BppPalette,
             _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
         };
+
+        #endregion
 
         #endregion
 
@@ -397,16 +554,14 @@ namespace KGySoft.Drawing.Imaging
             return true;
         }
 
-        internal bool Equals(Palette other, bool quickCheck)
+        internal bool Equals(Palette other)
         {
-            if (other == null || customGetNearestColorIndex != other.customGetNearestColorIndex)
+            // not a public method because we don't want to adjust GetHashCode to these comparisons
+            if (other == null || customGetNearestColorIndex != other.customGetNearestColorIndex || !BackColor.Equals(other.BackColor) || AlphaThreshold != other.AlphaThreshold)
                 return false;
 
             if (ReferenceEquals(other.Entries, Entries))
                 return true;
-
-            if (quickCheck)
-                return false;
 
             Color32[] colors = other.Entries;
             if (colors.Length != Entries.Length)
@@ -421,7 +576,6 @@ namespace KGySoft.Drawing.Imaging
 
             return true;
         }
-
 
         #endregion
 

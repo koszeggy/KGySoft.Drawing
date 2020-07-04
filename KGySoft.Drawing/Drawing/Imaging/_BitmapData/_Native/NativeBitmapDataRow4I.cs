@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override unsafe int DoGetColorIndex(int x)
+        public override unsafe int DoGetColorIndex(int x)
         {
             int nibbles = Address[x >> 1];
             return (x & 1) == 0
@@ -45,7 +45,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal override unsafe void DoSetColorIndex(int x, int colorIndex)
+        public override unsafe void DoSetColorIndex(int x, int colorIndex)
         {
             int pos = x >> 1;
             int nibbles = Address[pos];

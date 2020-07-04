@@ -141,13 +141,8 @@ namespace KGySoft.Drawing.Imaging
         public abstract void DoSetColor32(int x, Color32 c);
         public abstract T DoReadRaw<T>(int x) where T : unmanaged;
         public abstract void DoWriteRaw<T>(int x, T data) where T : unmanaged;
-
-        #endregion
-
-        #region Internal Methods
-
-        internal virtual int DoGetColorIndex(int i) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
-        internal virtual void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+        public virtual int DoGetColorIndex(int x) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
+        public virtual void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
 
         #endregion
 
