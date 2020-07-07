@@ -812,7 +812,10 @@ namespace KGySoft.Drawing
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                    dst.DrawBitmapData(src, sourceRectangle, targetLocation, ditherer);
+                {
+                    throw new NotImplementedException("TODO: review, quantizer, call most specfic overload");
+                    src.DrawInto(dst, sourceRectangle, targetLocation, ditherer);
+                }
             }
             finally
             {
@@ -973,7 +976,8 @@ namespace KGySoft.Drawing
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                 {
-                    dst.DrawBitmapData(src, sourceRectangle, targetRectangle, scalingMode, ditherer);
+                    throw new NotImplementedException("TODO: review, quantizer, call most specfic overload");
+                    src.DrawInto(dst, sourceRectangle, targetRectangle, ditherer, scalingMode);
                 }
             }
             finally
@@ -1042,7 +1046,7 @@ namespace KGySoft.Drawing
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                 {
-                    dst.DrawBitmapData2(src, sourceRectangle, targetRectangle, scalingMode, ditherer);
+                    src.DrawInto2(dst, sourceRectangle, targetRectangle, null, ditherer, scalingMode, true);
                 }
             }
             finally

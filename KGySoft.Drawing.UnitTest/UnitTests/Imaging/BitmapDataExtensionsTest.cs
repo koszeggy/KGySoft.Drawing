@@ -31,7 +31,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class ReadableBitmapDataExtensionsTest : TestBase
+    public class BitmapDataExtensionsTest : TestBase
     {
         #region Nested classes
 
@@ -316,6 +316,32 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 source.CopyTo(targetClipped, rect, Point.Empty, ditherer.Value);
                 SaveImage($"{pixelFormat} {ditherer.Key}", targetClipped.ToBitmap());
             }
+        }
+
+        [Test]
+        public void DrawIntoSameInstanceOverlappingTest()
+        {
+            throw new NotImplementedException("TODO: check");
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
+            {
+                Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Point(64, 64)));
+            }
+
+            SaveImage(null, bmp);
+        }
+
+        [Test]
+        public void DrawIntoWithResizeSameInstanceOverlappingTest()
+        {
+            throw new NotImplementedException("TODO: check");
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
+            {
+                Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Rectangle(64, 64, 64, 64)));
+            }
+
+            SaveImage("result", bmp);
         }
 
         [Test]

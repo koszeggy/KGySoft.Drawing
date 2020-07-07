@@ -149,7 +149,7 @@ namespace KGySoft.Drawing
 
             using (IReadableBitmapData src = image.GetReadableBitmapData())
             using (IReadWriteBitmapData dst = result.GetReadWriteBitmapData())
-                dst.DrawBitmapData(src, new Rectangle(Point.Empty, sourceSize), targetRectangle, scalingMode);
+                src.DrawInto(dst, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode, false);
             
             return result;
         }

@@ -265,7 +265,7 @@ namespace KGySoft.Drawing.Imaging
                 });
 
                 // Drawing result to actual target with dithering
-                target.DrawBitmapData(result, targetRectangle.Location, ditherer);
+                result.DrawInto(result, targetRectangle.Location, ditherer);
             }
 
             internal void DoResizeWithDithering2(int top, int bottom, IDitherer ditherer)
