@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ReadableBitmapDataExtensions.CopySession.cs
+//  File: BitmapDataExtensions.Copy.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -23,7 +23,7 @@ using System.Drawing;
 
 namespace KGySoft.Drawing.Imaging
 {
-    partial class ReadableBitmapDataExtensions
+    partial class BitmapDataExtensions
     {
         #region Nested structs
 

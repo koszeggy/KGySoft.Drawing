@@ -234,7 +234,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to the 32-bit ARGB color space.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space.
-        /// It is effective only for some bitmap data operations (eg. <see cref="ReadableBitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,PixelFormat,IQuantizer,IDitherer)">Clone</see>),
+        /// It is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,PixelFormat,IQuantizer,IDitherer)">Clone</see>),
         /// which could possibly preserve wide color information (<see cref="PixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
         /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// </remarks>

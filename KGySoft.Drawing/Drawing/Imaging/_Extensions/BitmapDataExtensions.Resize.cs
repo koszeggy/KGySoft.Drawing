@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ReadWriteBitmapDataExtensions.Resize.cs
+//  File: BitmapDataExtensions.Resize.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
     /// Credit to ImageSharp resize, on which this code partially based on (see https://github.com/SixLabors/ImageSharp/tree/master/src/ImageSharp/Processing/Processors/Transforms/Resize)
     /// ImageSharp is under the GNU Affero General Public License v3.0, which is available here: https://www.gnu.org/licenses/agpl-3.0.html
     /// </summary>
-    public static partial class ReadWriteBitmapDataExtensions
+    public static partial class BitmapDataExtensions
     {
         #region Nested Types
         
@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Represents a resizing session.
         /// </summary>
-        internal sealed class ResizingSession : IDisposable
+        private sealed class ResizingSession : IDisposable
         {
             #region Fields
 

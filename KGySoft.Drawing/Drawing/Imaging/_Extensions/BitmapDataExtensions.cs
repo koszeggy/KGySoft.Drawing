@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ReadableBitmapDataExtensions.cs
+//  File: BitmapDataExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2020 - All Rights Reserved
 //
@@ -29,7 +29,7 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Imaging
 {
-    public static partial class ReadableBitmapDataExtensions
+    public static partial class BitmapDataExtensions
     {
         #region Constants
 
@@ -545,7 +545,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                using (var resizingSession = new ReadWriteBitmapDataExtensions.ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
+                using (var resizingSession = new ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
                 {
                     if (ditherer == null || !target.PixelFormat.CanBeDithered())
                         resizingSession.DoResizeDirect(actualTargetRectangle.Top, actualTargetRectangle.Bottom);
@@ -604,7 +604,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                using (var resizingSession = new ReadWriteBitmapDataExtensions.ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
+                using (var resizingSession = new ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
                 {
                     if (ditherer == null || !target.PixelFormat.CanBeDithered())
                         resizingSession.DoResizeDirect(actualTargetRectangle.Top, actualTargetRectangle.Bottom);

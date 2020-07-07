@@ -26,9 +26,12 @@
 
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
++ The BitmapDataFactory class has been made public. From now on you can create completely managed bitmap data on any
+  platform with any pixel format.
++ New BitmapDataExtensions class to provide similar functionality some for IBitmapData instances that are in the
+  already existing BitmapExtensions and ImageExtensions classes such as CopyTo/DrawInto/Quantize/Dither/etc.
 ! IBitmapData interface: BackColor and AlphaThreshold properties are now exposed by this interface. You can
   define these anyway when you use the Get[Readable/Writable/ReadWrite]BitmapData methods.
-+ New ReadWriteBitmapDataExtensions class to provide some drawing methods for IReadWriteBitmapData instances.
 + Color32 struct: new ToOpaque method
 + PredefinedColorsQuantizer class:
   + New Argb8888 method
