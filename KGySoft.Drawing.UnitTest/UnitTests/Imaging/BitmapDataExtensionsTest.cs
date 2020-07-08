@@ -319,9 +319,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Test]
-        public void DrawIntoSameInstanceOverlappingTest()
+        public void DrawIntoWithoutResizeSameInstanceOverlappingTest()
         {
-            throw new NotImplementedException("TODO: check");
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
             using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
             {
@@ -329,6 +328,65 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             SaveImage(null, bmp);
+        }
+
+
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void DrawIntoNoResizeDirectTest(PixelFormat pixelFormat)
+        {
+            var rect = new Rectangle(128, 128, 128, 128);
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
+            source.DrawInto(targetFull);
+
+            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
+            source.DrawInto(targetClipped, rect);
+
+            AssertAreEqual(targetFull, targetClipped, false, rect);
+
+            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+        }
+
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void DrawIntoNoResizeWithQuantizerTest(PixelFormat pixelFormat)
+        {
+            var rect = new Rectangle(128, 128, 128, 128);
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize());
+            var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
+            source.DrawInto(targetFull, Point.Empty, quantizer);
+
+            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
+            source.DrawInto(targetClipped, rect, Point.Empty, quantizer);
+            AssertAreEqual(targetFull, targetClipped, false, rect);
+
+            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+        }
+
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void DrawIntoNoResizeWithDithererTest(PixelFormat pixelFormat)
+        {
+            var rect = new Rectangle(128, 128, 128, 128);
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            var ditherers = new Dictionary<string, IDitherer>
+            {
+                ["Ordered"] = OrderedDitherer.Bayer8x8,
+                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+            };
+
+            foreach (var ditherer in ditherers)
+            {
+                using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
+                source.DrawInto(targetClipped, rect, Point.Empty, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat), ditherer.Value);
+                SaveImage($"{pixelFormat} {ditherer.Key}", targetClipped.ToBitmap());
+            }
         }
 
         [Test]
@@ -342,6 +400,67 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             SaveImage("result", bmp);
+        }
+
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void DrawIntoWithResizeDirectTest(PixelFormat pixelFormat)
+        {
+            throw new NotImplementedException("TODO");
+            var rect = new Rectangle(128, 128, 128, 128);
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
+            source.CopyTo(targetFull);
+
+            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
+            source.CopyTo(targetClipped, rect);
+
+            AssertAreEqual(targetFull, targetClipped, false, rect);
+
+            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+        }
+
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void DrawIntoWithResizeWithQuantizerTest(PixelFormat pixelFormat)
+        {
+            throw new NotImplementedException("TODO");
+            var rect = new Rectangle(128, 128, 128, 128);
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize());
+            var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
+            source.CopyTo(targetFull, Point.Empty, quantizer);
+
+            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
+            source.CopyTo(targetClipped, rect, Point.Empty, quantizer);
+            AssertAreEqual(targetFull, targetClipped, false, rect);
+
+            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+        }
+
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void DrawIntoWithResizeWithDithererTest(PixelFormat pixelFormat)
+        {
+            throw new NotImplementedException("TODO");
+            var rect = new Rectangle(128, 128, 128, 128);
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            var ditherers = new Dictionary<string, IDitherer>
+            {
+                ["Ordered"] = OrderedDitherer.Bayer8x8,
+                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+            };
+
+            foreach (var ditherer in ditherers)
+            {
+                using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
+                source.CopyTo(targetClipped, rect, Point.Empty, ditherer.Value);
+                SaveImage($"{pixelFormat} {ditherer.Key}", targetClipped.ToBitmap());
+            }
         }
 
         [Test]

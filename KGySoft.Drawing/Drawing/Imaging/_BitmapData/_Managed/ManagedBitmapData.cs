@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette palette = null)
         {
             Debug.Assert(size.Width > 0 && size.Height > 0, "Non-empty size expected");
             Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");

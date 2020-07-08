@@ -172,111 +172,23 @@ namespace KGySoft.Drawing.Imaging
         }
 
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
-            => CopyTo(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer);
+            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer, false);
 
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation, IDitherer ditherer)
-            => CopyTo(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer);
+            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer, false);
 
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer)
-            => CopyTo(source, target, sourceRectangle, targetLocation, null, ditherer);
+            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, null, ditherer, false);
 
         // TODO Docs:
         // - If the quantizer uses more colors than the target can use the result may have a poorer quality than expected
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-
-            var session = new CopySession();
-            var targetBounds = new Rectangle(default, target.GetSize());
-            Unwrap(ref source, ref sourceRectangle);
-            Unwrap(ref target, ref targetBounds);
-
-            (session.SourceRectangle, session.TargetRectangle) = source.GetActualRectangles(sourceRectangle, targetBounds, targetLocation);
-            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
-                return;
-
-            // special handling for same references
-            if (ReferenceEquals(source, target))
-            {
-                // same area: nothing to do (even with dithering because we use a compatible quantizer with self format)
-                if (session.SourceRectangle == session.TargetRectangle)
-                    return;
-
-                // overlap: clone source
-                if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
-                {
-                    session.Source = (IBitmapDataInternal)Clone(source, session.SourceRectangle, source.PixelFormat);
-                    session.SourceRectangle.Location = Point.Empty;
-                }
-            }
-
-            if (session.Source == null)
-                session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
-
-            try
-            {
-                if (quantizer == null)
-                {
-                    // copying without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                    if (ditherer == null || !target.PixelFormat.CanBeDithered())
-                    {
-                        // Raw copy if possible
-                        if (session.TryPerformRawCopy())
-                            return;
-
-                        // By pixels without dithering
-                        session.PerformCopyDirect();
-                        return;
-                    }
-
-                    // if there is only a ditherer specified we pick a quantizer that matches target
-                    quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
-                }
-
-                // Using a clipped source for quantizer/ditherer if needed. Note: the CopySession uses the original source for the best performance
-                IReadableBitmapData initSource = session.SourceRectangle.Size == source.GetSize()
-                    ? source
-                    : source.Clip(session.SourceRectangle);
-
-                try
-                {
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
-                    {
-                        // quantization without dithering
-                        if (ditherer == null)
-                        {
-                            session.PerformCopyWithQuantizer(quantizingSession);
-                            return;
-                        }
-
-                        // quantization with dithering
-                        using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                            session.PerformCopyWithDithering(ditheringSession);
-                    }
-                }
-                finally
-                {
-                    if (!ReferenceEquals(initSource, source))
-                        initSource.Dispose();
-                }
-            }
-            finally
-            {
-                if (!ReferenceEquals(session.Source, source))
-                    session.Source.Dispose();
-                if (!ReferenceEquals(session.Target, target))
-                    session.Target.Dispose();
-            }
-        }
+            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer, false);
 
         #region DrawInto
 
         #region Without resize
-        
+
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> without scaling
         /// (for scaling use the overloads with <c>targetRectangle</c> parameter). This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
@@ -298,13 +210,13 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer);
+            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer, true);
 
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation, IDitherer ditherer)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer);
+            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer, true);
 
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer)
-            => DrawInto(source, target, sourceRectangle, targetLocation, null, ditherer);
+            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, null, ditherer, true);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> without scaling
@@ -329,40 +241,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
-        {
-            throw new NotImplementedException("TODO: shortcut to Copy if source has no alpha");
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-
-            (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = source.GetActualRectangles(sourceRectangle, target.GetSize(), targetLocation);
-            if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
-                return;
-
-            PixelFormat targetPixelFormat = target.PixelFormat;
-
-            // Cloning source if target and source are the same and source/target rectangles overlap
-            IBitmapDataInternal src = ReferenceEquals(source, target) && actualSourceRectangle.IntersectsWith(actualTargetRectangle)
-                ? (IBitmapDataInternal)source.Clone()
-                : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
-
-            try
-            {
-                if (ditherer == null || !targetPixelFormat.CanBeDithered())
-                    DrawIntoDirect(src, dst, actualSourceRectangle, actualTargetRectangle.Location);
-                else
-                    DrawIntoWithDithering(src, dst, actualSourceRectangle, actualTargetRectangle.Location, ditherer);
-            }
-            finally
-            {
-                if (!ReferenceEquals(src, source))
-                    src.Dispose();
-                if (!ReferenceEquals(dst, target))
-                    dst.Dispose();
-            }
-        }
+            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer, true);
 
         #endregion
 
@@ -391,7 +270,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, quantizer, ditherer, scalingMode, true);
+            => DoDrawWithResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, quantizer, ditherer, scalingMode, true);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
@@ -412,13 +291,13 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, ditherer, scalingMode, true);
+            => DoDrawWithResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, ditherer, scalingMode, true);
 
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, ScalingMode scalingMode)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, null, scalingMode, true);
+            => DoDrawWithResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, null, scalingMode, true);
 
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
-            => DrawInto(source, target, sourceRectangle, targetRectangle, null, ditherer, scalingMode, true);
+            => DoDrawWithResize(source, target, sourceRectangle, targetRectangle, null, ditherer, scalingMode, true);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
@@ -440,7 +319,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
-            => DrawInto(source, target, sourceRectangle, targetRectangle, null, null, scalingMode, true);
+            => DoDrawWithResize(source, target, sourceRectangle, targetRectangle, null, null, scalingMode, true);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
@@ -467,7 +346,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
-            => DrawInto(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, true);
+            => DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, true);
 
         #endregion
 
@@ -606,7 +485,108 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        internal static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
+        internal static void DoDrawWithoutResize(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool blend)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            Debug.Assert(!blend || target is IReadWriteBitmapData, "For blending target has to be readable");
+
+            var session = new CopySession();
+            var targetBounds = new Rectangle(default, target.GetSize());
+            Unwrap(ref source, ref sourceRectangle);
+            Unwrap(ref target, ref targetBounds);
+
+            (session.SourceRectangle, session.TargetRectangle) = source.GetActualRectangles(sourceRectangle, targetBounds, targetLocation);
+            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
+                return;
+
+            // special handling for same references
+            if (ReferenceEquals(source, target))
+            {
+                // same area: nothing to do (even with dithering because we use a compatible quantizer with self format)
+                if (session.SourceRectangle == session.TargetRectangle)
+                    return;
+
+                // overlap: clone source
+                if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
+                {
+                    session.Source = (IBitmapDataInternal)Clone(source, session.SourceRectangle, source.PixelFormat);
+                    session.SourceRectangle.Location = Point.Empty;
+                }
+            }
+
+            if (session.Source == null)
+                session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            session.Target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+
+            try
+            {
+                if (blend && !source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != true)
+                    blend = false;
+
+                if (quantizer == null)
+                {
+                    // processing without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
+                    if (ditherer == null || !target.PixelFormat.CanBeDithered())
+                    {
+                        if (blend)
+                            session.PerformDrawDirect();
+                        else if (!session.TryPerformRawCopy())
+                            session.PerformCopyDirect();
+                        return;
+                    }
+
+                    // if there is only a ditherer specified we pick a quantizer that matches target
+                    quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
+                }
+
+                // Using a clipped source for quantizer/ditherer if needed. Note: the CopySession uses the original source for the best performance
+                IReadableBitmapData initSource = session.SourceRectangle.Size == source.GetSize()
+                    ? source
+                    : source.Clip(session.SourceRectangle);
+
+                try
+                {
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    {
+                        // quantization without dithering
+                        if (ditherer == null)
+                        {
+                            if (blend)
+                                session.PerformDrawWithQuantizer(quantizingSession);
+                            else
+                                session.PerformCopyWithQuantizer(quantizingSession);
+                            return;
+                        }
+
+                        // quantization with dithering
+                        using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                        {
+                            if (blend)
+                                session.PerformDrawWithDithering(quantizingSession, ditheringSession);
+                            else
+                                session.PerformCopyWithDithering(ditheringSession);
+                        }
+                    }
+                }
+                finally
+                {
+                    if (!ReferenceEquals(initSource, source))
+                        initSource.Dispose();
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(session.Source, source))
+                    session.Source.Dispose();
+                if (!ReferenceEquals(session.Target, target))
+                    session.Target.Dispose();
+            }
+        }
+
+        internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
         {
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
@@ -665,7 +645,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
-        internal static void DrawInto2(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
+        internal static void DoDrawWithResize2(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
         {
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
@@ -726,183 +706,6 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Private Methods
-
-        [SecuritySafeCritical]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DrawIntoDirect(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRect, Point targetLocation)
-        {
-            #region Local Methods
-
-            void ProcessRowStraight(int y)
-            {
-                IBitmapDataRowInternal rowSrc = source.GetRow(sourceRect.Y + y);
-                IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
-                int sourceLeft = sourceRect.Left;
-                int targetLeft = targetLocation.X;
-                int sourceWidth = sourceRect.Width;
-                for (int x = 0; x < sourceWidth; x++)
-                {
-                    Color32 colorSrc = rowSrc.DoGetColor32(sourceLeft + x);
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoSetColor32(targetLeft + x, colorSrc);
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    int pos = targetLeft + x;
-                    Color32 colorDst = rowDst.DoGetColor32(pos);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoSetColor32(pos, colorSrc);
-                        continue;
-                    }
-
-                    colorSrc = colorDst.A == Byte.MaxValue
-                        // target pixel is fully solid: simple blending
-                        ? colorSrc.BlendWithBackground(colorDst)
-                        // both source and target pixels are partially transparent: complex blending
-                        : colorSrc.BlendWith(colorDst);
-
-                    rowDst.DoSetColor32(pos, colorSrc);
-                }
-            }
-
-            void ProcessRowPremultiplied(int y)
-            {
-                IBitmapDataRowInternal rowSrc = source.GetRow(sourceRect.Y + y);
-                IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
-                int sourceLeft = sourceRect.Left;
-                int targetLeft = targetLocation.X;
-                int sourceWidth = sourceRect.Width;
-                bool isPremultipliedSource = source.PixelFormat == PixelFormat.Format32bppPArgb;
-                for (int x = 0; x < sourceWidth; x++)
-                {
-                    Color32 colorSrc = isPremultipliedSource
-                            ? rowSrc.DoReadRaw<Color32>(sourceLeft + x)
-                            : rowSrc.DoGetColor32(sourceLeft + x).ToPremultiplied();
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoWriteRaw(targetLeft + x, colorSrc);
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    int pos = targetLeft + x;
-                    Color32 colorDst = rowDst.DoReadRaw<Color32>(pos);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoWriteRaw(pos, colorSrc);
-                        continue;
-                    }
-
-                    rowDst.DoWriteRaw(pos, colorSrc.BlendWithPremultiplied(colorDst));
-                }
-            }
-
-            #endregion
-
-            Action<int> processRow = target.PixelFormat == PixelFormat.Format32bppPArgb
-                    ? ProcessRowPremultiplied
-                    : (Action<int>)ProcessRowStraight;
-
-            // Sequential processing
-            if (sourceRect.Width < parallelThreshold)
-            {
-                for (int y = 0; y < sourceRect.Height; y++)
-                    processRow.Invoke(y);
-                return;
-            }
-
-            // Parallel processing
-            ParallelHelper.For(0, sourceRect.Height, processRow);
-        }
-
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void DrawIntoWithDithering(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRect, Point targetLocation, IDitherer ditherer)
-        {
-            #region Local Methods
-
-            static void ProcessRow(int y, IDitheringSession session, IBitmapDataInternal src, IBitmapDataInternal dst, Rectangle rectSrc, Point locDst)
-            {
-                int ySrc = y + rectSrc.Top;
-                IBitmapDataRowInternal rowSrc = src.GetRow(ySrc);
-                IBitmapDataRowInternal rowDst = dst.GetRow(y + locDst.Y);
-
-                for (int x = 0; x < rectSrc.Width; x++)
-                {
-                    int xSrc = x + rectSrc.Left;
-                    Color32 colorSrc = rowSrc.DoGetColor32(xSrc);
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoSetColor32(x + locDst.X, session.GetDitheredColor(colorSrc, xSrc, ySrc));
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    int xDst = locDst.X + x;
-                    Color32 colorDst = rowDst.DoGetColor32(xDst);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoSetColor32(xDst, session.GetDitheredColor(colorSrc, xSrc, ySrc));
-                        continue;
-                    }
-
-                    colorSrc = colorDst.A == Byte.MaxValue
-                        // target pixel is fully solid: simple blending
-                        ? colorSrc.BlendWithBackground(colorDst)
-                        // both source and target pixels are partially transparent: complex blending
-                        : colorSrc.BlendWith(colorDst);
-
-                    rowDst.DoSetColor32(xDst, session.GetDitheredColor(colorSrc, xSrc, ySrc));
-                }
-            }
-
-            #endregion
-
-            IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
-            using (IQuantizingSession quantizingSession = quantizer.Initialize(source))
-            using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-            {
-                // sequential processing
-                if (ditheringSession.IsSequential || sourceRect.Width < parallelThreshold)
-                {
-                    for (int y = 0; y < sourceRect.Height; y++)
-                        ProcessRow(y, ditheringSession, source, target, sourceRect, targetLocation);
-                    return;
-                }
-
-                // parallel processing
-                ParallelHelper.For(0, sourceRect.Height, y =>
-                {
-                    ProcessRow(y, ditheringSession, source, target, sourceRect, targetLocation);
-                });
-            }
-        }
 
         private static (Rectangle, Rectangle) GetActualRectangles(Rectangle sourceRectangle, int sourceWidth, int sourceHeight, Rectangle targetRectangle, int targetWidth, int targetHeight)
         {

@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Imaging;
 
 #endregion
 
@@ -31,12 +32,6 @@ namespace KGySoft.Drawing.Imaging
 
         private struct CopySession
         {
-            #region Constants
-
-            private const int parallelThreshold = 100;
-
-            #endregion
-
             #region Fields
 
             internal IBitmapDataInternal Source;
@@ -156,10 +151,132 @@ namespace KGySoft.Drawing.Imaging
                 });
             }
 
+            internal void PerformDrawDirect()
+            {
+                IBitmapDataInternal source = Source;
+                IBitmapDataInternal target = Target;
+                Point sourceLocation = SourceRectangle.Location;
+                Point targetLocation = TargetRectangle.Location;
+                int width = SourceRectangle.Width;
+
+                // Sequential processing
+                if (SourceRectangle.Width < parallelThreshold)
+                {
+                    if (Target.PixelFormat == PixelFormat.Format32bppPArgb)
+                    {
+                        for (int y = 0; y < SourceRectangle.Height; y++)
+                            ProcessRowPremultiplied(y);
+                    }
+                    else
+                    {
+                        for (int y = 0; y < SourceRectangle.Height; y++)
+                            ProcessRowStraight(y);
+                    }
+
+                    return;
+                }
+
+                // Parallel processing
+                Action<int> processRow = Target.PixelFormat == PixelFormat.Format32bppPArgb
+                    ? ProcessRowPremultiplied
+                    : (Action<int>)ProcessRowStraight;
+
+                ParallelHelper.For(0, SourceRectangle.Height, processRow);
+
+                #region Local Methods
+
+                void ProcessRowStraight(int y)
+                {
+                    IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
+                    IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
+                    int offsetSrc = sourceLocation.X;
+                    int offsetDst = targetLocation.X;
+                    int len = width;
+
+                    for (int x = 0; x < len; x++)
+                    {
+                        Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            rowDst.DoSetColor32(x + offsetDst, colorSrc);
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0 || colorSrc.A < target.AlphaThreshold)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + offsetDst;
+                        Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            rowDst.DoSetColor32(pos, colorSrc);
+                            continue;
+                        }
+
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst);
+
+                        rowDst.DoSetColor32(pos, colorSrc);
+                    }
+                }
+
+                void ProcessRowPremultiplied(int y)
+                {
+                    IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
+                    IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
+                    int offsetSrc = sourceLocation.X;
+                    int offsetDst = targetLocation.X;
+                    int len = width;
+                    bool isPremultipliedSource = source.PixelFormat == PixelFormat.Format32bppPArgb;
+
+                    for (int x = 0; x < len; x++)
+                    {
+                        Color32 colorSrc = isPremultipliedSource
+                                ? rowSrc.DoReadRaw<Color32>(x + offsetSrc)
+                                : rowSrc.DoGetColor32(x + offsetSrc).ToPremultiplied();
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            rowDst.DoWriteRaw(x + offsetDst, colorSrc);
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + offsetDst;
+                        Color32 colorDst = rowDst.DoReadRaw<Color32>(pos);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            rowDst.DoWriteRaw(pos, colorSrc);
+                            continue;
+                        }
+
+                        rowDst.DoWriteRaw(pos, colorSrc.BlendWithPremultiplied(colorDst));
+                    }
+                }
+
+                #endregion
+            }
+
             internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession)
             {
                 // Sequential processing
-                if (SourceRectangle.Width < parallelThreshold)
+                if (SourceRectangle.Width < (parallelThreshold >> 1))
                 {
                     IBitmapDataRowInternal rowSrc = Source.GetRow(SourceRectangle.Y);
                     IBitmapDataRowInternal rowDst = Target.GetRow(TargetRectangle.Y);
@@ -181,20 +298,92 @@ namespace KGySoft.Drawing.Imaging
                 int width = SourceRectangle.Width;
                 ParallelHelper.For(0, SourceRectangle.Height, y =>
                 {
+                    IQuantizingSession session = quantizingSession;
                     IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
                     IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
                     int offsetSrc = sourceLocation.X;
                     int offsetDst = targetLocation.X;
                     int len = width;
                     for (int x = 0; x < len; x++)
-                        rowDst.DoSetColor32(x + offsetDst, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x + offsetSrc)));
+                        rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(rowSrc.DoGetColor32(x + offsetSrc)));
                 });
+            }
+
+            internal void PerformDrawWithQuantizer(IQuantizingSession quantizingSession)
+            {
+                IBitmapDataInternal source = Source;
+                IBitmapDataInternal target = Target;
+                Point sourceLocation = SourceRectangle.Location;
+                Point targetLocation = TargetRectangle.Location;
+                int width = SourceRectangle.Width;
+
+                // Sequential processing
+                if (SourceRectangle.Width < parallelThreshold)
+                {
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                        ProcessRow(y);
+
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, SourceRectangle.Height, ProcessRow);
+
+                #region Local Methods
+
+                void ProcessRow(int y)
+                {
+                    IQuantizingSession session = quantizingSession;
+                    IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
+                    IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
+                    int offsetSrc = sourceLocation.X;
+                    int offsetDst = targetLocation.X;
+                    byte alphaThreshold = session.AlphaThreshold;
+                    int len = width;
+
+                    for (int x = 0; x < len; x++)
+                    {
+                        Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(colorSrc));
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0 || colorSrc.A < alphaThreshold)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + offsetDst;
+                        Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            rowDst.DoSetColor32(pos, session.GetQuantizedColor(colorSrc));
+                            continue;
+                        }
+
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst);
+
+                        rowDst.DoSetColor32(pos, session.GetQuantizedColor(colorSrc));
+                    }
+                }
+
+                #endregion
             }
 
             internal void PerformCopyWithDithering(IDitheringSession ditheringSession)
             {
                 // Sequential processing
-                if (SourceRectangle.Width < parallelThreshold || ditheringSession.IsSequential)
+                if (SourceRectangle.Width < (parallelThreshold >> 2) || ditheringSession.IsSequential)
                 {
                     IBitmapDataRowInternal rowSrc = Source.GetRow(SourceRectangle.Y);
                     IBitmapDataRowInternal rowDst = Target.GetRow(TargetRectangle.Y);
@@ -228,6 +417,77 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < len; x++)
                         rowDst.DoSetColor32(x + offsetDst, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x + offsetSrc), x, y));
                 });
+            }
+
+            internal void PerformDrawWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
+            {
+                IBitmapDataInternal source = Source;
+                IBitmapDataInternal target = Target;
+                Point sourceLocation = SourceRectangle.Location;
+                Point targetLocation = TargetRectangle.Location;
+                int width = SourceRectangle.Width;
+
+                // Sequential processing
+                if (SourceRectangle.Width < (parallelThreshold >> 2) || ditheringSession.IsSequential)
+                {
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                        ProcessRow(y);
+
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, SourceRectangle.Height, ProcessRow);
+
+                #region Local Methods
+
+                void ProcessRow(int y)
+                {
+                    IDitheringSession session = ditheringSession;
+                    IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
+                    IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
+                    int offsetSrc = sourceLocation.X;
+                    int offsetDst = targetLocation.X;
+                    byte alphaThreshold = quantizingSession.AlphaThreshold;
+                    int len = width;
+
+                    for (int x = 0; x < len; x++)
+                    {
+                        Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(colorSrc, x, y));
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0 || colorSrc.A < alphaThreshold)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + offsetDst;
+                        Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            rowDst.DoSetColor32(pos, session.GetDitheredColor(colorSrc, x, y));
+                            continue;
+                        }
+
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackground(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWith(colorDst);
+
+                        rowDst.DoSetColor32(pos, session.GetDitheredColor(colorSrc, x, y));
+                    }
+                }
+
+                #endregion
             }
 
             #endregion

@@ -229,6 +229,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color32[] Entries { get; }
         internal bool IsGrayscale { get; }
+        internal bool HasAlpha { get; }
 
         #endregion
 
@@ -237,7 +238,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         #region Public Constructors
-        
+
         /// <summary>
         /// Initializes a new instance of the <see cref="Palette"/> class.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
@@ -270,6 +271,9 @@ namespace KGySoft.Drawing.Imaging
                 Color32 c = entries[i];
                 if (!color32ToIndex.ContainsKey(c) && !(AlphaThreshold == 0 && c.A == 0))
                     color32ToIndex[c] = i;
+
+                if (c.A != Byte.MaxValue)
+                    HasAlpha = true;
 
                 if (c.A == 0)
                 {

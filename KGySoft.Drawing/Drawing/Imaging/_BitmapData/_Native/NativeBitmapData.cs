@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette palette = null)
+        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold = 0, Palette palette = null)
             : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette)
         {
         }

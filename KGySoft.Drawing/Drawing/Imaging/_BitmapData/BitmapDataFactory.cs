@@ -45,7 +45,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="backColor">Specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section for details. The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="alphaThreshold">Specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
+        /// <param name="alphaThreshold">For pixel formats without alpha gradients support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
         /// See the <strong>Remarks</strong> section for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="palette">Specifies the desired <see cref="IBitmapData.Palette"/> of the returned <see cref="IReadWriteBitmapData"/> instance.</param>
@@ -63,6 +63,8 @@ namespace KGySoft.Drawing.Imaging
         /// will be transparent only if the color to set is completely transparent (has zero alpha).</para>
         /// <para>If <paramref name="alphaThreshold"/> is <c>255</c>, then the result color of setting a pixel of a bitmap data with indexed or single-bit-alpha pixel format
         /// will be opaque only if the color to set is completely opaque (its alpha value is <c>255</c>).</para>
+        /// <para>For <see cref="PixelFormat"/>s without any alpha support the specified <paramref name="alphaThreshold"/> is used only to determine the source pixels to skip
+        /// when another bitmap data is drawn into the returned instance.</para>
         /// <para>If a pixel of a bitmap data without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
@@ -101,10 +103,10 @@ namespace KGySoft.Drawing.Imaging
             switch (pixelFormat)
             {
                 case PixelFormat.Format32bppArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow32Argb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new NativeBitmapData<NativeBitmapDataRow32Argb>(bitmap, pixelFormat, lockMode, backColor);
 
                 case PixelFormat.Format32bppPArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new NativeBitmapData<NativeBitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode, backColor);
 
                 case PixelFormat.Format32bppRgb:
                     return new NativeBitmapData<NativeBitmapDataRow32Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
@@ -122,10 +124,10 @@ namespace KGySoft.Drawing.Imaging
                     return new NativeBitmapData<NativeBitmapDataRow1I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette);
 
                 case PixelFormat.Format64bppArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow64Argb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new NativeBitmapData<NativeBitmapDataRow64Argb>(bitmap, pixelFormat, lockMode, backColor);
 
                 case PixelFormat.Format64bppPArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow64PArgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return new NativeBitmapData<NativeBitmapDataRow64PArgb>(bitmap, pixelFormat, lockMode, backColor);
 
                 case PixelFormat.Format48bppRgb:
                     return new NativeBitmapData<NativeBitmapDataRow48Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
@@ -195,10 +197,10 @@ namespace KGySoft.Drawing.Imaging
             switch (pixelFormat)
             {
                 case PixelFormat.Format32bppArgb:
-                    return new ManagedBitmapData<Color32, ManagedBitmapDataRow32Argb>(size, pixelFormat, backColor, alphaThreshold);
+                    return new ManagedBitmapData<Color32, ManagedBitmapDataRow32Argb>(size, pixelFormat, backColor);
 
                 case PixelFormat.Format32bppPArgb:
-                    return new ManagedBitmapData<Color32, ManagedBitmapDataRow32PArgb>(size, pixelFormat, backColor, alphaThreshold);
+                    return new ManagedBitmapData<Color32, ManagedBitmapDataRow32PArgb>(size, pixelFormat, backColor);
 
                 case PixelFormat.Format32bppRgb:
                     return new ManagedBitmapData<Color32, ManagedBitmapDataRow32Rgb>(size, pixelFormat, backColor, alphaThreshold);
@@ -216,10 +218,10 @@ namespace KGySoft.Drawing.Imaging
                     return new ManagedBitmapData<byte, ManagedBitmapDataRow1I>(size, pixelFormat, backColor, alphaThreshold, palette);
 
                 case PixelFormat.Format64bppArgb:
-                    return new ManagedBitmapData<Color64, ManagedBitmapDataRow64Argb>(size, pixelFormat, backColor, alphaThreshold);
+                    return new ManagedBitmapData<Color64, ManagedBitmapDataRow64Argb>(size, pixelFormat, backColor);
 
                 case PixelFormat.Format64bppPArgb:
-                    return new ManagedBitmapData<Color64, ManagedBitmapDataRow64PArgb>(size, pixelFormat, backColor, alphaThreshold);
+                    return new ManagedBitmapData<Color64, ManagedBitmapDataRow64PArgb>(size, pixelFormat, backColor);
 
                 case PixelFormat.Format48bppRgb:
                     return new ManagedBitmapData<Color48, ManagedBitmapDataRow48Rgb>(size, pixelFormat, backColor, alphaThreshold);

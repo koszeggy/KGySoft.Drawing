@@ -1046,7 +1046,7 @@ namespace KGySoft.Drawing
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                 {
-                    src.DrawInto2(dst, sourceRectangle, targetRectangle, null, ditherer, scalingMode, true);
+                    src.DoDrawWithResize2(dst, sourceRectangle, targetRectangle, null, ditherer, scalingMode, true);
                 }
             }
             finally
