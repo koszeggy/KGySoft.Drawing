@@ -10,7 +10,7 @@ Main new features in 5.x:
 - Quantizing and dithering
 - Managed bitmap data with any pixel format on any platform
 
-Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
+Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/de040639f1095be6374fd9417ef3bd49eeab4240/KGySoft.Drawing/changelog.txt
 
                                                  ~~*~~
 

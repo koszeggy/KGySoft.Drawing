@@ -44,6 +44,42 @@ namespace KGySoft.Drawing
 
         #region Methods
 
+        #region Internal Methods
+
+        #region Exception
+
+#if NET35 || NET40
+        internal static string GetSource(this Exception exception) => GetFieldValueOrDefault<string>(exception, "source");
+        internal static void SetSource(this Exception exception, string value) => SetFieldValue(exception, "source", value, false);
+        internal static void SetRemoteStackTraceString(this Exception exception, string value) => SetFieldValue(exception, "remoteStackTraceString", value, false);
+        internal static void InternalPreserveStackTrace(this Exception exception) => Reflector.TryInvokeMethod(exception, "InternalPreserveStackTrace", out var _);
+#endif
+
+        #endregion
+
+        #region Graphics
+
+        internal static Image GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Image>(graphics, "backingImage");
+
+        #endregion
+
+        #region Icon
+        
+        internal static bool HasIconData(this Icon icon) => (GetField(typeof(Icon), null, "iconData")
+            ?? GetField(typeof(Icon), null, "imageData"))?.Get(icon) != null;
+
+        #endregion
+
+        #region ColorPalette
+        
+        internal static void SetEntries(this ColorPalette palette, Color[] value) => SetFieldValue(palette, "entries", value);
+
+        #endregion
+
+        #endregion
+
+        #region Private Methods
+
         private static FieldAccessor GetField(Type type, Type fieldType, string fieldNamePattern)
         {
             FieldAccessor GetFieldAccessor((Type DeclaringType, Type FieldType, string FieldNamePattern) key)
@@ -89,13 +125,7 @@ namespace KGySoft.Drawing
             field.Set(obj, value);
         }
 
-
-        internal static Image GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Image>(graphics, "backingImage"); 
-
-        internal static bool HasIconData(this Icon icon) => (GetField(typeof(Icon), null, "iconData")
-            ?? GetField(typeof(Icon), null, "imageData"))?.Get(icon) != null;
-
-        internal static void SetEntries(this ColorPalette palette, Color[] value) => SetFieldValue(palette, "entries", value);
+        #endregion
 
         #endregion
     }

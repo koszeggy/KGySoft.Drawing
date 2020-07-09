@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal override ref byte GetPinnableReference()
         {
-#if NET35 || NET40 || NET45
+#if NET35 || NET40 || NET45 || NETCOREAPP2_0
             ref TColor head = ref Buffer.GetPinnableReference();
             unsafe
             {
