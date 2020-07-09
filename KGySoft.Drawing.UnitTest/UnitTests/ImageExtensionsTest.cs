@@ -332,41 +332,6 @@ namespace KGySoft.Drawing.UnitTests
             throw new NotImplementedException("TODO: fix");
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
-        public void DrawIntoWithResizeDitheringTest2(PixelFormat formatDst, ScalingMode scalingMode)
-        {
-            var ditherers = new Dictionary<string, IDitherer>
-            {
-                ["Ordered"] = OrderedDitherer.Bayer8x8,
-                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
-                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
-            };
-
-            foreach (KeyValuePair<string, IDitherer> ditherer in ditherers)
-            {
-                using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256));
-                using var bmpDst = new Bitmap(bmpSrc.Width, bmpSrc.Height, formatDst);
-
-                bmpDst.Clear(Color.Transparent, ditherer.Value, Color.Lime);
-
-                var targetRect = new Rectangle(Point.Empty, bmpSrc.Size);
-                targetRect.Inflate(-32, -32);
-
-                // shrink
-                Assert.DoesNotThrow(() => bmpSrc.DrawInto2(bmpDst, targetRect, scalingMode, ditherer.Value));
-
-                // enlarge
-                targetRect = new Rectangle(160, 160, 100, 100);
-                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto2(bmpDst, targetRect, scalingMode, ditherer.Value));
-                SaveImage($"{formatDst} {scalingMode} {ditherer.Key}", bmpDst);
-            }
-
-            throw new NotImplementedException("TODO: in the end, remove 2");
-        }
-
         [Test]
         public void DrawIntoWithResizeSameInstanceTest()
         {

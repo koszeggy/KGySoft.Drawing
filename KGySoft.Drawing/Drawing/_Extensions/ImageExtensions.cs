@@ -860,31 +860,6 @@ namespace KGySoft.Drawing
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
         /// <param name="targetRectangle">The target area to be drawn the source image.</param>
-        /// <param name="scalingMode">Specifies the scaling mode if the image to be drawn needs to be resized. This parameter is optional.
-        /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
-        /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        /// <remarks>
-        /// <para>The method has the best performance if <paramref name="targetRectangle"/> has the same size as the source image, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
-        /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> is exceeds target bounds or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
-        /// and <paramref name="targetRectangle"/> is smaller than the source image.</para>
-        /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static void DrawInto2(this Image source, Bitmap target, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
-            => DrawInto2(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, scalingMode, ditherer);
-
-        /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
-        /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
-        /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
-        /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
-        /// and also an optional <paramref name="ditherer"/> can be specified.
-        /// <br/>See the <strong>Remarks</strong> section for details.
-        /// </summary>
-        /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
-        /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
-        /// <param name="targetRectangle">The target area to be drawn the source image.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size.
         /// If <see langword="null"/>, then no dithering will be used.</param>
         /// <remarks>
@@ -978,75 +953,6 @@ namespace KGySoft.Drawing
                 {
                     throw new NotImplementedException("TODO: review, quantizer, call most specfic overload");
                     src.DrawInto(dst, sourceRectangle, targetRectangle, ditherer, scalingMode);
-                }
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, source))
-                    bmp.Dispose();
-            }
-        }
-
-        /// <summary>
-        /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
-        /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
-        /// except that this one works between any pair of source and target <see cref="PixelFormat"/>s.
-        /// If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the target,
-        /// and also an optional <paramref name="ditherer"/> can be specified.
-        /// <br/>See the <strong>Remarks</strong> section for details.
-        /// </summary>
-        /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
-        /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
-        /// <param name="sourceRectangle">The source area to be drawn into the <paramref name="target"/>.</param>
-        /// <param name="targetRectangle">The target area to be drawn the source image.</param>
-        /// <param name="scalingMode">Specifies the scaling mode if the image to be drawn needs to be resized. This parameter is optional.
-        /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
-        /// <param name="ditherer">The ditherer to be used for the drawing. Has no effect, if target pixel format has at least 24 bits-per-pixel size. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        /// <remarks>
-        /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
-        /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>,
-        /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
-        /// </remarks>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
-        public static void DrawInto2(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
-        {
-            // Fallback to non-resizing mode if possible
-            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
-            {
-                if (scalingMode != ScalingMode.NoScaling && !scalingMode.IsDefined())
-                    throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
-                DrawInto(source, target, sourceRectangle, targetRectangle.Location, ditherer);
-                return;
-            }
-
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-            if (!scalingMode.IsDefined())
-                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
-
-            // just some quick checks if there is nothing to draw
-            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
-                || Rectangle.Intersect(targetRectangle, new Rectangle(Point.Empty, target.Size)).IsEmpty)
-            {
-                return;
-            }
-
-            // Cloning source if target and source are the same, or creating a new bitmap is source is a metafile
-            Bitmap bmp = ReferenceEquals(source, target)
-                ? ((Bitmap)source).CloneCurrentFrame()
-                : source as Bitmap ?? new Bitmap(source);
-
-            try
-            {
-                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                {
-                    src.DoDrawWithResize2(dst, sourceRectangle, targetRectangle, null, ditherer, scalingMode, true);
                 }
             }
             finally
