@@ -324,7 +324,7 @@ namespace KGySoft.Drawing.PerformanceTests
             Size targetSize = new Size(tw, th);
             using var bmpRef = Icons.Information.ExtractBitmap(sourceSize);
 
-            var perfTest = new PerformanceTest { Iterations = 10, CpuAffinity = null, TestName = $"{sw}x{sh} to {tw}x{th}" };
+            var perfTest = new PerformanceTest { Iterations = 100, CpuAffinity = null, TestName = $"{sw}x{sh} to {tw}x{th}" };
             foreach (var mode in new[] { InterpolationMode.NearestNeighbor, InterpolationMode.Bilinear, InterpolationMode.HighQualityBicubic })
             {
                 perfTest.AddCase(() =>

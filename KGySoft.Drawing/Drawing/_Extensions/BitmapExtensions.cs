@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -153,7 +152,7 @@ namespace KGySoft.Drawing
             
             return result;
         }
-     
+
         /// <summary>
         /// When <paramref name="image"/> contains multiple pages, frames or multi-resolution sub-images, returns them as separated <see cref="Bitmap"/> instances.
         /// Otherwise, returns a new <see cref="Bitmap"/> with the copy of the original <paramref name="image"/>.

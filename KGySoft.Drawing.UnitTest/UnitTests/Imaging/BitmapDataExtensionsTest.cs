@@ -254,7 +254,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             AssertAreEqual(source, targetFull);
 
             using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
-            source.CopyTo(targetClipped, rect);
+            source.CopyTo(targetClipped, rect, Point.Empty);
             AssertAreEqual(source, targetClipped, false, rect);
 
             SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
@@ -271,7 +271,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             source.CopyTo(targetFull);
 
             using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
-            source.CopyTo(targetClipped, rect);
+            source.CopyTo(targetClipped, rect, Point.Empty);
 
             AssertAreEqual(targetFull, targetClipped, false, rect);
 

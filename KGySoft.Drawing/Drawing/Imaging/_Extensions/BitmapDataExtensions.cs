@@ -180,7 +180,7 @@ namespace KGySoft.Drawing.Imaging
 
         // TODO Docs:
         // - If the quantizer uses more colors than the target can use the result may have a poorer quality than expected
-        public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
+        public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
             => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer, false);
 
         #region DrawInto
@@ -238,7 +238,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "src and dst are disposed if necessary")]
-        public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
+        public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
             => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer, true);
 
         #endregion
@@ -267,7 +267,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
+        public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
             => DoDrawWithResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, quantizer, ditherer, scalingMode, true);
 
         /// <summary>
@@ -602,12 +602,12 @@ namespace KGySoft.Drawing.Imaging
                 if (scalingMode == ScalingMode.NearestNeighbor)
                 {
                     var session = new ResizingSessionNearestNeighbor(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
-                    session.PerformResizeNearestNeighbor(blend);
+                    session.PerformResizeNearestNeighbor(false);
                 }
                 else
                 {
                     using var session = new ResizingSessionInterpolated(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle, scalingMode);
-                    session.PerformResize(blend);
+                    session.PerformResize(false);
                 }
 
                 // As a last step we copy the temp target into the actual one

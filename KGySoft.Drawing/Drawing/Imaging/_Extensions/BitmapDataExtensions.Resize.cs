@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -294,10 +295,16 @@ namespace KGySoft.Drawing.Imaging
 
             #region Internal Methods
 
+            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal void PerformResize(bool blend)
             {
                 if (blend)
-                    DoResizeWithBlending();
+                {
+                    if (target.PixelFormat == PixelFormat.Format32bppPArgb)
+                        DoResizeWithBlendingPremultiplied();
+                    else
+                        DoResizeWithBlendingStraight();
+                }
                 else
                     DoResizeNoBlending();
             }
@@ -371,7 +378,7 @@ namespace KGySoft.Drawing.Imaging
                 });
             }
 
-            private void DoResizeWithBlending()
+            private void DoResizeWithBlendingStraight()
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
                 ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, y =>
@@ -429,6 +436,59 @@ namespace KGySoft.Drawing.Imaging
                 });
             }
 
+            private void DoResizeWithBlendingPremultiplied()
+            {
+                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+                ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, y =>
+                {
+                    ResizeKernel kernel = verticalKernelMap.GetKernel(y - targetRectangle.Y);
+                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                        Slide();
+
+                    IBitmapDataRowInternal row = target.GetRow(y);
+                    int topLine = kernel.StartIndex - currentWindow.Top;
+                    int targetWidth = targetRectangle.Width;
+                    int targetLeft = targetRectangle.Left;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        // Destination color components
+                        ColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                        // fully transparent source: skip
+                        if (colorF.A <= 0f)
+                            continue;
+
+                        Color32 colorSrc = colorF.ToColor32();
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            row.DoWriteRaw(x + targetLeft, colorSrc);
+                            continue;
+                        }
+
+                        // checking full transparency again (means almost zero colorF.A)
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        colorSrc = colorSrc.ToPremultiplied();
+
+                        // source here has a partial transparency: we need to read the target color
+                        int targetX = x + targetLeft;
+                        Color32 colorDst = row.DoReadRaw<Color32>(targetX);
+
+                        // fully transparent target: we can overwrite with source
+                        if (colorDst.A == 0)
+                        {
+                            row.DoWriteRaw(targetX, colorSrc);
+                            continue;
+                        }
+
+                        row.DoWriteRaw(targetX, colorSrc.BlendWithPremultiplied(colorDst));
+                    }
+                });
+            }
+
             #endregion
 
             #endregion
@@ -482,7 +542,7 @@ namespace KGySoft.Drawing.Imaging
                     int bottomStartDest = targetLength - cornerInterval;
                     for (int i = startOfFirstRepeatedMosaic; i < bottomStartDest; i++)
                     {
-                        float center = (i + 0.5f) * Ratio - 0.5f;
+                        float center = (i + 0.5f) * ratio - 0.5f;
                         int left = (int)(center - radius).TolerantCeiling();
                         ResizeKernel kernel = kernels[i - period];
                         kernels[i] = kernel.Slide(left);
@@ -505,6 +565,7 @@ namespace KGySoft.Drawing.Imaging
 
             private readonly int sourceLength;
             private readonly int targetLength;
+            private readonly float ratio;
             private readonly float scale;
             private readonly int radius;
             private readonly ResizeKernel[] kernels;
@@ -514,8 +575,6 @@ namespace KGySoft.Drawing.Imaging
             #endregion
 
             #region Properties
-
-            internal float Ratio { get; }
 
             /// <summary>
             /// Gets the maximum diameter of the kernels.
@@ -528,7 +587,7 @@ namespace KGySoft.Drawing.Imaging
 
             private KernelMap(int sourceLength, int targetLength, int bufferHeight, float ratio, float scale, int radius)
             {
-                this.Ratio = ratio;
+                this.ratio = ratio;
                 this.scale = scale;
                 this.radius = radius;
                 this.sourceLength = sourceLength;
@@ -634,7 +693,7 @@ namespace KGySoft.Drawing.Imaging
             /// </summary>
             private unsafe ResizeKernel BuildKernel(Func<float, float> interpolation, int destRowIndex, int dataRowIndex)
             {
-                float center = (destRowIndex + 0.5f) * Ratio - 0.5f;
+                float center = (destRowIndex + 0.5f) * ratio - 0.5f;
 
                 int left = (int)(center - radius).TolerantCeiling();
                 if (left < 0)
@@ -688,7 +747,7 @@ namespace KGySoft.Drawing.Imaging
         #region ResizeKernel struct
 
         /// <summary>
-        /// Points to a collection of weights allocated in <see cref="ResizingSession"/>.
+        /// Points to a collection of weights allocated in <see cref="ResizingSessionInterpolated"/>.
         /// </summary>
         private struct ResizeKernel
         {
