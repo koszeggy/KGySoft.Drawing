@@ -20,9 +20,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using System.Security;
+
 using KGySoft.CoreLibraries;
 
 #endregion
@@ -62,8 +60,7 @@ namespace KGySoft.Drawing.Imaging
             session.Target = BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette);
 
             // raw copy may fail on Windows if source is a wide color Bitmap because of 13 vs 16 bpp color handling
-            if (!session.TryPerformRawCopy())
-                session.PerformCopyDirect();
+            session.PerformDraw(false);
 
             return session.Target;
         }
@@ -81,8 +78,9 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
 
             var session = new CopySession();
+            var sourceBounds = new Rectangle(default, source.GetSize());
             Unwrap(ref source, ref sourceRectangle);
-            (session.SourceRectangle, session.TargetRectangle) = source.GetActualRectangles(sourceRectangle, source.GetSize(), Point.Empty);
+            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
             if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
                 throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
 
@@ -97,8 +95,7 @@ namespace KGySoft.Drawing.Imaging
 
             // using the public factory so pixelFormat and palette will be validated
             session.Target = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(session.TargetRectangle.Size, pixelFormat, backColor, alphaThreshold, palette);
-            if (!session.TryPerformRawCopy())
-                session.PerformCopyDirect();
+            session.PerformDraw(false);
 
             return session.Target;
         }
@@ -134,8 +131,9 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
 
             var session = new CopySession();
+            var sourceBounds = new Rectangle(default, source.GetSize());
             Unwrap(ref source, ref sourceRectangle);
-            (session.SourceRectangle, session.TargetRectangle) = source.GetActualRectangles(sourceRectangle, source.GetSize(), Point.Empty);
+            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
             if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
                 throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
 
@@ -153,12 +151,12 @@ namespace KGySoft.Drawing.Imaging
 
                     // quantizing without dithering
                     if (ditherer == null)
-                        session.PerformCopyWithQuantizer(quantizingSession);
+                        session.PerformDrawWithQuantizer(quantizingSession, false);
                     else
                     {
                         // quantizing with dithering
                         using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                        session.PerformCopyWithDithering(ditheringSession);
+                        session.PerformDrawWithDithering(quantizingSession, ditheringSession, false);
                     }
 
                     return session.Target;
@@ -246,7 +244,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region With resize
-        
+
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> with possible scaling.
         /// This method is similar to <see cref="Graphics.DrawImage(Image, Rectangle)">Graphics.DrawImage</see>
@@ -394,22 +392,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region IReadWriteBitmapData
 
-        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Point targetLocation, IDitherer ditherer = null)
-        //    => DrawImage(target, image, new Rectangle(Point.Empty, image?.Size ?? default), targetLocation, ditherer);
-
-        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
-        //{
-        //    throw new NotImplementedException("TODO");
-        //}
-
-        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
-        //    => DrawImage(target, image, new Rectangle(Point.Empty, image?.Size ?? default), targetRectangle, scalingMode, ditherer);
-
-        //public static void DrawImage(this IReadWriteBitmapData target, Image image, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
-        //{
-        //    throw new NotImplementedException("TODO");
-        //}
-
         public static IReadWriteBitmapData Clip(this IReadWriteBitmapData source, Rectangle clippingRegion)
         {
             if (source == null)
@@ -426,41 +408,6 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Methods
 
         internal static Size GetSize(this IBitmapData bitmapData) => bitmapData == null ? default : new Size(bitmapData.Width, bitmapData.Height);
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static (Rectangle Source, Rectangle Target) GetActualRectangles(this IBitmapData source, Rectangle sourceRectangle, Size targetSize, Point targetLocation)
-            => GetActualRectangles(source, sourceRectangle, new Rectangle(default, targetSize), targetLocation);
-
-        internal static (Rectangle Source, Rectangle Target) GetActualRectangles(this IBitmapData source, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
-        {
-            Rectangle sourceBounds = new Rectangle(Point.Empty, source.GetSize());
-            Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);
-            if (actualSourceRectangle.IsEmpty)
-                return default;
-            targetLocation.Offset(targetBounds.Location);
-            Rectangle targetRectangle = new Rectangle(targetLocation, sourceRectangle.Size);
-            Rectangle actualTargetRectangle = Rectangle.Intersect(targetRectangle, targetBounds);
-            if (actualTargetRectangle.IsEmpty)
-                return default;
-
-            // adjusting source by clipped target
-            if (targetRectangle != actualTargetRectangle)
-            {
-                int x = actualTargetRectangle.X - targetRectangle.X + sourceRectangle.X;
-                int y = actualTargetRectangle.Y - targetRectangle.Y + sourceRectangle.Y;
-                actualSourceRectangle.Intersect(new Rectangle(x, y, actualTargetRectangle.Width, actualTargetRectangle.Height));
-            }
-
-            // adjusting target by clipped source
-            if (sourceRectangle != actualSourceRectangle)
-            {
-                int x = actualSourceRectangle.X - sourceRectangle.X + targetRectangle.X;
-                int y = actualSourceRectangle.Y - sourceRectangle.Y + targetRectangle.Y;
-                actualTargetRectangle.Intersect(new Rectangle(x, y, actualSourceRectangle.Width, actualSourceRectangle.Height));
-            }
-
-            return (actualSourceRectangle, actualTargetRectangle);
-        }
 
         internal static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
             where TBitmapData : IBitmapData
@@ -494,19 +441,22 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(!blend || target is IReadWriteBitmapData, "For blending target has to be readable");
 
             var session = new CopySession();
+            var sourceBounds = new Rectangle(default, source.GetSize());
             var targetBounds = new Rectangle(default, target.GetSize());
-            Unwrap(ref source, ref sourceRectangle);
+            Unwrap(ref source, ref sourceBounds);
             Unwrap(ref target, ref targetBounds);
 
-            (session.SourceRectangle, session.TargetRectangle) = source.GetActualRectangles(sourceRectangle, targetBounds, targetLocation);
+            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
             if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
                 return;
+
+            AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
 
             // special handling for same references
             if (ReferenceEquals(source, target))
             {
-                // same area: nothing to do (even with dithering because we use a compatible quantizer with self format)
-                if (session.SourceRectangle == session.TargetRectangle)
+                // same area without quantizing: nothing to do
+                if (quantizer == null && session.SourceRectangle == session.TargetRectangle)
                     return;
 
                 // overlap: clone source
@@ -523,23 +473,13 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                if (blend && !source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != true)
-                    blend = false;
+                blend &= source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false;
 
+                // processing without using a quantizer
                 if (quantizer == null)
                 {
-                    // processing without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                    if (ditherer == null || !target.PixelFormat.CanBeDithered())
-                    {
-                        if (blend)
-                            session.PerformDrawDirect();
-                        else if (!session.TryPerformRawCopy())
-                            session.PerformCopyDirect();
-                        return;
-                    }
-
-                    // if there is only a ditherer specified we pick a quantizer that matches target
-                    quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
+                    session.PerformDraw(blend);
+                    return;
                 }
 
                 // Using a clipped source for quantizer/ditherer if needed. Note: the CopySession uses the original source for the best performance
@@ -554,21 +494,13 @@ namespace KGySoft.Drawing.Imaging
                         // quantization without dithering
                         if (ditherer == null)
                         {
-                            if (blend)
-                                session.PerformDrawWithQuantizer(quantizingSession);
-                            else
-                                session.PerformCopyWithQuantizer(quantizingSession);
+                            session.PerformDrawWithQuantizer(quantizingSession, blend);
                             return;
                         }
 
                         // quantization with dithering
                         using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                        {
-                            if (blend)
-                                session.PerformDrawWithDithering(quantizingSession, ditheringSession);
-                            else
-                                session.PerformCopyWithDithering(ditheringSession);
-                        }
+                            session.PerformDrawWithDithering(quantizingSession, ditheringSession, blend);
                     }
                 }
                 finally
@@ -591,9 +523,9 @@ namespace KGySoft.Drawing.Imaging
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
             {
-                if (scalingMode != ScalingMode.NoScaling && !scalingMode.IsDefined())
+                if (!scalingMode.IsDefined())
                     throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
-                DrawInto(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                DoDrawWithoutResize(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer, blend);
                 return;
             }
 
@@ -604,43 +536,89 @@ namespace KGySoft.Drawing.Imaging
             if (!scalingMode.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
 
-            (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceRectangle, source.Width, source.Height, targetRectangle, target.Width, target.Height);
+            var sourceBounds = new Rectangle(default, source.GetSize());
+            var targetBounds = new Rectangle(default, target.GetSize());
+            Unwrap(ref source, ref sourceBounds);
+            Unwrap(ref target, ref targetBounds);
+
+            (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetRectangle);
             if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
                 return;
 
-            // Cloning source if target and source are the same and source/target rectangles overlap
-            IBitmapDataInternal src = ReferenceEquals(source, target) && actualSourceRectangle.IntersectsWith(actualTargetRectangle)
-                ? (IBitmapDataInternal)source.Clone()
-                : source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            IBitmapDataInternal dst = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
+            AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
+            IBitmapDataInternal sessionSource = null;
+
+            // special handling for same references
+            if (ReferenceEquals(source, target))
+            {
+                // same area without quantizing: nothing to do
+                if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
+                    return;
+
+                // overlap: clone source
+                if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
+                {
+                    sessionSource = (IBitmapDataInternal)Clone(source, actualSourceRectangle, source.PixelFormat);
+                    actualSourceRectangle.Location = Point.Empty;
+                }
+            }
+
+            if (sessionSource == null)
+                sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+
+            IBitmapDataInternal sessionTarget;
+            Rectangle sessionTargetRectangle = actualTargetRectangle;
+            if (quantizer != null)
+            {
+                sessionTarget = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size);
+                sessionTargetRectangle.Location = Point.Empty;
+            }
+            else
+                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
 
             try
             {
-                // Nearest neighbor - shortcut
-                if (scalingMode == ScalingMode.NearestNeighbor)
+                blend &= source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false;
+
+                // processing without quantizer
+                if (quantizer == null)
                 {
-                    if (ditherer == null || !target.PixelFormat.CanBeDithered())
-                        ResizeNearestNeighborDirect(src, dst, actualSourceRectangle, actualTargetRectangle);
+                    if (scalingMode == ScalingMode.NearestNeighbor)
+                    {
+                        var session = new ResizingSessionNearestNeighbor(sessionSource, sessionTarget, actualSourceRectangle, actualTargetRectangle);
+                        session.PerformResizeNearestNeighbor(blend);
+                    }
                     else
-                        ResizeNearestNeighborWithDithering(src, dst, actualSourceRectangle, actualTargetRectangle, ditherer);
+                    {
+                        using var session = new ResizingSessionInterpolated(sessionSource, sessionTarget, actualSourceRectangle, actualTargetRectangle, scalingMode);
+                        session.PerformResize(blend);
+                    }
 
                     return;
                 }
 
-                using (var resizingSession = new ResizingSession(source, target, actualSourceRectangle, actualTargetRectangle, scalingMode))
+                // If there is a quantizer/ditherer we dump the result in a temp bitmap data, which is applied to the actual target
+                // This is needed for initializing the quantizer/ditherer with the actual resized source
+                if (scalingMode == ScalingMode.NearestNeighbor)
                 {
-                    if (ditherer == null || !target.PixelFormat.CanBeDithered())
-                        resizingSession.DoResizeDirect(actualTargetRectangle.Top, actualTargetRectangle.Bottom);
-                    else
-                        resizingSession.DoResizeWithDithering(actualTargetRectangle.Top, actualTargetRectangle.Bottom, ditherer);
+                    var session = new ResizingSessionNearestNeighbor(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
+                    session.PerformResizeNearestNeighbor(blend);
                 }
+                else
+                {
+                    using var session = new ResizingSessionInterpolated(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle, scalingMode);
+                    session.PerformResize(blend);
+                }
+
+                // As a last step we copy the temp target into the actual one
+                DoDrawWithoutResize(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, blend);
             }
             finally
             {
-                if (!ReferenceEquals(src, source))
-                    src.Dispose();
-                if (!ReferenceEquals(dst, target))
-                    dst.Dispose();
+                if (!ReferenceEquals(sessionSource, source))
+                    sessionSource.Dispose();
+                if (!ReferenceEquals(sessionTarget, target))
+                    sessionTarget.Dispose();
             }
         }
 
@@ -648,13 +626,44 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-        private static (Rectangle, Rectangle) GetActualRectangles(Rectangle sourceRectangle, int sourceWidth, int sourceHeight, Rectangle targetRectangle, int targetWidth, int targetHeight)
+        internal static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
         {
-            Rectangle sourceBounds = new Rectangle(Point.Empty, new Size(sourceWidth, sourceHeight));
+            sourceRectangle.Offset(sourceBounds.Location);
             Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);
             if (actualSourceRectangle.IsEmpty)
                 return default;
-            Rectangle targetBounds = new Rectangle(Point.Empty, new Size(targetWidth, targetHeight));
+            targetLocation.Offset(targetBounds.Location);
+            Rectangle targetRectangle = new Rectangle(targetLocation, sourceRectangle.Size);
+            Rectangle actualTargetRectangle = Rectangle.Intersect(targetRectangle, targetBounds);
+            if (actualTargetRectangle.IsEmpty)
+                return default;
+
+            // adjusting source by clipped target
+            if (targetRectangle != actualTargetRectangle)
+            {
+                int x = actualTargetRectangle.X - targetRectangle.X + sourceRectangle.X;
+                int y = actualTargetRectangle.Y - targetRectangle.Y + sourceRectangle.Y;
+                actualSourceRectangle.Intersect(new Rectangle(x, y, actualTargetRectangle.Width, actualTargetRectangle.Height));
+            }
+
+            // adjusting target by clipped source
+            if (sourceRectangle != actualSourceRectangle)
+            {
+                int x = actualSourceRectangle.X - sourceRectangle.X + targetRectangle.X;
+                int y = actualSourceRectangle.Y - sourceRectangle.Y + targetRectangle.Y;
+                actualTargetRectangle.Intersect(new Rectangle(x, y, actualSourceRectangle.Width, actualSourceRectangle.Height));
+            }
+
+            return (actualSourceRectangle, actualTargetRectangle);
+        }
+
+        private static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Rectangle targetRectangle)
+        {
+            sourceRectangle.Offset(sourceBounds.Location);
+            Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);
+            if (actualSourceRectangle.IsEmpty)
+                return default;
+            targetRectangle.Offset(targetBounds.Location);
             Rectangle actualTargetRectangle = Rectangle.Intersect(targetRectangle, targetBounds);
             if (actualTargetRectangle.IsEmpty)
                 return default;
@@ -685,184 +694,15 @@ namespace KGySoft.Drawing.Imaging
             return (actualSourceRectangle, actualTargetRectangle);
         }
 
-        private static void ResizeNearestNeighborDirect(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle)
+        private static void AdjustQuantizerAndDitherer(IBitmapData target, ref IQuantizer quantizer, ref IDitherer ditherer)
         {
-            // Scaling factors
-            float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
-            float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
-
-            #region Local Methods
-
-            void ProcessRowStraight(int y)
-            {
-                IBitmapDataRowInternal rowSrc = source.GetRow((int)((y - targetRectangle.Y) * heightFactor + sourceRectangle.Y));
-                IBitmapDataRowInternal rowDst = target.GetRow(y);
-
-                int targetLeft = targetRectangle.Left;
-                int targetRight = targetRectangle.Right;
-                int sourceLeft = sourceRectangle.Left;
-                for (int x = targetLeft; x < targetRight; x++)
-                {
-                    Color32 colorSrc = rowSrc.DoGetColor32((int)((x - targetLeft) * widthFactor + sourceLeft));
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoSetColor32(x, colorSrc);
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    Color32 colorDst = rowDst.DoGetColor32(x);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoSetColor32(x, colorSrc);
-                        continue;
-                    }
-
-                    colorSrc = colorDst.A == Byte.MaxValue
-                        // target pixel is fully solid: simple blending
-                        ? colorSrc.BlendWithBackground(colorDst)
-                        // both source and target pixels are partially transparent: complex blending
-                        : colorSrc.BlendWith(colorDst);
-
-                    rowDst.DoSetColor32(x, colorSrc);
-                }
-            }
-
-            void ProcessRowPremultiplied(int y)
-            {
-                IBitmapDataRowInternal rowSrc = source.GetRow((int)((y - targetRectangle.Y) * heightFactor + sourceRectangle.Y));
-                IBitmapDataRowInternal rowDst = target.GetRow(y);
-                bool isPremultipliedSource = source.PixelFormat == PixelFormat.Format32bppPArgb;
-
-                int targetLeft = targetRectangle.Left;
-                int targetRight = targetRectangle.Right;
-                int sourceLeft = sourceRectangle.Left;
-                for (int x = targetLeft; x < targetRight; x++)
-                {
-                    Color32 colorSrc = isPremultipliedSource
-                        ? rowSrc.DoReadRaw<Color32>((int)((x - targetLeft) * widthFactor + sourceLeft))
-                        : rowSrc.DoGetColor32((int)((x - targetLeft) * widthFactor + sourceLeft)).ToPremultiplied();
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoWriteRaw(x, colorSrc);
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    Color32 colorDst = rowDst.DoReadRaw<Color32>(x);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoWriteRaw(x, colorSrc);
-                        continue;
-                    }
-
-                    rowDst.DoWriteRaw(x, colorSrc.BlendWithPremultiplied(colorDst));
-                }
-            }
-
-            #endregion
-
-            Action<int> processRow = target.PixelFormat == PixelFormat.Format32bppPArgb
-                ? ProcessRowPremultiplied
-                : (Action<int>)ProcessRowStraight;
-
-            // Sequential processing
-            if (targetRectangle.Width < parallelThreshold)
-            {
-                for (int y = targetRectangle.Top; y < targetRectangle.Bottom; y++)
-                    processRow.Invoke(y);
+            if (quantizer != null || ditherer == null)
                 return;
-            }
 
-            // Parallel processing
-            ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, processRow);
-        }
-
-        private static void ResizeNearestNeighborWithDithering(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer)
-        {
-            // TODO - this is the intolerant ditherer version. No blending is needed here as target is always transparent
-            // TODO: Use direct version if possible - see session
-            throw new NotImplementedException("TODO");
-            using var result = BitmapDataFactory.CreateManagedBitmapData(targetRectangle.Size);
-
-            // Scaling factors
-            float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
-            float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
-
-            #region Local Methods
-
-            void ProcessRow(int y)
-            {
-                IBitmapDataRowInternal rowSrc = source.GetRow((int)(y * heightFactor + sourceRectangle.Y));
-                IBitmapDataRowInternal rowDst = result.GetRow(y);
-
-                int sourceLeft = sourceRectangle.Left;
-                int width = result.Width;
-                for (int x = 0; x < width; x++)
-                {
-                    Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
-
-                    // fully transparent source: skip
-                    if (colorSrc.A == 0)
-                        continue;
-
-                    // fully solid source: overwrite
-                    if (colorSrc.A == Byte.MaxValue)
-                    {
-                        rowDst.DoSetColor32(x, colorSrc);
-                        continue;
-                    }
-
-                    // source here has a partial transparency: we need to read the target color
-                    Color32 colorDst = rowDst.DoGetColor32(x);
-
-                    // fully transparent target: we can overwrite with source
-                    if (colorDst.A == 0)
-                    {
-                        rowDst.DoSetColor32(x, colorSrc);
-                        continue;
-                    }
-
-                    colorSrc = colorDst.A == Byte.MaxValue
-                        // target pixel is fully solid: simple blending
-                        ? colorSrc.BlendWithBackground(colorDst)
-                        // both source and target pixels are partially transparent: complex blending
-                        : colorSrc.BlendWith(colorDst);
-
-                    rowDst.DoSetColor32(x, colorSrc);
-                }
-            }
-
-            #endregion
-
-            // Sequential processing
-            if (targetRectangle.Width < parallelThreshold)
-            {
-                for (int y = 0; y < targetRectangle.Height; y++)
-                    ProcessRow(y);
-            }
-            // Parallel processing
+            if (target.PixelFormat.CanBeDithered())
+                quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
             else
-                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
-
-            // Drawing result to actual target with dithering
-            result.DrawInto(target, targetRectangle.Location, ditherer);
+                ditherer = null;
         }
 
         #endregion

@@ -219,10 +219,18 @@ namespace KGySoft.Drawing.UnitTests
                     {
                         Color32 c1 = rowSrc[x + sourceRectangle.X];
                         Color32 c2 = rowDst[x + targetLocation.X];
-                        Assert.AreEqual(c1.A, c2.A, $"Diff at {x}; {rowSrc.Index}");
-                        Assert.That(() => Math.Abs(c1.R - c2.R), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
-                        Assert.That(() => Math.Abs(c1.G - c2.G), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
-                        Assert.That(() => Math.Abs(c1.B - c2.B), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+
+                        // this is faster than the asserts below
+                        if (c1.A != c2.A
+                            || Math.Abs(c1.R - c2.R) > 1
+                            || Math.Abs(c1.G - c2.G) > 1
+                            || Math.Abs(c1.B - c2.B) > 1)
+                            Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
+
+                        //Assert.AreEqual(c1.A, c2.A, $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.R - c2.R), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.G - c2.G), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.B - c2.B), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
                     }
 
                     continue;

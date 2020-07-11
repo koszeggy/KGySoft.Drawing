@@ -107,7 +107,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 using (IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat))
                 {
                     AssertAreEqual(bitmapData, clone, false, sourceRectangle);
-                    //SaveImage($"{pixelFormat} - Clipped", clone.ToBitmap());
+                    SaveImage($"{pixelFormat} - Clipped", clone.ToBitmap());
                 }
             }
         }
@@ -232,7 +232,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
             using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
             {
-                using var clipSrc = bitmapData.Clip(new Rectangle(64, 64, 128, 128));
+                using var clipSrc = bitmapData.Clip(new Rectangle(32, 32, 128, 128));
                 using var clipDst = bitmapData.Clip(new Rectangle(64, 64, 128, 128));
 
                 Assert.DoesNotThrow(() => clipSrc.CopyTo(clipDst, new Point(32, 32)));
@@ -389,64 +389,62 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [Test]
-        public void DrawIntoWithResizeSameInstanceOverlappingTest()
+        [TestCase(ScalingMode.Auto)]
+        [TestCase(ScalingMode.NearestNeighbor)]
+        public void DrawIntoWithResizeSameInstanceOverlappingTest(ScalingMode scalingMode)
         {
-            throw new NotImplementedException("TODO: check");
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
             using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
             {
-                Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Rectangle(64, 64, 64, 64)));
+                Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Rectangle(32, 32, 192, 192), new Rectangle(64, 64, 128, 128), scalingMode));
             }
 
-            SaveImage("result", bmp);
+            SaveImage($"{scalingMode}", bmp);
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void DrawIntoWithResizeDirectTest(PixelFormat pixelFormat)
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        public void DrawIntoWithResizeDirectTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            throw new NotImplementedException("TODO");
-            var rect = new Rectangle(128, 128, 128, 128);
+            var rectSrc = new Rectangle(32, 32, 192, 192);
+            var rectTarget = new Rectangle(0, 0, 64, 64);
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
-            source.CopyTo(targetFull);
-
-            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
-            source.CopyTo(targetClipped, rect);
-
-            AssertAreEqual(targetFull, targetClipped, false, rect);
-
-            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+            using var target = BitmapDataFactory.CreateBitmapData(rectTarget.Size, pixelFormat);
+            source.DrawInto(target, rectSrc, rectTarget, scalingMode);
+            SaveImage($"{pixelFormat} {scalingMode}", target.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void DrawIntoWithResizeWithQuantizerTest(PixelFormat pixelFormat)
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        public void DrawIntoWithResizeWithQuantizerTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            throw new NotImplementedException("TODO");
-            var rect = new Rectangle(128, 128, 128, 128);
+            var rectSrc = new Rectangle(32, 32, 192, 192);
+            var rectTarget = new Rectangle(0, 0, 64, 64);
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize());
+            using var target = BitmapDataFactory.CreateBitmapData(rectTarget.Size);
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
-            source.CopyTo(targetFull, Point.Empty, quantizer);
-
-            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
-            source.CopyTo(targetClipped, rect, Point.Empty, quantizer);
-            AssertAreEqual(targetFull, targetClipped, false, rect);
-
-            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+            source.DrawInto(target, rectSrc, rectTarget, quantizer, null, scalingMode);
+            SaveImage($"{pixelFormat} {scalingMode}", target.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void DrawIntoWithResizeWithDithererTest(PixelFormat pixelFormat)
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        public void DrawIntoWithResizeWithDithererTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            throw new NotImplementedException("TODO");
-            var rect = new Rectangle(128, 128, 128, 128);
+            var rectSrc = new Rectangle(32, 32, 192, 192);
+            var rectTarget = new Rectangle(0, 0, 64, 64);
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
             var ditherers = new Dictionary<string, IDitherer>
             {
@@ -457,9 +455,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             foreach (var ditherer in ditherers)
             {
-                using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
-                source.CopyTo(targetClipped, rect, Point.Empty, ditherer.Value);
-                SaveImage($"{pixelFormat} {ditherer.Key}", targetClipped.ToBitmap());
+                using var target = BitmapDataFactory.CreateBitmapData(rectTarget.Size);
+                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
+                source.DrawInto(target, rectSrc, rectTarget, quantizer, ditherer.Value, scalingMode);
+                SaveImage($"{pixelFormat} {ditherer.Key} {scalingMode}", target.ToBitmap());
             }
         }
 
