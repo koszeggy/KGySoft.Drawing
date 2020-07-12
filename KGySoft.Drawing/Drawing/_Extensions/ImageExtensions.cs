@@ -142,11 +142,11 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>, then
+        /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>,
         /// then the source palette is taken from the source image if it also has a palette of no more entries than the target indexed format can have;
         /// otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
         /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
-        /// Source pixels with alpha, which will be opaque in the result will be blended with this color before setting the pixel in the result image.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
@@ -289,7 +289,7 @@ namespace KGySoft.Drawing
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
         /// <param name="backColor">If <paramref name="newPixelFormat"/> does not have alpha or has only single-bit alpha, then specifies the color of the background.
-        /// Source pixels with alpha, which will be opaque in the result will be blended with this color before setting the pixel in the result image.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
@@ -523,7 +523,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the conversion of the colors.
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance for dithering the result image, which usually produces a better result if colors are quantized.
         /// If <paramref name="quantizer"/> is <see langword="null"/>, then this parameter is ignored. This parameter is optional.
@@ -631,7 +631,7 @@ namespace KGySoft.Drawing
         /// <para>For built-in <see cref="IDitherer"/> implementations see the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/> and <see cref="InterleavedGradientNoiseDitherer"/> classes.</para>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="IQuantizer"/>

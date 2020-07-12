@@ -50,6 +50,8 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                     using var bmpDst = new Bitmap(size.Width, size.Height, pixelFormat);
                     using (var g = Graphics.FromImage(bmpDst))
                     {
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
                         g.CompositingMode = CompositingMode.SourceCopy; // so it is the same as CopyTo (and is much faster)
                         g.DrawImage(bmpSrc, Point.Empty);
                     }
@@ -85,6 +87,51 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
             new PerformanceTest { CpuAffinity = null, Iterations = 10_000 }
                 .AddCase(() => src.CopyTo(dst, new Rectangle(default, targetSize), Point.Empty), "CopyTo")
                 .AddCase(() => src.Clip(new Rectangle(default, targetSize)).CopyTo(dst, Point.Empty), "Clip+CopyTo")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
+        [TestCase(PixelFormat.Format32bppArgb)]
+        [TestCase(PixelFormat.Format32bppPArgb)]
+        [TestCase(PixelFormat.Format64bppPArgb)]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
+        public void DrawIntoNoResizeTest(PixelFormat pixelFormat)
+        {
+            if (!pixelFormat.IsSupportedNatively())
+                Assert.Inconclusive($"Pixel format {pixelFormat} is not supported on current platform");
+
+            Size size = new Size(256, 256);
+            using var bmpSrc = Icons.Information.ExtractBitmap(size).ConvertPixelFormat(pixelFormat);
+
+            new PerformanceTest { TestName = pixelFormat.ToString(), Iterations = 100, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var bmpDst = new Bitmap(size.Width, size.Height, pixelFormat);
+                    using (var g = Graphics.FromImage(bmpDst))
+                    {
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.DrawImage(bmpSrc, Point.Empty);
+                    }
+                }, "Graphics.DrawImage")
+                .AddCase(() =>
+                {
+                    using var bmpDst = new Bitmap(size.Width, size.Height, pixelFormat);
+                    using (var dataSrc = bmpSrc.GetReadableBitmapData())
+                    using (var dataDst = bmpDst.GetReadWriteBitmapData())
+                    {
+                        dataSrc.DrawInto(dataDst, Point.Empty);
+                    }
+                }, "ImageExtensions.DrawInto (native to native)")
+                .AddCase(() =>
+                {
+                    using var bitmapDataDst = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+                    using (var dataSrc = bmpSrc.GetReadableBitmapData())
+                    {
+                        dataSrc.DrawInto(bitmapDataDst, Point.Empty);
+                    }
+                }, "ImageExtensions.DrawInto (native to managed)")
                 .DoTest()
                 .DumpResults(Console.Out);
         }
