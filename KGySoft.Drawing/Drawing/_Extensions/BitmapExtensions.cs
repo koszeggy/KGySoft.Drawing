@@ -148,7 +148,11 @@ namespace KGySoft.Drawing
 
             using (IReadableBitmapData src = image.GetReadableBitmapData())
             using (IReadWriteBitmapData dst = result.GetReadWriteBitmapData())
+            {
+                if (newSize == sourceSize)
+                    src.DoCopy(dst, new Rectangle(Point.Empty, sourceSize), Point.Empty, null, null);
                 src.DoDrawWithResize(dst, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode, false);
+            }
             
             return result;
         }

@@ -156,13 +156,15 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [TestCase(PixelFormat.Format1bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
         [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format16bppRgb565)]
         public void DrawIntoNoScalingWithDitheringTest(PixelFormat formatDst)
         {
             var ditherers = new Dictionary<string, IDitherer>
             {
-                //["Ordered"] = OrderedDitherer.Bayer8x8,
-                //["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Ordered"] = OrderedDitherer.Bayer8x8,
+                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
                 ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
             };
 
@@ -297,16 +299,18 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage($"{pixelFormat}, {scalingMode}", bmp);
         }
 
-        //[TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        //[TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        //[TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
         public void DrawIntoWithResizeDitheringTest(PixelFormat formatDst, ScalingMode scalingMode)
         {
             var ditherers = new Dictionary<string, IDitherer>
             {
-                //["Ordered"] = OrderedDitherer.Bayer8x8,
-                //["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Ordered"] = OrderedDitherer.Bayer8x8,
+                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
                 ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
             };
 
@@ -315,17 +319,22 @@ namespace KGySoft.Drawing.UnitTests
                 using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256));
                 using var bmpDst = new Bitmap(bmpSrc.Width, bmpSrc.Height, formatDst);
 
-                bmpDst.Clear(Color.Transparent, ditherer.Value, Color.Lime);
+                //bmpDst.Clear(Color.Transparent, ditherer.Value, Color.Silver);
+                bmpDst.Clear(Color.Transparent, Color.Silver);
 
                 var targetRect = new Rectangle(Point.Empty, bmpSrc.Size);
                 targetRect.Inflate(-32, -32);
 
                 // shrink
-                Assert.DoesNotThrow(() => bmpSrc.DrawInto(bmpDst, targetRect, scalingMode, ditherer.Value));
+                Assert.DoesNotThrow(() => bmpSrc.DrawInto(bmpDst, targetRect, ditherer.Value, scalingMode));
 
                 // enlarge
                 targetRect = new Rectangle(160, 160, 100, 100);
-                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto(bmpDst, targetRect, scalingMode, ditherer.Value));
+                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto(bmpDst, targetRect, ditherer.Value, scalingMode));
+
+                using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png");
+                bmp.DrawInto(bmpDst, new Rectangle(32, 32, 192, 192), ditherer.Value);
+
                 SaveImage($"{formatDst} {scalingMode} {ditherer.Key}", bmpDst);
             }
 

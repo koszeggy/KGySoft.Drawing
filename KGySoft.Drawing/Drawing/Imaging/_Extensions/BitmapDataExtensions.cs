@@ -63,7 +63,7 @@ namespace KGySoft.Drawing.Imaging
             session.Target = BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette);
 
             // raw copy may fail on Windows if source is a wide color Bitmap because of 13 vs 16 bpp color handling
-            session.PerformDraw(false);
+            session.PerformCopy();
 
             return session.Target;
         }
@@ -159,7 +159,7 @@ namespace KGySoft.Drawing.Imaging
 
             // using the public factory so pixelFormat and palette will be validated
             session.Target = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(session.TargetRectangle.Size, pixelFormat, backColor, alphaThreshold, palette);
-            session.PerformDraw(false);
+            session.PerformCopy();
 
             return session.Target;
         }
@@ -310,12 +310,12 @@ namespace KGySoft.Drawing.Imaging
 
                     // quantizing without dithering
                     if (ditherer == null)
-                        session.PerformDrawWithQuantizer(quantizingSession, false);
+                        session.PerformCopyWithQuantizer(quantizingSession);
                     else
                     {
                         // quantizing with dithering
                         using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                        session.PerformDrawWithDithering(quantizingSession, ditheringSession, false);
+                        session.PerformCopyWithDithering(ditheringSession);
                     }
 
                     return session.Target;
@@ -357,7 +357,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
-            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer, false);
+            => CopyTo(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer);
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
@@ -376,7 +376,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation, IDitherer ditherer)
-            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer, false);
+            => CopyTo(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer);
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
@@ -396,7 +396,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer)
-            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, null, ditherer, false);
+            => CopyTo(source, target, sourceRectangle, targetLocation, null, ditherer);
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
@@ -422,8 +422,16 @@ namespace KGySoft.Drawing.Imaging
         /// then the result will eventually quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
+        //[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
-            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer, false);
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+
+            DoCopy(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+        }
 
         #endregion
 
@@ -460,7 +468,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
-            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer, true);
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -483,7 +491,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation, IDitherer ditherer)
-            => DoDrawWithoutResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer, true);
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -507,7 +515,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer)
-            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, null, ditherer, true);
+            => DrawInto(source, target, sourceRectangle, targetLocation, null, ditherer);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -538,7 +546,17 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
-            => DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer, true);
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+
+            if (!source.PixelFormat.HasTransparency() || source.Palette?.HasAlpha == false)
+                DoCopy(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+            else
+                DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+        }
 
         #endregion
 
@@ -576,7 +594,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
-            => DoDrawWithResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, quantizer, ditherer, scalingMode, true);
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, quantizer, ditherer, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -603,7 +621,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
-            => DoDrawWithResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, ditherer, scalingMode, true);
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, ditherer, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -627,7 +645,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, ScalingMode scalingMode)
-            => DoDrawWithResize(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, null, scalingMode, true);
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, null, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -652,7 +670,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
-            => DoDrawWithResize(source, target, sourceRectangle, targetRectangle, null, null, scalingMode, true);
+            => DrawInto(source, target, sourceRectangle, targetRectangle, null, null, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -681,7 +699,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
-            => DoDrawWithResize(source, target, sourceRectangle, targetRectangle, null, ditherer, scalingMode, true);
+            => DrawInto(source, target, sourceRectangle, targetRectangle, null, ditherer, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -716,7 +734,26 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
-            => DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, true);
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+
+            // no scaling is necessary
+            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+            {
+                if (!source.PixelFormat.HasTransparency() || source.Palette?.HasAlpha == false)
+                    DoCopy(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                else
+                    DoDrawWithoutResize(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                return;
+            }
+
+            DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, true);
+        }
 
         #endregion
 
@@ -876,15 +913,8 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        internal static void DoDrawWithoutResize(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool blend)
+        internal static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-            Debug.Assert(!blend || target is IReadWriteBitmapData, "For blending target has to be readable");
-
             var session = new CopySession();
             var sourceBounds = new Rectangle(default, source.GetSize());
             var targetBounds = new Rectangle(default, target.GetSize());
@@ -918,13 +948,10 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                if (blend)
-                    blend = source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false;
-
                 // processing without using a quantizer
                 if (quantizer == null)
                 {
-                    session.PerformDraw(blend);
+                    session.PerformCopy();
                     return;
                 }
 
@@ -940,13 +967,13 @@ namespace KGySoft.Drawing.Imaging
                         // quantization without dithering
                         if (ditherer == null)
                         {
-                            session.PerformDrawWithQuantizer(quantizingSession, blend);
+                            session.PerformCopyWithQuantizer(quantizingSession);
                             return;
                         }
 
                         // quantization with dithering
                         using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                            session.PerformDrawWithDithering(quantizingSession, ditheringSession, blend);
+                            session.PerformCopyWithDithering(ditheringSession);
                     }
                 }
                 finally
@@ -964,23 +991,74 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
+        internal static void DoDrawWithoutResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
         {
-            // no scaling is necessary
-            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
-            {
-                if (!scalingMode.IsDefined())
-                    throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
-                DoDrawWithoutResize(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer, blend);
+            Debug.Assert(source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false, "DoCopy could have been called");
+
+            var sourceBounds = new Rectangle(default, source.GetSize());
+            var targetBounds = new Rectangle(default, target.GetSize());
+            Unwrap(ref source, ref sourceBounds);
+            Unwrap(ref target, ref targetBounds);
+
+            (Rectangle actualSourceRectangle, Rectangle actualTargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, targetBounds, targetLocation);
+            if (actualSourceRectangle.IsEmpty || actualTargetRectangle.IsEmpty)
                 return;
+
+            AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
+            IBitmapDataInternal sessionSource = null;
+
+            // special handling for same references
+            if (ReferenceEquals(source, target))
+            {
+                // same area without quantizing: nothing to do
+                if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
+                    return;
+
+                // overlap: clone source
+                if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
+                {
+                    sessionSource = (IBitmapDataInternal)Clone(source, actualSourceRectangle, source.PixelFormat);
+                    actualSourceRectangle.Location = Point.Empty;
+                }
             }
 
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-            if (!scalingMode.IsDefined())
-                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+            if (sessionSource == null)
+                sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+
+            IBitmapDataInternal sessionTarget;
+            Rectangle sessionTargetRectangle = actualTargetRectangle;
+
+            // if there is a quantizer we create a temp result where we perform blending before quantizing/dithering
+            if (quantizer != null)
+            {
+                sessionTarget = (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb);
+                sessionTargetRectangle.Location = Point.Empty;
+            }
+            else
+                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+
+            try
+            {
+                var session = new CopySession(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
+                session.PerformDrawDirect();
+
+                // if there is a quantizer we need to copy the blended transient result to the actual target
+                if (quantizer != null)
+                    DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(sessionSource, source))
+                    sessionSource.Dispose();
+                if (!ReferenceEquals(sessionTarget, target))
+                    sessionTarget.Dispose();
+            }
+        }
+
+        internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
+        {
+            Debug.Assert(sourceRectangle.Size != targetRectangle.Size);
 
             var sourceBounds = new Rectangle(default, source.GetSize());
             var targetBounds = new Rectangle(default, target.GetSize());
@@ -1011,12 +1089,16 @@ namespace KGySoft.Drawing.Imaging
 
             if (sessionSource == null)
                 sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            if (blend)
+                blend = source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false;
 
             IBitmapDataInternal sessionTarget;
             Rectangle sessionTargetRectangle = actualTargetRectangle;
             if (quantizer != null)
             {
-                sessionTarget = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size);
+                sessionTarget = blend
+                    ? (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb)
+                    : (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size);
                 sessionTargetRectangle.Location = Point.Empty;
             }
             else
@@ -1024,41 +1106,20 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                if (blend)
-                    blend = source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false;
-
-                // processing without quantizer
-                if (quantizer == null)
-                {
-                    if (scalingMode == ScalingMode.NearestNeighbor)
-                    {
-                        var session = new ResizingSessionNearestNeighbor(sessionSource, sessionTarget, actualSourceRectangle, actualTargetRectangle);
-                        session.PerformResizeNearestNeighbor(blend);
-                    }
-                    else
-                    {
-                        using var session = new ResizingSessionInterpolated(sessionSource, sessionTarget, actualSourceRectangle, actualTargetRectangle, scalingMode);
-                        session.PerformResize(blend);
-                    }
-
-                    return;
-                }
-
-                // If there is a quantizer/ditherer we dump the result in a temp bitmap data, which is applied to the actual target
-                // This is needed for initializing the quantizer/ditherer with the actual resized source
                 if (scalingMode == ScalingMode.NearestNeighbor)
                 {
                     var session = new ResizingSessionNearestNeighbor(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
-                    session.PerformResizeNearestNeighbor(false);
+                    session.PerformResizeNearestNeighbor(blend);
                 }
                 else
                 {
                     using var session = new ResizingSessionInterpolated(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle, scalingMode);
-                    session.PerformResize(false);
+                    session.PerformResize(blend);
                 }
 
-                // As a last step we copy the temp target into the actual one
-                DoDrawWithoutResize(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, blend);
+                // if there is a quantizer we need to copy the transient result to the actual target
+                if (quantizer != null)
+                    DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer);
             }
             finally
             {

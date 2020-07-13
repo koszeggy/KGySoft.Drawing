@@ -120,6 +120,8 @@ namespace KGySoft.Drawing
 
         #region Public Methods
 
+        #region ToGrayscale
+        
         /// <summary>
         /// Converts an image to a grayscale one.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -135,6 +137,10 @@ namespace KGySoft.Drawing
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Image ToGrayscale(this Image image)
             => image.ConvertPixelFormat(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));
+
+        #endregion
+
+        #region ConvertPixelFormat
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
@@ -234,9 +240,9 @@ namespace KGySoft.Drawing
                 Palette targetPalette =
                     // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
                     !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
-                        // using the custom colors
+                    // using the custom colors
                     : palette != null ? new Palette(palette, backColor, alphaThreshold)
-                        // using the default palette from target
+                    // using the default palette from target
                     : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
 
                 using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
@@ -744,6 +750,12 @@ namespace KGySoft.Drawing
             }
         }
 
+        #endregion
+
+        #region DrawInto
+
+        #region Without resize
+        
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> without scaling
         /// (for scaling use the overloads with <c>targetRectangle</c> parameter). This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
@@ -764,8 +776,14 @@ namespace KGySoft.Drawing
         /// <para>This overload does not resize the image even if <paramref name="source"/> and <paramref name="target"/> have different DPI resolution.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IDitherer ditherer = null)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, ditherer);
+        public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, quantizer, ditherer);
+
+        public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IDitherer ditherer)
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, null, ditherer);
+
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer)
+            => DrawInto(source, target, sourceRectangle, targetLocation, null, ditherer);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> without scaling
@@ -789,8 +807,8 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
-        [SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "source is cast to Bitmap in different branches")]
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer = null)
+        //[SuppressMessage("Microsoft.Performance", "CA1800:DoNotCastUnnecessarily", Justification = "source is cast to Bitmap in different branches")]
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
@@ -813,8 +831,10 @@ namespace KGySoft.Drawing
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                 {
-                    throw new NotImplementedException("TODO: review, quantizer, call most specfic overload");
-                    src.DrawInto(dst, sourceRectangle, targetLocation, ditherer);
+                    if (!source.PixelFormat.HasTransparency() || src.Palette?.HasAlpha == false)
+                        src.DoCopy(dst, sourceRectangle, targetLocation, quantizer, ditherer);
+                    else
+                        src.DoDrawWithoutResize(dst, sourceRectangle, targetLocation, quantizer, ditherer);
                 }
             }
             finally
@@ -823,6 +843,10 @@ namespace KGySoft.Drawing
                     bmp.Dispose();
             }
         }
+
+        #endregion
+
+        #region With resize
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
@@ -846,8 +870,8 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, scalingMode, ditherer);
+        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, quantizer, ditherer, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
@@ -867,8 +891,11 @@ namespace KGySoft.Drawing
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> is exceeds target bounds.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IDitherer ditherer)
-            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, ScalingMode.Auto, ditherer);
+        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, null, ditherer, scalingMode);
+
+        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, ScalingMode scalingMode)
+            => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, null, null, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
@@ -889,8 +916,11 @@ namespace KGySoft.Drawing
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer)
-            => DrawInto(source, target, sourceRectangle, targetRectangle, ScalingMode.Auto, ditherer);
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
+            => DrawInto(source, target, sourceRectangle, targetRectangle, null, null, scalingMode);
+
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
+            => DrawInto(source, target, sourceRectangle, targetRectangle, null, ditherer, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
@@ -916,17 +946,8 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode = ScalingMode.Auto, IDitherer ditherer = null)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
         {
-            // Fallback to non-resizing mode if possible
-            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
-            {
-                if (scalingMode != ScalingMode.NoScaling && !scalingMode.IsDefined())
-                    throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
-                DrawInto(source, target, sourceRectangle, targetRectangle.Location, ditherer);
-                return;
-            }
-
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (target == null)
@@ -951,8 +972,17 @@ namespace KGySoft.Drawing
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
                 {
-                    throw new NotImplementedException("TODO: review, quantizer, call most specfic overload");
-                    src.DrawInto(dst, sourceRectangle, targetRectangle, ditherer, scalingMode);
+                    // no scaling is necessary
+                    if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+                    {
+                        if (!source.PixelFormat.HasTransparency() || src.Palette?.HasAlpha == false)
+                            src.DoCopy(dst, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                        else
+                            src.DoDrawWithoutResize(dst, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                        return;
+                    }
+
+                    src.DoDrawWithResize(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, true);
                 }
             }
             finally
@@ -961,6 +991,12 @@ namespace KGySoft.Drawing
                     bmp.Dispose();
             }
         }
+
+        #endregion
+
+        #endregion
+
+        #region EqualsByContent
 
         /// <summary>
         /// Compares an image to another one by content and returns whether they are equal. Images of different
@@ -972,6 +1008,10 @@ namespace KGySoft.Drawing
         /// <remarks>If an image is not a <see cref="Bitmap"/> instance, a temporary <see cref="Bitmap"/> is created for the check.
         /// <note>This method compares images by raw content. If the images have padding in each stride (content row), padding content is considered as well.</note></remarks>
         public static bool EqualsByContent(this Image image1, Image image2) => CompareImages(image1, image2);
+
+        #endregion
+
+        #region ToIcon
 
         /// <summary>
         /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
@@ -1016,6 +1056,10 @@ namespace KGySoft.Drawing
             }
         }
 
+        #endregion
+
+        #region SaveAsXXX
+        
         /// <summary>
         /// Saves the specified <paramref name="image"/> into a <paramref name="stream"/> using the built-in BMP encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
@@ -1479,7 +1523,6 @@ namespace KGySoft.Drawing
                 SaveAsTiff(image, fs, currentFrameOnly);
         }
 
-
         /// <summary>
         /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
         /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
@@ -1596,7 +1639,6 @@ namespace KGySoft.Drawing
                 SaveAsIcon(image, fs, forceUncompressedResult);
         }
 
-
         /// <summary>
         /// Saves the specified <paramref name="images"/> as an Icon without relying on a built-in encoder in the operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/> and does not save a PNG stream when no built-in Icon encoder can be found in the operating system.
@@ -1646,6 +1688,10 @@ namespace KGySoft.Drawing
             }
         }
 
+        #endregion
+
+        #region GetBitsPerPixel
+
         /// <summary>
         /// Gets the bits per pixel (BPP) value of the image.
         /// </summary>
@@ -1657,6 +1703,8 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             return image.PixelFormat.ToBitsPerPixel();
         }
+
+        #endregion
 
         #endregion
 
