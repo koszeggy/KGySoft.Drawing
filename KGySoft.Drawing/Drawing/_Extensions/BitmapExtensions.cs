@@ -123,7 +123,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppArgb"/> <see cref="PixelFormat"/>. To resize an image
         /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
-        /// and use the <see cref="ImageExtensions.DrawInto(Image, Bitmap, Rectangle, Rectangle, ScalingMode, IDitherer)"/> extension method.</para>
+        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto(Image, Bitmap, Rectangle, Rectangle, ScalingMode)">DrawInto</see> extension methods.</para>
         /// <para>Generally, the best quality result can be achieved by the <see cref="Resize(Bitmap, Size, bool)"/> overload, which
         /// uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally. On Windows some <see cref="Graphics"/>
         /// members use process-wide locks, which prevent them to be called concurrently without blocking. If that can be an issue you should use this overload.</para>

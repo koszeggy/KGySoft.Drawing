@@ -552,10 +552,10 @@ namespace KGySoft.Drawing.Imaging
             if (target == null)
                 throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
 
-            if (!source.PixelFormat.HasTransparency() || source.Palette?.HasAlpha == false)
-                DoCopy(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            else
+            if (source.HasAlpha())
                 DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+            else
+                DoCopy(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
         }
 
         #endregion
@@ -745,10 +745,10 @@ namespace KGySoft.Drawing.Imaging
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
             {
-                if (!source.PixelFormat.HasTransparency() || source.Palette?.HasAlpha == false)
-                    DoCopy(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                else
+                if (source.HasAlpha())
                     DoDrawWithoutResize(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                else
+                    DoCopy(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
                 return;
             }
 
@@ -809,7 +809,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
 
             PixelFormat pixelFormat = source.PixelFormat.IsSupportedNatively() ? source.PixelFormat
-                : source.PixelFormat.HasTransparency() || source.Palette?.HasAlpha == true ? PixelFormat.Format32bppArgb
+                : source.HasAlpha() ? PixelFormat.Format32bppArgb
                 : PixelFormat.Format24bppRgb;
 
             var result = new Bitmap(source.Width, source.Height, pixelFormat);
@@ -890,6 +890,12 @@ namespace KGySoft.Drawing.Imaging
 
         internal static Size GetSize(this IBitmapData bitmapData) => bitmapData == null ? default : new Size(bitmapData.Width, bitmapData.Height);
 
+        internal static bool HasAlpha(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
+        }
+
         internal static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
             where TBitmapData : IBitmapData
         {
@@ -913,6 +919,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
         internal static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
         {
             var session = new CopySession();
@@ -994,7 +1001,7 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
         internal static void DoDrawWithoutResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
         {
-            Debug.Assert(source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false, "DoCopy could have been called");
+            Debug.Assert(source.HasAlpha(), "DoCopy could have been called");
 
             var sourceBounds = new Rectangle(default, source.GetSize());
             var targetBounds = new Rectangle(default, target.GetSize());
@@ -1056,6 +1063,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, sessionTarget is disposed if needed")]
         internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
         {
             Debug.Assert(sourceRectangle.Size != targetRectangle.Size);
@@ -1090,7 +1098,7 @@ namespace KGySoft.Drawing.Imaging
             if (sessionSource == null)
                 sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             if (blend)
-                blend = source.PixelFormat.HasTransparency() && source.Palette?.HasAlpha != false;
+                blend = source.HasAlpha();
 
             IBitmapDataInternal sessionTarget;
             Rectangle sessionTargetRectangle = actualTargetRectangle;

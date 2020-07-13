@@ -522,7 +522,7 @@ namespace KGySoft.Drawing.UnitTests
             {
                 IReadableBitmapDataRow row = bitmapData.FirstRow;
                 var c32 = new Color32(color);
-                if (!pixelFormat.HasTransparency())
+                if (!pixelFormat.HasAlpha())
                     c32 = c32.BlendWithBackground(default);
                 do
                 {

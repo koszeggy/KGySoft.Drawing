@@ -124,7 +124,7 @@ namespace KGySoft.Drawing
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
-        internal static bool HasTransparency(this PixelFormat pixelFormat)
+        internal static bool HasAlpha(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
 
