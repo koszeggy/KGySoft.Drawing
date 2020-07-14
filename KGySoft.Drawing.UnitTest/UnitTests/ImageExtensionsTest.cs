@@ -145,24 +145,24 @@ namespace KGySoft.Drawing.UnitTests
             // drawing sources into destination
             Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset));
             Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height)));
-            Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(64, 64)).DrawInto(bmpDst, new Point(100, 100)));
+            Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(256, 256)).DrawInto(bmpDst, new Point(32, 32)));
 
-            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png");
-            bmp.DrawInto(bmpDst, Point.Empty);
+            using var bmp = GenerateAlphaGradientBitmap(new Size(256,256));
+            bmp.DrawInto(bmpDst, new Point(32, 32));
 
             SaveImage(testName, bmpDst);
-
-            throw new NotImplementedException("TODO: gradient");
         }
 
         [TestCase(PixelFormat.Format1bppIndexed)]
         [TestCase(PixelFormat.Format4bppIndexed)]
         [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format16bppRgb565)]
+        [TestCase(PixelFormat.Format16bppRgb555)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
         public void DrawIntoNoScalingWithDitheringTest(PixelFormat formatDst)
         {
             var ditherers = new Dictionary<string, IDitherer>
             {
+                ["(no dithering)"] = null,
                 ["Ordered"] = OrderedDitherer.Bayer8x8,
                 ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
                 ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
@@ -188,15 +188,13 @@ namespace KGySoft.Drawing.UnitTests
                 // drawing sources into destination
                 Assert.DoesNotThrow(() => bmpSrc1.DrawInto(bmpDst, offset, ditherer.Value));
                 Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height), ditherer.Value));
-                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(64, 64)).DrawInto(bmpDst, new Point(100, 100), ditherer.Value));
+                Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(256, 256)).DrawInto(bmpDst, new Point(32, 32), ditherer.Value));
 
-                using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png");
-                bmp.DrawInto(bmpDst, Point.Empty, ditherer.Value);
+                using var bmp = GenerateAlphaGradientBitmap(new Size(256, 256));
+                bmp.DrawInto(bmpDst, new Point(32, 32), ditherer.Value);
 
                 SaveImage($"{formatDst} {ditherer.Key}", bmpDst);
             }
-
-            throw new NotImplementedException("TODO: fix");
         }
 
         [Test]
@@ -309,6 +307,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             var ditherers = new Dictionary<string, IDitherer>
             {
+                ["(no dithering)"] = null,
                 ["Ordered"] = OrderedDitherer.Bayer8x8,
                 ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
                 ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
@@ -319,8 +318,8 @@ namespace KGySoft.Drawing.UnitTests
                 using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256));
                 using var bmpDst = new Bitmap(bmpSrc.Width, bmpSrc.Height, formatDst);
 
-                //bmpDst.Clear(Color.Transparent, ditherer.Value, Color.Silver);
-                bmpDst.Clear(Color.Transparent, Color.Silver);
+                if (!formatDst.HasAlpha())
+                    bmpDst.Clear(Color.Transparent, ditherer.Value, Color.Silver);
 
                 var targetRect = new Rectangle(Point.Empty, bmpSrc.Size);
                 targetRect.Inflate(-32, -32);
@@ -332,13 +331,12 @@ namespace KGySoft.Drawing.UnitTests
                 targetRect = new Rectangle(160, 160, 100, 100);
                 Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(16, 16)).DrawInto(bmpDst, targetRect, ditherer.Value, scalingMode));
 
-                using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png");
-                bmp.DrawInto(bmpDst, new Rectangle(32, 32, 192, 192), ditherer.Value);
+                // gradient overlay
+                using var bmp = GenerateAlphaGradientBitmap(new Size(192, 192));
+                bmp.DrawInto(bmpDst, new Point(32, 32), ditherer.Value);
 
                 SaveImage($"{formatDst} {scalingMode} {ditherer.Key}", bmpDst);
             }
-
-            throw new NotImplementedException("TODO: fix");
         }
 
         [Test]

@@ -129,25 +129,26 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // fully transparent source: skip
-                        if (colorSrc.A == 0 || colorSrc.A < alphaThreshold)
+                        if (colorSrc.A == 0)
                             continue;
 
                         // source here has a partial transparency: we need to read the target color
                         int pos = x + targetLeft;
                         Color32 colorDst = rowDst.DoGetColor32(pos);
 
-                        // fully transparent target: we can overwrite with source
-                        if (colorDst.A == 0)
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
                         {
-                            rowDst.DoSetColor32(pos, colorSrc);
-                            continue;
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst);
                         }
 
-                        colorSrc = colorDst.A == Byte.MaxValue
-                            // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackground(colorDst)
-                            // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWith(colorDst);
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
 
                         rowDst.DoSetColor32(pos, colorSrc);
                     }
@@ -411,25 +412,26 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // checking full transparency again (means almost zero colorF.A or threshold limit)
-                        if (colorSrc.A == 0 || colorSrc.A < alphaThreshold)
+                        if (colorSrc.A == 0)
                             continue;
 
                         // source here has a partial transparency: we need to read the target color
                         int targetX = x + targetLeft;
                         Color32 colorDst = row.DoGetColor32(targetX);
 
-                        // fully transparent target: we can overwrite with source
-                        if (colorDst.A == 0)
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
                         {
-                            row.DoSetColor32(targetX, colorSrc);
-                            continue;
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst);
                         }
 
-                        colorSrc = colorDst.A == Byte.MaxValue
-                            // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackground(colorDst)
-                            // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWith(colorDst);
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
 
                         row.DoSetColor32(targetX, colorSrc);
                     }
