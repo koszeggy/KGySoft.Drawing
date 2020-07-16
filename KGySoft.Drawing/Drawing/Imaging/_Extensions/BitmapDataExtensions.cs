@@ -752,7 +752,7 @@ namespace KGySoft.Drawing.Imaging
                 return;
             }
 
-            DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, source.HasMultiLevelAlpha());
+            DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
         }
 
         #endregion
@@ -1075,10 +1075,9 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, sessionTarget is disposed if needed")]
-        internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
+        internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
         {
             Debug.Assert(sourceRectangle.Size != targetRectangle.Size || scalingMode == ScalingMode.NoScaling, $"{nameof(DoDrawWithoutResize)} could have been called");
-            Debug.Assert(source.HasAlpha() || !blend, "blend should be false");
 
             var sourceBounds = new Rectangle(default, source.GetSize());
             var targetBounds = new Rectangle(default, target.GetSize());
@@ -1101,7 +1100,7 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform resize (with or without blending) before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = blend
+                sessionTarget = source.HasMultiLevelAlpha()
                     ? (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb)
                     : (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size);
                 sessionTargetRectangle.Location = Point.Empty;
@@ -1173,7 +1172,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-        internal static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
+        private static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
         {
             sourceRectangle.Offset(sourceBounds.Location);
             Rectangle actualSourceRectangle = Rectangle.Intersect(sourceRectangle, sourceBounds);

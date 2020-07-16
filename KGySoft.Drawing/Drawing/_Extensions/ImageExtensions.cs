@@ -1084,7 +1084,7 @@ namespace KGySoft.Drawing
                         return;
                     }
 
-                    src.DoDrawWithResize(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, true);
+                    src.DoDrawWithResize(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
                 }
             }
             finally
