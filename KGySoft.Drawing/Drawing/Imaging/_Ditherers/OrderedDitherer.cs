@@ -181,6 +181,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Properties
+
+        #region Static Properties
         // ReSharper disable InconsistentNaming - x in names are meant to be lowercase
 
         /// <summary>
@@ -584,6 +586,14 @@ namespace KGySoft.Drawing.Imaging
             });
 
         // ReSharper restore InconsistentNaming
+        #endregion
+
+        #region Instance Properties
+
+        bool IDitherer.InitializeReliesOnContent => false;
+
+        #endregion
+
         #endregion
 
         #region Constructors

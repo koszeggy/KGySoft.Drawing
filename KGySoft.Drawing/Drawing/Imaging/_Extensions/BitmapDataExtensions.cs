@@ -310,12 +310,12 @@ namespace KGySoft.Drawing.Imaging
 
                     // quantizing without dithering
                     if (ditherer == null)
-                        session.PerformCopyWithQuantizer(quantizingSession);
+                        session.PerformCopyWithQuantizer(quantizingSession, false);
                     else
                     {
                         // quantizing with dithering
                         using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                        session.PerformCopyWithDithering(ditheringSession);
+                        session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
                     }
 
                     return session.Target;
@@ -752,7 +752,7 @@ namespace KGySoft.Drawing.Imaging
                 return;
             }
 
-            DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, true);
+            DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode, source.HasMultiLevelAlpha());
         }
 
         #endregion
@@ -920,7 +920,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        internal static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
+        internal static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool skipTransparent = false)
         {
             var session = new CopySession();
             var sourceBounds = new Rectangle(default, source.GetSize());
@@ -958,6 +958,7 @@ namespace KGySoft.Drawing.Imaging
                 // processing without using a quantizer
                 if (quantizer == null)
                 {
+                    Debug.Assert(!skipTransparent, "Skipping transparent source pixels is not expected without quantizing. Handle it if really needed.");
                     session.PerformCopy();
                     return;
                 }
@@ -974,13 +975,13 @@ namespace KGySoft.Drawing.Imaging
                         // quantization without dithering
                         if (ditherer == null)
                         {
-                            session.PerformCopyWithQuantizer(quantizingSession);
+                            session.PerformCopyWithQuantizer(quantizingSession, skipTransparent);
                             return;
                         }
 
                         // quantization with dithering
                         using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                            session.PerformCopyWithDithering(ditheringSession);
+                            session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent);
                     }
                 }
                 finally
@@ -1013,10 +1014,26 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
+
+            IBitmapDataInternal sessionTarget;
+            Rectangle sessionTargetRectangle = actualTargetRectangle;
+            bool targetCloned = false;
+            bool isTwoPass = source.HasMultiLevelAlpha() && (quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true);
+
+            // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
+            if (isTwoPass)
+            {
+                sessionTarget = (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb);
+                sessionTargetRectangle.Location = Point.Empty;
+                targetCloned = true;
+            }
+            else
+                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+
             IBitmapDataInternal sessionSource = null;
 
             // special handling for same references
-            if (ReferenceEquals(source, target))
+            if (ReferenceEquals(source, target) && !targetCloned)
             {
                 // same area without quantizing: nothing to do
                 if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
@@ -1033,26 +1050,20 @@ namespace KGySoft.Drawing.Imaging
             if (sessionSource == null)
                 sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
 
-            IBitmapDataInternal sessionTarget;
-            Rectangle sessionTargetRectangle = actualTargetRectangle;
-
-            // if there is a quantizer we create a temp result where we perform blending before quantizing/dithering
-            if (quantizer != null)
-            {
-                sessionTarget = (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb);
-                sessionTargetRectangle.Location = Point.Empty;
-            }
-            else
-                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
-
             try
             {
                 var session = new CopySession(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
+                if (!isTwoPass)
+                {
+                    session.PerformDraw(quantizer, ditherer);
+                    return;
+                }
+
+                // first pass: performing blending into transient result
                 session.PerformDrawDirect();
 
-                // if there is a quantizer we need to copy the blended transient result to the actual target
-                if (quantizer != null)
-                    DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer);
+                // second pass: copying the blended transient result to the actual target
+                DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
             }
             finally
             {
@@ -1066,7 +1077,8 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, sessionTarget is disposed if needed")]
         internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode, bool blend)
         {
-            Debug.Assert(sourceRectangle.Size != targetRectangle.Size);
+            Debug.Assert(sourceRectangle.Size != targetRectangle.Size || scalingMode == ScalingMode.NoScaling, $"{nameof(DoDrawWithoutResize)} could have been called");
+            Debug.Assert(source.HasAlpha() || !blend, "blend should be false");
 
             var sourceBounds = new Rectangle(default, source.GetSize());
             var targetBounds = new Rectangle(default, target.GetSize());
@@ -1078,10 +1090,30 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             AdjustQuantizerAndDitherer(target, ref quantizer, ref ditherer);
+
+            IBitmapDataInternal sessionTarget;
+            Rectangle sessionTargetRectangle = actualTargetRectangle;
+            bool targetCloned = false;
+
+            // note: when resizing, we cannot trick the quantizer/ditherer with a single-bit alpha source because the source is needed to be resized
+            bool isTwoPass = quantizer?.InitializeReliesOnContent == true || ditherer?.InitializeReliesOnContent == true;
+
+            // if two pass is needed we create a temp result where we perform resize (with or without blending) before quantizing/dithering
+            if (isTwoPass)
+            {
+                sessionTarget = blend
+                    ? (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb)
+                    : (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size);
+                sessionTargetRectangle.Location = Point.Empty;
+                targetCloned = true;
+            }
+            else
+                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+
             IBitmapDataInternal sessionSource = null;
 
             // special handling for same references
-            if (ReferenceEquals(source, target))
+            if (ReferenceEquals(source, target) && !targetCloned)
             {
                 // same area without quantizing: nothing to do
                 if (quantizer == null && actualSourceRectangle == actualTargetRectangle)
@@ -1097,37 +1129,36 @@ namespace KGySoft.Drawing.Imaging
 
             if (sessionSource == null)
                 sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            if (blend)
-                blend = source.HasAlpha();
-
-            IBitmapDataInternal sessionTarget;
-            Rectangle sessionTargetRectangle = actualTargetRectangle;
-            if (quantizer != null)
-            {
-                sessionTarget = blend
-                    ? (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb)
-                    : (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size);
-                sessionTargetRectangle.Location = Point.Empty;
-            }
-            else
-                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
 
             try
             {
                 if (scalingMode == ScalingMode.NearestNeighbor)
                 {
                     var session = new ResizingSessionNearestNeighbor(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
-                    session.PerformResizeNearestNeighbor(blend);
+                    if (!isTwoPass)
+                    {
+                        session.PerformResize(quantizer, ditherer);
+                        return;
+                    }
+
+                    // first pass: performing resizing into a transient result
+                    session.PerformResizeDirect();
                 }
                 else
                 {
                     using var session = new ResizingSessionInterpolated(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle, scalingMode);
-                    session.PerformResize(blend);
+                    if (!isTwoPass)
+                    {
+                        session.PerformResize(quantizer, ditherer);
+                        return;
+                    }
+
+                    // first pass: performing blending into transient result
+                    session.PerformResizeDirect();
                 }
 
-                // if there is a quantizer we need to copy the transient result to the actual target
-                if (quantizer != null)
-                    DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer);
+                // second pass: copying the possibly blended transient result to the actual target with quantizing/dithering
+                DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
             }
             finally
             {
@@ -1219,6 +1250,12 @@ namespace KGySoft.Drawing.Imaging
                 quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
             else
                 ditherer = null;
+        }
+
+        private static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            return (pixelFormat != PixelFormat.Format16bppArgb1555 && pixelFormat.HasAlpha()) || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
 
         #endregion

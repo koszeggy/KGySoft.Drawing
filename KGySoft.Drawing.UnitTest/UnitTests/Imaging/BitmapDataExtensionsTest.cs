@@ -20,7 +20,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
-
+using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
@@ -331,51 +331,46 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
         [TestCase(PixelFormat.Format1bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        [TestCase(PixelFormat.Format32bppArgb)]
         public void DrawIntoNoResizeDirectTest(PixelFormat pixelFormat)
         {
-            var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
-            source.DrawInto(targetFull);
+            using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat);
+            using var icon64 = Icons.Information.ExtractBitmap(new Size(64, 64)).GetReadWriteBitmapData();
+            using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
 
-            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
-            source.DrawInto(targetClipped, rect);
+            // solid source
+            icon64.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                .DrawInto(target);
 
-            AssertAreEqual(targetFull, targetClipped, false, rect);
+            // single bit alpha source
+            icon64.Clone(PixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
+                .DrawInto(target, new Point(192, 192));
 
-            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+            // alpha source
+            icon256.DrawInto(target);
+
+            // alpha gradient source
+            gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32));
+
+            SaveImage($"{pixelFormat}", target.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
         [TestCase(PixelFormat.Format1bppIndexed)]
-        public void DrawIntoNoResizeWithQuantizerTest(PixelFormat pixelFormat)
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format16bppArgb1555)]
+        public void DrawIntoNoResizeWithQuantizingTest(PixelFormat pixelFormat)
         {
-            var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize());
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
-            source.DrawInto(targetFull, Point.Empty, quantizer);
 
-            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
-            source.DrawInto(targetClipped, rect, Point.Empty, quantizer);
-            AssertAreEqual(targetFull, targetClipped, false, rect);
-
-            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
-        }
-
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void DrawIntoNoResizeWithDithererTest(PixelFormat pixelFormat)
-        {
-            var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
             var ditherers = new Dictionary<string, IDitherer>
             {
+                ["(not dithered)"] = null,
                 ["Ordered"] = OrderedDitherer.Bayer8x8,
                 ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
                 ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
@@ -383,9 +378,26 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             foreach (var ditherer in ditherers)
             {
-                using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
-                source.DrawInto(targetClipped, rect, Point.Empty, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat), ditherer.Value);
-                SaveImage($"{pixelFormat} {ditherer.Key}", targetClipped.ToBitmap());
+                using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
+                using var icon64 = Icons.Information.ExtractBitmap(new Size(64, 64)).GetReadWriteBitmapData();
+                using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+                using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
+
+                // solid source
+                icon64.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                    .DrawInto(target, Point.Empty, quantizer, ditherer.Value);
+
+                // single bit alpha source
+                icon64.Clone(PixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
+                    .DrawInto(target, new Point(192, 192), quantizer, ditherer.Value);
+
+                // alpha source
+                icon256.DrawInto(target, Point.Empty, quantizer, ditherer.Value);
+
+                // alpha gradient source
+                gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32), quantizer, ditherer.Value);
+
+                SaveImage($"{pixelFormat} {ditherer.Key}", target.ToBitmap());
             }
         }
 
@@ -402,62 +414,93 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{scalingMode}", bmp);
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format32bppArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format32bppArgb, ScalingMode.Auto)]
         public void DrawIntoWithResizeDirectTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            var rectSrc = new Rectangle(32, 32, 192, 192);
-            var rectTarget = new Rectangle(0, 0, 64, 64);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
-            using var target = BitmapDataFactory.CreateBitmapData(rectTarget.Size, pixelFormat);
-            source.DrawInto(target, rectSrc, rectTarget, scalingMode);
+            // target and sources
+            using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat);
+            using var icon16 = Icons.Information.ExtractBitmap(new Size(16, 16)).GetReadWriteBitmapData();
+            using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
+
+            // enlarge solid source
+            var targetRect = new Rectangle(0, 0, 100, 100);
+            icon16.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                .DrawInto(target, targetRect, scalingMode);
+
+            // enlarge alpha source
+            targetRect = new Rectangle(160, 160, 100, 100);
+            icon16.DrawInto(target, targetRect, scalingMode);
+
+            // shrink single bit alpha source
+            targetRect = new Rectangle(Point.Empty, target.GetSize());
+            targetRect.Inflate(-32, -32);
+            icon256.Clone(PixelFormat.Format16bppArgb1555)
+                .DrawInto(target, targetRect, scalingMode);
+
+            // shrink alpha source (gradient overlay)
+            targetRect.Inflate(-10, -10);
+            gradient.DrawInto(target, targetRect, scalingMode);
+
             SaveImage($"{pixelFormat} {scalingMode}", target.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        public void DrawIntoWithResizeWithQuantizerTest(PixelFormat pixelFormat, ScalingMode scalingMode)
+        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+        public void DrawIntoResizeWithQuantizingTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            var rectSrc = new Rectangle(32, 32, 192, 192);
-            var rectTarget = new Rectangle(0, 0, 64, 64);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
-            using var target = BitmapDataFactory.CreateBitmapData(rectTarget.Size);
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
-            source.DrawInto(target, rectSrc, rectTarget, quantizer, null, scalingMode);
-            SaveImage($"{pixelFormat} {scalingMode}", target.ToBitmap());
-        }
 
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        public void DrawIntoWithResizeWithDithererTest(PixelFormat pixelFormat, ScalingMode scalingMode)
-        {
-            var rectSrc = new Rectangle(32, 32, 192, 192);
-            var rectTarget = new Rectangle(0, 0, 64, 64);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
             var ditherers = new Dictionary<string, IDitherer>
             {
+                ["(no dithering)"] = null,
                 ["Ordered"] = OrderedDitherer.Bayer8x8,
                 ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
                 ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
             };
 
-            foreach (var ditherer in ditherers)
+            foreach (KeyValuePair<string, IDitherer> ditherer in ditherers)
             {
-                using var target = BitmapDataFactory.CreateBitmapData(rectTarget.Size);
-                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
-                source.DrawInto(target, rectSrc, rectTarget, quantizer, ditherer.Value, scalingMode);
+                // 32bpp argb target and sources
+                using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
+                using var icon16 = Icons.Information.ExtractBitmap(new Size(16, 16)).GetReadWriteBitmapData();
+                using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+                using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
+
+                // enlarge solid source
+                var targetRect = new Rectangle(-10, -10, 100, 100);
+                icon16.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                    .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+
+                // enlarge alpha source
+                targetRect = new Rectangle(160, 160, 100, 100);
+                icon16.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+
+                // shrink single bit alpha source
+                targetRect = new Rectangle(Point.Empty, target.GetSize());
+                targetRect.Inflate(-32, -32);
+                icon256.Clone(PixelFormat.Format16bppArgb1555)
+                    .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+
+                // shrink alpha source (gradient overlay)
+                targetRect.Inflate(-10, -10);
+                gradient.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+
                 SaveImage($"{pixelFormat} {ditherer.Key} {scalingMode}", target.ToBitmap());
             }
         }

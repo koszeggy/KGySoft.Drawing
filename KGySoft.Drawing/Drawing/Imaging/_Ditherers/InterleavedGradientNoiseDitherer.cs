@@ -117,6 +117,12 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        bool IDitherer.InitializeReliesOnContent => false;
+
+        #endregion
+
         #region Constructors
 
         /// <summary>

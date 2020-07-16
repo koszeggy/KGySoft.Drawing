@@ -183,12 +183,22 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Public Properties
+
         /// <summary>
         /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="PredefinedColorsQuantizer"/> instance.
         /// If this <see cref="PredefinedColorsQuantizer"/> was not initialized with custom color mapping logic,
         /// then this is the possible lowest bits-per-pixel value format.
         /// </summary>
         public PixelFormat PixelFormatHint { get; }
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        bool IQuantizer.InitializeReliesOnContent => false;
+
+        #endregion
 
         #endregion
 

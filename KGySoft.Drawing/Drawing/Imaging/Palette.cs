@@ -230,6 +230,7 @@ namespace KGySoft.Drawing.Imaging
         internal Color32[] Entries { get; }
         internal bool IsGrayscale { get; }
         internal bool HasAlpha { get; }
+        internal bool HasMultiLevelAlpha { get; }
 
         #endregion
 
@@ -273,7 +274,10 @@ namespace KGySoft.Drawing.Imaging
                     color32ToIndex[c] = i;
 
                 if (c.A != Byte.MaxValue)
+                {
                     HasAlpha = true;
+                    HasMultiLevelAlpha = c.A > 0;
+                }
 
                 if (c.A == 0)
                 {

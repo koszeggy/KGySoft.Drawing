@@ -66,13 +66,52 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
-            internal void PerformResizeNearestNeighbor(bool blend)
+            #region Internal Methods
+            
+            [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
+            internal void PerformResize(IQuantizer quantizer, IDitherer ditherer)
             {
-                Action<int> processRow = blend
-                    ? target.PixelFormat == PixelFormat.Format32bppPArgb
-                        ? (Action<int>)ProcessRowWithBlendingPremultiplied
-                        : ProcessRowWithBlendingStraight
-                    : ProcessRowNoBlending;
+                if (quantizer == null)
+                {
+                    PerformResizeDirect();
+                    return;
+                }
+
+                IReadableBitmapData initSource = targetRectangle.Size == target.GetSize()
+                    ? target
+                    : target.Clip(targetRectangle);
+
+                try
+                {
+                    Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    {
+                        // quantizing without dithering
+                        if (ditherer == null)
+                        {
+                            PerformResizeWithQuantizer(quantizingSession);
+                            return;
+                        }
+
+                        // quantizing with dithering
+                        Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
+
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        PerformResizeWithDithering(quantizingSession, ditheringSession);
+                    }
+                }
+                finally
+                {
+                    if (!ReferenceEquals(initSource, target))
+                        initSource.Dispose();
+                }
+            }
+
+            internal void PerformResizeDirect()
+            {
+                Action<int> processRow = target.PixelFormat == PixelFormat.Format32bppPArgb
+                    ? (Action<int>)ProcessRowPremultiplied
+                    : ProcessRowStraight;
 
                 // Sequential processing
                 if (targetRectangle.Width < parallelThreshold)
@@ -87,24 +126,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Local Methods
 
-                void ProcessRowNoBlending(int y)
-                {
-                    // Scaling factors
-                    float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
-                    float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
-
-                    IBitmapDataRowInternal rowSrc = source.GetRow((int)(y * heightFactor + sourceRectangle.Y));
-                    IBitmapDataRowInternal rowDst = target.GetRow(y + targetRectangle.Y);
-
-                    int targetLeft = targetRectangle.Left;
-                    int sourceLeft = sourceRectangle.Left;
-                    int targetWidth = targetRectangle.Width;
-
-                    for (int x = 0; x < targetWidth; x++)
-                        rowDst.DoSetColor32(x + targetLeft, rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft)));
-                }
-
-                void ProcessRowWithBlendingStraight(int y)
+                void ProcessRowStraight(int y)
                 {
                     // Scaling factors
                     float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
@@ -154,7 +176,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
-                void ProcessRowWithBlendingPremultiplied(int y)
+                void ProcessRowPremultiplied(int y)
                 {
                     // Scaling factors
                     float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
@@ -188,19 +210,160 @@ namespace KGySoft.Drawing.Imaging
                         int pos = x + targetLeft;
                         Color32 colorDst = rowDst.DoReadRaw<Color32>(pos);
 
-                        // fully transparent target: we can overwrite with source
-                        if (colorDst.A == 0)
-                        {
-                            rowDst.DoWriteRaw(pos, colorSrc);
-                            continue;
-                        }
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                            colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
 
-                        rowDst.DoWriteRaw(pos, colorSrc.BlendWithPremultiplied(colorDst));
+                        rowDst.DoWriteRaw(pos, colorSrc);
                     }
                 }
 
                 #endregion
             }
+
+            #endregion
+
+            #region Private Methods
+
+            private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
+            {
+                // Sequential processing
+                if (targetRectangle.Width < (parallelThreshold >> 1))
+                {
+                    for (int y = 0; y < targetRectangle.Height; y++)
+                        ProcessRow(y);
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
+
+                #region Local Methods
+
+                void ProcessRow(int y)
+                {
+                    // Scaling factors
+                    float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
+                    float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
+
+                    IQuantizingSession session = quantizingSession;
+                    IBitmapDataRowInternal rowSrc = source.GetRow((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRow(y + targetRectangle.Y);
+
+                    int targetLeft = targetRectangle.Left;
+                    int sourceLeft = sourceRectangle.Left;
+                    int targetWidth = targetRectangle.Width;
+                    byte alphaThreshold = session.AlphaThreshold;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            rowDst.DoSetColor32(x + targetLeft, session.GetQuantizedColor(colorSrc));
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + targetLeft;
+                        Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                        {
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst);
+                        }
+
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColor32(pos, session.GetQuantizedColor(colorSrc));
+                    }
+                }
+
+                #endregion
+            }
+
+            private void PerformResizeWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
+            {
+                // Sequential processing
+                if (targetRectangle.Width < (parallelThreshold >> 2) || ditheringSession.IsSequential)
+                {
+                    for (int y = 0; y < targetRectangle.Height; y++)
+                        ProcessRow(y);
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
+
+                #region Local Methods
+
+                void ProcessRow(int y)
+                {
+                    // Scaling factors
+                    float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
+                    float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
+
+                    IDitheringSession session = ditheringSession;
+                    IBitmapDataRowInternal rowSrc = source.GetRow((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRow(y + targetRectangle.Y);
+
+                    int targetLeft = targetRectangle.Left;
+                    int sourceLeft = sourceRectangle.Left;
+                    int targetWidth = targetRectangle.Width;
+                    byte alphaThreshold = quantizingSession.AlphaThreshold;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            rowDst.DoSetColor32(x + targetLeft, session.GetDitheredColor(colorSrc, x, y));
+                            continue;
+                        }
+
+                        // fully transparent source: skip
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int pos = x + targetLeft;
+                        Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                        {
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst);
+                        }
+
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        rowDst.DoSetColor32(pos, session.GetDitheredColor(colorSrc, x, y));
+                    }
+                }
+
+                #endregion
+            }
+
+            #endregion
 
             #endregion
         }
@@ -296,18 +459,52 @@ namespace KGySoft.Drawing.Imaging
 
             #region Internal Methods
 
-            [MethodImpl(MethodImpl.AggressiveInlining)]
-            internal void PerformResize(bool blend)
+            [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
+            internal void PerformResize(IQuantizer quantizer, IDitherer ditherer)
             {
-                if (blend)
+                if (quantizer == null)
                 {
-                    if (target.PixelFormat == PixelFormat.Format32bppPArgb)
-                        DoResizeWithBlendingPremultiplied();
-                    else
-                        DoResizeWithBlendingStraight();
+                    PerformResizeDirect();
+                    return;
                 }
+
+                IReadableBitmapData initSource = targetRectangle.Size == target.GetSize()
+                    ? target
+                    : target.Clip(targetRectangle);
+
+                try
+                {
+                    Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    {
+                        // quantizing without dithering
+                        if (ditherer == null)
+                        {
+                            PerformResizeWithQuantizer(quantizingSession);
+                            return;
+                        }
+
+                        // quantizing with dithering
+                        Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
+
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        PerformResizeWithDithering(quantizingSession, ditheringSession);
+                    }
+                }
+                finally
+                {
+                    if (!ReferenceEquals(initSource, target))
+                        initSource.Dispose();
+                }
+            }
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            internal void PerformResizeDirect()
+            {
+                if (target.PixelFormat == PixelFormat.Format32bppPArgb)
+                    PerformResizePremultiplied();
                 else
-                    DoResizeNoBlending();
+                    PerformResizeDirectStraight();
             }
 
             #endregion
@@ -361,34 +558,16 @@ namespace KGySoft.Drawing.Imaging
                 CalculateFirstPassValues(currentWindow.Top + windowBandHeight, currentWindow.Bottom, false);
             }
 
-            private void DoResizeNoBlending()
+            private void PerformResizeDirectStraight()
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, y =>
+                ParallelHelper.For(0, targetRectangle.Height, y =>
                 {
-                    ResizeKernel kernel = verticalKernelMap.GetKernel(y - targetRectangle.Y);
+                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
                         Slide();
 
-                    IBitmapDataRowInternal row = target.GetRow(y);
-                    int topLine = kernel.StartIndex - currentWindow.Top;
-                    int targetWidth = targetRectangle.Width;
-                    int targetLeft = targetRectangle.Left;
-                    for (int x = 0; x < targetWidth; x++)
-                        row.DoSetColor32(x + targetLeft, kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height).ToColor32());
-                });
-            }
-
-            private void DoResizeWithBlendingStraight()
-            {
-                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, y =>
-                {
-                    ResizeKernel kernel = verticalKernelMap.GetKernel(y - targetRectangle.Y);
-                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                        Slide();
-
-                    IBitmapDataRowInternal row = target.GetRow(y);
+                    IBitmapDataRowInternal row = target.GetRow(y + targetRectangle.Y);
                     int topLine = kernel.StartIndex - currentWindow.Top;
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
@@ -411,7 +590,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
                         }
 
-                        // checking full transparency again (means almost zero colorF.A or threshold limit)
+                        // checking full transparency again (means almost zero colorF.A)
                         if (colorSrc.A == 0)
                             continue;
 
@@ -438,16 +617,16 @@ namespace KGySoft.Drawing.Imaging
                 });
             }
 
-            private void DoResizeWithBlendingPremultiplied()
+            private void PerformResizePremultiplied()
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(targetRectangle.Top, targetRectangle.Bottom, y =>
+                ParallelHelper.For(0, targetRectangle.Height, y =>
                 {
-                    ResizeKernel kernel = verticalKernelMap.GetKernel(y - targetRectangle.Y);
+                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
                         Slide();
 
-                    IBitmapDataRowInternal row = target.GetRow(y);
+                    IBitmapDataRowInternal row = target.GetRow(y + targetRectangle.Y);
                     int topLine = kernel.StartIndex - currentWindow.Top;
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
@@ -479,16 +658,148 @@ namespace KGySoft.Drawing.Imaging
                         int targetX = x + targetLeft;
                         Color32 colorDst = row.DoReadRaw<Color32>(targetX);
 
-                        // fully transparent target: we can overwrite with source
-                        if (colorDst.A == 0)
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                            colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
+
+                        row.DoWriteRaw(targetX, colorSrc);
+                    }
+                });
+            }
+
+            private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
+            {
+                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+                ParallelHelper.For(0, targetRectangle.Height, y =>
+                {
+                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                        Slide();
+
+                    IQuantizingSession session = quantizingSession;
+                    IBitmapDataRowInternal row = target.GetRow(y + targetRectangle.Y);
+                    int topLine = kernel.StartIndex - currentWindow.Top;
+                    int targetWidth = targetRectangle.Width;
+                    int targetLeft = targetRectangle.Left;
+                    byte alphaThreshold = session.AlphaThreshold;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        // Destination color components
+                        ColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                        // fully transparent source: skip
+                        if (colorF.A <= 0f)
+                            continue;
+
+                        Color32 colorSrc = colorF.ToColor32();
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
                         {
-                            row.DoWriteRaw(targetX, colorSrc);
+                            row.DoSetColor32(x + targetLeft, session.GetQuantizedColor(colorSrc));
                             continue;
                         }
 
-                        row.DoWriteRaw(targetX, colorSrc.BlendWithPremultiplied(colorDst));
+                        // checking full transparency again (means almost zero colorF.A)
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int targetX = x + targetLeft;
+                        Color32 colorDst = row.DoGetColor32(targetX);
+
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                        {
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst);
+                        }
+
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        row.DoSetColor32(targetX, session.GetQuantizedColor(colorSrc));
                     }
                 });
+            }
+
+            private void PerformResizeWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
+            {
+                // Sequential processing (ignoring threshold, always parallel if possible)
+                if (ditheringSession.IsSequential)
+                {
+                    for (int y = 0; y < targetRectangle.Height; y++)
+                        ProcessRow(y);
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
+
+                #region Local Methods
+
+                void ProcessRow(int y)
+                {
+                    ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                        Slide();
+
+                    IDitheringSession session = ditheringSession;
+                    IBitmapDataRowInternal row = target.GetRow(y + targetRectangle.Y);
+                    int topLine = kernel.StartIndex - currentWindow.Top;
+                    int targetWidth = targetRectangle.Width;
+                    int targetLeft = targetRectangle.Left;
+                    byte alphaThreshold = quantizingSession.AlphaThreshold;
+                    for (int x = 0; x < targetWidth; x++)
+                    {
+                        // Destination color components
+                        ColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                        // fully transparent source: skip
+                        if (colorF.A <= 0f)
+                            continue;
+
+                        Color32 colorSrc = colorF.ToColor32();
+
+                        // fully solid source: overwrite
+                        if (colorSrc.A == Byte.MaxValue)
+                        {
+                            row.DoSetColor32(x + targetLeft, session.GetDitheredColor(colorSrc, x, y));
+                            continue;
+                        }
+
+                        // checking full transparency again (means almost zero colorF.A)
+                        if (colorSrc.A == 0)
+                            continue;
+
+                        // source here has a partial transparency: we need to read the target color
+                        int targetX = x + targetLeft;
+                        Color32 colorDst = row.DoGetColor32(targetX);
+
+                        // non-transparent target: blending
+                        if (colorDst.A != 0)
+                        {
+                            colorSrc = colorDst.A == Byte.MaxValue
+                                // target pixel is fully solid: simple blending
+                                ? colorSrc.BlendWithBackground(colorDst)
+                                // both source and target pixels are partially transparent: complex blending
+                                : colorSrc.BlendWith(colorDst);
+                        }
+
+                        // overwriting target color only if blended color has high enough alpha
+                        if (colorSrc.A < alphaThreshold)
+                            continue;
+
+                        row.DoSetColor32(targetX, session.GetDitheredColor(colorSrc, x, y));
+                    }
+                }
+
+                #endregion
             }
 
             #endregion
