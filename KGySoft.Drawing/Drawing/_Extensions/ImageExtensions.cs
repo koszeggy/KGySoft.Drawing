@@ -869,20 +869,22 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            Bitmap bmp = ReferenceEquals(source, target)
-                ? ((Bitmap)source).CloneCurrentFrame()
-                : source as Bitmap ?? new Bitmap(source);
+            // special handling for same reference (overlapping is handled inside)
+            if (ReferenceEquals(source, target))
+            {
+                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
+                    bitmapData.DrawInto(bitmapData, sourceRectangle, targetLocation, quantizer, ditherer);
 
+                return;
+            }
+
+            // Cloning source if it is a metafile
+            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                {
-                    if (src.HasAlpha())
-                        src.DoDrawWithoutResize(dst, sourceRectangle, targetLocation, quantizer, ditherer);
-                    else
-                        src.DoCopy(dst, sourceRectangle, targetLocation, quantizer, ditherer);
-                }
+                    src.DrawInto(dst, sourceRectangle, targetLocation, quantizer, ditherer);
             }
             finally
             {
@@ -1064,28 +1066,23 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            // Cloning source if target and source are the same, or creating a new bitmap is source is a metafile
-            Bitmap bmp = ReferenceEquals(source, target)
-                ? ((Bitmap)source).CloneCurrentFrame()
-                : source as Bitmap ?? new Bitmap(source);
+            // special handling for same reference (overlapping is handled inside)
+            if (ReferenceEquals(source, target))
+            {
+                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
+                    bitmapData.DrawInto(bitmapData, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+
+                return;
+            }
+
+            // Cloning source if it is a metafile
+            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
 
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
                 using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                {
-                    // no scaling is necessary
-                    if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
-                    {
-                        if (src.HasAlpha())
-                            src.DoDrawWithoutResize(dst, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                        else
-                            src.DoCopy(dst, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                        return;
-                    }
-
-                    src.DoDrawWithResize(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
-                }
+                    src.DrawInto(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
             }
             finally
             {
@@ -1652,52 +1649,62 @@ namespace KGySoft.Drawing
 
             Image tiff = null;
             var pagesToDispose = new List<Image>();
-            foreach (Image image in images)
+            try
             {
-                if (image == null)
-                    throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
-
-                Image page = AdjustTiffImage(image);
-                if (page != image)
-                    pagesToDispose.Add(page);
-                using (var encoderParams = new EncoderParameters(2))
+                foreach (Image image in images)
                 {
-                    // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
-                    encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
+                    if (image == null)
+                        throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                    // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
-                    // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
-                    //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
+                    Image page = AdjustTiffImage(image);
+                    if (page != image)
+                        pagesToDispose.Add(page);
+                    using (var encoderParams = new EncoderParameters(2))
+                    {
+                        // LZW is always shorter, and non-BW palette is enabled, too (except on Windows 10 where it makes no difference)
+                        encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
 
-                    // saving the first page with MultiFrame parameter
-                    if (tiff == null)
-                    {
-                        tiff = page;
-                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
-                        tiff.Save(stream, tiffEncoder, encoderParams);
-                    }
-                    // saving subsequent pages
-                    else
-                    {
-                        encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
-                        tiff.SaveAdd(page, encoderParams);
+                        // Not setting the color depth any more. Auto selection works fine and also depends on raw format.
+                        // For example, 48bpp cannot be set (invalid parameter) but an already 48bpp TIFF is saved with 48bpp rather than 24.
+                        //encoderParams.Param[1] = new EncoderParameter(Encoder.ColorDepth, page.PixelFormat.ToBitsPerPixel());
+
+                        // saving the first page with MultiFrame parameter
+                        if (tiff == null)
+                        {
+                            tiff = page;
+                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.MultiFrame);
+                            tiff.Save(stream, tiffEncoder, encoderParams);
+                        }
+                        // saving subsequent pages
+                        else
+                        {
+                            encoderParams.Param[1] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.FrameDimensionPage);
+                            tiff.SaveAdd(page, encoderParams);
+                        }
                     }
                 }
+
+                if (tiff == null)
+                    throw new ArgumentException(PublicResources.CollectionEmpty, nameof(images));
+
+                // finishing save
+                using (var encoderParams = new EncoderParameters(1))
+                {
+                    encoderParams.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.Flush);
+                    tiff.SaveAdd(encoderParams);
+                }
             }
-
-            if (tiff == null)
-                throw new ArgumentException(PublicResources.CollectionEmpty, nameof(images));
-
-            // finishing save
-            using (var encoderParams = new EncoderParameters(1))
+            catch (NotImplementedException)
             {
-                encoderParams.Param[0] = new EncoderParameter(Encoder.SaveFlag, (long)EncoderValue.Flush);
-                tiff.SaveAdd(encoderParams);
+                // On Linux a NotImplementedException can be thrown when trying to save a multipage TIFF
+                throw new PlatformNotSupportedException(Res.ImageExtensionsMultipageTiffSaveNotSupported);
             }
-
-            // disposing the replaced images, if any
-            pagesToDispose.ForEach(img => img.Dispose());
-            stream.Flush();
+            finally
+            {
+                // disposing the replaced images, if any
+                pagesToDispose.ForEach(img => img.Dispose());
+                stream.Flush();
+            }
         }
 
         /// <summary>

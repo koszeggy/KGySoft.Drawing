@@ -927,7 +927,11 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
         }
 
-        internal static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
+        #endregion
+
+        #region Private Methods
+
+        private static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
             where TBitmapData : IBitmapData
         {
             while (true)
@@ -951,7 +955,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        internal static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool skipTransparent = false)
+        private static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool skipTransparent = false)
         {
             var session = new CopySession();
             var sourceBounds = new Rectangle(default, source.GetSize());
@@ -1031,7 +1035,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        internal static void DoDrawWithoutResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
+        private static void DoDrawWithoutResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
         {
             Debug.Assert(source.HasAlpha(), "DoCopy could have been called");
 
@@ -1106,7 +1110,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, sessionTarget is disposed if needed")]
-        internal static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
+        private static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
         {
             Debug.Assert(sourceRectangle.Size != targetRectangle.Size || scalingMode == ScalingMode.NoScaling, $"{nameof(DoDrawWithoutResize)} could have been called");
 
@@ -1198,10 +1202,6 @@ namespace KGySoft.Drawing.Imaging
                     sessionTarget.Dispose();
             }
         }
-
-        #endregion
-
-        #region Private Methods
 
         private static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
         {

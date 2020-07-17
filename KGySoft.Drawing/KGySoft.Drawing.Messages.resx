@@ -189,4 +189,7 @@
   <data name="MetafileExtensions_CannotBeSavesAsEmf" xml:space="preserve">
     <value>The specified metafile can only be saved as WMF.</value>
   </data>
+  <data name="ImageExtensions_MultipageTiffSaveNotSupported" xml:space="preserve">
+    <value>Saving multi-page TIFF is not supported on the current platform.</value>
+  </data>
 </root>

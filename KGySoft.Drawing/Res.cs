@@ -84,6 +84,13 @@ namespace KGySoft
 
         #endregion
 
+        #region ImageExtensions
+
+        /// <summary>Saving multi-page TIFF is not supported on the current platform.</summary>
+        internal static string ImageExtensionsMultipageTiffSaveNotSupported => Get("ImageExtensions_MultipageTiffSaveNotSupported");
+
+        #endregion
+
         #region MetafileExtensions
 
         /// <summary>The specified metafile can only be saved as WMF.</summary>
