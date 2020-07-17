@@ -84,8 +84,8 @@ namespace KGySoft.Drawing.Imaging
 
             public override Color32 DoGetColor32(int x) => WrappedRow.DoGetColor32(x + Parent.OffsetX);
             public override void DoSetColor32(int x, Color32 c) => WrappedRow.DoSetColor32(x + Parent.OffsetX, c);
-            public override T DoReadRaw<T>(int x) => WrappedRow.DoReadRaw<T>(x + Parent.OffsetX);
-            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.DoWriteRaw(x + Parent.OffsetX, data);
+            public override T DoReadRaw<T>(int x) => WrappedRow.DoReadRaw<T>(x);
+            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.DoWriteRaw(x, data);
             public override int DoGetColorIndex(int x) => WrappedRow.DoGetColorIndex(x + Parent.OffsetX);
             public override void DoSetColorIndex(int x, int colorIndex) => WrappedRow.DoSetColorIndex(x + Parent.OffsetX, colorIndex);
 
@@ -110,8 +110,8 @@ namespace KGySoft.Drawing.Imaging
 
             public override Color32 DoGetColor32(int x) => WrappedRow[x + Parent.OffsetX];
             public override void DoSetColor32(int x, Color32 c) => WrappedRow[x + Parent.OffsetX] = c;
-            public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x + Parent.OffsetX);
-            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x + Parent.OffsetX, data);
+            public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x);
+            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x, data);
             public override int DoGetColorIndex(int x) => WrappedRow.GetColorIndex(x + Parent.OffsetX);
             public override void DoSetColorIndex(int x, int colorIndex) => WrappedRow.SetColorIndex(x + Parent.OffsetX, colorIndex);
 
@@ -135,7 +135,7 @@ namespace KGySoft.Drawing.Imaging
             #region Methods
 
             public override Color32 DoGetColor32(int x) => WrappedRow[x + Parent.OffsetX];
-            public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x + Parent.OffsetX);
+            public override T DoReadRaw<T>(int x) => WrappedRow.ReadRaw<T>(x);
             public override int DoGetColorIndex(int x) => WrappedRow.GetColorIndex(x + Parent.OffsetX);
             public override void DoSetColor32(int x, Color32 c) => throw new InvalidOperationException();
             public override void DoWriteRaw<T>(int x, T data) => throw new InvalidOperationException();
@@ -161,7 +161,7 @@ namespace KGySoft.Drawing.Imaging
             #region Methods
 
             public override void DoSetColor32(int x, Color32 c) => WrappedRow[x + Parent.OffsetX] = c;
-            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x + Parent.OffsetX, data);
+            public override void DoWriteRaw<T>(int x, T data) => WrappedRow.WriteRaw(x, data);
             public override void DoSetColorIndex(int x, int colorIndex) => WrappedRow.SetColorIndex(x + Parent.OffsetX, colorIndex);
             public override Color32 DoGetColor32(int x) => throw new InvalidOperationException();
             public override T DoReadRaw<T>(int x) => throw new InvalidOperationException();
@@ -252,21 +252,18 @@ namespace KGySoft.Drawing.Imaging
             Palette = BitmapData.Palette;
             int bpp = PixelFormat.ToBitsPerPixel();
 
-            // Even one byte padding is disabled to prevent the right edge of a region by default
-            RowSize = (region.Width * bpp) >> 3;
+            RowSize = region.Left > 0 
+                // Any clipping from the left disables raw access because ReadRaw/WriteRaw offset depends on size of T,
+                // which will fail for any T whose size is not the same as the actual pixel size
+                ? 0 
+                // Even one byte padding is disabled to protect the right edge of a region by default
+                : (region.Width * bpp) >> 3;
 
-            if (bpp >= 8)
+            if (bpp >= 8 || RowSize == 0)
                 return;
 
             // 1/4bpp: Adjust RowSize if needed
             int alignmentMask = bpp == 1 ? 7 : 1;
-
-            // left edge: must be aligned to byte boundary; otherwise, we disable raw access
-            if ((region.X & alignmentMask) != 0)
-            {
-                RowSize = 0;
-                return;
-            }
 
             // right edge: if not at byte boundary but that is the right edge of the original image, then we allow including padding
             if ((region.Width & alignmentMask) != 0 && region.Right == BitmapData.Width)

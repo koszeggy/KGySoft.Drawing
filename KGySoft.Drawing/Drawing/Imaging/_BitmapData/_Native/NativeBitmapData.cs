@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold = 0, Palette palette = null)
+        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 0, Palette palette = null)
             : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette)
         {
         }
@@ -56,19 +56,19 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe IBitmapDataRowInternal GetRow(int row)
+        public override unsafe IBitmapDataRowInternal GetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
             TRow result = lastRow;
-            if (result?.Index == row)
+            if (result?.Index == y)
                 return result;
 
             // Otherwise, we create and cache the result.
             return lastRow = new TRow
             {
-                Address = row == 0 ? (byte*)Scan0 : (byte*)Scan0 + Stride * row,
+                Address = y == 0 ? (byte*)Scan0 : (byte*)Scan0 + Stride * y,
                 BitmapData = this,
-                Index = row,
+                Index = y,
             };
         }
 

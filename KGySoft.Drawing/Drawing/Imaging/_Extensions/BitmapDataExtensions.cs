@@ -852,6 +852,37 @@ namespace KGySoft.Drawing.Imaging
                 : new ClippedBitmapData(source, clippingRegion);
         }
 
+        /// <summary>
+        /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>.
+        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="PixelFormat"/> and also dithering.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
+        /// <param name="color">A <see cref="Color32"/> that represents the desired result color of the <paramref name="bitmapData"/>.
+        /// If it has transparency, which is not supported by <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/>, then the result might be either
+        /// completely transparent (depends also on <see cref="IBitmapData.AlphaThreshold"/>), or the color will be blended with <see cref="IBitmapData.BackColor"/>.
+        /// </param>
+        /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+
+            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+            try
+            {
+                if (ditherer == null || !accessor.PixelFormat.CanBeDithered())
+                    ClearDirect(accessor, color);
+                else
+                    ClearWithDithering(accessor, color, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(accessor, bitmapData))
+                    accessor.Dispose();
+            }
+        }
+
         #endregion
 
         #region IReadWriteBitmapData
@@ -1254,7 +1285,7 @@ namespace KGySoft.Drawing.Imaging
         private static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
         {
             PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return (pixelFormat != PixelFormat.Format16bppArgb1555 && pixelFormat.HasAlpha()) || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
+            return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
 
         #endregion

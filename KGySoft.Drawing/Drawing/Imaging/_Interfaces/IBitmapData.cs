@@ -74,14 +74,18 @@ namespace KGySoft.Drawing.Imaging
         Palette Palette { get; }
 
         /// <summary>
-        /// Gets the raw size of a row in bytes or zero, if this <see cref="IBitmapData"/> instance does not have an actual raw buffer to access
+        /// Gets the size of a row in bytes, or zero, if this <see cref="IBitmapData"/> instance does not have an actual raw buffer to access.
         /// Otherwise, <see cref="RowSize"/> is similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property never returns a negative value.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <para>This property can be useful when accessing the bitmap data by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</para>
         /// <para>As <see cref="IBitmapData"/> can represent also a managed bitmap data, row size is not guaranteed to be a multiple of 4.</para>
-        /// <note>This property can return 0 if the current <see cref="IBitmapData"/> instance represents bitmap data without actual raw data or represents a clipped
-        /// region where the clipping is not on byte boundary (can occur with indexed <see cref="PixelFormat"/>s).</note>
+        /// <note>
+        /// <para>This property can return 0 if the current <see cref="IBitmapData"/> instance represents a bitmap data without actual raw data or represents a clipped
+        /// region where the left edge of the clipping has an offset compared to the original bitmap data.</para>
+        /// <para>Even if this property returns a nonzero value, it is possible that raw access does not cover the few last columns.
+        /// This may occur in case of indexed <see cref="PixelFormat"/>s if the bitmap data is clipped.</para>
+        /// </note>
         /// <remarks>
         /// </remarks>
         int RowSize { get; }

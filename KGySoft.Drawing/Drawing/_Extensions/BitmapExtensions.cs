@@ -670,7 +670,7 @@ namespace KGySoft.Drawing
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             using (IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
-                ClearDirect(accessor, new Color32(color));
+                accessor.Clear(new Color32(color));
         }
 
         /// <summary>
@@ -696,12 +696,7 @@ namespace KGySoft.Drawing
 
             Color32 c = new Color32(color);
             using (IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
-            {
-                if (ditherer == null || !accessor.PixelFormat.CanBeDithered())
-                    ClearDirect(accessor, c);
-                else
-                    ClearWithDithering(accessor, c, ditherer);
-            }
+                accessor.Clear(new Color32(color), ditherer);
         }
 
         /// <summary>
@@ -1361,179 +1356,6 @@ namespace KGySoft.Drawing
             }
 
             return colors.Count;
-        }
-
-        [SecuritySafeCritical]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void ClearDirect(IBitmapDataInternal bitmapData, Color32 color)
-        {
-            IBitmapDataRowInternal row;
-            int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
-            switch (bpp)
-            {
-                // premultiplying only once (if needed), clearing by longs
-                case 32:
-                    row = bitmapData.GetRow(0);
-                    row.DoSetColor32(0, color);
-                    var rawColor = row.DoReadRaw<Color32>(0);
-                    int longWidth = bitmapData.RowSize >> 3;
-
-                    // writing as longs
-                    if (longWidth > 0)
-                    {
-                        uint argb = (uint)rawColor.ToArgb();
-                        ClearRaw(bitmapData, longWidth, ((ulong)argb << 32) | argb);
-                    }
-
-                    // if width is odd we clear the last column
-                    if ((bitmapData.Width & 1) == 1)
-                    {
-                        int x = bitmapData.Width - 1;
-                        row = bitmapData.GetRow(0);
-                        do
-                        {
-                            row.DoWriteRaw(x, rawColor);
-                        } while (row.MoveNextRow());
-                    }
-
-                    return;
-
-                // converting color to 64-bit [P]ARGB value only once
-                case 64:
-                    row = bitmapData.GetRow(0);
-                    row.DoSetColor32(0, color);
-                    var longValue = row.DoReadRaw<long>(0);
-                    ClearRaw(bitmapData, bitmapData.Width, longValue);
-                    return;
-
-                // converting color to underlying 16 bit pixel only once, clearing by longs
-                case 16:
-                    row = bitmapData.GetRow(0);
-                    row.DoSetColor32(0, color);
-                    var shortValue = row.DoReadRaw<ushort>(0);
-                    longWidth = bitmapData.RowSize >> 3;
-                    uint uintValue = (uint)((shortValue << 16) | shortValue);
-
-                    // writing as longs
-                    if (longWidth > 0)
-                        ClearRaw(bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
-
-                    // if row width can be divided by 8, then we are done
-                    if ((bitmapData.RowSize & 0b111) == 0)
-                        return;
-
-                    // otherwise, we clear the last 1..3 columns (on Windows: 1..2 because row width always can be divided by 4)
-                    int to = bitmapData.Width;
-                    int from = to - (bitmapData.Width & 0b11);
-                    row = bitmapData.GetRow(0);
-                    do
-                    {
-                        for (int x = from; x < to; x++)
-                            row.DoWriteRaw(x, shortValue);
-                    } while (row.MoveNextRow());
-
-                    return;
-
-                // converting color to palette index only once
-                case 8:
-                case 4:
-                case 1:
-                    int index = bitmapData.Palette.GetNearestColorIndex(color);
-                    byte byteValue = bpp == 8 ? (byte)index
-                        : bpp == 4 ? (byte)((index << 4) | index)
-                        : index == 1 ? Byte.MaxValue : Byte.MinValue;
-
-                    // writing as 32-bit integers (on Windows row width is always the multiple of 4)
-                    if ((bitmapData.RowSize & 0b11) == 0)
-                        ClearRaw(bitmapData, bitmapData.RowSize >> 2, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
-                    // fallback: writing as bytes (will not occur on Windows)
-                    else
-                        ClearRaw(bitmapData, bitmapData.RowSize, byteValue);
-                    return;
-
-                // Direct color-based clear (24/48 bit formats)
-                default:
-                    // small width: going with sequential clear
-                    if (bitmapData.Width < parallelThreshold)
-                    {
-                        row = bitmapData.GetRow(0);
-                        do
-                        {
-                            for (int x = 0; x < bitmapData.Width; x++)
-                                row.DoSetColor32(x, color);
-                        } while (row.MoveNextRow());
-
-                        return;
-                    }
-
-                    // parallel clear
-                    ParallelHelper.For(0, bitmapData.Height, y =>
-                    {
-                        // ReSharper disable once VariableHidesOuterVariable
-                        IBitmapDataRowInternal row = bitmapData.GetRow(y);
-                        for (int x = 0; x < bitmapData.Width; x++)
-                            row.DoSetColor32(x, color);
-                    });
-                    return;
-            }
-        }
-
-        [SecuritySafeCritical]
-        private static void ClearRaw<T>(IBitmapDataInternal bitmapData, int width, T data)
-            where T : unmanaged
-        {
-            // small width: going with sequential clear
-            if (width < parallelThreshold)
-            {
-                var row = bitmapData.GetRow(0);
-                do
-                {
-                    for (int x = 0; x < width; x++)
-                        row.DoWriteRaw(x, data);
-                } while (row.MoveNextRow());
-                return;
-            }
-
-            // parallel clear
-            ParallelHelper.For(0, bitmapData.Height, y =>
-            {
-                IBitmapDataRowInternal row = bitmapData.GetRow(y);
-                for (int x = 0; x < width; x++)
-                    row.DoWriteRaw(x, data);
-            });
-        }
-
-        [SecuritySafeCritical]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static void ClearWithDithering(IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
-        {
-            IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
-            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
-            using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-            {
-                // sequential clear
-                if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
-                    int y = 0;
-                    do
-                    {
-                        for (int x = 0; x < bitmapData.Width; x++)
-                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
-                        y += 1;
-                    } while (row.MoveNextRow());
-
-                    return;
-                }
-
-                // parallel clear
-                ParallelHelper.For(0, bitmapData.Height, y =>
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
-                    for (int x = 0; x < bitmapData.Width; x++)
-                        row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
-                });
-            }
         }
 
         private static byte[] GenerateGammaLookupTable(float gamma)

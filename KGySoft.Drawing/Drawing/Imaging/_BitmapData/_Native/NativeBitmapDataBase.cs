@@ -74,7 +74,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(palette == null || palette.Equals(bitmap.Palette.Entries), "Unmatching palette");
 
             this.bitmap = bitmap;
-            BackColor = backColor.ToOpaque();
+            BackColor = pixelFormat.HasMultiLevelAlpha() ? default : backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
 
             bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);

@@ -65,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
             Debug.Assert(!pixelFormat.IsIndexed() || typeof(TColor) == typeof(byte), "For indexed pixel formats byte elements are expected");
 
-            BackColor = backColor.ToOpaque();
+            BackColor = pixelFormat.HasMultiLevelAlpha() ? default : backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
             PixelFormat = pixelFormat;
             Width = size.Width;

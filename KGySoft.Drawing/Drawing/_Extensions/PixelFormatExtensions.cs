@@ -128,6 +128,9 @@ namespace KGySoft.Drawing
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
 
+        internal static bool HasMultiLevelAlpha(this PixelFormat pixelFormat)
+            => pixelFormat != PixelFormat.Format16bppArgb1555 && pixelFormat.HasAlpha();
+
         internal static bool CanBeDithered(this PixelFormat dstFormat)
             => dstFormat.ToBitsPerPixel() <= 16 && dstFormat != PixelFormat.Format16bppGrayScale;
 

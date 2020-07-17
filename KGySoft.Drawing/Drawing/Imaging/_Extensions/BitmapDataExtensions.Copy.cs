@@ -398,7 +398,7 @@ namespace KGySoft.Drawing.Imaging
                 int width = SourceRectangle.Width >> shift;
 
                 // right edge can be the part of line padding
-                if ((width & alignmentMask) != 0)
+                if ((SourceRectangle.Width & alignmentMask) != 0)
                     width++;
 
                 SourceRectangle.Width = TargetRectangle.Width = width;

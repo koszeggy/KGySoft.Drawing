@@ -505,6 +505,82 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format4bppIndexed, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format8bppIndexed, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format16bppGrayScale, 0xFF888888)]
+        [TestCase(PixelFormat.Format16bppRgb555, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format16bppRgb565, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format16bppArgb1555, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format24bppRgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppRgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppRgb, 0x800000FF)]
+        [TestCase(PixelFormat.Format32bppArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppArgb, 0x800000FF)]
+        [TestCase(PixelFormat.Format32bppPArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppPArgb, 0x800000FF)]
+        [TestCase(PixelFormat.Format48bppRgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format64bppArgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format64bppPArgb, 0xFF0000FF)]
+        public void ClearTest(PixelFormat pixelFormat, uint argb)
+        {
+            const int size = 17;
+            Color32 color = Color32.FromArgb((int)argb);
+
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(new Size(size, size), pixelFormat);
+            (string Name, IReadWriteBitmapData BitmapData)[] sources = new[]
+            {
+                ("full", bitmapData),
+                ($"clipped right, width={size - 1}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 1, 1))),
+                ($"clipped right, width={size - 2}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 2, 1))),
+                ("clipped left", bitmapData.Clone().Clip(new Rectangle(1, 0, size - 1, 1))),
+            };
+
+            foreach (var source in sources)
+            {
+                source.BitmapData.Clear(color);
+
+                IReadableBitmapDataRow row = source.BitmapData.FirstRow;
+                var expected = color;
+                if (!pixelFormat.HasMultiLevelAlpha())
+                    expected = expected.BlendWithBackground(default);
+                do
+                {
+                    for (int x = 0; x < source.BitmapData.Width; x++)
+                        Assert.AreEqual(expected, row[x]);
+                } while (row.MoveNextRow());
+
+                //SaveImage($"{pixelFormat} {source.Name}", source.BitmapData.ToBitmap());
+            }
+        }
+
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, 0U)]
+        [TestCase(PixelFormat.Format1bppIndexed, 0U, 0x88888888)]
+        [TestCase(PixelFormat.Format4bppIndexed, 0xFFABCDEF, 0U)]
+        [TestCase(PixelFormat.Format4bppIndexed, 0U, 0x88888888)]
+        public void ClearWithDitheringTest(PixelFormat pixelFormat, uint argb, uint argbBackColor)
+        {
+            const int size = 17;
+
+            var ditherers = new Dictionary<string, IDitherer>
+            {
+                ["(no dithering)"] = null,
+                ["Ordered"] = OrderedDitherer.Bayer8x8,
+                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+            };
+
+            foreach (var ditherer in ditherers)
+            {
+                var color = Color32.FromArgb((int)argb);
+                var backColor = Color32.FromArgb((int)argbBackColor);
+                using var bitmapData = BitmapDataFactory.CreateBitmapData(new Size(size, size), pixelFormat, backColor);
+                bitmapData.Clear(color, ditherer.Value);
+
+                SaveImage($"{pixelFormat} {argb:X8} on {argbBackColor:X8} {ditherer.Key}", bitmapData.ToBitmap());
+            }
+        }
+
         [Test]
         public void ClippingClippedBitmapDataTest()
         {
@@ -528,15 +604,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             // clipped region makes last columns unavailable by raw data to protect the cut-out part from being overwritten
             Assert.AreEqual(15, bitmapData.Clip(new Rectangle(0, 0, 126, 1)).RowSize);
 
-            // raw access is completely disabled if clipping does not start on byte boundary
+            // raw access is completely disabled if clipping does not start on left edge
             Assert.AreEqual(0, bitmapData.Clip(new Rectangle(1, 0, 127, 1)).RowSize);
-            Assert.AreEqual(15, bitmapData.Clip(new Rectangle(8, 0, 120, 1)).RowSize);
-
-            // last column does not have to end on byte boundary because of the padding at the end of the lines
-            Assert.AreEqual(15, bitmapData.Clip(new Rectangle(8, 0, 119, 1)).RowSize);
-
-            // but if we shrink the area by 8 pixels from the right the available raw area shrinks by 2 bytes
-            Assert.AreEqual(13, bitmapData.Clip(new Rectangle(8, 0, 111, 1)).RowSize);
+            Assert.AreEqual(0, bitmapData.Clip(new Rectangle(8, 0, 120, 1)).RowSize);
         }
 
         #endregion

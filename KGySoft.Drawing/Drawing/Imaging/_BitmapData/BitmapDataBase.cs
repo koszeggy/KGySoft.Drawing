@@ -128,7 +128,7 @@ namespace KGySoft.Drawing.Imaging
             GetRow(y).SetColor(x, color);
         }
 
-        public abstract IBitmapDataRowInternal GetRow(int row);
+        public abstract IBitmapDataRowInternal GetRow(int y);
 
         public void Dispose()
         {
