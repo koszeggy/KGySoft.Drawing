@@ -424,10 +424,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
         [TestCase(PixelFormat.Format32bppArgb, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format32bppArgb, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.Auto)]
         public void DrawIntoWithResizeDirectTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
             // target and sources
-            using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat);
+            using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, new Color32(Color.Silver));
             using var icon16 = Icons.Information.ExtractBitmap(new Size(16, 16)).GetReadWriteBitmapData();
             using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
             using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
@@ -464,7 +466,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
         public void DrawIntoResizeWithQuantizingTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
+            var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat, Color.Silver);
 
             var ditherers = new Dictionary<string, IDitherer>
             {
