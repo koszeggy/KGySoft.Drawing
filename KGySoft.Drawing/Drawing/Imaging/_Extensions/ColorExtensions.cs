@@ -83,6 +83,16 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 AsValidPremultiplied(this Color32 c)
+        {
+            Debug.Assert(c.A > 0 && c.A < Byte.MaxValue);
+            return new Color32(c.A,
+                c.R > c.A ? c.A : c.R,
+                c.G > c.A ? c.A : c.G,
+                c.B > c.A ? c.A : c.B);
+        }
+        
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color64 ToPremultiplied(this Color64 c)
         {
             if (c.A == UInt16.MaxValue)
@@ -109,6 +119,21 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (byte)0 : (byte)(c.R * Byte.MaxValue / c.A),
                 c.A == 0 ? (byte)0 : (byte)(c.G * Byte.MaxValue / c.A),
                 c.A == 0 ? (byte)0 : (byte)(c.B * Byte.MaxValue / c.A));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 ToStraightSafe(this Color32 c)
+        {
+            if (c.A == Byte.MaxValue)
+                return c;
+            if (c.A == 0)
+                return default;
+
+            return new Color32(
+                c.A,
+                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.R) * Byte.MaxValue / c.A),
+                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.G) * Byte.MaxValue / c.A),
+                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.B) * Byte.MaxValue / c.A));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

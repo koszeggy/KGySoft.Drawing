@@ -1288,6 +1288,9 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
 
+        private static bool Is32BppPremultiplied(this IBitmapData bitmapData)
+            => bitmapData.PixelFormat == PixelFormat.Format32bppPArgb && bitmapData.RowSize == bitmapData.Width << 2;
+
         #endregion
 
         #endregion
