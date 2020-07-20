@@ -37,40 +37,6 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Nested classes
 
-        #region QuantizingSessionIdentity class
-
-        private sealed class QuantizingSessionIdentity : IQuantizingSession
-        {
-            #region Fields
-
-            internal static readonly QuantizingSessionIdentity Instance = new QuantizingSessionIdentity();
-
-            #endregion
-
-            #region Properties
-
-            public Palette Palette => null;
-            public Color32 BackColor => default;
-            public byte AlphaThreshold => default;
-
-            #endregion
-
-            #region Constructors
-
-            private QuantizingSessionIdentity() { }
-
-            #endregion
-
-            #region Methods
-
-            public void Dispose() {  }
-            public Color32 GetQuantizedColor(Color32 c) => c;
-
-            #endregion
-        }
-
-        #endregion
-
         #region QuantizingSessionCustomMapping class
 
         private sealed class QuantizingSessionCustomMapping : IQuantizingSession
@@ -163,21 +129,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        #region Static Fields
-
-        private static PredefinedColorsQuantizer identity;
-
-        #endregion
-
-        #region Instance Fields
-
         private readonly Func<Color32, Color32> quantizingFunction;
         private readonly Color32 backColor;
         private readonly byte alphaThreshold;
         private readonly bool blendAlphaBeforeQuantize;
         private readonly Palette palette;
-
-        #endregion
 
         #endregion
 
@@ -215,12 +171,12 @@ namespace KGySoft.Drawing.Imaging
                 : PixelFormat.Format1bppIndexed;
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0, bool blend = true)
             : this(quantizingFunction, pixelFormatHint)
         {
             this.backColor = backColor.ToOpaque();
             this.alphaThreshold = alphaThreshold;
-            blendAlphaBeforeQuantize = true;
+            blendAlphaBeforeQuantize = blend;
         }
 
         private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint)
@@ -248,7 +204,13 @@ namespace KGySoft.Drawing.Imaging
         /// which could possibly preserve wide color information (<see cref="PixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
         /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// </remarks>
-        public static PredefinedColorsQuantizer Argb8888() => identity ??= new PredefinedColorsQuantizer(c => c, PixelFormat.Format32bppArgb);
+        public static PredefinedColorsQuantizer Argb8888(Color backColor = default, byte alphaThreshold = 128)
+        {
+            // just returning the color without blending
+            static Color32 Quantize(Color32 c) => c;
+
+            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format32bppArgb, new Color32(backColor), alphaThreshold, false);
+        }
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24-bit ones where each color component is encoded in 8 bits.
@@ -1458,7 +1420,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format32bppRgb:
                     return Rgb888(bitmapData.BackColor.ToColor());
                 default:
-                    return Argb8888();
+                    return Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold);
             }
         }
 
@@ -1487,7 +1449,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format32bppRgb:
                     return Rgb888(backColor);
                 default:
-                    return Argb8888();
+                    return Argb8888(backColor, alphaThreshold);
             }
         }
 
@@ -1496,8 +1458,7 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Methods
 
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
-            => this == identity ? QuantizingSessionIdentity.Instance
-                : palette != null ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
+            => palette != null ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
                 : new QuantizingSessionCustomMapping(this, quantizingFunction);
 
         #endregion
