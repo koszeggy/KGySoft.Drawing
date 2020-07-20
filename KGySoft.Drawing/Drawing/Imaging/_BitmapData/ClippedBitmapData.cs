@@ -252,14 +252,15 @@ namespace KGySoft.Drawing.Imaging
             Palette = BitmapData.Palette;
             int bpp = PixelFormat.ToBitsPerPixel();
 
+            int maxRowSize = (region.Width * bpp) >> 3;
             RowSize = region.Left > 0 
                 // Any clipping from the left disables raw access because ReadRaw/WriteRaw offset depends on size of T,
                 // which will fail for any T whose size is not the same as the actual pixel size
                 ? 0 
                 // Even one byte padding is disabled to protect the right edge of a region by default
-                : (region.Width * bpp) >> 3;
+                : Math.Min(source.RowSize, maxRowSize);
 
-            if (bpp >= 8 || RowSize == 0)
+            if (bpp >= 8 || RowSize < maxRowSize)
                 return;
 
             // 1/4bpp: Adjust RowSize if needed
