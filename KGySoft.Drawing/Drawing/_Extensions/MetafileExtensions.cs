@@ -145,18 +145,16 @@ namespace KGySoft.Drawing
                 throw new ArgumentOutOfRangeException(nameof(requestedSize), PublicResources.ArgumentOutOfRange);
 
             Size sourceSize = metafile.Size;
-            Size targetSize = requestedSize;
-            Point targetLocation = Point.Empty;
+            Rectangle targetRectangle = new Rectangle(Point.Empty, requestedSize);
 
             if (keepAspectRatio && requestedSize != sourceSize)
             {
                 float ratio = Math.Min((float)requestedSize.Width / sourceSize.Width, (float)requestedSize.Height / sourceSize.Height);
-                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
-                targetLocation = new Point((requestedSize.Width >> 1) - (targetSize.Width >> 1), (requestedSize.Height >> 1) - (targetSize.Height >> 1));
+                targetRectangle.Size = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetRectangle.Location = new Point((requestedSize.Width >> 1) - (targetRectangle.Width >> 1), (requestedSize.Height >> 1) - (targetRectangle.Height >> 1));
             }
 
-            // TODO: if not anti aliased, then new Bitmap(metafile, requestedSize). Return this if targetLocation is empty; otherwise, use DrawInto instead of DrawImage
-            if (!antiAliased && sourceSize == targetSize)
+            if (!antiAliased && sourceSize == targetRectangle.Size)
                 return new Bitmap(metafile, requestedSize);
 
             var result = new Bitmap(requestedSize.Width, requestedSize.Height);
@@ -164,26 +162,19 @@ namespace KGySoft.Drawing
             {
                 using (Graphics g = Graphics.FromImage(result))
                 {
-                    g.DrawImage(metafile, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                    // no process-wide lock occurs here because the source image is a Metafile
+                    g.DrawImage(metafile, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
                     g.Flush();
                 }
 
                 return result;
             }
 
-            // TODO: faster resize
-            using (Bitmap bmpDouble = new Bitmap(metafile, targetSize.Width << 1, targetSize.Height << 1))
-            {
-                using (Graphics g = Graphics.FromImage(result))
-                {
-                    g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                    g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                    g.DrawImage(bmpDouble, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, bmpDouble.Size), GraphicsUnit.Pixel);
-                    g.Flush();
-                }
+            // for anti-aliasing using self resizing to prevent process-wide lock that Graphics.DrawImage would cause (even if it is slower)
+            using (Bitmap bmpDouble = new Bitmap(metafile, targetRectangle.Width << 1, targetRectangle.Height << 1))
+                bmpDouble.DrawInto(result, targetRectangle);
 
-                return result;
-            }
+            return result;
         }
 
         /// <summary>
