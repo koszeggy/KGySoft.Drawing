@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                     {
                         dataSrc.DrawInto(dataDst, Point.Empty);
                     }
-                }, "ImageExtensions.DrawInto (native to native)")
+                }, "BitmapDataExtensions.DrawInto (native to native)")
                 .AddCase(() =>
                 {
                     using var bitmapDataDst = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
@@ -131,11 +131,12 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                     {
                         dataSrc.DrawInto(bitmapDataDst, Point.Empty);
                     }
-                }, "ImageExtensions.DrawInto (native to managed)")
+                }, "BitmapDataExtensions.DrawInto (native to managed)")
                 .DoTest()
                 .DumpResults(Console.Out);
         }
 
+        [TestCase(PixelFormat.Format64bppPArgb)]
         [TestCase(PixelFormat.Format32bppPArgb)]
         [TestCase(PixelFormat.Format32bppArgb)]
         [TestCase(PixelFormat.Format24bppRgb)]

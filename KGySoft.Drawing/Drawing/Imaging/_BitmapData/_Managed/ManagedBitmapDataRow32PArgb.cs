@@ -32,6 +32,12 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, Color32 c) => Row[x] = c.ToPremultiplied();
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override Color32 DoGetColor32Premultiplied(int x) => Row[x];
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColor32Premultiplied(int x, Color32 c) => Row[x] = c;
+
         #endregion
     }
 }

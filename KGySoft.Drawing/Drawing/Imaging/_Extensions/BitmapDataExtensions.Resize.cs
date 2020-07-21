@@ -109,7 +109,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                Action<int> processRow = target.PixelFormat == PixelFormat.Format32bppPArgb
+                Action<int> processRow = target.PixelFormat.IsPremultiplied()
                     ? (Action<int>)ProcessRowPremultiplied
                     : ProcessRowStraight;
 
@@ -184,21 +184,18 @@ namespace KGySoft.Drawing.Imaging
 
                     IBitmapDataRowInternal rowSrc = source.GetRow((int)(y * heightFactor + sourceRectangle.Y));
                     IBitmapDataRowInternal rowDst = target.GetRow(y + targetRectangle.Y);
-                    bool isPremultipliedSource = source.PixelFormat == PixelFormat.Format32bppPArgb;
 
                     int targetLeft = targetRectangle.Left;
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     for (int x = 0; x < targetWidth; x++)
                     {
-                        Color32 colorSrc = isPremultipliedSource
-                            ? rowSrc.DoReadRaw<Color32>((int)(x * widthFactor + sourceLeft))
-                            : rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft)).ToPremultiplied();
+                        Color32 colorSrc = rowSrc.DoGetColor32Premultiplied((int)(x * widthFactor + sourceLeft));
 
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
                         {
-                            rowDst.DoWriteRaw(x + targetLeft, colorSrc);
+                            rowDst.DoSetColor32Premultiplied(x + targetLeft, colorSrc);
                             continue;
                         }
 
@@ -208,13 +205,13 @@ namespace KGySoft.Drawing.Imaging
 
                         // source here has a partial transparency: we need to read the target color
                         int pos = x + targetLeft;
-                        Color32 colorDst = rowDst.DoReadRaw<Color32>(pos);
+                        Color32 colorDst = rowDst.DoGetColor32Premultiplied(pos);
 
                         // non-transparent target: blending
                         if (colorDst.A != 0)
                             colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
 
-                        rowDst.DoWriteRaw(pos, colorSrc);
+                        rowDst.DoSetColor32Premultiplied(pos, colorSrc);
                     }
                 }
 
@@ -380,8 +377,6 @@ namespace KGySoft.Drawing.Imaging
             private readonly IBitmapDataInternal target;
             private readonly KernelMap horizontalKernelMap;
             private readonly KernelMap verticalKernelMap;
-            private readonly bool isPremultipliedSource;
-            private readonly bool isPremultipliedTarget;
 
             private Rectangle sourceRectangle;
             private Rectangle targetRectangle;
@@ -398,8 +393,6 @@ namespace KGySoft.Drawing.Imaging
                 this.target = target;
                 this.sourceRectangle = sourceRectangle;
                 this.targetRectangle = targetRectangle;
-                isPremultipliedSource = source.Is32BppPremultiplied();
-                isPremultipliedTarget = target.Is32BppPremultiplied();
                 if (scalingMode == ScalingMode.Auto)
                     scalingMode = GetAutoScalingMode(sourceRectangle.Size, targetRectangle.Size);
 
@@ -505,7 +498,7 @@ namespace KGySoft.Drawing.Imaging
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal void PerformResizeDirect()
             {
-                if (isPremultipliedTarget)
+                if (target.PixelFormat.IsPremultiplied())
                     PerformResizePremultiplied();
                 else
                     PerformResizeDirectStraight();
@@ -519,31 +512,13 @@ namespace KGySoft.Drawing.Imaging
             {
                 #region Local Methods
 
-                void ProcessRowStraight(int y)
+                void ProcessRow(int y)
                 {
                     var sourceRowBuffer = new ArraySection<ColorF>(sourceRectangle.Width);
                     IBitmapDataRowInternal sourceRow = source.GetRow(y + sourceRectangle.Top);
 
                     for (int x = 0; x < sourceRectangle.Width; x++)
-                        sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow.DoGetColor32(x + sourceRectangle.Left).ToPremultiplied());
-
-                    int firstPassBaseIndex = y - currentWindow.Top;
-                    for (int x = 0; x < targetRectangle.Width; x++)
-                    {
-                        ResizeKernel kernel = horizontalKernelMap.GetKernel(x);
-                        transposedFirstPassBuffer.GetElementReference(x, firstPassBaseIndex) = kernel.ConvolveWith(ref sourceRowBuffer, kernel.StartIndex);
-                    }
-
-                    sourceRowBuffer.Release();
-                }
-
-                void ProcessRowPremultiplied(int y)
-                {
-                    var sourceRowBuffer = new ArraySection<ColorF>(sourceRectangle.Width);
-                    IBitmapDataRowInternal sourceRow = source.GetRow(y + sourceRectangle.Top);
-
-                    for (int x = 0; x < sourceRectangle.Width; x++)
-                        sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow.ReadRaw<Color32>(x + sourceRectangle.Left));
+                        sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow.DoGetColor32Premultiplied(x + sourceRectangle.Left));
 
                     int firstPassBaseIndex = y - currentWindow.Top;
                     for (int x = 0; x < targetRectangle.Width; x++)
@@ -557,14 +532,12 @@ namespace KGySoft.Drawing.Imaging
 
                 #endregion
 
-                Action<int> processRow = isPremultipliedSource ? ProcessRowPremultiplied : (Action<int>)ProcessRowStraight;
-
                 if (parallel)
-                    ParallelHelper.For(top, bottom, processRow);
+                    ParallelHelper.For(top, bottom, ProcessRow);
                 else
                 {
                     for (int y = top; y < bottom; y++)
-                        processRow.Invoke(y);
+                        ProcessRow(y);
                 }
             }
 
@@ -669,7 +642,7 @@ namespace KGySoft.Drawing.Imaging
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
                         {
-                            row.DoWriteRaw(x + targetLeft, colorSrc);
+                            row.DoSetColor32Premultiplied(x + targetLeft, colorSrc);
                             continue;
                         }
 
@@ -677,17 +650,16 @@ namespace KGySoft.Drawing.Imaging
                         if (colorSrc.A == 0)
                             continue;
 
-                        colorSrc = colorSrc.AsValidPremultiplied();
-
                         // source here has a partial transparency: we need to read the target color
+                        colorSrc = colorSrc.AsValidPremultiplied();
                         int targetX = x + targetLeft;
-                        Color32 colorDst = row.DoReadRaw<Color32>(targetX);
+                        Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
 
                         // non-transparent target: blending
                         if (colorDst.A != 0)
                             colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
 
-                        row.DoWriteRaw(targetX, colorSrc);
+                        row.DoSetColor32Premultiplied(targetX, colorSrc);
                     }
                 });
             }

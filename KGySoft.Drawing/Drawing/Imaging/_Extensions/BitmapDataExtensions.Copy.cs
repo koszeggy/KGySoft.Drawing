@@ -61,7 +61,12 @@ namespace KGySoft.Drawing.Imaging
             internal void PerformCopy()
             {
                 if (!TryPerformRawCopy())
-                    PerformCopyDirect();
+                {
+                    if (Target.PixelFormat.IsPremultiplied())
+                        PerformCopyDirectPremultiplied();
+                    else
+                        PerformCopyDirectStraight();
+                }
             }
 
             internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent)
@@ -222,7 +227,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (SourceRectangle.Width < parallelThreshold)
                 {
-                    if (Target.PixelFormat == PixelFormat.Format32bppPArgb)
+                    if (Target.PixelFormat.IsPremultiplied())
                     {
                         for (int y = 0; y < SourceRectangle.Height; y++)
                             ProcessRowPremultiplied(y);
@@ -237,7 +242,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                Action<int> processRow = Target.PixelFormat == PixelFormat.Format32bppPArgb
+                Action<int> processRow = Target.PixelFormat.IsPremultiplied()
                     ? ProcessRowPremultiplied
                     : (Action<int>)ProcessRowStraight;
 
@@ -298,18 +303,15 @@ namespace KGySoft.Drawing.Imaging
                     int offsetSrc = sourceLocation.X;
                     int offsetDst = targetLocation.X;
                     int width = sourceWidth;
-                    bool isPremultipliedSource = source.PixelFormat == PixelFormat.Format32bppPArgb;
 
                     for (int x = 0; x < width; x++)
                     {
-                        Color32 colorSrc = isPremultipliedSource
-                                ? rowSrc.DoReadRaw<Color32>(x + offsetSrc)
-                                : rowSrc.DoGetColor32(x + offsetSrc).ToPremultiplied();
+                        Color32 colorSrc = rowSrc.DoGetColor32Premultiplied(x + offsetSrc);
 
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
                         {
-                            rowDst.DoWriteRaw(x + offsetDst, colorSrc);
+                            rowDst.DoSetColor32Premultiplied(x + offsetDst, colorSrc);
                             continue;
                         }
 
@@ -319,13 +321,13 @@ namespace KGySoft.Drawing.Imaging
 
                         // source here has a partial transparency: we need to read the target color
                         int pos = x + offsetDst;
-                        Color32 colorDst = rowDst.DoReadRaw<Color32>(pos);
+                        Color32 colorDst = rowDst.DoGetColor32Premultiplied(pos);
 
                         // non-transparent target: blending
                         if (colorDst.A != 0)
                             colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
 
-                        rowDst.DoWriteRaw(pos, colorSrc);
+                        rowDst.DoSetColor32Premultiplied(pos, colorSrc);
                     }
                 }
 
@@ -468,9 +470,8 @@ namespace KGySoft.Drawing.Imaging
                 });
             }
 
-            private void PerformCopyDirect()
+            private void PerformCopyDirectStraight()
             {
-                // note: there is no need for a premultiplied case here because then Raw copy can be used (at least for same formats)
                 // Sequential processing
                 if (SourceRectangle.Width < parallelThreshold)
                 {
@@ -502,6 +503,42 @@ namespace KGySoft.Drawing.Imaging
                     int width = sourceWidth;
                     for (int x = 0; x < width; x++)
                         rowDst.DoSetColor32(x + offsetDst, rowSrc.DoGetColor32(x + offsetSrc));
+                });
+            }
+
+            private void PerformCopyDirectPremultiplied()
+            {
+                // Sequential processing
+                if (SourceRectangle.Width < parallelThreshold)
+                {
+                    IBitmapDataRowInternal rowSrc = Source.GetRow(SourceRectangle.Y);
+                    IBitmapDataRowInternal rowDst = Target.GetRow(TargetRectangle.Y);
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        for (int x = 0; x < SourceRectangle.Width; x++)
+                            rowDst.DoSetColor32Premultiplied(x + TargetRectangle.X, rowSrc.DoGetColor32Premultiplied(x + SourceRectangle.X));
+                        rowSrc.MoveNextRow();
+                        rowDst.MoveNextRow();
+                    }
+
+                    return;
+                }
+
+                // Parallel processing
+                IBitmapDataInternal source = Source;
+                IBitmapDataInternal target = Target;
+                Point sourceLocation = SourceRectangle.Location;
+                Point targetLocation = TargetRectangle.Location;
+                int sourceWidth = SourceRectangle.Width;
+                ParallelHelper.For(0, SourceRectangle.Height, y =>
+                {
+                    IBitmapDataRowInternal rowSrc = source.GetRow(sourceLocation.Y + y);
+                    IBitmapDataRowInternal rowDst = target.GetRow(targetLocation.Y + y);
+                    int offsetSrc = sourceLocation.X;
+                    int offsetDst = targetLocation.X;
+                    int width = sourceWidth;
+                    for (int x = 0; x < width; x++)
+                        rowDst.DoSetColor32Premultiplied(x + offsetDst, rowSrc.DoGetColor32Premultiplied(x + offsetSrc));
                 });
             }
 

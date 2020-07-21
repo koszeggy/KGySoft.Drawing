@@ -35,6 +35,14 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe void DoSetColor32(int x, Color32 c) => ((Color32*)Address)[x] = c.ToPremultiplied();
 
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override unsafe Color32 DoGetColor32Premultiplied(int x) => ((Color32*)Address)[x];
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override unsafe void DoSetColor32Premultiplied(int x, Color32 c) => ((Color32*)Address)[x] = c;
+
         #endregion
     }
 }

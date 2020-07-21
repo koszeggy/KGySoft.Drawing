@@ -59,9 +59,9 @@ namespace KGySoft.Drawing
         #region Public Methods
 
         /// <summary>
-        /// Resizes the image with high quality. The result is always a 32 bit ARGB image.
+        /// Resizes the image with high quality. The result always has a <see cref="PixelFormat.Format32bppPArgb"/> pixel format.
         /// <br/>This overload uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally,
-        /// which provides a good quality result but on Windows blocks every parallel <see cref="Graphics"/> call within the same process.
+        /// which provides a good quality result but on Windows blocks every parallel <see cref="O:System.Drawing.Graphics.DrawImage">DrawImage</see> call within the same process.
         /// If that might be an issue use the <see cref="Resize(Bitmap, Size, ScalingMode, bool)"/> overload instead.
         /// </summary>
         /// <param name="image">The original image to resize</param>
@@ -83,13 +83,13 @@ namespace KGySoft.Drawing
                 ? GetTargetRectangleWithPreservedAspectRatio(newSize, sourceSize)
                 : new Rectangle(Point.Empty, newSize);
 
-            Bitmap result = new Bitmap(newSize.Width, newSize.Height);
+            Bitmap result = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
             if (OSUtils.IsWindows)
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             Bitmap source = image;
             if (!source.PixelFormat.CanBeDrawn())
-                source = image.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+                source = image.ConvertPixelFormat(PixelFormat.Format32bppPArgb);
 
             try
             {
@@ -111,7 +111,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Resizes the image using the specified <paramref name="scalingMode"/>. The result is always a 32 bit ARGB image.
+        /// Resizes the image using the specified <paramref name="scalingMode"/>. The result always has a <see cref="PixelFormat.Format32bppPArgb"/> pixel format.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to resize</param>
@@ -121,7 +121,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
         /// <remarks>
-        /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppArgb"/> <see cref="PixelFormat"/>. To resize an image
+        /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/> <see cref="PixelFormat"/>. To resize an image
         /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
         /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto(Image, Bitmap, Rectangle, Rectangle, ScalingMode)">DrawInto</see> extension methods.</para>
         /// <para>Generally, the best quality result can be achieved by the <see cref="Resize(Bitmap, Size, bool)"/> overload, which
@@ -142,14 +142,14 @@ namespace KGySoft.Drawing
                 ? GetTargetRectangleWithPreservedAspectRatio(newSize, sourceSize)
                 : new Rectangle(Point.Empty, newSize);
 
-            Bitmap result = new Bitmap(newSize.Width, newSize.Height);
+            Bitmap result = new Bitmap(newSize.Width, newSize.Height, PixelFormat.Format32bppPArgb);
             if (OSUtils.IsWindows)
                 result.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
             using (IReadableBitmapData src = image.GetReadableBitmapData())
             using (IReadWriteBitmapData dst = result.GetReadWriteBitmapData())
                 src.DrawInto(dst, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode);
-            
+
             return result;
         }
 

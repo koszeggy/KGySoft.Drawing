@@ -1058,7 +1058,7 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb);
+                sessionTarget = (IBitmapDataInternal)target.Clone(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
                 sessionTargetRectangle.Location = Point.Empty;
                 targetCloned = true;
             }
@@ -1136,8 +1136,8 @@ namespace KGySoft.Drawing.Imaging
             if (isTwoPass)
             {
                 sessionTarget = source.HasMultiLevelAlpha()
-                    ? (IBitmapDataInternal)target.Clone(actualTargetRectangle, PixelFormat.Format32bppArgb)
-                    : (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size);
+                    ? (IBitmapDataInternal)target.Clone(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb)
+                    : (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size, PixelFormat.Format32bppPArgb);
                 sessionTargetRectangle.Location = Point.Empty;
                 targetCloned = true;
             }
@@ -1287,9 +1287,6 @@ namespace KGySoft.Drawing.Imaging
             PixelFormat pixelFormat = bitmapData.PixelFormat;
             return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
-
-        private static bool Is32BppPremultiplied(this IBitmapData bitmapData)
-            => bitmapData.PixelFormat == PixelFormat.Format32bppPArgb && bitmapData.RowSize == bitmapData.Width << 2;
 
         #endregion
 

@@ -426,6 +426,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(PixelFormat.Format32bppArgb, ScalingMode.Auto)]
         [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format64bppArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format64bppArgb, ScalingMode.Auto)]
+        [TestCase(PixelFormat.Format64bppPArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(PixelFormat.Format64bppPArgb, ScalingMode.Auto)]
         public void DrawIntoWithResizeDirectTest(PixelFormat pixelFormat, ScalingMode scalingMode)
         {
             // target and sources

@@ -87,9 +87,9 @@ namespace KGySoft.Drawing.Imaging
         {
             Debug.Assert(c.A > 0 && c.A < Byte.MaxValue);
             return new Color32(c.A,
-                c.R > c.A ? c.A : c.R,
-                c.G > c.A ? c.A : c.G,
-                c.B > c.A ? c.A : c.B);
+                Math.Min(c.A, c.R),
+                Math.Min(c.A, c.G),
+                Math.Min(c.A, c.B));
         }
         
         [MethodImpl(MethodImpl.AggressiveInlining)]
