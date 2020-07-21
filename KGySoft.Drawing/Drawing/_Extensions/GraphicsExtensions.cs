@@ -21,7 +21,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Security;
-
+using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
 #endregion
@@ -124,7 +124,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Copies the  <see cref="Graphics"/> object provided in <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
+        /// Copies the <see cref="Graphics"/> object provided in <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> instance to be converted.</param>
         /// <param name="visibleClipOnly">When <see langword="true"/>, the result will contain only the area represented by <see cref="Graphics.VisibleClipBounds"/> property. When <see langword="false"/>,
@@ -171,13 +171,15 @@ namespace KGySoft.Drawing
                     if (!visibleClipOnly)
                         return (Bitmap)imgSource.Clone();
 
-                    result = new Bitmap(targetWidth, targetHeight);
-                    using (Graphics graphicsTarget = Graphics.FromImage(result))
-                    {
-                        graphicsTarget.DrawImage(imgSource, new RectangleF(0f, 0f, targetWidth, targetHeight), visibleRect, GraphicsUnit.Pixel);
-                        return result;
-                    }
-                } 
+                    if (targetWidth == 0 || targetHeight == 0)
+                        return null;
+
+                    result = new Bitmap(targetWidth, targetHeight, imgSource.PixelFormat);
+                    using IReadableBitmapData src = imgSource.GetReadableBitmapData();
+                    using IWritableBitmapData dst = result.GetWritableBitmapData();
+                    src.CopyTo(dst, new Rectangle(sourceLeft, sourceTop, targetWidth, targetHeight), Point.Empty);
+                    return result;
+                }
             }
             finally
             {

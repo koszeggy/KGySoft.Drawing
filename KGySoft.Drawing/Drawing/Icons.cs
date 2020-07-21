@@ -734,45 +734,26 @@ namespace KGySoft.Drawing
 
             Size resultSize = new Size(size, size);
             Size targetSize = resultSize;
-            Bitmap bitmap = image as Bitmap;
 
-            if (bitmap != null && !bitmap.PixelFormat.CanBeDrawn())
-                bitmap = bitmap.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+            // Same size and image is Bitmap
+            if (image is Bitmap bitmap && bitmap.Size == targetSize)
+                return FromBitmap(bitmap);
 
-            try
+            // Different size or image is not a Bitmap
+            Size sourceSize = image.Size;
+            Point targetLocation = Point.Empty;
+
+            if (keepAspectRatio && targetSize != sourceSize)
             {
-                // Same size and image is Bitmap
-                if (bitmap != null && bitmap.Size == targetSize)
-                    return FromBitmap(bitmap);
-
-                // Different size or image is not a Bitmap
-                Size sourceSize = image.Size;
-                Point targetLocation = Point.Empty;
-
-                if (keepAspectRatio && targetSize != sourceSize)
-                {
-                    float ratio = Math.Min((float)targetSize.Width / sourceSize.Width, (float)targetSize.Height / sourceSize.Height);
-                    targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
-                    targetLocation = new Point((resultSize.Width >> 1) - (targetSize.Width >> 1), (resultSize.Height >> 1) - (targetSize.Height >> 1));
-                }
-
-                using (var result = new Bitmap(resultSize.Width, resultSize.Height))
-                {
-                    using (Graphics g = Graphics.FromImage(result))
-                    {
-                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        g.DrawImage(bitmap ?? image, new Rectangle(targetLocation, targetSize), new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
-                        g.Flush();
-                    }
-
-                    return FromBitmap(result);
-                }
+                float ratio = Math.Min((float)targetSize.Width / sourceSize.Width, (float)targetSize.Height / sourceSize.Height);
+                targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetLocation = new Point((resultSize.Width >> 1) - (targetSize.Width >> 1), (resultSize.Height >> 1) - (targetSize.Height >> 1));
             }
-            finally
+
+            using (var result = new Bitmap(resultSize.Width, resultSize.Height))
             {
-                if (!ReferenceEquals(bitmap, image))
-                    bitmap?.Dispose();
+                image.DrawInto(result, new Rectangle(targetLocation, targetSize));
+                return FromBitmap(result);
             }
         }
 

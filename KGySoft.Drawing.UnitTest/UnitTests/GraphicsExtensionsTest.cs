@@ -188,11 +188,15 @@ namespace KGySoft.Drawing.UnitTests
             AssertPlatformDependent(() =>
             {
                 // from bitmap
-                using var refBmp = Icons.Information.ToAlphaBitmap();
+                using var refBmp = Icons.Information.ExtractBitmap(new Size(256, 256));
                 using (var g = Graphics.FromImage(refBmp))
                 {
                     var bmp = g.ToBitmap(false);
-                    SaveImage("FromBitmap", bmp);
+                    SaveImage("FromBitmap full", bmp);
+
+                    g.IntersectClip(new Rectangle(32, 32, 192, 192));
+                    bmp = g.ToBitmap(true);
+                    SaveImage("FromBitmap clipped", bmp);
                 }
 
                 // from screen

@@ -21,11 +21,18 @@
     + New overloads that allow custom quantizing.
     + New overloads that allow resizing.
     - Using alpha blending even if a ditherer is used for the drawing.
-+ BitmapExtensions class:
-  + New Resize overload that does not use Graphics.DrawImage internally.
+  * ToIcon(Image, int, bool): Using custom resizing for anti-aliasing to prevent process-wide locking used by
+    Graphics.DrawImage
+! BitmapExtensions class:
+  ! The old Resize method returns a Bitmap with Format32bppPArgb pixel format instead of Format32bppArgb.
+  + New Resize overload that does not use Graphics.DrawImage internally and thus it does not use a process-wide lock
+! GraphicsExtensions class:
+  ! ToBitmap method: If the Graphics belongs to a Bitmap, and there is any clipping on Graphics, then the result
+    Bitmap preserves original PixelFormat instead of always returning a Format32bppArgb Bitmap.
+  * No Graphics.DrawImage is used internally anymore.
 * MetafileExtensions class:
   + New ToBitmap overload with keepAspectRatio parameter
-  - Using a custom resizing routine for anti-aliasing to prevent process-wide locking used by Graphics.DrawImage
+  * Using custom resizing for anti-aliasing to prevent process-wide locking used by Graphics.DrawImage
 + New ScalingMode enum for Resize, DrawInto, DrawImage and DrawBitmapData extension methods
 
 ! KGySoft.Drawing.Imaging namespace:
