@@ -615,6 +615,40 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Assert.AreEqual(0, bitmapData.Clip(new Rectangle(8, 0, 120, 1)).RowSize);
         }
 
+        [Test]
+        public void GetColorsTest()
+        {
+            // 32 bit ARGB
+            using var refBmpData = GenerateAlphaGradientBitmapData(new Size(512, 256));
+            var colorCount = refBmpData.GetColorCount();
+            Assert.LessOrEqual(colorCount, refBmpData.Width * refBmpData.Height);
+            SaveImage("32argb", refBmpData.ToBitmap());
+
+            // 24 bit
+            using var bmp24bpp = refBmpData.Clone(PixelFormat.Format24bppRgb);
+            colorCount = bmp24bpp.GetColorCount();
+            Assert.LessOrEqual(colorCount, bmp24bpp.Width * bmp24bpp.Height);
+            SaveImage("24rgb", bmp24bpp.ToBitmap());
+
+            // 48 bit
+            using var bmp48bpp = refBmpData.Clone(PixelFormat.Format48bppRgb);
+            colorCount = bmp48bpp.GetColorCount();
+            Assert.LessOrEqual(colorCount, bmp48bpp.Width * bmp48bpp.Height);
+            SaveImage("48rgb", bmp48bpp.ToBitmap());
+
+            // 64 bit
+            using var bmp64bpp = refBmpData.Clone(PixelFormat.Format64bppArgb);
+            colorCount = bmp64bpp.GetColorCount();
+            Assert.LessOrEqual(colorCount, bmp64bpp.Width * bmp64bpp.Height);
+            SaveImage("64argb", bmp64bpp.ToBitmap());
+
+            // 8 bit: returning actual palette
+            using var bmp8bpp = refBmpData.Clone(PixelFormat.Format8bppIndexed);
+            colorCount = bmp8bpp.GetColorCount();
+            Assert.LessOrEqual(colorCount, 256);
+            SaveImage("8ind", bmp8bpp.ToBitmap());
+        }
+
         #endregion
     }
 }

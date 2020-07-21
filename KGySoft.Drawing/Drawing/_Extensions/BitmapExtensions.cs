@@ -284,7 +284,8 @@ namespace KGySoft.Drawing
             if (bitmap.PixelFormat.IsIndexed() && !forceScanningContent)
                 return bitmap.Palette.Entries;
 
-            return DoGetColors(bitmap, maxColors).Select(c => c.ToColor()).ToArray();
+            using var bitmapData = bitmap.GetReadableBitmapData();
+            return bitmapData.GetColors(maxColors, forceScanningContent).Select(c => c.ToColor()).ToArray();
         }
 
         /// <summary>
@@ -295,8 +296,10 @@ namespace KGySoft.Drawing
         /// <returns>The actual number of colors of the specified <paramref name="bitmap"/>.</returns>
         /// <remarks>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
-        /// <para>Every <see cref="PixelFormat"/> is supported, and an accurate result is returned even for wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
-        /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>).
+        /// <para>Every <see cref="PixelFormat"/> is supported, but an accurate result is returned for wide color formats only
+        /// when <see cref="IBitmapData.RowSize"/> is large enough to access all pixels directly (might not be the case for a clipped bitmap data, for example).
+        /// Otherwise, colors are quantized to 32 bits-per-pixel values while counting them.
+        /// Wide pixel formats are <see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>.
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </para>
         /// </remarks>
@@ -304,18 +307,8 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            switch (bitmap.PixelFormat)
-            {
-                case PixelFormat.Format16bppGrayScale:
-                    return GetColorCount<Color16Gray>(bitmap);
-                case PixelFormat.Format48bppRgb:
-                    return GetColorCount<Color48>(bitmap);
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
-                    return GetColorCount<Color64>(bitmap);
-                default:
-                    return DoGetColors(bitmap, 0).Count;
-            }
+            using var bitmapData = bitmap.GetReadableBitmapData();
+            return bitmapData.GetColorCount();
         }
 
         /// <summary>
@@ -690,7 +683,6 @@ namespace KGySoft.Drawing
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            Color32 c = new Color32(color);
             using (IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
                 accessor.Clear(new Color32(color), ditherer);
         }
@@ -1301,57 +1293,6 @@ namespace KGySoft.Drawing
             var targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
             var targetLocation = new Point((desiredSize.Width >> 1) - (targetSize.Width >> 1), (desiredSize.Height >> 1) - (targetSize.Height >> 1));
             return new Rectangle(targetLocation, targetSize);
-        }
-
-        [SecuritySafeCritical]
-        private static ICollection<Color32> DoGetColors(Bitmap bitmap, int maxColors)
-        {
-            if (maxColors < 0)
-                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
-            if (maxColors == 0)
-                maxColors = Int32.MaxValue;
-
-            var colors = new HashSet<Color32>();
-            using (IBitmapDataInternal data = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly))
-            {
-                IBitmapDataRowInternal line = data.GetRow(0);
-
-                do
-                {
-                    for (int x = 0; x < data.Width; x++)
-                    {
-                        Color32 c = line.DoGetColor32(x);
-                        colors.Add(c.A == 0 ? Color32.Transparent : c);
-                        if (colors.Count == maxColors)
-                            return colors;
-                    }
-                } while (line.MoveNextRow());
-            }
-
-            return colors;
-        }
-
-        [SecuritySafeCritical]
-        private static int GetColorCount<T>(Bitmap bitmap) where T : unmanaged
-        {
-            var colors = new HashSet<T>();
-            using (IBitmapDataInternal data = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly))
-            {
-                IBitmapDataRowInternal line = data.GetRow(0);
-
-                do
-                {
-                    for (int x = 0; x < data.Width; x++)
-                    {
-                        T color = line.DoReadRaw<T>(x);
-                        if (color is Color64 c64 && c64.A == 0)
-                            color = default;
-                        colors.Add(color);
-                    }
-                } while (line.MoveNextRow());
-            }
-
-            return colors.Count;
         }
 
         private static byte[] GenerateGammaLookupTable(float gamma)

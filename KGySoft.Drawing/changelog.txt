@@ -40,7 +40,7 @@
 ! IBitmapData interface: BackColor and AlphaThreshold properties are now exposed by this interface. You can
   define these when you use the Get[Readable/Writable/ReadWrite]BitmapData methods anyway.
 ! New IQuantized/IDitherer property: InitializeReliesOnContent - when returns false it helps to optimize performance
-  when quantizing/dithering is used for resizing or blended sources.
+  when quantizing/dithering is used for resizing or with blended sources.
 + The BitmapDataFactory class has been made public. From now on you can create completely managed bitmap data on any
   platform with any pixel format.
 + New BitmapDataExtensions class to provide similar functionality some for IBitmapData instances that are in the

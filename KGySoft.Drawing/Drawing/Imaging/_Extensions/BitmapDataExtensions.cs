@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -327,7 +328,7 @@ namespace KGySoft.Drawing.Imaging
                     initSource.Dispose();
             }
         }
-        
+
         #endregion
 
         #region CopyTo
@@ -789,6 +790,8 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region ToBitmap
+
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -821,6 +824,79 @@ namespace KGySoft.Drawing.Imaging
 
             return result;
         }
+
+        #endregion
+
+        #region Colors
+
+        /// <summary>
+        /// Gets the colors used in the specified <paramref name="bitmapData"/>. A limit can be defined in <paramref name="maxColors"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/>, whose colors have to be returned. If it is indexed and the <paramref name="forceScanningContent"/> parameter is <see langword="false"/>,
+        /// then its palette is returned and <paramref name="maxColors"/> is ignored.</param>
+        /// <param name="maxColors">A limit of the returned colors. If <paramref name="forceScanningContent"/> parameter is <see langword="false"/>, then
+        /// this parameter is ignored for indexed bitmaps. Use 0 for no limit. This parameter is optional.
+        /// <br/>Default value: <c>0</c>.</param>
+        /// <param name="forceScanningContent"><see langword="true"/>&#160;to force scanning the actual image content even if the specified <paramref name="bitmapData"/> is
+        /// indexed and has a palette.</param>
+        /// <returns>An <see cref="ICollection{T}"/> of <see cref="Color32"/> entries.</returns>
+        /// <remarks>
+        /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
+        /// <para>Every <see cref="PixelFormat"/> is supported, though wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
+        /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
+        /// To get the actual <em>number</em> of colors, which is accurate even for wide color formats, use the <see cref="GetColorCount">GetColorCount</see> method.
+        /// </para>
+        /// </remarks>
+        public static ICollection<Color32> GetColors(this IReadableBitmapData bitmapData, int maxColors = 0, bool forceScanningContent = false)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+
+            if (bitmapData.PixelFormat.IsIndexed() && !forceScanningContent)
+                return bitmapData.Palette.GetEntries();
+
+            return DoGetColors(bitmapData, maxColors);
+        }
+
+        /// <summary>
+        /// Gets the actual number of colors of the specified <paramref name="bitmapData"/>. Colors are counted even for indexed bitmaps.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The bitmap, whose colors have to be counted to count its colors.</param>
+        /// <returns>The actual number of colors of the specified <paramref name="bitmapData"/>.</returns>
+        /// <remarks>
+        /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
+        /// <para>Every <see cref="PixelFormat"/> is supported, but an accurate result is returned for wide color formats only
+        /// when <see cref="IBitmapData.RowSize"/> is large enough to access all pixels directly (might not be the case for a clipped bitmap data, for example).
+        /// Otherwise, colors are quantized to 32 bits-per-pixel values while counting them.
+        /// Wide pixel formats are <see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>.</para>
+        /// </remarks>
+        public static int GetColorCount(this IReadableBitmapData bitmapData)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            switch (bitmapData.PixelFormat)
+            {
+                case PixelFormat.Format16bppGrayScale:
+                    return bitmapData.RowSize >= bitmapData.Width << 1
+                        ? GetColorCount<Color16Gray>(bitmapData)
+                        : DoGetColors(bitmapData, 0).Count;
+                case PixelFormat.Format48bppRgb:
+                    return bitmapData.RowSize >= bitmapData.Width * 6
+                        ? GetColorCount<Color48>(bitmapData)
+                        : DoGetColors(bitmapData, 0).Count;
+                case PixelFormat.Format64bppArgb:
+                case PixelFormat.Format64bppPArgb:
+                    return bitmapData.RowSize >= bitmapData.Width * 6
+                        ? GetColorCount<Color64>(bitmapData)
+                        : DoGetColors(bitmapData, 0).Count;
+                default:
+                    return DoGetColors(bitmapData, 0).Count;
+            }
+        }
+
+        #endregion
 
         #endregion
 
@@ -1286,6 +1362,73 @@ namespace KGySoft.Drawing.Imaging
         {
             PixelFormat pixelFormat = bitmapData.PixelFormat;
             return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "data is disposed if differs from bitmapData")]
+        private static ICollection<Color32> DoGetColors(IReadableBitmapData bitmapData, int maxColors)
+        {
+            if (maxColors < 0)
+                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
+            if (maxColors == 0)
+                maxColors = Int32.MaxValue;
+
+            var colors = new HashSet<Color32>();
+            var data = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
+
+            try
+            {
+                IBitmapDataRowInternal line = data.GetRow(0);
+
+                do
+                {
+                    for (int x = 0; x < data.Width; x++)
+                    {
+                        Color32 c = line.DoGetColor32(x);
+                        colors.Add(c.A == 0 ? Color32.Transparent : c);
+                        if (colors.Count == maxColors)
+                            return colors;
+                    }
+                } while (line.MoveNextRow());
+
+            }
+            finally
+            {
+                if (!ReferenceEquals(data, bitmapData))
+                    data.Dispose();
+            }
+
+            return colors;
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "data is disposed if differs from bitmapData")]
+        private static int GetColorCount<T>(IReadableBitmapData bitmapData) where T : unmanaged
+        {
+            var colors = new HashSet<T>();
+            var data = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
+            try
+            {
+                IBitmapDataRowInternal line = data.GetRow(0);
+
+                do
+                {
+                    for (int x = 0; x < data.Width; x++)
+                    {
+                        T color = line.DoReadRaw<T>(x);
+                        if (color is Color64 c64 && c64.A == 0)
+                            color = default;
+                        colors.Add(color);
+                    }
+                } while (line.MoveNextRow());
+            }
+            finally
+            {
+                if (!ReferenceEquals(data, bitmapData))
+                    data.Dispose();
+            }
+
+            return colors.Count;
         }
 
         #endregion
