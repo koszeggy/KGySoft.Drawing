@@ -96,6 +96,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        public override bool TrySetPalette(Palette palette)
+        {
+            if (!base.TrySetPalette(palette))
+                return false;
+            bitmap.SetPalette(palette);
+            return true;
+        }
+
+        #endregion
+
         #region Protected Methods
 
         [SecuritySafeCritical]

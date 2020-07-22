@@ -40,17 +40,9 @@ namespace KGySoft.Drawing
     [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
     public static class BitmapExtensions
     {
-        #region Constants
-
-        private const int parallelThreshold = 100;
-
-        #endregion
-
         #region Fields
 
         private static readonly int[] iconSizes = { 512, 384, 320, 256, 128, 96, 80, 72, 64, 60, 48, 40, 36, 32, 30, 24, 20, 16, 8, 4 };
-
-        private static readonly IThreadSafeCacheAccessor<float, byte[]> gammaLookupTableCache = new Cache<float, byte[]>(GenerateGammaLookupTable, 16).GetThreadSafeAccessor();
 
         #endregion
 
@@ -661,6 +653,7 @@ namespace KGySoft.Drawing
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmap"/>, or you want to transform the actual
         /// pixels of an indexed <see cref="Bitmap"/> instead of modifying the palette, then use the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
+        /// <seealso cref="BitmapDataExtensions.TransformColors(IReadWriteBitmapData, Func{Color32, Color32})"/>
         [SecuritySafeCritical]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, Color backColor = default, byte alphaThreshold = 128)
@@ -670,41 +663,8 @@ namespace KGySoft.Drawing
             if (transformFunction == null)
                 throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
 
-            // Indexed format: processing the palette entries
-            if (bitmap.PixelFormat.IsIndexed())
-            {
-                ColorPalette palette = bitmap.Palette;
-                Color[] entries = palette.Entries;
-                for (int i = 0; i < entries.Length; i++)
-                    entries[i] = transformFunction.Invoke(new Color32(entries[i])).ToColor();
-                bitmap.Palette = palette;
-                return;
-            }
-
-            // Non-indexed format: processing the pixels
-            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
-            {
-                // Sequential processing
-                if (bitmapData.Width < parallelThreshold)
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
-                    do
-                    {
-                        for (int x = 0; x < bitmapData.Width; x++)
-                            row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
-                    } while (row.MoveNextRow());
-
-                    return;
-                }
-
-                // Parallel processing
-                ParallelHelper.For(0, bitmapData.Height, y =>
-                {
-                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
-                    for (int x = 0; x < bitmapData.Width; x++)
-                        row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
-                });
-            }
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData(backColor, alphaThreshold);
+            bitmapData.TransformColors(transformFunction);
         }
 
         /// <summary>
@@ -714,8 +674,7 @@ namespace KGySoft.Drawing
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmap"/>. It must be thread-safe.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if <paramref name="transformFunction"/> returns colors
-        /// that is not compatible with the <see cref="PixelFormat"/> of the specified <paramref name="bitmap"/>. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
+        /// that is not compatible with the <see cref="PixelFormat"/> of the specified <paramref name="bitmap"/>.</param>
         /// <param name="backColor">If <paramref name="transformFunction"/> returns colors with alpha and <paramref name="bitmap"/> has no alpha or supports single bit alpha only,
         /// then specifies the color of the background. Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the specified <paramref name="bitmap"/>.
         /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
@@ -761,52 +720,15 @@ namespace KGySoft.Drawing
         /// <item><term><c>after.gif</c></term><term><img src="../Help/Images/ShieldMedianCut256TrGrayDitheredFS.gif" alt="Shield icon transformed to grayscale with Floyd-Steinberg dithering while still using an optimized palette for the colored version"/></term></item>
         /// </list></para>
         /// </example>
+        /// <seealso cref="BitmapDataExtensions.TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/>
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, IDitherer ditherer, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            PixelFormat pixelFormat = bitmap.PixelFormat;
-            if (ditherer == null || !pixelFormat.CanBeDithered())
-            {
-                bitmap.TransformColors(transformFunction, backColor, alphaThreshold);
-                return;
-            }
-
-            if (transformFunction == null)
-                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
-
-            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
-            {
-                IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
-                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                {
-                    // sequential processing
-                    if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
-                    {
-                        IBitmapDataRowInternal row = bitmapData.GetRow(0);
-                        int y = 0;
-                        do
-                        {
-                            for (int x = 0; x < bitmapData.Width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-                            y += 1;
-                        } while (row.MoveNextRow());
-
-                        return;
-                    }
-
-                    // parallel processing
-                    ParallelHelper.For(0, bitmapData.Height, y =>
-                    {
-                        IBitmapDataRowInternal row = bitmapData.GetRow(y);
-                        for (int x = 0; x < bitmapData.Width; x++)
-                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-                    });
-                }
-            }
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData(backColor, alphaThreshold);
+            bitmapData.TransformColors(transformFunction, ditherer);
         }
 
         /// <summary>
@@ -821,22 +743,20 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <para>If <paramref name="newColor"/> has alpha, which cannot be represented by <paramref name="bitmap"/>, then it will be blended with black.
-        /// Call <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> to use a custom background color instead.</para>
-        /// <para>This method calls the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method for more details.</para>
+        /// Call <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColors</see> to use a custom background color instead.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
+        /// <seealso cref="BitmapDataExtensions.ReplaceColor"/>
         public static void ReplaceColor(this Bitmap bitmap, Color oldColor, Color newColor, IDitherer ditherer = null)
         {
-            Color32 from = new Color32(oldColor);
-            Color32 to = new Color32(newColor);
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            Color32 Transform(Color32 c) => c == from ? to : c;
-
-            bitmap.TransformColors(Transform, ditherer);
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.ReplaceColor(new Color32(oldColor), new Color32(newColor), ditherer);
         }
 
         /// <summary>
@@ -848,18 +768,19 @@ namespace KGySoft.Drawing
         /// has no exact representation with its <see cref="PixelFormat"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <para>This method calls the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method for more details.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
+        /// <seealso cref="BitmapDataExtensions.Invert"/>
         public static void Invert(this Bitmap bitmap, IDitherer ditherer = null)
         {
-            static Color32 Transform(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            bitmap.TransformColors(Transform, ditherer);
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.Invert(ditherer);
         }
 
         /// <summary>
@@ -873,20 +794,19 @@ namespace KGySoft.Drawing
         /// is not compatible with the <see cref="PixelFormat"/> of the specified <paramref name="bitmap"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <para>This method calls the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method for more details.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
+        /// <seealso cref="BitmapDataExtensions.MakeOpaque"/>
         public static void MakeOpaque(this Bitmap bitmap, Color backColor, IDitherer ditherer = null)
         {
-            Color32 backColor32 = new Color32(backColor).ToOpaque();
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            Color32 Transform(Color32 c) => c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor32);
-
-            bitmap.TransformColors(Transform, ditherer, backColor, 0);
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.MakeOpaque(new Color32(backColor), ditherer);
         }
 
         /// <summary>
@@ -902,22 +822,19 @@ namespace KGySoft.Drawing
         /// use the <see cref="ImageExtensions.ToGrayscale">ToGrayscale</see> extension method, which always returns a bitmap with <see cref="PixelFormat.Format32bppArgb"/> format,
         /// or the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)">ConvertPixelFormat</see> method with a grayscale
         /// quantizer (<see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>, for example).</para>
-        /// <para>This method calls the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method internally. See
-        /// the <strong>Remarks</strong> section of the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method for more details.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
+        /// <seealso cref="BitmapDataExtensions.MakeGrayscale"/>
         public static void MakeGrayscale(this Bitmap bitmap, IDitherer ditherer = null)
         {
-            static Color32 Transform(Color32 c)
-            {
-                byte br = c.GetBrightness();
-                return new Color32(c.A, br, br, br);
-            }
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            bitmap.TransformColors(Transform, ditherer);
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.MakeGrayscale(ditherer);
         }
 
         /// <summary>
@@ -933,7 +850,6 @@ namespace KGySoft.Drawing
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
-        /// <para>This method calls the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method internally.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
@@ -969,40 +885,14 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        /// <seealso cref="BitmapDataExtensions.AdjustBrightness"/>
         public static void AdjustBrightness(this Bitmap bitmap, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
-                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
 
-            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
-            if (channels == ColorChannels.None || brightness == 0f)
-                return;
-
-            if (brightness < 0f)
-            {
-                brightness += 1f;
-                bitmap.TransformColors(Darken, ditherer);
-            }
-            else
-                bitmap.TransformColors(Lighten, ditherer);
-
-            #region Local Methods
-
-            Color32 Darken(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
-
-            Color32 Lighten(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
-
-            #endregion
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.AdjustBrightness(brightness, ditherer, channels);
         }
 
         /// <summary>
@@ -1018,7 +908,6 @@ namespace KGySoft.Drawing
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
-        /// <para>This method calls the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method internally.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
@@ -1054,28 +943,14 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        /// <seealso cref="BitmapDataExtensions.AdjustContrast"/>
         public static void AdjustContrast(this Bitmap bitmap, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
-                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
 
-            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
-            if (channels == ColorChannels.None || contrast == 0f)
-                return;
-
-            contrast += 1f;
-            contrast *= contrast;
-
-            Color32 Transform(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
-
-            bitmap.TransformColors(Transform, ditherer);
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.AdjustContrast(contrast, ditherer, channels);
         }
 
         /// <summary>
@@ -1091,7 +966,6 @@ namespace KGySoft.Drawing
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
-        /// <para>This method calls the <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColor</see> method internally.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
@@ -1127,27 +1001,14 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
+        /// <seealso cref="BitmapDataExtensions.AdjustGamma"/>
         public static void AdjustGamma(this Bitmap bitmap, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
-                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
-            if (!channels.AllFlagsDefined())
-                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
 
-            // ReSharper disable once CompareOfFloatsByEqualityOperator - 1 has a precise float representation
-            if (channels == ColorChannels.None || gamma == 1f)
-                return;
-
-            byte[] table = gammaLookupTableCache[gamma];
-
-            Color32 Transform(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
-
-            bitmap.TransformColors(Transform, ditherer);
+            using IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData();
+            bitmapData.AdjustGamma(gamma, ditherer, channels);
         }
 
         #endregion
@@ -1208,7 +1069,6 @@ namespace KGySoft.Drawing
             bool setEntries = palette.Length != targetPalette.Entries.Length;
             Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
 
-            // copying even if it could be just set so we can spare a
             for (int i = 0; i < palette.Length; i++)
                 targetColors[i] = palette[i];
 
@@ -1224,7 +1084,6 @@ namespace KGySoft.Drawing
             bool setEntries = sourceColors.Length != targetPalette.Entries.Length;
             Color[] targetColors = setEntries ? new Color[sourceColors.Length] : targetPalette.Entries;
 
-            // copying even if it could be just set to prevent change of entries
             for (int i = 0; i < sourceColors.Length; i++)
                 targetColors[i] = sourceColors[i].ToColor();
 
@@ -1243,14 +1102,6 @@ namespace KGySoft.Drawing
             var targetSize = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
             var targetLocation = new Point((desiredSize.Width >> 1) - (targetSize.Width >> 1), (desiredSize.Height >> 1) - (targetSize.Height >> 1));
             return new Rectangle(targetLocation, targetSize);
-        }
-
-        private static byte[] GenerateGammaLookupTable(float gamma)
-        {
-            byte[] result = new byte[256];
-            for (int i = 0; i < 256; i++)
-                result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
-            return result;
         }
 
         #endregion

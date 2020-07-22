@@ -193,7 +193,7 @@ namespace KGySoft.Drawing.Imaging
                     // we could simply jump to default here bus as we already know the palette index we can optimize it a bit
                     if (width - left < parallelThreshold)
                     {
-                        IBitmapDataRowInternal row = bitmapData.GetRow(0);
+                        IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                         do
                         {
                             for (int x = left; x < width; x++)
@@ -207,7 +207,7 @@ namespace KGySoft.Drawing.Imaging
                     ParallelHelper.For(0, bitmapData.Height, y =>
                     {
                         // ReSharper disable once VariableHidesOuterVariable
-                        IBitmapDataRowInternal row = bitmapData.GetRow(y);
+                        IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                         int l = left;
                         int w = width;
                         int c = index;
@@ -222,7 +222,7 @@ namespace KGySoft.Drawing.Imaging
                     // small width: going with sequential clear
                     if (width - left < parallelThreshold)
                     {
-                        IBitmapDataRowInternal row = bitmapData.GetRow(0);
+                        IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                         do
                         {
                             for (int x = left; x < width; x++)
@@ -236,7 +236,7 @@ namespace KGySoft.Drawing.Imaging
                     ParallelHelper.For(0, bitmapData.Height, y =>
                     {
                         // ReSharper disable once VariableHidesOuterVariable
-                        IBitmapDataRowInternal row = bitmapData.GetRow(y);
+                        IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                         int l = left;
                         int w = width;
                         Color32 c = color;
@@ -253,7 +253,7 @@ namespace KGySoft.Drawing.Imaging
             // small width: going with sequential clear
             if (width < parallelThreshold)
             {
-                IBitmapDataRowInternal row = bitmapData.GetRow(0);
+                IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                 do
                 {
                     for (int x = 0; x < width; x++)
@@ -265,7 +265,7 @@ namespace KGySoft.Drawing.Imaging
             // parallel clear
             ParallelHelper.For(0, bitmapData.Height, y =>
             {
-                IBitmapDataRowInternal row = bitmapData.GetRow(y);
+                IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                 int w = width;
                 T raw = data;
                 for (int x = 0; x < w; x++)
@@ -291,7 +291,7 @@ namespace KGySoft.Drawing.Imaging
                         // sequential clear
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
-                            IBitmapDataRowInternal row = bitmapData.GetRow(0);
+                            IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                             int y = 0;
                             do
                             {
@@ -306,7 +306,7 @@ namespace KGySoft.Drawing.Imaging
                         // parallel clear
                         ParallelHelper.For(0, bitmapData.Height, y =>
                         {
-                            IBitmapDataRowInternal row = bitmapData.GetRow(y);
+                            IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                             for (int x = 0; x < bitmapData.Width; x++)
                                 row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
                         });

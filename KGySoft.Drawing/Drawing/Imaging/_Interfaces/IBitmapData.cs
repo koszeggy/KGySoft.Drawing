@@ -61,7 +61,8 @@ namespace KGySoft.Drawing.Imaging
         /// work seamlessly.</para>
         /// <para>If this property returns an indexed format (<see cref="System.Drawing.Imaging.PixelFormat.Format8bppIndexed"/>, <see cref="System.Drawing.Imaging.PixelFormat.Format4bppIndexed"/> or <see cref="System.Drawing.Imaging.PixelFormat.Format1bppIndexed"/>),
         /// then the <see cref="Palette"/> property returns a non-<see langword="null"/>&#160;value.</para>
-        /// <note>On some platforms this property can return a different <see cref="System.Drawing.Imaging.PixelFormat"/> from the <see cref="Image.PixelFormat">Image.PixelFormat</see> property of the original image.
+        /// <note>If this <see cref="IBitmapData"/> instance represents a native <see cref="Bitmap"/>, then on some platforms this property can return a different <see cref="System.Drawing.Imaging.PixelFormat"/>
+        /// from the <see cref="Image.PixelFormat">Image.PixelFormat</see> property of the original image.
         /// <br/>For details and further information about the possible usable <see cref="System.Drawing.Imaging.PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,System.Drawing.Imaging.PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </remarks>
         PixelFormat PixelFormat { get; }

@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe IBitmapDataRowInternal GetRow(int y)
+        public override unsafe IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
             TRow result = lastRow;

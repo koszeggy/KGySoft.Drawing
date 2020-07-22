@@ -90,7 +90,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        public override IBitmapDataRowInternal GetRow(int y)
+        public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row. This is only needed because Index is mutable.
             IBitmapDataRowInternal result = lastRow;

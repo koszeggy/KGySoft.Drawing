@@ -33,13 +33,26 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Public Methods
+        #region Static Methods
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowColorIndexOutOfRange()
+        {
+#pragma warning disable CA2208
+            // ReSharper disable once NotResolvedInText
+            throw new ArgumentOutOfRangeException("colorIndex", PublicResources.ArgumentOutOfRange);
+#pragma warning restore CA2208
+        }
+
+        #endregion
+
+        #region Instance Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void SetColorIndex(int x, int colorIndex)
         {
-            if (colorIndex > BitmapData.Palette.Count || (uint)colorIndex > MaxIndex)
-                throw new ArgumentOutOfRangeException(nameof(colorIndex), PublicResources.ArgumentOutOfRange);
+            if (colorIndex >= BitmapData.Palette.Count || (uint)colorIndex > MaxIndex)
+                ThrowColorIndexOutOfRange();
             base.SetColorIndex(x, colorIndex);
         }
 

@@ -888,6 +888,74 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        /// <summary>
+        /// Returns a new <seealso cref="IReadWriteBitmapData"/>, which is the grayscale version of the specified <paramref name="bitmapData"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to grayscale.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> containing the grayscale version of the original <paramref name="bitmapData"/>.</returns>
+        /// <remarks>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>To return an <see cref="IReadWriteBitmapData"/> with arbitrary <see cref="IBitmapData.PixelFormat"/> use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> overloads with a grayscale palette,
+        /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
+        /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale">MakeGrayscale</see> method.</para>
+        /// </remarks>
+        /// <seealso cref="ImageExtensions.ToGrayscale"/>
+        /// <seealso cref="MakeGrayscale"/>
+        /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
+        public static IReadWriteBitmapData ToGrayscale(this IReadableBitmapData bitmapData)
+            => bitmapData.Clone(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));
+
+        /// <summary>
+        /// Returns a new <seealso cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
+        /// <remarks>
+        /// <para>Similarly to the <see cref="Bitmap.MakeTransparent()">Bitmap.MakeTransparent</see> method, this one uses the bottom-left pixel to determine
+        /// the background color, which must be completely opaque; otherwise, just an exact clone of <paramref name="bitmapData"/> will be returned.</para>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData)">MakeTransparent</see> method.</para>
+        /// <para>To force replacing even non-completely opaque pixels use the <see cref="ToTransparent(IReadableBitmapData, Color32)"/> overload instead.</para>
+        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// For any customization use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
+        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
+        /// </remarks>
+        /// <seealso cref="MakeTransparent(IReadWriteBitmapData)"/>
+        /// <seealso cref="MakeOpaque"/>
+        public static IReadWriteBitmapData ToTransparent(this IReadableBitmapData bitmapData)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            IReadWriteBitmapData result = bitmapData.Clone(PixelFormat.Format32bppArgb);
+            result.MakeTransparent();
+            return result;
+        }
+
+        /// <summary>
+        /// Returns a new <seealso cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
+        /// <remarks>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)">MakeTransparent</see> method.</para>
+        /// <para>To auto-detect the background color to be made transparent use the <see cref="ToTransparent(IReadableBitmapData)"/> overload instead.</para>
+        /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
+        /// For any customization use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
+        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
+        /// </remarks>
+        /// <seealso cref="MakeTransparent(IReadWriteBitmapData,Color32)"/>
+        /// <seealso cref="MakeOpaque"/>
+        public static IReadWriteBitmapData ToTransparent(this IReadableBitmapData bitmapData, Color32 transparentColor)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            IReadWriteBitmapData result = bitmapData.Clone(PixelFormat.Format32bppArgb);
+            result.MakeTransparent(transparentColor);
+            return result;
+        }
+
         #endregion
 
         #endregion
@@ -1225,7 +1293,7 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                IBitmapDataRowInternal line = data.GetRow(0);
+                IBitmapDataRowInternal line = data.DoGetRow(0);
 
                 do
                 {
@@ -1256,7 +1324,7 @@ namespace KGySoft.Drawing.Imaging
             var data = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
             try
             {
-                IBitmapDataRowInternal line = data.GetRow(0);
+                IBitmapDataRowInternal line = data.DoGetRow(0);
 
                 do
                 {

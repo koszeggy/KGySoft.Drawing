@@ -18,9 +18,17 @@ namespace KGySoft.Drawing.Imaging
 {
     internal interface IBitmapDataInternal : IReadWriteBitmapData
     {
+        #region Properties
+
+        bool CanSetPalette { get; }
+
+        #endregion
+
         #region Methods
 
-        IBitmapDataRowInternal GetRow(int y);
+        IBitmapDataRowInternal DoGetRow(int y);
+
+        bool TrySetPalette(Palette palette);
 
         #endregion
     }

@@ -94,7 +94,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(acc, quantizingSession))
                     {
-                        IReadWriteBitmapDataRow row = acc.GetRow(0);
+                        IReadWriteBitmapDataRow row = acc.DoGetRow(0);
                         do
                         {
                             for (int x = 0; x < acc.Width; x++)
@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession session = quantizer.Initialize(bitmapData))
                     {
-                        var row = bitmapData.GetRow(0);
+                        var row = bitmapData.DoGetRow(0);
                         int width = bitmapData.Width;
                         do
                         {
@@ -162,7 +162,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession))
                     {
-                        var row = bitmapData.GetRow(0);
+                        var row = bitmapData.DoGetRow(0);
                         int width = bitmapData.Width;
                         do
                         {
@@ -197,7 +197,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     {
                         Color32 from = new Color32(Color.Black);
                         Color32 to = new Color32(Color.Transparent);
-                        IBitmapDataRowInternal row = bitmapData.GetRow(0);
+                        IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                         do
                         {
                             for (int x = 0; x < bitmapData.Width; x++)

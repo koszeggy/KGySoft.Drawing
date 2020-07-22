@@ -554,8 +554,6 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(null, bmp);
         }
 
-        //[TestCase(PixelFormat.Format32bppArgb)]
-        //[TestCase(PixelFormat.Format8bppIndexed)]
         [TestCase(PixelFormat.Format8bppIndexed)]
         public void TransformColors(PixelFormat pixelFormat)
         {
@@ -563,9 +561,9 @@ namespace KGySoft.Drawing.UnitTests
 
             (IDitherer Ditherer, string Name)[] ditherers =
             {
-                //(null, " No Dithering"),
-                //(OrderedDitherer.Bayer8x8, nameof(OrderedDitherer.Bayer8x8)),
-                //(ErrorDiffusionDitherer.FloydSteinberg, $"{nameof(ErrorDiffusionDitherer.FloydSteinberg)} (raster)"),
+                (null, " No Dithering"),
+                (OrderedDitherer.Bayer8x8, nameof(OrderedDitherer.Bayer8x8)),
+                (ErrorDiffusionDitherer.FloydSteinberg, $"{nameof(ErrorDiffusionDitherer.FloydSteinberg)} (raster)"),
                 (ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true), $"{nameof(ErrorDiffusionDitherer.FloydSteinberg)} (serpentine)"),
             };
 

@@ -47,6 +47,8 @@ namespace KGySoft.Drawing.Imaging
 
         public abstract int RowSize { get; }
 
+        public virtual bool CanSetPalette => PixelFormat.IsIndexed();
+
         #endregion
 
         #region Protected Properties
@@ -57,9 +59,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
-        IReadableBitmapDataRow IReadableBitmapData.FirstRow => GetRow(0);
-        IWritableBitmapDataRow IWritableBitmapData.FirstRow => GetRow(0);
-        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => GetRow(0);
+        IReadableBitmapDataRow IReadableBitmapData.FirstRow => DoGetRow(0);
+        IWritableBitmapDataRow IWritableBitmapData.FirstRow => DoGetRow(0);
+        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => DoGetRow(0);
 
         #endregion
 
@@ -76,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 if ((uint)y >= Height)
                     ThrowYOutOfRange();
-                return GetRow(y);
+                return DoGetRow(y);
             }
         }
 
@@ -117,7 +119,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if ((uint)y >= Height)
                 ThrowYOutOfRange();
-            return GetRow(y).GetColor(x);
+            return DoGetRow(y).GetColor(x);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -125,10 +127,18 @@ namespace KGySoft.Drawing.Imaging
         {
             if ((uint)y >= Height)
                 ThrowYOutOfRange();
-            GetRow(y).SetColor(x, color);
+            DoGetRow(y).SetColor(x, color);
         }
 
-        public abstract IBitmapDataRowInternal GetRow(int y);
+        public abstract IBitmapDataRowInternal DoGetRow(int y);
+
+        public virtual bool TrySetPalette(Palette palette)
+        {
+            if (palette == null || Palette == null || !PixelFormat.IsIndexed() || palette.Count < Palette.Count || palette.Count > 1 << PixelFormat.ToBitsPerPixel())
+                return false;
+            Palette = palette;
+            return true;
+        }
 
         public void Dispose()
         {

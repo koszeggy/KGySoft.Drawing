@@ -19,6 +19,7 @@
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
+
 using KGySoft.Collections;
 
 #endregion
@@ -101,7 +102,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public override IBitmapDataRowInternal GetRow(int y)
+        public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
             TRow result = lastRow;

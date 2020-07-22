@@ -20,8 +20,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using KGySoft.CoreLibraries;
-using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -313,7 +311,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 {
                     int diffs = 0;
                     using IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
-                    IBitmapDataRowInternal row = accessor.GetRow(0);
+                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
@@ -331,7 +329,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 {
                     int diffs = 0;
                     using IBitmapDataInternal accessor = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat);
-                    IBitmapDataRowInternal row = accessor.GetRow(0);
+                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
                     do
                     {
                         for (int x = 0; x < size.Width; x++)

@@ -121,19 +121,22 @@ namespace KGySoft.Drawing
         #region Public Methods
 
         #region ToGrayscale
-        
+
         /// <summary>
-        /// Converts an image to a grayscale one.
+        /// Returns a new <seealso cref="Image"/>, which is the grayscale version of the specified <paramref name="image"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The image to convert to grayscale.</param>
         /// <returns>An <see cref="Image"/> containing the grayscale version of the original <paramref name="image"/>.</returns>
         /// <remarks>
         /// <para>This method always returns a <see cref="Bitmap"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
-        /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat"/> overloads with a grayscale palette,
+        /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> overloads with a grayscale palette,
         /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
         /// <para>To make a <see cref="Bitmap"/> grayscale without creating a new instance use the <see cref="BitmapExtensions.MakeGrayscale">BitmapExtensions.MakeGrayscale</see> method.</para>
         /// </remarks>
+        /// <seealso cref="BitmapDataExtensions.ToGrayscale"/>
+        /// <seealso cref="BitmapDataExtensions.MakeGrayscale"/>
+        /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Image ToGrayscale(this Image image)
             => image.ConvertPixelFormat(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));
@@ -253,8 +256,8 @@ namespace KGySoft.Drawing
                     // Sequential processing
                     if (source.Width < parallelThreshold)
                     {
-                        IBitmapDataRowInternal rowSrc = source.GetRow(0);
-                        IBitmapDataRowInternal rowDst = target.GetRow(0);
+                        IBitmapDataRowInternal rowSrc = source.DoGetRow(0);
+                        IBitmapDataRowInternal rowDst = target.DoGetRow(0);
                         int width = source.Width;
                         do
                         {
@@ -267,8 +270,8 @@ namespace KGySoft.Drawing
                     {
                         ParallelHelper.For(0, source.Height, y =>
                         {
-                            IBitmapDataRowInternal rowSrc = source.GetRow(y);
-                            IBitmapDataRowInternal rowDst = target.GetRow(y);
+                            IBitmapDataRowInternal rowSrc = source.DoGetRow(y);
+                            IBitmapDataRowInternal rowDst = target.DoGetRow(y);
                             int width = source.Width;
                             for (int x = 0; x < width; x++)
                                 rowDst.DoSetColor32(x, rowSrc.DoGetColor32(x));
@@ -686,8 +689,8 @@ namespace KGySoft.Drawing
                             // Sequential processing
                             if (source.Width < parallelThreshold)
                             {
-                                IBitmapDataRowInternal rowSrc = source.GetRow(0);
-                                IBitmapDataRowInternal rowDst = target.GetRow(0);
+                                IBitmapDataRowInternal rowSrc = source.DoGetRow(0);
+                                IBitmapDataRowInternal rowDst = target.DoGetRow(0);
                                 int width = source.Width;
                                 do
                                 {
@@ -700,8 +703,8 @@ namespace KGySoft.Drawing
                             {
                                 ParallelHelper.For(0, source.Height, y =>
                                 {
-                                    IBitmapDataRowInternal rowSrc = source.GetRow(y);
-                                    IBitmapDataRowInternal rowDst = target.GetRow(y);
+                                    IBitmapDataRowInternal rowSrc = source.DoGetRow(y);
+                                    IBitmapDataRowInternal rowDst = target.DoGetRow(y);
                                     int width = source.Width;
                                     for (int x = 0; x < width; x++)
                                         rowDst.DoSetColor32(x, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x)));
@@ -716,8 +719,8 @@ namespace KGySoft.Drawing
                                 // Sequential processing
                                 if (ditheringSession.IsSequential || source.Width < parallelThreshold)
                                 {
-                                    IBitmapDataRowInternal rowSrc = source.GetRow(0);
-                                    IBitmapDataRowInternal rowDst = target.GetRow(0);
+                                    IBitmapDataRowInternal rowSrc = source.DoGetRow(0);
+                                    IBitmapDataRowInternal rowDst = target.DoGetRow(0);
                                     int width = source.Width;
                                     do
                                     {
@@ -730,8 +733,8 @@ namespace KGySoft.Drawing
                                 {
                                     ParallelHelper.For(0, source.Height, y =>
                                     {
-                                        IBitmapDataRowInternal rowSrc = source.GetRow(y);
-                                        IBitmapDataRowInternal rowDst = target.GetRow(y);
+                                        IBitmapDataRowInternal rowSrc = source.DoGetRow(y);
+                                        IBitmapDataRowInternal rowDst = target.DoGetRow(y);
                                         int width = source.Width;
                                         for (int x = 0; x < width; x++)
                                             rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.Index));

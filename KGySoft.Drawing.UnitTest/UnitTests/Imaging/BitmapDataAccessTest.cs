@@ -207,8 +207,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                         Assert.AreEqual(expectedRawValueNative, actualRawValue);
 
                     // by indexer
-                    nativeBitmapData.GetRow(0)[0] = new Color32(testColor);
-                    Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData.GetRow(0)[0].ToArgb());
+                    nativeBitmapData.DoGetRow(0)[0] = new Color32(testColor);
+                    Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData.DoGetRow(0)[0].ToArgb());
                     if (pixelFormat == nativeBitmapData.PixelFormat) // can differ in Linux for 16 bpp formats
                         Assert.AreEqual(expectedRawValueNative, GetRawValue(pixelFormat, nativeBitmapData));
                 }
@@ -245,8 +245,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(expectedRawValueManaged, actualRawValue);
 
                 // by indexer
-                managedBitmapData.GetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetRow(0)[0].ToColor()));
+                managedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.DoGetRow(0)[0].ToColor()));
                 Assert.AreEqual(expectedRawValueManaged, GetRawValue(pixelFormat, managedBitmapData));
             }
         }

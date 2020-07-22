@@ -118,6 +118,7 @@ namespace KGySoft.Drawing.Imaging
         public int RowSize => BitmapData.RowSize;
         public Color32 BackColor => BitmapData.BackColor;
         public byte AlphaThreshold => BitmapData.AlphaThreshold;
+        public bool CanSetPalette => false;
 
         #endregion
 
@@ -178,7 +179,7 @@ namespace KGySoft.Drawing.Imaging
         public Color GetPixel(int x, int y) => AsReadable.GetPixel(x, y);
         public void SetPixel(int x, int y, Color color) => AsWritable.SetPixel(x, y, color);
 
-        public IBitmapDataRowInternal GetRow(int y)
+        public IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
             IBitmapDataRowInternal result = lastRow;
@@ -188,6 +189,8 @@ namespace KGySoft.Drawing.Imaging
             // Otherwise, we create and cache the result.
             return lastRow = new BitmapDataRowWrapper(isReading ? AsReadable[y] : (IBitmapDataRow)AsWritable[y], isReading, isWriting);
         }
+
+        public bool TrySetPalette(Palette palette) => false;
 
         #endregion
     }

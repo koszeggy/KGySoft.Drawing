@@ -649,6 +649,23 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage("8ind", bmp8bpp.ToBitmap());
         }
 
+        [Test]
+        public void ToTransparentTest()
+        {
+            using var refBmpData = Icons.Information.ExtractBitmap(new Size(256, 256))
+                .GetReadableBitmapData()
+                .Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver));
+            SaveImage("reference", refBmpData.ToBitmap());
+
+            using var transparentAuto = refBmpData.ToTransparent();
+            Assert.AreEqual(default(Color32), transparentAuto[0][0]);
+
+            SaveImage("transparent", transparentAuto.ToBitmap());
+
+            using var transparentDirect = refBmpData.ToTransparent(new Color32(Color.Silver));
+            AssertAreEqual(transparentAuto, transparentDirect);
+        }
+
         #endregion
     }
 }

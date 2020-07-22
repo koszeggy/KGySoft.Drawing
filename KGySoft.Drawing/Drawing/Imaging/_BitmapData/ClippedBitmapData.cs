@@ -74,7 +74,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Constructors
 
-            internal ClippedRowInternal(ClippedBitmapData bitmapData, int rowIndex) : base(bitmapData, ((IBitmapDataInternal)bitmapData.BitmapData).GetRow(rowIndex + bitmapData.OffsetY))
+            internal ClippedRowInternal(ClippedBitmapData bitmapData, int rowIndex) : base(bitmapData, ((IBitmapDataInternal)bitmapData.BitmapData).DoGetRow(rowIndex + bitmapData.OffsetY))
             {
             }
 
@@ -195,6 +195,7 @@ namespace KGySoft.Drawing.Imaging
         public override int Width => region.Width;
         public override PixelFormat PixelFormat { get; }
         public override int RowSize { get; }
+        public override bool CanSetPalette => false;
 
         #endregion
 
@@ -277,7 +278,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        public override IBitmapDataRowInternal GetRow(int y)
+        public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
             IBitmapDataRowInternal result = lastRow;
@@ -294,6 +295,8 @@ namespace KGySoft.Drawing.Imaging
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected row access on type: {BitmapData.GetType()}")),
             };
         }
+
+        public override bool TrySetPalette(Palette palette) => false;
 
         #endregion
     }

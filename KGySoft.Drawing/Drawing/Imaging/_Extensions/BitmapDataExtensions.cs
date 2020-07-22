@@ -16,6 +16,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -34,6 +35,28 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+
+        #region Public Methods
+
+        /// <summary>
+        /// Tries to the set the specified <paramref name="palette"/> for this <seealso cref="IBitmapData"/>.
+        /// Setting may fail if <paramref name="bitmapData"/> has no indexed <see cref="IBitmapData.PixelFormat"/> is not an indexed one,
+        /// the number of entries in <paramref name="palette"/> is less than <see cref="Palette.Count"/> of the current <seealso cref="IBitmapData.Palette"/>,
+        /// the number of entries in <paramref name="palette"/> is larger than the possible maximum number of colors of the current <see cref="IBitmapData.PixelFormat"/>,
+        /// or when the current <seealso cref="IBitmapData"/> does not support setting the palette.
+        /// </summary>
+        /// <param name="bitmapData">The <seealso cref="IBitmapData"/> whose <see cref="IBitmapData.Palette"/> should be set.</param>
+        /// <param name="palette">A <see cref="Palette"/> instance to set.</param>
+        /// <returns><see langword="true"/>&#160;<paramref name="palette"/> can be set as the <seealso cref="IBitmapData.Palette"/> of this <paramref name="bitmapData"/>; otherwise, <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        public static bool TrySetPalette(this IBitmapData bitmapData, Palette palette)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData));
+            return bitmapData is IBitmapDataInternal internalBitmapData && internalBitmapData.TrySetPalette(palette);
+        }
+
+        #endregion
 
         #region Internal Methods
 

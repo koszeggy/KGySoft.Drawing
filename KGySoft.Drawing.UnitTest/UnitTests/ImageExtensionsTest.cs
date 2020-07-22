@@ -107,19 +107,19 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage(testName, converted);
         }
 
-        //[TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
-        //[TestCase("32bpp PARGB to 32bpp PARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppPArgb)]
-        //[TestCase("32bpp ARGB to 32bpp RGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppRgb)]
-        //[TestCase("32bpp RGB to 32bpp ARGB", PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
-        //[TestCase("32bpp ARGB to 32bpp PARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb)]
-        //[TestCase("32bpp PARGB to 32bpp ARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
-        //[TestCase("32bpp ARGB to 16bpp Grayscale", PixelFormat.Format32bppArgb, PixelFormat.Format16bppGrayScale)]
-        //[TestCase("32bpp ARGB to 16bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format16bppArgb1555)]
+        [TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp PARGB to 32bpp PARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppPArgb)]
+        [TestCase("32bpp ARGB to 32bpp RGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppRgb)]
+        [TestCase("32bpp RGB to 32bpp ARGB", PixelFormat.Format32bppRgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp ARGB to 32bpp PARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppPArgb)]
+        [TestCase("32bpp PARGB to 32bpp ARGB", PixelFormat.Format32bppPArgb, PixelFormat.Format32bppArgb)]
+        [TestCase("32bpp ARGB to 16bpp Grayscale", PixelFormat.Format32bppArgb, PixelFormat.Format16bppGrayScale)]
+        [TestCase("32bpp ARGB to 16bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format16bppArgb1555)]
         [TestCase("32bpp ARGB to 8bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed)]
-        //[TestCase("32bpp ARGB to 4bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format4bppIndexed)]
-        //[TestCase("32bpp ARGB to 1bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed)]
-        //[TestCase("64bpp ARGB to 64bpp ARGB", PixelFormat.Format64bppArgb, PixelFormat.Format64bppArgb)]
-        //[TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
+        [TestCase("32bpp ARGB to 4bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format4bppIndexed)]
+        [TestCase("32bpp ARGB to 1bpp Indexed", PixelFormat.Format32bppArgb, PixelFormat.Format1bppIndexed)]
+        [TestCase("64bpp ARGB to 64bpp ARGB", PixelFormat.Format64bppArgb, PixelFormat.Format64bppArgb)]
+        [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
         public void DrawIntoNoScalingTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
             if (!formatSrc.IsSupportedNatively())
