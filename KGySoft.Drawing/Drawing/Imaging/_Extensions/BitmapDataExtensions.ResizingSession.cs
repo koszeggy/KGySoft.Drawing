@@ -224,7 +224,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
             {
                 // Sequential processing
-                if (targetRectangle.Width < (parallelThreshold >> 1))
+                if (targetRectangle.Width < parallelThreshold >> quantizingScale)
                 {
                     for (int y = 0; y < targetRectangle.Height; y++)
                         ProcessRow(y);
@@ -293,7 +293,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizeWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession)
             {
                 // Sequential processing
-                if (targetRectangle.Width < (parallelThreshold >> 2) || ditheringSession.IsSequential)
+                if (ditheringSession.IsSequential || targetRectangle.Width < parallelThreshold >> ditheringScale)
                 {
                     for (int y = 0; y < targetRectangle.Height; y++)
                         ProcessRow(y);

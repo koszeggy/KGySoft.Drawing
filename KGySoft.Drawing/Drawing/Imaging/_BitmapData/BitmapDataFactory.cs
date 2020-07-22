@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.Imaging
         /// This means a different raw content to Windows' wide-color <see cref="Bitmap"/> instances, which use 13-bit channels. But this difference is transparent in most cases
         /// unless we access actual raw content by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> and <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</note></para>
         /// <para>The <paramref name="backColor"/> parameter has no effect if <paramref name="pixelFormat"/> has alpha gradient support and it does not affect the actual content of the returned instance.
-        /// To set all pixels to a color use the <see cref="O:KGySoft.Drawing.Imaging.WritableBitmapDataExtensions.Clear">Clear</see> extension methods.</para>
+        /// To set all pixels to a color use the <see cref="BitmapDataExtensions.Clear">Clear</see> extension method.</para>
         /// <para>If <paramref name="alphaThreshold"/> is zero, then setting a fully transparent pixel in a bitmap data with indexed or single-bit-alpha pixel format
         /// will blend the pixel to set with <paramref name="backColor"/> even if the bitmap data can handle transparent pixels.</para>
         /// <para>If <paramref name="alphaThreshold"/> is <c>1</c>, then the result color of setting a pixel of a bitmap data with indexed or single-bit-alpha pixel format
@@ -68,7 +68,16 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If a pixel of a bitmap data without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
+        /// <note type="tip">
+        /// <list type="bullet">
+        /// <item>You can use the <see cref="BitmapDataExtensions.ToBitmap">ToBitmap</see> extension method to convert the created <see cref="IReadWriteBitmapData"/> to a <see cref="Bitmap"/> instance.</item>
+        /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a native <see cref="Bitmap"/> use the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method.</item>
+        /// </list></note>
         /// </remarks>
+        /// <seealso cref="BitmapDataExtensions.ToBitmap"/>
+        /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
+        /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
+        /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
         public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
         {
             if (size.Width < 1 || size.Height < 1)

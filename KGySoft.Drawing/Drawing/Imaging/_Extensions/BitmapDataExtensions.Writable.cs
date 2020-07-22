@@ -68,6 +68,7 @@ namespace KGySoft.Drawing.Imaging
         /// </param>
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
+        /// <seealso cref="BitmapExtensions.Clear(Bitmap, Color, IDitherer, Color, byte)"/>
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null)
         {
             if (bitmapData == null)
@@ -288,7 +289,7 @@ namespace KGySoft.Drawing.Imaging
                     using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
                     {
                         // sequential clear
-                        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
+                        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
                             IBitmapDataRowInternal row = bitmapData.GetRow(0);
                             int y = 0;

@@ -880,7 +880,7 @@ namespace KGySoft.Drawing.Imaging
                         : DoGetColors(bitmapData, 0).Count;
                 case PixelFormat.Format64bppArgb:
                 case PixelFormat.Format64bppPArgb:
-                    return bitmapData.RowSize >= bitmapData.Width * 6
+                    return bitmapData.RowSize >= bitmapData.Width << 3
                         ? GetColorCount<Color64>(bitmapData)
                         : DoGetColors(bitmapData, 0).Count;
                 default:

@@ -71,7 +71,7 @@ namespace KGySoft.Drawing.Imaging
             internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent)
             {
                 // Sequential processing
-                if (SourceRectangle.Width < (parallelThreshold >> 1))
+                if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
                 {
                     IBitmapDataRowInternal rowSrc = Source.GetRow(SourceRectangle.Y);
                     IBitmapDataRowInternal rowDst = Target.GetRow(TargetRectangle.Y);
@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
             internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent)
             {
                 // Sequential processing
-                if (SourceRectangle.Width < (parallelThreshold >> 2) || ditheringSession.IsSequential)
+                if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
                 {
                     IBitmapDataRowInternal rowSrc = Source.GetRow(SourceRectangle.Y);
                     IBitmapDataRowInternal rowDst = Target.GetRow(TargetRectangle.Y);
@@ -550,7 +550,7 @@ namespace KGySoft.Drawing.Imaging
                 int sourceWidth = SourceRectangle.Width;
 
                 // Sequential processing
-                if (SourceRectangle.Width < (parallelThreshold >> 1))
+                if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
                 {
                     for (int y = 0; y < SourceRectangle.Height; y++)
                         ProcessRow(y);
@@ -622,7 +622,7 @@ namespace KGySoft.Drawing.Imaging
                 int sourceWidth = SourceRectangle.Width;
 
                 // Sequential processing
-                if (SourceRectangle.Width < (parallelThreshold >> 2) || ditheringSession.IsSequential)
+                if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
                 {
                     for (int y = 0; y < SourceRectangle.Height; y++)
                         ProcessRow(y);

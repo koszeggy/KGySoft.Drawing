@@ -399,12 +399,10 @@ namespace KGySoft.Drawing.UnitTests
         {
             var files = new string[]
             {
-                @"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png",
-
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\Shield256.png",
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png",
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\Cameraman.png",
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
+                @"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\GrayShades.gif",
             };
 

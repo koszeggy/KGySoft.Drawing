@@ -335,7 +335,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Extracts every icon from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
+        /// Extracts every icon from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.</returns>
@@ -348,7 +348,7 @@ namespace KGySoft.Drawing
             => ExtractIcons(icon, null, null, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
-        /// Extracts every icon from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
+        /// Extracts every icon from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning uncompressed icons only;
@@ -361,7 +361,7 @@ namespace KGySoft.Drawing
         public static Icon[] ExtractIcons(this Icon icon, bool forceUncompressedResult) => ExtractIcons(icon, null, null, forceUncompressedResult);
 
         /// <summary>
-        /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
+        /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
@@ -375,7 +375,7 @@ namespace KGySoft.Drawing
             => ExtractIcons(icon, size, null, OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
-        /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
+        /// Extracts every icon of specified size from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
@@ -390,7 +390,7 @@ namespace KGySoft.Drawing
             => ExtractIcons(icon, size, null, forceUncompressedResult);
 
         /// <summary>
-        /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
+        /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
@@ -404,7 +404,7 @@ namespace KGySoft.Drawing
             => ExtractIcons(icon, null, pixelFormat.ToBitsPerPixel(), OSUtils.IsXpOrEarlier || !OSUtils.IsWindows);
 
         /// <summary>
-        /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <seealso cref="Icon"/> instances.
+        /// Extracts every icon of specified pixel format from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>

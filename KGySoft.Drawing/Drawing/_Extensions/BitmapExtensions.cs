@@ -374,6 +374,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <seealso cref="GetWritableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)"/>
         public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
             => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
 
@@ -394,6 +395,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)"/>
         public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
             => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
 
@@ -425,6 +427,8 @@ namespace KGySoft.Drawing
         /// <para>If a pixel of a bitmap without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
+        /// <note type="tip">To create a managed <see cref="IReadWriteBitmapData"/> instance that supports every <see cref="PixelFormat"/>s on any platform
+        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)">BitmapDataFactory.CreateBitmapData</see> method.</note>
         /// </remarks>
         /// <example>
         /// <para>The following example demonstrates how easily you can copy the content of a 32-bit ARGB image into an 8-bit indexed one by
@@ -507,6 +511,7 @@ namespace KGySoft.Drawing
         /// </example>
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetWritableBitmapData"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
             => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
 
@@ -531,8 +536,7 @@ namespace KGySoft.Drawing
         /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
-        [SecuritySafeCritical]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        /// <seealso cref="BitmapDataExtensions.Quantize"/>
         public static void Quantize(this Bitmap bitmap, IQuantizer quantizer)
         {
             if (bitmap == null)
@@ -540,35 +544,8 @@ namespace KGySoft.Drawing
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite))
-            using (IQuantizingSession session = quantizer.Initialize(bitmapData))
-            {
-                if (session == null)
-                    throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-
-                // Sequential processing
-                if (bitmapData.Width < parallelThreshold)
-                {
-                    int width = bitmapData.Width;
-                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
-                    do
-                    {
-                        for (int x = 0; x < width; x++)
-                            row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                    } while (row.MoveNextRow());
-
-                    return;
-                }
-
-                // Parallel processing
-                ParallelHelper.For(0, bitmapData.Height, y =>
-                {
-                    int width = bitmapData.Width;
-                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
-                    for (int x = 0; x < width; x++)
-                        row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                });
-            }
+            using (IReadWriteBitmapData bitmapData = bitmap.GetReadWriteBitmapData())
+                bitmapData.Quantize(quantizer);
         }
 
         /// <summary>
@@ -597,8 +574,7 @@ namespace KGySoft.Drawing
         /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
         /// </list></note>
         /// </remarks>
-        [SecuritySafeCritical]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        /// <seealso cref="BitmapDataExtensions.Dither"/>
         public static void Dither(this Bitmap bitmap, IQuantizer quantizer, IDitherer ditherer)
         {
             if (bitmap == null)
@@ -608,36 +584,8 @@ namespace KGySoft.Drawing
             if (ditherer == null)
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
-            using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite))
-            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
-            using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-            {
-                // Sequential processing
-                if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
-                {
-                    int width = bitmapData.Width;
-                    IBitmapDataRowInternal row = bitmapData.GetRow(0);
-                    int y = 0;
-                    do
-                    {
-                        for (int x = 0; x < width; x++)
-                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-
-                        y += 1;
-                    } while (row.MoveNextRow());
-
-                    return;
-                }
-
-                // Parallel processing
-                ParallelHelper.For(0, bitmapData.Height, y =>
-                {
-                    int width = bitmapData.Width;
-                    IBitmapDataRowInternal row = bitmapData.GetRow(y);
-                    for (int x = 0; x < width; x++)
-                        row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-                });
-            }
+            using (var bitmapData = bitmap.GetReadWriteBitmapData())
+                bitmapData.Dither(quantizer, ditherer);
         }
 
         /// <summary>
@@ -654,6 +602,7 @@ namespace KGySoft.Drawing
         /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the specified <paramref name="color"/> is considered transparent. If 0,
         /// then the cleared <paramref name="bitmap"/> will not be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
+        /// <seealso cref="BitmapDataExtensions.Clear(IWritableBitmapData, Color32, IDitherer)"/>
         public static void Clear(this Bitmap bitmap, Color color, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
@@ -678,6 +627,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <paramref name="bitmap"/>&#160;<see cref="PixelFormat"/> has at least 24 bits-per-pixel size.
         /// If <see langword="null"/>, then the <see cref="Clear(Bitmap,Color,Color,byte)"/> overload will be called.</param>
+        /// <seealso cref="BitmapDataExtensions.Clear(IWritableBitmapData, Color32, IDitherer)"/>
         public static void Clear(this Bitmap bitmap, Color color, IDitherer ditherer, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)

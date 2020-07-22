@@ -16,7 +16,6 @@
 
 #region Usings
 
-using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -29,6 +28,8 @@ namespace KGySoft.Drawing.Imaging
         #region Constants
 
         private const int parallelThreshold = 100;
+        private const int quantizingScale = 1;
+        private const int ditheringScale = 2;
 
         #endregion
 
