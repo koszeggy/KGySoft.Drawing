@@ -339,6 +339,11 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
+        internal Palette(Palette palette, Color32 backColor, byte alphaThreshold)
+            : this(palette.Entries, backColor, alphaThreshold, palette.customGetNearestColorIndex)
+        {
+        }
+
         #endregion
 
         #endregion

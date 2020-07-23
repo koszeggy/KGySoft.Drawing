@@ -19,7 +19,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
@@ -28,6 +27,9 @@ using KGySoft.Drawing.WinApi;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Provides factory methods to create <see cref="IReadWriteBitmapData"/> instances.
+    /// </summary>
     public static class BitmapDataFactory
     {
         #region Methods
@@ -39,7 +41,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> or <paramref name="pixelFormat"/> has an invalid value.</exception>
-        /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="pixelFormat"/>.</exception>
         /// <param name="size">The size of the bitmap data to create.</param>
         /// <param name="pixelFormat">The desired pixel format of the bitmap data to create.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
@@ -48,8 +49,6 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="alphaThreshold">For pixel formats without alpha gradients support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
         /// See the <strong>Remarks</strong> section for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <param name="palette">Specifies the desired <see cref="IBitmapData.Palette"/> of the returned <see cref="IReadWriteBitmapData"/> instance.</param>
-        /// <returns>A managed <see cref="IReadWriteBitmapData"/> with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.</returns>
         /// <remarks>
         /// <para>All possible <see cref="PixelFormat"/>s are supported, regardless of the native <see cref="Bitmap"/> support of the current operating system.
         /// <note>When <paramref name="pixelFormat"/> specifies a wide-color format (48/64 bit or 16 bit grayscale), then the returned instance will use the full 16-bit range of the color channels.
@@ -70,28 +69,63 @@ namespace KGySoft.Drawing.Imaging
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
         /// <note type="tip">
         /// <list type="bullet">
+        /// <item>If <paramref name="pixelFormat"/> represents an indexed format you can use the <see cref="CreateBitmapData(Size, PixelFormat, Palette)"/> overload to specify th desired palette of the result.</item>
         /// <item>You can use the <see cref="BitmapDataExtensions.ToBitmap">ToBitmap</see> extension method to convert the created <see cref="IReadWriteBitmapData"/> to a <see cref="Bitmap"/> instance.</item>
         /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a native <see cref="Bitmap"/> use the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method.</item>
         /// </list></note>
         /// </remarks>
+        /// <seealso cref="CreateBitmapData(Size, PixelFormat, Palette)"/>
         /// <seealso cref="BitmapDataExtensions.ToBitmap"/>
         /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
-        public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128)
         {
             if (size.Width < 1 || size.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            if (pixelFormat.IsIndexed() && palette != null)
-            {
-                int maxColors = 1 << pixelFormat.ToBitsPerPixel();
-                if (palette.Count > maxColors)
-                    throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, pixelFormat), nameof(palette));
-            }
 
-            return CreateManagedBitmapData(size, pixelFormat, backColor, alphaThreshold, palette);
+            return CreateManagedBitmapData(size, pixelFormat, backColor, alphaThreshold);
+        }
+
+        /// <summary>
+        /// Creates a managed <see cref="IReadWriteBitmapData"/> with the specified <paramref name="size"/>, <paramref name="pixelFormat"/> and <paramref name="palette"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> or <paramref name="pixelFormat"/> has an invalid value.</exception>
+        /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="pixelFormat"/>.</exception>
+        /// <param name="size">The size of the bitmap data to create.</param>
+        /// <param name="pixelFormat">The desired pixel format of the bitmap data to create.</param>
+        /// <param name="palette">If <paramref name="pixelFormat"/> specifies an indexed format, then specifies the desired <see cref="IBitmapData.Palette"/> of the returned <see cref="IReadWriteBitmapData"/> instance.
+        /// It determines also the <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/> properties of the result.</param>
+        /// <returns>A managed <see cref="IReadWriteBitmapData"/> with the specified <paramref name="size"/>, <paramref name="pixelFormat"/> and <paramref name="palette"/>.</returns>
+        /// <remarks>
+        /// <para>All possible <see cref="PixelFormat"/>s are supported, regardless of the native <see cref="Bitmap"/> support of the current operating system.
+        /// <note>When <paramref name="pixelFormat"/> specifies a wide-color format (48/64 bit or 16 bit grayscale), then the returned instance will use the full 16-bit range of the color channels.
+        /// This means a different raw content to Windows' wide-color <see cref="Bitmap"/> instances, which use 13-bit channels. But this difference is transparent in most cases
+        /// unless we access actual raw content by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> and <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</note></para>
+        /// <para>If <paramref name="palette"/> is not specified, then a default palette will be used for indexed formats, and a default <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/>
+        /// value will be used.</para>
+        /// <note type="tip">
+        /// <list type="bullet">
+        /// <item>You can use the <see cref="BitmapDataExtensions.ToBitmap">ToBitmap</see> extension method to convert the created <see cref="IReadWriteBitmapData"/> to a <see cref="Bitmap"/> instance.</item>
+        /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a native <see cref="Bitmap"/> use the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method.</item>
+        /// </list></note>
+        /// </remarks>
+        /// <seealso cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
+        /// <seealso cref="BitmapDataExtensions.ToBitmap"/>
+        /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
+        /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
+        /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
+        public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat, Palette palette)
+        {
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+
+            return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
         }
 
         #endregion
@@ -107,6 +141,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (!lockMode.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(lockMode), PublicResources.EnumOutOfRange(lockMode));
+            Debug.Assert(palette == null || backColor == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
 
             var pixelFormat = bitmap.PixelFormat;
             switch (pixelFormat)
@@ -203,6 +238,14 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         internal static IBitmapDataInternal CreateManagedBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
         {
+            if (pixelFormat.IsIndexed() && palette != null)
+            {
+                int maxColors = 1 << pixelFormat.ToBitsPerPixel();
+                if (palette.Count > maxColors)
+                    throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, pixelFormat), nameof(palette));
+            }
+
+            Debug.Assert(palette == null || backColor == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             switch (pixelFormat)
             {
                 case PixelFormat.Format32bppArgb:

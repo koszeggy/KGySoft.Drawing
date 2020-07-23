@@ -136,7 +136,11 @@ namespace KGySoft.Drawing.Imaging
         {
             if (palette == null || Palette == null || !PixelFormat.IsIndexed() || palette.Count < Palette.Count || palette.Count > 1 << PixelFormat.ToBitsPerPixel())
                 return false;
-            Palette = palette;
+            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold)
+                Palette = palette;
+            else
+                Palette = new Palette(palette, BackColor, AlphaThreshold);
+
             return true;
         }
 

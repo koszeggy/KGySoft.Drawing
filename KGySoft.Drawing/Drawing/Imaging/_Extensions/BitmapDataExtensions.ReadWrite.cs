@@ -488,6 +488,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
+        /// <param name="transparentColor">Specifies the color to make transparent.</param>
         /// <remarks>
         /// <para>This method calls the <see cref="ReplaceColor">ReplaceColor</see> method internally.</para>
         /// <para>Unlike the <see cref="Bitmap.MakeTransparent(Color)">Bitmap.MakeTransparent(Color)</see> method, this one preserves the original <see cref="IBitmapData.PixelFormat"/>.

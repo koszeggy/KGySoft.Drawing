@@ -73,14 +73,37 @@ namespace KGySoft.Drawing.Imaging
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target <paramref name="palette"/> contains a transparent color,
+        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target palette contains a transparent color,
         /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <param name="palette">The desired target palette if <paramref name="pixelFormat"/> is an indexed format. If <see langword="null"/>,
-        /// then the source palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
-        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
+        /// <remarks>
+        /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/> <see cref="IBitmapData.PixelFormat"/>.
+        /// To use a custom quantizer use the overloads with a <c>quantizer</c> parameter.</para>
+        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
+        /// ones during the operation.</para>
+        /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, PixelFormat, Palette)"/> overload.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
+            => DoCloneDirect(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="pixelFormat">The desired pixel format of the result.</param>
+        /// <param name="palette">If <paramref name="pixelFormat"/> is an indexed format, then specifies the desired <see cref="IBitmapData.Palette"/> of the returned <see cref="IReadWriteBitmapData"/> instance.
+        /// It determines also the <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/> properties of the result.
+        /// If <see langword="null"/>, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/> <see cref="IBitmapData.PixelFormat"/>.
@@ -92,8 +115,8 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
-            => Clone(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, backColor, alphaThreshold, palette);
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, Palette palette)
+            => DoCloneDirect(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings.
@@ -108,14 +131,40 @@ namespace KGySoft.Drawing.Imaging
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target <paramref name="palette"/> contains a transparent color,
+        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target palette contains a transparent color,
         /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <param name="palette">The desired target palette if <paramref name="pixelFormat"/> is an indexed format. If <see langword="null"/>, then
-        /// then the source palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
-        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
+        /// <remarks>
+        /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/> <see cref="IBitmapData.PixelFormat"/>.
+        /// To use a custom quantizer use the overloads with a <c>quantizer</c> parameter.</para>
+        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
+        /// ones during the operation.</para>
+        /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, Palette)"/> overload.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
+        /// <br/>-or-
+        /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
+            => DoCloneDirect(source, sourceRectangle, pixelFormat, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be cloned.</param>
+        /// <param name="pixelFormat">The desired pixel format of the result.</param>
+        /// <param name="palette">If <paramref name="pixelFormat"/> is an indexed format, then specifies the desired <see cref="IBitmapData.Palette"/> of the returned <see cref="IReadWriteBitmapData"/> instance.
+        /// It determines also the <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/> properties of the result.
+        /// If <see langword="null"/>, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/> <see cref="IBitmapData.PixelFormat"/>.
@@ -129,33 +178,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-
-            var session = new CopySession();
-            var sourceBounds = new Rectangle(default, source.GetSize());
-            Unwrap(ref source, ref sourceRectangle);
-            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
-            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
-                throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
-
-            if (palette == null)
-            {
-                int bpp = pixelFormat.ToBitsPerPixel();
-                if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
-                    palette = source.Palette;
-            }
-
-            session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-
-            // using the public factory so pixelFormat and palette will be validated
-            session.Target = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(session.TargetRectangle.Size, pixelFormat, backColor, alphaThreshold, palette);
-            session.PerformCopy();
-
-            return session.Target;
-        }
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Palette palette)
+            => DoCloneDirect(source, sourceRectangle, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
@@ -184,7 +208,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
-            => Clone(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, quantizer, ditherer);
+            => DoCloneWithQuantizer(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, quantizer, ditherer);
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
@@ -206,7 +230,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, IDitherer ditherer)
-            => Clone(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, null, ditherer);
+            => DoCloneWithQuantizer(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, null, ditherer);
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
@@ -231,7 +255,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IDitherer ditherer)
-            => Clone(source, sourceRectangle, pixelFormat, null, ditherer);
+            => DoCloneWithQuantizer(source, sourceRectangle, pixelFormat, null, ditherer);
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
@@ -262,64 +286,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
-        {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-
-            if (quantizer == null)
-            {
-                // copying without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                // Note: Not using source.BackColor/AlphaThreshold/Palette so the behavior will be compatible with the other overload with default parameters
-                if (ditherer == null || !pixelFormat.CanBeDithered())
-                    return Clone(source, pixelFormat);
-
-                // here we need to pick a quantizer for the dithering
-                int bpp = pixelFormat.ToBitsPerPixel();
-                quantizer = bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp)
-                    ? PredefinedColorsQuantizer.FromCustomPalette(source.Palette)
-                    : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
-            }
-
-            var session = new CopySession();
-            var sourceBounds = new Rectangle(default, source.GetSize());
-            Unwrap(ref source, ref sourceRectangle);
-            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
-            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
-                throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
-
-            // Using a clipped source for quantizer/ditherer if needed. Note: the CopySession uses the original source for the best performance
-            IReadableBitmapData initSource = session.SourceRectangle.Size == source.GetSize()
-                ? source
-                : source.Clip(session.SourceRectangle);
-
-            try
-            {
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
-                {
-                    session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-                    session.Target = (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(session.TargetRectangle.Size, pixelFormat, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
-
-                    // quantizing without dithering
-                    if (ditherer == null)
-                        session.PerformCopyWithQuantizer(quantizingSession, false);
-                    else
-                    {
-                        // quantizing with dithering
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                        session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
-                    }
-
-                    return session.Target;
-                }
-            }
-            finally
-            {
-                if (!ReferenceEquals(initSource, source))
-                    initSource.Dispose();
-            }
-        }
+            => DoCloneWithQuantizer(source, sourceRectangle, pixelFormat, quantizer, ditherer);
 
         #endregion
 
@@ -937,6 +905,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadableBitmapData"/> to convert to transparent.</param>
+        /// <param name="transparentColor">Specifies the color to make transparent.</param>
         /// <remarks>
         /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)">MakeTransparent</see> method.</para>
@@ -961,6 +930,92 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Private Methods
+
+        private static IBitmapDataInternal DoCloneDirect(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            var session = new CopySession();
+            var sourceBounds = new Rectangle(default, source.GetSize());
+            Unwrap(ref source, ref sourceRectangle);
+            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
+            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
+                throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
+
+            if (palette == null)
+            {
+                int bpp = pixelFormat.ToBitsPerPixel();
+                if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
+                    palette = source.Palette;
+            }
+
+            session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+
+            // using the public factory so pixelFormat and palette will be validated
+            session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, backColor, alphaThreshold, palette);
+            session.PerformCopy();
+
+            return session.Target;
+        }
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
+        private static IBitmapDataInternal DoCloneWithQuantizer(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+
+            if (quantizer == null)
+            {
+                // copying without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
+                // Note: Not using source.BackColor/AlphaThreshold/Palette so the behavior will be compatible with the other Clone overloads with default parameters
+                if (ditherer == null || !pixelFormat.CanBeDithered())
+                    return DoCloneDirect(source, sourceRectangle, pixelFormat);
+
+                // here we need to pick a quantizer for the dithering
+                int bpp = pixelFormat.ToBitsPerPixel();
+                quantizer = bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp)
+                    ? PredefinedColorsQuantizer.FromCustomPalette(source.Palette)
+                    : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
+            }
+
+            var session = new CopySession();
+            var sourceBounds = new Rectangle(default, source.GetSize());
+            Unwrap(ref source, ref sourceRectangle);
+            (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
+            if (session.SourceRectangle.IsEmpty || session.TargetRectangle.IsEmpty)
+                throw new ArgumentOutOfRangeException(nameof(sourceRectangle), PublicResources.ArgumentOutOfRange);
+
+            // Using a clipped source for quantizer/ditherer if needed. Note: the CopySession uses the original source for the best performance
+            IReadableBitmapData initSource = session.SourceRectangle.Size == source.GetSize()
+                ? source
+                : source.Clip(session.SourceRectangle);
+
+            try
+            {
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                {
+                    session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+                    session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
+
+                    // quantizing without dithering
+                    if (ditherer == null)
+                        session.PerformCopyWithQuantizer(quantizingSession, false);
+                    else
+                    {
+                        // quantizing with dithering
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
+                    }
+
+                    return session.Target;
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(initSource, source))
+                    initSource.Dispose();
+            }
+        }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
         private static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool skipTransparent = false)
@@ -987,7 +1042,7 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
                 {
-                    session.Source = (IBitmapDataInternal)Clone(source, session.SourceRectangle, source.PixelFormat);
+                    session.Source = DoCloneDirect(source, session.SourceRectangle, source.PixelFormat);
                     session.SourceRectangle.Location = Point.Empty;
                 }
             }
@@ -1066,7 +1121,7 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = (IBitmapDataInternal)target.Clone(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
+                sessionTarget = target.DoCloneDirect(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
                 sessionTargetRectangle.Location = Point.Empty;
                 targetCloned = true;
             }
@@ -1085,7 +1140,7 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = (IBitmapDataInternal)Clone(source, actualSourceRectangle, source.PixelFormat);
+                    sessionSource = DoCloneDirect(source, actualSourceRectangle, source.PixelFormat);
                     actualSourceRectangle.Location = Point.Empty;
                 }
             }
@@ -1144,8 +1199,8 @@ namespace KGySoft.Drawing.Imaging
             if (isTwoPass)
             {
                 sessionTarget = source.HasMultiLevelAlpha()
-                    ? (IBitmapDataInternal)target.Clone(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb)
-                    : (IBitmapDataInternal)BitmapDataFactory.CreateBitmapData(sessionTargetRectangle.Size, PixelFormat.Format32bppPArgb);
+                    ? target.DoCloneDirect(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb)
+                    : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, PixelFormat.Format32bppPArgb);
                 sessionTargetRectangle.Location = Point.Empty;
                 targetCloned = true;
             }
@@ -1164,7 +1219,7 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = (IBitmapDataInternal)Clone(source, actualSourceRectangle, source.PixelFormat);
+                    sessionSource = DoCloneDirect(source, actualSourceRectangle, source.PixelFormat);
                     actualSourceRectangle.Location = Point.Empty;
                 }
             }

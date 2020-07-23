@@ -666,6 +666,22 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             AssertAreEqual(transparentAuto, transparentDirect);
         }
 
+        [Test]
+        public void TrySetPaletteTest()
+        {
+            using var bmpData = Icons.Information.ExtractBitmap(new Size(256, 256))
+                .GetReadableBitmapData()
+                .Clone(PixelFormat.Format1bppIndexed);
+            SaveImage("BW", bmpData.ToBitmap());
+
+            Assert.IsTrue(bmpData.TrySetPalette(new Palette(new[] { Color.Transparent, Color.Blue })));
+            Assert.AreEqual(new Color32(Color.Transparent), bmpData[0][0]);
+            SaveImage("transparent-blue", bmpData.ToBitmap());
+
+            // too many colors for 1bpp
+            Assert.IsFalse(bmpData.TrySetPalette(new Palette(new[] { Color.Transparent, Color.Blue, Color.Red })));
+        }
+
         #endregion
     }
 }

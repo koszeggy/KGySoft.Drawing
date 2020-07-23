@@ -89,6 +89,29 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        /// <summary>
+        /// Tries to the set the specified <paramref name="palette"/> for this <seealso cref="IWritableBitmapData"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <seealso cref="IWritableBitmapData"/> whose <see cref="IBitmapData.Palette"/> should be set.</param>
+        /// <param name="palette">A <see cref="Palette"/> instance to set.</param>
+        /// <returns><see langword="true"/>&#160;<paramref name="palette"/> can be set as the <seealso cref="IBitmapData.Palette"/> of this <paramref name="bitmapData"/>; otherwise, <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>Setting may fail if <paramref name="bitmapData"/> <see cref="IBitmapData.PixelFormat"/> is not an indexed one,
+        /// the number of entries in <paramref name="palette"/> is less than <see cref="Palette.Count"/> of the current <seealso cref="IBitmapData.Palette"/>,
+        /// the number of entries in <paramref name="palette"/> is larger than the possible maximum number of colors of the current <see cref="IBitmapData.PixelFormat"/>,
+        /// or when the current <seealso cref="IWritableBitmapData"/> does not support setting the palette.</para>
+        /// <para>The <see cref="Palette.BackColor">Palette.BackColor</see> and <see cref="Palette.AlphaThreshold">Palette.AlphaThreshold</see> properties of the <see cref="IBitmapData.Palette"/> property will
+        /// continue to return the same value as the original <see cref="IBitmapData.BackColor"/> and <seealso cref="IBitmapData.AlphaThreshold"/> values of this <paramref name="bitmapData"/>.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        public static bool TrySetPalette(this IWritableBitmapData bitmapData, Palette palette)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData));
+            return bitmapData is IBitmapDataInternal internalBitmapData && internalBitmapData.TrySetPalette(palette);
+        }
+
         #endregion
 
         #region Private Methods
