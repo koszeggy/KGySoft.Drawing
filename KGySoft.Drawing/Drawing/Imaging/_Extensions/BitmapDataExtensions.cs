@@ -46,6 +46,19 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
         }
 
+        internal static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
+        }
+
+        internal static bool IsFastPremultiplied(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat == PixelFormat.Format32bppPArgb
+                || pixelFormat.IsPremultiplied() && (!(bitmapData is NativeBitmapDataBase) || ColorExtensions.Max16BppValue == UInt16.MaxValue);
+        }
+
         #endregion
 
         #region Private Methods
@@ -82,19 +95,6 @@ namespace KGySoft.Drawing.Imaging
                 quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
             else
                 ditherer = null;
-        }
-
-        private static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
-        {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
-        }
-
-        private static bool IsFastPremultiplied(this IBitmapData bitmapData)
-        {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return pixelFormat == PixelFormat.Format32bppPArgb
-                || pixelFormat.IsPremultiplied() && (!(bitmapData is NativeBitmapDataBase) || ColorExtensions.Max16BppValue == UInt16.MaxValue);
         }
 
         #endregion
