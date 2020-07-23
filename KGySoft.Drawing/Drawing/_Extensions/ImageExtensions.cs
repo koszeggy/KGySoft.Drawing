@@ -28,6 +28,7 @@ using System.Security;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
+using KGySoft.Reflection;
 
 #endregion
 
@@ -218,6 +219,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, Palette)"/>
         [SecuritySafeCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
@@ -253,30 +255,9 @@ namespace KGySoft.Drawing
                 using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
                 using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
                 {
-                    // Sequential processing
-                    if (source.Width < parallelThreshold)
-                    {
-                        IBitmapDataRowInternal rowSrc = source.DoGetRow(0);
-                        IBitmapDataRowInternal rowDst = target.DoGetRow(0);
-                        int width = source.Width;
-                        do
-                        {
-                            for (int x = 0; x < width; x++)
-                                rowDst.DoSetColor32(x, rowSrc.DoGetColor32(x));
-                        } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
-                    }
-                    // Parallel processing
-                    else
-                    {
-                        ParallelHelper.For(0, source.Height, y =>
-                        {
-                            IBitmapDataRowInternal rowSrc = source.DoGetRow(y);
-                            IBitmapDataRowInternal rowDst = target.DoGetRow(y);
-                            int width = source.Width;
-                            for (int x = 0; x < width; x++)
-                                rowDst.DoSetColor32(x, rowSrc.DoGetColor32(x));
-                        });
-                    }
+                    var rect = new Rectangle(Point.Empty, source.GetSize());
+                    var session = new CopySession(source, target, rect, rect);
+                    session.PerformCopy();
                 }
 
                 return result;
@@ -527,6 +508,8 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
+        /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, Color32, byte)"/>
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
 
@@ -538,16 +521,13 @@ namespace KGySoft.Drawing
         /// <param name="newPixelFormat">The desired new pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
-        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance for dithering the result image, which usually produces a better result if colors are quantized.
-        /// If <paramref name="quantizer"/> is <see langword="null"/>, then this parameter is ignored. This parameter is optional.
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>
-        /// <para>To use a quantizer with predefined colors you can use the <see cref="PredefinedColorsQuantizer"/> class. If you want to use
-        /// a quantizer without a ditherer and <paramref name="newPixelFormat"/> represents the same number of reduced colors as the <paramref name="quantizer"/> produces,
-        /// then you can use the <see cref="ConvertPixelFormat(Image,PixelFormat,Color[],Color,byte)"/> overload for a slightly better performance.</para>
         /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
         /// <para>To quantize a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Quantize">BitmapExtensions.Quantize</see> method.</para>
         /// <para>To dither a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Dither">BitmapExtensions.Dither</see> method.</para>
@@ -653,14 +633,12 @@ namespace KGySoft.Drawing
         /// <seealso cref="IDitherer"/>
         /// <seealso cref="BitmapExtensions.Quantize"/>
         /// <seealso cref="BitmapExtensions.Dither"/>
+        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)"/>
         [SecuritySafeCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
         {
-            if (quantizer == null/*TODO: && ditherer == null - if only ditherer is specified: test CanBeDithered and if so obtain quantizer from bitmap data*/)
-                return ConvertPixelFormat(image, newPixelFormat);
-
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
             if (!newPixelFormat.IsValidFormat())
@@ -673,79 +651,52 @@ namespace KGySoft.Drawing
 
             try
             {
+                Color[] paletteEntries = null;
+                if (quantizer == null)
+                {
+                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
+                    if (ditherer == null || !newPixelFormat.CanBeDithered())
+                        return ConvertPixelFormat(image, newPixelFormat);
+
+                    // here we need to pick a quantizer for the dithering
+                    int bpp = newPixelFormat.ToBitsPerPixel();
+
+                    paletteEntries = bmp.Palette?.Entries;
+                    if (bpp <= 8 && paletteEntries?.Length <= (1 << bpp))
+                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
+                    else
+                    {
+                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat);
+                        paletteEntries = null;
+                    }
+                }
+
                 result = new Bitmap(image.Width, image.Height, newPixelFormat);
                 using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(source) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
                 {
                     // validating and initializing palette
                     if (newPixelFormat.IsIndexed())
-                        InitPalette(newPixelFormat, bmp, result, quantizingSession.Palette?.Entries?.Select(c => c.ToColor()).ToArray());
+                        InitPalette(newPixelFormat, bmp, result, paletteEntries ?? quantizingSession.Palette?.Entries.Select(c => c.ToColor()).ToArray());
 
                     using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
                     {
+                        var rect = new Rectangle(Point.Empty, source.GetSize());
+                        var session = new CopySession(source, target, rect, rect);
+
                         // quantization without dithering
                         if (ditherer == null)
-                        {
-                            // Sequential processing
-                            if (source.Width < parallelThreshold)
-                            {
-                                IBitmapDataRowInternal rowSrc = source.DoGetRow(0);
-                                IBitmapDataRowInternal rowDst = target.DoGetRow(0);
-                                int width = source.Width;
-                                do
-                                {
-                                    for (int x = 0; x < width; x++)
-                                        rowDst.DoSetColor32(x, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x)));
-                                } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
-                            }
-                            // Parallel processing
-                            else
-                            {
-                                ParallelHelper.For(0, source.Height, y =>
-                                {
-                                    IBitmapDataRowInternal rowSrc = source.DoGetRow(y);
-                                    IBitmapDataRowInternal rowDst = target.DoGetRow(y);
-                                    int width = source.Width;
-                                    for (int x = 0; x < width; x++)
-                                        rowDst.DoSetColor32(x, quantizingSession.GetQuantizedColor(rowSrc.DoGetColor32(x)));
-                                });
-                            }
-                        }
+                            session.PerformCopyWithQuantizer(quantizingSession, false);
                         // quantization with dithering
                         else
                         {
                             using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                            {
-                                // Sequential processing
-                                if (ditheringSession.IsSequential || source.Width < parallelThreshold)
-                                {
-                                    IBitmapDataRowInternal rowSrc = source.DoGetRow(0);
-                                    IBitmapDataRowInternal rowDst = target.DoGetRow(0);
-                                    int width = source.Width;
-                                    do
-                                    {
-                                        for (int x = 0; x < width; x++)
-                                            rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.Index));
-                                    } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
-                                }
-                                // Parallel processing
-                                else
-                                {
-                                    ParallelHelper.For(0, source.Height, y =>
-                                    {
-                                        IBitmapDataRowInternal rowSrc = source.DoGetRow(y);
-                                        IBitmapDataRowInternal rowDst = target.DoGetRow(y);
-                                        int width = source.Width;
-                                        for (int x = 0; x < width; x++)
-                                            rowDst.DoSetColor32(x, ditheringSession.GetDitheredColor(rowSrc.DoGetColor32(x), x, rowSrc.Index));
-                                    });
-                                }
-                            }
+                                session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
                         }
+
+                        return result;
                     }
                 }
-
-                return result;
             }
             catch (Exception)
             {

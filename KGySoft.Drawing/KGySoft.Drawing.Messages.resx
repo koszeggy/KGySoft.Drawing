@@ -175,7 +175,7 @@
     <value>This method can be used only on bitmaps with indexed pixel format.</value>
   </data>
   <data name="Imaging_PixelFormatNotSupportedFormat" xml:space="preserve">
-    <value>Pixel format '{0}' is not supported on the current platform.</value>
+    <value>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</value>
   </data>
   <data name="Imaging_QuantizerInitializeNull" xml:space="preserve">
     <value>The IQuantizer.Initialize method returned a null value.</value>

@@ -173,7 +173,7 @@ namespace KGySoft
 
         #region Imaging
 
-        /// <summary>Pixel format '{0}' is not supported on the current platform.</summary>
+        /// <summary>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</summary>
         internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         /// <summary>Palette must not have more than {0} colors for pixel format '{1}'.</summary>
