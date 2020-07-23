@@ -108,7 +108,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                Action<int> processRow = target.PixelFormat.IsPremultiplied()
+                Action<int> processRow = target.IsFastPremultiplied()
                     ? (Action<int>)ProcessRowPremultiplied
                     : ProcessRowStraight;
 
@@ -497,7 +497,7 @@ namespace KGySoft.Drawing.Imaging
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal void PerformResizeDirect()
             {
-                if (target.PixelFormat.IsPremultiplied())
+                if (target.IsFastPremultiplied())
                     PerformResizePremultiplied();
                 else
                     PerformResizeDirectStraight();

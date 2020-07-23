@@ -107,7 +107,7 @@ namespace KGySoft.Drawing.UnitTests
                 else if (encoder.FormatID == ImageFormat.Gif.Guid)
                     image.SaveAsGif($"{fileName}.gif");
                 else if (encoder.FormatID == ImageFormat.Tiff.Guid)
-                    image.SaveAsTiff($"{fileName}.tiff");
+                    image.SaveAsTiff($"{fileName}.tiff", false);
                 return;
             }
 
@@ -239,9 +239,9 @@ namespace KGySoft.Drawing.UnitTests
 
                         // this is faster than the asserts below
                         if (c1.A != c2.A
-                            || Math.Abs(c1.R - c2.R) > 1
-                            || Math.Abs(c1.G - c2.G) > 1
-                            || Math.Abs(c1.B - c2.B) > 1)
+                            || Math.Abs(c1.R - c2.R) > 5
+                            || Math.Abs(c1.G - c2.G) > 5
+                            || Math.Abs(c1.B - c2.B) > 5)
                             Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
 
                         //Assert.AreEqual(c1.A, c2.A, $"Diff at {x}; {rowSrc.Index}");

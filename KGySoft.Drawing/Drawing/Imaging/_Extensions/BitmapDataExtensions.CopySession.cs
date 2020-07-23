@@ -61,7 +61,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (!TryPerformRawCopy())
                 {
-                    if (Target.PixelFormat.IsPremultiplied())
+                    if (Target.IsFastPremultiplied())
                         PerformCopyDirectPremultiplied();
                     else
                         PerformCopyDirectStraight();
@@ -226,7 +226,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (SourceRectangle.Width < parallelThreshold)
                 {
-                    if (Target.PixelFormat.IsPremultiplied())
+                    if (Target.IsFastPremultiplied())
                     {
                         for (int y = 0; y < SourceRectangle.Height; y++)
                             ProcessRowPremultiplied(y);
@@ -241,7 +241,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                Action<int> processRow = Target.PixelFormat.IsPremultiplied()
+                Action<int> processRow = Target.IsFastPremultiplied()
                     ? ProcessRowPremultiplied
                     : (Action<int>)ProcessRowStraight;
 

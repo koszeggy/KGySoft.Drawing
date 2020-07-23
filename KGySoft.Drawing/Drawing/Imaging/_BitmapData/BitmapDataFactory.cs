@@ -141,7 +141,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (!lockMode.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(lockMode), PublicResources.EnumOutOfRange(lockMode));
-            Debug.Assert(palette == null || backColor == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
+            Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
 
             var pixelFormat = bitmap.PixelFormat;
             switch (pixelFormat)
@@ -245,7 +245,7 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, pixelFormat), nameof(palette));
             }
 
-            Debug.Assert(palette == null || backColor == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
+            Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             switch (pixelFormat)
             {
                 case PixelFormat.Format32bppArgb:

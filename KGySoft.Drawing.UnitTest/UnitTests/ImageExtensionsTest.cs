@@ -633,13 +633,7 @@ namespace KGySoft.Drawing.UnitTests
                 Assert.AreEqual(ImageFormat.Tiff, bmp.RawFormat);
                 Assert.AreEqual(Icons.Information.GetImagesCount(), bmp.GetFrameCount(FrameDimension.Page));
 
-                string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
-                if (!Directory.Exists(dir))
-                    Directory.CreateDirectory(dir);
-
-                string fileName = Path.Combine(dir, $"IconAsTiff.{DateTime.Now:yyyyMMddHHmmssffff}.tiff");
-                ms.Position = 0;
-                File.WriteAllBytes(fileName, ms.ToArray());
+                SaveImage(null, bmp, true);
             }, PlatformID.Win32NT);
         }
 

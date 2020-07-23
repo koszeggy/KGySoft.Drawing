@@ -90,6 +90,13 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
 
+        private static bool IsFastPremultiplied(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat == PixelFormat.Format32bppPArgb
+                || pixelFormat.IsPremultiplied() && (!(bitmapData is NativeBitmapDataBase) || ColorExtensions.Max16BppValue == UInt16.MaxValue);
+        }
+
         #endregion
 
         #endregion
