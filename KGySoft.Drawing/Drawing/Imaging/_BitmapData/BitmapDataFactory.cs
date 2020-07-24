@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -135,6 +136,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a native <see cref="IBitmapDataInternal"/> from a <see cref="Bitmap"/>.
         /// </summary>
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, an enum value is not affected by culture")]
         internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
         {
             if (bitmap == null)
@@ -200,6 +202,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a native <see cref="IBitmapDataInternal"/> by a quantizer session re-using its palette if possible.
         /// </summary>
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, an enum value is not affected by culture")]
         internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, IQuantizingSession quantizingSession)
         {
             if (bitmap == null)

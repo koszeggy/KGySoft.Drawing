@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -403,6 +404,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Enum.ToString is not affected by culture")]
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
         {
             switch (algorithm)

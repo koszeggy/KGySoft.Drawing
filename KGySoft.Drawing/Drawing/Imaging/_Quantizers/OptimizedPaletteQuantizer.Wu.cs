@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.Collections;
 
@@ -283,6 +284,7 @@ namespace KGySoft.Drawing.Imaging
                 m2.Buffer.GetElementReference(ind) += sqrTable[c.R] + sqrTable[c.G] + sqrTable[c.B];
             }
 
+            [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Int32.ToString is not affected by culture")]
             public Color32[] GeneratePalette()
             {
                 // Original comment from Xiaolin Wu:

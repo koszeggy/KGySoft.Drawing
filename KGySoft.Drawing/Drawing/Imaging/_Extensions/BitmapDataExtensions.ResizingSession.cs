@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -418,6 +419,7 @@ namespace KGySoft.Drawing.Imaging
                 return targetSize.Width > sourceSize.Width || targetSize.Height > sourceSize.Height ? ScalingMode.MitchellNetravali : ScalingMode.Bicubic;
             }
 
+            [SecurityCritical]
             private static unsafe void CopyColumns<T>(ref Array2D<T> array2d, int sourceIndex, int destIndex, int columnCount)
                 where T : unmanaged
             {
@@ -540,6 +542,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            [SecuritySafeCritical]
             private void Slide()
             {
                 var windowBandHeight = verticalKernelMap.MaxDiameter;
@@ -1002,6 +1005,7 @@ namespace KGySoft.Drawing.Imaging
             /// Builds a <see cref="ResizeKernel"/> for the row <paramref name="destRowIndex"/> (in <see cref="kernels"/>)
             /// referencing the data at row <paramref name="dataRowIndex"/> within <see cref="data"/>, so the data reusable by other data rows.
             /// </summary>
+            [SecuritySafeCritical]
             private unsafe ResizeKernel BuildKernel(Func<float, float> interpolation, int destRowIndex, int dataRowIndex)
             {
                 float center = (destRowIndex + 0.5f) * ratio - 0.5f;

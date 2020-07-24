@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -256,6 +257,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the string representation of this <see cref="Color32"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="Color32"/> instance.</returns>
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, ToString of integers is not affected by culture")]
         public override string ToString() => $"{value:X8} [A={A}; R={R}; G={G}; B={B}]";
 
         #endregion

@@ -18,7 +18,7 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -122,19 +122,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal override ref byte GetPinnableReference()
-        {
 #if NET35 || NET40 || NET45 || NETCOREAPP2_0
+        [SecuritySafeCritical]
+        internal override unsafe ref byte GetPinnableReference()
+        {
             ref TColor head = ref Buffer.GetPinnableReference();
-            unsafe
-            {
-                fixed (TColor* pHead = &head)
-                    return ref *(byte*)pHead;
-            } 
-#else
-            return ref Unsafe.As<TColor, byte>(ref Buffer.GetPinnableReference());
-#endif
+            fixed (TColor* pHead = &head)
+                return ref *(byte*)pHead;
         }
+#else
+        internal override ref byte GetPinnableReference()
+            => ref Unsafe.As<TColor, byte>(ref Buffer.GetPinnableReference());
+#endif
 
         #endregion
 

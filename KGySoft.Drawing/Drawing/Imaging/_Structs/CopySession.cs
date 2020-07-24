@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -411,6 +412,7 @@ namespace KGySoft.Drawing.Imaging
             return true;
         }
 
+        [SecuritySafeCritical]
         private unsafe void PerformCopyRaw()
         {
             Debug.Assert(Source is NativeBitmapDataBase || Source is ManagedBitmapDataBase);
@@ -445,6 +447,9 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SecurityCritical]
+        [SuppressMessage("Microsoft.Security", "CA2140:Transparent code must not reference security critical items",
+            Justification = "False alarm, SecurityCritical is applied**")]
         private unsafe void DoCopyRaw(int sourceStride, int targetStride, byte* sourceOrigin, byte* targetOrigin)
         {
             // Sequential processing
@@ -458,6 +463,7 @@ namespace KGySoft.Drawing.Imaging
                     pSrc += sourceStride;
                     pDst += targetStride;
                 }
+
                 return;
             }
 
