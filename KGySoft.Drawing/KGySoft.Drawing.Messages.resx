@@ -141,6 +141,9 @@
   <data name="Gdi32_InvalidWmfHandle" xml:space="preserve">
     <value>Invalid Windows Metafile handle.</value>
   </data>
+  <data name="GraphicsExtensions_MetafileGraphicsNotSupported" xml:space="preserve">
+    <value>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</value>
+  </data>
   <data name="User32_InvalidHandle" xml:space="preserve">
     <value>Invalid handle.</value>
   </data>

@@ -20,7 +20,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Security;
+
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
@@ -166,8 +168,11 @@ namespace KGySoft.Drawing
                 targetHeight = (int)visibleRect.Height;
 
                 // there is a source image: copying so transparency is preserved
-                if (graphics.GetBackingImage() is Bitmap imgSource)
+                Image imgSource = graphics.GetBackingImage();
+                if (imgSource != null)
                 {
+                    if (imgSource is Metafile)
+                        throw new NotSupportedException(Res.GraphicsExtensionsToBitmapMetafileNotSupported);
                     if (!visibleClipOnly)
                         return (Bitmap)imgSource.Clone();
 
@@ -175,7 +180,7 @@ namespace KGySoft.Drawing
                         return null;
 
                     result = new Bitmap(targetWidth, targetHeight, imgSource.PixelFormat);
-                    using IReadableBitmapData src = imgSource.GetReadableBitmapData();
+                    using IReadableBitmapData src = ((Bitmap)imgSource).GetReadableBitmapData();
                     using IWritableBitmapData dst = result.GetWritableBitmapData();
                     src.CopyTo(dst, new Rectangle(sourceLeft, sourceTop, targetWidth, targetHeight), Point.Empty);
                     return result;

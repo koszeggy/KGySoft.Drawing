@@ -19,6 +19,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+
 using NUnit.Framework;
 
 #endregion
@@ -192,22 +193,22 @@ namespace KGySoft.Drawing.UnitTests
                 using (var g = Graphics.FromImage(refBmp))
                 {
                     var bmp = g.ToBitmap(false);
-                    SaveImage("FromBitmap full", bmp);
+                    SaveImage("From Bitmap full", bmp);
 
                     g.IntersectClip(new Rectangle(32, 32, 192, 192));
                     bmp = g.ToBitmap(true);
-                    SaveImage("FromBitmap clipped", bmp);
+                    SaveImage("From Bitmap clipped", bmp);
                 }
 
                 // from screen
                 using (var g = Graphics.FromHwnd(IntPtr.Zero))
                 {
                     var bmp = g.ToBitmap(false);
-                    SaveImage("FromFullScreen", bmp);
+                    SaveImage("From full screen", bmp);
 
                     g.IntersectClip(new Rectangle(100, 100, 100, 50));
                     bmp = g.ToBitmap(true);
-                    SaveImage("FromFullScreenWithClip", bmp);
+                    SaveImage("From full screen clipped", bmp);
                 }
             }, PlatformID.Win32NT);
         }

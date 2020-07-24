@@ -77,6 +77,13 @@ namespace KGySoft
 
         #endregion
 
+        #region GraphicsExtensions
+
+        /// <summary>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</summary>
+        internal static string GraphicsExtensionsToBitmapMetafileNotSupported => Get("GraphicsExtensions_MetafileGraphicsNotSupported");
+
+        #endregion
+
         #region IconExtensions
 
         /// <summary>Length of images and transparentColors must be the same.</summary>

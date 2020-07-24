@@ -29,9 +29,11 @@
   + New Resize overload that does not use Graphics.DrawImage internally and thus it does not use a process-wide lock
   - Clear, TransformColors methods: Fixing result with ditherers that rely on actual content
 ! GraphicsExtensions class:
-  ! ToBitmap method: If the Graphics belongs to a Bitmap, and there is any clipping on Graphics, then the result
-    Bitmap preserves original PixelFormat instead of always returning a Format32bppArgb Bitmap.
-  * No Graphics.DrawImage is used internally anymore.
+  ! ToBitmap method:
+    ! If the Graphics belongs to a Bitmap, and there is any clipping on Graphics, then the result Bitmap preserves
+      original PixelFormat instead of always returning a Format32bppArgb Bitmap.
+    ! If the Graphics belongs to a Metafile a NotSupportedException is thrown instead of returning null.
+    * No Graphics.DrawImage is used internally anymore.
 * MetafileExtensions class:
   + New ToBitmap overload with keepAspectRatio parameter
   * Using custom resizing for anti-aliasing to prevent process-wide locking used by Graphics.DrawImage
