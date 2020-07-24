@@ -40,12 +40,6 @@ namespace KGySoft.Drawing
     [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
     public static class ImageExtensions
     {
-        #region Constants
-
-        private const int parallelThreshold = 100;
-
-        #endregion
-
         #region Fields
 
         private static ImageCodecInfo[] encoders = ImageCodecInfo.GetImageEncoders();

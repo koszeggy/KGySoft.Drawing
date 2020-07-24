@@ -51,9 +51,11 @@
   already existing BitmapExtensions and ImageExtensions classes such as DrawInto/Quantize/Dither/Clear/etc,
   as well as adding some new methods such as CopyTo/Clip/Clone
 + Color32 struct: new ToOpaque method
++ Palette class: new static members for creating a Palette from common color sets.
 + PredefinedColorsQuantizer class:
   + New Argb8888 method
   + The FromBitmapData method has been made public
+  + New FromPixelFormat method
 
 
 ~~~~~~~~~

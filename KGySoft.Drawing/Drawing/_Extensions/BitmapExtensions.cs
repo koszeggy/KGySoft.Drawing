@@ -366,7 +366,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <seealso cref="GetWritableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
             => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
 
@@ -387,7 +387,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
             => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
 
@@ -420,7 +420,7 @@ namespace KGySoft.Drawing
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
         /// <note type="tip">To create a managed <see cref="IReadWriteBitmapData"/> instance that supports every <see cref="PixelFormat"/>s on any platform
-        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)">BitmapDataFactory.CreateBitmapData</see> method.</note>
+        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)">BitmapDataFactory.CreateBitmapData</see> method.</note>
         /// </remarks>
         /// <example>
         /// <para>The following example demonstrates how easily you can copy the content of a 32-bit ARGB image into an 8-bit indexed one by
@@ -503,7 +503,7 @@ namespace KGySoft.Drawing
         /// </example>
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetWritableBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte, Palette)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
             => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
 

@@ -170,6 +170,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Dither"/>
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
         {
             if (bitmapData == null)
@@ -242,6 +243,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, Color, byte)"/>
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             if (bitmapData == null)

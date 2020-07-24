@@ -69,6 +69,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <seealso cref="BitmapExtensions.Clear(Bitmap, Color, IDitherer, Color, byte)"/>
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null)
         {
             if (bitmapData == null)
@@ -143,7 +144,7 @@ namespace KGySoft.Drawing.Imaging
                     // handling the rest (can be either the last column if width is odd, or even the whole content if RowSize is 0)
                     left = longWidth << 1;
                     if (left < width)
-                        goto default;
+                        ClearDirectFallback(bitmapData, color, left);
 
                     return;
 
@@ -168,7 +169,7 @@ namespace KGySoft.Drawing.Imaging
                     // handling the rest (or even the whole content if RowSize is 0)
                     left = longWidth << 2;
                     if (left < width)
-                        goto default;
+                        ClearDirectFallback(bitmapData, color, left);
 
                     return;
 
@@ -243,31 +244,37 @@ namespace KGySoft.Drawing.Imaging
                 // 64 bit is not handled above because its actual format may depend on actual bitmap data type
                 default:
                     // small width: going with sequential clear
-                    if (width - left < parallelThreshold)
-                    {
-                        IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
-                        do
-                        {
-                            for (int x = left; x < width; x++)
-                                row.DoSetColor32(x, color);
-                        } while (row.MoveNextRow());
-
-                        return;
-                    }
-
-                    // parallel clear
-                    ParallelHelper.For(0, bitmapData.Height, y =>
-                    {
-                        // ReSharper disable once VariableHidesOuterVariable
-                        IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
-                        int l = left;
-                        int w = width;
-                        Color32 c = color;
-                        for (int x = l; x < w; x++)
-                            row.DoSetColor32(x, c);
-                    });
+                    ClearDirectFallback(bitmapData, color, 0);
                     return;
             }
+        }
+
+        private static void ClearDirectFallback(IBitmapDataInternal bitmapData, Color32 color, int offsetLeft)
+        {
+            int width = bitmapData.Width;
+            if (width - offsetLeft < parallelThreshold)
+            {
+                IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                do
+                {
+                    for (int x = offsetLeft; x < width; x++)
+                        row.DoSetColor32(x, color);
+                } while (row.MoveNextRow());
+
+                return;
+            }
+
+            // parallel clear
+            ParallelHelper.For(0, bitmapData.Height, y =>
+            {
+                // ReSharper disable once VariableHidesOuterVariable
+                IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                int l = offsetLeft;
+                int w = width;
+                Color32 c = color;
+                for (int x = l; x < w; x++)
+                    row.DoSetColor32(x, c);
+            });
         }
 
         private static void ClearRaw<T>(IBitmapDataInternal bitmapData, int width, T data)

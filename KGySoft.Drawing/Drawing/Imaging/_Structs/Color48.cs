@@ -26,7 +26,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a 48-bit RGB color.
-    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapExtensions.GetColorCount{T}"/>
+    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapDataExtensions.GetColorCount{T}"/>
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 6)]
     internal readonly struct Color48 : IEquatable<Color48>
