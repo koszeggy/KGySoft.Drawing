@@ -2,13 +2,20 @@
 
   <PropertyGroup>
     <TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
-    <!--<TargetFrameworks>net45</TargetFrameworks>-->
+    <!--<TargetFrameworks>netcoreapp3.0</TargetFrameworks>-->
+
+    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows> 
+
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>KGySoft.Drawing</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <!-- Common NuGet references -->

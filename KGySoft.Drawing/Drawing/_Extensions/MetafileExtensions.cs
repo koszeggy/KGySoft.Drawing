@@ -154,17 +154,27 @@ namespace KGySoft.Drawing
                 targetRectangle.Location = new Point((requestedSize.Width >> 1) - (targetRectangle.Width >> 1), (requestedSize.Height >> 1) - (targetRectangle.Height >> 1));
             }
 
-            if (!antiAliased && sourceSize == targetRectangle.Size)
+            if (!antiAliased && requestedSize == targetRectangle.Size)
                 return new Bitmap(metafile, requestedSize);
 
             var result = new Bitmap(requestedSize.Width, requestedSize.Height);
             if (!antiAliased)
             {
-                using (Graphics g = Graphics.FromImage(result))
+                if (OSUtils.IsWindows)
                 {
-                    // no process-wide lock occurs here because the source image is a Metafile
-                    g.DrawImage(metafile, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
-                    g.Flush();
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        // no process-wide lock occurs here because the source image is a Metafile
+                        g.DrawImage(metafile, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                        g.Flush();
+                    }
+                }
+                else
+                {
+                    // On Linux there comes a NotImplementedException for Graphics.DrawImage(metafile, ...) so creating a temp buffer
+                    // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future proof in case it will be fixed
+                    using (Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height))
+                        buf.DrawInto(result, targetRectangle);
                 }
 
                 return result;

@@ -210,9 +210,9 @@ namespace KGySoft.Drawing.Imaging
             ushort max = Max16BppValue;
             Color64 straight = new Color64(
                 c.A,
-                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.R * max / c.A),
-                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.G * max / c.A),
-                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.B * max / c.A));
+                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)c.R * max / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)c.G * max / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)c.B * max / c.A));
             return ToColor32PlatformDependent(straight);
         }
 

@@ -158,7 +158,9 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format4bppIndexed)]
         [TestCase(PixelFormat.Format8bppIndexed)]
         [TestCase(PixelFormat.Format16bppRgb555)]
+#if WINDOWS
         [TestCase(PixelFormat.Format16bppArgb1555)]
+#endif
         public void DrawIntoNoScalingWithDitheringTest(PixelFormat formatDst)
         {
             var ditherers = new Dictionary<string, IDitherer>
@@ -302,8 +304,10 @@ namespace KGySoft.Drawing.UnitTests
         [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
         [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+#if WINDOWS
         [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
         [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+#endif
         public void DrawIntoWithResizeDitheringTest(PixelFormat formatDst, ScalingMode scalingMode)
         {
             var ditherers = new Dictionary<string, IDitherer>

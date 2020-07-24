@@ -190,27 +190,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(PixelFormat.Format1bppIndexed)]
         public void CloneVsClipTest(PixelFormat pixelFormat)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
-            using (var bitmapData = bmp.GetReadableBitmapData())
+            using var bitmapData = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadableBitmapData().Clone(pixelFormat);
+            using (IReadWriteBitmapData clone = bitmapData.Clone())
             {
-                using (IReadWriteBitmapData clone = bitmapData.Clone())
-                {
-                    AssertAreEqual(bitmapData, clone);
-                    SaveImage($"{pixelFormat} - Complete clone", clone.ToBitmap());
-                }
+                AssertAreEqual(bitmapData, clone);
+                SaveImage($"{pixelFormat} - Complete clone", clone.ToBitmap());
+            }
 
-                var sourceRectangle = new Rectangle(16, 16, 128, 128);
-                using (IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat))
-                {
-                    AssertAreEqual(bitmapData, clone, false, sourceRectangle);
-                    SaveImage($"{pixelFormat} - Clipped clone", clone.ToBitmap());
-                }
+            var sourceRectangle = new Rectangle(16, 16, 128, 128);
+            using (IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat))
+            {
+                AssertAreEqual(bitmapData, clone, false, sourceRectangle);
+                SaveImage($"{pixelFormat} - Clipped clone", clone.ToBitmap());
+            }
 
-                using (IReadableBitmapData clip = bitmapData.Clip(sourceRectangle))
-                {
-                    AssertAreEqual(bitmapData, clip, false, sourceRectangle);
-                    //SaveImage($"{pixelFormat} - Clipping wrapper", clip.ToBitmap());
-                }
+            using (IReadableBitmapData clip = bitmapData.Clip(sourceRectangle))
+            {
+                AssertAreEqual(bitmapData, clip, false, sourceRectangle);
+                //SaveImage($"{pixelFormat} - Clipping wrapper", clip.ToBitmap());
             }
         }
 
