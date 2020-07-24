@@ -258,9 +258,13 @@ namespace KGySoft.Drawing.Imaging
         /// then <see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see> will perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
         public Palette(Color32[] entries, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, int> customGetNearestColorIndex = null)
         {
             Entries = entries ?? throw new ArgumentNullException(nameof(entries), PublicResources.ArgumentNull);
+            if (entries.Length == 0)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(entries));
+
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
 
@@ -325,6 +329,7 @@ namespace KGySoft.Drawing.Imaging
         /// then <see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see> will perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
         public Palette(Color[] entries, Color backColor = default, byte alphaThreshold = 128, Func<Color32, int> customGetNearestColorIndex = null)
             : this(entries?.Select(c => new Color32(c)).ToArray(), new Color32(backColor), alphaThreshold, customGetNearestColorIndex)
         {

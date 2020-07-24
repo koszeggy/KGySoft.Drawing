@@ -23,6 +23,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Reflection;
 
 #endregion
 
@@ -1006,7 +1007,8 @@ namespace KGySoft.Drawing.Imaging
 
                 // here we need to pick a quantizer for the dithering
                 int bpp = pixelFormat.ToBitsPerPixel();
-                quantizer = bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp)
+                Color32[] paletteEntries = source.Palette?.Entries ?? Reflector.EmptyArray<Color32>();
+                quantizer = bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp)
                     ? PredefinedColorsQuantizer.FromCustomPalette(source.Palette)
                     : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
             }

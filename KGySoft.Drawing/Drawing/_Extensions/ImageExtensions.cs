@@ -661,8 +661,8 @@ namespace KGySoft.Drawing
                     // here we need to pick a quantizer for the dithering
                     int bpp = newPixelFormat.ToBitsPerPixel();
 
-                    paletteEntries = bmp.Palette?.Entries;
-                    if (bpp <= 8 && paletteEntries?.Length <= (1 << bpp))
+                    paletteEntries = bmp.Palette?.Entries ?? Reflector.EmptyArray<Color>();
+                    if (bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp))
                         quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
                     else
                     {
@@ -1859,7 +1859,7 @@ namespace KGySoft.Drawing
                 // ReSharper disable once ConstantConditionalAccessQualifier
                 palette = source.Palette?.Entries;
 
-            if (palette == null || palette.Length <= 0)
+            if (palette == null || palette.Length == 0)
                 return;
 
             // there is a desired palette to apply
