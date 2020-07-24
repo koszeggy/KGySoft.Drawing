@@ -224,6 +224,8 @@ namespace KGySoft.Drawing.Imaging
                 return result;
             }
 
+            public void Dispose() => root = null;
+
             #endregion
 
             #region Private Methods

@@ -120,12 +120,12 @@ namespace KGySoft.Drawing.PerformanceTests
             new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()}", Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmpRef.Clone();
+                    using var result = bmpRef.CloneBitmap();
                     result.Quantize(quantizer);
                 }, "BitmapExtensions.Quantize")
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmpRef.Clone();
+                    using var result = bmpRef.CloneBitmap();
                     using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession session = quantizer.Initialize(bitmapData))
                     {
@@ -142,6 +142,35 @@ namespace KGySoft.Drawing.PerformanceTests
                 .DumpResults(Console.Out);
         }
 
+        [Test]
+        public void QuantizersPerformanceTest()
+        {
+            using var bmpRef = Icons.Information.ExtractBitmap(new Size(256, 256));
+            new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()}", Iterations = 25, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var result = bmpRef.CloneBitmap();
+                    result.Quantize(PredefinedColorsQuantizer.SystemDefault8BppPalette());
+                }, nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette))
+                .AddCase(() =>
+                {
+                    using var result = bmpRef.CloneBitmap();
+                    result.Quantize(OptimizedPaletteQuantizer.Octree());
+                }, nameof(OptimizedPaletteQuantizer.Octree))
+                .AddCase(() =>
+                {
+                    using var result = bmpRef.CloneBitmap();
+                    result.Quantize(OptimizedPaletteQuantizer.MedianCut());
+                }, nameof(OptimizedPaletteQuantizer.MedianCut))
+                .AddCase(() =>
+                {
+                    using var result = bmpRef.CloneBitmap();
+                    result.Quantize(OptimizedPaletteQuantizer.Wu());
+                }, nameof(OptimizedPaletteQuantizer.Wu))
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
         [TestCase(true)]
         [TestCase(false)]
         public void DitherPerformanceTest(bool errorDiffusion)
@@ -152,12 +181,12 @@ namespace KGySoft.Drawing.PerformanceTests
             new PerformanceTest { TestName = $"{bmpRef.Width}x{bmpRef.Height}@{bmpRef.GetColorCount()} {(errorDiffusion ? "Error Diffusion" : "Ordered")}", Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmpRef.Clone();
+                    using var result = bmpRef.CloneBitmap();
                     result.Dither(quantizer, ditherer);
                 }, "BitmapExtensions.Dither")
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmpRef.Clone();
+                    using var result = bmpRef.CloneBitmap();
                     using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession))
@@ -182,17 +211,17 @@ namespace KGySoft.Drawing.PerformanceTests
             new PerformanceTest { Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     result.MakeTransparent(Color.Black);
                 }, "Bitmap.MakeTransparent")
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     result.ReplaceColor(Color.Black, Color.Transparent);
                 }, "BitmapExtensions.ReplaceColor")
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     {
                         Color32 from = new Color32(Color.Black);
@@ -221,12 +250,12 @@ namespace KGySoft.Drawing.PerformanceTests
             new PerformanceTest { Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     result.AdjustBrightness(brightness);
                 }, "BitmapExtensions.AdjustBrightness")
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     using (Graphics g = Graphics.FromImage(result))
                     {
                         var br = brightness + 1;
@@ -259,12 +288,12 @@ namespace KGySoft.Drawing.PerformanceTests
             new PerformanceTest { Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     result.AdjustContrast(contrast);
                 }, "BitmapExtensions.AdjustContrast")
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     using (Graphics g = Graphics.FromImage(result))
                     {
                         var c = contrast + 1;
@@ -297,12 +326,12 @@ namespace KGySoft.Drawing.PerformanceTests
             new PerformanceTest { Iterations = 100, CpuAffinity = null }
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     result.AdjustGamma(gamma);
                 }, "BitmapExtensions.AdjustGamma")
                 .AddCase(() =>
                 {
-                    using var result = (Bitmap)bmp.Clone();
+                    using var result = bmp.CloneBitmap();
                     using (Graphics g = Graphics.FromImage(result))
                     {
                         using (var attrs = new ImageAttributes())

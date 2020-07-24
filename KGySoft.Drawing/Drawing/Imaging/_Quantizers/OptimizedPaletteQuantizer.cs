@@ -148,7 +148,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Nested interfaces
 
-        private interface IOptimizedPaletteQuantizer
+        private interface IOptimizedPaletteQuantizer : IDisposable
         {
             #region Methods
 
@@ -209,7 +209,7 @@ namespace KGySoft.Drawing.Imaging
 
             private Palette InitializePalette(IReadableBitmapData source)
             {
-                TAlg alg = new TAlg();
+                using TAlg alg = new TAlg();
                 alg.Initialize(quantizer.maxColors, source);
                 int width = source.Width;
                 IReadableBitmapDataRow row = source.FirstRow;
