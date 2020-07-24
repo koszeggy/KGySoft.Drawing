@@ -18,7 +18,10 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Security;
+using System.Runtime.CompilerServices;
+#if NET35 || NET40 || NET45 || NETCOREAPP2_0
+using System.Security; 
+#endif
 
 using KGySoft.Collections;
 
