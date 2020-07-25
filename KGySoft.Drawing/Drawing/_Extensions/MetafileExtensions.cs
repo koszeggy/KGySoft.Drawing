@@ -119,7 +119,7 @@ namespace KGySoft.Drawing
         #region Public Methods
 
         /// <summary>
-        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance provided in the <paramref name="metafile"/> parameter.
+        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance specified in the <paramref name="metafile"/> parameter.
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
         /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>. This overload does not maintain aspect ratio.</param>
@@ -129,7 +129,7 @@ namespace KGySoft.Drawing
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false) => ToBitmap(metafile, requestedSize, antiAliased, false);
 
         /// <summary>
-        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance provided in the <paramref name="metafile"/> parameter.
+        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance specified in the <paramref name="metafile"/> parameter.
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
         /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>.</param>

@@ -14,19 +14,19 @@
         Auto,
 
         /// <summary>
-        /// Represents no scaling. When source and target sizes are different, then clipping might occur
+        /// Represents no scaling. When source and target sizes are different, then clipping might occur.
         /// </summary>
         NoScaling,
 
         /// <summary>
         /// Represents the nearest neighbor scaling mode, which always selects the closest pixel when scaling.
-        /// This is the fastest scaling mode but provides the poorest quality.
+        /// Apart from <see cref="NoScaling"/> this is the fastest scaling mode but provides the poorest quality.
         /// </summary>
         NearestNeighbor,
 
         /// <summary>
         /// Represents box scaling mode. When downscaling, the pixels will average.
-        /// When upscaling, the result is identical to nearest neighbor.
+        /// When upscaling, the result is identical to <see cref="NearestNeighbor"/>.
         /// </summary>
         Box,
 

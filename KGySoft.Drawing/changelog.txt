@@ -27,23 +27,24 @@
 ! BitmapExtensions class:
   ! The old Resize method returns a Bitmap with Format32bppPArgb pixel format instead of Format32bppArgb.
   + New Resize overload that does not use Graphics.DrawImage internally and thus it does not use a process-wide lock
-  - Clear, TransformColors methods: Fixing result with ditherers that rely on actual content
+  - Clear methods: Fixing result with ditherers that rely on actual content
+  - TransformColors methods: Fixing result with ditherers that rely on actual content
 ! GraphicsExtensions class:
   ! ToBitmap method:
     ! If the Graphics belongs to a Bitmap, and there is any clipping on Graphics, then the result Bitmap preserves
       original PixelFormat instead of always returning a Format32bppArgb Bitmap.
     ! If the Graphics belongs to a Metafile a NotSupportedException is thrown instead of returning null.
-    * No Graphics.DrawImage is used internally anymore.
+    * No Graphics.DrawImage is used internally anymore to avoid using process-wide locks.
 * MetafileExtensions class:
   + New ToBitmap overload with keepAspectRatio parameter
-  * Using custom resizing for anti-aliasing to prevent process-wide locking used by Graphics.DrawImage
-+ New ScalingMode enum for Resize, DrawInto, DrawImage and DrawBitmapData extension methods
+  * Using custom resizing for anti-aliasing to prevent process-wide locking caused by Graphics.DrawImage
++ New ScalingMode enum for Resize and DrawInto extension methods
 
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
-! IBitmapData interface: BackColor and AlphaThreshold properties are now exposed by this interface. You can
-  define these when you use the Get[Readable/Writable/ReadWrite]BitmapData methods anyway.
-! New IQuantized/IDitherer property: InitializeReliesOnContent - when returns false it helps to optimize performance
+! IBitmapData interface: BackColor and AlphaThreshold properties are now exposed by this interface. These are the
+  same values that you can specify when using the Get[Readable/Writable/ReadWrite]BitmapData methods.
+! IQuantizer/IDitherer: new InitializeReliesOnContent property - when returns false it helps to optimize performance
   when quantizing/dithering is used for resizing or with blended sources.
 + The BitmapDataFactory class has been made public. From now on you can create completely managed bitmap data on any
   platform with any pixel format.
@@ -51,7 +52,7 @@
   already existing BitmapExtensions and ImageExtensions classes such as DrawInto/Quantize/Dither/Clear/etc,
   as well as adding some new methods such as CopyTo/Clip/Clone
 + Color32 struct: new ToOpaque method
-+ Palette class: new static members for creating a Palette from common color sets.
++ Palette class: new static members for creating a Palette with common color entries.
 + PredefinedColorsQuantizer class:
   + New Argb8888 method
   + The FromBitmapData method has been made public

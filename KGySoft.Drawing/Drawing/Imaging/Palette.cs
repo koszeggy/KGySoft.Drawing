@@ -394,7 +394,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 1-bit palette.
         /// On Windows this palette consists of the black and white colors.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details and some examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.

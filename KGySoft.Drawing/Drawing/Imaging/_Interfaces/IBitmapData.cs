@@ -79,20 +79,20 @@ namespace KGySoft.Drawing.Imaging
         /// Otherwise, <see cref="RowSize"/> is similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property never returns a negative value.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
+        /// <remarks>
         /// <para>This property can be useful when accessing the bitmap data by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</para>
         /// <para>As <see cref="IBitmapData"/> can represent also a managed bitmap data, row size is not guaranteed to be a multiple of 4.</para>
         /// <note>
         /// <para>This property can return 0 if the current <see cref="IBitmapData"/> instance represents a bitmap data without actual raw data or represents a clipped
         /// region where the left edge of the clipping has an offset compared to the original bitmap data.</para>
         /// <para>Even if this property returns a nonzero value, it is possible that raw access does not cover the few last columns.
-        /// This may occur in case of indexed <see cref="PixelFormat"/>s if the bitmap data is clipped.</para>
+        /// This may occur in case of indexed <see cref="PixelFormat"/>s if the bitmap data is clipped and the right edge of the clipping does not fall at byte boundary.</para>
         /// </note>
-        /// <remarks>
         /// </remarks>
         int RowSize { get; }
 
         /// <summary>
-        /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, it specifies the color of the background.
+        /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, it gets the color of the background.
         /// For example, when setting color values with alpha, which are considered opaque the color to set will be blended with this color before setting the pixel.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method for details and examples.
         /// </summary>

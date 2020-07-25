@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="clippingRegion"/> has no overlapping region with source bounds.</exception>
         /// <remarks>
         /// <para>The <see cref="IBitmapData.RowSize"/> property of the returned instance can be 0, indicating that the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see>
-        /// method cannot be used. It can occur with indexed <see cref="IBitmapData.PixelFormat"/>s if the left edge of the clipping is not on byte boundary.</para>
+        /// method cannot be used. It can occur if the left edge of the clipping is not zero.</para>
         /// <para>Even if <see cref="IBitmapData.RowSize"/> property of the returned instance is a nonzero value it can happen that it is too low to access all columns
         /// by the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method. It can occur with indexed <see cref="IBitmapData.PixelFormat"/>s if the right edge of the clipping is not on byte boundary.</para>
         /// </remarks>
@@ -91,19 +91,19 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Tries to the set the specified <paramref name="palette"/> for this <seealso cref="IWritableBitmapData"/>.
+        /// Tries to the set the specified <paramref name="palette"/> for this <see cref="IWritableBitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="bitmapData">The <seealso cref="IWritableBitmapData"/> whose <see cref="IBitmapData.Palette"/> should be set.</param>
+        /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> whose <see cref="IBitmapData.Palette"/> should be set.</param>
         /// <param name="palette">A <see cref="Palette"/> instance to set.</param>
-        /// <returns><see langword="true"/>&#160;<paramref name="palette"/> can be set as the <seealso cref="IBitmapData.Palette"/> of this <paramref name="bitmapData"/>; otherwise, <see langword="false"/>.</returns>
+        /// <returns><see langword="true"/>&#160;<paramref name="palette"/> can be set as the <see cref="IBitmapData.Palette"/> of this <paramref name="bitmapData"/>; otherwise, <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>Setting may fail if <paramref name="bitmapData"/> <see cref="IBitmapData.PixelFormat"/> is not an indexed one,
-        /// the number of entries in <paramref name="palette"/> is less than <see cref="Palette.Count"/> of the current <seealso cref="IBitmapData.Palette"/>,
+        /// <para>Setting may fail if <paramref name="bitmapData"/>&#160;<see cref="IBitmapData.PixelFormat"/> is not an indexed one,
+        /// the number of entries in <paramref name="palette"/> is less than <see cref="Palette.Count"/> of the current <see cref="IBitmapData.Palette"/>,
         /// the number of entries in <paramref name="palette"/> is larger than the possible maximum number of colors of the current <see cref="IBitmapData.PixelFormat"/>,
-        /// or when the current <seealso cref="IWritableBitmapData"/> does not support setting the palette.</para>
+        /// or when the current <see cref="IWritableBitmapData"/> does not support setting the palette.</para>
         /// <para>The <see cref="Palette.BackColor">Palette.BackColor</see> and <see cref="Palette.AlphaThreshold">Palette.AlphaThreshold</see> properties of the <see cref="IBitmapData.Palette"/> property will
-        /// continue to return the same value as the original <see cref="IBitmapData.BackColor"/> and <seealso cref="IBitmapData.AlphaThreshold"/> values of this <paramref name="bitmapData"/>.</para>
+        /// continue to return the same value as the original <see cref="IBitmapData.BackColor"/> and <see cref="IBitmapData.AlphaThreshold"/> values of this <paramref name="bitmapData"/>.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         public static bool TrySetPalette(this IWritableBitmapData bitmapData, Palette palette)

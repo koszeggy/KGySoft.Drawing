@@ -24,6 +24,10 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Provides extension methods for the <see cref="IReadableBitmapData"/>, <see cref="IWritableBitmapData"/>
+    /// and <see cref="IReadWriteBitmapData"/> types.
+    /// </summary>
     public static partial class BitmapDataExtensions
     {
         #region Constants
@@ -39,12 +43,6 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Methods
 
         internal static Size GetSize(this IBitmapData bitmapData) => bitmapData == null ? default : new Size(bitmapData.Width, bitmapData.Height);
-
-        internal static bool HasAlpha(this IBitmapData bitmapData)
-        {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
-        }
 
         internal static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
         {
@@ -62,6 +60,12 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Private Methods
+
+        private static bool HasAlpha(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
+        }
 
         private static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
             where TBitmapData : IBitmapData

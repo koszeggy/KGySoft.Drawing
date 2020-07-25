@@ -32,7 +32,7 @@ using KGySoft.Drawing.WinApi;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="Icon"/> type.
+    /// Provides extension methods for the <see cref="Icon"/> type.
     /// </summary>
     public static class IconExtensions
     {

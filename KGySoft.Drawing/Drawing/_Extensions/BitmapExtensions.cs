@@ -25,7 +25,6 @@ using System.Drawing.Imaging;
 using System.Linq;
 using System.Security;
 
-using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
@@ -35,7 +34,7 @@ using KGySoft.Drawing.WinApi;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="Bitmap"/> type.
+    /// Provides extension methods for the <see cref="Bitmap"/> type.
     /// </summary>
     [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
     public static class BitmapExtensions
@@ -113,9 +112,9 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
         /// <remarks>
-        /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/> <see cref="PixelFormat"/>. To resize an image
+        /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/>&#160;<see cref="PixelFormat"/>. To resize an image
         /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
-        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto(Image, Bitmap, Rectangle, Rectangle, ScalingMode)">DrawInto</see> extension methods.</para>
+        /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods.</para>
         /// <para>Generally, the best quality result can be achieved by the <see cref="Resize(Bitmap, Size, bool)"/> overload, which
         /// uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally. On Windows some <see cref="Graphics"/>
         /// members use process-wide locks, which prevent them to be called concurrently without blocking. If that can be an issue you should use this overload.</para>
@@ -253,12 +252,13 @@ namespace KGySoft.Drawing
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The bitmap, whose colors have to be returned. If it is indexed and the <paramref name="forceScanningContent"/> parameter is <see langword="false"/>,
-        /// then its palette is returned and <paramref name="maxColors"/> is ignored.</param>
+        /// then its palette entries are returned and <paramref name="maxColors"/> is ignored.</param>
         /// <param name="maxColors">A limit of the returned colors. If <paramref name="forceScanningContent"/> parameter is <see langword="false"/>, then
         /// this parameter is ignored for indexed bitmaps. Use 0 for no limit. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <param name="forceScanningContent"><see langword="true"/>&#160;to force scanning the actual image content even if the specified <paramref name="bitmap"/> is
-        /// indexed and has a palette.</param>
+        /// indexed and has a palette. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Color"/> entries.</returns>
         /// <remarks>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
@@ -712,7 +712,7 @@ namespace KGySoft.Drawing
         /// bmp.TransformColors(c => c.ToGray(),
         ///     ErrorDiffusionDitherer.FloydSteinberg.ConfigureErrorDiffusionMode(byBrightness: true));
         ///
-        /// // If ditherer was not null now the result is generated using the original palette
+        /// // As ditherer was not null now the result is generated using the original palette
         /// bmp.SaveAsGif(@"c:\temp\after.gif");]]></code>
         /// <para>The example above produces the following results:
         /// <list type="table">
@@ -873,7 +873,7 @@ namespace KGySoft.Drawing
         /// // Try different brightness values and ColorChannels, too.
         /// bmp.AdjustBrightness(-0.5f, ErrorDiffusionDitherer.FloydSteinberg, ColorChannels.Rgb);
         ///
-        /// // If ditherer was not null now the result is generated using the original palette
+        /// // As ditherer was not null now the result is generated using the original palette
         /// bmp.SaveAsGif(@"c:\temp\after.gif");]]></code>
         /// <para>The example above produces the following results:
         /// <list type="table">
@@ -931,7 +931,7 @@ namespace KGySoft.Drawing
         /// // Try different contrast values and ColorChannels, too.
         /// bmp.AdjustContrast(-0.5f, ErrorDiffusionDitherer.FloydSteinberg, ColorChannels.Rgb);
         ///
-        /// // If ditherer was not null now the result is generated using the original palette
+        /// // As ditherer was not null now the result is generated using the original palette
         /// bmp.SaveAsGif(@"c:\temp\after.gif");]]></code>
         /// <para>The example above produces the following results:
         /// <list type="table">
@@ -989,7 +989,7 @@ namespace KGySoft.Drawing
         /// // Try different values and ColorChannels, too.
         /// bmp.AdjustGamma(0.5f, ErrorDiffusionDitherer.FloydSteinberg, ColorChannels.Rgb);
         ///
-        /// // If ditherer was not null now the result is generated using the original palette
+        /// // As ditherer was not null now the result is generated using the original palette
         /// bmp.SaveAsGif(@"c:\temp\after.gif");]]></code>
         /// <para>The example above produces the following results:
         /// <list type="table">

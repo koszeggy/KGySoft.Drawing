@@ -126,7 +126,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Copies the <see cref="Graphics"/> object provided in <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
+        /// Copies the <see cref="Graphics"/> object specified in the <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> instance to be converted.</param>
         /// <param name="visibleClipOnly">When <see langword="true"/>, the result will contain only the area represented by <see cref="Graphics.VisibleClipBounds"/> property. When <see langword="false"/>,
@@ -137,6 +137,7 @@ namespace KGySoft.Drawing
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
+        /// <exception cref="NotSupportedException"><paramref name="graphics"/> belongs to a <see cref="Metafile"/>, which cannot be accessed until the <paramref name="graphics"/> is disposed.</exception>
         [SecuritySafeCritical]
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)

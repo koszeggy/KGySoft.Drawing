@@ -94,6 +94,8 @@ namespace KGySoft.Drawing.UnitTests
 
         private static readonly object[][] quantizerBatchTestSource =
         {
+            new object[] { "ARGB888 Black 50%", PredefinedColorsQuantizer.Argb8888(), Int32.MaxValue },
+            new object[] { "ARGB888 Silver 1", PredefinedColorsQuantizer.Argb8888(Color.Silver, 1), Int32.MaxValue },
             new object[] { "RGB888 Black", PredefinedColorsQuantizer.Rgb888(), 1 << 24 },
             new object[] { "RGB888 White", PredefinedColorsQuantizer.Rgb888(Color.White), 1 << 24 },
             new object[] { "RGB565 Black", PredefinedColorsQuantizer.Rgb565(), 1 << 16 },
@@ -403,8 +405,8 @@ namespace KGySoft.Drawing.UnitTests
         {
             string[] files =
             {
-                @"..\..\..\..\KGySoft.Drawing\Help\Images\Information256.png",
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Shield256.png",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Information256.png",
+                @"..\..\..\..\KGySoft.Drawing\Help\Images\Shield256.png",
                 @"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png",
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\Cameraman.png",

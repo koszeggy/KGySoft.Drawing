@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="clippingRegion"/> has no overlapping region with source bounds.</exception>
         /// <remarks>
         /// <para>The <see cref="IBitmapData.RowSize"/> property of the returned instance can be 0, indicating that the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see>/<see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see>
-        /// methods cannot be used. It can occur with indexed <see cref="IBitmapData.PixelFormat"/>s if the left edge of the clipping is not on byte boundary.</para>
+        /// method cannot be used. It can occur if the left edge of the clipping is not zero.</para>
         /// <para>Even if <see cref="IBitmapData.RowSize"/> property of the returned instance is a nonzero value it can happen that it is too low to access all columns
         /// by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see>/<see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods. It can occur with indexed <see cref="IBitmapData.PixelFormat"/>s if the right edge of the clipping is not on byte boundary.</para>
         /// </remarks>
@@ -464,7 +464,7 @@ namespace KGySoft.Drawing.Imaging
         /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
         /// color of the bottom-left pixel will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData)">ToTransparent</see> method instead,
-        /// which returns a new instance with <see cref="PixelFormat.Format32bppArgb"/> <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// which returns a new instance with <see cref="PixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> overload instead.</para>
         /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For any customization use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32})">TransformColors</see> method instead.</note>
@@ -497,7 +497,7 @@ namespace KGySoft.Drawing.Imaging
         /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
         /// <paramref name="transparentColor"/> will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData,Color32)">ToTransparent</see> method instead,
-        /// which returns a new instance with <see cref="PixelFormat.Format32bppArgb"/> <see cref="IBitmapData.PixelFormat"/>.</para>
+        /// which returns a new instance with <see cref="PixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
         /// <para>To auto-detect the background color to be made transparent use the <see cref="MakeTransparent(IReadWriteBitmapData)"/> overload instead.</para>
         /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For any customization use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32})">TransformColors</see> method instead.</note>

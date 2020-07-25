@@ -195,19 +195,86 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to the 32-bit ARGB color space.
-        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
+        /// <param name="backColor">Determines the <see cref="IQuantizingSession.BackColor"/> property of the returned quantizer.
+        /// Considering that this quantizer can return alpha colors it has effect only when the returned quantizer is used with
+        /// a ditherer that does not support partial transparency.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color
+        /// is considered completely transparent. If 0, then the quantized colors will preserve their original alpha value. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to the 32-bit ARGB color space.</returns>
         /// <remarks>
-        /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space.
-        /// It is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,PixelFormat,IQuantizer,IDitherer)">Clone</see>),
+        /// <para>If <paramref name="alphaThreshold"/> is zero, then the returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space
+        /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,PixelFormat,IQuantizer,IDitherer)">Clone</see>),
         /// which could possibly preserve wide color information (<see cref="PixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
+        /// <para>If <paramref name="alphaThreshold"/> is not zero, then every partially transparent pixel with lower <see cref="Color.A">Color.A</see> value than the threshold will turn completely transparent.</para>
         /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// </remarks>
+        /// <example>
+        /// The following example demonstrates how to use the quantizer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToArgb8888(Bitmap source, Color backColor = default,
+        ///     byte alphaThreshold = 128, IDitherer ditherer = null)
+        /// {
+        ///     IQuantizer quantizer = PredefinedColorsQuantizer.Argb8888(backColor, alphaThreshold);
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(PixelFormat.Format32bppArgb, quantizer, ditherer);
+        ///
+        ///     // b.) when converting to Format32bppArgb format without dithering, this produces the same result:
+        ///     if (ditherer == null && alphaThreshold == 0)
+        ///         return source.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+        ///
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     if (ditherer == null)
+        ///         source.Quantize(quantizer);
+        ///     else
+        ///         source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientArgb8888BlackA128.png" alt="Color hues with ARGB8888 pixel format, black background and default alpha threshold"/>
+        /// <br/>Default optional parameter values (black background, alpha threshold = 128). The top-half of the image preserved the original transparency,
+        /// while bottom half turned completely transparent. Without dithering the back color is irrelevant.</para>
+        /// <para><img src="../Help/Images/AlphaGradientArgb8888SilverA1.png" alt="Color hues with ARGB8888 pixel format, silver background and alpha threshold = 1"/>
+        /// <br/>Silver background, alpha threshold = 1. Only the bottom line is completely transparent, otherwise the image preserved its original transparency,
+        /// so the result is practically the same as the original image. Without dithering the back color is irrelevant.</para>
+        /// <para><img src="../Help/Images/AlphaGradientArgb8888SilverDitheredA1.png" alt="Color hues with ARGB8888 pixel format, silver background, alpha threshold = 1, using Bayer 8x8 ordered dithering"/>
+        /// <br/>Silver background, alpha threshold = 1, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.
+        /// As dithering does not support partial transparency only the bottom line is transparent, otherwise the image was blended with back color.
+        /// No dithering pattern appeared in the result due to the auto <see cref="OrderedDitherer.ConfigureStrength">strength</see> calibration.
+        /// This also demonstrates why dithering is practically useless for true color results.</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
+        /// <br/>Shield icon with transparency</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/ShieldArgb8888lackA128.png" alt="Shield icon with ARGB8888 pixel format, black background and default alpha threshold"/>
+        /// <br/>Default optional parameter values (black background, alpha threshold = 128). Without dithering the back color is irrelevant but pixels with alpha &lt; 128 turned completely transparent.</para>
+        /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with ARGB8888 pixel format, silver background and alpha threshold = 1"/>
+        /// <br/>Silver background, alpha threshold = 1. Practically the same as the original image. Without dithering the back color is irrelevant.</para>
+        /// <para><img src="../Help/Images/ShieldArgb8888SilverA1Dithered.png" alt="Shield icon with ARGB8888 pixel format, silver background, alpha threshold = 1, using Floyd-Steinberg dithering"/>
+        /// <br/>Silver background, alpha threshold = 1, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
+        /// As dithering does not support partial transparency alpha pixels were blended with back color. No dithering pattern appeared in the result as there was no quantization error during the process.
+        /// This also demonstrates why dithering is practically useless for true color results.</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// </example>
         public static PredefinedColorsQuantizer Argb8888(Color backColor = default, byte alphaThreshold = 128)
         {
-            // just returning the color without blending
-            static Color32 Quantize(Color32 c) => c;
+            Color32 Quantize(Color32 c) => c.A < alphaThreshold ? default : c;
 
             return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format32bppArgb, new Color32(backColor), alphaThreshold, false);
         }
@@ -280,6 +347,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where red,
         /// green and blue components are encoded in 5, 6 and 5 bits, respectively.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -351,6 +419,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where each color component is encoded in 5 bits.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -422,6 +491,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where alpha, red,
         /// green and blue components are encoded in 1, 5, 5 and 5 bits, respectively.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before quantization.
@@ -467,11 +537,11 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Color hues with alpha gradient</para></div></term>
         /// <term>
         /// <div style="text-align:center;width:512px">
-        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverBlackA128.png" alt="Color hues with ARGB1555 pixel format, black background and default alpha threshold"/>
+        /// <para><img src="../Help/Images/AlphaGradientArgb1555BlackA128.png" alt="Color hues with ARGB1555 pixel format, black background and default alpha threshold"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128). The bottom half of the image is transparent.</para>
-        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverSilverA1.png" alt="Color hues with ARGB1555 pixel format, silver background and alpha threshold = 1"/>
+        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverA1.png" alt="Color hues with ARGB1555 pixel format, silver background and alpha threshold = 1"/>
         /// <br/>Silver background, alpha threshold = 1. Only the bottom line is transparent.</para>
-        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverSilverDithered.png" alt="Color hues with ARGB1555 pixel format, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
+        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverDithered.png" alt="Color hues with ARGB1555 pixel format, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
         /// <br/>Silver background, default alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The bottom half of the image is transparent.</para></div></term>
         /// </item>
         /// <item>
@@ -848,6 +918,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with the specified <paramref name="backColor"/> before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -1404,7 +1475,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is an indexed format
         /// (<see cref="PixelFormat.Format8bppIndexed"/>, <see cref="PixelFormat.Format4bppIndexed"/> or <see cref="PixelFormat.Format1bppIndexed"/>),
         /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Palette)"/> using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
-        /// <para>In any other case than the ones above this method the same quantizer as the <see cref="Argb8888">Argb8888</see> method.</para>
+        /// <para>In any other case than the ones above this method returns the same quantizer as the <see cref="Argb8888">Argb8888</see> method.</para>
         /// <note>For examples see the <strong>Examples</strong> section of the mentioned methods above.</note>
         /// </remarks>
         public static PredefinedColorsQuantizer FromBitmapData(IBitmapData bitmapData)
