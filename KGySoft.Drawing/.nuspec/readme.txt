@@ -1,4 +1,4 @@
-Thank you for installing KGy SOFT Drawing Libraries 5.2.0-alpha.1
+Thank you for installing KGy SOFT Drawing Libraries 5.2.0
 
 KGy SOFT Drawing Libraries offer advanced features built around the System.Drawing types.
 
@@ -10,7 +10,7 @@ Main new features in 5.x:
 - Quantizing and dithering
 - Managed bitmap data with any pixel format on any platform
 
-Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/de040639f1095be6374fd9417ef3bd49eeab4240/KGySoft.Drawing/changelog.txt
+Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
 
                                                  ~~*~~
 
@@ -30,7 +30,8 @@ GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
 Some Highlights of KGy SOFT Drawing Libraries:
 
-- Fast direct Bitmap data access for every PixelFormat
+- Fast direct native Bitmap data access for every PixelFormat
+- Creating managed bitmap data of any PixelFormat on every platform, including Linux and MacOS
 - Quantizing and dithering
 - Several built-in icons as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.

@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing</id>
-    <version>5.2.0-alpha.2</version>
+    <version>5.2.0</version>
     <title>KGy SOFT Drawing Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -16,7 +16,8 @@
     <description xml:space="preserve">KGy SOFT Drawing Libraries offer advanced features built around System.Drawing types.
 
 Among others:
-- Fast direct Bitmap data access for every PixelFormat
+- Fast direct native Bitmap data access for every PixelFormat
+- Creating managed bitmap data of any PixelFormat on every platform, including Linux and MacOS
 - Quantizing and dithering
 - Several built-in icons as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.
@@ -30,7 +31,7 @@ Demo App and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.T
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
-    <tags>KGySoft Drawing extension icon bitmap image metafile graphics gif tiff emf wmf quantizing quantization dithering</tags>
+    <tags>KGySoft Drawing extension icon bitmap image metafile graphics gif tiff emf wmf quantizing quantization dithering bitmapdata pixelformat</tags>
     <language>en-US</language>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
