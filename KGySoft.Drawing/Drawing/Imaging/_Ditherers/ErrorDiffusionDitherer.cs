@@ -168,6 +168,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Static Properties
+
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the original filter proposed by Floyd and Steinberg in 1975 when they came out with the idea of error diffusion dithering.
         /// Uses a small, 3x2 matrix so the processing is somewhat faster than by the other alternatives.
@@ -658,6 +660,13 @@ namespace KGySoft.Drawing.Imaging
                 { 0, 1, 0, 0 },
             }, 8, 2);
 
+        #endregion
+
+        #region Instance Properties
+
+        bool IDitherer.InitializeReliesOnContent => isSerpentineProcessing;
+
+        #endregion
 
         #endregion
 

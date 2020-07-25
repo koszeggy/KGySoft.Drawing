@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 
 using KGySoft.Drawing.Imaging;
@@ -129,7 +130,7 @@ namespace KGySoft.Drawing.PerformanceTests
         [TestCase("64bpp PARGB to 64bpp PARGB", PixelFormat.Format64bppPArgb, PixelFormat.Format64bppPArgb)]
         public void DrawIntoTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
         {
-            if (!formatSrc.IsSupported())
+            if (!formatSrc.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format {formatSrc} is not supported on current platform");
 
             Size targetSize = new Size(300, 300);
@@ -157,6 +158,40 @@ namespace KGySoft.Drawing.PerformanceTests
                     using var bmpDst = new Bitmap(targetSize.Width, targetSize.Height, formatDst);
                     bmpSrc1.DrawInto(bmpDst, Point.Empty);
                     bmpSrc2.DrawInto(bmpDst, offset);
+                }, "ImageExtensions.DrawInto")
+                .DoTest()
+                .DumpResults(Console.Out);
+        }
+
+        [TestCase("32bpp ARGB to 32bpp ARGB", PixelFormat.Format32bppArgb, PixelFormat.Format32bppArgb)]
+        public void DrawIntoWithResizeTest(string testName, PixelFormat formatSrc, PixelFormat formatDst)
+        {
+            if (!formatSrc.IsSupportedNatively())
+                Assert.Inconclusive($"Pixel format {formatSrc} is not supported on current platform");
+
+            //using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(formatSrc);
+            //using var bmpDst = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(formatDst);
+            using var bmpSrc = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png").ConvertPixelFormat(formatSrc);
+            using var bmpDst = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png").ConvertPixelFormat(formatDst);
+
+            Rectangle targetRectangle = new Rectangle(Point.Empty, bmpDst.Size);
+            targetRectangle.Inflate(-32, -32);
+
+            new PerformanceTest { TestName = testName, Iterations = 100, CpuAffinity = null }
+                .AddCase(() =>
+                {
+                    using var dst = bmpDst.CloneBitmap();
+                    using (var g = Graphics.FromImage(dst))
+                    {
+                        g.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        g.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        g.DrawImage(bmpSrc, targetRectangle);
+                    }
+                }, "Graphics.DrawImage")
+                .AddCase(() =>
+                {
+                    using var dst = bmpDst.CloneBitmap();
+                    bmpSrc.DrawInto(dst, targetRectangle);
                 }, "ImageExtensions.DrawInto")
                 .DoTest()
                 .DumpResults(Console.Out);

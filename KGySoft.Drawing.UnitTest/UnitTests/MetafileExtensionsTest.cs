@@ -31,22 +31,19 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Methods
 
-        [Test]
-        public void ToBitmapTest()
+        [TestCase(false, false)]
+        [TestCase(false, true)]
+        [TestCase(true, false)]
+        [TestCase(true, true)]
+        public void ToBitmapTest(bool antiAlias, bool keepAspectRatio)
         {
             using var metafile = GenerateMetafile();
-            var size = new Size(256, 256);
+            var size = new Size(512, 256);
 
-            using (var bmp = metafile.ToBitmap(size))
+            using (var bmp = metafile.ToBitmap(size, antiAlias, keepAspectRatio))
             {
                 Assert.AreEqual(size, bmp.Size);
-                SaveImage("NoAntiAlias", bmp);
-            }
-
-            using (var bmp = metafile.ToBitmap(size, true))
-            {
-                Assert.AreEqual(size, bmp.Size);
-                SaveImage("AntiAlias", bmp);
+                SaveImage($"AntiAlias={antiAlias}, KeepRatio={keepAspectRatio}", bmp);
             }
         }
 

@@ -32,6 +32,10 @@ using System.Threading;
 
 namespace KGySoft.Drawing
 {
+#if NET35
+#pragma warning disable CS1574 // XML comment has references that cannot not be resolved on all platforms
+#endif
+
     internal static class ParallelHelper
     {
         #region Fields
@@ -50,17 +54,9 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
-
-
-#if NET35
-#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved
-#endif
         /// <summary>
         /// Similar to <see cref="Parallel.For(int,int,Action{int})"/> but tries to balance resources and works also in .NET 3.5.
         /// </summary>
-#if NET35
-#pragma warning restore CS1574 // XML comment has cref attribute that could not be resolved  
-#endif
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Exceptions in pool threads must not be thrown in place but from the caller thread.")]
         internal static void For(int fromInclusive, int toExclusive, Action<int> body)
@@ -68,16 +64,15 @@ namespace KGySoft.Drawing
             int count = toExclusive - fromInclusive;
 
             // a single iteration: invoke once
-            if (count == 1)
+            if (count <= 1)
             {
+                if (count < 1)
+                    return;
                 body.Invoke(fromInclusive);
                 return;
             }
 
-            if (count < 1)
-                return;
-
-            // single core: no serial invoke
+            // single core: serial invoke
             if (CoreCount == 1)
             {
                 for (int i = fromInclusive; i < toExclusive; i++)
@@ -161,8 +156,7 @@ namespace KGySoft.Drawing
                 Thread.Sleep(0);
 
             if (error != null)
-                throw error;
-            // TODO ExceptionDispatchInfo.Capture(error).Throw();
+                ExceptionDispatchInfo.Capture(error).Throw();
 #else
             // we allow a bit more fine resolution than actual core counts
             int rangeSize = (count / CoreCount) >> 2;

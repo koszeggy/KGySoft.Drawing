@@ -41,9 +41,7 @@ namespace KGySoft.Drawing
     /// Provides low-level support for an icon. This class is internal because it can process and produce <see cref="Icon"/> and <see cref="Bitmap"/>
     /// instances and every functionality is accessible via extensions for those classes.
     /// </summary>
-#if !NET35
     [SecuritySafeCritical]
-#endif
     internal sealed class RawIcon : IDisposable
     {
         #region Nested classes
@@ -388,13 +386,13 @@ namespace KGySoft.Drawing
             {
                 AssureBitmapsGenerated(!keepOriginalFormat);
                 if (keepOriginalFormat && bmpColor != null)
-                    return bmpColor.Clone(new Rectangle(Point.Empty, bmpColor.Size), bmpColor.PixelFormat);
+                    return bmpColor.CloneBitmap();
 
                 if (bmpComposite == null)
                 {
                     Debug.Assert(!OSUtils.IsWindows, "Bitmaps should have been able to be generated on Windows");
                     if (bmpColor != null)
-                        return bmpColor.Clone(new Rectangle(Point.Empty, bmpColor.Size), bmpColor.PixelFormat);
+                        return bmpColor.CloneBitmap();
                     if (!throwError)
                         return null;
                     throw new PlatformNotSupportedException(Res.RawIconCannotBeInstantiatedAsBitmap);
@@ -406,7 +404,7 @@ namespace KGySoft.Drawing
                     return new Bitmap(bmpComposite);
 
                 // Cloning by Bitmap.Clone instead of Image.Clone because the latter may return a blank result on Linux
-                return bmpComposite.Clone(new Rectangle(Point.Empty, bmpComposite.Size), bmpComposite.PixelFormat);
+                return bmpComposite.CloneBitmap();
             }
 
             internal IconInfo GetIconInfo()
@@ -985,7 +983,7 @@ namespace KGySoft.Drawing
                 bitmaps = image.ExtractIconImages();
             else
                 // Image.Clone() could result in a blank Bitmap on Linux if its content was drawn by Graphics
-                bitmaps = new[] { image.Clone(new Rectangle(Point.Empty, image.Size), pixelFormat) };
+                bitmaps = new[] { image.CloneBitmap() };
 
             foreach (Bitmap bitmap in bitmaps)
                 iconImages.Add(new RawIconImage(bitmap, transparentColor));

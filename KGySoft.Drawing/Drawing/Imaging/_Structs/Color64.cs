@@ -18,7 +18,7 @@
 
 using System;
 using System.Collections.Generic;
-using System.Drawing;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a 64-bit ARGB color.
-    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapExtensions.GetColorCount{T}"/>
+    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapDataExtensions.GetColorCount{T}"/>
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     internal readonly struct Color64 : IEquatable<Color64>
@@ -148,6 +148,7 @@ namespace KGySoft.Drawing.Imaging
 
         public override int GetHashCode() => value.GetHashCode();
 
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, ToString of integers is not affected by culture")]
         public override string ToString() => $"{value:X16} [A={A}; R={R}; G={G}; B={B}]";
 
         #endregion

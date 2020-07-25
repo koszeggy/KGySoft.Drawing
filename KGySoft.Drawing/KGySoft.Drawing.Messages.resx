@@ -141,6 +141,9 @@
   <data name="Gdi32_InvalidWmfHandle" xml:space="preserve">
     <value>Invalid Windows Metafile handle.</value>
   </data>
+  <data name="GraphicsExtensions_MetafileGraphicsNotSupported" xml:space="preserve">
+    <value>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</value>
+  </data>
   <data name="User32_InvalidHandle" xml:space="preserve">
     <value>Invalid handle.</value>
   </data>
@@ -162,9 +165,6 @@
   <data name="IconExtensions_ImagesColorsDifferentLength" xml:space="preserve">
     <value>Length of images and transparentColors must be the same.</value>
   </data>
-  <data name="ImageExtensions_PaletteTooLargeFormat" xml:space="preserve">
-    <value>The target palette can have up to {0} colors for pixel format '{1}'.</value>
-  </data>
   <data name="ImageExtensions_NoEncoderFormat" xml:space="preserve">
     <value>No encoder was found for the '{0}' format.</value>
   </data>
@@ -178,7 +178,7 @@
     <value>This method can be used only on bitmaps with indexed pixel format.</value>
   </data>
   <data name="Imaging_PixelFormatNotSupportedFormat" xml:space="preserve">
-    <value>Pixel format '{0}' is not supported on the current platform.</value>
+    <value>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</value>
   </data>
   <data name="Imaging_QuantizerInitializeNull" xml:space="preserve">
     <value>The IQuantizer.Initialize method returned a null value.</value>
@@ -186,7 +186,13 @@
   <data name="Imaging_DithererInitializeNull" xml:space="preserve">
     <value>The IDitherer.Initialize method returned a null value.</value>
   </data>
+  <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
+    <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>
+  </data>
   <data name="MetafileExtensions_CannotBeSavesAsEmf" xml:space="preserve">
     <value>The specified metafile can only be saved as WMF.</value>
+  </data>
+  <data name="ImageExtensions_MultipageTiffSaveNotSupported" xml:space="preserve">
+    <value>Saving multi-page TIFF is not supported on the current platform.</value>
   </data>
 </root>

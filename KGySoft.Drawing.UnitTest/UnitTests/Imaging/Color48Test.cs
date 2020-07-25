@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Color32 c = Color32.FromArgb(0x11223344);
 
             Color48 c48 = new Color48(c);
-            Assert.AreEqual(Color32.FromArgb(255, c), c48.ToColor32());
+            Assert.AreEqual(c.ToOpaque(), c48.ToColor32());
         }
 
         [Test]

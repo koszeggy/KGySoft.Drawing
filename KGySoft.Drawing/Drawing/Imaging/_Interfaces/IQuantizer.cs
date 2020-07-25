@@ -41,6 +41,22 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         PixelFormat PixelFormatHint { get; }
 
+        /// <summary>
+        /// Gets whether <see cref="Initialize">Initialize</see> relies on the actual content of the source to be quantized.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <remarks>
+        /// <para>This property should return <see langword="true"/>, if <see cref="Initialize">Initialize</see> method relies on the exact content to be quantized
+        /// in order to generate a palette and make the <see cref="IQuantizingSession.GetQuantizedColor">GetQuantizedColor</see> method work properly.</para>
+        /// <para>If this property returns <see langword="false"/>, then <see cref="Initialize">Initialize</see> will be called with an <see cref="IReadableBitmapData"/>
+        /// instance, whose <see cref="IBitmapData.Height"/> and <see cref="IBitmapData.Width"/> properties can be used but the actual content might be different
+        /// from the one will be used when calling the <see cref="IQuantizingSession.GetQuantizedColor">GetQuantizedColor</see> method.</para>
+        /// <para>The return value of this property may affect the performance of some drawing operations where returning <see langword="true"/>&#160;forces the source and
+        /// target images to be blended together before quantizing the result, while returning <see langword="false"/>&#160;allows the quantizer to be initialized
+        /// with the source image and let the <see cref="IQuantizingSession.GetQuantizedColor">GetQuantizedColor</see> method to be called with colors that are blended on-the-fly during the quantization.</para>
+        /// </remarks>
+        bool InitializeReliesOnContent { get; }
+
         #endregion
 
         #region Methods

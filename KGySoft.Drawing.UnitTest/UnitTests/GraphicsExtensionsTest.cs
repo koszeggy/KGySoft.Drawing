@@ -19,6 +19,7 @@
 using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+
 using NUnit.Framework;
 
 #endregion
@@ -188,22 +189,26 @@ namespace KGySoft.Drawing.UnitTests
             AssertPlatformDependent(() =>
             {
                 // from bitmap
-                using var refBmp = Icons.Information.ToAlphaBitmap();
+                using var refBmp = Icons.Information.ExtractBitmap(new Size(256, 256));
                 using (var g = Graphics.FromImage(refBmp))
                 {
                     var bmp = g.ToBitmap(false);
-                    SaveImage("FromBitmap", bmp);
+                    SaveImage("From Bitmap full", bmp);
+
+                    g.IntersectClip(new Rectangle(32, 32, 192, 192));
+                    bmp = g.ToBitmap(true);
+                    SaveImage("From Bitmap clipped", bmp);
                 }
 
                 // from screen
                 using (var g = Graphics.FromHwnd(IntPtr.Zero))
                 {
                     var bmp = g.ToBitmap(false);
-                    SaveImage("FromFullScreen", bmp);
+                    SaveImage("From full screen", bmp);
 
                     g.IntersectClip(new Rectangle(100, 100, 100, 50));
                     bmp = g.ToBitmap(true);
-                    SaveImage("FromFullScreenWithClip", bmp);
+                    SaveImage("From full screen clipped", bmp);
                 }
             }, PlatformID.Win32NT);
         }

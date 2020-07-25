@@ -60,13 +60,14 @@
       <Argument Key="maxVersionParts" Value="" xmlns="" />
       <Argument Key="defaultLanguage" Value="cs" xmlns="" />
     </TransformComponentArguments>
-    <HelpFileVersion>5.1.0</HelpFileVersion>
+    <HelpFileVersion>5.2.0</HelpFileVersion>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <HeaderText>
     </HeaderText>
     <FooterText>Find the complete KGy SOFT Libraries documentation at the &amp;lt%3ba href=&amp;quot%3bhttps://docs.kgysoft.net&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGy SOFT Docs&amp;lt%3b/a&amp;gt%3b page.
 &amp;lt%3bbr/&amp;gt%3bProject Site: &amp;lt%3ba href=&amp;quot%3bhttps://kgysoft.net/drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://kgysoft.net/drawing&amp;lt%3b/a&amp;gt%3b
-&amp;lt%3bbr/&amp;gt%3bGitHub Repository: &amp;lt%3ba href=&amp;quot%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b</FooterText>
+&amp;lt%3bbr/&amp;gt%3bGitHub Repository: &amp;lt%3ba href=&amp;quot%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b
+&amp;lt%3bbr/&amp;gt%3bNuGet: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b</FooterText>
   </PropertyGroup>
   <!-- There are no properties for these groups.  AnyCPU needs to appear in order for Visual Studio to perform
 			 the build.  The others are optional common platform types that may appear. -->
@@ -553,17 +554,17 @@
       <ImageId>ShieldRgb555SilverDithered</ImageId>
       <AlternateText>Shield Rgb 555 Silver Dithered</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientArgb1555SilverBlackA128.png">
-      <ImageId>AlphaGradientArgb1555SilverBlackA128</ImageId>
-      <AlternateText>Alpha Gradient Argb 1555 Silver Black A 128</AlternateText>
+    <Content Include="Help\Images\AlphaGradientArgb1555BlackA128.png">
+      <ImageId>AlphaGradientArgb1555BlackA128</ImageId>
+      <AlternateText>Alpha Gradient Argb 1555 Black A 128</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientArgb1555SilverSilverA1.png">
-      <ImageId>AlphaGradientArgb1555SilverSilverA1</ImageId>
-      <AlternateText>Alpha Gradient Argb 1555 Silver Silver A 1</AlternateText>
+    <Content Include="Help\Images\AlphaGradientArgb1555SilverA1.png">
+      <ImageId>AlphaGradientArgb1555SilverA1</ImageId>
+      <AlternateText>Alpha Gradient Argb 1555 Silver A 1</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientArgb1555SilverSilverDithered.png">
-      <ImageId>AlphaGradientArgb1555SilverSilverDithered</ImageId>
-      <AlternateText>Alpha Gradient Argb 1555 Silver Silver Dithered</AlternateText>
+    <Content Include="Help\Images\AlphaGradientArgb1555SilverDithered.png">
+      <ImageId>AlphaGradientArgb1555SilverDithered</ImageId>
+      <AlternateText>Alpha Gradient Argb 1555 Silver Dithered</AlternateText>
     </Content>
     <Content Include="Help\Images\ShieldArgb1555BlackA128.png">
       <ImageId>ShieldArgb1555BlackA128</ImageId>
@@ -1184,6 +1185,26 @@
     <Content Include="Help\Images\ShieldMedianCut256TrGammaFS.gif">
       <ImageId>ShieldMedianCut256TrGammaFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr GammaFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb8888BlackA128.png">
+      <ImageId>AlphaGradientArgb8888BlackA128</ImageId>
+      <AlternateText>Alpha Gradient Argb 8888 Black A 128</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb8888SilverA1.png">
+      <ImageId>AlphaGradientArgb8888SilverA1</ImageId>
+      <AlternateText>Alpha Gradient Argb 8888 Silver A 1</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb8888SilverDitheredA1.png">
+      <ImageId>AlphaGradientArgb8888SilverDitheredA1</ImageId>
+      <AlternateText>Alpha Gradient Argb 8888 Silver Dithered A 1</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ShieldArgb8888lackA128.png">
+      <ImageId>ShieldArgb8888lackA128</ImageId>
+      <AlternateText>Shield Argb 8888lack A 128</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ShieldArgb8888SilverA1Dithered.png">
+      <ImageId>ShieldArgb8888SilverA1Dithered</ImageId>
+      <AlternateText>Shield Argb 8888 Silver A 1 Dithered</AlternateText>
     </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->

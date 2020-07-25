@@ -18,6 +18,7 @@
 
 using System;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -27,6 +28,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static byte ClipToByte(this int value)
             => value < Byte.MinValue ? Byte.MinValue
                 : value > Byte.MaxValue ? Byte.MaxValue

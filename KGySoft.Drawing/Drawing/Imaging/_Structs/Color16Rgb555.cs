@@ -28,15 +28,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private readonly ushort value;
+        internal readonly ushort Value;
 
         #endregion
 
         #region Properties
 
-        private byte R => (byte)(((value & redMask) >> 7) | ((value & redMask) >> 12));
-        private byte G => (byte)(((value & greenMask) >> 2) | ((value & greenMask) >> 7));
-        private byte B => (byte)(((value & blueMask) << 3) | ((value & blueMask) >> 2));
+        private byte R => (byte)(((Value & redMask) >> 7) | ((Value & redMask) >> 12));
+        private byte G => (byte)(((Value & greenMask) >> 2) | ((Value & greenMask) >> 7));
+        private byte B => (byte)(((Value & blueMask) << 3) | ((Value & blueMask) >> 2));
 
         #endregion
 
@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color16Rgb555(Color32 c)
         {
-            value = (ushort)((((uint)c.R << 7) & redMask)
+            Value = (ushort)((((uint)c.R << 7) & redMask)
                 | (((uint)c.G << 2) & greenMask)
                 | ((uint)c.B >> 3));
         }

@@ -77,10 +77,24 @@ namespace KGySoft
 
         #endregion
 
+        #region GraphicsExtensions
+
+        /// <summary>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</summary>
+        internal static string GraphicsExtensionsToBitmapMetafileNotSupported => Get("GraphicsExtensions_MetafileGraphicsNotSupported");
+
+        #endregion
+
         #region IconExtensions
 
         /// <summary>Length of images and transparentColors must be the same.</summary>
         internal static string IconExtensionsImagesColorsDifferentLength => Get("IconExtensions_ImagesColorsDifferentLength");
+
+        #endregion
+
+        #region ImageExtensions
+
+        /// <summary>Saving multi-page TIFF is not supported on the current platform.</summary>
+        internal static string ImageExtensionsMultipageTiffSaveNotSupported => Get("ImageExtensions_MultipageTiffSaveNotSupported");
 
         #endregion
 
@@ -156,9 +170,6 @@ namespace KGySoft
 
         #region ImageExtensions
 
-        /// <summary>The target palette can have up to {0} colors for pixel format '{1}'.</summary>
-        internal static string ImageExtensionsPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("ImageExtensions_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));
-
         /// <summary>No encoder was found for the '{0}' format.</summary>
         internal static string ImageExtensionsNoEncoder(ImageFormat imageFormat) => Get("ImageExtensions_NoEncoderFormat", imageFormat);
 
@@ -169,8 +180,11 @@ namespace KGySoft
 
         #region Imaging
 
-        /// <summary>Pixel format '{0}' is not supported on the current platform.</summary>
+        /// <summary>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</summary>
         internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
+
+        /// <summary>Palette must not have more than {0} colors for pixel format '{1}'.</summary>
+        internal static string ImagingPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("Imaging_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));
 
         #endregion
 

@@ -19,7 +19,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 
 #endregion
 
@@ -130,21 +129,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        #region Static Fields
-
-        private static Color32[] rgb332Palette;
-        private static Color32[] grayscale256Palette;
-        private static Color32[] grayscale16Palette;
-        private static Color32[] grayscale4Palette;
-        private static Color32[] blackAndWhitePalette;
-        private static Color32[] system8BppPalette;
-        private static Color32[] system4BppPalette;
-        private static Color32[] system1BppPalette;
-
-        #endregion
-
-        #region Instance Fields
-
         private readonly Func<Color32, Color32> quantizingFunction;
         private readonly Color32 backColor;
         private readonly byte alphaThreshold;
@@ -153,125 +137,9 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #endregion
-
         #region Properties
 
-        #region Static Properties
-
-        private static Color32[] Rgb332Palette
-        {
-            get
-            {
-                if (rgb332Palette != null)
-                    return rgb332Palette;
-
-                var result = new Color32[256];
-                for (int i = 0; i < 256; i++)
-                {
-                    byte r = (byte)(i & 0b11100000);
-                    r |= (byte)((r >> 3) | (r >> 6));
-                    byte g = (byte)((i & 0b00011100) << 3);
-                    g |= (byte)((g >> 3) | (g >> 6));
-                    byte b = (byte)((i & 0b00000011) << 6);
-                    b |= (byte)((b >> 2) | (b >> 4) | (b >> 6));
-                    result[i] = new Color32(r, g, b);
-                }
-
-                return rgb332Palette = result;
-            }
-        }
-
-        private static Color32[] Grayscale256Palette
-        {
-            get
-            {
-                if (grayscale256Palette != null)
-                    return grayscale256Palette;
-
-                var result = new Color32[256];
-                for (int i = 0; i < 256; i++)
-                    result[i] = Color32.FromGray((byte)i);
-
-                return grayscale256Palette = result;
-            }
-        }
-
-        private static Color32[] Grayscale16Palette
-        {
-            get
-            {
-                if (grayscale16Palette != null)
-                    return grayscale16Palette;
-
-                var result = new Color32[16];
-                for (int i = 0; i < 16; i++)
-                    result[i] = Color32.FromGray((byte)((i << 4) | i));
-
-                return grayscale16Palette = result;
-            }
-        }
-
-        private static Color32[] Grayscale4Palette
-        {
-            get
-            {
-                if (grayscale4Palette != null)
-                    return grayscale4Palette;
-
-                var result = new Color32[4];
-                for (int i = 0; i < 4; i++)
-                {
-                    byte br = (byte)((i & 0b00000011) << 6);
-                    br |= (byte)((br >> 2) | (br >> 4) | (br >> 6));
-                    result[i] = Color32.FromGray(br);
-                }
-
-                return grayscale4Palette = result;
-            }
-        }
-
-        private static Color32[] System8BppPalette
-        {
-            get
-            {
-                if (system8BppPalette != null)
-                    return system8BppPalette;
-
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
-                    return system8BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
-            }
-        }
-
-        private static Color32[] System4BppPalette
-        {
-            get
-            {
-                if (system4BppPalette != null)
-                    return system4BppPalette;
-
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format4bppIndexed))
-                    return system4BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
-            }
-        }
-
-        private static Color32[] System1BppPalette
-        {
-            get
-            {
-                if (system1BppPalette != null)
-                    return system1BppPalette;
-
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format1bppIndexed))
-                    return system1BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
-            }
-        }
-
-        private static Color32[] BlackAndWhitePalette => blackAndWhitePalette ??= new[] { Color32.Black, Color32.White };
-
-        #endregion
-
-        #region Instance Properties
+        #region Public Properties
 
         /// <summary>
         /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="PredefinedColorsQuantizer"/> instance.
@@ -279,6 +147,12 @@ namespace KGySoft.Drawing.Imaging
         /// then this is the possible lowest bits-per-pixel value format.
         /// </summary>
         public PixelFormat PixelFormatHint { get; }
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        bool IQuantizer.InitializeReliesOnContent => false;
 
         #endregion
 
@@ -297,22 +171,12 @@ namespace KGySoft.Drawing.Imaging
                 : PixelFormat.Format1bppIndexed;
         }
 
-        private PredefinedColorsQuantizer(Color[] colors, Color backColor, byte alphaThreshold = 0)
-            : this(new Palette(colors, backColor, alphaThreshold))
-        {
-        }
-
-        private PredefinedColorsQuantizer(Color32[] colors, Color32 backColor, byte alphaThreshold = 0)
-            : this(new Palette(colors, backColor, alphaThreshold))
-        {
-        }
-
-        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0, bool blend = true)
             : this(quantizingFunction, pixelFormatHint)
         {
-            this.backColor = Color32.FromArgb(Byte.MaxValue, backColor);
+            this.backColor = backColor.ToOpaque();
             this.alphaThreshold = alphaThreshold;
-            blendAlphaBeforeQuantize = true;
+            blendAlphaBeforeQuantize = blend;
         }
 
         private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint)
@@ -329,7 +193,91 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
-        #region Public Methods
+        /// <summary>
+        /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to the 32-bit ARGB color space.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Determines the <see cref="IQuantizingSession.BackColor"/> property of the returned quantizer.
+        /// Considering that this quantizer can return alpha colors it has effect only when the returned quantizer is used with
+        /// a ditherer that does not support partial transparency.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color
+        /// is considered completely transparent. If 0, then the quantized colors will preserve their original alpha value. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to the 32-bit ARGB color space.</returns>
+        /// <remarks>
+        /// <para>If <paramref name="alphaThreshold"/> is zero, then the returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space
+        /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,PixelFormat,IQuantizer,IDitherer)">Clone</see>),
+        /// which could possibly preserve wide color information (<see cref="PixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
+        /// <para>If <paramref name="alphaThreshold"/> is not zero, then every partially transparent pixel with lower <see cref="Color.A">Color.A</see> value than the threshold will turn completely transparent.</para>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// </remarks>
+        /// <example>
+        /// The following example demonstrates how to use the quantizer returned by this method:
+        /// <code lang="C#"><![CDATA[
+        /// public static Bitmap ToArgb8888(Bitmap source, Color backColor = default,
+        ///     byte alphaThreshold = 128, IDitherer ditherer = null)
+        /// {
+        ///     IQuantizer quantizer = PredefinedColorsQuantizer.Argb8888(backColor, alphaThreshold);
+        ///
+        ///     // a.) this solution returns a new bitmap and does not change the original one:
+        ///     return source.ConvertPixelFormat(PixelFormat.Format32bppArgb, quantizer, ditherer);
+        ///
+        ///     // b.) when converting to Format32bppArgb format without dithering, this produces the same result:
+        ///     if (ditherer == null && alphaThreshold == 0)
+        ///         return source.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+        ///
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     if (ditherer == null)
+        ///         source.Quantize(quantizer);
+        ///     else
+        ///         source.Dither(quantizer, ditherer);
+        ///     return source;
+        /// }]]></code>
+        /// <para>The example above may produce the following results:
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term>
+        /// <div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientArgb8888BlackA128.png" alt="Color hues with ARGB8888 pixel format, black background and default alpha threshold"/>
+        /// <br/>Default optional parameter values (black background, alpha threshold = 128). The top-half of the image preserved the original transparency,
+        /// while bottom half turned completely transparent. Without dithering the back color is irrelevant.</para>
+        /// <para><img src="../Help/Images/AlphaGradientArgb8888SilverA1.png" alt="Color hues with ARGB8888 pixel format, silver background and alpha threshold = 1"/>
+        /// <br/>Silver background, alpha threshold = 1. Only the bottom line is completely transparent, otherwise the image preserved its original transparency,
+        /// so the result is practically the same as the original image. Without dithering the back color is irrelevant.</para>
+        /// <para><img src="../Help/Images/AlphaGradientArgb8888SilverDitheredA1.png" alt="Color hues with ARGB8888 pixel format, silver background, alpha threshold = 1, using Bayer 8x8 ordered dithering"/>
+        /// <br/>Silver background, alpha threshold = 1, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.
+        /// As dithering does not support partial transparency only the bottom line is transparent, otherwise the image was blended with back color.
+        /// No dithering pattern appeared in the result due to the auto <see cref="OrderedDitherer.ConfigureStrength">strength</see> calibration.
+        /// This also demonstrates why dithering is practically useless for true color results.</para></div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
+        /// <br/>Shield icon with transparency</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/ShieldArgb8888lackA128.png" alt="Shield icon with ARGB8888 pixel format, black background and default alpha threshold"/>
+        /// <br/>Default optional parameter values (black background, alpha threshold = 128). Without dithering the back color is irrelevant but pixels with alpha &lt; 128 turned completely transparent.</para>
+        /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with ARGB8888 pixel format, silver background and alpha threshold = 1"/>
+        /// <br/>Silver background, alpha threshold = 1. Practically the same as the original image. Without dithering the back color is irrelevant.</para>
+        /// <para><img src="../Help/Images/ShieldArgb8888SilverA1Dithered.png" alt="Shield icon with ARGB8888 pixel format, silver background, alpha threshold = 1, using Floyd-Steinberg dithering"/>
+        /// <br/>Silver background, alpha threshold = 1, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
+        /// As dithering does not support partial transparency alpha pixels were blended with back color. No dithering pattern appeared in the result as there was no quantization error during the process.
+        /// This also demonstrates why dithering is practically useless for true color results.</para></div></term>
+        /// </item>
+        /// </list></para>
+        /// </example>
+        public static PredefinedColorsQuantizer Argb8888(Color backColor = default, byte alphaThreshold = 128)
+        {
+            Color32 Quantize(Color32 c) => c.A < alphaThreshold ? default : c;
+
+            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format32bppArgb, new Color32(backColor), alphaThreshold, false);
+        }
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24-bit ones where each color component is encoded in 8 bits.
@@ -399,6 +347,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where red,
         /// green and blue components are encoded in 5, 6 and 5 bits, respectively.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -470,6 +419,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where each color component is encoded in 5 bits.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -541,6 +491,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where alpha, red,
         /// green and blue components are encoded in 1, 5, 5 and 5 bits, respectively.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before quantization.
@@ -586,11 +537,11 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Color hues with alpha gradient</para></div></term>
         /// <term>
         /// <div style="text-align:center;width:512px">
-        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverBlackA128.png" alt="Color hues with ARGB1555 pixel format, black background and default alpha threshold"/>
+        /// <para><img src="../Help/Images/AlphaGradientArgb1555BlackA128.png" alt="Color hues with ARGB1555 pixel format, black background and default alpha threshold"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128). The bottom half of the image is transparent.</para>
-        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverSilverA1.png" alt="Color hues with ARGB1555 pixel format, silver background and alpha threshold = 1"/>
+        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverA1.png" alt="Color hues with ARGB1555 pixel format, silver background and alpha threshold = 1"/>
         /// <br/>Silver background, alpha threshold = 1. Only the bottom line is transparent.</para>
-        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverSilverDithered.png" alt="Color hues with ARGB1555 pixel format, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
+        /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverDithered.png" alt="Color hues with ARGB1555 pixel format, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
         /// <br/>Silver background, default alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The bottom half of the image is transparent.</para></div></term>
         /// </item>
         /// <item>
@@ -715,20 +666,9 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        /// <seealso cref="Palette.Rgb332"/>
         public static PredefinedColorsQuantizer Rgb332(Color backColor = default, bool directMapping = false)
-        {
-            var bg = new Color32(backColor);
-
-            int GetNearestColorIndex(Color32 c)
-            {
-                if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(bg);
-
-                return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
-            }
-
-            return new PredefinedColorsQuantizer(new Palette(Rgb332Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
-        }
+            => new PredefinedColorsQuantizer(Palette.Rgb332(new Color32(backColor), directMapping));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 8-bit grayscale ones of 256 shades.
@@ -786,19 +726,8 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        public static PredefinedColorsQuantizer Grayscale(Color backColor = default)
-        {
-            var bg = new Color32(backColor);
-
-            int GetNearestColorIndex(Color32 c)
-            {
-                if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(bg);
-                return c.GetBrightness();
-            }
-
-            return new PredefinedColorsQuantizer(new Palette(Grayscale256Palette, bg, 0, GetNearestColorIndex));
-        }
+        /// <seealso cref="Palette.Grayscale256"/>
+        public static PredefinedColorsQuantizer Grayscale(Color backColor = default) => new PredefinedColorsQuantizer(Palette.Grayscale256(new Color32(backColor)));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 4-bit grayscale ones of 16 shades.
@@ -883,19 +812,9 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        /// <seealso cref="Palette.Grayscale16"/>
         public static PredefinedColorsQuantizer Grayscale16(Color backColor = default, bool directMapping = false)
-        {
-            var bg = new Color32(backColor);
-
-            int GetNearestColorIndex(Color32 c)
-            {
-                if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(bg);
-                return c.GetBrightness() >> 4;
-            }
-
-            return new PredefinedColorsQuantizer(new Palette(Grayscale16Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
-        }
+            => new PredefinedColorsQuantizer(Palette.Grayscale16(new Color32(backColor), directMapping));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 2-bit grayscale ones of 4 shades.
@@ -993,22 +912,13 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        /// <seealso cref="Palette.Grayscale4"/>
         public static PredefinedColorsQuantizer Grayscale4(Color backColor = default, bool directMapping = false)
-        {
-            var bg = new Color32(backColor);
-
-            int GetNearestColorIndex(Color32 c)
-            {
-                if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(bg);
-                return c.GetBrightness() >> 6;
-            }
-
-            return new PredefinedColorsQuantizer(new Palette(Grayscale4Palette, bg, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null));
-        }
+            => new PredefinedColorsQuantizer(Palette.Grayscale4(new Color32(backColor), directMapping));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.
+        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with the specified <paramref name="backColor"/> before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -1101,22 +1011,9 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        /// <seealso cref="Palette.BlackAndWhite"/>
         public static PredefinedColorsQuantizer BlackAndWhite(Color backColor = default, byte whiteThreshold = 128)
-        {
-            var bg = new Color32(backColor);
-
-            int GetNearestColorIndex(Color32 c)
-            {
-                if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(bg);
-
-                return c == Color32.Black ? 0
-                    : c == Color32.White ? 1
-                    : c.GetBrightness() >= whiteThreshold ? 1 : 0;
-            }
-
-            return new PredefinedColorsQuantizer(new Palette(BlackAndWhitePalette, bg, 0, GetNearestColorIndex));
-        }
+            => new PredefinedColorsQuantizer(Palette.BlackAndWhite(new Color32(backColor), whiteThreshold));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 8-bit palette.
@@ -1215,8 +1112,9 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        /// <seealso cref="Palette.SystemDefault8BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault8BppPalette(Color backColor = default, byte alphaThreshold = 128)
-            => new PredefinedColorsQuantizer(System8BppPalette, new Color32(backColor), alphaThreshold);
+            => new PredefinedColorsQuantizer(Palette.SystemDefault8BppPalette(new Color32(backColor), alphaThreshold));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 4-bit palette.
@@ -1298,8 +1196,9 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        /// <seealso cref="Palette.SystemDefault4BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault4BppPalette(Color backColor = default)
-            => new PredefinedColorsQuantizer(System4BppPalette, new Color32(backColor));
+            => new PredefinedColorsQuantizer(Palette.SystemDefault4BppPalette(new Color32(backColor)));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 1-bit palette.
@@ -1318,8 +1217,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format1bppIndexed"/> pixel format.</para>
         /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
+        /// <seealso cref="Palette.SystemDefault1BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault1BppPalette(Color backColor = default)
-            => new PredefinedColorsQuantizer(System1BppPalette, new Color32(backColor));
+            => new PredefinedColorsQuantizer(Palette.SystemDefault1BppPalette(new Color32(backColor)));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the colors in the specified <paramref name="palette"/>.
@@ -1420,7 +1320,7 @@ namespace KGySoft.Drawing.Imaging
         /// </list></para>
         /// </example>
         public static PredefinedColorsQuantizer FromCustomPalette(Color[] palette, Color backColor = default, byte alphaThreshold = 128)
-            => new PredefinedColorsQuantizer(palette, backColor, alphaThreshold);
+            => new PredefinedColorsQuantizer(new Palette(palette, backColor, alphaThreshold));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the specified <paramref name="palette"/>.
@@ -1554,14 +1454,40 @@ namespace KGySoft.Drawing.Imaging
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint = PixelFormat.Format32bppArgb)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint);
 
-        #endregion
-
-        #region Internal Methods
-
-        internal static PredefinedColorsQuantizer FromBitmapData(BitmapDataAccessorBase bitmapData)
+        /// <summary>
+        /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>
+        /// and uses its <see cref="IBitmapData.Palette"/> if <paramref name="bitmapData"/> represents an indexed bitmap.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IBitmapData"/> to get a compatible quantizer for.</param>
+        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="bitmapData"/>.</returns>
+        /// <remarks>
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format24bppRgb"/>, <see cref="PixelFormat.Format48bppRgb"/> or <see cref="PixelFormat.Format32bppRgb"/>,
+        /// then this method returns the same quantizer as the <see cref="Rgb888">Rgb888</see> method.</para>
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppArgb1555"/>,
+        /// then this method returns the same quantizer as the <see cref="Argb1555">Argb1555</see> method.</para>
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppRgb565"/>,
+        /// then this method returns the same quantizer as the <see cref="Rgb565">Rgb565</see> method.</para>
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppRgb555"/>,
+        /// then this method returns the same quantizer as the <see cref="Rgb555">Rgb555</see> method.</para>
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppGrayScale"/>,
+        /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is an indexed format
+        /// (<see cref="PixelFormat.Format8bppIndexed"/>, <see cref="PixelFormat.Format4bppIndexed"/> or <see cref="PixelFormat.Format1bppIndexed"/>),
+        /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Palette)"/> using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
+        /// <para>In any other case than the ones above this method returns the same quantizer as the <see cref="Argb8888">Argb8888</see> method.</para>
+        /// <note>For examples see the <strong>Examples</strong> section of the mentioned methods above.</note>
+        /// </remarks>
+        public static PredefinedColorsQuantizer FromBitmapData(IBitmapData bitmapData)
         {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             switch (bitmapData.PixelFormat)
             {
+                case PixelFormat.Format8bppIndexed:
+                case PixelFormat.Format4bppIndexed:
+                case PixelFormat.Format1bppIndexed:
+                    return FromCustomPalette(bitmapData.Palette);
                 case PixelFormat.Format16bppArgb1555:
                     return Argb1555(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold);
                 case PixelFormat.Format16bppRgb565:
@@ -1570,24 +1496,82 @@ namespace KGySoft.Drawing.Imaging
                     return Rgb555(bitmapData.BackColor.ToColor());
                 case PixelFormat.Format16bppGrayScale:
                     return Grayscale(bitmapData.BackColor.ToColor());
-                case PixelFormat.Format8bppIndexed:
-                case PixelFormat.Format4bppIndexed:
-                case PixelFormat.Format1bppIndexed:
-                    return FromCustomPalette(bitmapData.Palette);
-                default:
+                case PixelFormat.Format24bppRgb:
+                case PixelFormat.Format48bppRgb:
+                case PixelFormat.Format32bppRgb:
                     return Rgb888(bitmapData.BackColor.ToColor());
+                default:
+                    return Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold);
             }
         }
 
-        #endregion
+        /// <summary>
+        /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to get a compatible quantizer for.</param>
+        /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
+        /// If 0, then the quantized colors will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
+        /// <remarks>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format24bppRgb"/>, <see cref="PixelFormat.Format48bppRgb"/> or <see cref="PixelFormat.Format32bppRgb"/>,
+        /// then this method returns the same quantizer as the <see cref="Rgb888">Rgb888</see> method.</para>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppArgb1555"/>,
+        /// then this method returns the same quantizer as the <see cref="Argb1555">Argb1555</see> method.</para>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppRgb565"/>,
+        /// then this method returns the same quantizer as the <see cref="Rgb565">Rgb565</see> method.</para>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppRgb555"/>,
+        /// then this method returns the same quantizer as the <see cref="Rgb555">Rgb555</see> method.</para>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppGrayScale"/>,
+        /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format8bppIndexed"/>,
+        /// then this method returns the same quantizer as the <see cref="SystemDefault8BppPalette">SystemDefault8BppPalette</see> method.</para>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/>,
+        /// then this method returns the same quantizer as the <see cref="SystemDefault4BppPalette">SystemDefault4BppPalette</see> method.</para>
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>,
+        /// then this method returns the same quantizer as the <see cref="SystemDefault1BppPalette">SystemDefault1BppPalette</see> method.</para>
+        /// <para>In any other case than the ones above this method the same quantizer as the <see cref="Argb8888">Argb8888</see> method.</para>
+        /// <note>For examples see the <strong>Examples</strong> section of the mentioned methods above.</note>
+        /// </remarks>
+        public static PredefinedColorsQuantizer FromPixelFormat(PixelFormat pixelFormat, Color backColor = default, byte alphaThreshold = 128)
+        {
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            switch (pixelFormat)
+            {
+                case PixelFormat.Format8bppIndexed:
+                    return SystemDefault8BppPalette(backColor, alphaThreshold);
+                case PixelFormat.Format4bppIndexed:
+                    return SystemDefault4BppPalette(backColor);
+                case PixelFormat.Format1bppIndexed:
+                    return SystemDefault1BppPalette(backColor);
+                case PixelFormat.Format16bppArgb1555:
+                    return Argb1555(backColor, alphaThreshold);
+                case PixelFormat.Format16bppRgb565:
+                    return Rgb565(backColor);
+                case PixelFormat.Format16bppRgb555:
+                    return Rgb555(backColor);
+                case PixelFormat.Format16bppGrayScale:
+                    return Grayscale(backColor);
+                case PixelFormat.Format24bppRgb:
+                case PixelFormat.Format48bppRgb:
+                case PixelFormat.Format32bppRgb:
+                    return Rgb888(backColor);
+                default:
+                    return Argb8888(backColor, alphaThreshold);
+            }
+        }
 
         #endregion
 
         #region Instance Methods
 
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
-            => palette != null
-                ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
+            => palette != null ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
                 : new QuantizingSessionCustomMapping(this, quantizingFunction);
 
         #endregion

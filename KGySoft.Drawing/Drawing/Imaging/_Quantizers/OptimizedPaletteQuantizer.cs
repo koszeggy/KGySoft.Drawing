@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -148,7 +149,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Nested interfaces
 
-        private interface IOptimizedPaletteQuantizer
+        private interface IOptimizedPaletteQuantizer : IDisposable
         {
             #region Methods
 
@@ -209,7 +210,7 @@ namespace KGySoft.Drawing.Imaging
 
             private Palette InitializePalette(IReadableBitmapData source)
             {
-                TAlg alg = new TAlg();
+                using TAlg alg = new TAlg();
                 alg.Initialize(quantizer.maxColors, source);
                 int width = source.Width;
                 IReadableBitmapDataRow row = source.FirstRow;
@@ -250,6 +251,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Public Properties
+        
         /// <summary>
         /// Gets a <see cref="PixelFormat"/> representing the lowest bits-per-pixel value format, which is compatible with this <see cref="OptimizedPaletteQuantizer"/> instance.
         /// </summary>
@@ -257,6 +260,14 @@ namespace KGySoft.Drawing.Imaging
             => maxColors > 16 ? PixelFormat.Format8bppIndexed
                 : maxColors > 2 ? PixelFormat.Format4bppIndexed
                 : PixelFormat.Format1bppIndexed;
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+        
+        bool IQuantizer.InitializeReliesOnContent => true;
+
+        #endregion
 
         #endregion
 
@@ -268,7 +279,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentMustBeBetween(2, 256));
             this.algorithm = algorithm;
             this.maxColors = maxColors;
-            this.backColor = new Color32(backColor);
+            this.backColor = new Color32(backColor).ToOpaque();
             this.alphaThreshold = alphaThreshold;
         }
 
@@ -393,6 +404,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Enum.ToString is not affected by culture")]
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
         {
             switch (algorithm)

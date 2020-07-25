@@ -18,8 +18,9 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
+
+using KGySoft.Collections;
 
 #endregion
 
@@ -45,7 +46,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Box class
 
-            private class Box
+            private sealed class Box
             {
                 #region Fields
 
@@ -64,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
                 /// <summary>
                 /// Computes the sum over a box of any given statistic.
                 /// </summary>
-                internal long Volume(long[,,] mmt)
+                internal long Volume(ref Array3D<long> mmt)
                 {
                     return mmt[RMax, GMax, BMax]
                         - mmt[RMax, GMax, BMin]
@@ -79,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
                 /// <summary>
                 /// Computes the sum over a box of any given statistic (floating point version).
                 /// </summary>
-                internal float Volume(float[,,] mmt)
+                internal float Volume(ref Array3D<float> mmt)
                 {
                     return mmt[RMax, GMax, BMax]
                         - mmt[RMax, GMax, BMin]
@@ -92,10 +93,10 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 /// <summary>
-                /// Compute part of <see cref="Volume(long[,,])"/> that doesn't depend on <see cref="RMax"/>, <see cref="GMax"/>
+                /// Computes part of <see cref="Volume(ref Array3D{long})"/> that doesn't depend on <see cref="RMax"/>, <see cref="GMax"/>
                 /// or <see cref="BMax"/>, depending on <paramref name="dir"/>.
                 /// </summary>
-                internal long Bottom(Direction dir, long[,,] mmt)
+                internal long Bottom(Direction dir, ref Array3D<long> mmt)
                 {
                     switch (dir)
                     {
@@ -123,10 +124,10 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 /// <summary>
-                /// Compute remainder of <see cref="Volume(long[,,])"/> , substituting <paramref name="pos"/>
+                /// Computes remainder of <see cref="Volume(ref Array3D{long})"/>, substituting <paramref name="pos"/>
                 /// for <see cref="RMax"/>, <see cref="GMax"/> or <see cref="BMax"/>, depending on <paramref name="dir"/>.
                 /// </summary>
-                internal long Top(Direction dir, int pos, long[,,] mmt)
+                internal long Top(Direction dir, int pos, ref Array3D<long> mmt)
                 {
                     switch (dir)
                     {
@@ -194,45 +195,35 @@ namespace KGySoft.Drawing.Imaging
             /// element 0 is just for base or marginal value.
             /// Values are floats just because of the possible big ranges due to squared values.
             /// </summary>
-            [SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional",
-                Justification = "It is really used as a cube, all items are required")]
-            private readonly float[,,] m2 = new float[histCount, histCount, histCount];
+            private Array3D<float> m2 = new Array3D<float>(histCount, histCount, histCount);
 
             /// <summary>
             /// The counts of voxels of the 3D color cubes in each position.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of P(c)
             /// </summary>
-            [SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional",
-                Justification = "It is really used as a cube, all items are required")]
-            private readonly long[,,] wt = new long[histCount, histCount, histCount];
+            private Array3D<long> wt = new Array3D<long>(histCount, histCount, histCount);
 
             /// <summary>
             /// The moment values of red color components.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of r*P(c)
             /// </summary>
-            [SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional",
-                Justification = "It is really used as a cube, all items are required")]
-            private readonly long[,,] mr = new long[histCount, histCount, histCount];
+            private Array3D<long> mr = new Array3D<long>(histCount, histCount, histCount);
 
             /// <summary>
             /// The moment values of green color components.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of g*P(c)
             /// </summary>
-            [SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional",
-                Justification = "It is really used as a cube, all items are required")]
-            private readonly long[,,] mg = new long[histCount, histCount, histCount];
+            private Array3D<long> mg = new Array3D<long>(histCount, histCount, histCount);
 
             /// <summary>
             /// The moment values of green color components.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of b*P(c)
             /// </summary>
-            [SuppressMessage("Performance", "CA1814:Prefer jagged arrays over multidimensional",
-                Justification = "It is really used as a cube, all items are required")]
-            private readonly long[,,] mb = new long[histCount, histCount, histCount];
+            private Array3D<long> mb = new Array3D<long>(histCount, histCount, histCount);
 
             private bool hasTransparency;
 
@@ -284,15 +275,16 @@ namespace KGySoft.Drawing.Imaging
                 int indG = (c.G >> 3) + 1;
                 int indB = (c.B >> 3) + 1;
 
-                // TODO: index by a single ind
-                //int ind = (indR << 10) + (indR << 6) + indR + (indG << 5) + indG + indB;
-                wt[indR, indG, indB] += 1;
-                mr[indR, indG, indB] += c.R;
-                mg[indR, indG, indB] += c.G;
-                mb[indR, indG, indB] += c.B;
-                m2[indR, indG, indB] += sqrTable[c.R] + sqrTable[c.G] + sqrTable[c.B];
+                // instead of [indR, indG, indB], which would use multiplication inside
+                int ind = (indR << 10) + (indR << 6) + indR + (indG << 5) + indG + indB;
+                wt.Buffer.GetElementReference(ind) += 1;
+                mr.Buffer.GetElementReference(ind) += c.R;
+                mg.Buffer.GetElementReference(ind) += c.G;
+                mb.Buffer.GetElementReference(ind) += c.B;
+                m2.Buffer.GetElementReference(ind) += sqrTable[c.R] + sqrTable[c.G] + sqrTable[c.B];
             }
 
+            [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Int32.ToString is not affected by culture")]
             public Color32[] GeneratePalette()
             {
                 // Original comment from Xiaolin Wu:
@@ -307,7 +299,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     // The original algorithm here marks an array of tags but we don't need it because
                     // we don't want to produce an array of quantized pixels but just the palette.
-                    long weight = cubes[k].Volume(wt);
+                    long weight = cubes[k].Volume(ref wt);
                     if (weight <= 0)
                     {
                         Debug.Assert(cubes.Count == 1 && hasTransparency, $"bogus box {k}");
@@ -315,12 +307,21 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     result[k] = new Color32(
-                        (byte)(cubes[k].Volume(mr) / weight),
-                        (byte)(cubes[k].Volume(mg) / weight),
-                        (byte)(cubes[k].Volume(mb) / weight));
+                        (byte)(cubes[k].Volume(ref mr) / weight),
+                        (byte)(cubes[k].Volume(ref mg) / weight),
+                        (byte)(cubes[k].Volume(ref mb) / weight));
                 }
 
                 return result;
+            }
+
+            public void Dispose()
+            {
+                m2.Dispose();
+                wt.Dispose();
+                mr.Dispose();
+                mg.Dispose();
+                mb.Dispose();
             }
 
             #endregion
@@ -330,13 +331,21 @@ namespace KGySoft.Drawing.Imaging
             /// <summary>
             /// Computing cumulative moments from the histogram.
             /// </summary>
-            private void HistogramToMoments(/*vwt, vmr, vmg, vmb, m2*/)
+            private void HistogramToMoments()
             {
+                // Not using ArraySection for these because they are too small for pooling.
+                // We could use stackalloc but it's too negligible advantage for a fairly large stack allocation
                 long[] area = new long[histCount];
                 long[] areaR = new long[histCount];
                 long[] areaG = new long[histCount];
                 long[] areaB = new long[histCount];
                 float[] area2 = new float[histCount];
+
+                ArraySection<long> wtBuf = wt.Buffer;
+                ArraySection<long> mrBuf = mr.Buffer;
+                ArraySection<long> mgBuf = mg.Buffer;
+                ArraySection<long> mbBuf = mb.Buffer;
+                ArraySection<float> m2Buf = m2.Buffer;
 
                 for (int r = 1; r <= histSize; r++)
                 {
@@ -353,12 +362,13 @@ namespace KGySoft.Drawing.Imaging
 
                         for (int b = 1; b <= histSize; b++)
                         {
-                            // int ind1 = (r << 10) + (r << 6) + r + (g << 5) + g + b; /* [r][g][b] */
-                            line += wt[r, g, b];
-                            lineR += mr[r, g, b];
-                            lineG += mg[r, g, b];
-                            lineB += mb[r, g, b];
-                            line2 += m2[r, g, b];
+                            // instead of [r, g, b]
+                            int ind1 = (r << 10) + (r << 6) + r + (g << 5) + g + b;
+                            line += wtBuf[ind1];
+                            lineR += mrBuf[ind1];
+                            lineG += mgBuf[ind1];
+                            lineB += mbBuf[ind1];
+                            line2 += m2Buf[ind1];
 
                             area[b] += line;
                             areaR[b] += lineR;
@@ -366,12 +376,13 @@ namespace KGySoft.Drawing.Imaging
                             areaB[b] += lineB;
                             area2[b] += line2;
 
-                            // int ind2 = ind1 - 1089; /* [r-1][g][b] */
-                            wt[r, g, b] = wt[r - 1, g, b] + area[b];
-                            mr[r, g, b] = mr[r - 1, g, b] + areaR[b];
-                            mg[r, g, b] = mg[r - 1, g, b] + areaG[b];
-                            mb[r, g, b] = mb[r - 1, g, b] + areaB[b];
-                            m2[r, g, b] = m2[r - 1, g, b] + area2[b];
+                            // instead of [r-1, g, b]
+                            int ind2 = ind1 - 1089;
+                            wtBuf[ind1] = wtBuf[ind2] + area[b];
+                            mrBuf[ind1] = mrBuf[ind2] + areaR[b];
+                            mgBuf[ind1] = mgBuf[ind2] + areaG[b];
+                            mbBuf[ind1] = mbBuf[ind2] + areaB[b];
+                            m2Buf[ind1] = m2Buf[ind2] + area2[b];
                         }
                     }
                 }
@@ -390,7 +401,7 @@ namespace KGySoft.Drawing.Imaging
                 int next = 0;
 
                 for (int i = 1; i < colorCount; i++)
-                { 
+                {
                     // we always take an already added box and try to split it into two halves
                     Box firstHalf = cubes[next];
                     Box secondHalf = new Box();
@@ -435,13 +446,13 @@ namespace KGySoft.Drawing.Imaging
             /// </summary>
             private float Var(Box cube)
             {
-                float vr = cube.Volume(mr);
-                float vg = cube.Volume(mg);
-                float vb = cube.Volume(mb);
+                float vr = cube.Volume(ref mr);
+                float vg = cube.Volume(ref mg);
+                float vb = cube.Volume(ref mb);
 
-                float vm2 = cube.Volume(m2);
+                float vm2 = cube.Volume(ref m2);
 
-                return vm2 - (vr * vr + vg * vg + vb * vb) / cube.Volume(wt);
+                return vm2 - (vr * vr + vg * vg + vb * vb) / cube.Volume(ref wt);
             }
 
             private float Maximize(Box cube, Direction dir, int first, int last, out int cut,
@@ -454,20 +465,20 @@ namespace KGySoft.Drawing.Imaging
                 // The remaining terms have a minus sign in the variance formula,
                 // so we drop the minus sign and MAXIMIZE the sum of the two terms.
 
-                long baseR = cube.Bottom(dir, mr);
-                long baseG = cube.Bottom(dir, mg);
-                long baseB = cube.Bottom(dir, mb);
-                long baseW = cube.Bottom(dir, wt);
+                long baseR = cube.Bottom(dir, ref mr);
+                long baseG = cube.Bottom(dir, ref mg);
+                long baseB = cube.Bottom(dir, ref mb);
+                long baseW = cube.Bottom(dir, ref wt);
 
                 float max = 0f;
                 cut = -1;
 
                 for (int i = first; i < last; i++)
                 {
-                    long halfR = baseR + cube.Top(dir, i, mr);
-                    long halfG = baseG + cube.Top(dir, i, mg);
-                    long halfB = baseB + cube.Top(dir, i, mb);
-                    long halfW = baseW + cube.Top(dir, i, wt);
+                    long halfR = baseR + cube.Top(dir, i, ref mr);
+                    long halfG = baseG + cube.Top(dir, i, ref mg);
+                    long halfB = baseB + cube.Top(dir, i, ref mb);
+                    long halfW = baseW + cube.Top(dir, i, ref wt);
 
                     // now half_x is sum over lower half of box, if split at i
 
@@ -502,10 +513,10 @@ namespace KGySoft.Drawing.Imaging
 
             private bool TryCut(Box set1, Box set2)
             {
-                long wholeR = set1.Volume(mr);
-                long wholeG = set1.Volume(mg);
-                long wholeB = set1.Volume(mb);
-                long wholeW = set1.Volume(wt);
+                long wholeR = set1.Volume(ref mr);
+                long wholeG = set1.Volume(ref mg);
+                long wholeB = set1.Volume(ref mb);
+                long wholeW = set1.Volume(ref wt);
 
                 float maxR = Maximize(set1, Direction.Red, set1.RMin + 1, set1.RMax,
                         out int cutR, wholeR, wholeG, wholeB, wholeW);

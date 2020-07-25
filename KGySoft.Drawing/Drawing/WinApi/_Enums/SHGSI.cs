@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 #endregion
 
@@ -53,6 +54,7 @@ namespace KGySoft.Drawing.WinApi
         /// <summary>
         /// Modifies the SHGSI_ICON value by causing the function to retrieve the large version of the icon, as specified by the SM_CXICON and SM_CYICON system metrics.
         /// </summary>
+        [SuppressMessage("Design", "CA1069:Enums values should not be duplicated", Justification = "Windows API")]
         LARGEICON = 0x000000000,
 
         /// <summary>

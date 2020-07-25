@@ -26,7 +26,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a 48-bit RGB color.
-    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapExtensions.GetColorCount{T}"/>
+    /// Implements <see cref="IEquatable{T}"/> because used in a <see cref="HashSet{T}"/> in <see cref="BitmapDataExtensions.GetColorCount{T}"/>
     /// </summary>
     [StructLayout(LayoutKind.Explicit, Size = 6)]
     internal readonly struct Color48 : IEquatable<Color48>
@@ -58,10 +58,25 @@ namespace KGySoft.Drawing.Imaging
             R = (ushort)((c.R << 8) | c.R);
         }
 
+        internal Color48(Color64 c)
+        {
+            B = c.B;
+            G = c.G;
+            R = c.R;
+        }
+
         #endregion
 
         #region Methods
 
+        #region Static Methods
+        
+        internal static Color48 FromRgb(long rgb) => new Color48(Color64.FromRgb(rgb));
+
+        #endregion
+
+        #region Instance Methods
+        
         #region Public Methods
 
         public override int GetHashCode() => new Color64(R, G, B).GetHashCode();
@@ -76,8 +91,14 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color32 ToColor32() => new Color32((byte)(R >> 8), (byte)(G >> 8), (byte)(B >> 8));
 
+        internal Color64 ToColor64() => new Color64(R, G, B);
+
+        internal long ToRgb() => ToColor64().ToRgb();
+
         #endregion
-        
+
+        #endregion
+
         #endregion
     }
 }

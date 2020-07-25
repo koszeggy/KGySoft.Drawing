@@ -6,6 +6,60 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v5.2.0:
+~~~~~~~~~
+
+! KGySoft.Drawing namespace:
+============================
+! PixelFormatExtensions:
+  ! The IsSupported method has been renamed to IsSupportedNatively because BitmapDataFactory can create a managed
+    bitmap data of any pixel formats.
+! ImageExtensions class:
+  ! SaveAsMultipageTiff: On Linux the used System.Drawing members throw a NotImplementedException, which is now
+    caught and a PlatformNotSupportedException is thrown instead
+  * DrawInto methods:
+    + New overloads that allow custom quantizing.
+    + New overloads that allow resizing.
+    - Using alpha blending even if a ditherer is used for the drawing.
+    - Fixing result with ditherers that rely on actual content
+  * ToIcon(Image, int, bool): Using custom resizing for anti-aliasing to prevent process-wide locking used by
+    Graphics.DrawImage
+! BitmapExtensions class:
+  ! The old Resize method returns a Bitmap with Format32bppPArgb pixel format instead of Format32bppArgb.
+  + New Resize overload that does not use Graphics.DrawImage internally and thus it does not use a process-wide lock
+  - Clear methods: Fixing result with ditherers that rely on actual content
+  - TransformColors methods: Fixing result with ditherers that rely on actual content
+! GraphicsExtensions class:
+  ! ToBitmap method:
+    ! If the Graphics belongs to a Bitmap, and there is any clipping on Graphics, then the result Bitmap preserves
+      original PixelFormat instead of always returning a Format32bppArgb Bitmap.
+    ! If the Graphics belongs to a Metafile a NotSupportedException is thrown instead of returning null.
+    * No Graphics.DrawImage is used internally anymore to avoid using process-wide locks.
+* MetafileExtensions class:
+  + New ToBitmap overload with keepAspectRatio parameter
+  * Using custom resizing for anti-aliasing to prevent process-wide locking caused by Graphics.DrawImage
++ New ScalingMode enum for Resize and DrawInto extension methods
+
+! KGySoft.Drawing.Imaging namespace:
+====================================
+! IBitmapData interface: BackColor and AlphaThreshold properties are now exposed by this interface. These are the
+  same values that you can specify when using the Get[Readable/Writable/ReadWrite]BitmapData methods.
+! IQuantizer/IDitherer: new InitializeReliesOnContent property - when returns false it helps to optimize performance
+  when quantizing/dithering is used for resizing or with blended sources.
++ The BitmapDataFactory class has been made public. From now on you can create completely managed bitmap data on any
+  platform with any pixel format.
++ New BitmapDataExtensions class to provide similar functionality some for IBitmapData instances that are in the
+  already existing BitmapExtensions and ImageExtensions classes such as DrawInto/Quantize/Dither/Clear/etc,
+  as well as adding some new methods such as CopyTo/Clip/Clone
++ Color32 struct: new ToOpaque method
++ Palette class: new static members for creating a Palette with common color entries.
++ PredefinedColorsQuantizer class:
+  + New Argb8888 method
+  + The FromBitmapData method has been made public
+  + New FromPixelFormat method
+
+
+~~~~~~~~~
 ! v5.1.0:
 ~~~~~~~~~
 

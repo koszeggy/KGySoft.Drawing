@@ -66,7 +66,7 @@ namespace KGySoft.Drawing.UnitTests
 
             Assert.AreEqual(ImageFormat.Icon, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
-            Assert.IsTrue(!pixelFormat.IsIndexed() && !pixelFormat.HasTransparency() || bmp.GetPixel(0, 0).A == 0, "Transparency expected");
+            Assert.IsTrue(!pixelFormat.IsIndexed() && !pixelFormat.HasAlpha() || bmp.GetPixel(0, 0).A == 0, "Transparency expected");
             SaveImage($"{pixelFormat}", bmp, true);
         }
 

@@ -546,17 +546,17 @@
       <ImageId>ShieldRgb555SilverDithered</ImageId>
       <AlternateText>Shield Rgb 555 Silver Dithered</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientArgb1555SilverBlackA128.png">
-      <ImageId>AlphaGradientArgb1555SilverBlackA128</ImageId>
-      <AlternateText>Alpha Gradient Argb 1555 Silver Black A 128</AlternateText>
+    <Content Include="Help\Images\AlphaGradientArgb1555BlackA128.png">
+      <ImageId>AlphaGradientArgb1555BlackA128</ImageId>
+      <AlternateText>Alpha Gradient Argb 1555 Black A 128</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientArgb1555SilverSilverA1.png">
-      <ImageId>AlphaGradientArgb1555SilverSilverA1</ImageId>
-      <AlternateText>Alpha Gradient Argb 1555 Silver Silver A 1</AlternateText>
+    <Content Include="Help\Images\AlphaGradientArgb1555SilverA1.png">
+      <ImageId>AlphaGradientArgb1555SilverA1</ImageId>
+      <AlternateText>Alpha Gradient Argb 1555 Silver A 1</AlternateText>
     </Content>
-    <Content Include="Help\Images\AlphaGradientArgb1555SilverSilverDithered.png">
-      <ImageId>AlphaGradientArgb1555SilverSilverDithered</ImageId>
-      <AlternateText>Alpha Gradient Argb 1555 Silver Silver Dithered</AlternateText>
+    <Content Include="Help\Images\AlphaGradientArgb1555SilverDithered.png">
+      <ImageId>AlphaGradientArgb1555SilverDithered</ImageId>
+      <AlternateText>Alpha Gradient Argb 1555 Silver Dithered</AlternateText>
     </Content>
     <Content Include="Help\Images\ShieldArgb1555BlackA128.png">
       <ImageId>ShieldArgb1555BlackA128</ImageId>
@@ -1177,6 +1177,26 @@
     <Content Include="Help\Images\ShieldMedianCut256TrGammaFS.gif">
       <ImageId>ShieldMedianCut256TrGammaFS</ImageId>
       <AlternateText>Shield Median Cut 256 Tr GammaFS</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb8888BlackA128.png">
+      <ImageId>AlphaGradientArgb8888BlackA128</ImageId>
+      <AlternateText>Alpha Gradient Argb 8888 Black A 128</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb8888SilverA1.png">
+      <ImageId>AlphaGradientArgb8888SilverA1</ImageId>
+      <AlternateText>Alpha Gradient Argb 8888 Silver A 1</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb8888SilverDitheredA1.png">
+      <ImageId>AlphaGradientArgb8888SilverDitheredA1</ImageId>
+      <AlternateText>Alpha Gradient Argb 8888 Silver Dithered A 1</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ShieldArgb8888lackA128.png">
+      <ImageId>ShieldArgb8888lackA128</ImageId>
+      <AlternateText>Shield Argb 8888lack A 128</AlternateText>
+    </Content>
+    <Content Include="Help\Images\ShieldArgb8888SilverA1Dithered.png">
+      <ImageId>ShieldArgb8888SilverA1Dithered</ImageId>
+      <AlternateText>Shield Argb 8888 Silver A 1 Dithered</AlternateText>
     </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->

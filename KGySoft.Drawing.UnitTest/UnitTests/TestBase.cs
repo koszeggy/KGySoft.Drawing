@@ -29,6 +29,7 @@ using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
 using NUnit.Framework;
+using NUnit.Framework.Constraints;
 
 #endregion
 
@@ -44,6 +45,8 @@ namespace KGySoft.Drawing.UnitTests
         #endregion
 
         #region Methods
+
+        #region Protected Methods
 
         protected static void AssertPlatformDependent(Action code, params PlatformID[] platforms)
         {
@@ -81,7 +84,7 @@ namespace KGySoft.Drawing.UnitTests
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = Path.Combine(dir, $"{testName}_{imageName}.{DateTime.Now:yyyyMMddHHmmssffff}");
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : "_")}{imageName}.{DateTime.Now:yyyyMMddHHmmssffff}");
             ImageCodecInfo encoder = null;
             if (origFormat)
             {
@@ -104,7 +107,7 @@ namespace KGySoft.Drawing.UnitTests
                 else if (encoder.FormatID == ImageFormat.Gif.Guid)
                     image.SaveAsGif($"{fileName}.gif");
                 else if (encoder.FormatID == ImageFormat.Tiff.Guid)
-                    image.SaveAsTiff($"{fileName}.tiff");
+                    image.SaveAsTiff($"{fileName}.tiff", false);
                 return;
             }
 
@@ -130,7 +133,7 @@ namespace KGySoft.Drawing.UnitTests
             }
             catch (Exception e)
             {
-                if (OSUtils.IsWindows || pixelFormat.IsSupported())
+                if (OSUtils.IsWindows || pixelFormat.IsSupportedNatively())
                     throw;
                 Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported on Linux: {e.Message}");
                 throw;
@@ -147,7 +150,7 @@ namespace KGySoft.Drawing.UnitTests
             }
             catch (Exception e)
             {
-                if (pixelFormat.IsSupported())
+                if (pixelFormat.IsSupportedNatively())
                     throw;
                 Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported: {e.Message}");
                 throw;
@@ -164,7 +167,7 @@ namespace KGySoft.Drawing.UnitTests
             }
             catch (Exception e)
             {
-                if (pixelFormat.IsSupported())
+                if (pixelFormat.IsSupportedNatively())
                     throw;
                 Assert.Inconclusive($"PixelFormat {pixelFormat} is not supported: {e.Message}");
                 throw;
@@ -196,6 +199,112 @@ namespace KGySoft.Drawing.UnitTests
             refGraph.Dispose();
             return result;
         }
+
+        protected static Bitmap GenerateAlphaGradientBitmap(Size size)
+        {
+            var result = new Bitmap(size.Width, size.Height);
+            using var bitmapData = result.GetReadWriteBitmapData();
+            GenerateAlphaGradient(bitmapData);
+            return result;
+        }
+
+        protected static IReadWriteBitmapData GenerateAlphaGradientBitmapData(Size size)
+        {
+            var result = BitmapDataFactory.CreateBitmapData(size);
+            GenerateAlphaGradient(result);
+            return result;
+        }
+
+        protected  static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default)
+        {
+            if (sourceRectangle == default)
+                sourceRectangle = new Rectangle(Point.Empty, source.GetSize());
+
+            Assert.AreEqual(sourceRectangle.Size, target.GetSize());
+            if (!allowDifferentPixelFormats)
+                Assert.AreEqual(source.PixelFormat, target.PixelFormat);
+            
+            IReadableBitmapDataRow rowSrc = source[sourceRectangle.Y];
+            IReadableBitmapDataRow rowDst = target[targetLocation.Y];
+
+            bool tolerantCompare = source.GetType() != target.GetType() && source.PixelFormat.ToBitsPerPixel() > 32;
+            for (int y = 0; y < sourceRectangle.Height; y++)
+            {
+                if (tolerantCompare)
+                {
+                    for (int x = 0; x < sourceRectangle.Width; x++)
+                    {
+                        Color32 c1 = rowSrc[x + sourceRectangle.X];
+                        Color32 c2 = rowDst[x + targetLocation.X];
+
+                        // this is faster than the asserts below
+                        if (c1.A != c2.A
+                            || Math.Abs(c1.R - c2.R) > 5
+                            || Math.Abs(c1.G - c2.G) > 5
+                            || Math.Abs(c1.B - c2.B) > 5)
+                            Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
+
+                        //Assert.AreEqual(c1.A, c2.A, $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.R - c2.R), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.G - c2.G), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.B - c2.B), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                    }
+
+                    continue;
+                }
+
+                for (int x = 0; x < sourceRectangle.Width; x++)
+                    Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
+            } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
+        {
+            var firstRow = bitmapData.FirstRow;
+            float ratio = 255f / (bitmapData.Width / 6f);
+            float limit = bitmapData.Width / 6f;
+
+            for (int x = 0; x < bitmapData.Width; x++)
+            {
+                // red -> yellow
+                if (x < limit)
+                    firstRow[x] = new Color32(255, (x * ratio).ClipToByte(), 0);
+                // yellow -> green
+                else if (x < limit * 2)
+                    firstRow[x] = new Color32((255 - (x - limit) * ratio).ClipToByte(), 255, 0);
+                // green -> cyan
+                else if (x < limit * 3)
+                    firstRow[x] = new Color32(0, 255, ((x - limit * 2) * ratio).ClipToByte());
+                // cyan -> blue
+                else if (x < limit * 4)
+                    firstRow[x] = new Color32(0, (255 - (x - limit * 3) * ratio).ClipToByte(), 255);
+                // blue -> magenta
+                else if (x < limit * 5)
+                    firstRow[x] = new Color32(((x - limit * 4) * ratio).ClipToByte(), 0, 255);
+                // magenta -> red
+                else
+                    firstRow[x] = new Color32(255, 0, (255 - (x - limit * 5) * ratio).ClipToByte());
+            }
+
+            if (bitmapData.Height < 2)
+                return;
+
+            var row = bitmapData[1];
+            ratio = 255f / bitmapData.Height;
+            do
+            {
+                byte a = (255 - row.Index * ratio).ClipToByte();
+                for (int x = 0; x < bitmapData.Width; x++)
+                    row[x] = Color32.FromArgb(a, firstRow[x]);
+
+            } while (row.MoveNextRow());
+        }
+
+        #endregion
 
         #endregion
     }

@@ -32,30 +32,34 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
-        internal static unsafe void CopyMemory(IntPtr dest, IntPtr src, int length)
+        internal static unsafe void CopyMemory(IntPtr source, IntPtr target, int length)
+            => CopyMemory((byte*)source, (byte*)target, length);
+
+        [SecuritySafeCritical]
+        internal static unsafe void CopyMemory(byte* source, byte* target, int length)
         {
             if (OSUtils.IsWindows)
-                Kernel32.CopyMemory(dest, src, length);
+                Kernel32.CopyMemory(new IntPtr(target), new IntPtr(source), length);
             else
             {
 #if NET35 || NET40 || NET45
-                CopyMemory((byte*)src, (byte*)dest, length);
+                DoCopyMemory(source, target, length);
 #else
-                Buffer.MemoryCopy(src.ToPointer(), dest.ToPointer(), length, length);
+                Buffer.MemoryCopy(source, target, length, length);
 #endif
             }
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
         internal static unsafe bool CompareMemory(IntPtr p1, IntPtr p2, int length)
+            => CompareMemory((byte*)p1, (byte*)p2, length);
+
+        [SecuritySafeCritical]
+        internal static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
             => OSUtils.IsWindows
-                ? msvcrt.CompareMemory(p1, p2, length)
-                : CompareMemory((byte*)p1, (byte*)p2, length);
+                ? msvcrt.CompareMemory(new IntPtr(p1),  new IntPtr(p2), length)
+                : DoCompareMemory(p1, p2, length);
 
         #endregion
 
@@ -63,7 +67,7 @@ namespace KGySoft.Drawing
 
 #if NET35 || NET40 || NET45
         [SecurityCritical]
-        private static unsafe void CopyMemory(byte* src, byte* dest, int length)
+        private static unsafe void DoCopyMemory(byte* src, byte* dest, int length)
         {
             long* qwDest = (long*)dest;
             long* qwSrc = (long*)src;
@@ -107,7 +111,7 @@ namespace KGySoft.Drawing
         [SecurityCritical]
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "Optimized for performance, long but very straightforward OR condition")]
-        private static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
+        private static unsafe bool DoCompareMemory(byte* p1, byte* p2, int length)
         {
             // we could use Vector<T> but this is actually faster and is available everywhere
             if (p1 == p2)

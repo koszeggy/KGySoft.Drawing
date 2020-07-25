@@ -1,4 +1,4 @@
-Thank you for installing KGy SOFT Drawing Libraries 5.1.0
+Thank you for installing KGy SOFT Drawing Libraries 5.2.0
 
 KGy SOFT Drawing Libraries offer advanced features built around the System.Drawing types.
 
@@ -8,6 +8,7 @@ Main new features in 5.x:
   For Mono use the .NET Framework builds. Some APIs may throw a PlatformNotSupportedException on Linux/Unix. 
 - Fast direct Bitmap access for every PixelFormat
 - Quantizing and dithering
+- Managed bitmap data with any pixel format on any platform
 
 Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
 
@@ -29,7 +30,8 @@ GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
 Some Highlights of KGy SOFT Drawing Libraries:
 
-- Fast direct Bitmap data access for every PixelFormat
+- Fast direct native Bitmap data access for every PixelFormat
+- Creating managed bitmap data of any PixelFormat on every platform, including Linux and MacOS
 - Quantizing and dithering
 - Several built-in icons as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.

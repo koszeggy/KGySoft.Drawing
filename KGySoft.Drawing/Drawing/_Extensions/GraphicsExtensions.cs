@@ -20,8 +20,10 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
+using System.Drawing.Imaging;
 using System.Security;
 
+using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
 #endregion
@@ -124,7 +126,7 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Copies the  <see cref="Graphics"/> object provided in <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
+        /// Copies the <see cref="Graphics"/> object specified in the <paramref name="graphics"/> parameter to a <see cref="Bitmap"/> instance.
         /// </summary>
         /// <param name="graphics">The <see cref="Graphics"/> instance to be converted.</param>
         /// <param name="visibleClipOnly">When <see langword="true"/>, the result will contain only the area represented by <see cref="Graphics.VisibleClipBounds"/> property. When <see langword="false"/>,
@@ -135,9 +137,8 @@ namespace KGySoft.Drawing
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
-#if !NET35
+        /// <exception cref="NotSupportedException"><paramref name="graphics"/> belongs to a <see cref="Metafile"/>, which cannot be accessed until the <paramref name="graphics"/> is disposed.</exception>
         [SecuritySafeCritical]
-#endif
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
@@ -168,18 +169,23 @@ namespace KGySoft.Drawing
                 targetHeight = (int)visibleRect.Height;
 
                 // there is a source image: copying so transparency is preserved
-                if (graphics.GetBackingImage() is Bitmap imgSource)
+                Image imgSource = graphics.GetBackingImage();
+                if (imgSource != null)
                 {
+                    if (imgSource is Metafile)
+                        throw new NotSupportedException(Res.GraphicsExtensionsToBitmapMetafileNotSupported);
                     if (!visibleClipOnly)
                         return (Bitmap)imgSource.Clone();
 
-                    result = new Bitmap(targetWidth, targetHeight);
-                    using (Graphics graphicsTarget = Graphics.FromImage(result))
-                    {
-                        graphicsTarget.DrawImage(imgSource, new RectangleF(0f, 0f, targetWidth, targetHeight), visibleRect, GraphicsUnit.Pixel);
-                        return result;
-                    }
-                } 
+                    if (targetWidth == 0 || targetHeight == 0)
+                        return null;
+
+                    result = new Bitmap(targetWidth, targetHeight, imgSource.PixelFormat);
+                    using IReadableBitmapData src = ((Bitmap)imgSource).GetReadableBitmapData();
+                    using IWritableBitmapData dst = result.GetWritableBitmapData();
+                    src.CopyTo(dst, new Rectangle(sourceLeft, sourceTop, targetWidth, targetHeight), Point.Empty);
+                    return result;
+                }
             }
             finally
             {

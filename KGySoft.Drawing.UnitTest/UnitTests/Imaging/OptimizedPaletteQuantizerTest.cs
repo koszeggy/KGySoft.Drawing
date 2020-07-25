@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     {
         #region Fields
 
-        private static object[][] fullyTransparentImageTestSource =
+        private static readonly object[][] fullyTransparentImageTestSource =
         {
             new object[] { "Octree TR", OptimizedPaletteQuantizer.MedianCut() },
             new object[] { "Octree Solid", OptimizedPaletteQuantizer.MedianCut(alphaThreshold: 0) },

@@ -19,8 +19,8 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Drawing;
+using System.Drawing.Imaging;
 using System.Linq;
 
 #endregion
@@ -29,6 +29,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents an indexed set of colors and provides efficient color lookup with caching.
+    /// To create an instance use the static methods or the constructors.
     /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
     /// <remarks>
@@ -53,10 +54,25 @@ namespace KGySoft.Drawing.Imaging
         
         private const int minCacheSize = 128;
         private const int maxCacheSize = 1 << 18;
-        
+
         #endregion
 
         #region Fields
+
+        #region Static Fields
+
+        private static Color32[] system8BppPalette;
+        private static Color32[] system4BppPalette;
+        private static Color32[] system1BppPalette;
+        private static Color32[] rgb332Palette;
+        private static Color32[] grayscale256Palette;
+        private static Color32[] grayscale16Palette;
+        private static Color32[] grayscale4Palette;
+        private static Color32[] blackAndWhitePalette;
+
+        #endregion
+
+        #region Instance Fields
 
         private readonly int transparentIndex = -1;
         private readonly Dictionary<Color32, int> color32ToIndex;
@@ -68,7 +84,123 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #endregion
+
         #region Properties
+
+        #region Static Properties
+
+        private static Color32[] System8BppPalette
+        {
+            get
+            {
+                if (system8BppPalette != null)
+                    return system8BppPalette;
+
+                using (var bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
+                    return system8BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
+            }
+        }
+
+        private static Color32[] System4BppPalette
+        {
+            get
+            {
+                if (system4BppPalette != null)
+                    return system4BppPalette;
+
+                using (var bmp = new Bitmap(1, 1, PixelFormat.Format4bppIndexed))
+                    return system4BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
+            }
+        }
+
+        private static Color32[] System1BppPalette
+        {
+            get
+            {
+                if (system1BppPalette != null)
+                    return system1BppPalette;
+
+                using (var bmp = new Bitmap(1, 1, PixelFormat.Format1bppIndexed))
+                    return system1BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
+            }
+        }
+
+        private static Color32[] Rgb332Palette
+        {
+            get
+            {
+                if (rgb332Palette != null)
+                    return rgb332Palette;
+
+                var result = new Color32[256];
+                for (int i = 0; i < 256; i++)
+                {
+                    byte r = (byte)(i & 0b11100000);
+                    r |= (byte)((r >> 3) | (r >> 6));
+                    byte g = (byte)((i & 0b00011100) << 3);
+                    g |= (byte)((g >> 3) | (g >> 6));
+                    byte b = (byte)((i & 0b00000011) << 6);
+                    b |= (byte)((b >> 2) | (b >> 4) | (b >> 6));
+                    result[i] = new Color32(r, g, b);
+                }
+
+                return rgb332Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale256Palette
+        {
+            get
+            {
+                if (grayscale256Palette != null)
+                    return grayscale256Palette;
+
+                var result = new Color32[256];
+                for (int i = 0; i < 256; i++)
+                    result[i] = Color32.FromGray((byte)i);
+
+                return grayscale256Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale16Palette
+        {
+            get
+            {
+                if (grayscale16Palette != null)
+                    return grayscale16Palette;
+
+                var result = new Color32[16];
+                for (int i = 0; i < 16; i++)
+                    result[i] = Color32.FromGray((byte)((i << 4) | i));
+
+                return grayscale16Palette = result;
+            }
+        }
+
+        private static Color32[] Grayscale4Palette
+        {
+            get
+            {
+                if (grayscale4Palette != null)
+                    return grayscale4Palette;
+
+                var result = new Color32[4];
+                for (int i = 0; i < 4; i++)
+                {
+                    byte br = (byte)((i & 0b00000011) << 6);
+                    br |= (byte)((br >> 2) | (br >> 4) | (br >> 6));
+                    result[i] = Color32.FromGray(br);
+                }
+
+                return grayscale4Palette = result;
+            }
+        }
+
+        private static Color32[] BlackAndWhitePalette => blackAndWhitePalette ??= new[] { Color32.Black, Color32.White };
+
+        #endregion
 
         #region Public Properties
 
@@ -97,12 +229,16 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color32[] Entries { get; }
         internal bool IsGrayscale { get; }
+        internal bool HasAlpha { get; }
+        internal bool HasMultiLevelAlpha { get; }
 
         #endregion
 
         #endregion
 
         #region Constructors
+
+        #region Public Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Palette"/> class.
@@ -122,10 +258,14 @@ namespace KGySoft.Drawing.Imaging
         /// then <see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see> will perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
         public Palette(Color32[] entries, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, int> customGetNearestColorIndex = null)
         {
             Entries = entries ?? throw new ArgumentNullException(nameof(entries), PublicResources.ArgumentNull);
-            BackColor = Color32.FromArgb(Byte.MaxValue, backColor);
+            if (entries.Length == 0)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(entries));
+
+            BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
 
             // initializing color32ToIndex, which is the 1st level of caching
@@ -136,6 +276,12 @@ namespace KGySoft.Drawing.Imaging
                 Color32 c = entries[i];
                 if (!color32ToIndex.ContainsKey(c) && !(AlphaThreshold == 0 && c.A == 0))
                     color32ToIndex[c] = i;
+
+                if (c.A != Byte.MaxValue)
+                {
+                    HasAlpha = true;
+                    HasMultiLevelAlpha = c.A > 0;
+                }
 
                 if (c.A == 0)
                 {
@@ -183,6 +329,7 @@ namespace KGySoft.Drawing.Imaging
         /// then <see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see> will perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
         public Palette(Color[] entries, Color backColor = default, byte alphaThreshold = 128, Func<Color32, int> customGetNearestColorIndex = null)
             : this(entries?.Select(c => new Color32(c)).ToArray(), new Color32(backColor), alphaThreshold, customGetNearestColorIndex)
         {
@@ -190,7 +337,220 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Constructors
+
+        internal Palette(PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold)
+            : this(GetColorsByPixelFormat(pixelFormat), backColor, alphaThreshold)
+        {
+        }
+
+        internal Palette(Palette palette, Color32 backColor, byte alphaThreshold)
+            : this(palette.Entries, backColor, alphaThreshold, palette.customGetNearestColorIndex)
+        {
+        }
+
+        #endregion
+
+        #endregion
+
         #region Methods
+
+        #region Static Methods
+
+        #region Public Methods
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses the system default 8-bit palette.
+        /// On Windows this palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
+        /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the palette entries,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
+        /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses the system default 8-bit palette.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/>
+        public static Palette SystemDefault8BppPalette(Color32 backColor = default, byte alphaThreshold = 128)
+            => new Palette(System8BppPalette, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses the system default 4-bit palette.
+        /// On Windows this palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">PredefinedColorsQuantizer.SystemDefault4BppPalette</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses the system default 4-bit palette.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault4BppPalette"/>
+        public static Palette SystemDefault4BppPalette(Color32 backColor = default)
+            => new Palette(System4BppPalette, backColor);
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses the system default 1-bit palette.
+        /// On Windows this palette consists of the black and white colors.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses the system default 1-bit palette.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette"/>
+        public static Palette SystemDefault1BppPalette(Color32 backColor = default)
+            => new Palette(System1BppPalette, backColor);
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Rgb332">PredefinedColorsQuantizer.Rgb332</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
+        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.Rgb332"/>
+        public static Palette Rgb332(Color32 backColor = default, bool directMapping = false)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+
+                return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
+            }
+
+            return new Palette(Rgb332Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale"/>
+        public static Palette Grayscale256(Color32 backColor = default)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+                return c.GetBrightness();
+            }
+
+            return new Palette(Grayscale256Palette, backColor, 0, GetNearestColorIndex);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale16">PredefinedColorsQuantizer.Grayscale16</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// which is very fast but may end up in a result of a bit higher contrast than the original image;
+        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale16"/>
+        public static Palette Grayscale16(Color32 backColor = default, bool directMapping = false)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+                return c.GetBrightness() >> 4;
+            }
+
+            return new Palette(Grayscale16Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale4">PredefinedColorsQuantizer.Grayscale4</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// which is very fast but may end up in a result of a bit higher contrast than the original image;
+        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.Grayscale4"/>
+        public static Palette Grayscale4(Color32 backColor = default, bool directMapping = false)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+                return c.GetBrightness() >> 6;
+            }
+
+            return new Palette(Grayscale4Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+        }
+
+        /// <summary>
+        /// Gets a <see cref="Palette"/> instance that uses the black and white colors.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.BlackAndWhite">PredefinedColorsQuantizer.BlackAndWhite</see> method for details and some examples.
+        /// </summary>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
+        /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="whiteThreshold">Specifies a threshold value for the brightness of the colors, under which the result of a color lookup is considered black.
+        /// If 0, then all colors are mapped to white. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="Palette"/> instance that uses the black and white colors.</returns>
+        /// <seealso cref="PredefinedColorsQuantizer.BlackAndWhite"/>
+        public static Palette BlackAndWhite(Color32 backColor = default, byte whiteThreshold = 128)
+        {
+            int GetNearestColorIndex(Color32 c)
+            {
+                if (c.A < Byte.MaxValue)
+                    c = c.BlendWithBackground(backColor);
+
+                return c == Color32.Black ? 0
+                    : c == Color32.White ? 1
+                    : c.GetBrightness() >= whiteThreshold ? 1 : 0;
+            }
+
+            return new Palette(BlackAndWhitePalette, backColor, 0, GetNearestColorIndex);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static Color32[] GetColorsByPixelFormat(PixelFormat pixelFormat) => pixelFormat switch
+        {
+            PixelFormat.Format8bppIndexed => System8BppPalette,
+            PixelFormat.Format4bppIndexed => System4BppPalette,
+            PixelFormat.Format1bppIndexed => System1BppPalette,
+            _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
+        };
+
+        #endregion
+
+        #endregion
+
+        #region Instance Methods
 
         #region Public Methods
 
@@ -299,6 +659,46 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Methods
+
+        internal bool Equals(Color[] colors)
+        {
+            if (customGetNearestColorIndex != null || Entries.Length != colors.Length)
+                return false;
+            for (int i = 0; i < colors.Length; i++)
+            {
+                if (colors[i].ToArgb() != Entries[i].ToArgb())
+                    return false;
+            }
+
+            return true;
+        }
+
+        internal bool Equals(Palette other)
+        {
+            // not a public method because we don't want to adjust GetHashCode to these comparisons
+            if (other == null || customGetNearestColorIndex != other.customGetNearestColorIndex || !BackColor.Equals(other.BackColor) || AlphaThreshold != other.AlphaThreshold)
+                return false;
+
+            if (ReferenceEquals(other.Entries, Entries))
+                return true;
+
+            Color32[] colors = other.Entries;
+            if (colors.Length != Entries.Length)
+                return false;
+
+            // ReSharper disable once LoopCanBeConvertedToQuery - performance
+            for (int i = 0; i < colors.Length; i++)
+            {
+                if (!colors[i].Equals(Entries[i]))
+                    return false;
+            }
+
+            return true;
+        }
+
+        #endregion
+
         #region Private Methods
 
         private int FindNearestColorIndex(Color32 color)
@@ -363,6 +763,8 @@ namespace KGySoft.Drawing.Imaging
             throw new ArgumentOutOfRangeException("index", PublicResources.ArgumentMustBeBetween(0, Entries.Length - 1));
 #pragma warning restore CA2208
         }
+
+        #endregion
 
         #endregion
 

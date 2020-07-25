@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
-    <!--<TargetFramework>net45</TargetFramework>-->
+    <!--<TargetFrameworks>net45</TargetFrameworks>-->
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <RootNamespace>KGySoft</RootNamespace>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
@@ -18,27 +18,19 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="HelpOut\**" />
-    <EmbeddedResource Remove="HelpOut\**" />
     <None Remove="HelpOut\**" />
-    <None Include="..\LICENSE">
-      <Pack>True</Pack>
-      <PackagePath></PackagePath>
-    </None>
+    <None Include="..\LICENSE" />
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include=".nuspec\readme.txt" />
-  </ItemGroup>
-
-  <ItemGroup>
+    <None Include=".nuspec\readme.txt" />
     <None Include=".nuspec\KGySoft.Drawing.nuspec" />
     <None Include=".nuspec\readme.md" />
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.CoreLibraries" Version="5.1.1" />
-    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="2.9.8">
+    <PackageReference Include="KGySoft.CoreLibraries" Version="5.3.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.FxCopAnalyzers" Version="3.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
     </PackageReference>

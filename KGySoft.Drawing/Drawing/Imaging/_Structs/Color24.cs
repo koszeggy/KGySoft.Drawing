@@ -53,6 +53,8 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color32 ToColor32() => new Color32(r, g, b);
 
+        internal int ToRgb() => ToColor32().ToRgb();
+
         #endregion
     }
 }

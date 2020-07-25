@@ -17,9 +17,9 @@
 #region Usings
 
 using System;
-using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 using System.Security;
 
 #endregion
@@ -53,11 +53,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        private static ushort Max16BppValue
+        internal static ushort Max16BppValue
         {
-#if !NET35
             [SecuritySafeCritical]
-#endif
             get
             {
                 if (!lookupTable8To16BppInitialized)
@@ -70,6 +68,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToPremultiplied(this Color32 c)
         {
             if (c.A == Byte.MaxValue)
@@ -83,6 +82,31 @@ namespace KGySoft.Drawing.Imaging
                 (byte)(c.B * c.A / Byte.MaxValue));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 AsValidPremultiplied(this Color32 c)
+        {
+            Debug.Assert(c.A > 0 && c.A < Byte.MaxValue);
+            return new Color32(c.A,
+                Math.Min(c.A, c.R),
+                Math.Min(c.A, c.G),
+                Math.Min(c.A, c.B));
+        }
+        
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToPremultiplied(this Color64 c)
+        {
+            if (c.A == UInt16.MaxValue)
+                return c;
+            if (c.A == 0)
+                return default;
+
+            return new Color64(c.A,
+                (ushort)((uint)c.R * c.A / UInt16.MaxValue),
+                (ushort)((uint)c.G * c.A / UInt16.MaxValue),
+                (ushort)((uint)c.B * c.A / UInt16.MaxValue));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToStraight(this Color32 c)
         {
             if (c.A == Byte.MaxValue)
@@ -97,10 +121,39 @@ namespace KGySoft.Drawing.Imaging
                 c.A == 0 ? (byte)0 : (byte)(c.B * Byte.MaxValue / c.A));
         }
 
-#if !NET35
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 ToStraightSafe(this Color32 c)
+        {
+            if (c.A == Byte.MaxValue)
+                return c;
+            if (c.A == 0)
+                return default;
+
+            return new Color32(
+                c.A,
+                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.R) * Byte.MaxValue / c.A),
+                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.G) * Byte.MaxValue / c.A),
+                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.B) * Byte.MaxValue / c.A));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToStraight(this Color64 c)
+        {
+            if (c.A == UInt16.MaxValue)
+                return c;
+            if (c.A == 0)
+                return default;
+
+            return new Color64(
+                c.A,
+                c.A == 0 ? (ushort)0 : (ushort)((uint)c.R * UInt16.MaxValue / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)((uint)c.G * UInt16.MaxValue / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)((uint)c.B * UInt16.MaxValue / c.A));
+        }
+
         [SecuritySafeCritical]
-#endif
-        internal static Color64 ToArgb64(this Color32 c)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToColor64PlatformDependent(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
                 InitializeLookupTable8To16Bpp();
@@ -115,10 +168,9 @@ namespace KGySoft.Drawing.Imaging
             return new Color64(a, lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
-        internal static Color32 ToArgb32(this Color64 c)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 ToColor32PlatformDependent(this Color64 c)
         {
             if (!lookupTable16To8BppInitialized)
                 InitializeLookupTable16To8Bpp();
@@ -133,12 +185,13 @@ namespace KGySoft.Drawing.Imaging
             return new Color32(a, lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
-        internal static Color64 ToPArgb64(this Color32 c)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToPremultiplied64PlatformDependent(this Color32 c)
         {
             if (c.A == 0)
                 return default;
 
-            Color64 c64 = c.ToArgb64();
+            Color64 c64 = c.ToColor64PlatformDependent();
             if (c.A == Byte.MaxValue)
                 return c64;
 
@@ -148,7 +201,8 @@ namespace KGySoft.Drawing.Imaging
                 (ushort)(c64.B * c64.A / max16BppValue));
         }
 
-        internal static Color32 ToStraightArgb32(this Color64 c)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 ToStraight32PlatformDependent(this Color64 c)
         {
             if (c.A == 0)
                 return default;
@@ -156,16 +210,15 @@ namespace KGySoft.Drawing.Imaging
             ushort max = Max16BppValue;
             Color64 straight = new Color64(
                 c.A,
-                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.R * max / c.A),
-                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.G * max / c.A),
-                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, c.B * max / c.A));
-            return ToArgb32(straight);
+                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)c.R * max / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)c.G * max / c.A),
+                c.A == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)c.B * max / c.A));
+            return ToColor32PlatformDependent(straight);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
-        internal static Color48 ToRgb48(this Color32 c)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color48 ToColor48PlatformDependent(this Color32 c)
         {
             if (!lookupTable8To16BppInitialized)
                 InitializeLookupTable8To16Bpp();
@@ -175,10 +228,9 @@ namespace KGySoft.Drawing.Imaging
                 : new Color48(lookupTable8To16Bpp[c.R], lookupTable8To16Bpp[c.G], lookupTable8To16Bpp[c.B]);
         }
 
-#if !NET35
         [SecuritySafeCritical]
-#endif
-        internal static Color32 ToArgb32(this Color48 c)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 ToColor32PlatformDependent(this Color48 c)
         {
             if (!lookupTable16To8BppInitialized)
                 InitializeLookupTable16To8Bpp();
@@ -188,16 +240,18 @@ namespace KGySoft.Drawing.Imaging
                 : new Color32(lookupTable16To8Bpp[c.R], lookupTable16To8Bpp[c.G], lookupTable16To8Bpp[c.B]);
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static byte GetBrightness(this Color32 c)
             => c.R == c.G && c.R == c.B
                 ? c.R
                 : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
-            // The blending is applied only to the color and not the resulting alpha, which is always considered opaque
+            // The blending is applied only to the color and not the resulting alpha, which will always be opaque
             if (c.A == 0)
-                return Color32.FromArgb(Byte.MaxValue, backColor);
+                return backColor.ToOpaque();
             float alpha = c.A / 255f;
             float inverseAlpha = 1f - alpha;
             return new Color32(Byte.MaxValue,
@@ -206,6 +260,7 @@ namespace KGySoft.Drawing.Imaging
                 (byte)(c.B * alpha + backColor.B * inverseAlpha));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWith(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
@@ -221,9 +276,10 @@ namespace KGySoft.Drawing.Imaging
                 (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
         {
-            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
 
             float inverseAlphaSrc = (255 - src.A) / 255f;
 

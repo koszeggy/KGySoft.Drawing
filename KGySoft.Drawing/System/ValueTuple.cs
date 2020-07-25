@@ -41,6 +41,7 @@ namespace System
             => ValueTuple.CombineHashCodes(EqualityComparer<T1>.Default.GetHashCode(Item1),
                 EqualityComparer<T2>.Default.GetHashCode(Item2));
 
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "In this ToString it is intended to be culture specific")]
         public override string ToString() => $"({Item1}, {Item2})";
 
         public static bool operator ==(ValueTuple<T1, T2> left, ValueTuple<T1, T2> right) => left.Equals(right);
@@ -74,6 +75,7 @@ namespace System
                 EqualityComparer<T2>.Default.GetHashCode(Item2),
                 EqualityComparer<T3>.Default.GetHashCode(Item3));
 
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "In this ToString it is intended to be culture specific")]
         public override string ToString() => $"({Item1}, {Item2}, {Item3})";
 
         public static bool operator ==(ValueTuple<T1, T2, T3> left, ValueTuple<T1, T2, T3> right) => left.Equals(right);

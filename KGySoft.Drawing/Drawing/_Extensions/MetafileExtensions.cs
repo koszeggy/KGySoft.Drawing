@@ -19,6 +19,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
@@ -118,14 +119,24 @@ namespace KGySoft.Drawing
         #region Public Methods
 
         /// <summary>
-        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance provided in the <paramref name="metafile"/> parameter.
+        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance specified in the <paramref name="metafile"/> parameter.
+        /// </summary>
+        /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
+        /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>. This overload does not maintain aspect ratio.</param>
+        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
+        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false) => ToBitmap(metafile, requestedSize, antiAliased, false);
+
+        /// <summary>
+        /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance specified in the <paramref name="metafile"/> parameter.
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
         /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>.</param>
-        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>.
-        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>.</param>
+        /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="metafile"/>; otherwise, <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
-        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)
+        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased, bool keepAspectRatio)
         {
             if (metafile == null)
                 throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
@@ -133,13 +144,47 @@ namespace KGySoft.Drawing
             if (requestedSize.Width < 1 || requestedSize.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(requestedSize), PublicResources.ArgumentOutOfRange);
 
-            if (!antiAliased)
+            Size sourceSize = metafile.Size;
+            Rectangle targetRectangle = new Rectangle(Point.Empty, requestedSize);
+
+            if (keepAspectRatio && requestedSize != sourceSize)
+            {
+                float ratio = Math.Min((float)requestedSize.Width / sourceSize.Width, (float)requestedSize.Height / sourceSize.Height);
+                targetRectangle.Size = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetRectangle.Location = new Point((requestedSize.Width >> 1) - (targetRectangle.Width >> 1), (requestedSize.Height >> 1) - (targetRectangle.Height >> 1));
+            }
+
+            if (!antiAliased && requestedSize == targetRectangle.Size)
                 return new Bitmap(metafile, requestedSize);
 
-            using (Bitmap bmpDouble = new Bitmap(metafile, requestedSize.Width << 1, requestedSize.Height << 1))
+            var result = new Bitmap(requestedSize.Width, requestedSize.Height);
+            if (!antiAliased)
             {
-                return bmpDouble.Resize(requestedSize);
+                if (OSUtils.IsWindows)
+                {
+                    using (Graphics g = Graphics.FromImage(result))
+                    {
+                        // no process-wide lock occurs here because the source image is a Metafile
+                        g.DrawImage(metafile, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                        g.Flush();
+                    }
+                }
+                else
+                {
+                    // On Linux there comes a NotImplementedException for Graphics.DrawImage(metafile, ...) so creating a temp buffer
+                    // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future proof in case it will be fixed
+                    using (Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height))
+                        buf.DrawInto(result, targetRectangle);
+                }
+
+                return result;
             }
+
+            // for anti-aliasing using self resizing to prevent process-wide lock that Graphics.DrawImage would cause (even if it is slower)
+            using (Bitmap bmpDouble = new Bitmap(metafile, targetRectangle.Width << 1, targetRectangle.Height << 1))
+                bmpDouble.DrawInto(result, targetRectangle);
+
+            return result;
         }
 
         /// <summary>
@@ -165,9 +210,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
-#if !NET35
         [SecuritySafeCritical]
-#endif
         public static void Save(this Metafile metafile, Stream stream, bool forceWmfFormat)
         {
             if (metafile == null)

@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -227,6 +228,12 @@ namespace KGySoft.Drawing.Imaging
         public Color32 ToGray() => FromArgb(A, FromGray(this.GetBrightness()));
 
         /// <summary>
+        /// Gets a <see cref="Color32"/> instance that represents this <see cref="Color32"/> without alpha (transparency).
+        /// </summary>
+        /// <returns>A <see cref="Color32"/> instance that represents this <see cref="Color32"/> without alpha.</returns>
+        public Color32 ToOpaque() => A == Byte.MaxValue ? this : new Color32(Byte.MaxValue, R, G, B);
+
+        /// <summary>
         /// Determines whether the current <see cref="Color32"/> instance is equal to another one.
         /// </summary>
         /// <param name="other">A <see cref="Color32"/> structure to compare with this <see cref="Color32"/> instance.</param>
@@ -250,6 +257,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the string representation of this <see cref="Color32"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="Color32"/> instance.</returns>
+        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, ToString of integers is not affected by culture")]
         public override string ToString() => $"{value:X8} [A={A}; R={R}; G={G}; B={B}]";
 
         #endregion
