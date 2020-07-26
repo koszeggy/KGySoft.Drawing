@@ -2,7 +2,7 @@
 
 # KGy SOFT Drawing Libraries
 
-KGy SOFT Drawing Libraries offer advanced features for System.Drawing types.
+KGy SOFT Drawing Libraries offer advanced features for System.Drawing types as well as completely managed bitmap data manipulation on any platform.
 Multiple versions of .NET Framework and .NET Core are supported. Tested on Windows and Linux (both in Mono and .NET Core environments).
 
 [![Website](https://img.shields.io/website/https/kgysoft.net/corelibraries.svg)](https://kgysoft.net/drawing)
@@ -21,6 +21,7 @@ Multiple versions of .NET Framework and .NET Core are supported. Tested on Windo
 5. [Examples](#examples)
    - [Icon Manipulation](#icon-manipulation)
    - [Fast Bitmap Manipulation](#fast-bitmap-manipulation)
+   - [Managed Bitmap Data Manipulation](#managed-bitmap-data-manipulation)
    - [Quantizing and Dithering](#quantizing-and-dithering)
 6. [License](#license)
 
@@ -101,6 +102,10 @@ using (Bitmap bmpDst = new Bitmap(256, 256, targetFormat))
 > _Tip:_ See more examples with image examples at the [`GetReadWriteBitmapData`](https:////docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) extension method.
 
 If you know the actual pixel format you can also access the raw data in a managed way. See the [`IReadableBitmapDataRow.ReadRaw`](https:////docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https:////docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) method for details and examples.
+
+### Managed Bitmap Data Manipulation
+
+Not only for the native `Bitmap` type can you obtain a managed accessor (as described above) but you can also create a completely managed bitmap data instance by the [BitmapDataFactory](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class. There are more benefits of using managed bitmap data: not just that they don't use any GDI or other native resources but also that they support every `PixelFormat` on any platform. See the [`BitmapDataExtensions`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataExtensions.htm) for the available operations on bitmap data where bitmap data can be either a managed one or a managed accessor to a native `Bitmap` inatance.
 
 ### Quantizing and Dithering
 
