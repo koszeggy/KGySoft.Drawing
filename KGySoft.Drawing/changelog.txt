@@ -6,6 +6,17 @@
 ===============================================================================
 
 ~~~~~~~~~
+- v5.3.0:
+~~~~~~~~~
+ 
+KGySoft.Drawing namespace:
+============================
+- MetafileExtensions class:
+  - ToBitmap method: Fixed result if keeping aspect ratio without anti aliasing and metafile origin is not at
+    Point.Zero location (a metafile can be located even at negative coordinates).
+
+
+~~~~~~~~~
 ! v5.2.0:
 ~~~~~~~~~
 
