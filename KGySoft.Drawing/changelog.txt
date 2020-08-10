@@ -6,14 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
-- v5.3.0:
+- v5.2.1:
 ~~~~~~~~~
  
 KGySoft.Drawing namespace:
 ============================
 - MetafileExtensions class:
-  - ToBitmap method: Fixed result if keeping aspect ratio without anti aliasing and metafile origin is not at
-    Point.Zero location (a metafile can be located even at negative coordinates).
+  - ToBitmap method: Fixing result in Windows if keeping aspect ratio without anti-aliasing and metafile origin is
+    not at Point.Zero location (a metafile can be located even at negative coordinates). On Linux/Mono the result
+    still can be misplaced though.
+- Icons/IconExtensions classes: Tolerating if BMP icon stream does not have a transparency mask.
 
 
 ~~~~~~~~~
