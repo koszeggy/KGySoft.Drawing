@@ -126,7 +126,7 @@ namespace KGySoft.Drawing
             private byte[] rawColor;
 
             /// <summary>
-            /// Mask data (only if BMP)
+            /// Mask data (can be null even if BMP)
             /// </summary>
             private byte[] rawMask;
 
@@ -269,8 +269,12 @@ namespace KGySoft.Drawing
 
                 // mask image (AND)
                 stride = ((bmpHeader.biWidth + 31) & ~31) >> 3;
-                rawMask = new byte[stride * size.Height];
-                Buffer.BlockCopy(rawData, offset, rawMask, 0, rawMask.Length);
+                int maskLength = stride * size.Height;
+                if (offset + maskLength > rawData.Length)
+                    return;
+
+                rawMask = new byte[maskLength];
+                Buffer.BlockCopy(rawData, offset, rawMask, 0, maskLength);
             }
 
             #endregion
@@ -324,7 +328,7 @@ namespace KGySoft.Drawing
                     entry.wPlanes = bmpHeader.biPlanes;
                     entry.wBitCount = bmpHeader.biBitCount;
                     entry.dwBytesInRes = (uint)(Marshal.SizeOf(typeof(BITMAPINFOHEADER)) + Marshal.SizeOf(typeof(RGBQUAD)) * PaletteColorCount +
-                        rawColor.Length + rawMask.Length);
+                        rawColor.Length + (rawMask?.Length ?? 0));
                 }
 
                 bw.Write(BinarySerializer.SerializeValueType(entry));
@@ -351,7 +355,8 @@ namespace KGySoft.Drawing
                 bw.Write(rawColor);
 
                 // mask image (AND)
-                bw.Write(rawMask);
+                if (rawMask != null)
+                    bw.Write(rawMask);
             }
 
             [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
@@ -613,20 +618,20 @@ namespace KGySoft.Drawing
 
                 // Mask image (AND): Creating from color image and provided transparent color.
                 int strideMask = ((size.Width + 31) >> 5) << 2; // Stride = 4 * (Width * bpp + 31) / 32)
-                rawMask = new byte[strideMask * size.Height];
 
-                GenerateRawData(strideColor, strideMask);
+                GenerateMask(strideColor, strideMask);
             }
 
-            private void GenerateRawData(int strideColor, int strideMask)
+            private void GenerateMask(int strideColor, int strideMask)
             {
-                // rawColor now contains the provided bitmap data with the original background, while rawMask is still totally empty.
-                // Here we generate rawMask
+                // rawColor now contains the provided bitmap data with the original background, while rawMask is still null.
+                Debug.Assert(rawColor != null && rawMask == null);
 
-                // we know that the icon will not be transparent: returning a solid mask
+                // we know that the icon will not be transparent: not generating a mask (the icon will be solid)
                 if (bpp <= 8 && transparentIndices.IsNullOrEmpty())
                     return;
 
+                rawMask = new byte[strideMask * size.Height];
                 for (int y = 0; y < size.Height; y++)
                 {
                     int posColorY = strideColor * y;
