@@ -6,10 +6,15 @@
 ===============================================================================
 
 ~~~~~~~~~
-- v5.2.1:
+* v5.2.1:
 ~~~~~~~~~
- 
-KGySoft.Drawing namespace:
+
++ Assembly changes:
+===================
++ Targeting also .NET Standard 2.0.
++ Targeting also .NET Standard 2.1.
+
+- KGySoft.Drawing namespace:
 ============================
 - MetafileExtensions class:
   - ToBitmap method: Fixing result in Windows if keeping aspect ratio without anti-aliasing and metafile origin is

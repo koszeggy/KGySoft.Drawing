@@ -18,9 +18,10 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
+#if NET35 || NET40 || NET45 || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
+using System.Security;
+#else
 using System.Runtime.CompilerServices;
-#if NET35 || NET40 || NET45 || NETCOREAPP2_0
-using System.Security; 
 #endif
 
 using KGySoft.Collections;
@@ -125,7 +126,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-#if NET35 || NET40 || NET45 || NETCOREAPP2_0
+#if NET35 || NET40 || NET45 || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
         [SecuritySafeCritical]
         internal override unsafe ref byte GetPinnableReference()
         {

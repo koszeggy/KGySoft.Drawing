@@ -50,7 +50,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override T DoReadRaw<T>(int x)
         {
-#if NETFRAMEWORK || NETCOREAPP2_0
+#if NETFRAMEWORK || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
             unsafe
             {
                 fixed (TColor* pRow = Row)
@@ -65,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoWriteRaw<T>(int x, T data)
         {
-#if NETFRAMEWORK || NETCOREAPP2_0
+#if NETFRAMEWORK || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
             unsafe
             {
                 fixed (TColor* pRow = Row)
