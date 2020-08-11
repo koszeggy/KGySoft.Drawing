@@ -1,4 +1,4 @@
-﻿#if !NETCOREAPP2_0
+﻿#if !(NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1)
 #region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
@@ -36,7 +36,7 @@ namespace KGySoft.ComponentModel
     /// <see cref="Metafile"/> and <see cref="Icon"/> images.
     /// </summary>
     /// <remarks>
-    /// <note>This class is not available in the .NET Core 2.0 version.</note>
+    /// <note>This class is not available in the .NET Core 2.0 and .NET Standard 2.0/2.1 versions.</note>
     /// </remarks>
     public class AdvancedImageConverter : ImageConverter
     {

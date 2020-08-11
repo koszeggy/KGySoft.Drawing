@@ -164,8 +164,12 @@ namespace KGySoft.Drawing
                 {
                     using (Graphics g = Graphics.FromImage(result))
                     {
+                        // it can happen that metafile bounds is not at 0,0 location
+                        GraphicsUnit unit = GraphicsUnit.Pixel;
+                        RectangleF sourceRectangle = metafile.GetBounds(ref unit);
+
                         // no process-wide lock occurs here because the source image is a Metafile
-                        g.DrawImage(metafile, targetRectangle, new Rectangle(Point.Empty, sourceSize), GraphicsUnit.Pixel);
+                        g.DrawImage(metafile, targetRectangle, sourceRectangle, unit);
                         g.Flush();
                     }
                 }
@@ -173,6 +177,7 @@ namespace KGySoft.Drawing
                 {
                     // On Linux there comes a NotImplementedException for Graphics.DrawImage(metafile, ...) so creating a temp buffer
                     // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future proof in case it will be fixed
+                    // Note 2: The result still can be wrong if 
                     using (Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height))
                         buf.DrawInto(result, targetRectangle);
                 }

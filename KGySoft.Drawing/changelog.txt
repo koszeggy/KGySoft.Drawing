@@ -6,6 +6,24 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v5.2.1:
+~~~~~~~~~
+
++ Assembly changes:
+===================
++ Targeting also .NET Standard 2.0.
++ Targeting also .NET Standard 2.1.
+
+- KGySoft.Drawing namespace:
+============================
+- MetafileExtensions class:
+  - ToBitmap method: Fixing result in Windows if keeping aspect ratio without anti-aliasing and metafile origin is
+    not at Point.Zero location (a metafile can be located even at negative coordinates). On Linux/Mono the result
+    still can be misplaced though.
+- Icons/IconExtensions classes: Tolerating if BMP icon stream does not have a transparency mask.
+
+
+~~~~~~~~~
 ! v5.2.0:
 ~~~~~~~~~
 

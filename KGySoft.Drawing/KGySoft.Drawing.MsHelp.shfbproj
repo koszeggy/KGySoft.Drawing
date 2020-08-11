@@ -1198,6 +1198,54 @@
       <ImageId>ShieldArgb8888SilverA1Dithered</ImageId>
       <AlternateText>Shield Argb 8888 Silver A 1 Dithered</AlternateText>
     </Content>
+    <Content Include="Help\Images\Application16Mono.png">
+      <ImageId>Application16Mono</ImageId>
+      <AlternateText>Application 16 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Application32Mono.png">
+      <ImageId>Application32Mono</ImageId>
+      <AlternateText>Application 32 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Error16Mono.png">
+      <ImageId>Error16Mono</ImageId>
+      <AlternateText>Error 16 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Error32Mono.png">
+      <ImageId>Error32Mono</ImageId>
+      <AlternateText>Error 32 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Information16Mono.png">
+      <ImageId>Information16Mono</ImageId>
+      <AlternateText>Information 16 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Information32Mono.png">
+      <ImageId>Information32Mono</ImageId>
+      <AlternateText>Information 32 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Question16Mono.png">
+      <ImageId>Question16Mono</ImageId>
+      <AlternateText>Question 16 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Question32Mono.png">
+      <ImageId>Question32Mono</ImageId>
+      <AlternateText>Question 32 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Shield16Mono.png">
+      <ImageId>Shield16Mono</ImageId>
+      <AlternateText>Shield 16 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Shield32Mono.png">
+      <ImageId>Shield32Mono</ImageId>
+      <AlternateText>Shield 32 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Warning16Mono.png">
+      <ImageId>Warning16Mono</ImageId>
+      <AlternateText>Warning 16 Mono</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Warning32Mono.png">
+      <ImageId>Warning32Mono</ImageId>
+      <AlternateText>Warning 32 Mono</AlternateText>
+    </Content>
   </ItemGroup>
   <!-- Import the SHFB build targets -->
   <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />

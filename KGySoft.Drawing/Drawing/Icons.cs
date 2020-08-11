@@ -20,8 +20,6 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -58,7 +56,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Information16W10.png" alt="Information (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Information icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -76,6 +74,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/InformationXP32.png" alt="Information Windows XP 32x32"/>
         /// <img src="../Help/Images/InformationXP16.png" alt="Information Windows XP 16x16"/>
         /// </para>
+        /// <para>
+        /// On Linux/Mono the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Information32Mono.png" alt="Information Linux/Mono 32x32"/>
+        /// <img src="../Help/Images/Information16Mono.png" alt="Information Linux/Mono 16x16"/>
+        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// </para>
         /// </remarks>
         public static Icon SystemInformation => GetSystemIcon(StockIcon.Information, () => SystemIcons.Information);
 
@@ -83,7 +87,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Warning16W10.png" alt="Warning (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Warning icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -101,6 +105,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/WarningXP32.png" alt="Warning Windows XP 32x32"/>
         /// <img src="../Help/Images/WarningXP16.png" alt="Warning Windows XP 16x16"/>
         /// </para>
+        /// <para>
+        /// On Linux/Mono the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Warning32Mono.png" alt="Warning Linux/Mono 32x32"/>
+        /// <img src="../Help/Images/Warning16Mono.png" alt="Warning Linux/Mono 16x16"/>
+        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// </para>
         /// </remarks>
         public static Icon SystemWarning => GetSystemIcon(StockIcon.Warning, () => SystemIcons.Warning);
 
@@ -108,7 +118,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Error16W10.png" alt="Error (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Error icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -126,6 +136,11 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ErrorXP32.png" alt="Error Windows XP 32x32"/>
         /// <img src="../Help/Images/ErrorXP16.png" alt="Error Windows XP 16x16"/>
         /// </para>
+        /// <para>
+        /// On Linux/Mono the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Error32Mono.png" alt="Error Linux/Mono 32x32"/>
+        /// <img src="../Help/Images/Error16Mono.png" alt="Error Linux/Mono 16x16"/>
+        /// </para>
         /// </remarks>
         public static Icon SystemError => GetSystemIcon(StockIcon.Error, () => SystemIcons.Error);
 
@@ -133,7 +148,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Question16W10.png" alt="Question (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Question icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -151,6 +166,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/QuestionXP32.png" alt="Question Windows XP 32x32"/>
         /// <img src="../Help/Images/QuestionXP16.png" alt="Question Windows XP 16x16"/>
         /// </para>
+        /// <para>
+        /// On Linux/Mono the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Question32Mono.png" alt="Question Linux/Mono 32x32"/>
+        /// <img src="../Help/Images/Question16Mono.png" alt="Question Linux/Mono 16x16"/>
+        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// </para>
         /// </remarks>
         public static Icon SystemQuestion => GetSystemIcon(StockIcon.Help, () => SystemIcons.Question);
 
@@ -158,7 +179,7 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Application16W10.png" alt="Application (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Application icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -176,6 +197,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ApplicationXP32.png" alt="Application Windows XP 32x32"/>
         /// <img src="../Help/Images/ApplicationXP16.png" alt="Application Windows XP 16x16"/>
         /// </para>
+        /// <para>
+        /// On Linux/Mono the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Application32Mono.png" alt="Application Linux/Mono 32x32"/>
+        /// <img src="../Help/Images/Application16Mono.png" alt="Application Linux/Mono 16x16"/>
+        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// </para>
         /// </remarks>
         public static Icon SystemApplication => GetSystemIcon(StockIcon.Application, () => SystemIcons.Application);
 
@@ -183,7 +210,8 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/Shield16W10.png" alt="Shield (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Shield icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths.
+        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths
+        /// and in Linux (Mono) the icon contains a 29x32 and a 16x16 image.
         /// </summary>
         /// <remarks>
         /// <para>
@@ -206,6 +234,12 @@ namespace KGySoft.Drawing
         /// <img src="../Help/Images/ShieldXP48.png" alt="Shield Windows XP 48x48"/>
         /// <img src="../Help/Images/ShieldXP32.png" alt="Shield Windows XP 32x32"/>
         /// <img src="../Help/Images/ShieldXP16.png" alt="Shield Windows XP 16x16"/>
+        /// </para>
+        /// <para>
+        /// On Linux/Mono the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Shield32Mono.png" alt="Shield Linux/Mono 29x32"/>
+        /// <img src="../Help/Images/Shield16Mono.png" alt="Shield Linux/Mono 16x16"/>
+        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
         public static Icon SystemShield => GetSystemIcon(StockIcon.Shield, () => SystemIcons.Shield);

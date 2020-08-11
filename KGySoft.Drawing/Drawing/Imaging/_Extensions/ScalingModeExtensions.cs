@@ -132,7 +132,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         private static float SinC(float x)
         {
-#if NETFRAMEWORK
+#if NETFRAMEWORK || NETSTANDARD2_0
             double d = x * Math.PI;
             return (float)(Math.Sin(d) / d);
 #else
