@@ -13,6 +13,8 @@
 ====================================
 ! RandomNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
 ! InterleavedGradientNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
+- OptimizedPaletteQuantizer class:
+  - Octree method: Fixing a possible exception under .NET 3.5 caused by different behavior of Array.Sort
 
 
 ~~~~~~~~~

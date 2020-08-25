@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 #endregion
 
@@ -133,7 +132,7 @@ namespace KGySoft.Drawing.Imaging
                     static int CompareByBrightness(OctreeNode a, OctreeNode b)
                     {
                         if (a == null || b == null)
-                            return Int32.MinValue;
+                            return a == b ? 0 : a == null ? -1 : 1;
 
                         Color32 ca = a.ToColor();
                         Color32 cb = b.ToColor();
@@ -143,7 +142,7 @@ namespace KGySoft.Drawing.Imaging
                     int CompareByWeightedBrightness(OctreeNode a, OctreeNode b)
                     {
                         if (a == null || b == null)
-                            return Int32.MinValue;
+                            return a == b ? 0 : a == null ? -1 : 1;
 
                         Color32 ca = a.ToColor();
                         Color32 cb = b.ToColor();
