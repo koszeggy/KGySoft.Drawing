@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v5.3.0:
+~~~~~~~~~
+
+! KGySoft.Drawing.Imaging namespace:
+====================================
+! RandomNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
+! InterleavedGradientNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
+
+
+~~~~~~~~~
 * v5.2.1:
 ~~~~~~~~~
 

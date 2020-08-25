@@ -171,7 +171,12 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        public InterleavedGradientNoiseDitherer(float strength = 0f) => this.strength = strength;
+        public InterleavedGradientNoiseDitherer(float strength = 0f)
+        {
+            if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
+                throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
+            this.strength = strength;
+        }
 
         #endregion
 

@@ -189,6 +189,8 @@ namespace KGySoft.Drawing.Imaging
         /// </example>
         public RandomNoiseDitherer(float strength = 0f, int? seed = null)
         {
+            if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
+                throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
             this.strength = strength;
             this.seed = seed;
         }
