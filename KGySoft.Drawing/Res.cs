@@ -56,6 +56,12 @@ namespace KGySoft
         /// <summary>This operation is supported on Windows only.</summary>
         internal static string RequiresWindows => Get("General_RequiresWindows");
 
+        /// <summary>The operation was canceled.</summary>
+        internal static string OperationCanceled => Get("General_OperationCanceled");
+
+        /// <summary>Either the IAsyncResult object did not come from the corresponding async method on this type, or the End method was called multiple times with the same IAsyncResult.</summary>
+        internal static string InvalidAsyncResult => Get("General_InvalidAsyncResult");
+
         #endregion
 
         #region Gdi32

@@ -22,7 +22,8 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
-
+using System.Threading;
+using System.Threading.Tasks;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
@@ -86,7 +87,6 @@ namespace KGySoft.Drawing.UnitTests
             if (!pixelFormat.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format is not supported: {pixelFormat}");
 
-            //using var ref32bpp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\Hue_alpha_falloff.png");
             using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
             Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
 
@@ -94,6 +94,32 @@ namespace KGySoft.Drawing.UnitTests
             using var converted = ref32bpp.ConvertPixelFormat(pixelFormat, backColor, alphaThreshold);
             Assert.AreEqual(pixelFormat, converted.PixelFormat);
             SaveImage($"{pixelFormat} - {backColor.Name} (A={alphaThreshold})", converted);
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            Bitmap result = null;
+            IAsyncDrawingResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed,
+                callback: ar => result = ImageExtensions.EndConvertPixelFormat(ar));
+            Assert.IsFalse(ar.IsCompleted);
+            Assert.IsNull(result);
+            ar.AsyncWaitHandle.WaitOne();
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsNotNull(result);
+        }
+
+        [Test]
+        public async Task ConvertPixelFormatAsyncTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            Bitmap result = await ref32bpp.ConvertPixelFormatAsync(PixelFormat.Format8bppIndexed);
+            Assert.IsNotNull(result);
         }
 
         [TestCaseSource(nameof(convertPixelFormatCustomTestSource))]

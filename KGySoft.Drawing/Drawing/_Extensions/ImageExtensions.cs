@@ -23,8 +23,10 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security; 
-
+using System.Runtime.ExceptionServices;
+using System.Security;
+using System.Threading;
+using System.Threading.Tasks;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
@@ -218,55 +220,16 @@ namespace KGySoft.Drawing
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
-        {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
-            if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
-            if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
+            => DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
 
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            Bitmap result = null;
+        public static IAsyncDrawingResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, int maxDegreeOfParallelism = 0, AsyncCallback callback = null, object state = null)
+            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat),
+                ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold),
+                maxDegreeOfParallelism, callback, state);
 
-            try
-            {
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-
-                // validating and initializing palette in target bitmap
-                if (newPixelFormat.IsIndexed())
-                    InitPalette(newPixelFormat, bmp, result, palette);
-
-                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
-                Palette targetPalette =
-                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
-                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
-                    // using the custom colors
-                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
-                    // using the default palette from target
-                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
-
-                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
-                {
-                    var rect = new Rectangle(Point.Empty, source.GetSize());
-                    var session = new CopySession(source, target, rect, rect);
-                    session.PerformCopy();
-                }
-
-                return result;
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                throw;
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, image))
-                    bmp.Dispose();
-            }
-        }
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, CancellationToken cancellationToken = default, IProgress<DrawingProgress> progress = null, int maxDegreeOfParallelism = 0)
+            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold),
+                cancellationToken, progress, maxDegreeOfParallelism);
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
@@ -507,6 +470,15 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
 
+        public static IAsyncDrawingResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncCallback callback = null, object state = null, int maxDegreeOfParallelism = 0)
+            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat),
+                ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold),
+                maxDegreeOfParallelism, callback, state);
+
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, CancellationToken cancellationToken = default, IProgress<DrawingProgress> progress = null, int maxDegreeOfParallelism = 0)
+            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold),
+                cancellationToken, progress, maxDegreeOfParallelism);
+
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -632,6 +604,72 @@ namespace KGySoft.Drawing
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
+            => DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, quantizer, ditherer);
+
+        public static IAsyncDrawingResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncCallback callback = null, object state = null, int maxDegreeOfParallelism = 0)
+            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat),
+                ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer),
+                maxDegreeOfParallelism, callback, state);
+
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, CancellationToken cancellationToken = default, IProgress<DrawingProgress> progress = null, int maxDegreeOfParallelism = 0)
+            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer),
+                cancellationToken, progress, maxDegreeOfParallelism);
+
+        public static Bitmap EndConvertPixelFormat(IAsyncResult asyncResult)
+            => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
+
+        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor, byte alphaThreshold)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (!newPixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
+            if (!newPixelFormat.IsSupportedNatively())
+                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
+
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap result = null;
+
+            try
+            {
+                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+
+                // validating and initializing palette in target bitmap
+                if (newPixelFormat.IsIndexed())
+                    InitPalette(newPixelFormat, bmp, result, palette);
+
+                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
+                Palette targetPalette =
+                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
+                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
+                    // using the custom colors
+                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
+                    // using the default palette from target
+                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
+
+                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
+                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
+                {
+                    var rect = new Rectangle(Point.Empty, source.GetSize());
+                    var session = new CopySession(source, target, rect, rect);
+                    session.PerformCopy();
+                }
+
+                return result;
+            }
+            catch (Exception)
+            {
+                result?.Dispose();
+                throw;
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+            }
+        }
+
+        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);

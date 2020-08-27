@@ -46,7 +46,7 @@ namespace KGySoft.Drawing
 
         #region Properties
 
-        private static int CoreCount => coreCount ??= Environment.ProcessorCount;
+        internal static int CoreCount => coreCount ??= Environment.ProcessorCount;
 
         #endregion
 
