@@ -23,10 +23,11 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Runtime.ExceptionServices;
 using System.Security;
-using System.Threading;
-using System.Threading.Tasks;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
+
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
@@ -222,14 +223,13 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
             => DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
 
-        public static IAsyncDrawingResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, int maxDegreeOfParallelism = 0, AsyncCallback callback = null, object state = null)
-            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat),
-                ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold),
-                maxDegreeOfParallelism, callback, state);
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
 
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, CancellationToken cancellationToken = default, IProgress<DrawingProgress> progress = null, int maxDegreeOfParallelism = 0)
-            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold),
-                cancellationToken, progress, maxDegreeOfParallelism);
+#if !NET35
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
+            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig); 
+#endif
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
@@ -470,14 +470,13 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
 
-        public static IAsyncDrawingResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncCallback callback = null, object state = null, int maxDegreeOfParallelism = 0)
-            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat),
-                ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold),
-                maxDegreeOfParallelism, callback, state);
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
 
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, CancellationToken cancellationToken = default, IProgress<DrawingProgress> progress = null, int maxDegreeOfParallelism = 0)
-            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold),
-                cancellationToken, progress, maxDegreeOfParallelism);
+#if !NET35
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
+            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig); 
+#endif
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
@@ -606,14 +605,13 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
             => DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, quantizer, ditherer);
 
-        public static IAsyncDrawingResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncCallback callback = null, object state = null, int maxDegreeOfParallelism = 0)
-            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat),
-                ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer),
-                maxDegreeOfParallelism, callback, state);
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
 
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, CancellationToken cancellationToken = default, IProgress<DrawingProgress> progress = null, int maxDegreeOfParallelism = 0)
-            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer),
-                cancellationToken, progress, maxDegreeOfParallelism);
+#if !NET35
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+#endif
 
         public static Bitmap EndConvertPixelFormat(IAsyncResult asyncResult)
             => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));

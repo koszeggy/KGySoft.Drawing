@@ -23,8 +23,10 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Threading;
-using System.Threading.Tasks;
-using KGySoft.CoreLibraries;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
+
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
@@ -97,30 +99,135 @@ namespace KGySoft.Drawing.UnitTests
         }
 
         [Test]
-        public void BeginEndConvertPixelFormatTest()
+        public void BeginEndConvertPixelFormatBlockingWaitTest()
         {
             using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
             Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
 
-            Bitmap result = null;
-            IAsyncDrawingResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed,
-                callback: ar => result = ImageExtensions.EndConvertPixelFormat(ar));
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed);
             Assert.IsFalse(ar.IsCompleted);
-            Assert.IsNull(result);
-            ar.AsyncWaitHandle.WaitOne();
+            Bitmap result = ImageExtensions.EndConvertPixelFormat(ar);
             Assert.IsTrue(ar.IsCompleted);
+            Assert.IsFalse(ar.CompletedSynchronously);
             Assert.IsNotNull(result);
         }
 
         [Test]
-        public async Task ConvertPixelFormatAsyncTest()
+        public void BeginEndConvertPixelFormatActiveWaitingTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed);
+            while (!ar.IsCompleted)
+                Thread.Sleep(1);
+            Bitmap result = ImageExtensions.EndConvertPixelFormat(ar);
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsFalse(ar.CompletedSynchronously);
+            Assert.IsNotNull(result);
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatWithCallbackTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            var syncRoot = new object();
+            Bitmap result = null;
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed,
+                asyncConfig: new AsyncConfig(ar =>
+                {
+                    lock (syncRoot)
+                        result = ImageExtensions.EndConvertPixelFormat(ar);
+                }));
+            Assert.IsFalse(ar.IsCompleted);
+            Assert.IsNull(result);
+            ar.AsyncWaitHandle.WaitOne();
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsFalse(ar.CompletedSynchronously);
+            lock (syncRoot)
+                Assert.IsNotNull(result);
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatImmediateCancelTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed,
+                asyncConfig: new AsyncConfig(null, () => true));
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsTrue(ar.CompletedSynchronously);
+            Assert.Throws<OperationCanceledException>(() => ImageExtensions.EndConvertPixelFormat(ar));
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatCancelWithDefaultValueTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed,
+                asyncConfig: new AsyncConfig(null, () => true) { ReturnDefaultIfCanceled = true });
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsTrue(ar.CompletedSynchronously);
+            Assert.IsNull(ImageExtensions.EndConvertPixelFormat(ar));
+        }
+
+#if !NET35
+        [Test]
+        public void ConvertPixelFormatAsyncBlockingWaitTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            Task<Bitmap> task = ref32bpp.ConvertPixelFormatAsync(PixelFormat.Format8bppIndexed);
+            Assert.IsFalse(task.IsCompleted);
+            task.Wait();
+            Assert.IsTrue(task.IsCompleted);
+            Assert.IsNotNull(task.Result);
+        }
+
+        [Test]
+        public void ConvertPixelFormatAsyncImmediateCancelTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            Task<Bitmap> task = ref32bpp.ConvertPixelFormatAsync(PixelFormat.Format8bppIndexed,
+                asyncConfig: new TaskConfig(new CancellationToken(true)));
+            Assert.IsTrue(task.IsCanceled);
+            var ex = Assert.Throws<AggregateException>(() => { var _ = task.Result; });
+            Assert.IsInstanceOf<OperationCanceledException>(ex.InnerExceptions[0]);
+        }
+
+        [Test]
+        public void ConvertPixelFormatAsyncReturnDefaultIfCanceledTest()
+        {
+            using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
+            Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
+
+            Task<Bitmap> task = ref32bpp.ConvertPixelFormatAsync(PixelFormat.Format8bppIndexed,
+                asyncConfig: new TaskConfig(new CancellationToken(true)) { ReturnDefaultIfCanceled = true });
+            Assert.IsTrue(task.IsCompleted);
+            Assert.IsNull(task.Result);
+        } 
+#endif
+
+
+#if !(NET35 || NET40)
+        [Test]
+        public async Task ConvertPixelFormatAsyncWithAwaitTest()
         {
             using var ref32bpp = Icons.Information.ExtractBitmap(new Size(256, 256));
             Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
 
             Bitmap result = await ref32bpp.ConvertPixelFormatAsync(PixelFormat.Format8bppIndexed);
             Assert.IsNotNull(result);
-        }
+        } 
+#endif
 
         [TestCaseSource(nameof(convertPixelFormatCustomTestSource))]
         public void ConvertPixelFormatCustomTest(string testName, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer)
@@ -174,7 +281,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.DoesNotThrow(() => bmpSrc2.DrawInto(bmpDst, new Point(bmpDst.Width - offset.X - bmpSrc2.Width, bmpDst.Height - offset.Y - bmpSrc2.Height)));
             Assert.DoesNotThrow(() => Icons.Information.ExtractBitmap(new Size(256, 256)).DrawInto(bmpDst, new Point(32, 32)));
 
-            using var bmp = GenerateAlphaGradientBitmap(new Size(256,256));
+            using var bmp = GenerateAlphaGradientBitmap(new Size(256, 256));
             bmp.DrawInto(bmpDst, new Point(32, 32));
 
             SaveImage(testName, bmpDst);
