@@ -143,6 +143,8 @@ namespace KGySoft.Drawing
 
         #region ConvertPixelFormat
 
+        #region Sync
+
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
         /// <br/>See the <strong>Remarks</strong> section for details and an example.
@@ -218,18 +220,11 @@ namespace KGySoft.Drawing
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, Palette)"/>
         [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
-            => DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
-
-        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
-            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
-
-#if !NET35
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
-            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig); 
-#endif
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
+        }
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
@@ -470,14 +465,6 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
 
-        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
-            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
-
-#if !NET35
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
-            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig); 
-#endif
-
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -600,145 +587,62 @@ namespace KGySoft.Drawing
         /// <seealso cref="BitmapExtensions.Dither"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)"/>
         [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
-            => DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, quantizer, ditherer);
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, quantizer, ditherer);
+        }
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+        }
 
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
-            => AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+        }
 
-#if !NET35
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, TaskConfig asyncConfig = null)
-            => AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
-#endif
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
+        }
 
         public static Bitmap EndConvertPixelFormat(IAsyncResult asyncResult)
             => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
 
-        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor, byte alphaThreshold)
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
-            if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
-            if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
-
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            Bitmap result = null;
-
-            try
-            {
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-
-                // validating and initializing palette in target bitmap
-                if (newPixelFormat.IsIndexed())
-                    InitPalette(newPixelFormat, bmp, result, palette);
-
-                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
-                Palette targetPalette =
-                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
-                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
-                    // using the custom colors
-                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
-                    // using the default palette from target
-                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
-
-                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
-                {
-                    var rect = new Rectangle(Point.Empty, source.GetSize());
-                    var session = new CopySession(source, target, rect, rect);
-                    session.PerformCopy();
-                }
-
-                return result;
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                throw;
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, image))
-                    bmp.Dispose();
-            }
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
-        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer)
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
-            if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
-            if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
-
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            Bitmap result = null;
-
-            try
-            {
-                Color[] paletteEntries = null;
-                if (quantizer == null)
-                {
-                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                    if (ditherer == null || !newPixelFormat.CanBeDithered())
-                        return ConvertPixelFormat(image, newPixelFormat);
-
-                    // here we need to pick a quantizer for the dithering
-                    int bpp = newPixelFormat.ToBitsPerPixel();
-
-                    paletteEntries = bmp.Palette?.Entries ?? Reflector.EmptyArray<Color>();
-                    if (bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp))
-                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
-                    else
-                    {
-                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat);
-                        paletteEntries = null;
-                    }
-                }
-
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(source) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
-                {
-                    // validating and initializing palette
-                    if (newPixelFormat.IsIndexed())
-                        InitPalette(newPixelFormat, bmp, result, paletteEntries ?? quantizingSession.Palette?.Entries.Select(c => c.ToColor()).ToArray());
-
-                    using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
-                    {
-                        var rect = new Rectangle(Point.Empty, source.GetSize());
-                        var session = new CopySession(source, target, rect, rect);
-
-                        // quantization without dithering
-                        if (ditherer == null)
-                            session.PerformCopyWithQuantizer(quantizingSession, false);
-                        // quantization with dithering
-                        else
-                        {
-                            using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                                session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
-                        }
-
-                        return result;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                throw;
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, image))
-                    bmp.Dispose();
-            }
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
         }
+
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+        }
+
+#endif
+        #endregion
 
         #endregion
 
@@ -1808,6 +1712,154 @@ namespace KGySoft.Drawing
         #endregion
 
         #region Private Methods
+
+        #region ConvertPixelFormat
+
+        private static void ValidateConvertPixelFormat(Image image, PixelFormat newPixelFormat)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (!newPixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
+            if (!newPixelFormat.IsSupportedNatively())
+                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor, byte alphaThreshold)
+        {
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap result = null;
+
+            try
+            {
+                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+
+                // validating and initializing palette in target bitmap
+                if (newPixelFormat.IsIndexed())
+                    InitPalette(newPixelFormat, bmp, result, palette);
+
+                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
+                Palette targetPalette =
+                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
+                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
+                    // using the custom colors
+                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
+                    // using the default palette from target
+                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
+
+                if (context.IsCancellationRequested)
+                    return null;
+                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
+                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
+                {
+                    var rect = new Rectangle(Point.Empty, source.GetSize());
+                    var session = new CopySession(source, target, rect, rect);
+                    session.PerformCopy(context);
+                }
+
+                return context.IsCancellationRequested ? null : result;
+            }
+            catch (Exception)
+            {
+                result?.Dispose();
+                result = null;
+                throw;
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+                if (context.IsCancellationRequested)
+                    result?.Dispose();
+            }
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer)
+        {
+            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap result = null;
+
+            try
+            {
+                Color[] paletteEntries = null;
+                if (quantizer == null)
+                {
+                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
+                    if (ditherer == null || !newPixelFormat.CanBeDithered())
+                        return DoConvertPixelFormat(context, image, newPixelFormat, null, Color.Empty, 128);
+
+                    // here we need to pick a quantizer for the dithering
+                    int bpp = newPixelFormat.ToBitsPerPixel();
+
+                    paletteEntries = bmp.Palette.Entries;
+                    if (bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp))
+                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
+                    else
+                    {
+                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat);
+                        paletteEntries = null;
+                    }
+                }
+
+                if (context.IsCancellationRequested)
+                    return null;
+                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
+                {
+                    if (context.IsCancellationRequested)
+                        return null;
+                    if (quantizingSession == null)
+                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+                    // validating and initializing palette
+                    if (newPixelFormat.IsIndexed())
+                        InitPalette(newPixelFormat, bmp, result, paletteEntries ?? quantizingSession.Palette?.Entries.Select(c => c.ToColor()).ToArray());
+
+                    using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
+                    {
+                        var rect = new Rectangle(Point.Empty, source.GetSize());
+                        var session = new CopySession(source, target, rect, rect);
+
+                        // quantization without dithering
+                        if (ditherer == null)
+                            session.PerformCopyWithQuantizer(context, quantizingSession, false);
+                        // quantization with dithering
+                        else
+                        {
+                            using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession, context))
+                            {
+                                if (context.IsCancellationRequested)
+                                    return null;
+                                if (ditheringSession == null)
+                                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                                session.PerformCopyWithDithering(context, quantizingSession, ditheringSession, false);
+                            }
+                        }
+
+                        return context.IsCancellationRequested ? null : result;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                result?.Dispose();
+                result = null;
+                throw;
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+                if (context.IsCancellationRequested)
+                    result?.Dispose();
+            }
+        }
+
+        #endregion
 
         [SecuritySafeCritical]
         private static bool CompareImages(Image image1, Image image2)

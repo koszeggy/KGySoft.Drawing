@@ -106,7 +106,7 @@ namespace KGySoft.Drawing.Imaging
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
             try
             {
-                using (IQuantizingSession session = quantizer.Initialize(bitmapData))
+                using (IQuantizingSession session = quantizer.Initialize(bitmapData, AsyncHelper.Null))
                 {
                     if (session == null)
                         throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
@@ -184,8 +184,8 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
-                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
                 {
                     // Sequential processing
                     if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
@@ -357,8 +357,8 @@ namespace KGySoft.Drawing.Imaging
                 IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
                 Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
 
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
-                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, AsyncHelper.Null))
+                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
                 {
                     // sequential processing
                     if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)

@@ -308,7 +308,7 @@ namespace KGySoft.Drawing.Imaging
         private static void ClearWithDithering(IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
-            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
+            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, AsyncHelper.Null))
             {
                 IReadableBitmapData initSource = ditherer.InitializeReliesOnContent
                     ? new SolidBitmapData(bitmapData.GetSize(), color)
@@ -316,7 +316,7 @@ namespace KGySoft.Drawing.Imaging
 
                 try
                 {
-                    using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                    using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
                     {
                         // sequential clear
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)

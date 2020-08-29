@@ -62,27 +62,30 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal void PerformCopy()
+        internal void PerformCopy(IAsyncContext context)
         {
-            if (!TryPerformRawCopy())
+            if (!TryPerformRawCopy(context))
             {
                 if (Target.IsFastPremultiplied())
-                    PerformCopyDirectPremultiplied();
+                    PerformCopyDirectPremultiplied(context);
                 else
-                    PerformCopyDirectStraight();
+                    PerformCopyDirectStraight(context);
             }
         }
 
-        internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent)
+        internal void PerformCopyWithQuantizer(IAsyncContext context, IQuantizingSession quantizingSession, bool skipTransparent)
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
             {
+                context.Progress?.New(DrawingOperation.CopyWithQuantizer, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
                 byte alphaThreshold = quantizingSession.AlphaThreshold;
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
+                    if (context.IsCancellationRequested)
+                        return;
                     for (int x = 0; x < SourceRectangle.Width; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32(x + SourceRectangle.X);
@@ -94,6 +97,7 @@ namespace KGySoft.Drawing.Imaging
 
                     rowSrc.MoveNextRow();
                     rowDst.MoveNextRow();
+                    context.Progress?.Increment();
                 }
 
                 return;
@@ -104,7 +108,7 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(0, SourceRectangle.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.CopyWithQuantizer, 0, SourceRectangle.Height, y =>
             {
                 IQuantizingSession session = quantizingSession;
                 IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
@@ -125,16 +129,20 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent)
+        internal void PerformCopyWithDithering(IAsyncContext context, IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent)
         {
             // Sequential processing
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
             {
+                context.Progress?.New(DrawingOperation.CopyWithDithering, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
                 byte alphaThreshold = quantizingSession.AlphaThreshold;
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
+                    if (context.IsCancellationRequested)
+                        return;
+
                     // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
                     for (int x = 0; x < SourceRectangle.Width; x++)
                     {
@@ -147,6 +155,7 @@ namespace KGySoft.Drawing.Imaging
 
                     rowSrc.MoveNextRow();
                     rowDst.MoveNextRow();
+                    context.Progress?.Increment();
                 }
 
                 return;
@@ -158,7 +167,7 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(0, SourceRectangle.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.CopyWithDithering, 0, SourceRectangle.Height, y =>
             {
                 IDitheringSession session = ditheringSession;
                 IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
@@ -197,7 +206,7 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 Debug.Assert(!quantizer.InitializeReliesOnContent || !Source.HasMultiLevelAlpha(), "This draw performs blending on-the-fly but the used quantizer would require two-pass processing");
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
                 {
                     // quantizing without dithering
                     if (ditherer == null)
@@ -209,7 +218,7 @@ namespace KGySoft.Drawing.Imaging
                     // quantizing with dithering
                     Debug.Assert(!ditherer.InitializeReliesOnContent || !Source.HasMultiLevelAlpha(), "This draw performs blending on-the-fly but the used ditherer would require two-pass processing");
 
-                    using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                    using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
                     PerformDrawWithDithering(quantizingSession, ditheringSession);
                 }
             }
@@ -346,7 +355,7 @@ namespace KGySoft.Drawing.Imaging
         /// Tries to perform a raw copy. If succeeds converts the horizontal dimensions to bytes from pixels.
         /// Note: Stride and origin is set from outside so we spare some casts and possible GCHandle uses.
         /// </summary>
-        private bool TryPerformRawCopy()
+        private bool TryPerformRawCopy(IAsyncContext context)
         {
             // same pixel format and a well-known bitmap data type is required
             if (Source.PixelFormat != Target.PixelFormat
@@ -368,7 +377,7 @@ namespace KGySoft.Drawing.Imaging
                 SourceRectangle.X *= byteSize;
                 TargetRectangle.X *= byteSize;
                 SourceRectangle.Width = TargetRectangle.Width *= byteSize;
-                PerformCopyRaw();
+                PerformCopyRaw(context);
                 return true;
             }
 
@@ -379,7 +388,7 @@ namespace KGySoft.Drawing.Imaging
 
             if (bpp == 8)
             {
-                PerformCopyRaw();
+                PerformCopyRaw(context);
                 return true;
             }
 
@@ -408,12 +417,12 @@ namespace KGySoft.Drawing.Imaging
                 width++;
 
             SourceRectangle.Width = TargetRectangle.Width = width;
-            PerformCopyRaw();
+            PerformCopyRaw(context);
             return true;
         }
 
         [SecuritySafeCritical]
-        private unsafe void PerformCopyRaw()
+        private unsafe void PerformCopyRaw(IAsyncContext context)
         {
             Debug.Assert(Source is NativeBitmapDataBase || Source is ManagedBitmapDataBase);
             Debug.Assert(Target is NativeBitmapDataBase || Target is ManagedBitmapDataBase);
@@ -422,13 +431,13 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (Target is NativeBitmapDataBase nativeDst)
                 {
-                    DoCopyRaw(nativeSrc.Stride, nativeDst.Stride, (byte*)nativeSrc.Scan0, (byte*)nativeDst.Scan0);
+                    DoCopyRaw(nativeSrc.Stride, nativeDst.Stride, (byte*)nativeSrc.Scan0, (byte*)nativeDst.Scan0, context);
                     return;
                 }
 
                 var managedDst = (ManagedBitmapDataBase)Target;
                 fixed (byte* pDst = &managedDst.GetPinnableReference())
-                    DoCopyRaw(nativeSrc.Stride, managedDst.RowSize, (byte*)nativeSrc.Scan0, pDst);
+                    DoCopyRaw(nativeSrc.Stride, managedDst.RowSize, (byte*)nativeSrc.Scan0, pDst, context);
             }
             else
             {
@@ -436,32 +445,36 @@ namespace KGySoft.Drawing.Imaging
                 if (Target is NativeBitmapDataBase nativeDst)
                 {
                     fixed (byte* pSrc = &managedSrc.GetPinnableReference())
-                        DoCopyRaw(managedSrc.RowSize, nativeDst.Stride, pSrc, (byte*)nativeDst.Scan0);
+                        DoCopyRaw(managedSrc.RowSize, nativeDst.Stride, pSrc, (byte*)nativeDst.Scan0, context);
                     return;
                 }
 
                 var managedDst = (ManagedBitmapDataBase)Target;
                 fixed (byte* pSrc = &managedSrc.GetPinnableReference())
                 fixed (byte* pDst = &managedDst.GetPinnableReference())
-                    DoCopyRaw(managedSrc.RowSize, managedDst.RowSize, pSrc, pDst);
+                    DoCopyRaw(managedSrc.RowSize, managedDst.RowSize, pSrc, pDst, context);
             }
         }
 
         [SecurityCritical]
         [SuppressMessage("Microsoft.Security", "CA2140:Transparent code must not reference security critical items",
             Justification = "False alarm, SecurityCritical is applied**")]
-        private unsafe void DoCopyRaw(int sourceStride, int targetStride, byte* sourceOrigin, byte* targetOrigin)
+        private unsafe void DoCopyRaw(int sourceStride, int targetStride, byte* sourceOrigin, byte* targetOrigin, IAsyncContext context)
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
             {
+                context.Progress?.New(DrawingOperation.RawCopy, SourceRectangle.Height);
                 byte* pSrc = sourceOrigin + SourceRectangle.Y * sourceStride + SourceRectangle.X;
                 byte* pDst = targetOrigin + TargetRectangle.Y * targetStride + TargetRectangle.X;
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
+                    if (context.IsCancellationRequested)
+                        return;
                     MemoryHelper.CopyMemory(pSrc, pDst, SourceRectangle.Width);
                     pSrc += sourceStride;
                     pDst += targetStride;
+                    context.Progress?.Increment();
                 }
 
                 return;
@@ -471,7 +484,7 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int width = SourceRectangle.Width;
-            ParallelHelper.For(0, SourceRectangle.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.RawCopy, 0, SourceRectangle.Height, y =>
             {
                 byte* pSrc = sourceOrigin + (y + sourceLocation.Y) * sourceStride + sourceLocation.X;
                 byte* pDst = targetOrigin + (y + targetLocation.Y) * targetStride + targetLocation.X;
@@ -479,19 +492,23 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyDirectStraight()
+        private void PerformCopyDirectStraight(IAsyncContext context)
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
             {
+                context.Progress?.New(DrawingOperation.StraightCopy, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
+                    if (context.IsCancellationRequested)
+                        return;
                     for (int x = 0; x < SourceRectangle.Width; x++)
                         rowDst.DoSetColor32(x + TargetRectangle.X, rowSrc.DoGetColor32(x + SourceRectangle.X));
                     rowSrc.MoveNextRow();
                     rowDst.MoveNextRow();
+                    context.Progress?.Increment();
                 }
 
                 return;
@@ -503,7 +520,7 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(0, SourceRectangle.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.StraightCopy, 0, SourceRectangle.Height, y =>
             {
                 IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
@@ -515,19 +532,23 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyDirectPremultiplied()
+        private void PerformCopyDirectPremultiplied(IAsyncContext context)
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
             {
+                context.Progress?.New(DrawingOperation.PremultipliedCopy, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
+                    if (context.IsCancellationRequested)
+                        return;
                     for (int x = 0; x < SourceRectangle.Width; x++)
                         rowDst.DoSetColor32Premultiplied(x + TargetRectangle.X, rowSrc.DoGetColor32Premultiplied(x + SourceRectangle.X));
                     rowSrc.MoveNextRow();
                     rowDst.MoveNextRow();
+                    context.Progress?.Increment();
                 }
 
                 return;
@@ -539,7 +560,7 @@ namespace KGySoft.Drawing.Imaging
             Point sourceLocation = SourceRectangle.Location;
             Point targetLocation = TargetRectangle.Location;
             int sourceWidth = SourceRectangle.Width;
-            ParallelHelper.For(0, SourceRectangle.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.PremultipliedCopy, 0, SourceRectangle.Height, y =>
             {
                 IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);

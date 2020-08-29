@@ -157,7 +157,7 @@ namespace KGySoft.Drawing.Imaging
 
             void AddColor(Color32 c);
 
-            Color32[] GeneratePalette();
+            Color32[] GeneratePalette(IAsyncContext context);
 
             #endregion
         }
@@ -186,10 +186,10 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            public OptimizedPaletteQuantizerSession(OptimizedPaletteQuantizer quantizer, IReadableBitmapData source)
+            public OptimizedPaletteQuantizerSession(OptimizedPaletteQuantizer quantizer, IReadableBitmapData source, IAsyncContext context)
             {
                 this.quantizer = quantizer;
-                Palette = InitializePalette(source);
+                Palette = InitializePalette(source, context);
             }
 
             #endregion
@@ -208,14 +208,18 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private Palette InitializePalette(IReadableBitmapData source)
+            private Palette InitializePalette(IReadableBitmapData source, IAsyncContext context)
             {
                 using TAlg alg = new TAlg();
                 alg.Initialize(quantizer.maxColors, source);
                 int width = source.Width;
                 IReadableBitmapDataRow row = source.FirstRow;
+                context.Progress?.New(DrawingOperation.InitializingQuantizer, source.Height);
                 do
                 {
+                    if (context.IsCancellationRequested)
+                        return null;
+
                     // TODO: parallel if possible
                     for (int x = 0; x < width; x++)
                     {
@@ -226,9 +230,11 @@ namespace KGySoft.Drawing.Imaging
                             c = c.A < quantizer.alphaThreshold ? default : c.BlendWithBackground(quantizer.backColor);
                         alg.AddColor(c);
                     }
+                    context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
-                return new Palette(alg.GeneratePalette(), quantizer.backColor, quantizer.alphaThreshold);
+                Color32[] palette = alg.GeneratePalette(context);
+                return context.IsCancellationRequested ? null : new Palette(palette, quantizer.backColor, quantizer.alphaThreshold);
             }
 
             #endregion
@@ -405,16 +411,18 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Methods
 
         [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Enum.ToString is not affected by culture")]
-        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
+        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext context)
         {
+            if (context == null)
+                context = AsyncHelper.Null;
             switch (algorithm)
             {
                 case Algorithm.Octree:
-                    return new OptimizedPaletteQuantizerSession<OctreeQuantizer>(this, source);
+                    return new OptimizedPaletteQuantizerSession<OctreeQuantizer>(this, source, context);
                 case Algorithm.MedianCut:
-                    return new OptimizedPaletteQuantizerSession<MedianCutQuantizer>(this, source);
+                    return new OptimizedPaletteQuantizerSession<MedianCutQuantizer>(this, source, context);
                 case Algorithm.Wu:
-                    return new OptimizedPaletteQuantizerSession<WuQuantizer>(this, source);
+                    return new OptimizedPaletteQuantizerSession<WuQuantizer>(this, source, context);
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unexpected algorithm: {algorithm}"));
             }

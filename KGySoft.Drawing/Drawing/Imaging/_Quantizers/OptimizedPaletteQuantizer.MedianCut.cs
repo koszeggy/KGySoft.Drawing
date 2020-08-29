@@ -197,7 +197,7 @@ namespace KGySoft.Drawing.Imaging
                     root.AddColor(color);
             }
 
-            public Color32[] GeneratePalette()
+            public Color32[] GeneratePalette(IAsyncContext context)
             {
                 // Occurs when bitmap is completely transparent
                 if (root.Count == 0)
@@ -206,19 +206,25 @@ namespace KGySoft.Drawing.Imaging
                     return new Color32[1];
                 }
 
+                context.Progress?.New(DrawingOperation.GeneratingPalette, MaxBuckets, 1);
                 var buckets = new List<ColorBucket> { root };
 
                 // splitting the initial bucket until no more split can be done or desired color amount is reached
                 while (buckets.Count < MaxBuckets)
                 {
-                    if (!SplitBuckets(buckets))
+                    if (!SplitBuckets(context, buckets))
                         break;
                 }
+
+                if (context.IsCancellationRequested)
+                    return null;
 
                 Debug.Assert(buckets.Count <= MaxBuckets);
                 var result = new Color32[buckets.Count + (hasTransparency ? 1 : 0)];
                 for (int i = 0; i < buckets.Count; i++)
                     result[i] = buckets[i].ToColor();
+
+                context.Progress?.Complete();
 
                 // If transparent color is needed, then it will be automatically the last color in the result
                 return result;
@@ -230,7 +236,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private bool SplitBuckets(List<ColorBucket> buckets)
+            private bool SplitBuckets(IAsyncContext context, List<ColorBucket> buckets)
             {
                 bool splitOccurred = false;
 
@@ -240,8 +246,11 @@ namespace KGySoft.Drawing.Imaging
                 {
                     ColorBucket currentBucket = buckets[index];
                     Debug.Assert(currentBucket.Count > 0, "Empty bucket");
-                    if (currentBucket.Count == 1)
+                    if (currentBucket.Count == 1 || currentBucket.RangeR == 0 && currentBucket.RangeG == 0 && currentBucket.RangeB == 0)
                         continue;
+
+                    if (context.IsCancellationRequested)
+                        return false;
 
                     splitOccurred = true;
 
@@ -252,6 +261,8 @@ namespace KGySoft.Drawing.Imaging
                         currentBucket.Split(ColorComponent.R, buckets, index);
                     else
                         currentBucket.Split(ColorComponent.B, buckets, index);
+
+                    context.Progress?.Increment();
 
                     // Stopping if we reached maxColors. Note that Split increases buckets.Count.
                     if (buckets.Count == MaxBuckets)

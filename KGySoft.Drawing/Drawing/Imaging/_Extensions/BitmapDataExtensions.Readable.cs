@@ -57,7 +57,7 @@ namespace KGySoft.Drawing.Imaging
             session.Target = BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette);
 
             // raw copy may fail on Windows if source is a wide color Bitmap because of 13 vs 16 bpp color handling
-            session.PerformCopy();
+            session.PerformCopy(AsyncHelper.Null);
 
             return session.Target;
         }
@@ -989,7 +989,7 @@ namespace KGySoft.Drawing.Imaging
 
             // using the public factory so pixelFormat and palette will be validated
             session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, backColor, alphaThreshold, palette);
-            session.PerformCopy();
+            session.PerformCopy(AsyncHelper.Null);
 
             return session.Target;
         }
@@ -1030,19 +1030,19 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
                 {
                     session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
                     session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
 
                     // quantizing without dithering
                     if (ditherer == null)
-                        session.PerformCopyWithQuantizer(quantizingSession, false);
+                        session.PerformCopyWithQuantizer(AsyncHelper.Null, quantizingSession, false);
                     else
                     {
                         // quantizing with dithering
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                        session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        session.PerformCopyWithDithering(AsyncHelper.Null, quantizingSession, ditheringSession, false);
                     }
 
                     return session.Target;
@@ -1095,7 +1095,7 @@ namespace KGySoft.Drawing.Imaging
                 if (quantizer == null)
                 {
                     Debug.Assert(!skipTransparent, "Skipping transparent source pixels is not expected without quantizing. Handle it if really needed.");
-                    session.PerformCopy();
+                    session.PerformCopy(AsyncHelper.Null);
                     return;
                 }
 
@@ -1106,18 +1106,18 @@ namespace KGySoft.Drawing.Imaging
 
                 try
                 {
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
                     {
                         // quantization without dithering
                         if (ditherer == null)
                         {
-                            session.PerformCopyWithQuantizer(quantizingSession, skipTransparent);
+                            session.PerformCopyWithQuantizer(AsyncHelper.Null, quantizingSession, skipTransparent);
                             return;
                         }
 
                         // quantization with dithering
-                        using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                            session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent);
+                        using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                            session.PerformCopyWithDithering(AsyncHelper.Null, quantizingSession, ditheringSession, skipTransparent);
                     }
                 }
                 finally

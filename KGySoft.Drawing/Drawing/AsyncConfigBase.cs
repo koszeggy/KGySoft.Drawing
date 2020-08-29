@@ -36,7 +36,7 @@ namespace KGySoft.Drawing
         public IDrawingProgress Progress { get; set; }
 
         /// <summary>
-        /// Gets or sets the maximum degree of parallelism. Zero means a default value based on number of CPU cores.
+        /// Gets or sets the maximum degree of parallelism. Zero or less means an automatic configuration based on CPU cores.
         /// Set one to execute the operation on a single core. The asynchronous operation will not be blocking even if 1 is set.
         /// <br/>Default value: 0.
         /// </summary>

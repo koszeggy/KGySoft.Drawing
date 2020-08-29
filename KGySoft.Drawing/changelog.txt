@@ -9,6 +9,12 @@
 ! v5.3.0:
 ~~~~~~~~~
 
++ KGySoft.Drawing namespace:
+============================
++ ImageExtensions class:
+  + New BeginConvertPixelFormat/EndConvertPixelFormat methods
+  + New ConvertPixelFormatAsync methods (for .NET 4.0 and above)
+
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
 ! RandomNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength

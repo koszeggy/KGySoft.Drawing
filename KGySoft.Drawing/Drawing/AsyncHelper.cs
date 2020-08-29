@@ -40,7 +40,14 @@ namespace KGySoft.Drawing
 
             public int MaxDegreeOfParallelism => 0;
             public bool IsCancellationRequested => false;
+            public bool CanBeCanceled => false;
             public IDrawingProgress Progress => null;
+
+            #endregion
+
+            #region Methods
+
+            public void ThrowIfCancellationRequested() { }
 
             #endregion
         }
@@ -64,6 +71,7 @@ namespace KGySoft.Drawing
 
             public int MaxDegreeOfParallelism { get; }
             public bool IsCancellationRequested => token.IsCancellationRequested;
+            public bool CanBeCanceled => token.CanBeCanceled;
             public IDrawingProgress Progress { get; }
 
             #endregion
@@ -91,7 +99,13 @@ namespace KGySoft.Drawing
             }
 
             #endregion
-        } 
+
+            #region Methods
+
+            public void ThrowIfCancellationRequested() => token.ThrowIfCancellationRequested();
+
+            #endregion
+        }
 
 #endif
         #endregion
@@ -122,6 +136,7 @@ namespace KGySoft.Drawing
 
             public int MaxDegreeOfParallelism { get; }
             public bool IsCancellationRequested => isCancelRequestedCallback != null && (isCancellationRequested || (isCancellationRequested = isCancelRequestedCallback.Invoke()));
+            public bool CanBeCanceled => isCancelRequestedCallback != null;
             public IDrawingProgress Progress { get; }
             public bool IsCompleted => isCompleted;
 
@@ -144,7 +159,7 @@ namespace KGySoft.Drawing
                     if (!isCompleted)
                         InternalWaitHandle.Wait();
                     if (isCancellationRequested && !returnDefaultIfCanceled)
-                        throw new OperationCanceledException(Res.OperationCanceled);
+                        ThrowOperationCanceled();
                     if (error != null)
                         ExceptionDispatchInfo.Capture(error).Throw();
                     return result;
@@ -198,7 +213,21 @@ namespace KGySoft.Drawing
 
             #region Methods
 
+            #region Static Methods
+            
+            private static void ThrowOperationCanceled() => throw new OperationCanceledException(Res.OperationCanceled);
+
+            #endregion
+
+            #region Instance Methods
+
             #region Public Methods
+
+            public void ThrowIfCancellationRequested()
+            {
+                if (IsCancellationRequested)
+                    ThrowOperationCanceled();
+            }
 
             public void Dispose()
             {
@@ -255,6 +284,8 @@ namespace KGySoft.Drawing
             #endregion
 
             #endregion
+
+            #endregion
         }
 
         #endregion
@@ -264,16 +295,16 @@ namespace KGySoft.Drawing
 
         private sealed class ManualResetEventSlim : IDisposable
         {
-            #region Fields
+        #region Fields
 
             private readonly object lockObject = new object();
 
             private bool isDisposed;
             private ManualResetEvent nativeHandle;
 
-            #endregion
+        #endregion
 
-            #region Properties
+        #region Properties
 
             internal bool IsSet { get; private set; }
 
@@ -307,11 +338,11 @@ namespace KGySoft.Drawing
                 }
             }
 
-            #endregion
+        #endregion
 
-            #region Methods
+        #region Methods
 
-            #region Public Methods
+        #region Public Methods
 
             public void Dispose()
             {
@@ -327,9 +358,9 @@ namespace KGySoft.Drawing
                 }
             }
 
-            #endregion
+        #endregion
 
-            #region Internal Methods
+        #region Internal Methods
 
             internal void Set()
             {
@@ -353,9 +384,9 @@ namespace KGySoft.Drawing
                 }
             }
 
-            #endregion
+        #endregion
 
-            #region Private Methods
+        #region Private Methods
 
             private void DoSignal()
             {
@@ -364,9 +395,9 @@ namespace KGySoft.Drawing
                 nativeHandle?.Set();
             }
 
-            #endregion
+        #endregion
 
-            #endregion
+        #endregion
         }
 
 #endif
@@ -412,6 +443,10 @@ namespace KGySoft.Drawing
                         context.SetCanceled();
                     else
                         context.SetResult(result);
+                }
+                catch (OperationCanceledException)
+                {
+                    context.SetCanceled();
                 }
                 catch (Exception e)
                 {
@@ -472,6 +507,13 @@ namespace KGySoft.Drawing
                     }
                     else
                         completion.SetResult(result);
+                }
+                catch (OperationCanceledException)
+                {
+                    if (context.ReturnDefaultIfCanceled)
+                        completion.SetResult(default);
+                    else
+                        completion.SetCanceled();
                 }
                 catch (Exception e)
                 {

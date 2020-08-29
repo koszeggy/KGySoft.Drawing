@@ -18,6 +18,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Threading;
 #if !NET35
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
@@ -42,6 +43,10 @@ namespace KGySoft.Drawing
 
         private static int? coreCount;
 
+#if !NET35
+        internal static ParallelOptions defaultParallelOptions = new ParallelOptions(); 
+#endif
+
         #endregion
 
         #region Properties
@@ -54,29 +59,77 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
+        [Obsolete]
+        internal static void For(int fromInclusive, int toExclusive, Action<int> body)
+            => For(AsyncHelper.Null, default, fromInclusive, toExclusive, body);
+
         /// <summary>
         /// Similar to <see cref="Parallel.For(int,int,Action{int})"/> but tries to balance resources and works also in .NET 3.5.
         /// </summary>
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Exceptions in pool threads must not be thrown in place but from the caller thread.")]
-        internal static void For(int fromInclusive, int toExclusive, Action<int> body)
+        internal static void For(IAsyncContext context, DrawingOperation operation, int fromInclusive, int toExclusive, Action<int> body)
         {
+            #region Local Methods
+#if !NET35
+
+            void DoWorkWithProgress(int y)
+            {
+                body.Invoke(y);
+                context.Progress.Increment();
+            }
+
+            void DoWorkWithCancellation(int y, ParallelLoopState state)
+            {
+                if (context.IsCancellationRequested)
+                {
+                    state.Stop();
+                    return;
+                }
+
+                body.Invoke(y);
+            }
+
+            void DoWorkWithCancellationAndProgress(int y, ParallelLoopState state)
+            {
+                if (context.IsCancellationRequested)
+                {
+                    state.Stop();
+                    return;
+                }
+
+                body.Invoke(y);
+                context.Progress.Increment();
+            } 
+
+#endif
+            #endregion
+
             int count = toExclusive - fromInclusive;
+            context.Progress?.New(operation, Math.Max(count, 0));
+
 
             // a single iteration: invoke once
             if (count <= 1)
             {
                 if (count < 1)
                     return;
+
                 body.Invoke(fromInclusive);
+                context.Progress?.Increment();
                 return;
             }
 
             // single core: serial invoke
-            if (CoreCount == 1)
+            if (CoreCount == 1 || context.MaxDegreeOfParallelism == 1)
             {
                 for (int i = fromInclusive; i < toExclusive; i++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
                     body.Invoke(i);
+                    context.Progress?.Increment();
+                }
 
                 return;
             }
@@ -84,18 +137,19 @@ namespace KGySoft.Drawing
 #if NET35
             int busyCount = 0;
             Exception error = null;
-            int rangeSize = count / CoreCount;
+            int maxThreads = context.MaxDegreeOfParallelism <= 0 ? CoreCount : context.MaxDegreeOfParallelism;
+            int rangeSize = count / maxThreads;
 
-            // we have enough cores for each iteration
+            // we have enough cores/degree for each iteration
             if (rangeSize <= 1)
             {
                 for (int i = fromInclusive; i < toExclusive; i++)
                 {
-                    // not queuing more tasks than the number of cores
-                    while (busyCount >= CoreCount && error == null)
+                    // not queuing more tasks than the limit
+                    while (busyCount >= maxThreads && error == null)
                         Thread.Sleep(0);
 
-                    if (error != null)
+                    if (error != null || context.IsCancellationRequested)
                         break;
 
                     Interlocked.Increment(ref busyCount);
@@ -106,6 +160,7 @@ namespace KGySoft.Drawing
                         try
                         {
                             body.Invoke(value);
+                            context.Progress?.Increment();
                         }
                         catch (Exception e)
                         {
@@ -125,10 +180,10 @@ namespace KGySoft.Drawing
                 foreach (var range in ranges)
                 {
                     // not queuing more tasks than the number of cores
-                    while (busyCount >= CoreCount && error == null)
+                    while (busyCount >= maxThreads && error == null)
                         Thread.Sleep(0);
 
-                    if (error != null)
+                    if (error != null || context.IsCancellationRequested)
                         break;
                     Interlocked.Increment(ref busyCount);
 
@@ -137,7 +192,12 @@ namespace KGySoft.Drawing
                         try
                         {
                             for (int i = range.From; i < range.To; i++)
+                            {
+                                if (context.IsCancellationRequested)
+                                    return;
                                 body.Invoke(i);
+                                context.Progress?.Increment();
+                            }
                         }
                         catch (Exception e)
                         {
@@ -152,29 +212,67 @@ namespace KGySoft.Drawing
             }
 
             // waiting until every task is finished
-            while (busyCount > 0 && error == null)
+            while (busyCount > 0)
                 Thread.Sleep(0);
 
             if (error != null)
                 ExceptionDispatchInfo.Capture(error).Throw();
 #else
-            // we allow a bit more fine resolution than actual core counts
-            int rangeSize = (count / CoreCount) >> 2;
+            Action<int, ParallelLoopState> bodyWithState = null;
+            Action<int> simpleBody = null;
+            if (context.CanBeCanceled)
+                bodyWithState = context.Progress == null ? (Action<int, ParallelLoopState>)DoWorkWithCancellation : DoWorkWithCancellationAndProgress;
+            else
+                simpleBody = context.Progress == null ? body : DoWorkWithProgress;
 
-            // we have enough cores for each iteration
+            int rangeSize;
+            ParallelOptions options;
+            if (context.MaxDegreeOfParallelism <= 0)
+            {
+                // we allow a bit more fine resolution than the actual core counts
+                rangeSize = (count / CoreCount) >> 2;
+                options = defaultParallelOptions;
+            }
+            else
+            {
+                // we allow a bit more fine resolution than the specified degree
+                rangeSize = (count / context.MaxDegreeOfParallelism) >> 2;
+                options = new ParallelOptions { MaxDegreeOfParallelism = context.MaxDegreeOfParallelism };
+            }
+
+            // we have enough cores/degree for each iteration
             if (rangeSize <= 1)
             {
-                Parallel.For(fromInclusive, toExclusive, body);
+                if (bodyWithState != null)
+                    Parallel.For(fromInclusive, toExclusive, options, bodyWithState);
+                else
+                    Parallel.For(fromInclusive, toExclusive, options, simpleBody);
                 return;
             }
 
             // we merge some iterations to be processed by the same core
             var partitions = Partitioner.Create(fromInclusive, toExclusive, rangeSize);
-            Parallel.ForEach(partitions, (range, state) =>
+            if (bodyWithState != null)
+            {
+                Parallel.ForEach(partitions, options, (range, state) =>
+                {
+                    (int from, int to) = range;
+                    for (int i = from; i < to; i++)
+                    {
+                        bodyWithState.Invoke(i, state);
+                        if (state.IsStopped)
+                            return;
+                    }
+                });
+
+                return;
+            }
+
+            Parallel.ForEach(partitions, options, range =>
             {
                 (int from, int to) = range;
                 for (int i = from; i < to; i++)
-                    body.Invoke(i);
+                    simpleBody.Invoke(i);
             });
 #endif
         }

@@ -16,10 +16,24 @@
 
 namespace KGySoft.Drawing
 {
+    /// <summary>
+    /// Represents various drawing operations that can be used with the <see cref="IDrawingProgress"/> type.
+    /// </summary>
     public enum DrawingOperation
     {
-        Initializing,
-        OptimizingPalette,
-        ProcessingPixels
+        IndefiniteProcessing,
+        InitializingQuantizer,
+        InitializingDitherer,
+        GeneratingPalette,
+        //ProcessingPixels,
+        Saving,
+        Loading,
+
+        //ProcessingPixels,
+        RawCopy,
+        StraightCopy,
+        PremultipliedCopy,
+        CopyWithQuantizer,
+        CopyWithDithering,
     }
 }
