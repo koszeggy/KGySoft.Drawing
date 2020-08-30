@@ -225,7 +225,11 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="Color32"/> instance that represents the matching gray shade of this <see cref="Color32"/> instance based on human perception.
         /// </summary>
         /// <returns>A <see cref="Color32"/> instance that represents the matching gray shade of this <see cref="Color32"/> instance based on human perception.</returns>
-        public Color32 ToGray() => FromArgb(A, FromGray(this.GetBrightness()));
+        public Color32 ToGray()
+        {
+            byte br = this.GetBrightness();
+            return new Color32(A, br, br, br);
+        }
 
         /// <summary>
         /// Gets a <see cref="Color32"/> instance that represents this <see cref="Color32"/> without alpha (transparency).

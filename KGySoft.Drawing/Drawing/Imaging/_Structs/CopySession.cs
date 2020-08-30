@@ -38,6 +38,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
+        #region Internal Fields
+        
         internal IBitmapDataInternal Source;
         internal IBitmapDataInternal Target;
         internal Rectangle SourceRectangle;
@@ -45,10 +47,24 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Private Fields
+
+        private readonly IAsyncContext context;
+
+        #endregion
+
+        #endregion
+
         #region Constructors
 
-        internal CopySession(IBitmapDataInternal sessionSource, IBitmapDataInternal sessionTarget, Rectangle actualSourceRectangle, Rectangle actualTargetRectangle)
+        internal CopySession(IAsyncContext context) : this()
         {
+            this.context = context;
+        }
+
+        internal CopySession(IAsyncContext context, IBitmapDataInternal sessionSource, IBitmapDataInternal sessionTarget, Rectangle actualSourceRectangle, Rectangle actualTargetRectangle)
+        {
+            this.context = context;
             Source = sessionSource;
             Target = sessionTarget;
             SourceRectangle = actualSourceRectangle;
@@ -62,18 +78,18 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal void PerformCopy(IAsyncContext context)
+        internal void PerformCopy()
         {
-            if (!TryPerformRawCopy(context))
+            if (!TryPerformRawCopy())
             {
                 if (Target.IsFastPremultiplied())
-                    PerformCopyDirectPremultiplied(context);
+                    PerformCopyDirectPremultiplied();
                 else
-                    PerformCopyDirectStraight(context);
+                    PerformCopyDirectStraight();
             }
         }
 
-        internal void PerformCopyWithQuantizer(IAsyncContext context, IQuantizingSession quantizingSession, bool skipTransparent)
+        internal void PerformCopyWithQuantizer(IQuantizingSession quantizingSession, bool skipTransparent)
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
@@ -129,7 +145,7 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        internal void PerformCopyWithDithering(IAsyncContext context, IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent)
+        internal void PerformCopyWithDithering(IQuantizingSession quantizingSession, IDitheringSession ditheringSession, bool skipTransparent)
         {
             // Sequential processing
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
@@ -206,8 +222,13 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 Debug.Assert(!quantizer.InitializeReliesOnContent || !Source.HasMultiLevelAlpha(), "This draw performs blending on-the-fly but the used quantizer would require two-pass processing");
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                 {
+                    if (context.IsCancellationRequested)
+                        return;
+                    if (quantizingSession == null)
+                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
                     // quantizing without dithering
                     if (ditherer == null)
                     {
@@ -218,7 +239,12 @@ namespace KGySoft.Drawing.Imaging
                     // quantizing with dithering
                     Debug.Assert(!ditherer.InitializeReliesOnContent || !Source.HasMultiLevelAlpha(), "This draw performs blending on-the-fly but the used ditherer would require two-pass processing");
 
-                    using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, AsyncHelper.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                    using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                    if (context.IsCancellationRequested)
+                        return;
+                    if (ditheringSession == null)
+                        throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
                     PerformDrawWithDithering(quantizingSession, ditheringSession);
                 }
             }
@@ -242,24 +268,37 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (Target.IsFastPremultiplied())
                 {
+                    context.Progress?.New(DrawingOperation.PremultipliedDraw, SourceRectangle.Height);
                     for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
                         ProcessRowPremultiplied(y);
+                        context.Progress?.Increment();
+                    }
                 }
                 else
                 {
+                    context.Progress?.New(DrawingOperation.StraightDraw, SourceRectangle.Height);
                     for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
                         ProcessRowStraight(y);
+                        context.Progress?.Increment();
+                    }
                 }
 
                 return;
             }
 
             // Parallel processing
-            Action<int> processRow = Target.IsFastPremultiplied()
+            bool asPremultiplied = Target.IsFastPremultiplied();
+            Action<int> processRow = asPremultiplied
                 ? ProcessRowPremultiplied
                 : (Action<int>)ProcessRowStraight;
 
-            ParallelHelper.For(0, SourceRectangle.Height, processRow);
+            ParallelHelper.For(context, asPremultiplied ? DrawingOperation.PremultipliedDraw : DrawingOperation.StraightDraw, 0, SourceRectangle.Height, processRow);
 
             #region Local Methods
 
@@ -355,7 +394,7 @@ namespace KGySoft.Drawing.Imaging
         /// Tries to perform a raw copy. If succeeds converts the horizontal dimensions to bytes from pixels.
         /// Note: Stride and origin is set from outside so we spare some casts and possible GCHandle uses.
         /// </summary>
-        private bool TryPerformRawCopy(IAsyncContext context)
+        private bool TryPerformRawCopy()
         {
             // same pixel format and a well-known bitmap data type is required
             if (Source.PixelFormat != Target.PixelFormat
@@ -377,7 +416,7 @@ namespace KGySoft.Drawing.Imaging
                 SourceRectangle.X *= byteSize;
                 TargetRectangle.X *= byteSize;
                 SourceRectangle.Width = TargetRectangle.Width *= byteSize;
-                PerformCopyRaw(context);
+                PerformCopyRaw();
                 return true;
             }
 
@@ -388,7 +427,7 @@ namespace KGySoft.Drawing.Imaging
 
             if (bpp == 8)
             {
-                PerformCopyRaw(context);
+                PerformCopyRaw();
                 return true;
             }
 
@@ -417,12 +456,12 @@ namespace KGySoft.Drawing.Imaging
                 width++;
 
             SourceRectangle.Width = TargetRectangle.Width = width;
-            PerformCopyRaw(context);
+            PerformCopyRaw();
             return true;
         }
 
         [SecuritySafeCritical]
-        private unsafe void PerformCopyRaw(IAsyncContext context)
+        private unsafe void PerformCopyRaw()
         {
             Debug.Assert(Source is NativeBitmapDataBase || Source is ManagedBitmapDataBase);
             Debug.Assert(Target is NativeBitmapDataBase || Target is ManagedBitmapDataBase);
@@ -431,13 +470,13 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (Target is NativeBitmapDataBase nativeDst)
                 {
-                    DoCopyRaw(nativeSrc.Stride, nativeDst.Stride, (byte*)nativeSrc.Scan0, (byte*)nativeDst.Scan0, context);
+                    DoCopyRaw(nativeSrc.Stride, nativeDst.Stride, (byte*)nativeSrc.Scan0, (byte*)nativeDst.Scan0);
                     return;
                 }
 
                 var managedDst = (ManagedBitmapDataBase)Target;
                 fixed (byte* pDst = &managedDst.GetPinnableReference())
-                    DoCopyRaw(nativeSrc.Stride, managedDst.RowSize, (byte*)nativeSrc.Scan0, pDst, context);
+                    DoCopyRaw(nativeSrc.Stride, managedDst.RowSize, (byte*)nativeSrc.Scan0, pDst);
             }
             else
             {
@@ -445,21 +484,21 @@ namespace KGySoft.Drawing.Imaging
                 if (Target is NativeBitmapDataBase nativeDst)
                 {
                     fixed (byte* pSrc = &managedSrc.GetPinnableReference())
-                        DoCopyRaw(managedSrc.RowSize, nativeDst.Stride, pSrc, (byte*)nativeDst.Scan0, context);
+                        DoCopyRaw(managedSrc.RowSize, nativeDst.Stride, pSrc, (byte*)nativeDst.Scan0);
                     return;
                 }
 
                 var managedDst = (ManagedBitmapDataBase)Target;
                 fixed (byte* pSrc = &managedSrc.GetPinnableReference())
                 fixed (byte* pDst = &managedDst.GetPinnableReference())
-                    DoCopyRaw(managedSrc.RowSize, managedDst.RowSize, pSrc, pDst, context);
+                    DoCopyRaw(managedSrc.RowSize, managedDst.RowSize, pSrc, pDst);
             }
         }
 
         [SecurityCritical]
         [SuppressMessage("Microsoft.Security", "CA2140:Transparent code must not reference security critical items",
             Justification = "False alarm, SecurityCritical is applied**")]
-        private unsafe void DoCopyRaw(int sourceStride, int targetStride, byte* sourceOrigin, byte* targetOrigin, IAsyncContext context)
+        private unsafe void DoCopyRaw(int sourceStride, int targetStride, byte* sourceOrigin, byte* targetOrigin)
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
@@ -492,7 +531,7 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyDirectStraight(IAsyncContext context)
+        private void PerformCopyDirectStraight()
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
@@ -532,7 +571,7 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private void PerformCopyDirectPremultiplied(IAsyncContext context)
+        private void PerformCopyDirectPremultiplied()
         {
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
@@ -583,14 +622,20 @@ namespace KGySoft.Drawing.Imaging
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
             {
+                context.Progress?.New(DrawingOperation.DrawWithQuantizer, SourceRectangle.Height);
                 for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
                     ProcessRow(y);
+                    context.Progress?.Increment();
+                }
 
                 return;
             }
 
             // Parallel processing
-            ParallelHelper.For(0, SourceRectangle.Height, ProcessRow);
+            ParallelHelper.For(context, DrawingOperation.DrawWithQuantizer, 0, SourceRectangle.Height, ProcessRow);
 
             #region Local Methods
 
@@ -655,14 +700,20 @@ namespace KGySoft.Drawing.Imaging
             // Sequential processing
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
             {
+                context.Progress?.New(DrawingOperation.DrawWithDithering, SourceRectangle.Height);
                 for (int y = 0; y < SourceRectangle.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
                     ProcessRow(y);
+                    context.Progress?.Increment();
+                }
 
                 return;
             }
 
             // Parallel processing
-            ParallelHelper.For(0, SourceRectangle.Height, ProcessRow);
+            ParallelHelper.For(context, DrawingOperation.DrawWithDithering, 0, SourceRectangle.Height, ProcessRow);
 
             #region Local Methods
 

@@ -61,7 +61,7 @@ namespace KGySoft.Drawing
 
         [Obsolete]
         internal static void For(int fromInclusive, int toExclusive, Action<int> body)
-            => For(AsyncHelper.Null, default, fromInclusive, toExclusive, body);
+            => For(AsyncContext.Null, default, fromInclusive, toExclusive, body);
 
         /// <summary>
         /// Similar to <see cref="Parallel.For(int,int,Action{int})"/> but tries to balance resources and works also in .NET 3.5.
@@ -108,11 +108,10 @@ namespace KGySoft.Drawing
             int count = toExclusive - fromInclusive;
             context.Progress?.New(operation, Math.Max(count, 0));
 
-
             // a single iteration: invoke once
             if (count <= 1)
             {
-                if (count < 1)
+                if (count < 1 || context.IsCancellationRequested)
                     return;
 
                 body.Invoke(fromInclusive);
@@ -120,7 +119,7 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            // single core: serial invoke
+            // single core or no parallelism: sequential invoke
             if (CoreCount == 1 || context.MaxDegreeOfParallelism == 1)
             {
                 for (int i = fromInclusive; i < toExclusive; i++)

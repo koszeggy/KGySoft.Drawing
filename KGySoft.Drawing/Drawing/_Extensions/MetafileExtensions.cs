@@ -19,11 +19,11 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
 using System.Security;
+using System.Threading.Tasks;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
@@ -118,6 +118,8 @@ namespace KGySoft.Drawing
 
         #region Public Methods
 
+        #region ToBitmap
+
         /// <summary>
         /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance specified in the <paramref name="metafile"/> parameter.
         /// </summary>
@@ -126,7 +128,8 @@ namespace KGySoft.Drawing
         /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
-        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false) => ToBitmap(metafile, requestedSize, antiAliased, false);
+        public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false)
+            => ToBitmap(metafile, requestedSize, antiAliased, false);
 
         /// <summary>
         /// Creates a <see cref="Bitmap"/> of a <see cref="Metafile"/> instance specified in the <paramref name="metafile"/> parameter.
@@ -138,59 +141,28 @@ namespace KGySoft.Drawing
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased, bool keepAspectRatio)
         {
-            if (metafile == null)
-                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
-
-            if (requestedSize.Width < 1 || requestedSize.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(requestedSize), PublicResources.ArgumentOutOfRange);
-
-            Size sourceSize = metafile.Size;
-            Rectangle targetRectangle = new Rectangle(Point.Empty, requestedSize);
-
-            if (keepAspectRatio && requestedSize != sourceSize)
-            {
-                float ratio = Math.Min((float)requestedSize.Width / sourceSize.Width, (float)requestedSize.Height / sourceSize.Height);
-                targetRectangle.Size = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
-                targetRectangle.Location = new Point((requestedSize.Width >> 1) - (targetRectangle.Width >> 1), (requestedSize.Height >> 1) - (targetRectangle.Height >> 1));
-            }
-
-            if (!antiAliased && requestedSize == targetRectangle.Size)
-                return new Bitmap(metafile, requestedSize);
-
-            var result = new Bitmap(requestedSize.Width, requestedSize.Height);
-            if (!antiAliased)
-            {
-                if (OSUtils.IsWindows)
-                {
-                    using (Graphics g = Graphics.FromImage(result))
-                    {
-                        // it can happen that metafile bounds is not at 0,0 location
-                        GraphicsUnit unit = GraphicsUnit.Pixel;
-                        RectangleF sourceRectangle = metafile.GetBounds(ref unit);
-
-                        // no process-wide lock occurs here because the source image is a Metafile
-                        g.DrawImage(metafile, targetRectangle, sourceRectangle, unit);
-                        g.Flush();
-                    }
-                }
-                else
-                {
-                    // On Linux there comes a NotImplementedException for Graphics.DrawImage(metafile, ...) so creating a temp buffer
-                    // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future proof in case it will be fixed
-                    // Note 2: The result still can be wrong if 
-                    using (Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height))
-                        buf.DrawInto(result, targetRectangle);
-                }
-
-                return result;
-            }
-
-            // for anti-aliasing using self resizing to prevent process-wide lock that Graphics.DrawImage would cause (even if it is slower)
-            using (Bitmap bmpDouble = new Bitmap(metafile, targetRectangle.Width << 1, targetRectangle.Height << 1))
-                bmpDouble.DrawInto(result, targetRectangle);
-
-            return result;
+            ValidateToBitmap(metafile, requestedSize);
+            return DoConvertToBitmap(AsyncContext.Null, metafile, requestedSize, antiAliased, keepAspectRatio);
         }
+
+        public static IAsyncResult BeginToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false, bool keepAspectRatio = false, AsyncConfig asyncConfig = null)
+        {
+            ValidateToBitmap(metafile, requestedSize);
+            return AsyncContext.BeginOperation(ctx => DoConvertToBitmap(ctx, metafile, requestedSize, antiAliased, keepAspectRatio), asyncConfig);
+        }
+
+        public static Bitmap BeginToBitmap(IAsyncResult asyncResult)
+            => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
+
+        public static Task<Bitmap> ToBitmapAsync(this Metafile metafile, Size requestedSize, bool antiAliased = false, bool keepAspectRatio = false, TaskConfig asyncConfig = null)
+        {
+            ValidateToBitmap(metafile, requestedSize);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertToBitmap(ctx, metafile, requestedSize, antiAliased, keepAspectRatio), asyncConfig);
+        }
+
+        #endregion
+
+        #region Save
 
         /// <summary>
         /// Saves a <see cref="Metafile"/> instance into a <see cref="Stream"/>.
@@ -323,7 +295,91 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #endregion
+
         #region Private Methods
+
+        #region ToBitmap
+
+        private static void ValidateToBitmap(Metafile metafile, Size requestedSize)
+        {
+            if (metafile == null)
+                throw new ArgumentNullException(nameof(metafile), PublicResources.ArgumentNull);
+
+            if (requestedSize.Width < 1 || requestedSize.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(requestedSize), PublicResources.ArgumentOutOfRange);
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result is disposed only if it is not returned")]
+        private static Bitmap DoConvertToBitmap(IAsyncContext context, Metafile metafile, Size requestedSize, bool antiAliased, bool keepAspectRatio)
+        {
+            Size sourceSize = metafile.Size;
+            Rectangle targetRectangle = new Rectangle(Point.Empty, requestedSize);
+
+            if (keepAspectRatio && requestedSize != sourceSize)
+            {
+                float ratio = Math.Min((float)requestedSize.Width / sourceSize.Width, (float)requestedSize.Height / sourceSize.Height);
+                targetRectangle.Size = new Size((int)(sourceSize.Width * ratio), (int)(sourceSize.Height * ratio));
+                targetRectangle.Location = new Point((requestedSize.Width >> 1) - (targetRectangle.Width >> 1), (requestedSize.Height >> 1) - (targetRectangle.Height >> 1));
+            }
+
+            if (!antiAliased && requestedSize == targetRectangle.Size)
+                return new Bitmap(metafile, requestedSize);
+
+            var result = new Bitmap(requestedSize.Width, requestedSize.Height);
+            try
+            {
+                if (context.IsCancellationRequested)
+                    return null;
+                if (!antiAliased)
+                {
+                    if (OSUtils.IsWindows)
+                    {
+                        using (Graphics g = Graphics.FromImage(result))
+                        {
+                            // it can happen that metafile bounds is not at 0, 0 location
+                            GraphicsUnit unit = GraphicsUnit.Pixel;
+                            RectangleF sourceRectangle = metafile.GetBounds(ref unit);
+
+                            // no process-wide lock occurs here because the source image is a Metafile
+                            g.DrawImage(metafile, targetRectangle, sourceRectangle, unit);
+                            g.Flush();
+                        }
+                    }
+                    else
+                    {
+                        // On Linux there comes a NotImplementedException for Graphics.DrawImage(metafile, ...) so creating a temp buffer
+                        // Note: though this does not crash it can happen that an empty bitmap is created... at least we are future proof in case it will be fixed
+                        // Note 2: The result still can be wrong if bounds is not at 0, 0 location
+                        using (Bitmap buf = new Bitmap(metafile, targetRectangle.Width, targetRectangle.Height))
+                            ImageExtensions.DoDrawInto(context, buf, result, targetRectangle);
+                    }
+                }
+                else
+                {
+                    // for anti-aliasing using self resizing to prevent process-wide lock that Graphics.DrawImage would cause (even if it is slower)
+                    using (Bitmap bmpDouble = new Bitmap(metafile, targetRectangle.Width << 1, targetRectangle.Height << 1))
+                        ImageExtensions.DoDrawInto(context, bmpDouble, result, targetRectangle);
+                }
+
+                return context.IsCancellationRequested ? null : result;
+            }
+            catch (Exception)
+            {
+                result.Dispose();
+                result = null;
+                throw;
+            }
+            finally
+            {
+                if (context.IsCancellationRequested)
+                    result?.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region Save
 
         [SecurityCritical]
         private static void WriteWmfHeader(Metafile metafile, Stream stream)
@@ -332,6 +388,8 @@ namespace KGySoft.Drawing
             byte[] rawHeader = BinarySerializer.SerializeValueType(header);
             stream.Write(rawHeader, 0, rawHeader.Length);
         }
+
+        #endregion
 
         #endregion
 

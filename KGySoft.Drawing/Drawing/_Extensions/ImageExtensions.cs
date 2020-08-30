@@ -31,7 +31,6 @@ using System.Threading.Tasks;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
-using KGySoft.Reflection;
 
 #endregion
 
@@ -223,7 +222,7 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
         }
 
         /// <summary>
@@ -590,7 +589,7 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return DoConvertPixelFormat(AsyncHelper.Null, image, newPixelFormat, quantizer, ditherer);
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, quantizer, ditherer);
         }
 
         #endregion
@@ -600,23 +599,23 @@ namespace KGySoft.Drawing
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
         }
 
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncHelper.BeginOperation(nameof(BeginConvertPixelFormat), ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
         }
 
         public static Bitmap EndConvertPixelFormat(IAsyncResult asyncResult)
-            => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
+            => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
 
@@ -626,19 +625,19 @@ namespace KGySoft.Drawing
         public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
         public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
         }
 
         public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, TaskConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
         }
 
 #endif
@@ -649,6 +648,8 @@ namespace KGySoft.Drawing
         #region DrawInto
 
         #region Without resize
+
+        #region Sync
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/>
@@ -751,45 +752,42 @@ namespace KGySoft.Drawing
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
         public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-
-            // just some quick checks if there is nothing to draw
-            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
-                || Rectangle.Intersect(new Rectangle(targetLocation, sourceRectangle.Size), new Rectangle(Point.Empty, target.Size)).IsEmpty)
-            {
-                return;
-            }
-
-            // special handling for same reference (overlapping is handled inside)
-            if (ReferenceEquals(source, target))
-            {
-                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
-                    bitmapData.DrawInto(bitmapData, sourceRectangle, targetLocation, quantizer, ditherer);
-
-                return;
-            }
-
-            // Cloning source if it is a metafile
-            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
-            try
-            {
-                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                    src.DrawInto(dst, sourceRectangle, targetLocation, quantizer, ditherer);
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, source))
-                    bmp.Dispose();
-            }
+            ValidateDrawInto(source, target);
+            DoDrawInto(AsyncContext.Null, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
         }
 
         #endregion
 
+        #region Async APM
+
+        public static IAsyncResult BeginDrawInto(this Image source, Bitmap target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer quantizer = null, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            ValidateDrawInto(source, target);
+            return AsyncContext.BeginOperation(ctx => DoDrawInto(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
+        }
+
+        public static void EndDrawInto(IAsyncResult asyncResult)
+            => AsyncContext.EndOperation(asyncResult, nameof(BeginDrawInto));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task DrawIntoAsync(this Image source, Bitmap target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer quantizer = null, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            ValidateDrawInto(source, target);
+            return AsyncContext.DoOperationAsync(ctx => DoDrawInto(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
         #region With resize
+
+        #region Sync
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
@@ -946,44 +944,33 @@ namespace KGySoft.Drawing
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
         public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-            if (!scalingMode.IsDefined())
-                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
-
-            // just some quick checks if there is nothing to draw
-            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
-                || Rectangle.Intersect(targetRectangle, new Rectangle(Point.Empty, target.Size)).IsEmpty)
-            {
-                return;
-            }
-
-            // special handling for same reference (overlapping is handled inside)
-            if (ReferenceEquals(source, target))
-            {
-                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
-                    bitmapData.DrawInto(bitmapData, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
-
-                return;
-            }
-
-            // Cloning source if it is a metafile
-            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
-
-            try
-            {
-                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
-                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
-                    src.DrawInto(dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, source))
-                    bmp.Dispose();
-            }
+            ValidateDrawInto(source, target, scalingMode);
+            DoDrawInto(AsyncContext.Null, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
         }
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginDrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, AsyncConfig asyncConfig = null)
+        {
+            ValidateDrawInto(source, target, scalingMode);
+            return AsyncContext.BeginOperation(ctx => DoDrawInto(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
+        }
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task DrawIntoAsync(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, TaskConfig asyncConfig = null)
+        {
+            ValidateDrawInto(source, target);
+            return AsyncContext.DoOperationAsync(ctx => DoDrawInto(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
+        }
+
+#endif
+        #endregion
 
         #endregion
 
@@ -1711,6 +1698,13 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #region Internal Methods
+
+        internal static void DoDrawInto(IAsyncContext context, Image source, Bitmap target, Rectangle targetRectangle)
+            => DoDrawInto(context, source, target, new Rectangle(Point.Empty, source.Size), targetRectangle, null, null, ScalingMode.Auto);
+
+        #endregion
+
         #region Private Methods
 
         #region ConvertPixelFormat
@@ -1755,8 +1749,8 @@ namespace KGySoft.Drawing
                 using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
                 {
                     var rect = new Rectangle(Point.Empty, source.GetSize());
-                    var session = new CopySession(source, target, rect, rect);
-                    session.PerformCopy(context);
+                    var session = new CopySession(context, source, target, rect, rect);
+                    session.PerformCopy();
                 }
 
                 return context.IsCancellationRequested ? null : result;
@@ -1822,11 +1816,11 @@ namespace KGySoft.Drawing
                     using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
                     {
                         var rect = new Rectangle(Point.Empty, source.GetSize());
-                        var session = new CopySession(source, target, rect, rect);
+                        var session = new CopySession(context, source, target, rect, rect);
 
                         // quantization without dithering
                         if (ditherer == null)
-                            session.PerformCopyWithQuantizer(context, quantizingSession, false);
+                            session.PerformCopyWithQuantizer(quantizingSession, false);
                         // quantization with dithering
                         else
                         {
@@ -1836,7 +1830,7 @@ namespace KGySoft.Drawing
                                     return null;
                                 if (ditheringSession == null)
                                     throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-                                session.PerformCopyWithDithering(context, quantizingSession, ditheringSession, false);
+                                session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
                             }
                         }
 
@@ -1859,7 +1853,121 @@ namespace KGySoft.Drawing
             }
         }
 
+        /// <summary>
+        /// Initializes target bitmap palette.
+        /// </summary>
+        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
+        {
+            int bpp = newPixelFormat.ToBitsPerPixel();
+
+            // if the quantized does not have a palette but converting to a higher bpp indexed image, then taking the source palette
+            if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
+                // ReSharper disable once ConstantConditionalAccessQualifier
+                palette = source.Palette?.Entries;
+
+            if (palette == null || palette.Length == 0)
+                return;
+
+            // there is a desired palette to apply
+            int maxColors = 1 << bpp;
+            if (palette.Length > maxColors)
+                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
+
+            target.SetPalette(palette);
+        }
+
         #endregion
+
+        #region DrawInto
+
+        private static void ValidateDrawInto(Image source, Bitmap target)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+        }
+
+        private static void ValidateDrawInto(Image source, Bitmap target, ScalingMode scalingMode)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+        }
+
+        private static void DoDrawInto(IAsyncContext context, Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
+        {
+            // just some quick checks if there is nothing to draw
+            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
+                || Rectangle.Intersect(new Rectangle(targetLocation, sourceRectangle.Size), new Rectangle(Point.Empty, target.Size)).IsEmpty)
+            {
+                return;
+            }
+
+            // special handling for same reference (overlapping is handled inside)
+            if (ReferenceEquals(source, target))
+            {
+                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
+                    BitmapDataExtensions.DoDrawInto(context, bitmapData, bitmapData, sourceRectangle, targetLocation, quantizer, ditherer);
+
+                return;
+            }
+
+            // Cloning source if it is a metafile
+            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
+            try
+            {
+                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
+                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
+                    BitmapDataExtensions.DoDrawInto(context, src, dst, sourceRectangle, targetLocation, quantizer, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, source))
+                    bmp.Dispose();
+            }
+        }
+
+        private static void DoDrawInto(IAsyncContext context, Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
+        {
+            // just some quick checks if there is nothing to draw
+            if (Rectangle.Intersect(sourceRectangle, new Rectangle(Point.Empty, source.Size)).IsEmpty
+                || Rectangle.Intersect(targetRectangle, new Rectangle(Point.Empty, target.Size)).IsEmpty)
+            {
+                return;
+            }
+
+            // special handling for same reference (overlapping is handled inside)
+            if (ReferenceEquals(source, target))
+            {
+                using (IReadWriteBitmapData bitmapData = target.GetReadWriteBitmapData())
+                    BitmapDataExtensions.DoDrawInto(context, bitmapData, bitmapData, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+
+                return;
+            }
+
+            // Cloning source if it is a metafile
+            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
+
+            try
+            {
+                using (IReadableBitmapData src = bmp.GetReadableBitmapData())
+                using (IReadWriteBitmapData dst = target.GetReadWriteBitmapData())
+                    BitmapDataExtensions.DoDrawInto(context, src, dst, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, source))
+                    bmp.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region Compare
 
         [SecuritySafeCritical]
         private static bool CompareImages(Image image1, Image image2)
@@ -1929,28 +2037,9 @@ namespace KGySoft.Drawing
             }
         }
 
-        /// <summary>
-        /// Initializes target bitmap palette.
-        /// </summary>
-        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
-        {
-            int bpp = newPixelFormat.ToBitsPerPixel();
+        #endregion
 
-            // if the quantized does not have a palette but converting to a higher bpp indexed image, then taking the source palette
-            if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
-                // ReSharper disable once ConstantConditionalAccessQualifier
-                palette = source.Palette?.Entries;
-
-            if (palette == null || palette.Length == 0)
-                return;
-
-            // there is a desired palette to apply
-            int maxColors = 1 << bpp;
-            if (palette.Length > maxColors)
-                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
-
-            target.SetPalette(palette);
-        }
+        #region Save
 
         private static Image AdjustTiffImage(Image image)
         {
@@ -2040,6 +2129,8 @@ namespace KGySoft.Drawing
                     bmp.Dispose();
             }
         }
+
+        #endregion
 
         #endregion
 

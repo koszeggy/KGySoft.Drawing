@@ -414,7 +414,7 @@ namespace KGySoft.Drawing.Imaging
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext context)
         {
             if (context == null)
-                context = AsyncHelper.Null;
+                context = AsyncContext.Null;
             switch (algorithm)
             {
                 case Algorithm.Octree:

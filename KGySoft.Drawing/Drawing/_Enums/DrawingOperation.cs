@@ -29,11 +29,37 @@ namespace KGySoft.Drawing
         Saving,
         Loading,
 
-        //ProcessingPixels,
+        ProcessingPixels,
         RawCopy,
         StraightCopy,
         PremultipliedCopy,
         CopyWithQuantizer,
         CopyWithDithering,
+
+        StraightDraw,
+        PremultipliedDraw,
+        DrawWithQuantizer,
+        DrawWithDithering,
+
+        ResizeNNStraight,
+        ResizeNNPremultiplied,
+        ResizeNNWithQuantizer,
+        ResizeNNWithDithering,
+
+        InitializingResize,
+        ResizeStraight,
+        ResizePremultiplied,
+        ResizeWithQuantizer,
+        ResizeWithDithering,
+
+        ClearByIndex,
+        ClearByColor,
+        ClearRaw,
+        ClearWithDithering,
+
+        Quantizing,
+        Dithering,
+        TransformingColors,
+        TransformingColorsWithDithering
     }
 }
