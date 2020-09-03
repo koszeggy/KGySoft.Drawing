@@ -506,8 +506,13 @@ namespace KGySoft.Drawing.Imaging
                 try
                 {
                     Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, AsyncContext.Null) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (quantizingSession == null)
+                            throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
                         // quantizing without dithering
                         if (ditherer == null)
                         {
@@ -518,7 +523,12 @@ namespace KGySoft.Drawing.Imaging
                         // quantizing with dithering
                         Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
 
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, AsyncContext.Null) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
                         PerformResizeWithDithering(quantizingSession, ditheringSession);
                     }
                 }

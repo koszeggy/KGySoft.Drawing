@@ -964,7 +964,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, AsyncConfig asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncContext.BeginOperation(ctx => DoConvertToBitmap(AsyncContext.Null, source), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
         }
 
         public static Bitmap EndToBitmap(IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));

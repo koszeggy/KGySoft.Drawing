@@ -18,8 +18,9 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Threading;
-#if !NET35
+#if NET35
+using System.Threading; 
+#else
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
 #endif
@@ -44,7 +45,7 @@ namespace KGySoft.Drawing
         private static int? coreCount;
 
 #if !NET35
-        internal static ParallelOptions defaultParallelOptions = new ParallelOptions(); 
+        private static readonly ParallelOptions defaultParallelOptions = new ParallelOptions(); 
 #endif
 
         #endregion
@@ -58,10 +59,6 @@ namespace KGySoft.Drawing
         #region Methods
 
         #region Internal Methods
-
-        [Obsolete]
-        internal static void For(int fromInclusive, int toExclusive, Action<int> body)
-            => For(AsyncContext.Null, default, fromInclusive, toExclusive, body);
 
         /// <summary>
         /// Similar to <see cref="Parallel.For(int,int,Action{int})"/> but tries to balance resources and works also in .NET 3.5.
