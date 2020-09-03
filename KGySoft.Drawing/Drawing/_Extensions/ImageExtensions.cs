@@ -771,8 +771,7 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            // Cloning source if it is a metafile
-            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
+            Bitmap bmp = source.AsBitmap();
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
@@ -968,9 +967,7 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            // Cloning source if it is a metafile
-            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
-
+            Bitmap bmp = source.AsBitmap();
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
@@ -1036,7 +1033,7 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap bmp = image.AsBitmap();
             try
             {
                 return Icons.Combine(new[] { bmp }, new[] { transparentColor });
@@ -1674,8 +1671,7 @@ namespace KGySoft.Drawing
                     if (image == null)
                         throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                    Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-
+                    Bitmap bmp = image.AsBitmap();
                     try
                     {
                         rawIcon.Add(bmp); // bmp can be an icon with more images
@@ -1710,6 +1706,18 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #region Internal Methods
+
+        internal static Bitmap AsBitmap(this Image image) => image switch
+        {
+            Bitmap bmp => bmp,
+            Metafile metafile => metafile.ToBitmap(metafile.Size),
+            null => throw new ArgumentNullException(nameof(image), PublicResources.Null),
+            _ => throw new InvalidOperationException(Res.InternalError($"Unexpected image type: {image.GetType()}"))
+        };
+
+        #endregion
+
         #region Private Methods
 
         #region ConvertPixelFormat
@@ -1728,7 +1736,7 @@ namespace KGySoft.Drawing
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor, byte alphaThreshold)
         {
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap bmp = image.AsBitmap();
             Bitmap result = null;
 
             try
@@ -1780,7 +1788,7 @@ namespace KGySoft.Drawing
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer)
         {
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap bmp = image.AsBitmap();
             Bitmap result = null;
             bool canceled = false;
 

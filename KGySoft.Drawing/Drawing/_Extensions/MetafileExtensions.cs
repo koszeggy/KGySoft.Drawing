@@ -164,7 +164,7 @@ namespace KGySoft.Drawing
                 {
                     using (Graphics g = Graphics.FromImage(result))
                     {
-                        // it can happen that metafile bounds is not at 0,0 location
+                        // it can happen that metafile bounds is not at 0, 0 location
                         GraphicsUnit unit = GraphicsUnit.Pixel;
                         RectangleF sourceRectangle = metafile.GetBounds(ref unit);
 
