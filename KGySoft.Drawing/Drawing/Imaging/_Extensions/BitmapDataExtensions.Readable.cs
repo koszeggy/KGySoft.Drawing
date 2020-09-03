@@ -1098,7 +1098,32 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeGrayscale"/>
         /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
         public static IReadWriteBitmapData ToGrayscale(this IReadableBitmapData bitmapData)
-            => bitmapData.Clone(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return DoCloneWithQuantizer(AsyncContext.Null, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale));
+        }
+
+        public static IAsyncResult BeginToGrayscale(this IReadableBitmapData bitmapData, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
+        }
+
+        public static IReadWriteBitmapData EndToGrayscale(IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToGrayscale));
+
+#if !NET35
+        public static Task<IReadWriteBitmapData> ToGrayscaleAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
+        }
+#endif
 
         #endregion
 
@@ -1126,9 +1151,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            IReadWriteBitmapData result = bitmapData.Clone(PixelFormat.Format32bppArgb);
-            result.MakeTransparent();
-            return result;
+            return DoToTransparent(AsyncContext.Null, bitmapData);
         }
 
         /// <summary>
@@ -1152,41 +1175,42 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            IReadWriteBitmapData result = bitmapData.Clone(PixelFormat.Format32bppArgb);
-            result.MakeTransparent(transparentColor);
-            return result;
+            return DoToTransparent(AsyncContext.Null, bitmapData, transparentColor);
         }
+
+        public static IAsyncResult BeginToTransparent(this IReadableBitmapData bitmapData, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoToTransparent(ctx, bitmapData), asyncConfig);
+        }
+
+        public static IAsyncResult BeginToTransparent(this IReadableBitmapData bitmapData, Color32 transparentColor, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoToTransparent(ctx, bitmapData, transparentColor), asyncConfig);
+        }
+
+        public static IReadWriteBitmapData EndToTransparent(IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToTransparent));
+
+#if !NET35
+        public static Task<IReadWriteBitmapData> ToTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoToTransparent(ctx, bitmapData), asyncConfig);
+        }
+
+        public static Task<IReadWriteBitmapData> ToTransparentAsync(this IReadableBitmapData bitmapData, Color32 transparentColor, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoToTransparent(ctx, bitmapData, transparentColor), asyncConfig);
+        }
+#endif
 
         #endregion
-
-        #endregion
-
-        #region Internal Methods
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
-        {
-            if (source.HasAlpha())
-                DoDrawWithoutResize(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            else
-                DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
-        {
-            // no scaling is necessary
-            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
-            {
-                if (source.HasAlpha())
-                    DoDrawWithoutResize(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                else
-                    DoCopy(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                return;
-            }
-
-            DoDrawWithResize(context, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
-        }
 
         #endregion
 
@@ -1474,7 +1498,32 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Draw
-        
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
+        {
+            if (source.HasAlpha())
+                DoDrawWithoutResize(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+            else
+                DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
+        {
+            // no scaling is necessary
+            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+            {
+                if (source.HasAlpha())
+                    DoDrawWithoutResize(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                else
+                    DoCopy(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                return;
+            }
+
+            DoDrawWithResize(context, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+        }
+
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
         private static void DoDrawWithoutResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
         {
@@ -1888,6 +1937,31 @@ namespace KGySoft.Drawing.Imaging
             }
 
             return colors.Count;
+        }
+
+        #endregion
+
+        #region ToTransparent
+
+        private static IReadWriteBitmapData DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData)
+        {
+            var srcRect = new Rectangle(Point.Empty, bitmapData.GetSize());
+            if (bitmapData.Width < 1 || bitmapData.Height < 1)
+                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
+            Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
+            if (transparentColor.A < Byte.MaxValue)
+                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
+            return DoCloneWithQuantizer(context, bitmapData, srcRect, PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
+        }
+
+        private static IReadWriteBitmapData DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData, Color32 transparentColor)
+        {
+            var srcRect = new Rectangle(Point.Empty, bitmapData.GetSize());
+            if (transparentColor.A == 0)
+                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
+            return DoCloneWithQuantizer(context, bitmapData, srcRect, PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
         }
 
         #endregion
