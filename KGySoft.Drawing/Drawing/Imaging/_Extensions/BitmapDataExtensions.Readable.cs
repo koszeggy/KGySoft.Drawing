@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
 using System.Runtime.CompilerServices;
 #if !NET35
 using System.Threading.Tasks; 
@@ -1212,6 +1213,45 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Save
+
+        // TODO: docs:
+        // - if bitmapData represents a native Bitmap, then on Windows 48/64bpp color depth is quantized to 32bpp
+        public static void Save(this IReadableBitmapData bitmapData, Stream stream)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            DoSave(AsyncContext.Null, bitmapData, stream);
+        }
+
+        // TODO: docs:
+        // - asyncConfig.MaxDegreeOfParallelism is ignored by this method
+        public static IAsyncResult BeginSave(this IReadableBitmapData bitmapData, Stream stream, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoSave(ctx, bitmapData, stream), asyncConfig);
+        }
+
+        public static void EndSave(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginSave));
+
+#if !NET35
+        public static Task SaveAsync(this IReadableBitmapData bitmapData, Stream stream, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoSave(ctx, bitmapData, stream), asyncConfig);
+        }
+#endif
+
+        #endregion
+
         #endregion
 
         #region Private Methods
@@ -1962,6 +2002,42 @@ namespace KGySoft.Drawing.Imaging
                 return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
             return DoCloneWithQuantizer(context, bitmapData, srcRect, PixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
+        }
+
+        #endregion
+
+        #region Save
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, source is disposed if needed")]
+        private static void DoSave(IAsyncContext context, IReadableBitmapData bitmapData, Stream stream)
+        {
+            Size size = bitmapData.GetSize();
+            var srcRect = new Rectangle(Point.Empty, size);
+            Unwrap(ref bitmapData, ref srcRect);
+            var pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal source;
+
+            // Making sure we can access the raw content. ARGB32 doesn't have to be accessible because accessing it by colors is actually the same content.
+            if (pixelFormat != PixelFormat.Format32bppArgb && (bitmapData.RowSize < pixelFormat.GetByteWidth(srcRect.Right) || !pixelFormat.IsAtByteBoundary(srcRect.Left)))
+            {
+                source = (IBitmapDataInternal)DoCloneDirect(context, bitmapData, srcRect, pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, bitmapData.Palette);
+                if (context.IsCancellationRequested)
+                    return;
+
+                srcRect.Location = Point.Empty;
+            }
+            else
+                source = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
+
+            try
+            {
+                BitmapDataFactory.DoSaveBitmapData(context, source, srcRect, stream);
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, source))
+                    source.Dispose();
+            }
         }
 
         #endregion

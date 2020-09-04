@@ -148,6 +148,9 @@ namespace KGySoft
         /// <summary>The IDitherer.Initialize method returned a null value.</summary>
         internal static string ImagingDithererInitializeNull => Get("Imaging_DithererInitializeNull");
 
+        /// <summary>Not a valid bitmap data stream.</summary>
+        internal static string ImagingNotBitmapDataStream => Get("Imaging_NotBitmapDataStream");
+
         #endregion
 
         #endregion

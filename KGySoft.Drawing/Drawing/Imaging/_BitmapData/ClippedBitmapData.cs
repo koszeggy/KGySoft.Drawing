@@ -268,10 +268,8 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             // 1/4bpp: Adjust RowSize if needed
-            int alignmentMask = bpp == 1 ? 7 : 1;
-
             // right edge: if not at byte boundary but that is the right edge of the original image, then we allow including padding
-            if ((region.Width & alignmentMask) != 0 && region.Right == BitmapData.Width)
+            if (PixelFormat.IsAtByteBoundary(region.Width) && region.Right == BitmapData.Width)
                 RowSize++;
         }
 

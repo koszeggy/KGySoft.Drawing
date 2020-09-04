@@ -192,6 +192,9 @@
   <data name="Imaging_DithererInitializeNull" xml:space="preserve">
     <value>The IDitherer.Initialize method returned a null value.</value>
   </data>
+  <data name="Imaging_NotBitmapDataStream" xml:space="preserve">
+    <value>Not a valid bitmap data stream.</value>
+  </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>
   </data>
