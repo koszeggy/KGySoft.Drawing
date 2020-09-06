@@ -20,8 +20,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.CompilerServices;
-using System.Threading.Tasks;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;

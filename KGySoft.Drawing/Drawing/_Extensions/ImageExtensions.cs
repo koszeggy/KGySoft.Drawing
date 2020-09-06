@@ -1012,7 +1012,21 @@ namespace KGySoft.Drawing
         /// <remarks>The result icon will be always square sized and will contain only a single image.
         /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
         [SecuritySafeCritical]
-        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio);
+        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio, ScalingMode.Auto);
+
+        /// <summary>
+        /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
+        /// </summary>
+        /// <param name="image">The image to be converted to an icon.</param>
+        /// <param name="size">The required width and height of the icon.</param>
+        /// <param name="scalingMode">Specifies the scaling mode if size differs from the original size.</param>
+        /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio. This parameter is optional.
+        /// <br/>Default value: <see langword="true"/>.</param>
+        /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
+        /// <remarks>The result icon will be always square sized and will contain only a single image.
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
+        [SecuritySafeCritical]
+        public static Icon ToIcon(this Image image, int size, ScalingMode scalingMode, bool keepAspectRatio = true) => Icons.FromImage(image, size, keepAspectRatio, scalingMode);
 
         /// <summary>
         /// Creates an <see cref="Icon" /> from an <see cref="Image" />.

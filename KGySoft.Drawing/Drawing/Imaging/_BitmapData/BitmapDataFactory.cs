@@ -21,7 +21,10 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Threading.Tasks;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
+
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 
