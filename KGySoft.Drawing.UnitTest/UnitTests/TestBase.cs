@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.UnitTests
         #region Constants
 #pragma warning disable CS0162 // to suppress "unreachable code" warning controlled by the constant
 
-        private const bool saveToFile = true;
+        private const bool saveToFile = false;
 
         #endregion
 
@@ -215,7 +215,49 @@ namespace KGySoft.Drawing.UnitTests
             return result;
         }
 
-        protected  static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default)
+        protected static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
+        {
+            var firstRow = bitmapData.FirstRow;
+            float ratio = 255f / (bitmapData.Width / 6f);
+            float limit = bitmapData.Width / 6f;
+
+            for (int x = 0; x < bitmapData.Width; x++)
+            {
+                // red -> yellow
+                if (x < limit)
+                    firstRow[x] = new Color32(255, (x * ratio).ClipToByte(), 0);
+                // yellow -> green
+                else if (x < limit * 2)
+                    firstRow[x] = new Color32((255 - (x - limit) * ratio).ClipToByte(), 255, 0);
+                // green -> cyan
+                else if (x < limit * 3)
+                    firstRow[x] = new Color32(0, 255, ((x - limit * 2) * ratio).ClipToByte());
+                // cyan -> blue
+                else if (x < limit * 4)
+                    firstRow[x] = new Color32(0, (255 - (x - limit * 3) * ratio).ClipToByte(), 255);
+                // blue -> magenta
+                else if (x < limit * 5)
+                    firstRow[x] = new Color32(((x - limit * 4) * ratio).ClipToByte(), 0, 255);
+                // magenta -> red
+                else
+                    firstRow[x] = new Color32(255, 0, (255 - (x - limit * 5) * ratio).ClipToByte());
+            }
+
+            if (bitmapData.Height < 2)
+                return;
+
+            var row = bitmapData[1];
+            ratio = 255f / bitmapData.Height;
+            do
+            {
+                byte a = (255 - row.Index * ratio).ClipToByte();
+                for (int x = 0; x < bitmapData.Width; x++)
+                    row[x] = Color32.FromArgb(a, firstRow[x]);
+
+            } while (row.MoveNextRow());
+        }
+
+        protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default)
         {
             if (sourceRectangle == default)
                 sourceRectangle = new Rectangle(Point.Empty, source.GetSize());
@@ -256,52 +298,6 @@ namespace KGySoft.Drawing.UnitTests
                 for (int x = 0; x < sourceRectangle.Width; x++)
                     Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
-        {
-            var firstRow = bitmapData.FirstRow;
-            float ratio = 255f / (bitmapData.Width / 6f);
-            float limit = bitmapData.Width / 6f;
-
-            for (int x = 0; x < bitmapData.Width; x++)
-            {
-                // red -> yellow
-                if (x < limit)
-                    firstRow[x] = new Color32(255, (x * ratio).ClipToByte(), 0);
-                // yellow -> green
-                else if (x < limit * 2)
-                    firstRow[x] = new Color32((255 - (x - limit) * ratio).ClipToByte(), 255, 0);
-                // green -> cyan
-                else if (x < limit * 3)
-                    firstRow[x] = new Color32(0, 255, ((x - limit * 2) * ratio).ClipToByte());
-                // cyan -> blue
-                else if (x < limit * 4)
-                    firstRow[x] = new Color32(0, (255 - (x - limit * 3) * ratio).ClipToByte(), 255);
-                // blue -> magenta
-                else if (x < limit * 5)
-                    firstRow[x] = new Color32(((x - limit * 4) * ratio).ClipToByte(), 0, 255);
-                // magenta -> red
-                else
-                    firstRow[x] = new Color32(255, 0, (255 - (x - limit * 5) * ratio).ClipToByte());
-            }
-
-            if (bitmapData.Height < 2)
-                return;
-
-            var row = bitmapData[1];
-            ratio = 255f / bitmapData.Height;
-            do
-            {
-                byte a = (255 - row.Index * ratio).ClipToByte();
-                for (int x = 0; x < bitmapData.Width; x++)
-                    row[x] = Color32.FromArgb(a, firstRow[x]);
-
-            } while (row.MoveNextRow());
         }
 
         #endregion

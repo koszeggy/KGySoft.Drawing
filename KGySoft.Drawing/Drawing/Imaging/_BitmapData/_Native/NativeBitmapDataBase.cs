@@ -19,7 +19,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 using System.Security;
 
 using KGySoft.Drawing.WinApi;

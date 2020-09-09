@@ -761,7 +761,7 @@ namespace KGySoft.Drawing
 
         [SecurityCritical] // GetHicon
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bitmap is disposed if it is not the same as image.")]
-        internal static Icon FromImage(Image image, int size, bool keepAspectRatio)
+        internal static Icon FromImage(Image image, int size, bool keepAspectRatio, ScalingMode scalingMode)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -786,7 +786,7 @@ namespace KGySoft.Drawing
 
             using (var result = new Bitmap(resultSize.Width, resultSize.Height))
             {
-                image.DrawInto(result, new Rectangle(targetLocation, targetSize));
+                image.DrawInto(result, new Rectangle(targetLocation, targetSize), scalingMode);
                 return FromBitmap(result);
             }
         }

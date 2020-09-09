@@ -788,7 +788,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext context)
             => new OrderedDitheringSession(quantizer, this);
 
         #endregion

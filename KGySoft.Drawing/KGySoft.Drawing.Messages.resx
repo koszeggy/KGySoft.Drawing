@@ -120,6 +120,12 @@
   <data name="General_RequiresWindows" xml:space="preserve">
     <value>This operation is supported on Windows only.</value>
   </data>
+  <data name="General_OperationCanceled" xml:space="preserve">
+    <value>The operation was canceled.</value>
+  </data>
+  <data name="General_InvalidAsyncResult" xml:space="preserve">
+    <value>Either the IAsyncResult object did not come from the corresponding async method on this type, or the End method was called multiple times with the same IAsyncResult.</value>
+  </data>
   <data name="General_InternalErrorFormat" xml:space="preserve">
     <value>Internal Error: {0}</value>
   </data>
@@ -185,6 +191,9 @@
   </data>
   <data name="Imaging_DithererInitializeNull" xml:space="preserve">
     <value>The IDitherer.Initialize method returned a null value.</value>
+  </data>
+  <data name="Imaging_NotBitmapDataStream" xml:space="preserve">
+    <value>Not a valid bitmap data stream.</value>
   </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>

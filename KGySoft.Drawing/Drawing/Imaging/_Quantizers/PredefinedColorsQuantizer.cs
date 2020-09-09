@@ -1570,7 +1570,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
-        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source)
+        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext context)
             => palette != null ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
                 : new QuantizingSessionCustomMapping(this, quantizingFunction);
 

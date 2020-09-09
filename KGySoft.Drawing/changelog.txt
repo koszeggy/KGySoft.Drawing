@@ -9,12 +9,63 @@
 ! v5.3.0:
 ~~~~~~~~~
 
+* KGySoft.Drawing namespace:
+============================
+* Icons class:
+  * The shadow mask of Icon resources have been changed so they appear better when displayed on a display or
+    operating system with no alpha gradient support.
++ ImageExtensions class:
+  + New BeginConvertPixelFormat/EndConvertPixelFormat methods
+  + New ConvertPixelFormatAsync methods (for .NET 4.0 and above)
+  + New ToIcon overload with ScalingMode parameter
+
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
 ! RandomNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
 ! InterleavedGradientNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
 - OptimizedPaletteQuantizer class:
   - Octree method: Fixing a possible exception under .NET 3.5 caused by different behavior of Array.Sort
++ BitmapDataExtensions class:
+  + New BeginClone/EndClone methods
+  + New CloneAsync methods (for .NET 4.0 and above)
+  + New BeginCopyTo/EndCopyTo methods
+  + New CopyToAsync method (for .NET 4.0 and above)
+  + New BeginDrawInto/EndDrawInto methods
+  + New DrawIntoAsync methods (for .NET 4.0 and above)
+  + New BeginToBitmap/EndToBitmap methods
+  + New ToBitmapAsync method (for .NET 4.0 and above)
+  + New BeginGetColors/EndGetColors methods
+  + New GetColorsAsync method (for .NET 4.0 and above)
+  + New BeginGetColorCount/EndGetColorCount methods
+  + New GetColorCountAsync method (for .NET 4.0 and above)
+  + New BeginToGrayscale/EndToGrayscale methods
+  + New ToGrayscaleAsync method (for .NET 4.0 and above)
+  + New BeginMakeGrayscale/EndMakeGrayscale methods
+  + New MakeGrayscaleAsync method (for .NET 4.0 and above)
+  + New BeginToTransparent/EndToTransparent methods
+  + New ToTransparentAsync methods (for .NET 4.0 and above)
+  + New BeginMakeTransparent/EndMakeTransparent methods
+  + New MakeTransparentAsync method (for .NET 4.0 and above)
+  + New BeginClear/EndClear methods
+  + New ClearAsync method (for .NET 4.0 and above)
+  + New BeginQuantize/EndQuantize methods
+  + New QuantizeAsync method (for .NET 4.0 and above)
+  + New BeginDither/EndDither methods
+  + New DitherAsync method (for .NET 4.0 and above)
+  + New BeginTransformColors/EndTransformColors methods
+  + New TransformColorsAsync method (for .NET 4.0 and above)
+  + New BeginReplaceColor/EndReplaceColor methods
+  + New ReplaceColorAsync method (for .NET 4.0 and above)
+  + New BeginInvert/EndInvert methods
+  + New InvertAsync method (for .NET 4.0 and above)
+  + New BeginMakeOpaque/EndMakeOpaque methods
+  + New MakeOpaqueAsync method (for .NET 4.0 and above)
+  + New BeginAdjustBrightness/EndAdjustBrightness methods
+  + New AdjustBrightnessAsync method (for .NET 4.0 and above)
+  + New BeginAdjustContrast/EndAdjustContrast methods
+  + New AdjustContrastAsync method (for .NET 4.0 and above)
+  + New BeginAdjustGamma/EndAdjustGamma methods
+  + New AdjustGammaAsync method (for .NET 4.0 and above)
 
 
 ~~~~~~~~~

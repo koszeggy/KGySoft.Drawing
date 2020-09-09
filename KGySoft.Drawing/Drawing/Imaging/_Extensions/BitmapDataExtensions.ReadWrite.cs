@@ -20,6 +20,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -70,8 +73,8 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Quantizing
-        
+        #region Quantizing/Dithering
+
         /// <summary>
         /// Quantizes an <see cref="IReadWriteBitmapData"/> using the specified <paramref name="quantizer"/> (reduces the number of colors).
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -94,8 +97,6 @@ namespace KGySoft.Drawing.Imaging
         /// </list></note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Quantize"/>
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         public static void Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer)
         {
             if (bitmapData == null)
@@ -103,43 +104,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
-            try
-            {
-                using (IQuantizingSession session = quantizer.Initialize(bitmapData))
-                {
-                    if (session == null)
-                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-
-                    // Sequential processing
-                    if (bitmapData.Width < parallelThreshold >> quantizingScale)
-                    {
-                        int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(0);
-                        do
-                        {
-                            for (int x = 0; x < width; x++)
-                                row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                        } while (row.MoveNextRow());
-
-                        return;
-                    }
-
-                    // Parallel processing
-                    ParallelHelper.For(0, bitmapData.Height, y =>
-                    {
-                        int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(y);
-                        for (int x = 0; x < width; x++)
-                            row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
-                    });
-                }
-            }
-            finally
-            {
-                if (!ReferenceEquals(bitmapData, accessor))
-                    accessor.Dispose();
-            }
+            DoQuantize(AsyncContext.Null, bitmapData, quantizer);
         }
 
         /// <summary>
@@ -169,8 +134,6 @@ namespace KGySoft.Drawing.Imaging
         /// </list></note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Dither"/>
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
         {
             if (bitmapData == null)
@@ -180,50 +143,58 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
-            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
-
-            try
-            {
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
-                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                {
-                    // Sequential processing
-                    if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
-                    {
-                        int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(0);
-                        int y = 0;
-                        do
-                        {
-                            for (int x = 0; x < width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-
-                            y += 1;
-                        } while (row.MoveNextRow());
-
-                        return;
-                    }
-
-                    // Parallel processing
-                    ParallelHelper.For(0, bitmapData.Height, y =>
-                    {
-                        int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(y);
-                        for (int x = 0; x < width; x++)
-                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
-                    });
-                }
-            }
-            finally
-            {
-                if (!ReferenceEquals(bitmapData, accessor))
-                    accessor.Dispose();
-            }
+            DoDither(AsyncContext.Null, bitmapData, quantizer, ditherer);
         }
+
+        public static IAsyncResult BeginQuantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            return AsyncContext.BeginOperation(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
+        }
+
+        public static void EndQuantize(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginQuantize));
+
+        public static IAsyncResult BeginDither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            return AsyncContext.BeginOperation(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
+        }
+
+        public static void EndDither(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDither));
+
+#if !NET35
+        public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            return AsyncContext.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
+        }
+
+        public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (quantizer == null)
+                throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
+
+            return AsyncContext.DoOperationAsync(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
+        }
+#endif
 
         #endregion
 
-        #region Color Transformations
+        #region TransformColors
 
         /// <summary>
         /// Transforms the colors of this <paramref name="bitmapData"/> using the specified <paramref name="transformFunction"/> delegate.
@@ -242,8 +213,6 @@ namespace KGySoft.Drawing.Imaging
         /// pixels of an indexed <paramref name="bitmapData"/> instead of modifying the palette, then use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32},IDitherer)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, Color, byte)"/>
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             if (bitmapData == null)
@@ -251,52 +220,7 @@ namespace KGySoft.Drawing.Imaging
             if (transformFunction == null)
                 throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
 
-            // Indexed format: processing the palette entries when possible
-            if (bitmapData is IBitmapDataInternal bitmapDataInternal && bitmapDataInternal.CanSetPalette)
-            {
-                Palette palette = bitmapData.Palette;
-                Color32[] oldEntries = palette.Entries;
-                Color32[] newEntries = new Color32[oldEntries.Length];
-                for (int i = 0; i < newEntries.Length; i++)
-                    newEntries[i] = transformFunction.Invoke(oldEntries[i]);
-                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold)))
-                    return;
-                Debug.Fail("Setting the palette of the same size should work if CanSetPalette is true");
-            }
-
-            if (bitmapData.Height < 1)
-                return;
-
-            // Non-indexed format or palette cannot be set: processing the pixels
-            var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
-            try
-            {
-                // Sequential processing
-                if (bitmapData.Width < parallelThreshold)
-                {
-                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
-                    do
-                    {
-                        for (int x = 0; x < bitmapData.Width; x++)
-                            row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
-                    } while (row.MoveNextRow());
-
-                    return;
-                }
-
-                // Parallel processing
-                ParallelHelper.For(0, bitmapData.Height, y =>
-                {
-                    IBitmapDataRowInternal row = accessor.DoGetRow(y);
-                    for (int x = 0; x < bitmapData.Width; x++)
-                        row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
-                });
-            }
-            finally
-            {
-                if (!ReferenceEquals(bitmapData, accessor))
-                    accessor.Dispose();
-            }
+            DoTransformColors(AsyncContext.Null, bitmapData, transformFunction);
         }
 
         /// <summary>
@@ -321,76 +245,44 @@ namespace KGySoft.Drawing.Imaging
         /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)">BitmapExtensions.TransformColors</see> method for an example.</note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)"/>
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed if needed")]
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            if (ditherer == null || !pixelFormat.CanBeDithered())
-            {
-                bitmapData.TransformColors(transformFunction);
-                return;
-            }
-
-            // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
-            if (ditherer.InitializeReliesOnContent)
-            {
-                // not using premultiplied format because transformation is faster on simple ARGB32
-                using IReadWriteBitmapData tempClone = bitmapData.Clone(PixelFormat.Format32bppArgb);
-                tempClone.TransformColors(transformFunction);
-                tempClone.CopyTo(bitmapData, Point.Empty, ditherer);
-                return;
-            }
-
             if (transformFunction == null)
                 throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
 
-            if (bitmapData.Height < 1)
-                return;
-
-            var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
-            try
-            {
-                IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
-                Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
-
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
-                using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                {
-                    // sequential processing
-                    if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
-                    {
-                        IBitmapDataRowInternal row = accessor.DoGetRow(0);
-                        int y = 0;
-                        do
-                        {
-                            for (int x = 0; x < bitmapData.Width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-                            y += 1;
-                        } while (row.MoveNextRow());
-
-                        return;
-                    }
-
-                    // parallel processing
-                    ParallelHelper.For(0, bitmapData.Height, y =>
-                    {
-                        IBitmapDataRowInternal row = accessor.DoGetRow(y);
-                        for (int x = 0; x < bitmapData.Width; x++)
-                            row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
-                    });
-                }
-            }
-            finally
-            {
-                if (!ReferenceEquals(bitmapData, accessor))
-                    accessor.Dispose();
-            }
+            DoTransformColors(AsyncContext.Null, bitmapData, transformFunction, ditherer);
         }
 
+        public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (transformFunction == null)
+                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
+
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
+        }
+
+        public static void EndTransformColors(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginTransformColors));
+
+#if !NET35
+        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (transformFunction == null)
+                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
+
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region ReplaceColor
+        
         /// <summary>
         /// Replaces every <paramref name="oldColor"/> occurrences to <paramref name="newColor"/> in the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -419,11 +311,37 @@ namespace KGySoft.Drawing.Imaging
             if (oldColor == newColor)
                 return;
 
-            Color32 Transform(Color32 c) => c == oldColor ? newColor : c;
-
-            bitmapData.TransformColors(Transform, ditherer);
+            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer);
         }
 
+        public static IAsyncResult BeginReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (oldColor == newColor)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
+        }
+
+        public static void EndReplaceColor(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginReplaceColor));
+
+#if !NET35
+        public static Task ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (oldColor == newColor)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region Invert
+        
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -444,11 +362,33 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BitmapExtensions.Invert"/>
         public static void Invert(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null)
         {
-            static Color32 Transform(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
-
-            bitmapData.TransformColors(Transform, ditherer);
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            DoTransformColors(AsyncContext.Null, bitmapData, TransformInvert, ditherer);
         }
 
+        public static IAsyncResult BeginInvert(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
+        }
+
+        public static void EndInvert(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginInvert));
+
+#if !NET35
+        public static Task InvertAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region MakeTransparent
+        
         /// <summary>
         /// If possible, makes the background of this <paramref name="bitmapData"/> transparent, taking the bottom-left pixel as the background color.
         /// If the <paramref name="bitmapData"/> does not support transparency, then the pixels that have the same color as the bottom-left pixel will be set
@@ -480,7 +420,7 @@ namespace KGySoft.Drawing.Imaging
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
                 return;
-            bitmapData.ReplaceColor(transparentColor, default);
+            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, transparentColor, default));
         }
 
         /// <summary>
@@ -510,9 +450,59 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (transparentColor.A == 0)
                 return;
-            bitmapData.ReplaceColor(transparentColor, default);
+            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, transparentColor, default));
         }
 
+        public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (bitmapData.Width < 1 || bitmapData.Height < 1)
+                return AsyncContext.FromCompleted(asyncConfig);
+            Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
+            if (transparentColor.A < Byte.MaxValue)
+                return AsyncContext.FromCompleted(asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+        }
+
+        public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (transparentColor.A == 0)
+                return AsyncContext.FromCompleted(asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+        }
+
+        public static void EndMakeTransparent(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeTransparent));
+
+#if !NET35
+        public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (bitmapData.Width < 1 || bitmapData.Height < 1)
+                return AsyncContext.FromCompleted(asyncConfig);
+            Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
+            if (transparentColor.A < Byte.MaxValue)
+                return AsyncContext.FromCompleted(asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+        }
+
+        public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, Color32 transparentColor, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (transparentColor.A == 0)
+                return AsyncContext.FromCompleted(asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region MakeOpaque
+        
         /// <summary>
         /// Makes this <paramref name="bitmapData"/> opaque using the specified <paramref name="backColor"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -535,12 +525,34 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BitmapExtensions.MakeOpaque"/>
         public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null)
         {
-            Color32 color = backColor.ToOpaque();
-
-            Color32 Transform(Color32 c) => c.A == Byte.MaxValue ? c : c.BlendWithBackground(color);
-
-            bitmapData.TransformColors(Transform, ditherer);
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (!bitmapData.HasAlpha())
+                return;
+            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer);
         }
+
+        public static IAsyncResult BeginMakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
+        }
+
+        public static void EndMakeOpaque(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeOpaque));
+
+#if !NET35
+        public static Task MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region MakeGrayscale
 
         /// <summary>
         /// Makes this <paramref name="bitmapData"/> grayscale.
@@ -568,15 +580,33 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="ImageExtensions.ToGrayscale"/>
         public static void MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null)
         {
-            static Color32 Transform(Color32 c)
-            {
-                byte br = c.GetBrightness();
-                return new Color32(c.A, br, br, br);
-            }
-
-            bitmapData.TransformColors(Transform, ditherer);
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            DoTransformColors(AsyncContext.Null, bitmapData, TransformMakeGrayscale, ditherer);
         }
 
+        public static IAsyncResult BeginMakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
+        }
+
+        public static void EndMakeGrayscale(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
+
+#if !NET35
+        public static Task MakeGrayscaleAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region AdjustBrightness
+        
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -620,26 +650,60 @@ namespace KGySoft.Drawing.Imaging
             if (brightness < 0f)
             {
                 brightness += 1f;
-                bitmapData.TransformColors(Darken, ditherer);
+                DoTransformColors(AsyncContext.Null, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer);
             }
             else
-                bitmapData.TransformColors(Lighten, ditherer);
-
-            #region Local Methods
-
-            Color32 Darken(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
-
-            Color32 Lighten(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
-
-            #endregion
+                DoTransformColors(AsyncContext.Null, bitmapData, c => TransformLighten(c, brightness, channels), ditherer);
         }
 
+        public static IAsyncResult BeginAdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
+                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || brightness == 0f)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            if (brightness >= 0f)
+                return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
+            
+            brightness += 1f;
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
+        }
+
+        public static void EndAdjustBrightness(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
+
+#if !NET35
+        public static Task AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (brightness < -1f || brightness > 1f || Single.IsNaN(brightness))
+                throw new ArgumentOutOfRangeException(nameof(brightness), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || brightness == 0f)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            if (brightness >= 0f)
+                return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
+
+            brightness += 1f;
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region AdjustContras
+        
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -683,14 +747,55 @@ namespace KGySoft.Drawing.Imaging
             contrast += 1f;
             contrast *= contrast;
 
-            Color32 Transform(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
-
-            bitmapData.TransformColors(Transform, ditherer);
+            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformContrast(c, contrast, channels), ditherer);
         }
 
+        public static IAsyncResult BeginAdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
+                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || contrast == 0f)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            contrast += 1f;
+            contrast *= contrast;
+
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
+        }
+
+        public static void EndAdjustContrast(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustContrast));
+
+#if !NET35
+        public static Task AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (contrast < -1f || contrast > 1f || Single.IsNaN(contrast))
+                throw new ArgumentOutOfRangeException(nameof(contrast), PublicResources.ArgumentMustBeBetween(-1f, 1f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || contrast == 0f)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            contrast += 1f;
+            contrast *= contrast;
+
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region AdjustGamma
+        
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -732,14 +837,46 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             byte[] table = gammaLookupTableCache[gamma];
-
-            Color32 Transform(Color32 c) => new Color32(c.A,
-                (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
-                (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
-                (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
-
-            bitmapData.TransformColors(Transform, ditherer);
+            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformGamma(c, channels, table), ditherer);
         }
+
+        public static IAsyncResult BeginAdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
+                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || gamma == 1f)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            byte[] table = gammaLookupTableCache[gamma];
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, table), ditherer), asyncConfig);
+        }
+
+        public static void EndAdjustGamma(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustGamma));
+
+#if !NET35
+        public static Task AdjustGammaAsync(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (gamma < 0f || gamma > 10f || Single.IsNaN(gamma))
+                throw new ArgumentOutOfRangeException(nameof(gamma), PublicResources.ArgumentMustBeBetween(0f, 10f));
+            if (!channels.AllFlagsDefined())
+                throw new ArgumentOutOfRangeException(nameof(channels), PublicResources.FlagsEnumOutOfRange(channels));
+
+            // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
+            if (channels == ColorChannels.None || gamma == 1f)
+                return AsyncContext.FromCompleted(asyncConfig);
+
+            byte[] table = gammaLookupTableCache[gamma];
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, table), ditherer), asyncConfig);
+        }
+#endif
 
         #endregion
 
@@ -747,13 +884,303 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
+        #region Quantizing/Dithering
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        private static void DoQuantize(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer)
+        {
+            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+            try
+            {
+                using (IQuantizingSession session = quantizer.Initialize(bitmapData, context))
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    if (session == null)
+                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
+                    // Sequential processing
+                    if (bitmapData.Width < parallelThreshold >> quantizingScale)
+                    {
+                        context.Progress?.New(DrawingOperation.Quantizing, 0, bitmapData.Height);
+                        int width = bitmapData.Width;
+                        IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                        do
+                        {
+                            if (context.IsCancellationRequested)
+                                return;
+                            for (int x = 0; x < width; x++)
+                                row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
+                            context.Progress?.Increment();
+                        } while (row.MoveNextRow());
+
+                        return;
+                    }
+
+                    // Parallel processing
+                    ParallelHelper.For(context, DrawingOperation.Quantizing, 0, bitmapData.Height, y =>
+                    {
+                        int width = bitmapData.Width;
+                        IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                        for (int x = 0; x < width; x++)
+                            row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
+                    });
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, accessor))
+                    accessor.Dispose();
+            }
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        private static void DoDither(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
+        {
+            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+
+            try
+            {
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    if (quantizingSession == null)
+                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+                    using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context))
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                        // Sequential processing
+                        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
+                        {
+                            context.Progress?.New(DrawingOperation.Dithering, 0, bitmapData.Height);
+                            int width = bitmapData.Width;
+                            IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                            int y = 0;
+                            do
+                            {
+                                if (context.IsCancellationRequested)
+                                    return;
+                                for (int x = 0; x < width; x++)
+                                    row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
+                                y += 1;
+                                context.Progress?.Increment();
+                            } while (row.MoveNextRow());
+
+                            return;
+                        }
+
+                        // Parallel processing
+                        ParallelHelper.For(context, DrawingOperation.Dithering, 0, bitmapData.Height, y =>
+                        {
+                            int width = bitmapData.Width;
+                            IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                            for (int x = 0; x < width; x++)
+                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
+                        });
+                    }
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, accessor))
+                    accessor.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region Color Transformations
+
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
+        private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
+        {
+            // Indexed format: processing the palette entries when possible
+            if (bitmapData is IBitmapDataInternal bitmapDataInternal && bitmapDataInternal.CanSetPalette)
+            {
+                context.Progress?.New(DrawingOperation.TransformingColors, 1);
+                Palette palette = bitmapData.Palette;
+                Color32[] oldEntries = palette.Entries;
+                Color32[] newEntries = new Color32[oldEntries.Length];
+                for (int i = 0; i < newEntries.Length; i++)
+                    newEntries[i] = transformFunction.Invoke(oldEntries[i]);
+                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold)))
+                {
+                    context.Progress?.Complete();
+                    return;
+                }
+
+                Debug.Fail("Setting the palette of the same size should work if CanSetPalette is true");
+            }
+
+            if (bitmapData.Height < 1)
+                return;
+
+            // Non-indexed format or palette cannot be set: processing the pixels
+            var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+            try
+            {
+                // Sequential processing
+                if (bitmapData.Width < parallelThreshold)
+                {
+                    context.Progress?.New(DrawingOperation.TransformingColors, bitmapData.Height);
+                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                    do
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        for (int x = 0; x < bitmapData.Width; x++)
+                            row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
+                        context.Progress?.Increment();
+                    } while (row.MoveNextRow());
+
+                    return;
+                }
+
+                // Parallel processing
+                ParallelHelper.For(context, DrawingOperation.TransformingColors, 0, bitmapData.Height, y =>
+                {
+                    IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                    for (int x = 0; x < bitmapData.Width; x++)
+                        row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
+                });
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, accessor))
+                    accessor.Dispose();
+            }
+        }
+
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed if needed")]
+        private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            if (ditherer == null || !pixelFormat.CanBeDithered())
+            {
+                DoTransformColors(context, bitmapData, transformFunction);
+                return;
+            }
+
+            // Special handling if ditherer relies on actual content: transforming into an ARGB32 result, and dithering that temporary result
+            if (ditherer.InitializeReliesOnContent)
+            {
+                // not using premultiplied format because transformation is faster on simple ARGB32
+                using IReadWriteBitmapData tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb);
+                if (context.IsCancellationRequested)
+                    return;
+                DoTransformColors(context, tempClone, transformFunction);
+                if (context.IsCancellationRequested)
+                    return;
+                DoCopy(context, tempClone, bitmapData, new Rectangle(Point.Empty, tempClone.GetSize()), Point.Empty, null, ditherer);
+                return;
+            }
+
+            if (bitmapData.Height < 1)
+                return;
+
+            var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+            try
+            {
+                IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
+                Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
+
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+                    using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context))
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
+                        // sequential processing
+                        if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
+                        {
+                            context.Progress?.New(DrawingOperation.TransformingColorsWithDithering, 0, bitmapData.Height);
+                            IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                            int y = 0;
+                            do
+                            {
+                                if (context.IsCancellationRequested)
+                                    return;
+                                for (int x = 0; x < bitmapData.Width; x++)
+                                    row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
+                                y += 1;
+                                context.Progress?.Increment();
+                            } while (row.MoveNextRow());
+
+                            return;
+                        }
+
+                        // parallel processing
+                        ParallelHelper.For(context, DrawingOperation.TransformingColorsWithDithering, 0, bitmapData.Height, y =>
+                        {
+                            IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                            for (int x = 0; x < bitmapData.Width; x++)
+                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
+                        });
+                    }
+                }
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, accessor))
+                    accessor.Dispose();
+            }
+        }
+
+        private static Color32 TransformReplaceColor(Color32 c, Color32 oldColor, Color32 newColor) => c == oldColor ? newColor : c;
+
+        private static Color32 TransformInvert(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
+
+        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor);
+
+        private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
+
+        private static Color32 TransformLighten(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? (byte)((255 - c.R) * brightness + c.R) : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? (byte)((255 - c.G) * brightness + c.G) : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? (byte)((255 - c.B) * brightness + c.B) : c.B);
+
+        private static Color32 TransformDarken(Color32 c, float brightness, ColorChannels channels) => new Color32(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? (byte)(c.R * brightness) : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? (byte)(c.G * brightness) : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? (byte)(c.B * brightness) : c.B);
+
+        private static Color32 TransformContrast(Color32 c, float contrast, ColorChannels channels) => new Color32(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? ((int)(((c.R / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? ((int)(((c.G / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? ((int)(((c.B / 255f - 0.5f) * contrast + 0.5f) * 255f)).ClipToByte() : c.B);
+
+        private static Color32 TransformGamma(Color32 c, ColorChannels channels, byte[] table) => new Color32(c.A,
+            (channels & ColorChannels.R) == ColorChannels.R ? table[c.R] : c.R,
+            (channels & ColorChannels.G) == ColorChannels.G ? table[c.G] : c.G,
+            (channels & ColorChannels.B) == ColorChannels.B ? table[c.B] : c.B);
+
         private static byte[] GenerateGammaLookupTable(float gamma)
         {
             byte[] result = new byte[256];
             for (int i = 0; i < 256; i++)
+#if NETFRAMEWORK || NETSTANDARD2_0
                 result[i] = ((int)(255d * Math.Pow(i / 255d, 1d / gamma) + 0.5d)).ClipToByte();
+#else
+                result[i] = ((int)(255f * MathF.Pow(i / 255f, 1f / gamma) + 0.5f)).ClipToByte();
+#endif
             return result;
         }
+
+        #endregion
 
         #endregion
 

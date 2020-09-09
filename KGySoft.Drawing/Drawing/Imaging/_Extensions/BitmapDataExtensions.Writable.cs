@@ -20,6 +20,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+#if !NET35
+using System.Threading.Tasks;
+#endif
 
 #endregion
 
@@ -30,6 +33,8 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
+
+        #region Clip
 
         /// <summary>
         /// Clips the specified <paramref name="source"/> using the specified <paramref name="clippingRegion"/>.
@@ -57,6 +62,10 @@ namespace KGySoft.Drawing.Imaging
                 : new ClippedBitmapData(source, clippingRegion);
         }
 
+        #endregion
+
+        #region Clear
+
         /// <summary>
         /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>.
         /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="PixelFormat"/> and also dithering.
@@ -69,26 +78,34 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <seealso cref="BitmapExtensions.Clear(Bitmap, Color, IDitherer, Color, byte)"/>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-
-            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
-            try
-            {
-                if (ditherer == null || !accessor.PixelFormat.CanBeDithered())
-                    ClearDirect(accessor, color);
-                else
-                    ClearWithDithering(accessor, color, ditherer);
-            }
-            finally
-            {
-                if (!ReferenceEquals(accessor, bitmapData))
-                    accessor.Dispose();
-            }
+            DoClear(AsyncContext.Null, bitmapData, color, ditherer);
         }
+
+        public static IAsyncResult BeginClear(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
+        }
+
+        public static void EndClear(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginClear));
+
+#if !NET35
+        public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region TrySetPalette
 
         /// <summary>
         /// Tries to the set the specified <paramref name="palette"/> for this <see cref="IWritableBitmapData"/>.
@@ -115,9 +132,29 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #endregion
+
         #region Private Methods
 
-        private static void ClearDirect(IBitmapDataInternal bitmapData, Color32 color)
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
+        private static void DoClear(IAsyncContext context, IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer)
+        {
+            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
+            try
+            {
+                if (ditherer == null || !accessor.PixelFormat.CanBeDithered())
+                    ClearDirect(context, accessor, color);
+                else
+                    ClearWithDithering(context, accessor, color, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(accessor, bitmapData))
+                    accessor.Dispose();
+            }
+        }
+
+        private static void ClearDirect(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color)
         {
             int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
             int left = 0;
@@ -138,13 +175,13 @@ namespace KGySoft.Drawing.Imaging
                         };
 
                         uint argb = (uint)rawColor.ToArgb();
-                        ClearRaw(bitmapData, longWidth, ((ulong)argb << 32) | argb);
+                        ClearRaw(context, bitmapData, longWidth, ((ulong)argb << 32) | argb);
                     }
 
                     // handling the rest (can be either the last column if width is odd, or even the whole content if RowSize is 0)
                     left = longWidth << 1;
-                    if (left < width)
-                        ClearDirectFallback(bitmapData, color, left);
+                    if (left < width && !context.IsCancellationRequested)
+                        ClearDirectFallback(context, bitmapData, color, left);
 
                     return;
 
@@ -163,13 +200,13 @@ namespace KGySoft.Drawing.Imaging
                         };
 
                         uint uintValue = (uint)((shortValue << 16) | shortValue);
-                        ClearRaw(bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
+                        ClearRaw(context, bitmapData, longWidth, ((ulong)uintValue << 32) | uintValue);
                     }
 
                     // handling the rest (or even the whole content if RowSize is 0)
                     left = longWidth << 2;
-                    if (left < width)
-                        ClearDirectFallback(bitmapData, color, left);
+                    if (left < width && !context.IsCancellationRequested)
+                        ClearDirectFallback(context, bitmapData, color, left);
 
                     return;
 
@@ -192,43 +229,47 @@ namespace KGySoft.Drawing.Imaging
                         {
                             longWidth = bitmapData.RowSize >> 3;
                             uint intValue = (uint)((byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
-                            ClearRaw(bitmapData, longWidth, ((ulong)intValue << 32) | intValue);
+                            ClearRaw(context, bitmapData, longWidth, ((ulong)intValue << 32) | intValue);
                             left = (longWidth << 3) << factor;
                         }
                         // writing as integers
                         else if ((bitmapData.RowSize & 0b11) == 0)
                         {
                             int intWidth = bitmapData.RowSize >> 2;
-                            ClearRaw(bitmapData, intWidth, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
+                            ClearRaw(context, bitmapData, intWidth, (byteValue << 24) | (byteValue << 16) | (byteValue << 8) | byteValue);
                             left = (intWidth << 2) << factor;
                         }
                         // writing as bytes
                         else
                         {
-                            ClearRaw(bitmapData, bitmapData.RowSize, byteValue);
+                            ClearRaw(context, bitmapData, bitmapData.RowSize, byteValue);
                             left = bitmapData.RowSize << factor;
                         }
                     }
 
-                    if (left >= width)
+                    if (left >= width || context.IsCancellationRequested)
                         return;
                     
                     // handling the rest if needed (occurs if RowSize is 0 or right edge does not fall on byte boundary, eg. clipped bitmap data)
-                    // we could simply jump to default here bus as we already know the palette index we can optimize it a bit
+                    // we could simply jump to default here but as we already know the palette index we can optimize it a bit
                     if (width - left < parallelThreshold)
                     {
+                        context.Progress?.New(DrawingOperation.ClearByIndex, bitmapData.Height);
                         IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                         do
                         {
+                            if (context.IsCancellationRequested)
+                                return;
                             for (int x = left; x < width; x++)
                                 row.DoSetColorIndex(x, index);
+                            context.Progress?.Increment();
                         } while (row.MoveNextRow());
 
                         return;
                     }
 
                     // parallel clear
-                    ParallelHelper.For(0, bitmapData.Height, y =>
+                    ParallelHelper.For(context, DrawingOperation.ClearByIndex, 0, bitmapData.Height, y =>
                     {
                         // ReSharper disable once VariableHidesOuterVariable
                         IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
@@ -244,28 +285,32 @@ namespace KGySoft.Drawing.Imaging
                 // 64 bit is not handled above because its actual format may depend on actual bitmap data type
                 default:
                     // small width: going with sequential clear
-                    ClearDirectFallback(bitmapData, color, 0);
+                    ClearDirectFallback(context, bitmapData, color, 0);
                     return;
             }
         }
 
-        private static void ClearDirectFallback(IBitmapDataInternal bitmapData, Color32 color, int offsetLeft)
+        private static void ClearDirectFallback(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int offsetLeft)
         {
             int width = bitmapData.Width;
             if (width - offsetLeft < parallelThreshold)
             {
+                context.Progress?.New(DrawingOperation.ClearByColor, bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                 do
                 {
+                    if (context.IsCancellationRequested)
+                        return;
                     for (int x = offsetLeft; x < width; x++)
                         row.DoSetColor32(x, color);
+                    context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
                 return;
             }
 
             // parallel clear
-            ParallelHelper.For(0, bitmapData.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.ClearByColor, 0, bitmapData.Height, y =>
             {
                 // ReSharper disable once VariableHidesOuterVariable
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
@@ -277,23 +322,27 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        private static void ClearRaw<T>(IBitmapDataInternal bitmapData, int width, T data)
+        private static void ClearRaw<T>(IAsyncContext context, IBitmapDataInternal bitmapData, int width, T data)
             where T : unmanaged
         {
             // small width: going with sequential clear
             if (width < parallelThreshold)
             {
+                context.Progress?.New(DrawingOperation.ClearRaw, bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                 do
                 {
+                    if (context.IsCancellationRequested)
+                        return;
                     for (int x = 0; x < width; x++)
                         row.DoWriteRaw(x, data);
+                    context.Progress?.Increment();
                 } while (row.MoveNextRow());
                 return;
             }
 
             // parallel clear
-            ParallelHelper.For(0, bitmapData.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.ClearRaw, 0, bitmapData.Height, y =>
             {
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                 int w = width;
@@ -305,36 +354,47 @@ namespace KGySoft.Drawing.Imaging
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        private static void ClearWithDithering(IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
+        private static void ClearWithDithering(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
-            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
+            using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
             {
+                if (context.IsCancellationRequested)
+                    return;
                 IReadableBitmapData initSource = ditherer.InitializeReliesOnContent
                     ? new SolidBitmapData(bitmapData.GetSize(), color)
                     : bitmapData;
 
                 try
                 {
-                    using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                    using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context))
                     {
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
                         // sequential clear
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
+                            context.Progress?.New(DrawingOperation.ClearWithDithering, bitmapData.Height);
                             IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                             int y = 0;
                             do
                             {
+                                if (context.IsCancellationRequested)
+                                    return;
                                 for (int x = 0; x < bitmapData.Width; x++)
                                     row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
                                 y += 1;
+                                context.Progress?.Increment();
                             } while (row.MoveNextRow());
 
                             return;
                         }
 
                         // parallel clear
-                        ParallelHelper.For(0, bitmapData.Height, y =>
+                        ParallelHelper.For(context, DrawingOperation.ClearWithDithering, 0, bitmapData.Height, y =>
                         {
                             IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                             for (int x = 0; x < bitmapData.Width; x++)

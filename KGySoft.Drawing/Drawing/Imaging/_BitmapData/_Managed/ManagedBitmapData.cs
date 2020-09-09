@@ -77,7 +77,7 @@ namespace KGySoft.Drawing.Imaging
 
             // Unlike native bitmaps our stride have 1 byte alignment so Stride = (Width * bpp + 7) / 8)
             int bpp = pixelFormat.ToBitsPerPixel();
-            int byteWidth = (size.Width * pixelFormat.ToBitsPerPixel() + 7) >> 3;
+            int byteWidth = pixelFormat.GetByteWidth(size.Width);
             RowSize = byteWidth;
             Buffer = new Array2D<TColor>(size.Height, bpp <= 8 ? byteWidth : size.Width);
             if (!pixelFormat.IsIndexed())

@@ -145,6 +145,19 @@ namespace KGySoft.Drawing
             return !pixelFormat.In(PixelFormat.Format16bppRgb555, PixelFormat.Format16bppRgb565) && pixelFormat.IsSupportedNatively();
         }
 
+        internal static int GetByteWidth(this PixelFormat pixelFormat, int pixelWidth)
+            => (pixelWidth * pixelFormat.ToBitsPerPixel() + 7) >> 3;
+
+        internal static bool IsAtByteBoundary(this PixelFormat pixelFormat, int x)
+        {
+            int bpp = pixelFormat.ToBitsPerPixel();
+            if (bpp >= 8)
+                return true;
+
+            int alignmentMask = bpp == 1 ? 7 : 1;
+            return (x & alignmentMask) == 0;
+        }
+
         #endregion
 
         #endregion

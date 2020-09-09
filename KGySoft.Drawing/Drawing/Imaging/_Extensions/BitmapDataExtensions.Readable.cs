@@ -21,6 +21,11 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+using System.Runtime.CompilerServices;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Reflection;
@@ -37,6 +42,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Clone
 
+        #region Sync
+
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and pixel format.
         /// </summary>
@@ -45,21 +52,8 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-
-            Size size = source.GetSize();
-            var session = new CopySession { SourceRectangle = new Rectangle(Point.Empty, size) };
-            Unwrap(ref source, ref session.SourceRectangle);
-            session.TargetRectangle = session.SourceRectangle;
-
-            session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette);
-
-            // raw copy may fail on Windows if source is a wide color Bitmap because of 13 vs 16 bpp color handling
-            session.PerformCopy();
-
-            return session.Target;
+            ValidateArguments(source);
+            return DoCloneExact(AsyncContext.Null, source);
         }
 
         /// <summary>
@@ -95,7 +89,10 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
-            => DoCloneDirect(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, backColor, alphaThreshold);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneDirect(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, backColor, alphaThreshold);
+        }
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
@@ -125,7 +122,10 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, Palette palette)
-            => DoCloneDirect(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneDirect(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
+        }
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings.
@@ -163,7 +163,10 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
-            => DoCloneDirect(source, sourceRectangle, pixelFormat, backColor, alphaThreshold);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneDirect(AsyncContext.Null, source, sourceRectangle, pixelFormat, backColor, alphaThreshold);
+        }
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
@@ -196,7 +199,10 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Palette palette)
-            => DoCloneDirect(source, sourceRectangle, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneDirect(AsyncContext.Null, source, sourceRectangle, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
+        }
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
@@ -229,7 +235,10 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
-            => DoCloneWithQuantizer(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, quantizer, ditherer);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneWithQuantizer(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer);
+        }
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
@@ -255,7 +264,10 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, IDitherer ditherer)
-            => DoCloneWithQuantizer(source, new Rectangle(Point.Empty, source?.GetSize() ?? default), pixelFormat, null, ditherer);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneWithQuantizer(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, null, ditherer);
+        }
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
@@ -284,7 +296,10 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IDitherer ditherer)
-            => DoCloneWithQuantizer(source, sourceRectangle, pixelFormat, null, ditherer);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneWithQuantizer(AsyncContext.Null, source, sourceRectangle, pixelFormat, null, ditherer);
+        }
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
@@ -320,11 +335,79 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
         /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
-            => DoCloneWithQuantizer(source, sourceRectangle, pixelFormat, quantizer, ditherer);
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoCloneWithQuantizer(AsyncContext.Null, source, sourceRectangle, pixelFormat, quantizer, ditherer);
+        }
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.BeginOperation(ctx => DoCloneExact(ctx, source), asyncConfig);
+        }
+
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncContext.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, backColor, alphaThreshold), asyncConfig);
+        }
+
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, PixelFormat pixelFormat, Palette palette, Rectangle? sourceRectangle = null, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncContext.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette), asyncConfig);
+        }
+
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null, Rectangle? sourceRectangle = null, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncContext.BeginOperation(ctx => DoCloneWithQuantizer(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer), asyncConfig);
+        }
+
+        public static IReadWriteBitmapData EndClone(IAsyncResult asyncResult)
+            => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginClone));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task<IReadWriteBitmapData> CloneAsync(this IReadableBitmapData source, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneExact(ctx, source), asyncConfig);
+        }
+
+        public static Task<IReadWriteBitmapData> CloneAsync(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, backColor, alphaThreshold), asyncConfig);
+        }
+
+        public static Task<IReadWriteBitmapData> CloneAsync(this IReadableBitmapData source, PixelFormat pixelFormat, Palette palette, Rectangle? sourceRectangle = null, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette), asyncConfig);
+        }
+
+        public static Task<IReadWriteBitmapData> CloneAsync(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null, Rectangle? sourceRectangle = null, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneWithQuantizer(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer), asyncConfig);
+        }
+
+#endif
+        #endregion
 
         #endregion
 
         #region CopyTo
+
+        #region Sync
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
@@ -416,22 +499,45 @@ namespace KGySoft.Drawing.Imaging
         /// then the result will eventually quantized to <paramref name="target"/>, though the result may have a poorer quality than expected.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        //[SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-
-            DoCopy(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+            ValidateArguments(source, target);
+            DoCopy(AsyncContext.Null, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
         }
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginCopyTo(this IReadableBitmapData source, IWritableBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer quantizer = null, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.BeginOperation(ctx => DoCopy(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
+        }
+
+        public static void EndCopyTo(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginCopyTo));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task CopyToAsync(this IReadableBitmapData source, IWritableBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer quantizer = null, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.DoOperationAsync(ctx => DoCopy(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
+        }
+
+#endif
+        #endregion
 
         #endregion
 
         #region DrawInto
 
         #region Without resize
+
+        #region Sync
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -541,20 +647,45 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-
-            if (source.HasAlpha())
-                DoDrawWithoutResize(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            else
-                DoCopy(source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+            ValidateArguments(source, target);
+            DoDrawInto(AsyncContext.Null, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
         }
 
         #endregion
 
+        #region Async APM
+
+        public static IAsyncResult BeginDrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer quantizer = null, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source, target);
+            return AsyncContext.BeginOperation(ctx => DoDrawInto(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
+        }
+
+        public static void EndDrawInto(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDrawInto));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle? sourceRectangle = null, Point? targetLocation = null, IQuantizer quantizer = null, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source, target);
+            Rectangle srcRect = sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize());
+            Point dstLoc = targetLocation ?? Point.Empty;
+            return source.HasAlpha()
+                ? AsyncContext.DoOperationAsync(ctx => DoDrawWithoutResize(ctx, source, target, srcRect, dstLoc, quantizer, ditherer), asyncConfig)
+                : AsyncContext.DoOperationAsync(ctx => DoCopy(ctx, source, target, srcRect, dstLoc, quantizer, ditherer), asyncConfig);
+        }
+
+#endif
+        #endregion
+
+        #endregion
+
         #region With resize
+
+        #region Sync
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
@@ -729,25 +860,51 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            if (target == null)
-                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
-            if (!scalingMode.IsDefined())
-                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+            ValidateArguments(source, target, scalingMode);
+            DoDrawInto(AsyncContext.Null, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+        }
+
+        #endregion
+
+        #region Async APM
+
+        public static IAsyncResult BeginDrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source, target, scalingMode);
 
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
             {
-                if (source.HasAlpha())
-                    DoDrawWithoutResize(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                else
-                    DoCopy(source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
-                return;
+                return source.HasAlpha()
+                    ? AsyncContext.BeginOperation(ctx => DoDrawWithoutResize(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig)
+                    : AsyncContext.BeginOperation(ctx => DoCopy(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig);
             }
 
-            DoDrawWithResize(source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+            return AsyncContext.BeginOperation(ctx => DoDrawWithResize(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
         }
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        public static Task DrawIntoAsync(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source, target, scalingMode);
+
+            // no scaling is necessary
+            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+            {
+                return source.HasAlpha()
+                    ? AsyncContext.DoOperationAsync(ctx => DoDrawWithoutResize(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig)
+                    : AsyncContext.DoOperationAsync(ctx => DoCopy(ctx, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer), asyncConfig);
+            }
+
+            return AsyncContext.DoOperationAsync(ctx => DoDrawWithResize(ctx, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode), asyncConfig);
+        }
+
+#endif
+        #endregion
 
         #endregion
 
@@ -801,26 +958,29 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Bitmap ToBitmap(this IReadableBitmapData source)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-
-            PixelFormat pixelFormat = source.PixelFormat.IsSupportedNatively() ? source.PixelFormat
-                : source.HasAlpha() ? PixelFormat.Format32bppArgb
-                : PixelFormat.Format24bppRgb;
-
-            var result = new Bitmap(source.Width, source.Height, pixelFormat);
-            if (pixelFormat.IsIndexed() && source.Palette != null)
-                result.SetPalette(source.Palette);
-
-            using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
-                source.CopyTo(target);
-
-            return result;
+            ValidateArguments(source);
+            return DoConvertToBitmap(AsyncContext.Null, source);
         }
+
+        public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, AsyncConfig asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.BeginOperation(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
+        }
+
+        public static Bitmap EndToBitmap(IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
+
+#if !NET35
+        public static Task<Bitmap> ToBitmapAsync(this IReadableBitmapData source, TaskConfig asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
+        }
+#endif
 
         #endregion
 
-        #region Colors
+        #region GetColors
 
         /// <summary>
         /// Gets the colors used in the specified <paramref name="bitmapData"/>. A limit can be defined in <paramref name="maxColors"/>.
@@ -850,8 +1010,36 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData.PixelFormat.IsIndexed() && !forceScanningContent)
                 return bitmapData.Palette.GetEntries();
 
-            return DoGetColors(bitmapData, maxColors);
+            return DoGetColors(AsyncContext.Null, bitmapData, maxColors);
         }
+
+        public static IAsyncResult BeginGetColors(this IReadableBitmapData bitmapData, int maxColors = 0, bool forceScanningContent = false, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+
+            return bitmapData.PixelFormat.IsIndexed() && !forceScanningContent
+                ? AsyncContext.FromResult(nameof(BeginGetColors), bitmapData.Palette.GetEntries(), asyncConfig)
+                : AsyncContext.BeginOperation(ctx => DoGetColors(ctx, bitmapData, maxColors), asyncConfig);
+        }
+
+        public static ICollection<Color32> EndGetColors(IAsyncResult asyncResult) => AsyncContext.EndOperation<ICollection<Color32>>(asyncResult, nameof(BeginGetColors));
+
+#if !NET35
+        public static Task<ICollection<Color32>> GetColorsAsync(this IReadableBitmapData bitmapData, int maxColors = 0, bool forceScanningContent = false, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+
+            return bitmapData.PixelFormat.IsIndexed() && !forceScanningContent
+                ? AsyncContext.FromResult((ICollection<Color32>)bitmapData.Palette.GetEntries(), asyncConfig)
+                : AsyncContext.DoOperationAsync(ctx => DoGetColors(ctx, bitmapData, maxColors), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region GetColorCount
 
         /// <summary>
         /// Gets the actual number of colors of the specified <paramref name="bitmapData"/>. Colors are counted even for indexed bitmaps.
@@ -870,26 +1058,31 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            switch (bitmapData.PixelFormat)
-            {
-                case PixelFormat.Format16bppGrayScale:
-                    return bitmapData.RowSize >= bitmapData.Width << 1
-                        ? GetColorCount<Color16Gray>(bitmapData)
-                        : DoGetColors(bitmapData, 0).Count;
-                case PixelFormat.Format48bppRgb:
-                    return bitmapData.RowSize >= bitmapData.Width * 6
-                        ? GetColorCount<Color48>(bitmapData)
-                        : DoGetColors(bitmapData, 0).Count;
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
-                    return bitmapData.RowSize >= bitmapData.Width << 3
-                        ? GetColorCount<Color64>(bitmapData)
-                        : DoGetColors(bitmapData, 0).Count;
-                default:
-                    return DoGetColors(bitmapData, 0).Count;
-            }
+            return DoGetColorCount(AsyncContext.Null, bitmapData);
         }
 
+        public static IAsyncResult BeginGetColorCount(this IReadableBitmapData bitmapData, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation<object>(ctx => DoGetColorCount(ctx, bitmapData), asyncConfig);
+        }
+
+        public static int EndGetColorCount(IAsyncResult asyncResult) => (int)AsyncContext.EndOperation<object>(asyncResult, nameof(BeginGetColorCount));
+
+#if !NET35
+        public static Task<int> GetColorCountAsync(this IReadableBitmapData bitmapData, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoGetColorCount(ctx, bitmapData), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region ToGrayscale
+        
         /// <summary>
         /// Returns a new <see cref="IReadWriteBitmapData"/>, which is the grayscale version of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -906,7 +1099,36 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeGrayscale"/>
         /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
         public static IReadWriteBitmapData ToGrayscale(this IReadableBitmapData bitmapData)
-            => bitmapData.Clone(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return DoCloneWithQuantizer(AsyncContext.Null, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale));
+        }
+
+        public static IAsyncResult BeginToGrayscale(this IReadableBitmapData bitmapData, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
+        }
+
+        public static IReadWriteBitmapData EndToGrayscale(IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToGrayscale));
+
+#if !NET35
+        public static Task<IReadWriteBitmapData> ToGrayscaleAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region ToTransparent
 
         /// <summary>
         /// Returns a new <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background.
@@ -930,9 +1152,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            IReadWriteBitmapData result = bitmapData.Clone(PixelFormat.Format32bppArgb);
-            result.MakeTransparent();
-            return result;
+            return DoToTransparent(AsyncContext.Null, bitmapData);
         }
 
         /// <summary>
@@ -956,10 +1176,79 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            IReadWriteBitmapData result = bitmapData.Clone(PixelFormat.Format32bppArgb);
-            result.MakeTransparent(transparentColor);
-            return result;
+            return DoToTransparent(AsyncContext.Null, bitmapData, transparentColor);
         }
+
+        public static IAsyncResult BeginToTransparent(this IReadableBitmapData bitmapData, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoToTransparent(ctx, bitmapData), asyncConfig);
+        }
+
+        public static IAsyncResult BeginToTransparent(this IReadableBitmapData bitmapData, Color32 transparentColor, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoToTransparent(ctx, bitmapData, transparentColor), asyncConfig);
+        }
+
+        public static IReadWriteBitmapData EndToTransparent(IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToTransparent));
+
+#if !NET35
+        public static Task<IReadWriteBitmapData> ToTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoToTransparent(ctx, bitmapData), asyncConfig);
+        }
+
+        public static Task<IReadWriteBitmapData> ToTransparentAsync(this IReadableBitmapData bitmapData, Color32 transparentColor, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoToTransparent(ctx, bitmapData, transparentColor), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region Save
+
+        // TODO: docs:
+        // - if bitmapData represents a native Bitmap, then on Windows 48/64bpp color depth is quantized to 32bpp
+        public static void Save(this IReadableBitmapData bitmapData, Stream stream)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            DoSave(AsyncContext.Null, bitmapData, stream);
+        }
+
+        // TODO: docs:
+        // - asyncConfig.MaxDegreeOfParallelism is ignored by this method
+        public static IAsyncResult BeginSave(this IReadableBitmapData bitmapData, Stream stream, AsyncConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoSave(ctx, bitmapData, stream), asyncConfig);
+        }
+
+        public static void EndSave(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginSave));
+
+#if !NET35
+        public static Task SaveAsync(this IReadableBitmapData bitmapData, Stream stream, TaskConfig asyncConfig = null)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoSave(ctx, bitmapData, stream), asyncConfig);
+        }
+#endif
 
         #endregion
 
@@ -967,11 +1256,77 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-        private static IBitmapDataInternal DoCloneDirect(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        #region Validation
+
+        private static void ValidateArguments(IReadableBitmapData source)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            var session = new CopySession();
+        }
+
+        private static void ValidateArguments(IReadableBitmapData source, PixelFormat pixelFormat)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+        }
+
+        private static void ValidateArguments(IReadableBitmapData source, IWritableBitmapData target)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+        }
+
+        private static void ValidateArguments(IReadableBitmapData source, IReadWriteBitmapData target, ScalingMode scalingMode)
+        {
+            if (source == null)
+                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (target == null)
+                throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (!scalingMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
+        }
+
+        #endregion
+
+        #region Copy
+
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static IReadWriteBitmapData DoCloneExact(IAsyncContext context, IReadableBitmapData source)
+        {
+            Size size = source.GetSize();
+            var session = new CopySession(context) { SourceRectangle = new Rectangle(Point.Empty, size) };
+            Unwrap(ref source, ref session.SourceRectangle);
+            session.TargetRectangle = session.SourceRectangle;
+
+            session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            session.Target = BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette);
+            bool canceled = false;
+            try
+            {
+                session.PerformCopy();
+                return (canceled = context.IsCancellationRequested) ? null : session.Target;
+            }
+            catch (Exception)
+            {
+                session.Target.Dispose();
+                session.Target = null;
+                throw;
+            }
+            finally
+            {
+                if (canceled)
+                    session.Target?.Dispose();
+            }
+        }
+
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static IReadWriteBitmapData DoCloneDirect(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        {
+            var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.GetSize());
             Unwrap(ref source, ref sourceRectangle);
             (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
@@ -986,27 +1341,37 @@ namespace KGySoft.Drawing.Imaging
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-
-            // using the public factory so pixelFormat and palette will be validated
             session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, backColor, alphaThreshold, palette);
-            session.PerformCopy();
-
-            return session.Target;
+            bool canceled = false;
+            try
+            {
+                session.PerformCopy();
+                return (canceled = context.IsCancellationRequested) ? null : session.Target;
+            }
+            catch (Exception)
+            {
+                session.Target.Dispose();
+                session.Target = null;
+                throw;
+            }
+            finally
+            {
+                if (canceled)
+                    session.Target?.Dispose();
+            }
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        private static IBitmapDataInternal DoCloneWithQuantizer(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static IReadWriteBitmapData DoCloneWithQuantizer(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-
             if (quantizer == null)
             {
                 // copying without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
                 // Note: Not using source.BackColor/AlphaThreshold/Palette so the behavior will be compatible with the other Clone overloads with default parameters
                 //       and even with ImageExtensions.ConvertPixelFormat where there are no BackColor/AlphaThreshold for source image
                 if (ditherer == null || !pixelFormat.CanBeDithered())
-                    return DoCloneDirect(source, sourceRectangle, pixelFormat);
+                    return DoCloneDirect(context, source, sourceRectangle, pixelFormat);
 
                 // here we need to pick a quantizer for the dithering
                 int bpp = pixelFormat.ToBitsPerPixel();
@@ -1016,7 +1381,7 @@ namespace KGySoft.Drawing.Imaging
                     : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
             }
 
-            var session = new CopySession();
+            var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.GetSize());
             Unwrap(ref source, ref sourceRectangle);
             (session.SourceRectangle, session.TargetRectangle) = GetActualRectangles(sourceBounds, sourceRectangle, new Rectangle(Point.Empty, sourceBounds.Size), Point.Empty);
@@ -1028,10 +1393,16 @@ namespace KGySoft.Drawing.Imaging
                 ? source
                 : source.Clip(session.SourceRectangle);
 
+            bool canceled = false;
             try
             {
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                 {
+                    if (canceled = context.IsCancellationRequested)
+                        return null;
+                    if (quantizingSession == null)
+                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
                     session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
                     session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
 
@@ -1041,24 +1412,36 @@ namespace KGySoft.Drawing.Imaging
                     else
                     {
                         // quantizing with dithering
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                        if (canceled = context.IsCancellationRequested)
+                            return null;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
                         session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
                     }
 
-                    return session.Target;
+                    return (canceled = context.IsCancellationRequested) ? null : session.Target;
                 }
+            }
+            catch (Exception)
+            {
+                session.Target?.Dispose();
+                session.Target = null;
+                throw;
             }
             finally
             {
                 if (!ReferenceEquals(initSource, source))
                     initSource.Dispose();
+                if (canceled)
+                    session.Target?.Dispose();
             }
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        private static void DoCopy(this IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool skipTransparent = false)
+        private static void DoCopy(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer, bool skipTransparent = false)
         {
-            var session = new CopySession();
+            var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.GetSize());
             var targetBounds = new Rectangle(default, target.GetSize());
             Unwrap(ref source, ref sourceBounds);
@@ -1080,7 +1463,13 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
                 {
-                    session.Source = DoCloneDirect(source, session.SourceRectangle, source.PixelFormat);
+                    session.Source = (IBitmapDataInternal)DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat);
+                    if (context.IsCancellationRequested)
+                    {
+                        session.Source?.Dispose();
+                        return;
+                    }
+
                     session.SourceRectangle.Location = Point.Empty;
                 }
             }
@@ -1106,8 +1495,13 @@ namespace KGySoft.Drawing.Imaging
 
                 try
                 {
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (quantizingSession == null)
+                            throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
                         // quantization without dithering
                         if (ditherer == null)
                         {
@@ -1116,8 +1510,14 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // quantization with dithering
-                        using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
+                        using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context))
+                        {
+                            if (context.IsCancellationRequested)
+                                return;
+                            if (ditheringSession == null)
+                                throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
                             session.PerformCopyWithDithering(quantizingSession, ditheringSession, skipTransparent);
+                        }
                     }
                 }
                 finally
@@ -1135,8 +1535,37 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        #endregion
+
+        #region Draw
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
+        {
+            if (source.HasAlpha())
+                DoDrawWithoutResize(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+            else
+                DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
+        {
+            // no scaling is necessary
+            if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
+            {
+                if (source.HasAlpha())
+                    DoDrawWithoutResize(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                else
+                    DoCopy(context, source, target, sourceRectangle, targetRectangle.Location, quantizer, ditherer);
+                return;
+            }
+
+            DoDrawWithResize(context, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
+        }
+
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        private static void DoDrawWithoutResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
+        private static void DoDrawWithoutResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer, IDitherer ditherer)
         {
             Debug.Assert(source.HasAlpha(), "DoCopy could have been called");
 
@@ -1159,7 +1588,13 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = target.DoCloneDirect(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
+                sessionTarget = (IBitmapDataInternal)DoCloneDirect(context, target, actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
+                if (context.IsCancellationRequested)
+                {
+                    sessionTarget?.Dispose();
+                    return;
+                }
+
                 sessionTargetRectangle.Location = Point.Empty;
                 targetCloned = true;
             }
@@ -1178,7 +1613,13 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = DoCloneDirect(source, actualSourceRectangle, source.PixelFormat);
+                    sessionSource = (IBitmapDataInternal)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat);
+                    if (context.IsCancellationRequested)
+                    {
+                        sessionSource?.Dispose();
+                        return;
+                    }
+
                     actualSourceRectangle.Location = Point.Empty;
                 }
             }
@@ -1188,7 +1629,7 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                var session = new CopySession(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
+                var session = new CopySession(context, sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
                 if (!isTwoPass)
                 {
                     session.PerformDraw(quantizer, ditherer);
@@ -1199,7 +1640,7 @@ namespace KGySoft.Drawing.Imaging
                 session.PerformDrawDirect();
 
                 // second pass: copying the blended transient result to the actual target
-                DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
+                DoCopy(context, sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
             }
             finally
             {
@@ -1211,7 +1652,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, sessionTarget is disposed if needed")]
-        private static void DoDrawWithResize(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
+        private static void DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer, IDitherer ditherer, ScalingMode scalingMode)
         {
             Debug.Assert(sourceRectangle.Size != targetRectangle.Size || scalingMode == ScalingMode.NoScaling, $"{nameof(DoDrawWithoutResize)} could have been called");
 
@@ -1237,8 +1678,14 @@ namespace KGySoft.Drawing.Imaging
             if (isTwoPass)
             {
                 sessionTarget = source.HasMultiLevelAlpha()
-                    ? target.DoCloneDirect(actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb)
+                    ? (IBitmapDataInternal)DoCloneDirect(context, target, actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb)
                     : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, PixelFormat.Format32bppPArgb);
+                if (context.IsCancellationRequested)
+                {
+                    sessionTarget?.Dispose();
+                    return;
+                }
+
                 sessionTargetRectangle.Location = Point.Empty;
                 targetCloned = true;
             }
@@ -1257,7 +1704,13 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = DoCloneDirect(source, actualSourceRectangle, source.PixelFormat);
+                    sessionSource = (IBitmapDataInternal)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat);
+                    if (context.IsCancellationRequested)
+                    {
+                        sessionSource?.Dispose();
+                        return;
+                    }
+
                     actualSourceRectangle.Location = Point.Empty;
                 }
             }
@@ -1269,7 +1722,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (scalingMode == ScalingMode.NearestNeighbor)
                 {
-                    var session = new ResizingSessionNearestNeighbor(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
+                    var session = new ResizingSessionNearestNeighbor(context, sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle);
                     if (!isTwoPass)
                     {
                         session.PerformResize(quantizer, ditherer);
@@ -1281,7 +1734,10 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                 {
-                    using var session = new ResizingSessionInterpolated(sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle, scalingMode);
+                    using var session = new ResizingSessionInterpolated(context, sessionSource, sessionTarget, actualSourceRectangle, sessionTargetRectangle, scalingMode);
+                    if (context.IsCancellationRequested)
+                        return;
+
                     if (!isTwoPass)
                     {
                         session.PerformResize(quantizer, ditherer);
@@ -1292,8 +1748,11 @@ namespace KGySoft.Drawing.Imaging
                     session.PerformResizeDirect();
                 }
 
+                if (context.IsCancellationRequested)
+                    return;
+
                 // second pass: copying the possibly blended transient result to the actual target with quantizing/dithering
-                DoCopy(sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
+                DoCopy(context, sessionTarget, target, sessionTargetRectangle, actualTargetRectangle.Location, quantizer, ditherer, true);
             }
             finally
             {
@@ -1303,6 +1762,10 @@ namespace KGySoft.Drawing.Imaging
                     sessionTarget.Dispose();
             }
         }
+
+        #endregion
+
+        #region Bounds
 
         private static (Rectangle Source, Rectangle Target) GetActualRectangles(Rectangle sourceBounds, Rectangle sourceRectangle, Rectangle targetBounds, Point targetLocation)
         {
@@ -1372,9 +1835,51 @@ namespace KGySoft.Drawing.Imaging
             return (actualSourceRectangle, actualTargetRectangle);
         }
 
+        #endregion
+
+        #region ToBitmap
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, result is disposed only if cancel occurred")]
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static Bitmap DoConvertToBitmap(IAsyncContext context, IReadableBitmapData source)
+        {
+            PixelFormat pixelFormat = source.PixelFormat.IsSupportedNatively() ? source.PixelFormat
+                : source.HasAlpha() ? PixelFormat.Format32bppArgb
+                : PixelFormat.Format24bppRgb;
+
+            var result = new Bitmap(source.Width, source.Height, pixelFormat);
+            bool canceled = false;
+            try
+            {
+                if (pixelFormat.IsIndexed() && source.Palette != null)
+                    result.SetPalette(source.Palette);
+
+                if (canceled = context.IsCancellationRequested)
+                    return null;
+                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
+                    DoCopy(context, source, target, new Rectangle(Point.Empty, source.GetSize()), Point.Empty, null, null);
+                return (canceled = context.IsCancellationRequested) ? null : result;
+            }
+            catch (Exception)
+            {
+                result.Dispose();
+                result = null;
+                throw;
+            }
+            finally
+            {
+                if (canceled)
+                    result?.Dispose();
+            }
+        }
+
+        #endregion
+
+        #region GetColors
+
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
             Justification = "data is disposed if differs from bitmapData")]
-        private static ICollection<Color32> DoGetColors(IReadableBitmapData bitmapData, int maxColors)
+        private static ICollection<Color32> DoGetColors(IAsyncContext context, IReadableBitmapData bitmapData, int maxColors)
         {
             if (maxColors < 0)
                 throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
@@ -1386,17 +1891,25 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, data.Height);
                 IBitmapDataRowInternal line = data.DoGetRow(0);
 
                 do
                 {
+                    if (context.IsCancellationRequested)
+                        return null;
                     for (int x = 0; x < data.Width; x++)
                     {
                         Color32 c = line.DoGetColor32(x);
                         colors.Add(c.A == 0 ? Color32.Transparent : c);
                         if (colors.Count == maxColors)
+                        {
+                            context.Progress?.Complete();
                             return colors;
+                        }
                     }
+
+                    context.Progress?.Increment();
                 } while (line.MoveNextRow());
 
             }
@@ -1409,18 +1922,43 @@ namespace KGySoft.Drawing.Imaging
             return colors;
         }
 
+        private static int DoGetColorCount(IAsyncContext context, IReadableBitmapData bitmapData)
+        {
+            switch (bitmapData.PixelFormat)
+            {
+                case PixelFormat.Format16bppGrayScale:
+                    return bitmapData.RowSize >= bitmapData.Width << 1
+                        ? GetColorCount<Color16Gray>(context, bitmapData)
+                        : DoGetColors(context, bitmapData, 0).Count;
+                case PixelFormat.Format48bppRgb:
+                    return bitmapData.RowSize >= bitmapData.Width * 6
+                        ? GetColorCount<Color48>(context, bitmapData)
+                        : DoGetColors(context, bitmapData, 0).Count;
+                case PixelFormat.Format64bppArgb:
+                case PixelFormat.Format64bppPArgb:
+                    return bitmapData.RowSize >= bitmapData.Width << 3
+                        ? GetColorCount<Color64>(context, bitmapData)
+                        : DoGetColors(context, bitmapData, 0).Count;
+                default:
+                    return DoGetColors(context, bitmapData, 0).Count;
+            }
+        }
+
         [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
             Justification = "data is disposed if differs from bitmapData")]
-        private static int GetColorCount<T>(IReadableBitmapData bitmapData) where T : unmanaged
+        private static int GetColorCount<T>(IAsyncContext context, IReadableBitmapData bitmapData) where T : unmanaged
         {
             var colors = new HashSet<T>();
             var data = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
             try
             {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, data.Height);
                 IBitmapDataRowInternal line = data.DoGetRow(0);
 
                 do
                 {
+                    if (context.IsCancellationRequested)
+                        return default;
                     for (int x = 0; x < data.Width; x++)
                     {
                         T color = line.DoReadRaw<T>(x);
@@ -1428,6 +1966,8 @@ namespace KGySoft.Drawing.Imaging
                             color = default;
                         colors.Add(color);
                     }
+
+                    context.Progress?.Increment();
                 } while (line.MoveNextRow());
             }
             finally
@@ -1438,6 +1978,69 @@ namespace KGySoft.Drawing.Imaging
 
             return colors.Count;
         }
+
+        #endregion
+
+        #region ToTransparent
+
+        private static IReadWriteBitmapData DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData)
+        {
+            var srcRect = new Rectangle(Point.Empty, bitmapData.GetSize());
+            if (bitmapData.Width < 1 || bitmapData.Height < 1)
+                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
+            Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
+            if (transparentColor.A < Byte.MaxValue)
+                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
+            return DoCloneWithQuantizer(context, bitmapData, srcRect, PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
+        }
+
+        private static IReadWriteBitmapData DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData, Color32 transparentColor)
+        {
+            var srcRect = new Rectangle(Point.Empty, bitmapData.GetSize());
+            if (transparentColor.A == 0)
+                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
+            return DoCloneWithQuantizer(context, bitmapData, srcRect, PixelFormat.Format32bppArgb,
+                PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
+        }
+
+        #endregion
+
+        #region Save
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, source is disposed if needed")]
+        private static void DoSave(IAsyncContext context, IReadableBitmapData bitmapData, Stream stream)
+        {
+            Size size = bitmapData.GetSize();
+            var srcRect = new Rectangle(Point.Empty, size);
+            Unwrap(ref bitmapData, ref srcRect);
+            var pixelFormat = bitmapData.PixelFormat;
+            IBitmapDataInternal source;
+
+            // Making sure we can access the raw content. ARGB32 doesn't have to be accessible because accessing it by colors is actually the same content.
+            if (pixelFormat != PixelFormat.Format32bppArgb && (bitmapData.RowSize < pixelFormat.GetByteWidth(srcRect.Right) || !pixelFormat.IsAtByteBoundary(srcRect.Left)))
+            {
+                source = (IBitmapDataInternal)DoCloneDirect(context, bitmapData, srcRect, pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, bitmapData.Palette);
+                if (context.IsCancellationRequested)
+                    return;
+
+                srcRect.Location = Point.Empty;
+            }
+            else
+                source = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
+
+            try
+            {
+                BitmapDataFactory.DoSaveBitmapData(context, source, srcRect, stream);
+            }
+            finally
+            {
+                if (!ReferenceEquals(bitmapData, source))
+                    source.Dispose();
+            }
+        }
+
+        #endregion
 
         #endregion
 
