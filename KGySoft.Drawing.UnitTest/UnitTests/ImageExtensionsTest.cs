@@ -170,10 +170,10 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
 
             IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormat.Format8bppIndexed,
-                asyncConfig: new AsyncConfig(null, () => true) { ReturnDefaultIfCanceled = true });
+                asyncConfig: new AsyncConfig(null, () => true) { ThrowIfCanceled = false });
             Assert.IsTrue(ar.IsCompleted);
             Assert.IsTrue(ar.CompletedSynchronously);
-            Assert.IsNull(ImageExtensions.EndConvertPixelFormat(ar));
+            Assert.IsNull(ar.EndConvertPixelFormat());
         }
 
 #if !NET35
@@ -210,7 +210,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(32, ref32bpp.GetBitsPerPixel());
 
             Task<Bitmap> task = ref32bpp.ConvertPixelFormatAsync(PixelFormat.Format8bppIndexed,
-                asyncConfig: new TaskConfig(new CancellationToken(true)) { ReturnDefaultIfCanceled = true });
+                asyncConfig: new TaskConfig(new CancellationToken(true)) { ThrowIfCanceled = false });
             Assert.IsTrue(task.IsCompleted);
             Assert.IsNull(task.Result);
         } 

@@ -43,11 +43,11 @@ namespace KGySoft.Drawing
         public int MaxDegreeOfParallelism { get; set; }
 
         /// <summary>
-        /// Gets or sets whether obtaining the result of the asynchronous operation should return the default value of its return type instead of
-        /// throwing an <see cref="OperationCanceledException"/> if the operation has been canceled.
-        /// <br/>Default value: <see langword="false"/>.
+        /// Gets or sets whether an <see cref="OperationCanceledException"/> should be thrown when ending or awaiting a canceled async operation.
+        /// If the value of this property is <see langword="false"/>, then canceled operations with a return value will return the default value of their return type.
+        /// <br/>Default value: <see langword="true"/>.
         /// </summary>
-        public bool ReturnDefaultIfCanceled { get; set; }
+        public bool ThrowIfCanceled { get; set; } = true;
 
         /// <summary>
         /// Gets or sets a user-provided object that will be returned by the <see cref="IAsyncResult.AsyncState"/> property that

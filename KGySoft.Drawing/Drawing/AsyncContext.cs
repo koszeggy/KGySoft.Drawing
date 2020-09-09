@@ -79,7 +79,7 @@ namespace KGySoft.Drawing
 
             #region Internal Properties
 
-            internal bool ReturnDefaultIfCanceled { get; }
+            internal bool ThrowIfCanceled { get; }
             internal object State { get; }
 
             #endregion
@@ -95,7 +95,7 @@ namespace KGySoft.Drawing
                 token = asyncConfig.CancellationToken;
                 MaxDegreeOfParallelism = asyncConfig.MaxDegreeOfParallelism;
                 Progress = asyncConfig.Progress;
-                ReturnDefaultIfCanceled = asyncConfig.ReturnDefaultIfCanceled;
+                ThrowIfCanceled = asyncConfig.ThrowIfCanceled;
                 State = asyncConfig.State;
             }
 
@@ -124,7 +124,7 @@ namespace KGySoft.Drawing
             private ManualResetEventSlim waitHandle;
             private volatile Exception error;
 
-            private readonly bool returnDefaultIfCanceled;
+            private readonly bool throwIfCanceled = true;
 
             #endregion
 
@@ -189,7 +189,7 @@ namespace KGySoft.Drawing
                 MaxDegreeOfParallelism = asyncConfig.MaxDegreeOfParallelism;
                 callback = asyncConfig.CompletedCallback;
                 AsyncState = asyncConfig.State;
-                returnDefaultIfCanceled = asyncConfig.ReturnDefaultIfCanceled;
+                throwIfCanceled = asyncConfig.ThrowIfCanceled;
                 isCancelRequestedCallback = asyncConfig.IsCancelRequestedCallback;
                 Progress = asyncConfig.Progress;
             }
@@ -248,7 +248,7 @@ namespace KGySoft.Drawing
             {
                 if (!isCompleted)
                     InternalWaitHandle.Wait();
-                if (isCancellationRequested && !returnDefaultIfCanceled)
+                if (isCancellationRequested && throwIfCanceled)
                     ThrowOperationCanceled();
                 if (error != null)
                     ExceptionDispatchInfo.Capture(error).Throw();
@@ -640,20 +640,20 @@ namespace KGySoft.Drawing
                     TResult result = func.Invoke(context);
                     if (context.IsCancellationRequested)
                     {
-                        if (context.ReturnDefaultIfCanceled)
-                            completion.SetResult(default);
-                        else
+                        if (context.ThrowIfCanceled)
                             completion.SetCanceled();
+                        else
+                            completion.SetResult(default);
                     }
                     else
                         completion.SetResult(result);
                 }
                 catch (OperationCanceledException)
                 {
-                    if (context.ReturnDefaultIfCanceled)
-                        completion.SetResult(default);
-                    else
+                    if (context.ThrowIfCanceled)
                         completion.SetCanceled();
+                    else
+                        completion.SetResult(default);
                 }
                 catch (Exception e)
                 {
@@ -667,10 +667,10 @@ namespace KGySoft.Drawing
             var completionSource = new TaskCompletionSource<TResult>(taskContext.State);
             if (taskContext.IsCancellationRequested)
             {
-                if (taskContext.ReturnDefaultIfCanceled)
-                    completionSource.SetResult(default);
-                else
+                if (taskContext.ThrowIfCanceled)
                     completionSource.SetCanceled();
+                else
+                    completionSource.SetResult(default);
             }
             else
                 ThreadPool.QueueUserWorkItem(DoWork, (taskContext, completionSource, operation));
@@ -691,17 +691,17 @@ namespace KGySoft.Drawing
                 try
                 {
                     op.Invoke(context);
-                    if (context.IsCancellationRequested && !context.ReturnDefaultIfCanceled)
+                    if (context.IsCancellationRequested && context.ThrowIfCanceled)
                         completion.SetCanceled();
                     else
                         completion.SetResult(default);
                 }
                 catch (OperationCanceledException)
                 {
-                    if (context.ReturnDefaultIfCanceled)
-                        completion.SetResult(default);
-                    else
+                    if (context.ThrowIfCanceled)
                         completion.SetCanceled();
+                    else
+                        completion.SetResult(default);
                 }
                 catch (Exception e)
                 {
@@ -715,10 +715,10 @@ namespace KGySoft.Drawing
             var completionSource = new TaskCompletionSource<object>(taskContext.State);
             if (taskContext.IsCancellationRequested)
             {
-                if (taskContext.ReturnDefaultIfCanceled)
-                    completionSource.SetResult(default);
-                else
+                if (taskContext.ThrowIfCanceled)
                     completionSource.SetCanceled();
+                else
+                    completionSource.SetResult(default);
             }
             else
                 ThreadPool.QueueUserWorkItem(DoWork, (taskContext, completionSource, operation));
@@ -730,10 +730,10 @@ namespace KGySoft.Drawing
         {
             TaskContext taskContext = new TaskContext(asyncConfig);
             var completionSource = new TaskCompletionSource<object>(taskContext.State);
-            if (!taskContext.IsCancellationRequested || taskContext.ReturnDefaultIfCanceled)
-                completionSource.SetResult(default);
-            else
+            if (taskContext.IsCancellationRequested && taskContext.ThrowIfCanceled)
                 completionSource.SetCanceled();
+            else
+                completionSource.SetResult(default);
 
             return completionSource.Task;
         }
@@ -745,10 +745,10 @@ namespace KGySoft.Drawing
             var completionSource = new TaskCompletionSource<TResult>(taskContext.State);
             if (taskContext.IsCancellationRequested)
             {
-                if (taskContext.ReturnDefaultIfCanceled)
-                    completionSource.SetResult(default);
-                else
+                if (taskContext.ThrowIfCanceled)
                     completionSource.SetCanceled();
+                else
+                    completionSource.SetResult(default);
             }
             else
                 completionSource.SetResult(result);
