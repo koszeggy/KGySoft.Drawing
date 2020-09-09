@@ -18,6 +18,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using KGySoft.CoreLibraries;
 
 #endregion
 
@@ -26,24 +27,24 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Represents the progress of a drawing operation.
     /// </summary>
-    public struct DrawingProgress : IEquatable<DrawingProgress>
+    public readonly struct DrawingProgress : IEquatable<DrawingProgress>
     {
         #region Properties
 
         /// <summary>
         /// Gets the type of the drawing operation.
         /// </summary>
-        public DrawingOperation OperationType { get; set; }
+        public DrawingOperation OperationType { get; }
 
         /// <summary>
         /// Gets the maximum steps of this operation.
         /// </summary>
-        public int MaximumValue { get; set; }
+        public int MaximumValue { get; }
 
         /// <summary>
         /// Gets the current step of this operation. Its value is between zero and <see cref="MaximumValue"/>, inclusive bounds.
         /// </summary>
-        public int CurrentValue { get; set; }
+        public int CurrentValue { get; }
 
         #endregion
 
@@ -67,6 +68,30 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #region Constructors
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="DrawingProgress"/> struct.
+        /// </summary>
+        /// <param name="operationType">Specifies the type of the drawing operation.</param>
+        /// <param name="maximumValue">The maximum value.</param>
+        /// <param name="currentValue">The current value.</param>
+        public DrawingProgress(DrawingOperation operationType, int maximumValue, int currentValue)
+        {
+            if (!operationType.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(operationType), PublicResources.EnumOutOfRange(operationType));
+            if (maximumValue < 0)
+                throw new ArgumentOutOfRangeException(nameof(maximumValue), PublicResources.ArgumentMustBeGreaterThanOrEqualTo(0));
+            if ((uint)currentValue > (uint)maximumValue)
+                throw new ArgumentOutOfRangeException(nameof(currentValue), PublicResources.ArgumentMustBeBetween(0, maximumValue));
+
+            OperationType = operationType;
+            MaximumValue = maximumValue;
+            CurrentValue = currentValue;
+        }
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -81,7 +106,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "A value type cannot be changed inside a hashed collection")]
-        public override int GetHashCode() => ((int)OperationType, MaxSteps: MaximumValue, CurrentStep: CurrentValue).GetHashCode();
+        public override int GetHashCode() => ((int)OperationType, MaximumValue, CurrentValue).GetHashCode();
 
         /// <summary>
         /// Indicates whether the this <see cref="DrawingProgress"/> is equal to another one.
