@@ -92,7 +92,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
         }
 
-        public static void EndClear(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginClear));
+        public static void EndClear(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginClear));
 
 #if !NET35
         public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null, TaskConfig asyncConfig = null)

@@ -614,8 +614,7 @@ namespace KGySoft.Drawing
             return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
         }
 
-        public static Bitmap EndConvertPixelFormat(IAsyncResult asyncResult)
-            => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
+        public static Bitmap EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
 

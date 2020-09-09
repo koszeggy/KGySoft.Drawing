@@ -450,7 +450,7 @@ namespace KGySoft.Drawing
 
             private void DoSignal()
             {
-                // this should be called in lock
+                // this must be called in lock
                 IsSet = true;
                 nativeHandle?.Set();
             }
@@ -582,7 +582,7 @@ namespace KGySoft.Drawing
             return asyncResult;
         }
 
-        internal static IAsyncResult FromResult<TResult>(string beginMethod, TResult result, AsyncConfig asyncConfig)
+        internal static IAsyncResult FromResult<TResult>(TResult result, AsyncConfig asyncConfig, [CallerMemberName]string beginMethod = null)
             where TResult : class
         {
             var asyncResult = new AsyncResultContext<TResult>(beginMethod, null, asyncConfig);
@@ -596,7 +596,7 @@ namespace KGySoft.Drawing
             if (asyncResult == null)
                 throw new ArgumentNullException(nameof(asyncResult), PublicResources.ArgumentNull);
             if (!(asyncResult is AsyncResultContext result) || result.GetType() != typeof(AsyncResultContext) || result.BeginMethodName != beginMethodName || result.IsDisposed)
-                throw new InvalidOperationException(Res.InvalidAsyncResult);
+                throw new InvalidOperationException(Res.InvalidAsyncResult(beginMethodName));
             try
             {
                 result.WaitForCompletion();
@@ -613,7 +613,7 @@ namespace KGySoft.Drawing
             if (asyncResult == null)
                 throw new ArgumentNullException(nameof(asyncResult), PublicResources.ArgumentNull);
             if (!(asyncResult is AsyncResultContext<TResult> result) || result.BeginMethodName != beginMethodName || result.IsDisposed)
-                throw new InvalidOperationException(Res.InvalidAsyncResult);
+                throw new InvalidOperationException(Res.InvalidAsyncResult(beginMethodName));
             try
             {
                 return result.Result;

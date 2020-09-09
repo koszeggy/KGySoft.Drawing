@@ -156,7 +156,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
 
-        public static void EndQuantize(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginQuantize));
+        public static void EndQuantize(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginQuantize));
 
         public static IAsyncResult BeginDither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, AsyncConfig asyncConfig = null)
         {
@@ -168,7 +168,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
         }
 
-        public static void EndDither(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDither));
+        public static void EndDither(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDither));
 
 #if !NET35
         public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig asyncConfig = null)
@@ -265,7 +265,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
 
-        public static void EndTransformColors(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginTransformColors));
+        public static void EndTransformColors(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginTransformColors));
 
 #if !NET35
         public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer = null, TaskConfig asyncConfig = null)
@@ -324,7 +324,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
         }
 
-        public static void EndReplaceColor(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginReplaceColor));
+        public static void EndReplaceColor(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginReplaceColor));
 
 #if !NET35
         public static Task ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
@@ -374,7 +374,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
         }
 
-        public static void EndInvert(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginInvert));
+        public static void EndInvert(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginInvert));
 
 #if !NET35
         public static Task InvertAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
@@ -474,7 +474,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
-        public static void EndMakeTransparent(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeTransparent));
+        public static void EndMakeTransparent(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeTransparent));
 
 #if !NET35
         public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
@@ -539,7 +539,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
         }
 
-        public static void EndMakeOpaque(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeOpaque));
+        public static void EndMakeOpaque(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeOpaque));
 
 #if !NET35
         public static Task MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
@@ -592,7 +592,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
         }
 
-        public static void EndMakeGrayscale(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
+        public static void EndMakeGrayscale(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
 
 #if !NET35
         public static Task MakeGrayscaleAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
@@ -676,7 +676,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
         }
 
-        public static void EndAdjustBrightness(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
+        public static void EndAdjustBrightness(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
 
 #if !NET35
         public static Task AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
@@ -769,7 +769,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
         }
 
-        public static void EndAdjustContrast(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustContrast));
+        public static void EndAdjustContrast(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustContrast));
 
 #if !NET35
         public static Task AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
@@ -857,7 +857,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, table), ditherer), asyncConfig);
         }
 
-        public static void EndAdjustGamma(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustGamma));
+        public static void EndAdjustGamma(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustGamma));
 
 #if !NET35
         public static Task AdjustGammaAsync(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)

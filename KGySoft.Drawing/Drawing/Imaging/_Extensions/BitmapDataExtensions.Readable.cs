@@ -368,8 +368,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoCloneWithQuantizer(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer), asyncConfig);
         }
 
-        public static IReadWriteBitmapData EndClone(IAsyncResult asyncResult)
-            => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginClone));
+        public static IReadWriteBitmapData EndClone(this IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginClone));
 
         #endregion
 
@@ -515,7 +514,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoCopy(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
         }
 
-        public static void EndCopyTo(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginCopyTo));
+        public static void EndCopyTo(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginCopyTo));
 
         #endregion
 
@@ -661,7 +660,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoDrawInto(ctx, source, target, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), targetLocation ?? Point.Empty, quantizer, ditherer), asyncConfig);
         }
 
-        public static void EndDrawInto(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDrawInto));
+        public static void EndDrawInto(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDrawInto));
 
         #endregion
 
@@ -968,7 +967,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
         }
 
-        public static Bitmap EndToBitmap(IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
+        public static Bitmap EndToBitmap(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
 
 #if !NET35
         public static Task<Bitmap> ToBitmapAsync(this IReadableBitmapData source, TaskConfig asyncConfig = null)
@@ -1019,11 +1018,11 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
 
             return bitmapData.PixelFormat.IsIndexed() && !forceScanningContent
-                ? AsyncContext.FromResult(nameof(BeginGetColors), bitmapData.Palette.GetEntries(), asyncConfig)
+                ? AsyncContext.FromResult(bitmapData.Palette.GetEntries(), asyncConfig)
                 : AsyncContext.BeginOperation(ctx => DoGetColors(ctx, bitmapData, maxColors), asyncConfig);
         }
 
-        public static ICollection<Color32> EndGetColors(IAsyncResult asyncResult) => AsyncContext.EndOperation<ICollection<Color32>>(asyncResult, nameof(BeginGetColors));
+        public static ICollection<Color32> EndGetColors(this IAsyncResult asyncResult) => AsyncContext.EndOperation<ICollection<Color32>>(asyncResult, nameof(BeginGetColors));
 
 #if !NET35
         public static Task<ICollection<Color32>> GetColorsAsync(this IReadableBitmapData bitmapData, int maxColors = 0, bool forceScanningContent = false, TaskConfig asyncConfig = null)
@@ -1068,7 +1067,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation<object>(ctx => DoGetColorCount(ctx, bitmapData), asyncConfig);
         }
 
-        public static int EndGetColorCount(IAsyncResult asyncResult) => (int)AsyncContext.EndOperation<object>(asyncResult, nameof(BeginGetColorCount));
+        public static int EndGetColorCount(this IAsyncResult asyncResult) => (int)AsyncContext.EndOperation<object>(asyncResult, nameof(BeginGetColorCount));
 
 #if !NET35
         public static Task<int> GetColorCountAsync(this IReadableBitmapData bitmapData, TaskConfig asyncConfig = null)
@@ -1114,7 +1113,7 @@ namespace KGySoft.Drawing.Imaging
                 PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
         }
 
-        public static IReadWriteBitmapData EndToGrayscale(IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToGrayscale));
+        public static IReadWriteBitmapData EndToGrayscale(this IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToGrayscale));
 
 #if !NET35
         public static Task<IReadWriteBitmapData> ToGrayscaleAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
@@ -1193,7 +1192,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoToTransparent(ctx, bitmapData, transparentColor), asyncConfig);
         }
 
-        public static IReadWriteBitmapData EndToTransparent(IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToTransparent));
+        public static IReadWriteBitmapData EndToTransparent(this IAsyncResult asyncResult) => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginToTransparent));
 
 #if !NET35
         public static Task<IReadWriteBitmapData> ToTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
@@ -1237,7 +1236,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoSave(ctx, bitmapData, stream), asyncConfig);
         }
 
-        public static void EndSave(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginSave));
+        public static void EndSave(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginSave));
 
 #if !NET35
         public static Task SaveAsync(this IReadableBitmapData bitmapData, Stream stream, TaskConfig asyncConfig = null)
