@@ -1395,6 +1395,7 @@ namespace KGySoft.Drawing.Imaging
             bool canceled = false;
             try
             {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                 {
                     if (canceled = context.IsCancellationRequested)
@@ -1411,6 +1412,7 @@ namespace KGySoft.Drawing.Imaging
                     else
                     {
                         // quantizing with dithering
+                        context.Progress?.New(DrawingOperation.InitializingDitherer);
                         using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
                         if (canceled = context.IsCancellationRequested)
                             return null;
@@ -1494,6 +1496,7 @@ namespace KGySoft.Drawing.Imaging
 
                 try
                 {
+                    context.Progress?.New(DrawingOperation.InitializingQuantizer);
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
                         if (context.IsCancellationRequested)
@@ -1509,6 +1512,7 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // quantization with dithering
+                        context.Progress?.New(DrawingOperation.InitializingDitherer);
                         using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context))
                         {
                             if (context.IsCancellationRequested)

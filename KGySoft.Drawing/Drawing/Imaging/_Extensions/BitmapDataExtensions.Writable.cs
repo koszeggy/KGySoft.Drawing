@@ -254,7 +254,7 @@ namespace KGySoft.Drawing.Imaging
                     // we could simply jump to default here but as we already know the palette index we can optimize it a bit
                     if (width - left < parallelThreshold)
                     {
-                        context.Progress?.New(DrawingOperation.ClearByIndex, bitmapData.Height);
+                        context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                         IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                         do
                         {
@@ -269,7 +269,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     // parallel clear
-                    ParallelHelper.For(context, DrawingOperation.ClearByIndex, 0, bitmapData.Height, y =>
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                     {
                         // ReSharper disable once VariableHidesOuterVariable
                         IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
@@ -295,7 +295,7 @@ namespace KGySoft.Drawing.Imaging
             int width = bitmapData.Width;
             if (width - offsetLeft < parallelThreshold)
             {
-                context.Progress?.New(DrawingOperation.ClearByColor, bitmapData.Height);
+                context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                 do
                 {
@@ -310,7 +310,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // parallel clear
-            ParallelHelper.For(context, DrawingOperation.ClearByColor, 0, bitmapData.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
             {
                 // ReSharper disable once VariableHidesOuterVariable
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
@@ -328,7 +328,7 @@ namespace KGySoft.Drawing.Imaging
             // small width: going with sequential clear
             if (width < parallelThreshold)
             {
-                context.Progress?.New(DrawingOperation.ClearRaw, bitmapData.Height);
+                context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                 do
                 {
@@ -342,7 +342,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // parallel clear
-            ParallelHelper.For(context, DrawingOperation.ClearRaw, 0, bitmapData.Height, y =>
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
             {
                 IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                 int w = width;
@@ -357,6 +357,7 @@ namespace KGySoft.Drawing.Imaging
         private static void ClearWithDithering(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
+            context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
             using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
             {
                 if (context.IsCancellationRequested)
@@ -367,6 +368,7 @@ namespace KGySoft.Drawing.Imaging
 
                 try
                 {
+                    context.Progress?.New(DrawingOperation.InitializingDitherer);
                     using (IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context))
                     {
                         if (context.IsCancellationRequested)
@@ -377,7 +379,7 @@ namespace KGySoft.Drawing.Imaging
                         // sequential clear
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
-                            context.Progress?.New(DrawingOperation.ClearWithDithering, bitmapData.Height);
+                            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                             IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
                             int y = 0;
                             do
@@ -394,7 +396,7 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // parallel clear
-                        ParallelHelper.For(context, DrawingOperation.ClearWithDithering, 0, bitmapData.Height, y =>
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
                             IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
                             for (int x = 0; x < bitmapData.Width; x++)

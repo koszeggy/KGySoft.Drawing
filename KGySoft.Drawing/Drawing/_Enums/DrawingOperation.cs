@@ -21,45 +21,39 @@ namespace KGySoft.Drawing
     /// </summary>
     public enum DrawingOperation
     {
-        IndefiniteProcessing,
+        /// <summary>
+        /// Represents indefinite processing
+        /// </summary>
+        UndefinedProcessing,
+
+        /// <summary>
+        /// Represents the initialization of a quantizer
+        /// </summary>
         InitializingQuantizer,
+
+        /// <summary>
+        /// Represents the initialization of a ditherer
+        /// </summary>
         InitializingDitherer,
+
+        /// <summary>
+        /// Represents a palette-generating operation. Can be the part of another operation, such as quantizer initialization.
+        /// </summary>
         GeneratingPalette,
-        //ProcessingPixels,
-        Saving,
-        Loading,
 
+        /// <summary>
+        /// Represents an operation that processes pixels. An more complex async method may perform multiple processing operations one after another.
+        /// </summary>
         ProcessingPixels,
-        RawCopy,
-        StraightCopy,
-        PremultipliedCopy,
-        CopyWithQuantizer,
-        CopyWithDithering,
 
-        StraightDraw,
-        PremultipliedDraw,
-        DrawWithQuantizer,
-        DrawWithDithering,
+        /// <summary>
+        /// Represents a saving operation.
+        /// </summary>
+        Saving,
 
-        ResizeNNStraight,
-        ResizeNNPremultiplied,
-        ResizeNNWithQuantizer,
-        ResizeNNWithDithering,
-
-        InitializingResize,
-        ResizeStraight,
-        ResizePremultiplied,
-        ResizeWithQuantizer,
-        ResizeWithDithering,
-
-        ClearByIndex,
-        ClearByColor,
-        ClearRaw,
-        ClearWithDithering,
-
-        Quantizing,
-        Dithering,
-        TransformingColors,
-        TransformingColorsWithDithering
+        /// <summary>
+        /// Represents a loading operation.
+        /// </summary>
+        Loading,
     }
 }

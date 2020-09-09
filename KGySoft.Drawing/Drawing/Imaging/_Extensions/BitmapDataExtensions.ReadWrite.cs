@@ -893,6 +893,7 @@ namespace KGySoft.Drawing.Imaging
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
             try
             {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 using (IQuantizingSession session = quantizer.Initialize(bitmapData, context))
                 {
                     if (context.IsCancellationRequested)
@@ -903,7 +904,7 @@ namespace KGySoft.Drawing.Imaging
                     // Sequential processing
                     if (bitmapData.Width < parallelThreshold >> quantizingScale)
                     {
-                        context.Progress?.New(DrawingOperation.Quantizing, 0, bitmapData.Height);
+                        context.Progress?.New(DrawingOperation.ProcessingPixels, 0, bitmapData.Height);
                         int width = bitmapData.Width;
                         IBitmapDataRowInternal row = accessor.DoGetRow(0);
                         do
@@ -919,7 +920,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     // Parallel processing
-                    ParallelHelper.For(context, DrawingOperation.Quantizing, 0, bitmapData.Height, y =>
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                     {
                         int width = bitmapData.Width;
                         IBitmapDataRowInternal row = accessor.DoGetRow(y);
@@ -943,12 +944,14 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
                 {
                     if (context.IsCancellationRequested)
                         return;
                     if (quantizingSession == null)
                         throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+                    context.Progress?.New(DrawingOperation.InitializingDitherer);
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context))
                     {
                         if (context.IsCancellationRequested)
@@ -959,7 +962,7 @@ namespace KGySoft.Drawing.Imaging
                         // Sequential processing
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
-                            context.Progress?.New(DrawingOperation.Dithering, 0, bitmapData.Height);
+                            context.Progress?.New(DrawingOperation.ProcessingPixels, 0, bitmapData.Height);
                             int width = bitmapData.Width;
                             IBitmapDataRowInternal row = accessor.DoGetRow(0);
                             int y = 0;
@@ -977,7 +980,7 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // Parallel processing
-                        ParallelHelper.For(context, DrawingOperation.Dithering, 0, bitmapData.Height, y =>
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
                             int width = bitmapData.Width;
                             IBitmapDataRowInternal row = accessor.DoGetRow(y);
@@ -1005,7 +1008,7 @@ namespace KGySoft.Drawing.Imaging
             // Indexed format: processing the palette entries when possible
             if (bitmapData is IBitmapDataInternal bitmapDataInternal && bitmapDataInternal.CanSetPalette)
             {
-                context.Progress?.New(DrawingOperation.TransformingColors, 1);
+                context.Progress?.New(DrawingOperation.ProcessingPixels, 1);
                 Palette palette = bitmapData.Palette;
                 Color32[] oldEntries = palette.Entries;
                 Color32[] newEntries = new Color32[oldEntries.Length];
@@ -1030,7 +1033,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (bitmapData.Width < parallelThreshold)
                 {
-                    context.Progress?.New(DrawingOperation.TransformingColors, bitmapData.Height);
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                     IBitmapDataRowInternal row = accessor.DoGetRow(0);
                     do
                     {
@@ -1045,7 +1048,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                ParallelHelper.For(context, DrawingOperation.TransformingColors, 0, bitmapData.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
                     IBitmapDataRowInternal row = accessor.DoGetRow(y);
                     for (int x = 0; x < bitmapData.Width; x++)
@@ -1092,11 +1095,12 @@ namespace KGySoft.Drawing.Imaging
             {
                 IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);
                 Debug.Assert(!quantizer.InitializeReliesOnContent, "A predefined color quantizer should not depend on actual content");
-
+                context.Progress?.New(DrawingOperation.InitializingQuantizer); // predefined will be extreme fast bu in case someone tracks progress...
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData, context))
                 {
                     if (context.IsCancellationRequested)
                         return;
+                    context.Progress?.New(DrawingOperation.InitializingDitherer);
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession, context))
                     {
                         if (context.IsCancellationRequested)
@@ -1107,7 +1111,7 @@ namespace KGySoft.Drawing.Imaging
                         // sequential processing
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                         {
-                            context.Progress?.New(DrawingOperation.TransformingColorsWithDithering, 0, bitmapData.Height);
+                            context.Progress?.New(DrawingOperation.ProcessingPixels, 0, bitmapData.Height);
                             IBitmapDataRowInternal row = accessor.DoGetRow(0);
                             int y = 0;
                             do
@@ -1124,7 +1128,7 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // parallel processing
-                        ParallelHelper.For(context, DrawingOperation.TransformingColorsWithDithering, 0, bitmapData.Height, y =>
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
                             IBitmapDataRowInternal row = accessor.DoGetRow(y);
                             for (int x = 0; x < bitmapData.Width; x++)

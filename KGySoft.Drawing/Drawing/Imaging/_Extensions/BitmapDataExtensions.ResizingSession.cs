@@ -84,6 +84,7 @@ namespace KGySoft.Drawing.Imaging
                 try
                 {
                     Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
+                    context.Progress?.New(DrawingOperation.InitializingQuantizer);
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
                         if (context.IsCancellationRequested)
@@ -100,6 +101,7 @@ namespace KGySoft.Drawing.Imaging
 
                         // quantizing with dithering
                         Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
+                        context.Progress?.New(DrawingOperation.InitializingDitherer);
                         using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
                         if (context.IsCancellationRequested)
                             return;
@@ -118,15 +120,14 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                bool asPre = target.IsFastPremultiplied();
-                Action<int> processRow = asPre
+                Action<int> processRow = target.IsFastPremultiplied()
                     ? (Action<int>)ProcessRowPremultiplied
                     : ProcessRowStraight;
 
                 // Sequential processing
                 if (targetRectangle.Width < parallelThreshold)
                 {
-                    context.Progress?.New(asPre ? DrawingOperation.ResizeNNPremultiplied : DrawingOperation.ResizeNNStraight, 0, targetRectangle.Height);
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, 0, targetRectangle.Height);
                     for (int y = 0; y < targetRectangle.Height; y++)
                     {
                         if (context.IsCancellationRequested)
@@ -139,7 +140,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                ParallelHelper.For(context, asPre ? DrawingOperation.ResizeNNPremultiplied : DrawingOperation.ResizeNNStraight, 0, targetRectangle.Height, processRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, processRow);
 
                 #region Local Methods
 
@@ -244,7 +245,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (targetRectangle.Width < parallelThreshold >> quantizingScale)
                 {
-                    context.Progress?.New(DrawingOperation.ResizeNNWithQuantizer, targetRectangle.Height);
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, targetRectangle.Height);
                     for (int y = 0; y < targetRectangle.Height; y++)
                     {
                         if (context.IsCancellationRequested)
@@ -257,7 +258,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                ParallelHelper.For(context, DrawingOperation.ResizeNNWithQuantizer, 0, targetRectangle.Height, ProcessRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
 
                 #region Local Methods
 
@@ -320,7 +321,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (ditheringSession.IsSequential || targetRectangle.Width < parallelThreshold >> ditheringScale)
                 {
-                    context.Progress?.New(DrawingOperation.ResizeNNWithDithering, targetRectangle.Height);
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, targetRectangle.Height);
                     for (int y = 0; y < targetRectangle.Height; y++)
                     {
                         if (context.IsCancellationRequested)
@@ -333,7 +334,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                ParallelHelper.For(context, DrawingOperation.ResizeNNWithDithering, 0, targetRectangle.Height, ProcessRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
 
                 #region Local Methods
 
@@ -506,6 +507,7 @@ namespace KGySoft.Drawing.Imaging
                 try
                 {
                     Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
+                    context.Progress?.New(DrawingOperation.InitializingQuantizer);
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
                         if (context.IsCancellationRequested)
@@ -523,6 +525,7 @@ namespace KGySoft.Drawing.Imaging
                         // quantizing with dithering
                         Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
 
+                        context.Progress?.New(DrawingOperation.InitializingDitherer);
                         using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
                         if (context.IsCancellationRequested)
                             return;
@@ -577,7 +580,7 @@ namespace KGySoft.Drawing.Imaging
                 #endregion
 
                 if (isInitializing)
-                    ParallelHelper.For(context, DrawingOperation.InitializingResize,top, bottom, ProcessRow);
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, top, bottom, ProcessRow);
                 else
                 {
                     // We are already in a possibly parallel progress here so not allowing parallel and not reporting progress here
@@ -608,7 +611,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizeDirectStraight()
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(context, DrawingOperation.ResizeStraight, 0, targetRectangle.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -668,7 +671,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizePremultiplied()
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(context, DrawingOperation.ResizePremultiplied, 0, targetRectangle.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -717,7 +720,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(context, DrawingOperation.ResizeWithQuantizer, 0, targetRectangle.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -786,7 +789,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                ParallelHelper.For(context, DrawingOperation.ResizeWithDithering, 0, targetRectangle.Height, ProcessRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
 
                 #region Local Methods
 

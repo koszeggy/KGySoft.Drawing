@@ -1830,7 +1830,8 @@ namespace KGySoft.Drawing
                 if (canceled = context.IsCancellationRequested)
                     return null;
                 result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
+                using IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
                 {
                     if (canceled = context.IsCancellationRequested)
@@ -1852,6 +1853,7 @@ namespace KGySoft.Drawing
                         // quantization with dithering
                         else
                         {
+                            context.Progress?.New(DrawingOperation.InitializingDitherer);
                             using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession, context))
                             {
                                 if (canceled = context.IsCancellationRequested)
