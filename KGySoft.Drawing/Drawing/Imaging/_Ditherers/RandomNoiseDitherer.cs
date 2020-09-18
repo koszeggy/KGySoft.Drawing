@@ -93,7 +93,7 @@ namespace KGySoft.Drawing.Imaging
                 this.ditherer = ditherer;
 
                 // If we have don't have a seed, we must use a thread safe random generator because pixels can be queried in any order
-                random = ditherer.seed == null ? new ThreadSafeRandom() : new Random(ditherer.seed.Value);
+                random = ditherer.seed == null ? (Random)ThreadSafeRandom.Instance : new FastRandom(ditherer.seed.Value);
 
                 if (ditherer.strength > 0f)
                 {

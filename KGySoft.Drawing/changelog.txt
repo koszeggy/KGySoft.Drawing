@@ -21,7 +21,10 @@
 
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
-! RandomNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
+! RandomNoiseDitherer
+  ! Constructor: An ArgumentOutOfRangeException is thrown for invalid strength
+  ! The result differs from previous versions when using a specific seed
+  * Improved performance
 ! InterleavedGradientNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
 - OptimizedPaletteQuantizer class:
   - Octree method: Fixing a possible exception under .NET 3.5 caused by different behavior of Array.Sort
