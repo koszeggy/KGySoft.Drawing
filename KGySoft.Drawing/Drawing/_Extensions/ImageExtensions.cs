@@ -163,6 +163,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically and may block the caller. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and/or to adjust parallelization.</note>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
@@ -218,7 +220,6 @@ namespace KGySoft.Drawing
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, Palette)"/>
-        [SecuritySafeCritical]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
@@ -241,6 +242,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically and may block the caller. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and/or to adjust parallelization.</note>
         /// <para>If <paramref name="newPixelFormat"/> is an indexed format, then this overload will either use the palette of the source <paramref name="image"/> if applicable,
         /// or a system default palette. To apply a custom palette use the of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color[],Color,byte)"/> overload.</para>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
@@ -477,6 +480,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically and may block the caller. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and/or to adjust parallelization.</note>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>
         /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
@@ -585,7 +590,6 @@ namespace KGySoft.Drawing
         /// <seealso cref="BitmapExtensions.Quantize"/>
         /// <seealso cref="BitmapExtensions.Dither"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)"/>
-        [SecuritySafeCritical]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
@@ -596,24 +600,96 @@ namespace KGySoft.Drawing
 
         #region Async APM
 
+        /// <summary>
+        /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>,
+        /// then the source palette is taken from the source image if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
             return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+            => BeginConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
+
+        /// <summary>
+        /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
+        /// </remarks>
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
             return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
         }
 
-        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
-        {
-            ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
-        }
-
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.ImageExtensions.BeginConvertPixelFormat">BeginConvertPixelFormat</see> methods to complete.
+        /// In .NET 4.0 and above you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormatAsync">ConvertPixelFormatAsync</see> methods instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation.</returns>
         public static Bitmap EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
@@ -621,18 +697,81 @@ namespace KGySoft.Drawing
         #region Async TAP
 #if !NET35
 
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>,
+        /// then the source palette is taken from the source image if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
         public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
             return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
         public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
-        {
-            ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, null, backColor, alphaThreshold), asyncConfig);
-        }
+            => ConvertPixelFormatAsync(image, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
 
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/> method, which is available on every platform.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
+        /// </remarks>
         public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, TaskConfig asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
