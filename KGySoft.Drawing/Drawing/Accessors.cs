@@ -73,6 +73,7 @@ namespace KGySoft.Drawing
         #region ColorPalette
         
         internal static void SetEntries(this ColorPalette palette, Color[] value) => SetFieldValue(palette, "entries", value);
+        internal static void SetFlags(this ColorPalette palette, int value) => SetFieldValue(palette, "flags", value);
 
         #endregion
 

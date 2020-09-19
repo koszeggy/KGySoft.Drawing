@@ -1069,11 +1069,23 @@ namespace KGySoft.Drawing
             bool setEntries = palette.Length != targetPalette.Entries.Length;
             Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
 
+            // Flags actually matter on Mono/Linux
+            bool hasAlpha = false;
+            bool isGrayscale = true;
             for (int i = 0; i < palette.Length; i++)
+            {
                 targetColors[i] = palette[i];
+                if (!hasAlpha)
+                    hasAlpha = palette[i].A < Byte.MaxValue;
+                if (isGrayscale)
+                    isGrayscale = palette[i].R == palette[i].G && palette[i].R == palette[i].B;
+            }
 
             if (setEntries)
                 targetPalette.SetEntries(targetColors);
+            int flags = (hasAlpha ? 1 : 0) | (isGrayscale ? 2 : 0);
+            if (flags != targetPalette.Flags)
+                targetPalette.SetFlags(flags);
             target.Palette = targetPalette;
         }
 
@@ -1089,6 +1101,9 @@ namespace KGySoft.Drawing
 
             if (setEntries)
                 targetPalette.SetEntries(targetColors);
+            int flags = (palette.HasAlpha ? 1 : 0) | (palette.IsGrayscale ? 2 : 0);
+            if (flags != targetPalette.Flags)
+                targetPalette.SetFlags(flags);
             target.Palette = targetPalette;
         }
 
