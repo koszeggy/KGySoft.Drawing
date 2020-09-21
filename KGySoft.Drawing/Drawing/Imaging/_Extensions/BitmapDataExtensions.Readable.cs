@@ -1900,7 +1900,7 @@ namespace KGySoft.Drawing.Imaging
                 do
                 {
                     if (context.IsCancellationRequested)
-                        return null;
+                        return Reflector.EmptyArray<Color32>();
                     for (int x = 0; x < data.Width; x++)
                     {
                         Color32 c = line.DoGetColor32(x);
