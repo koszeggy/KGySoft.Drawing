@@ -19,6 +19,8 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -132,6 +134,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         private static float SinC(float x)
         {
+            if (x.TolerantIsZero())
+                return 1f;
 #if NETFRAMEWORK || NETSTANDARD2_0
             double d = x * Math.PI;
             return (float)(Math.Sin(d) / d);

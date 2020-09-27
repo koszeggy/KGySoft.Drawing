@@ -908,8 +908,13 @@ namespace KGySoft.Drawing.Imaging
                     for (int i = startOfFirstRepeatedMosaic; i < bottomStartDest; i++)
                     {
                         float center = (i + 0.5f) * ratio - 0.5f;
-                        int left = (int)(center - radius).TolerantCeiling();
+                        int left = (int)(center - radius).TolerantCeiling(tolerance);
                         ResizeKernel kernel = kernels[i - period];
+                        if (left + kernel.Length > sourceLength)
+                        {
+                            Debug.Fail("Is tolerance too small?");
+                            left -= 1;
+                        }
                         kernels[i] = kernel.Slide(left);
                     }
 
@@ -923,6 +928,12 @@ namespace KGySoft.Drawing.Imaging
             }
 
             #endregion
+
+            #endregion
+
+            #region Constants
+
+            private const float tolerance = 1e-4f;
 
             #endregion
 
@@ -990,7 +1001,7 @@ namespace KGySoft.Drawing.Imaging
 
                 float ratio = (float)sourceSize / targetSize;
                 float scale = Math.Max(1f, ratio);
-                int scaledRadius = (int)(scale * radius).TolerantCeiling();
+                int scaledRadius = (int)(scale * radius).TolerantCeiling(tolerance);
 
                 // the length of the period in a repeating kernel map
                 int period = LeastCommonMultiple(sourceSize, targetSize) / sourceSize;
@@ -1002,11 +1013,11 @@ namespace KGySoft.Drawing.Imaging
                 // corresponding to the corners of the image.
                 // If we do not normalize the kernel values, these rows also fit the periodic logic,
                 // however, it's just simpler to calculate them separately.
-                int cornerInterval = (int)firstNonNegativeLeftVal.TolerantCeiling();
+                int cornerInterval = (int)firstNonNegativeLeftVal.TolerantCeiling(tolerance);
 
                 // If firstNonNegativeLeftVal was an integral value, we need firstNonNegativeLeftVal+1
                 // instead of Ceiling:
-                if (firstNonNegativeLeftVal.TolerantEquals(cornerInterval))
+                if (firstNonNegativeLeftVal.TolerantEquals(cornerInterval, tolerance))
                     cornerInterval += 1;
 
                 // If 'cornerInterval' is too big compared to 'period', we can't apply the periodic optimization.
@@ -1061,11 +1072,11 @@ namespace KGySoft.Drawing.Imaging
             {
                 float center = (destRowIndex + 0.5f) * ratio - 0.5f;
 
-                int left = (int)(center - radius).TolerantCeiling();
+                int left = (int)(center - radius).TolerantCeiling(tolerance);
                 if (left < 0)
                     left = 0;
 
-                int right = (int)(center + radius).TolerantFloor();
+                int right = (int)(center + radius).TolerantFloor(tolerance);
                 if (right > sourceLength - 1)
                     right = sourceLength - 1;
 
