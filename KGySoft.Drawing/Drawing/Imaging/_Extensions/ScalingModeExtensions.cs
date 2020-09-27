@@ -134,7 +134,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         private static float SinC(float x)
         {
-            if (x.TolerantIsZero())
+            if (x.TolerantIsZero(1e-4f))
                 return 1f;
 #if NETFRAMEWORK || NETSTANDARD2_0
             double d = x * Math.PI;
