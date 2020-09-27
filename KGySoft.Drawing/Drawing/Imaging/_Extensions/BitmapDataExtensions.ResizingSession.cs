@@ -127,7 +127,7 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (targetRectangle.Width < parallelThreshold)
                 {
-                    context.Progress?.New(DrawingOperation.ProcessingPixels, 0, targetRectangle.Height);
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, targetRectangle.Height);
                     for (int y = 0; y < targetRectangle.Height; y++)
                     {
                         if (context.IsCancellationRequested)

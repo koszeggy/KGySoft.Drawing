@@ -904,7 +904,7 @@ namespace KGySoft.Drawing.Imaging
                     // Sequential processing
                     if (bitmapData.Width < parallelThreshold >> quantizingScale)
                     {
-                        context.Progress?.New(DrawingOperation.ProcessingPixels, 0, bitmapData.Height);
+                        context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                         int width = bitmapData.Width;
                         IBitmapDataRowInternal row = accessor.DoGetRow(0);
                         do
@@ -962,7 +962,7 @@ namespace KGySoft.Drawing.Imaging
                         // Sequential processing
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
-                            context.Progress?.New(DrawingOperation.ProcessingPixels, 0, bitmapData.Height);
+                            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                             int width = bitmapData.Width;
                             IBitmapDataRowInternal row = accessor.DoGetRow(0);
                             int y = 0;
@@ -1111,7 +1111,7 @@ namespace KGySoft.Drawing.Imaging
                         // sequential processing
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                         {
-                            context.Progress?.New(DrawingOperation.ProcessingPixels, 0, bitmapData.Height);
+                            context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                             IBitmapDataRowInternal row = accessor.DoGetRow(0);
                             int y = 0;
                             do
