@@ -158,6 +158,27 @@ namespace KGySoft.Drawing
             return (x & alignmentMask) == 0;
         }
 
+        internal static int GetColorsLimit(this PixelFormat pixelFormat)
+        {
+            int bpp = pixelFormat.ToBitsPerPixel();
+            switch (bpp)
+            {
+                case 32:
+                    return pixelFormat == PixelFormat.Format32bppRgb ? 1 << 24 : Int32.MaxValue;
+                case 1:
+                case 4:
+                case 8:
+                case 24:
+                    return 1 << bpp;
+                case 16:
+                    return pixelFormat == PixelFormat.Format16bppRgb555 ? 1 << 15
+                        : pixelFormat == PixelFormat.Format16bppRgb555 ? (1 << 15) + 1
+                        : 1 << 16;
+                default:
+                    return Int32.MaxValue;
+            }
+        }
+
         #endregion
 
         #endregion

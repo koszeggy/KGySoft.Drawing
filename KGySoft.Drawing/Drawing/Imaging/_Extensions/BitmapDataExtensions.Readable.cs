@@ -1887,7 +1887,7 @@ namespace KGySoft.Drawing.Imaging
             if (maxColors < 0)
                 throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentOutOfRange);
             if (maxColors == 0)
-                maxColors = Int32.MaxValue;
+                maxColors = bitmapData.Palette?.Count ?? bitmapData.PixelFormat.GetColorsLimit();
 
             var colors = new HashSet<Color32>();
             var data = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
@@ -1965,9 +1965,13 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < data.Width; x++)
                     {
                         T color = line.DoReadRaw<T>(x);
+
+                        // The JIT compiler will optimize away these branches
                         if (color is Color64 c64 && c64.A == 0)
                             color = default;
                         colors.Add(color);
+                        if (typeof(T) == typeof(Color16Gray) && colors.Count == UInt16.MaxValue)
+                            return colors.Count;
                     }
 
                     context.Progress?.Increment();

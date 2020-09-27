@@ -11,8 +11,9 @@
 
 * KGySoft.Drawing namespace:
 ============================
-- BitmapExtensions class:
+* BitmapExtensions class:
   - Resize method (with ScalingMode overload): fixing some interpolated resizing glitches in edge cases
+  * GetColors/GetColorCount methods: Improving performance
 * Icons class:
   * The shadow mask of Icon resources have been changed so they appear better when displayed on a display or
     operating system with no alpha gradient support.
@@ -73,6 +74,7 @@
   + New AdjustContrastAsync method (for .NET 4.0 and above)
   + New BeginAdjustGamma/EndAdjustGamma methods
   + New AdjustGammaAsync method (for .NET 4.0 and above)
+  * GetColors/GetColorCount methods: improving performance
   - ToBitmap method: Setting ColorPalette.Flags of the result Bitmap correctly. In Mono/Linux it could happen that
     the result Bitmap had alpha palette entries but the bitmap wasn't rendered with alpha colors in a GUI.
   - DrawInto methods: Fixing some rare case interpolation issues related to resizing
