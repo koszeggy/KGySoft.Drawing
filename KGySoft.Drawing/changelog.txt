@@ -26,13 +26,15 @@
 
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
+! OptimizedPaletteQuantizer class:
+  ! MedianCut method: The generated palette can be different from the ones in the previous versions: for large
+    homogeneous areas it was possible that the palette contained the same color entry multiple times.
+  - Octree method: Fixing a possible exception under .NET 3.5 caused by different behavior of Array.Sort
 ! RandomNoiseDitherer
   ! Constructor: An ArgumentOutOfRangeException is thrown for invalid strength
   ! The result differs from previous versions when using a specific seed
   * Improved performance
 ! InterleavedGradientNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
-- OptimizedPaletteQuantizer class:
-  - Octree method: Fixing a possible exception under .NET 3.5 caused by different behavior of Array.Sort
 * BitmapDataExtensions class:
   + New BeginClone/EndClone methods
   + New CloneAsync methods (for .NET 4.0 and above)
