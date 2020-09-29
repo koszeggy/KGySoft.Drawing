@@ -1067,7 +1067,7 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation<object>(ctx => DoGetColorCount(ctx, bitmapData), asyncConfig);
         }
 
-        public static int EndGetColorCount(this IAsyncResult asyncResult) => (int)AsyncContext.EndOperation<object>(asyncResult, nameof(BeginGetColorCount));
+        public static int EndGetColorCount(this IAsyncResult asyncResult) => (int?)AsyncContext.EndOperation<object>(asyncResult, nameof(BeginGetColorCount)) ?? default;
 
 #if !NET35
         public static Task<int> GetColorCountAsync(this IReadableBitmapData bitmapData, TaskConfig asyncConfig = null)
