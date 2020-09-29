@@ -84,6 +84,8 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginQuantize">BeginQuantize</see>
+        /// or <see cref="QuantizeAsync">QuantizeAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes the specified <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
         /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
@@ -119,6 +121,8 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDither">BeginDither</see>
+        /// or <see cref="DitherAsync">DitherAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes <paramref name="bitmapData"/> with dithering in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
         /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
@@ -146,6 +150,22 @@ namespace KGySoft.Drawing.Imaging
             DoDither(AsyncContext.Null, bitmapData, quantizer, ditherer);
         }
 
+        /// <summary>
+        /// Begins to quantize an <see cref="IReadWriteBitmapData"/> asynchronously, using the specified <paramref name="quantizer"/> (reduces the number of colors).
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="QuantizeAsync">QuantizeAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndQuantize">EndQuantize</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize">Quantize</see> method for more details.</note>
+        /// </remarks>
         public static IAsyncResult BeginQuantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -156,8 +176,32 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginQuantize">BeginQuantize</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="QuantizeAsync">QuantizeAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <exception cref="InvalidOperationException">The quantizer's <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         public static void EndQuantize(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginQuantize));
 
+        /// <summary>
+        /// Begins to quantize an <see cref="IReadWriteBitmapData"/> with dithering asynchronously (reduces the number of colors while trying to preserve details)
+        /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="DitherAsync">DitherAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndQuantize">EndQuantize</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither">Dither</see> method for more details.</note>
+        /// </remarks>
         public static IAsyncResult BeginDither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -168,9 +212,31 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginDither">BeginDither</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="DitherAsync">QuantizeAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
+        /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
         public static void EndDither(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDither));
 
 #if !NET35
+        /// <summary>
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> asynchronously, using the specified <paramref name="quantizer"/> (reduces the number of colors).
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize">Quantize</see> method for more details.</note>
+        /// </remarks>
         public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -181,6 +247,24 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
 
+        /// <summary>
+        /// Quantizes an <see cref="IReadWriteBitmapData"/> with dithering asynchronously (reduces the number of colors while trying to preserve details)
+        /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IReadWriteBitmapData"/> instance to be quantized.</param>
+        /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
+        /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
+        /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither">Dither</see> method for more details.</note>
+        /// </remarks>
         public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -204,6 +288,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
+        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,PixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -233,6 +319,8 @@ namespace KGySoft.Drawing.Imaging
         /// that is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
+        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,PixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -255,6 +343,25 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, transformFunction, ditherer);
         }
 
+        /// <summary>
+        /// Begins to transform the colors of this <paramref name="bitmapData"/> asynchronously, using the specified <paramref name="transformFunction"/> delegate.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if <paramref name="transformFunction"/> returns colors
+        /// that is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="TransformColorsAsync">TransformColorsAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndTransformColors">EndTransformColors</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/> method for more details.</note>
+        /// </remarks>
         public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -265,9 +372,31 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginTransformColors">BeginTransformColors</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="TransformColorsAsync">TransformColorsAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndTransformColors(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginTransformColors));
 
 #if !NET35
+        /// <summary>
+        /// Transforms the colors of this <paramref name="bitmapData"/> asynchronously, using the specified <paramref name="transformFunction"/> delegate.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if <paramref name="transformFunction"/> returns colors
+        /// that is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/> method for more details.</note>
+        /// </remarks>
         public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer = null, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -282,7 +411,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region ReplaceColor
-        
+
         /// <summary>
         /// Replaces every <paramref name="oldColor"/> occurrences to <paramref name="newColor"/> in the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -294,6 +423,8 @@ namespace KGySoft.Drawing.Imaging
         /// is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginReplaceColor">BeginReplaceColor</see>
+        /// or <see cref="ReplaceColorAsync">ReplaceColorAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newColor"/> has alpha, which cannot be represented by <paramref name="bitmapData"/>, then it will be blended with <see cref="IBitmapData.BackColor"/>.</para>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
@@ -314,6 +445,25 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer);
         }
 
+        /// <summary>
+        /// Begins to replace every <paramref name="oldColor"/> occurrences to <paramref name="newColor"/> in the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="oldColor">The original color to be replaced.</param>
+        /// <param name="newColor">The new color to replace <paramref name="oldColor"/> with.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result if <paramref name="newColor"/>
+        /// is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndReplaceColor">EndReplaceColor</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor">ReplaceColor</see> method for more details.</note>
+        /// </remarks>
         public static IAsyncResult BeginReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -324,9 +474,31 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginReplaceColor">BeginReplaceColor</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndReplaceColor(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginReplaceColor));
 
 #if !NET35
+        /// <summary>
+        /// Replaces every <paramref name="oldColor"/> occurrences to <paramref name="newColor"/> in the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="oldColor">The original color to be replaced.</param>
+        /// <param name="newColor">The new color to replace <paramref name="oldColor"/> with.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result if <paramref name="newColor"/>
+        /// is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor">ReplaceColor</see> method for more details.</note>
+        /// </remarks>
         public static Task ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -341,7 +513,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Invert
-        
+
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -351,6 +523,8 @@ namespace KGySoft.Drawing.Imaging
         /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginInvert">BeginInvert</see>
+        /// or <see cref="InvertAsync">InvertAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -367,6 +541,23 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, TransformInvert, ditherer);
         }
 
+        /// <summary>
+        /// Begins to Invert the colors of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be inverted.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
+        /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="InvertAsync">InvertAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndInvert">EndInvert</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Invert">Invert</see> method for more details.</note>
+        /// </remarks>
         public static IAsyncResult BeginInvert(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -374,9 +565,29 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginInvert">BeginInvert</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="InvertAsync">InvertAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndInvert(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginInvert));
 
 #if !NET35
+        /// <summary>
+        /// Inverts the colors of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be inverted.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
+        /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Invert">Invert</see> method for more details.</note>
+        /// </remarks>
         public static Task InvertAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -388,7 +599,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region MakeTransparent
-        
+
         /// <summary>
         /// If possible, makes the background of this <paramref name="bitmapData"/> transparent, taking the bottom-left pixel as the background color.
         /// If the <paramref name="bitmapData"/> does not support transparency, then the pixels that have the same color as the bottom-left pixel will be set
@@ -397,6 +608,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeTransparent(IReadWriteBitmapData, AsyncConfig)"/>
+        /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="ReplaceColor">ReplaceColor</see> method internally.</para>
         /// <para>Similarly to the <see cref="Bitmap.MakeTransparent()">Bitmap.MakeTransparent</see> method, this one uses the bottom-left pixel to determine
         /// the background color, which must be completely opaque; otherwise, <paramref name="bitmapData"/> will not be changed.</para>
@@ -432,6 +645,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
         /// <param name="transparentColor">Specifies the color to make transparent.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeTransparent(IReadWriteBitmapData, Color32, AsyncConfig)"/>
+        /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, Color32, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="ReplaceColor">ReplaceColor</see> method internally.</para>
         /// <para>Unlike the <see cref="Bitmap.MakeTransparent(Color)">Bitmap.MakeTransparent(Color)</see> method, this one preserves the original <see cref="IBitmapData.PixelFormat"/>.
         /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
@@ -453,6 +668,24 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, transparentColor, default));
         }
 
+        /// <summary>
+        /// If possible, begins to make the background of this <paramref name="bitmapData"/> transparent asynchronously, taking the bottom-left pixel as the background color.
+        /// If the <paramref name="bitmapData"/> does not support transparency, then the pixels that have the same color as the bottom-left pixel will be set
+        /// to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="MakeTransparentAsync(IReadWriteBitmapData, TaskConfig)"/> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndMakeTransparent">EndMakeTransparent</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeTransparent(IReadWriteBitmapData)"/> method for more details.</note>
+        /// </remarks>
+        /// <seealso cref="BeginToTransparent(IReadableBitmapData, AsyncConfig)"/>
+        /// <seealso cref="BeginMakeOpaque"/>
         public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -465,6 +698,25 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
+        /// <summary>
+        /// If possible, begins to make the background of this <paramref name="bitmapData"/> transparent asynchronously, using <paramref name="transparentColor"/> as the background color.
+        /// If the <paramref name="bitmapData"/> does not support transparency, then the pixels that have the same color as <paramref name="transparentColor"/> will be set
+        /// to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
+        /// <param name="transparentColor">Specifies the color to make transparent.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="MakeTransparentAsync(IReadWriteBitmapData,Color32,TaskConfig)"/> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndMakeTransparent">EndMakeTransparent</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> method for more details.</note>
+        /// </remarks>
+        /// <seealso cref="BeginToTransparent(IReadableBitmapData,Color32,AsyncConfig)"/>
+        /// <seealso cref="BeginMakeOpaque"/>
         public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -474,9 +726,30 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginMakeTransparent">BeginMakeTransparent</see> methods to complete.
+        /// In .NET 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.MakeTransparentAsync">MakeTransparentAsync</see> methods instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndMakeTransparent(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeTransparent));
 
 #if !NET35
+        /// <summary>
+        /// If possible, makes the background of this <paramref name="bitmapData"/> transparent asynchronously, taking the bottom-left pixel as the background color.
+        /// If the <paramref name="bitmapData"/> does not support transparency, then the pixels that have the same color as the bottom-left pixel will be set
+        /// to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeTransparent(IReadWriteBitmapData)"/> method for more details.</note>
+        /// </remarks>
+        /// <seealso cref="ToTransparentAsync(IReadableBitmapData, TaskConfig)"/>
+        /// <seealso cref="MakeOpaqueAsync"/>
         public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -489,6 +762,23 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
+        /// <summary>
+        /// If possible, makes the background of this <paramref name="bitmapData"/> transparent asynchronously, using <paramref name="transparentColor"/> as the background color.
+        /// If the <paramref name="bitmapData"/> does not support transparency, then the pixels that have the same color as <paramref name="transparentColor"/> will be set
+        /// to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
+        /// <param name="transparentColor">Specifies the color to make transparent.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> method for more details.</note>
+        /// </remarks>
+        /// <seealso cref="ToTransparentAsync(IReadableBitmapData,Color32,TaskConfig)"/>
+        /// <seealso cref="MakeOpaqueAsync"/>
         public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, Color32 transparentColor, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -502,7 +792,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region MakeOpaque
-        
+
         /// <summary>
         /// Makes this <paramref name="bitmapData"/> opaque using the specified <paramref name="backColor"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -514,6 +804,8 @@ namespace KGySoft.Drawing.Imaging
         /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeOpaque">BeginMakeOpaque</see>
+        /// or <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -532,6 +824,25 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer);
         }
 
+        /// <summary>
+        /// Begins to make this <paramref name="bitmapData"/> opaque asynchronously using the specified <paramref name="backColor"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make opaque.</param>
+        /// <param name="backColor">Pixels with alpha in <paramref name="bitmapData"/> will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> property of the specified color is ignored.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
+        /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndMakeOpaque">EndMakeOpaque</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque">MakeOpaque</see> method for more details.</note>
+        /// <remarks>
+        /// </remarks>
         public static IAsyncResult BeginMakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -539,9 +850,31 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginMakeOpaque">BeginMakeOpaque</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndMakeOpaque(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeOpaque));
 
 #if !NET35
+        /// <summary>
+        /// Makes this <paramref name="bitmapData"/> opaque asynchronously using the specified <paramref name="backColor"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make opaque.</param>
+        /// <param name="backColor">Pixels with alpha in <paramref name="bitmapData"/> will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> property of the specified color is ignored.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmapData"/>
+        /// has no exact representation with its <see cref="IBitmapData.PixelFormat"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque">MakeOpaque</see> method for more details.</note>
+        /// <remarks>
+        /// </remarks>
         public static Task MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -563,6 +896,8 @@ namespace KGySoft.Drawing.Imaging
         /// cannot be represented by the <see cref="IBitmapData.PixelFormat"/> or the current palette of the specified <paramref name="bitmapData"/>. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeGrayscale">BeginMakeGrayscale</see>
+        /// or <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ToGrayscale">ToGrayscale</see> extension method, which always returns a bitmap data with <see cref="PixelFormat.Format32bppArgb"/> format,
         /// or the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> method with a grayscale
@@ -585,6 +920,24 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, TransformMakeGrayscale, ditherer);
         }
 
+        /// <summary>
+        /// Begins to make this <paramref name="bitmapData"/> grayscale asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make grayscale.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result if grayscale colors
+        /// cannot be represented by the <see cref="IBitmapData.PixelFormat"/> or the current palette of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndMakeGrayscale">EndMakeGrayscale</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeGrayscale">MakeGrayscale</see> method for more details.</note>
+        /// </remarks>
+        /// <seealso cref="BeginToGrayscale"/>
         public static IAsyncResult BeginMakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -592,9 +945,30 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginMakeGrayscale">BeginMakeGrayscale</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndMakeGrayscale(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
 
 #if !NET35
+        /// <summary>
+        /// Makes this <paramref name="bitmapData"/> grayscale asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make grayscale.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result if grayscale colors
+        /// cannot be represented by the <see cref="IBitmapData.PixelFormat"/> or the current palette of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeGrayscale">MakeGrayscale</see> method for more details.</note>
+        /// </remarks>
+        /// <seealso cref="ToGrayscaleAsync"/>
         public static Task MakeGrayscaleAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -606,7 +980,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region AdjustBrightness
-        
+
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -620,6 +994,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see>
+        /// or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -656,6 +1032,31 @@ namespace KGySoft.Drawing.Imaging
                 DoTransformColors(AsyncContext.Null, bitmapData, c => TransformLighten(c, brightness, channels), ditherer);
         }
 
+        /// <summary>
+        /// Begins to adjust the brightness of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
+        /// while negative values make it darker.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustBrightness">EndAdjustBrightness</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustBrightness">AdjustBrightness</see> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static IAsyncResult BeginAdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -676,9 +1077,37 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndAdjustBrightness(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
 
 #if !NET35
+        /// <summary>
+        /// Adjusts the brightness of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmapData"/> brighter,
+        /// while negative values make it darker.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustBrightness">AdjustBrightness</see> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static Task AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -703,7 +1132,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region AdjustContras
-        
+
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -717,6 +1146,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustContrast">BeginAdjustContrast</see>
+        /// or <see cref="AdjustContrastAsync">AdjustContrastAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -750,6 +1181,31 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, c => TransformContrast(c, contrast, channels), ditherer);
         }
 
+        /// <summary>
+        /// Begins to adjust the contrast of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
+        /// while negative values decrease the it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustContrast">EndAdjustContrast</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustContrast">AdjustContrast</see> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static IAsyncResult BeginAdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -769,9 +1225,37 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginAdjustContrast">BeginAdjustContrast</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndAdjustContrast(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustContrast));
 
 #if !NET35
+        /// <summary>
+        /// Adjusts the contrast of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
+        /// while negative values decrease the it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustContrast">AdjustContrast</see> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static Task AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -795,7 +1279,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region AdjustGamma
-        
+
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -809,6 +1293,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustGamma">BeginAdjustGamma</see>
+        /// or <see cref="AdjustGammaAsync">AdjustGammaAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -840,6 +1326,31 @@ namespace KGySoft.Drawing.Imaging
             DoTransformColors(AsyncContext.Null, bitmapData, c => TransformGamma(c, channels, table), ditherer);
         }
 
+        /// <summary>
+        /// Begins to adjust the gamma correction of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
+        /// while values above 1 increase it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndAdjustGamma">EndAdjustGamma</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustGamma">AdjustGamma</see> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static IAsyncResult BeginAdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
         {
             if (bitmapData == null)
@@ -857,9 +1368,37 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, table), ditherer), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginAdjustGamma">BeginAdjustGamma</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndAdjustGamma(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustGamma));
 
 #if !NET35
+        /// <summary>
+        /// Adjusts the gamma correction of the specified <paramref name="bitmapData"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to be transformed.</param>
+        /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,
+        /// while values above 1 increase it.</param>
+        /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the transformed colors
+        /// are not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="channels">The <see cref="ColorChannels"/>, on which the adjustment has to be performed. This parameter is optional.
+        /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="AdjustGamma">AdjustGamma</see> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
+        /// <br/>-or-
+        /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         public static Task AdjustGammaAsync(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
         {
             if (bitmapData == null)

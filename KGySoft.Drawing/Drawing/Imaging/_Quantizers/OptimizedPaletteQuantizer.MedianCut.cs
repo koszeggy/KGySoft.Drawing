@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Fields
 
-                private List<Color32> colors;
+                private readonly List<Color32> colors;
 
                 private int rMin;
                 private int rMax;

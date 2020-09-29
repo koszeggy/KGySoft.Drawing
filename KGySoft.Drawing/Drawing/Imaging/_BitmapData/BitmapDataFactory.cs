@@ -140,6 +140,16 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
         }
 
+        /// <summary>
+        /// Loads a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <returns>A managed <see cref="IReadWriteBitmapData"/> instance loaded from the specified <paramref name="stream"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginLoad">BeginLoad</see>
+        /// or <see cref="LoadAsync">LoadAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// </remarks>
         public static IReadWriteBitmapData Load(Stream stream)
         {
             if (stream == null)
@@ -147,6 +157,20 @@ namespace KGySoft.Drawing.Imaging
             return DoLoadBitmapData(AsyncContext.Null, stream);
         }
 
+        /// <summary>
+        /// Begins to load a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> asynchronously that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="LoadAsync">LoadAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndLoad">EndLoad</see> method.</para>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// </remarks>
         public static IAsyncResult BeginLoad(Stream stream, AsyncConfig asyncConfig = null)
         {
             if (stream == null)
@@ -154,10 +178,26 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoLoadBitmapData(AsyncContext.Null, stream), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginLoad">BeginLoad</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="LoadAsync">LoadAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static IReadWriteBitmapData EndLoad(IAsyncResult asyncResult)
             => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginLoad));
 
 #if !NET35
+        /// <summary>
+        /// Loads a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> asynchronously that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// </remarks>
         public static Task<IReadWriteBitmapData> LoadAsync(Stream stream, TaskConfig asyncConfig = null)
         {
             if (stream == null)

@@ -163,8 +163,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically and may block the caller. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
-        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and/or to adjust parallelization.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
@@ -242,8 +242,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically and may block the caller. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/>
-        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and/or to adjust parallelization.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newPixelFormat"/> is an indexed format, then this overload will either use the palette of the source <paramref name="image"/> if applicable,
         /// or a system default palette. To apply a custom palette use the of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color[],Color,byte)"/> overload.</para>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
@@ -480,8 +480,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically and may block the caller. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
-        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and/or to adjust parallelization.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>
         /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
@@ -617,7 +617,7 @@ namespace KGySoft.Drawing
         /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -646,7 +646,7 @@ namespace KGySoft.Drawing
         /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -669,7 +669,7 @@ namespace KGySoft.Drawing
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
@@ -714,7 +714,7 @@ namespace KGySoft.Drawing
         /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
@@ -742,7 +742,7 @@ namespace KGySoft.Drawing
         /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
@@ -764,7 +764,7 @@ namespace KGySoft.Drawing
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
