@@ -1645,7 +1645,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> containing the grayscale version of the original <paramref name="bitmapData"/>.</returns>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToGrayscale">BeginToGrayscale</see>
-        /// or <see cref="ToGrayscale">ToGrayscale</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To return an <see cref="IReadWriteBitmapData"/> with arbitrary <see cref="IBitmapData.PixelFormat"/> use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> overloads with a grayscale palette,
         /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>

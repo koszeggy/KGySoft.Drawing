@@ -1003,7 +1003,7 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
-        /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustBrightness">BitmapExtensions.AdjustBrightness</see> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustBrightness">BitmapExtensions.AdjustBrightness</see> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
@@ -1155,7 +1155,7 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
-        /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustContrast">BitmapExtensions.AdjustContrast</see> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustContrast">BitmapExtensions.AdjustContrast</see> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
@@ -1302,7 +1302,7 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
-        /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustGamma">BitmapExtensions.AdjustGamma</see> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustGamma">BitmapExtensions.AdjustGamma</see> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10

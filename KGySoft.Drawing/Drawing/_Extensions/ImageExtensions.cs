@@ -126,6 +126,8 @@ namespace KGySoft.Drawing
         /// <param name="image">The image to convert to grayscale.</param>
         /// <returns>An <see cref="Image"/> containing the grayscale version of the original <paramref name="image"/>.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginToGrayscale">BitmapDataExtensions.BeginToGrayscale</see>
+        /// or <see cref="BitmapDataExtensions.ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always returns a <see cref="Bitmap"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> overloads with a grayscale palette,
         /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
@@ -805,6 +807,10 @@ namespace KGySoft.Drawing
         /// and <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
@@ -828,6 +834,10 @@ namespace KGySoft.Drawing
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
@@ -850,6 +860,10 @@ namespace KGySoft.Drawing
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
@@ -877,6 +891,10 @@ namespace KGySoft.Drawing
         /// and <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
@@ -945,6 +963,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -971,6 +993,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -993,6 +1019,10 @@ namespace KGySoft.Drawing
         /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -1015,6 +1045,10 @@ namespace KGySoft.Drawing
         /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -1039,6 +1073,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -1069,6 +1107,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
