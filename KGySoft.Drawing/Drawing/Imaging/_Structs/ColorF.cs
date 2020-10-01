@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.Imaging
 
         public ColorF(float a, float r, float g, float b)
 #if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
-            : this() // so the compiler does not complain about not initializing the value fields
+            : this() // so the compiler does not complain about not initializing the value field
 #endif
         {
             R = r;

@@ -34,8 +34,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         private static readonly object[][] fullyTransparentImageTestSource =
         {
-            new object[] { "Octree TR", OptimizedPaletteQuantizer.MedianCut() },
-            new object[] { "Octree Solid", OptimizedPaletteQuantizer.MedianCut(alphaThreshold: 0) },
+            new object[] { "Octree TR", OptimizedPaletteQuantizer.Octree() },
+            new object[] { "Octree Solid", OptimizedPaletteQuantizer.Octree(alphaThreshold: 0) },
             new object[] { "MedianCut TR", OptimizedPaletteQuantizer.MedianCut(),  },
             new object[] { "MedianCut Solid", OptimizedPaletteQuantizer.MedianCut(alphaThreshold: 0),  },
             new object[] { "Wu TR", OptimizedPaletteQuantizer.Wu(),  },

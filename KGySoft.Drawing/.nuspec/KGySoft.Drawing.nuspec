@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing</id>
-    <version>5.2.1</version>
+    <version>5.3.0</version>
     <title>KGy SOFT Drawing Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,7 +11,7 @@
     <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Advanced features for System.Drawing types such as fast bitmap manipulation, quantizing and dithering, saving bitmaps and metafiles in various formats, manipulating high resolution multi-image icons, etc.</summary>
+    <summary>Advanced drawing features both for completely managed bitmap data as well as native System.Drawing types on multiple platforms. Among others: fast bitmap manipulation, quantizing and dithering, saving bitmaps and metafiles in various formats, manipulating high resolution multi-image icons, etc.</summary>
     <description xml:space="preserve">KGy SOFT Drawing Libraries offer advanced features built around System.Drawing types.
 
 Among others:
@@ -35,32 +35,32 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="5.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="5.4.0" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="5.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="5.4.0" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="5.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="5.4.0" />
       </group>
       <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="5.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="5.4.0" />
         <dependency id="System.Drawing.Common" version="4.7.0" />
         <dependency id="System.Resources.Extensions" version="4.7.0" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="5.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="5.4.0" />
         <dependency id="System.Drawing.Common" version="4.7.0" />
         <dependency id="System.Resources.Extensions" version="4.7.0" />
         <dependency id="System.Windows.Extensions" version="4.7.0" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="5.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="5.4.0" />
         <dependency id="System.Drawing.Common" version="4.7.0" />
         <dependency id="System.Resources.Extensions" version="4.7.0" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="5.3.0" />
+        <dependency id="KGySoft.CoreLibraries" version="5.4.0" />
         <dependency id="System.Drawing.Common" version="4.7.0" />
         <dependency id="System.Resources.Extensions" version="4.7.0" />
       </group>

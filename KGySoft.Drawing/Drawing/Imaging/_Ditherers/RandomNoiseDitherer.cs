@@ -93,7 +93,7 @@ namespace KGySoft.Drawing.Imaging
                 this.ditherer = ditherer;
 
                 // If we have don't have a seed, we must use a thread safe random generator because pixels can be queried in any order
-                random = ditherer.seed == null ? new ThreadSafeRandom() : new Random(ditherer.seed.Value);
+                random = ditherer.seed == null ? (Random)ThreadSafeRandom.Instance : new FastRandom(ditherer.seed.Value);
 
                 if (ditherer.strength > 0f)
                 {
@@ -189,6 +189,8 @@ namespace KGySoft.Drawing.Imaging
         /// </example>
         public RandomNoiseDitherer(float strength = 0f, int? seed = null)
         {
+            if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
+                throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
             this.strength = strength;
             this.seed = seed;
         }
@@ -197,7 +199,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext context)
             => new RandomNoiseDitheringSession(quantizer, this);
 
         #endregion

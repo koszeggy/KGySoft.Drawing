@@ -20,11 +20,19 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.IO;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 
 #endregion
+
+#if NET35
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
+#endif
 
 namespace KGySoft.Drawing.Imaging
 {
@@ -33,6 +41,12 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     public static class BitmapDataFactory
     {
+        #region Constants
+
+        private const int magicNumber = 0x54414442; // "BDAT"
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -129,6 +143,73 @@ namespace KGySoft.Drawing.Imaging
 
             return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
         }
+
+        /// <summary>
+        /// Loads a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <returns>A managed <see cref="IReadWriteBitmapData"/> instance loaded from the specified <paramref name="stream"/>.</returns>
+        /// <remarks>
+        /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginLoad">BeginLoad</see>
+        /// or <see cref="LoadAsync">LoadAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// </remarks>
+        public static IReadWriteBitmapData Load(Stream stream)
+        {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            return DoLoadBitmapData(AsyncContext.Null, stream);
+        }
+
+        /// <summary>
+        /// Begins to load a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> asynchronously that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="LoadAsync">LoadAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndLoad">EndLoad</see> method.</para>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// </remarks>
+        public static IAsyncResult BeginLoad(Stream stream, AsyncConfig asyncConfig = null)
+        {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            return AsyncContext.BeginOperation(ctx => DoLoadBitmapData(AsyncContext.Null, stream), asyncConfig);
+        }
+
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginLoad">BeginLoad</see> method to complete.
+        /// In .NET 4.0 and above you can use the <see cref="LoadAsync">LoadAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation.</returns>
+        public static IReadWriteBitmapData EndLoad(IAsyncResult asyncResult)
+            => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginLoad));
+
+#if !NET35
+        /// <summary>
+        /// Loads a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> asynchronously that was saved by
+        /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
+        /// </summary>
+        /// <param name="stream">The stream to load the bitmap data from.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// </remarks>
+        public static Task<IReadWriteBitmapData> LoadAsync(Stream stream, TaskConfig asyncConfig = null)
+        {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            return AsyncContext.DoOperationAsync(ctx => DoLoadBitmapData(AsyncContext.Null, stream), asyncConfig);
+        }
+#endif
 
         #endregion
 
@@ -298,6 +379,266 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
             }
         }
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
+        internal static void DoSaveBitmapData(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, Stream stream)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            Debug.Assert(pixelFormat == PixelFormat.Format32bppArgb || bitmapData.RowSize >= pixelFormat.GetByteWidth(rect.Right));
+            Debug.Assert(pixelFormat.IsAtByteBoundary(rect.Left));
+
+            context.Progress?.New(DrawingOperation.Saving, rect.Height + 1);
+            var writer = new BinaryWriter(stream);
+
+            writer.Write(magicNumber);
+            writer.Write(rect.Width);
+            writer.Write(rect.Height);
+            writer.Write((int)pixelFormat);
+            writer.Write(bitmapData.BackColor.ToArgb());
+            writer.Write(bitmapData.AlphaThreshold);
+
+            Palette palette = bitmapData.Palette;
+            writer.Write(palette?.Count ?? 0);
+            if (palette != null)
+            {
+                foreach (Color32 entry in palette.Entries)
+                    writer.Write(entry.ToArgb());
+            }
+
+            context.Progress?.Increment();
+            if (context.IsCancellationRequested)
+                return;
+
+            try
+            {
+                if (pixelFormat.ToBitsPerPixel() > 32 && bitmapData is NativeBitmapDataBase && ColorExtensions.Max16BppValue != UInt16.MaxValue)
+                {
+                    DoSaveWidePlatformDependent(context, bitmapData, rect, writer);
+                    return;
+                }
+
+                DoSaveRaw(context, bitmapData, rect, writer);
+            }
+            finally
+            {
+                stream.Flush();
+            }
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        #region Save
+
+        private static void DoSaveWidePlatformDependent(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            int byteLength = pixelFormat.ToBitsPerPixel() >> 3;
+
+            // using a temp 1x1 managed bitmap data for the conversion
+            using IBitmapDataInternal tempData = BitmapDataFactory.CreateManagedBitmapData(new Size(1, 1), pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold);
+            IBitmapDataRowInternal tempRow = tempData.DoGetRow(0);
+            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            for (int y = 0; y < rect.Height; y++)
+            {
+                if (context.IsCancellationRequested)
+                    return;
+
+                for (int x = rect.Left; x < rect.Right; x++)
+                {
+                    tempRow.DoSetColor32(0, row.DoGetColor32(x));
+                    for (int i = 0; i < byteLength; i++)
+                        writer.Write(tempRow.DoReadRaw<byte>(i));
+                }
+
+                row.MoveNextRow();
+                context.Progress?.Increment();
+            }
+        }
+
+        private static void DoSaveRaw(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            int bpp = pixelFormat.ToBitsPerPixel();
+            Debug.Assert(pixelFormat.IsAtByteBoundary(rect.Left));
+
+            switch (bpp)
+            {
+                case 1:
+                    rect.X >>= 3;
+                    rect.Width = pixelFormat.IsAtByteBoundary(rect.Width) ? rect.Width >> 3 : (rect.Width >> 3) + 1;
+                    DoSaveRawBytes(context, bitmapData, rect, writer);
+                    return;
+                case 4:
+                    rect.X >>= 1;
+                    rect.Width = pixelFormat.IsAtByteBoundary(rect.Width) ? rect.Width >> 1 : (rect.Width >> 1) + 1;
+                    DoSaveRawBytes(context, bitmapData, rect, writer);
+                    return;
+                case 8:
+                    DoSaveRawBytes(context, bitmapData, rect, writer);
+                    return;
+                case 16:
+                    DoSaveRawShorts(context, bitmapData, rect, writer);
+                    return;
+                case 32:
+                    DoSaveRawInts(context, bitmapData, rect, writer);
+                    return;
+                case 64:
+                    DoSaveRawLongs(context, bitmapData, rect, writer);
+                    return;
+                default: // 24/48bpp
+                    int byteSize = bpp >> 3;
+                    rect.X *= byteSize;
+                    rect.Width *= byteSize;
+                    DoSaveRawBytes(context, bitmapData, rect, writer);
+                    return;
+            }
+        }
+
+        private static void DoSaveRawBytes(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        {
+            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            for (int y = 0; y < rect.Height; y++)
+            {
+                if (context.IsCancellationRequested)
+                    return;
+
+                for (int x = rect.Left; x < rect.Right; x++)
+                    writer.Write(row.DoReadRaw<byte>(x));
+
+                row.MoveNextRow();
+                context.Progress?.Increment();
+            }
+        }
+
+        private static void DoSaveRawShorts(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        {
+            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            for (int y = 0; y < rect.Height; y++)
+            {
+                if (context.IsCancellationRequested)
+                    return;
+
+                for (int x = rect.Left; x < rect.Right; x++)
+                    writer.Write(row.DoReadRaw<short>(x));
+
+                row.MoveNextRow();
+                context.Progress?.Increment();
+            }
+        }
+
+        private static void DoSaveRawInts(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        {
+            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            for (int y = 0; y < rect.Height; y++)
+            {
+                if (context.IsCancellationRequested)
+                    return;
+
+                for (int x = rect.Left; x < rect.Right; x++)
+                    writer.Write(row.DoReadRaw<int>(x));
+
+                row.MoveNextRow();
+                context.Progress?.Increment();
+            }
+        }
+
+        private static void DoSaveRawLongs(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        {
+            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            for (int y = 0; y < rect.Height; y++)
+            {
+                if (context.IsCancellationRequested)
+                    return;
+
+                for (int x = rect.Left; x < rect.Right; x++)
+                    writer.Write(row.DoReadRaw<long>(x));
+
+                row.MoveNextRow();
+                context.Progress?.Increment();
+            }
+        }
+
+        #endregion
+
+        #region Load
+
+        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
+            Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static IReadWriteBitmapData DoLoadBitmapData(IAsyncContext context, Stream stream)
+        {
+            context.Progress?.New(DrawingOperation.Loading, 1000);
+            var reader = new BinaryReader(stream);
+
+            if (reader.ReadInt32() != magicNumber)
+                throw new ArgumentException(Res.ImagingNotBitmapDataStream, nameof(stream));
+            var size = new Size(reader.ReadInt32(), reader.ReadInt32());
+            var pixelFormat = (PixelFormat)reader.ReadInt32();
+            Color32 backColor = Color32.FromArgb(reader.ReadInt32());
+            byte alphaThreshold = reader.ReadByte();
+
+            Palette palette = null;
+            int paletteLength = reader.ReadInt32();
+            if (paletteLength > 0)
+            {
+                var entries = new Color32[paletteLength];
+                for (int i = 0; i < paletteLength; i++)
+                    entries[i] = Color32.FromArgb(reader.ReadInt32());
+                palette = new Palette(entries, backColor, alphaThreshold);
+            }
+
+            context.Progress?.SetProgressValue((int)(stream.Position * 1000 / stream.Length));
+            if (context.IsCancellationRequested)
+                return null;
+
+            IBitmapDataInternal result = CreateManagedBitmapData(size, pixelFormat, backColor, alphaThreshold, palette);
+            int bpp = pixelFormat.ToBitsPerPixel();
+            bool canceled = false;
+            try
+            {
+                IBitmapDataRowInternal row = result.DoGetRow(0);
+                for (int y = 0; y < result.Height; y++)
+                {
+                    if (canceled = context.IsCancellationRequested)
+                        return null;
+
+                    switch (bpp)
+                    {
+                        case 32:
+                            for (int x = 0; x < result.Width; x++)
+                                row.DoWriteRaw(x, reader.ReadInt32());
+                            break;
+                        case 16:
+                            for (int x = 0; x < result.Width; x++)
+                                row.DoWriteRaw(x, reader.ReadInt16());
+                            break;
+                        case 64:
+                            for (int x = 0; x < result.Width; x++)
+                                row.DoWriteRaw(x, reader.ReadInt64());
+                            break;
+                        default:
+                            for (int x = 0; x < result.RowSize; x++)
+                                row.DoWriteRaw(x, reader.ReadByte());
+                            break;
+                    }
+
+                    row.MoveNextRow();
+                    context.Progress?.SetProgressValue((int)(stream.Position * 1000 / stream.Length));
+                }
+
+                return (canceled = context.IsCancellationRequested) ? null : result;
+            }
+            finally
+            {
+                if (canceled)
+                    result.Dispose();
+            }
+        }
+
+        #endregion
 
         #endregion
 

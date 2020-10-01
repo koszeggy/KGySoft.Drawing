@@ -30,8 +30,6 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     internal class SolidBitmapData : BitmapDataBase
     {
-        #region Nested classes
-
         #region Row class
 
         private sealed class Row : BitmapDataRowBase
@@ -54,8 +52,6 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
         }
-
-        #endregion
 
         #endregion
 

@@ -64,9 +64,11 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="source">The dithering session to be initialized will be performed on the specified <see cref="IReadableBitmapData"/> instance.</param>
         /// <param name="quantizingSession">The <see cref="IQuantizingSession"/> to which the dithering should be applied.</param>
+        /// <param name="asyncContext">Contains information for asynchronous processing about the current operation. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IDitheringSession"/> instance that can be used to dither the result of the specified <see cref="IQuantizingSession"/>
         /// applied to the specified <paramref name="source"/>.</returns>
-        IDitheringSession Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession);
+        IDitheringSession Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext asyncContext = null);
 
         #endregion
     }

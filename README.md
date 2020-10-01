@@ -2,7 +2,7 @@
 
 # KGy SOFT Drawing Libraries
 
-KGy SOFT Drawing Libraries offer advanced features for System.Drawing types as well as completely managed bitmap data manipulation on any platform.
+KGy SOFT Drawing Libraries offer advanced drawing features both for completely managed bitmap data as well as native System.Drawing types on multiple platforms.
 Multiple versions of .NET Framework and .NET Core are supported. Tested on Windows and Linux (both in Mono and .NET Core environments).
 
 [![Website](https://img.shields.io/website/https/kgysoft.net/corelibraries.svg)](https://kgysoft.net/drawing)
