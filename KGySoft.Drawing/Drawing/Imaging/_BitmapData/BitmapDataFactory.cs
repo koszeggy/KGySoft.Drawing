@@ -187,6 +187,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET 4.0 and above you can use the <see cref="LoadAsync">LoadAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation.</returns>
         public static IReadWriteBitmapData EndLoad(IAsyncResult asyncResult)
             => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginLoad));
 
