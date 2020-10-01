@@ -68,10 +68,10 @@ namespace KGySoft.Drawing
         {
 #if NET35
             if (typeof(object).Assembly.GetName().Version != new Version(2, 0, 0, 0))
-                Assert.Inconclusive($"mscorlib version does not match to .NET 3.5: {typeof(object).Assembly.GetName().Version}. Add a global <TargetFrameworkVersion>v3.5</TargetFrameworkVersion> to csproj and try again");
+                Assert.Inconclusive($"mscorlib version does not match to .NET 3.5: {typeof(object).Assembly.GetName().Version}. Try to run the tests as a console application");
 #elif NET40 || NET45 || NET472
             if (typeof(object).Assembly.GetName().Version != new Version(4, 0, 0, 0))
-                Assert.Inconclusive($"mscorlib version does not match to .NET 4.x: {typeof(object).Assembly.GetName().Version}. Add a global <TargetFrameworkVersion> to csproj and try again");
+                Assert.Inconclusive($"mscorlib version does not match to .NET 4.x: {typeof(object).Assembly.GetName().Version}. Check executing framework version.");
 #elif NETFRAMEWORK
 #error unknown .NET version
 #endif

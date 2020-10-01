@@ -42,6 +42,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Fields
 
+            private readonly IAsyncContext context;
             private readonly IBitmapDataInternal source;
             private readonly IBitmapDataInternal target;
 
@@ -52,8 +53,9 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal ResizingSessionNearestNeighbor(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle)
+            internal ResizingSessionNearestNeighbor(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle)
             {
+                this.context = context;
                 this.source = source;
                 this.target = target;
                 this.sourceRectangle = sourceRectangle;
@@ -82,8 +84,14 @@ namespace KGySoft.Drawing.Imaging
                 try
                 {
                     Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (quantizingSession == null)
+                            throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
                         // quantizing without dithering
                         if (ditherer == null)
                         {
@@ -93,8 +101,13 @@ namespace KGySoft.Drawing.Imaging
 
                         // quantizing with dithering
                         Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
+                        context.Progress?.New(DrawingOperation.InitializingDitherer);
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
 
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
                         PerformResizeWithDithering(quantizingSession, ditheringSession);
                     }
                 }
@@ -114,13 +127,20 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (targetRectangle.Width < parallelThreshold)
                 {
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, targetRectangle.Height);
                     for (int y = 0; y < targetRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
                         processRow.Invoke(y);
+                        context.Progress?.Increment();
+                    }
+
                     return;
                 }
 
                 // Parallel processing
-                ParallelHelper.For(0, targetRectangle.Height, processRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, processRow);
 
                 #region Local Methods
 
@@ -225,13 +245,20 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (targetRectangle.Width < parallelThreshold >> quantizingScale)
                 {
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, targetRectangle.Height);
                     for (int y = 0; y < targetRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
                         ProcessRow(y);
+                        context.Progress?.Increment();
+                    }
+
                     return;
                 }
 
                 // Parallel processing
-                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
 
                 #region Local Methods
 
@@ -294,13 +321,20 @@ namespace KGySoft.Drawing.Imaging
                 // Sequential processing
                 if (ditheringSession.IsSequential || targetRectangle.Width < parallelThreshold >> ditheringScale)
                 {
+                    context.Progress?.New(DrawingOperation.ProcessingPixels, targetRectangle.Height);
                     for (int y = 0; y < targetRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
                         ProcessRow(y);
+                        context.Progress?.Increment();
+                    }
+
                     return;
                 }
 
                 // Parallel processing
-                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
 
                 #region Local Methods
 
@@ -371,6 +405,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Fields
 
+            private readonly IAsyncContext context;
             private readonly IBitmapDataInternal source;
             private readonly IBitmapDataInternal target;
             private readonly KernelMap horizontalKernelMap;
@@ -385,8 +420,9 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal ResizingSessionInterpolated(IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
+            internal ResizingSessionInterpolated(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
             {
+                this.context = context;
                 this.source = source;
                 this.target = target;
                 this.sourceRectangle = sourceRectangle;
@@ -471,8 +507,14 @@ namespace KGySoft.Drawing.Imaging
                 try
                 {
                     Debug.Assert(!quantizer.InitializeReliesOnContent, "This method performs resize during quantization but the used quantizer would require two-pass processing");
-                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
+                    context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(initSource, context))
                     {
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (quantizingSession == null)
+                            throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+
                         // quantizing without dithering
                         if (ditherer == null)
                         {
@@ -483,7 +525,13 @@ namespace KGySoft.Drawing.Imaging
                         // quantizing with dithering
                         Debug.Assert(!ditherer.InitializeReliesOnContent, "This method performs resize during dithering but the used ditherer would require two-pass processing");
 
-                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                        context.Progress?.New(DrawingOperation.InitializingDitherer);
+                        using IDitheringSession ditheringSession = ditherer.Initialize(initSource, quantizingSession, context);
+                        if (context.IsCancellationRequested)
+                            return;
+                        if (ditheringSession == null)
+                            throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+
                         PerformResizeWithDithering(quantizingSession, ditheringSession);
                     }
                 }
@@ -507,7 +555,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private void CalculateFirstPassValues(int top, int bottom, bool parallel)
+            private void CalculateFirstPassValues(int top, int bottom, bool isInitializing)
             {
                 #region Local Methods
 
@@ -531,12 +579,17 @@ namespace KGySoft.Drawing.Imaging
 
                 #endregion
 
-                if (parallel)
-                    ParallelHelper.For(top, bottom, ProcessRow);
+                if (isInitializing)
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, top, bottom, ProcessRow);
                 else
                 {
+                    // We are already in a possibly parallel progress here so not allowing parallel and not reporting progress here
                     for (int y = top; y < bottom; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
                         ProcessRow(y);
+                    }
                 }
             }
 
@@ -558,7 +611,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizeDirectStraight()
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(0, targetRectangle.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -618,7 +671,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizePremultiplied()
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(0, targetRectangle.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -667,7 +720,7 @@ namespace KGySoft.Drawing.Imaging
             private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
             {
                 ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(0, targetRectangle.Height, y =>
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
@@ -736,7 +789,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // Parallel processing
-                ParallelHelper.For(0, targetRectangle.Height, ProcessRow);
+                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, ProcessRow);
 
                 #region Local Methods
 
@@ -855,8 +908,13 @@ namespace KGySoft.Drawing.Imaging
                     for (int i = startOfFirstRepeatedMosaic; i < bottomStartDest; i++)
                     {
                         float center = (i + 0.5f) * ratio - 0.5f;
-                        int left = (int)(center - radius).TolerantCeiling();
+                        int left = (int)(center - radius).TolerantCeiling(tolerance);
                         ResizeKernel kernel = kernels[i - period];
+                        if (left + kernel.Length > sourceLength)
+                        {
+                            Debug.Fail("Is tolerance too small?");
+                            left -= 1;
+                        }
                         kernels[i] = kernel.Slide(left);
                     }
 
@@ -870,6 +928,12 @@ namespace KGySoft.Drawing.Imaging
             }
 
             #endregion
+
+            #endregion
+
+            #region Constants
+
+            private const float tolerance = 1e-4f;
 
             #endregion
 
@@ -937,7 +1001,7 @@ namespace KGySoft.Drawing.Imaging
 
                 float ratio = (float)sourceSize / targetSize;
                 float scale = Math.Max(1f, ratio);
-                int scaledRadius = (int)(scale * radius).TolerantCeiling();
+                int scaledRadius = (int)(scale * radius).TolerantCeiling(tolerance);
 
                 // the length of the period in a repeating kernel map
                 int period = LeastCommonMultiple(sourceSize, targetSize) / sourceSize;
@@ -949,11 +1013,11 @@ namespace KGySoft.Drawing.Imaging
                 // corresponding to the corners of the image.
                 // If we do not normalize the kernel values, these rows also fit the periodic logic,
                 // however, it's just simpler to calculate them separately.
-                int cornerInterval = (int)firstNonNegativeLeftVal.TolerantCeiling();
+                int cornerInterval = (int)firstNonNegativeLeftVal.TolerantCeiling(tolerance);
 
                 // If firstNonNegativeLeftVal was an integral value, we need firstNonNegativeLeftVal+1
                 // instead of Ceiling:
-                if (firstNonNegativeLeftVal.TolerantEquals(cornerInterval))
+                if (firstNonNegativeLeftVal.TolerantEquals(cornerInterval, tolerance))
                     cornerInterval += 1;
 
                 // If 'cornerInterval' is too big compared to 'period', we can't apply the periodic optimization.
@@ -1008,11 +1072,11 @@ namespace KGySoft.Drawing.Imaging
             {
                 float center = (destRowIndex + 0.5f) * ratio - 0.5f;
 
-                int left = (int)(center - radius).TolerantCeiling();
+                int left = (int)(center - radius).TolerantCeiling(tolerance);
                 if (left < 0)
                     left = 0;
 
-                int right = (int)(center + radius).TolerantFloor();
+                int right = (int)(center + radius).TolerantFloor(tolerance);
                 if (right > sourceLength - 1)
                     right = sourceLength - 1;
 

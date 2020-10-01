@@ -34,8 +34,6 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         private sealed class WuQuantizer : IOptimizedPaletteQuantizer
         {
-#pragma warning disable CA1814 // arrays in this class are better to be multidimensional than jagged ones as they are always cubic
-
             #region Nested types
 
             #region Enumerations
@@ -285,16 +283,18 @@ namespace KGySoft.Drawing.Imaging
             }
 
             [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Int32.ToString is not affected by culture")]
-            public Color32[] GeneratePalette()
+            public Color32[] GeneratePalette(IAsyncContext context)
             {
                 // Original comment from Xiaolin Wu:
                 // We now convert histogram into moments so that we can rapidly calculate
                 // the sums of the above quantities over any desired box.
                 HistogramToMoments();
 
-                List<Box> cubes = CreatePartitions();
-                var result = new Color32[cubes.Count + (hasTransparency ? 1 : 0)];
+                List<Box> cubes = CreatePartitions(context);
+                if (context.IsCancellationRequested)
+                    return null;
 
+                var result = new Color32[cubes.Count + (hasTransparency ? 1 : 0)];
                 for (int k = 0; k < cubes.Count; k++)
                 {
                     // The original algorithm here marks an array of tags but we don't need it because
@@ -388,7 +388,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            private List<Box> CreatePartitions()
+            private List<Box> CreatePartitions(IAsyncContext context)
             {
                 int colorCount = maxColors - (hasTransparency ? 1 : 0);
                 var cubes = new List<Box>(colorCount);
@@ -396,12 +396,16 @@ namespace KGySoft.Drawing.Imaging
                 // Adding an initial item with largest possible size. We split it until we
                 // have the needed colors or we cannot split further any of the boxes.
                 cubes.Add(new Box { RMax = histSize, GMax = histSize, BMax = histSize });
+                context.Progress?.New(DrawingOperation.GeneratingPalette, colorCount, 1);
 
                 float[] vv = new float[colorCount];
                 int next = 0;
 
                 for (int i = 1; i < colorCount; i++)
                 {
+                    if (context.IsCancellationRequested)
+                        return null;
+
                     // we always take an already added box and try to split it into two halves
                     Box firstHalf = cubes[next];
                     Box secondHalf = new Box();
@@ -412,6 +416,7 @@ namespace KGySoft.Drawing.Imaging
                         vv[next] = firstHalf.Vol > 1 ? Var(firstHalf) : 0f;
                         vv[i] = secondHalf.Vol > 1 ? Var(secondHalf) : 0f;
                         cubes.Add(secondHalf);
+                        context.Progress?.Increment();
                     }
                     else
                     {
@@ -437,6 +442,7 @@ namespace KGySoft.Drawing.Imaging
                         break;
                 }
 
+                context.Progress?.Complete();
                 return cubes;
             }
 

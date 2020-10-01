@@ -381,7 +381,7 @@ namespace KGySoft.Drawing.UnitTests
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png",
                 //@"..\..\..\..\KGySoft.Drawing\Help\Images\Cameraman.png",
                 @"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
-                @"..\..\..\..\KGySoft.Drawing\Help\Images\GrayShades.gif",
+                //@"..\..\..\..\KGySoft.Drawing\Help\Images\GrayShades.gif",
             };
 
             var stopwatch = new Stopwatch();

@@ -23,14 +23,20 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
-using System.Security; 
+using System.Security;
+#if !NET35
+using System.Threading.Tasks; 
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
-using KGySoft.Reflection;
 
 #endregion
+
+#if NET35
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
+#endif
 
 namespace KGySoft.Drawing
 {
@@ -124,6 +130,8 @@ namespace KGySoft.Drawing
         /// <param name="image">The image to convert to grayscale.</param>
         /// <returns>An <see cref="Image"/> containing the grayscale version of the original <paramref name="image"/>.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginToGrayscale">BitmapDataExtensions.BeginToGrayscale</see>
+        /// or <see cref="BitmapDataExtensions.ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always returns a <see cref="Bitmap"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To return a <see cref="Bitmap"/> with arbitrary <see cref="PixelFormat"/> use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> overloads with a grayscale palette,
         /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
@@ -139,6 +147,8 @@ namespace KGySoft.Drawing
         #endregion
 
         #region ConvertPixelFormat
+
+        #region Sync
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
@@ -159,6 +169,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
@@ -214,58 +226,10 @@ namespace KGySoft.Drawing
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, Palette)"/>
-        [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
-            if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
-            if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
-
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            Bitmap result = null;
-
-            try
-            {
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-
-                // validating and initializing palette in target bitmap
-                if (newPixelFormat.IsIndexed())
-                    InitPalette(newPixelFormat, bmp, result, palette);
-
-                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
-                Palette targetPalette =
-                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
-                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
-                    // using the custom colors
-                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
-                    // using the default palette from target
-                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
-
-                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
-                {
-                    var rect = new Rectangle(Point.Empty, source.GetSize());
-                    var session = new CopySession(source, target, rect, rect);
-                    session.PerformCopy();
-                }
-
-                return result;
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                throw;
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, image))
-                    bmp.Dispose();
-            }
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
         }
 
         /// <summary>
@@ -284,6 +248,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newPixelFormat"/> is an indexed format, then this overload will either use the palette of the source <paramref name="image"/> if applicable,
         /// or a system default palette. To apply a custom palette use the of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color[],Color,byte)"/> overload.</para>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
@@ -520,6 +486,8 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>
         /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
@@ -628,81 +596,196 @@ namespace KGySoft.Drawing
         /// <seealso cref="BitmapExtensions.Quantize"/>
         /// <seealso cref="BitmapExtensions.Dither"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)"/>
-        [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
         {
-            if (image == null)
-                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
-            if (!newPixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
-            if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
-
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-            Bitmap result = null;
-
-            try
-            {
-                Color[] paletteEntries = null;
-                if (quantizer == null)
-                {
-                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                    if (ditherer == null || !newPixelFormat.CanBeDithered())
-                        return ConvertPixelFormat(image, newPixelFormat);
-
-                    // here we need to pick a quantizer for the dithering
-                    int bpp = newPixelFormat.ToBitsPerPixel();
-
-                    paletteEntries = bmp.Palette?.Entries ?? Reflector.EmptyArray<Color>();
-                    if (bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp))
-                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
-                    else
-                    {
-                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat);
-                        paletteEntries = null;
-                    }
-                }
-
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(source) ?? throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull))
-                {
-                    // validating and initializing palette
-                    if (newPixelFormat.IsIndexed())
-                        InitPalette(newPixelFormat, bmp, result, paletteEntries ?? quantizingSession.Palette?.Entries.Select(c => c.ToColor()).ToArray());
-
-                    using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
-                    {
-                        var rect = new Rectangle(Point.Empty, source.GetSize());
-                        var session = new CopySession(source, target, rect, rect);
-
-                        // quantization without dithering
-                        if (ditherer == null)
-                            session.PerformCopyWithQuantizer(quantizingSession, false);
-                        // quantization with dithering
-                        else
-                        {
-                            using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession) ?? throw new InvalidOperationException(Res.ImagingDithererInitializeNull))
-                                session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
-                        }
-
-                        return result;
-                    }
-                }
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                throw;
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, image))
-                    bmp.Dispose();
-            }
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, quantizer, ditherer);
         }
+
+        #endregion
+
+        #region Async APM
+
+        /// <summary>
+        /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>,
+        /// then the source palette is taken from the source image if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+        }
+
+        /// <summary>
+        /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+            => BeginConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
+
+        /// <summary>
+        /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
+        /// </remarks>
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+        }
+
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.ImageExtensions.BeginConvertPixelFormat">BeginConvertPixelFormat</see> methods to complete.
+        /// In .NET 4.0 and above you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormatAsync">ConvertPixelFormatAsync</see> methods instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation.</returns>
+        public static Bitmap EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
+
+        #endregion
+
+        #region Async TAP
+#if !NET35
+
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="palette">The desired target palette if <paramref name="newPixelFormat"/> is an indexed format. If <see langword="null"/>,
+        /// then the source palette is taken from the source image if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="newPixelFormat"/>.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+        }
+
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="backColor">If <paramref name="newPixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="newPixelFormat"/> can represent only single-bit alpha or <paramref name="newPixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
+        /// </remarks>
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
+            => ConvertPixelFormatAsync(image, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
+
+        /// <summary>
+        /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The original image to convert.</param>
+        /// <param name="newPixelFormat">The desired new pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <remarks>
+        /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/> method, which is available on every platform.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
+        /// </remarks>
+        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        {
+            ValidateConvertPixelFormat(image, newPixelFormat);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+        }
+
+#endif
+        #endregion
 
         #endregion
 
@@ -728,6 +811,10 @@ namespace KGySoft.Drawing
         /// and <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
@@ -751,6 +838,10 @@ namespace KGySoft.Drawing
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
@@ -773,6 +864,10 @@ namespace KGySoft.Drawing
         /// <param name="targetLocation">The target location. Target size will be always the same as the source size.</param>
         /// <param name="ditherer">The ditherer to be used for the drawing. Might be ignored if <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
@@ -800,6 +895,10 @@ namespace KGySoft.Drawing
         /// and <paramref name="target"/>&#160;<see cref="PixelFormat"/> format has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
         /// <para>If <paramref name="target"/> can represent a narrower set of colors, then the result will be automatically quantized to the colors of the <paramref name="target"/>,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
@@ -832,8 +931,7 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            // Cloning source if it is a metafile
-            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
+            Bitmap bmp = source.AsBitmap();
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
@@ -869,6 +967,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -895,6 +997,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -917,6 +1023,10 @@ namespace KGySoft.Drawing
         /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="targetRectangle"/> exceeds bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="source"/> and <paramref name="targetRectangle"/> have different sizes.</para>
@@ -939,6 +1049,10 @@ namespace KGySoft.Drawing
         /// <param name="targetRectangle">A <see cref="Rectangle"/> that specifies the location and size of the drawn <paramref name="source"/>.</param>
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -963,6 +1077,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -993,6 +1111,10 @@ namespace KGySoft.Drawing
         /// <param name="scalingMode">Specifies the scaling mode if the bitmap data to be drawn needs to be resized. This parameter is optional.
         /// <br/>Default value: <see cref="ScalingMode.Auto"/>.</param>
         /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
+        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
         /// <para>The image to be drawn is automatically clipped if <paramref name="sourceRectangle"/> or <paramref name="targetRectangle"/> exceed bounds, or <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>
         /// and <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> are different.</para>
@@ -1029,9 +1151,7 @@ namespace KGySoft.Drawing
                 return;
             }
 
-            // Cloning source if it is a metafile
-            Bitmap bmp = source as Bitmap ?? new Bitmap(source);
-
+            Bitmap bmp = source.AsBitmap();
             try
             {
                 using (IReadableBitmapData src = bmp.GetReadableBitmapData())
@@ -1076,7 +1196,21 @@ namespace KGySoft.Drawing
         /// <remarks>The result icon will be always square sized and will contain only a single image.
         /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
         [SecuritySafeCritical]
-        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio);
+        public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio, ScalingMode.Auto);
+
+        /// <summary>
+        /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
+        /// </summary>
+        /// <param name="image">The image to be converted to an icon.</param>
+        /// <param name="size">The required width and height of the icon.</param>
+        /// <param name="scalingMode">Specifies the scaling mode if size differs from the original size.</param>
+        /// <param name="keepAspectRatio">When source <paramref name="image"/> is not square sized, determines whether the image should keep aspect ratio. This parameter is optional.
+        /// <br/>Default value: <see langword="true"/>.</param>
+        /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
+        /// <remarks>The result icon will be always square sized and will contain only a single image.
+        /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
+        [SecuritySafeCritical]
+        public static Icon ToIcon(this Image image, int size, ScalingMode scalingMode, bool keepAspectRatio = true) => Icons.FromImage(image, size, keepAspectRatio, scalingMode);
 
         /// <summary>
         /// Creates an <see cref="Icon" /> from an <see cref="Image" />.
@@ -1097,7 +1231,7 @@ namespace KGySoft.Drawing
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            Bitmap bmp = image as Bitmap ?? new Bitmap(image);
+            Bitmap bmp = image.AsBitmap();
             try
             {
                 return Icons.Combine(new[] { bmp }, new[] { transparentColor });
@@ -1474,9 +1608,12 @@ namespace KGySoft.Drawing
         /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
         /// <list type="definition">
         /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>If palette is black and white (in this order), then pixel format will be preserved.
-        /// Otherwise, before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.</description></item>
-        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// Otherwise, if the palette has no alpha entries, then before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.
+        /// If the palette contains alpha entries, then the pixel format of the reloaded image may turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>If the palette has no alpha entries the pixel format is preserved when reloading the saved image.
+        /// Otherwise, the pixel format of the reloaded image may turn <see cref="PixelFormat.Format32bppArgb"/></description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>If the palette has no alpha entries the pixel format is preserved when reloading the saved image.
+        /// Otherwise, the pixel format of the reloaded image may turn <see cref="PixelFormat.Format32bppArgb"/></description></item>
         /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
         /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.
@@ -1735,8 +1872,7 @@ namespace KGySoft.Drawing
                     if (image == null)
                         throw new ArgumentException(PublicResources.ArgumentContainsNull, nameof(images));
 
-                    Bitmap bmp = image as Bitmap ?? new Bitmap(image);
-
+                    Bitmap bmp = image.AsBitmap();
                     try
                     {
                         rawIcon.Add(bmp); // bmp can be an icon with more images
@@ -1771,7 +1907,196 @@ namespace KGySoft.Drawing
 
         #endregion
 
+        #region Internal Methods
+
+        internal static Bitmap AsBitmap(this Image image) => image switch
+        {
+            Bitmap bmp => bmp,
+            Metafile metafile => metafile.ToBitmap(metafile.Size),
+            null => throw new ArgumentNullException(nameof(image), PublicResources.Null),
+            _ => throw new InvalidOperationException(Res.InternalError($"Unexpected image type: {image.GetType()}"))
+        };
+
+        #endregion
+
         #region Private Methods
+
+        #region ConvertPixelFormat
+
+        private static void ValidateConvertPixelFormat(Image image, PixelFormat newPixelFormat)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (!newPixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
+            if (!newPixelFormat.IsSupportedNatively())
+                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor, byte alphaThreshold)
+        {
+            Bitmap bmp = image.AsBitmap();
+            Bitmap result = null;
+
+            try
+            {
+                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+
+                // validating and initializing palette in target bitmap
+                if (newPixelFormat.IsIndexed())
+                    InitPalette(newPixelFormat, bmp, result, palette);
+
+                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
+                Palette targetPalette =
+                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
+                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
+                    // using the custom colors
+                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
+                    // using the default palette from target
+                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
+
+                if (context.IsCancellationRequested)
+                    return null;
+                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
+                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
+                {
+                    var rect = new Rectangle(Point.Empty, source.GetSize());
+                    var session = new CopySession(context, source, target, rect, rect);
+                    session.PerformCopy();
+                }
+
+                return context.IsCancellationRequested ? null : result;
+            }
+            catch (Exception)
+            {
+                result?.Dispose();
+                result = null;
+                throw;
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+                if (context.IsCancellationRequested)
+                    result?.Dispose();
+            }
+        }
+
+        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
+        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer)
+        {
+            Bitmap bmp = image.AsBitmap();
+            Bitmap result = null;
+            bool canceled = false;
+
+            try
+            {
+                Color[] paletteEntries = null;
+                if (quantizer == null)
+                {
+                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
+                    if (ditherer == null || !newPixelFormat.CanBeDithered())
+                        return DoConvertPixelFormat(context, image, newPixelFormat, null, Color.Empty, 128);
+
+                    // here we need to pick a quantizer for the dithering
+                    int bpp = newPixelFormat.ToBitsPerPixel();
+
+                    paletteEntries = bmp.Palette.Entries;
+                    if (bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp))
+                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
+                    else
+                    {
+                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat);
+                        paletteEntries = null;
+                    }
+                }
+
+                if (canceled = context.IsCancellationRequested)
+                    return null;
+                result = new Bitmap(image.Width, image.Height, newPixelFormat);
+                using IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
+                context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
+                {
+                    if (canceled = context.IsCancellationRequested)
+                        return null;
+                    if (quantizingSession == null)
+                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+                    // validating and initializing palette
+                    if (newPixelFormat.IsIndexed())
+                        InitPalette(newPixelFormat, bmp, result, paletteEntries ?? quantizingSession.Palette?.Entries.Select(c => c.ToColor()).ToArray());
+
+                    using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
+                    {
+                        var rect = new Rectangle(Point.Empty, source.GetSize());
+                        var session = new CopySession(context, source, target, rect, rect);
+
+                        // quantization without dithering
+                        if (ditherer == null)
+                            session.PerformCopyWithQuantizer(quantizingSession, false);
+                        // quantization with dithering
+                        else
+                        {
+                            context.Progress?.New(DrawingOperation.InitializingDitherer);
+                            using (IDitheringSession ditheringSession = ditherer.Initialize(source, quantizingSession, context))
+                            {
+                                if (canceled = context.IsCancellationRequested)
+                                    return null;
+                                if (ditheringSession == null)
+                                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                                session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
+                            }
+                        }
+
+                        return (canceled = context.IsCancellationRequested) ? null : result;
+                    }
+                }
+            }
+            catch (Exception)
+            {
+                result?.Dispose();
+                result = null;
+                throw;
+            }
+            finally
+            {
+                if (!ReferenceEquals(bmp, image))
+                    bmp.Dispose();
+                if (canceled)
+                    result?.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Initializes target bitmap palette.
+        /// </summary>
+        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
+        {
+            int bpp = newPixelFormat.ToBitsPerPixel();
+
+            // if the quantized does not have a palette but converting to a higher bpp indexed image, then taking the source palette
+            if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
+                // ReSharper disable once ConstantConditionalAccessQualifier
+                palette = source.Palette?.Entries;
+
+            if (palette == null || palette.Length == 0)
+                return;
+
+            // there is a desired palette to apply
+            int maxColors = 1 << bpp;
+            if (palette.Length > maxColors)
+                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
+
+            target.SetPalette(palette);
+        }
+
+        #endregion
+
+        #region Compare
 
         [SecuritySafeCritical]
         private static bool CompareImages(Image image1, Image image2)
@@ -1841,35 +2166,16 @@ namespace KGySoft.Drawing
             }
         }
 
-        /// <summary>
-        /// Initializes target bitmap palette.
-        /// </summary>
-        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
-        {
-            int bpp = newPixelFormat.ToBitsPerPixel();
+        #endregion
 
-            // if the quantized does not have a palette but converting to a higher bpp indexed image, then taking the source palette
-            if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
-                // ReSharper disable once ConstantConditionalAccessQualifier
-                palette = source.Palette?.Entries;
-
-            if (palette == null || palette.Length == 0)
-                return;
-
-            // there is a desired palette to apply
-            int maxColors = 1 << bpp;
-            if (palette.Length > maxColors)
-                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
-
-            target.SetPalette(palette);
-        }
+        #region Save
 
         private static Image AdjustTiffImage(Image image)
         {
-            if (image == null || image.PixelFormat != PixelFormat.Format1bppIndexed)
+            if (image == null || image.PixelFormat != PixelFormat.Format1bppIndexed || image.Palette.Entries.Any(c => c.A != Byte.MaxValue))
                 return image;
 
-            // converting non BW 1 BPP image to 4 BPP in order to preserve palette colors
+            // converting non BW 1 BPP image with no alpha palette entries to 4 BPP in order to preserve palette colors
             Color[] palette = image.Palette.Entries;
             return palette[0].ToArgb() == Color.Black.ToArgb() && palette[1].ToArgb() == Color.White.ToArgb()
                 ? image
@@ -1952,6 +2258,8 @@ namespace KGySoft.Drawing
                     bmp.Dispose();
             }
         }
+
+        #endregion
 
         #endregion
 

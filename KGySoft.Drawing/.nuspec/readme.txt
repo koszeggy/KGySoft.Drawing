@@ -1,4 +1,4 @@
-Thank you for installing KGy SOFT Drawing Libraries 5.2.1
+Thank you for installing KGy SOFT Drawing Libraries 5.3.0
 
 KGy SOFT Drawing Libraries offer advanced features built around the System.Drawing types.
 

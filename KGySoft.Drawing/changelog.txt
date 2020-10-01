@@ -6,6 +6,94 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v5.3.0:
+~~~~~~~~~
+
+* KGySoft.Drawing namespace:
+============================
+* BitmapExtensions class:
+  - Resize method (with ScalingMode overload): fixing some interpolated resizing glitches in edge cases
+  * GetColors/GetColorCount methods: Improving performance
+* Icons class:
+  * The shadow mask of Icon resources have been changed so they appear better when displayed on a display or
+    operating system with no alpha gradient support.
+* ImageExtensions class:
+  + New BeginConvertPixelFormat/EndConvertPixelFormat methods
+  + New ConvertPixelFormatAsync methods (in .NET 4.0 and above)
+  + New ToIcon overload with ScalingMode parameter
+  - ConvertPixelFormat methods: Setting ColorPalette.Flags of the result Bitmap correctly. In Mono/Linux it could
+    happen that the result Bitmap had alpha palette entries but the bitmap wasn't rendered with alpha colors.
++ New IAsyncContext interface
++ New IDrawingProgress interface
++ New DrawingProgress struct
++ New AsyncConfig class
++ New TaskConfig class (in .NET 4.0 and above)
+
+! KGySoft.Drawing.Imaging namespace:
+====================================
+! OptimizedPaletteQuantizer class:
+  ! MedianCut method: The generated palette can be different from the ones in the previous versions: for large
+    homogeneous areas it was possible that the palette contained the same color entry multiple times.
+  - Octree method: Fixing a possible exception under .NET 3.5 caused by different behavior of Array.Sort
+! RandomNoiseDitherer
+  ! Constructor: An ArgumentOutOfRangeException is thrown for invalid strength
+  ! The result differs from previous versions when using a specific seed
+  * Improved performance
+! InterleavedGradientNoiseDitherer constructor: An ArgumentOutOfRangeException is thrown for invalid strength
+! IQuantizer interface:
+  ! The Initialize method has a new IAsyncContext parameter so a quantizer implementation can check cancellation
+    and is able to report progress
+! IDitherer interface:
+  ! The Initialize method has a new IAsyncContext parameter so a ditherer implementation can check cancellation
+    and is able to report progress
+* BitmapDataExtensions class:
+  + New BeginClone/EndClone methods
+  + New CloneAsync methods (in .NET 4.0 and above)
+  + New BeginCopyTo/EndCopyTo methods
+  + New CopyToAsync method (in .NET 4.0 and above)
+  + New BeginDrawInto/EndDrawInto methods
+  + New DrawIntoAsync methods (in .NET 4.0 and above)
+  + New BeginToBitmap/EndToBitmap methods
+  + New ToBitmapAsync method (in .NET 4.0 and above)
+  + New BeginGetColors/EndGetColors methods
+  + New GetColorsAsync method (in .NET 4.0 and above)
+  + New BeginGetColorCount/EndGetColorCount methods
+  + New GetColorCountAsync method (in .NET 4.0 and above)
+  + New BeginToGrayscale/EndToGrayscale methods
+  + New ToGrayscaleAsync method (in .NET 4.0 and above)
+  + New BeginMakeGrayscale/EndMakeGrayscale methods
+  + New MakeGrayscaleAsync method (in .NET 4.0 and above)
+  + New BeginToTransparent/EndToTransparent methods
+  + New ToTransparentAsync methods (in .NET 4.0 and above)
+  + New BeginMakeTransparent/EndMakeTransparent methods
+  + New MakeTransparentAsync method (in .NET 4.0 and above)
+  + New BeginClear/EndClear methods
+  + New ClearAsync method (in .NET 4.0 and above)
+  + New BeginQuantize/EndQuantize methods
+  + New QuantizeAsync method (in .NET 4.0 and above)
+  + New BeginDither/EndDither methods
+  + New DitherAsync method (in .NET 4.0 and above)
+  + New BeginTransformColors/EndTransformColors methods
+  + New TransformColorsAsync method (in .NET 4.0 and above)
+  + New BeginReplaceColor/EndReplaceColor methods
+  + New ReplaceColorAsync method (in .NET 4.0 and above)
+  + New BeginInvert/EndInvert methods
+  + New InvertAsync method (in .NET 4.0 and above)
+  + New BeginMakeOpaque/EndMakeOpaque methods
+  + New MakeOpaqueAsync method (in .NET 4.0 and above)
+  + New BeginAdjustBrightness/EndAdjustBrightness methods
+  + New AdjustBrightnessAsync method (in .NET 4.0 and above)
+  + New BeginAdjustContrast/EndAdjustContrast methods
+  + New AdjustContrastAsync method (in .NET 4.0 and above)
+  + New BeginAdjustGamma/EndAdjustGamma methods
+  + New AdjustGammaAsync method (in .NET 4.0 and above)
+  * GetColors/GetColorCount methods: improving performance
+  - ToBitmap method: Setting ColorPalette.Flags of the result Bitmap correctly. In Mono/Linux it could happen that
+    the result Bitmap had alpha palette entries but the bitmap wasn't rendered with alpha colors in a GUI.
+  - DrawInto methods: Fixing some rare case interpolation issues related to resizing
+
+
+~~~~~~~~~
 * v5.2.1:
 ~~~~~~~~~
 

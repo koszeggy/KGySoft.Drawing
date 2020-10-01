@@ -17,8 +17,10 @@
 #region Usings
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Diagnostics;
+
+using KGySoft.Collections;
 
 #endregion
 
@@ -40,6 +42,26 @@ namespace KGySoft.Drawing.Imaging
 
             private sealed class ColorBucket
             {
+                private static readonly IComparer<Color32> redSorter = new RedComparer();
+                private static readonly IComparer<Color32> greenSorter = new GreenComparer();
+                private static readonly IComparer<Color32> blueSorter = new BlueComparer();
+
+                private sealed class RedComparer : IComparer<Color32>
+                {
+                    public int Compare(Color32 a, Color32 b) => ((a.R << 16) | (a.G << 8) | a.B) - ((b.R << 16) | (b.G << 8) | b.B);
+                }
+
+                private sealed class GreenComparer : IComparer<Color32>
+                {
+                    public int Compare(Color32 a, Color32 b) => ((a.G << 16) | (a.R << 8) | a.B) - ((b.G << 16) | (b.R << 8) | b.B);
+                }
+
+                private sealed class BlueComparer : IComparer<Color32>
+                {
+                    public int Compare(Color32 a, Color32 b) => ((a.B << 16) | (a.G << 8) | a.R) - ((b.B << 16) | (b.G << 8) | b.R);
+                }
+
+
                 #region Fields
 
                 private readonly List<Color32> colors;
@@ -62,6 +84,8 @@ namespace KGySoft.Drawing.Imaging
                 internal int RangeG => gMax - gMin;
 
                 internal int RangeB => bMax - bMin;
+
+                internal bool IsSingleColor => RangeR == 0 && RangeG == 0 && RangeB == 0;
 
                 #endregion
 
@@ -101,8 +125,8 @@ namespace KGySoft.Drawing.Imaging
                 {
                     int count = colors.Count;
                     Debug.Assert(count != 0, "Empty bucket");
-                    if (count == 0)
-                        return default;
+                    if (count <= 0)
+                        return count == 0 ? default : colors[0];
 
                     int rSum = 0, gSum = 0, bSum = 0;
                     foreach (Color32 color in colors)
@@ -117,31 +141,38 @@ namespace KGySoft.Drawing.Imaging
                         (byte)(bSum / count));
                 }
 
-                internal void Split(ColorComponent component, List<ColorBucket> buckets, int index)
+                internal void Split(ColorComponent component, ColorBucketCollection buckets, ref int index, ref int endIndex)
                 {
-                    Debug.Assert(buckets[index] == this);
+                    Debug.Assert(colors.Count > 1);
 
+                    // always sorting by all of the components so then we can eliminate same color groups easily
                     switch (component)
                     {
                         case ColorComponent.R:
-                            colors.Sort((a, b) => a.R - b.R);
+                            colors.Sort(redSorter);
                             break;
 
                         case ColorComponent.G:
-                            colors.Sort((a, b) => a.G - b.G);
+                            colors.Sort(greenSorter);
                             break;
 
                         case ColorComponent.B:
-                            colors.Sort((a, b) => a.B - b.B);
+                            colors.Sort(blueSorter);
                             break;
                     }
 
                     int medianIndex = colors.Count >> 1;
 
+                    // single color check is correct because we sorted by all of the components
+                    bool isLeftSingleColor = colors[0] == colors[medianIndex - 1]; 
+                    bool isRightSingleColor = colors[medianIndex] == colors[colors.Count - 1];
+                    ColorBucket left = isLeftSingleColor ? null : new ColorBucket(medianIndex);
+                    ColorBucket right = isRightSingleColor ? null : new ColorBucket(colors.Count - medianIndex);
+
                     // populating the left and right buckets
-                    var left = new ColorBucket(medianIndex);
-                    var right = new ColorBucket(colors.Count - medianIndex);
-                    for (int i = 0; i < colors.Count; i++)
+                    int from = isLeftSingleColor ? (isRightSingleColor ? Int32.MaxValue : medianIndex) : 0;
+                    int to = isRightSingleColor ? (isLeftSingleColor ? 0 : medianIndex) : colors.Count;
+                    for (int i = from; i < to; i++)
                     {
                         if (i < medianIndex)
                             left.AddColor(colors[i]);
@@ -149,12 +180,141 @@ namespace KGySoft.Drawing.Imaging
                             right.AddColor(colors[i]);
                     }
 
-                    // the left half is assigned back to the original position
-                    buckets[index] = left;
+                    if (isLeftSingleColor)
+                    {
+                        buckets.AddFinalColor(colors[0]);
 
-                    // while the right half is added as a new bucket
-                    buckets.Add(right);
+                        // if none of the halves could be added, we remove the current bucket and reduce the number of buckets to scan
+                        if (isRightSingleColor)
+                        {
+                            buckets.AddFinalColor(colors[medianIndex]);
+                            buckets.RemoveBucket(index);
+                            endIndex -= 1;
+
+                            return;
+                        }
+
+                        // the right half is assigned back to the original position
+                        buckets.ReplaceBucket(index, right);
+                        index += 1;
+                        return;
+                    }
+
+                    // the left half is assigned back to the original position
+                    buckets.ReplaceBucket(index, left);
+                    index += 1;
+
+                    if (isRightSingleColor)
+                    {
+                        buckets.AddFinalColor(colors[medianIndex]);
+                        return;
+                    }
+
+                    // the right half is added as a new bucket
+                    buckets.AddBucket(right);
                 }
+
+                #endregion
+            }
+
+            #endregion
+
+            #region ColorBucketCollection class
+
+            private sealed class ColorBucketCollection
+            {
+                #region Fields
+                
+                private readonly int maxColors;
+                private readonly CircularList<ColorBucket> buckets;
+                private readonly HashSet<Color32> finalColors = new HashSet<Color32>();
+
+                #endregion
+
+                #region Properties
+
+                internal int FinalColorsCount => finalColors.Count;
+                internal int ColorsCount => buckets.Count + FinalColorsCount;
+
+                #endregion
+
+                #region Constructors
+
+                internal ColorBucketCollection(int maxColors)
+                {
+                    this.maxColors = maxColors;
+                    buckets = new CircularList<ColorBucket>(maxColors);
+                }
+
+                #endregion
+
+                #region Methods
+
+                #region Internal Methods
+
+                internal void AddBucket(ColorBucket item)
+                {
+                    Debug.Assert(!item.IsSingleColor, "Single color should be added to final colors");
+                    buckets.Add(item);
+                }
+
+                public void ReplaceBucket(int index, ColorBucket bucket) => buckets[index] = bucket;
+
+                internal ColorBucket RemoveFirstBucket()
+                {
+                    if (buckets.Count == 0)
+                        return null;
+                    ColorBucket result = buckets[0];
+                    buckets.RemoveFirst();
+                    return result;
+                }
+
+                public void RemoveBucket(int index) => buckets.RemoveAt(index);
+
+                internal bool SplitBuckets(IAsyncContext context, ref int index)
+                {
+                    bool splitOccurred = false;
+
+                    // saving length because we add new buckets during the iteration
+                    int endIndex = buckets.Count;
+                    if (index >= endIndex)
+                        index = 0;
+                    while (index < endIndex)
+                    {
+                        ColorBucket currentBucket = buckets[index];
+                        Debug.Assert(currentBucket.Count > 0, "Empty bucket");
+                        Debug.Assert(!currentBucket.IsSingleColor);
+
+                        if (context.IsCancellationRequested)
+                            return false;
+
+                        splitOccurred = true;
+
+                        // on equal distance splitting on the green range in the first place because of human perception
+                        if (currentBucket.RangeG >= currentBucket.RangeR && currentBucket.RangeG >= currentBucket.RangeB)
+                            currentBucket.Split(ColorComponent.G, this, ref index, ref endIndex);
+                        else if (currentBucket.RangeR >= currentBucket.RangeB)
+                            currentBucket.Split(ColorComponent.R, this, ref index, ref endIndex);
+                        else
+                            currentBucket.Split(ColorComponent.B, this, ref index, ref endIndex);
+
+                        context.Progress?.SetProgressValue(ColorsCount);
+
+                        // Stopping if we reached maxColors. Note that Split may increase ColorsCount.
+                        if (ColorsCount == maxColors)
+                            return false;
+                    }
+
+                    return splitOccurred;
+                }
+
+                internal bool AddFinalColor(Color32 color) => finalColors.Count != maxColors && finalColors.Add(color);
+
+                //internal bool ContainsFinalColor(ColorBucket bucket) => bucket.IsSingleColor && finalColors.Contains(bucket.ToColor());
+
+                internal void CopyFinalColorsTo(Color32[] result) => finalColors.CopyTo(result);
+
+                #endregion
 
                 #endregion
             }
@@ -174,14 +334,12 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
-            private int MaxBuckets => maxColors - (hasTransparency ? 1 : 0);
+            private int MaxActualColors => maxColors - (hasTransparency ? 1 : 0);
 
             #endregion
 
 
             #region Methods
-
-            #region Public Methods
 
             public void Initialize(int requestedColors, IBitmapData source)
             {
@@ -197,7 +355,7 @@ namespace KGySoft.Drawing.Imaging
                     root.AddColor(color);
             }
 
-            public Color32[] GeneratePalette()
+            public Color32[] GeneratePalette(IAsyncContext context)
             {
                 // Occurs when bitmap is completely transparent
                 if (root.Count == 0)
@@ -206,62 +364,53 @@ namespace KGySoft.Drawing.Imaging
                     return new Color32[1];
                 }
 
-                var buckets = new List<ColorBucket> { root };
+                Color32[] result;
+                if (root.IsSingleColor)
+                {
+                    result = new Color32[hasTransparency ? 2 : 1];
+                    result[0] = root.ToColor();
+                    return result;
+                }
+
+                context.Progress?.New(DrawingOperation.GeneratingPalette, MaxActualColors, 1);
+                var buckets = new ColorBucketCollection(MaxActualColors);
+                buckets.AddBucket(root);
 
                 // splitting the initial bucket until no more split can be done or desired color amount is reached
-                while (buckets.Count < MaxBuckets)
+                int startIndex = 0;
+                while (buckets.ColorsCount < MaxActualColors)
                 {
-                    if (!SplitBuckets(buckets))
+                    if (buckets.SplitBuckets(context, ref startIndex))
+                        startIndex = 0;
+                    else
                         break;
                 }
 
-                Debug.Assert(buckets.Count <= MaxBuckets);
-                var result = new Color32[buckets.Count + (hasTransparency ? 1 : 0)];
-                for (int i = 0; i < buckets.Count; i++)
-                    result[i] = buckets[i].ToColor();
+                // finalizing colors and continuing splitting if some buckets map to the same colors
+                while (buckets.FinalColorsCount < MaxActualColors)
+                {
+                    ColorBucket first = buckets.RemoveFirstBucket();
+                    if (first == null)
+                        break;
+                    if (startIndex > 0)
+                        startIndex -= 1;
+                    if (!buckets.AddFinalColor(first.ToColor()))
+                        buckets.SplitBuckets(context, ref startIndex);
+                }
+
+                if (context.IsCancellationRequested)
+                    return null;
+
+                Debug.Assert(buckets.FinalColorsCount <= MaxActualColors);
+                result = new Color32[buckets.FinalColorsCount + (hasTransparency ? 1 : 0)];
+                buckets.CopyFinalColorsTo(result);
+                context.Progress?.Complete();
 
                 // If transparent color is needed, then it will be automatically the last color in the result
                 return result;
             }
 
             public void Dispose() => root = null;
-
-            #endregion
-
-            #region Private Methods
-
-            private bool SplitBuckets(List<ColorBucket> buckets)
-            {
-                bool splitOccurred = false;
-
-                // caching length because we add new buckets during the iteration
-                int origLength = buckets.Count;
-                for (var index = 0; index < origLength; index++)
-                {
-                    ColorBucket currentBucket = buckets[index];
-                    Debug.Assert(currentBucket.Count > 0, "Empty bucket");
-                    if (currentBucket.Count == 1)
-                        continue;
-
-                    splitOccurred = true;
-
-                    // on equal distance splitting on the green range in the first place because of human perception
-                    if (currentBucket.RangeG >= currentBucket.RangeR && currentBucket.RangeG >= currentBucket.RangeB)
-                        currentBucket.Split(ColorComponent.G, buckets, index);
-                    else if (currentBucket.RangeR >= currentBucket.RangeB)
-                        currentBucket.Split(ColorComponent.R, buckets, index);
-                    else
-                        currentBucket.Split(ColorComponent.B, buckets, index);
-
-                    // Stopping if we reached maxColors. Note that Split increases buckets.Count.
-                    if (buckets.Count == MaxBuckets)
-                        return false;
-                }
-
-                return splitOccurred;
-            }
-
-            #endregion
 
             #endregion
         }

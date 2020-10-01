@@ -56,6 +56,9 @@ namespace KGySoft
         /// <summary>This operation is supported on Windows only.</summary>
         internal static string RequiresWindows => Get("General_RequiresWindows");
 
+        /// <summary>The operation was canceled.</summary>
+        internal static string OperationCanceled => Get("General_OperationCanceled");
+
         #endregion
 
         #region Gdi32
@@ -142,6 +145,9 @@ namespace KGySoft
         /// <summary>The IDitherer.Initialize method returned a null value.</summary>
         internal static string ImagingDithererInitializeNull => Get("Imaging_DithererInitializeNull");
 
+        /// <summary>Not a valid bitmap data stream.</summary>
+        internal static string ImagingNotBitmapDataStream => Get("Imaging_NotBitmapDataStream");
+
         #endregion
 
         #endregion
@@ -158,6 +164,9 @@ namespace KGySoft
 
         /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
         internal static string PixelFormatInvalid(PixelFormat pixelFormat) => Get("General_PixelFormatInvalidFormat", Enum<PixelFormat>.ToString(pixelFormat));
+
+        /// <summary>Either the IAsyncResult object did not come from the corresponding '{0}' method, or the End method was called multiple times with the same IAsyncResult.</summary>
+        internal static string InvalidAsyncResult(string beginMethodName) => Get("General_InvalidAsyncResultFormat", beginMethodName);
 
         #endregion
 

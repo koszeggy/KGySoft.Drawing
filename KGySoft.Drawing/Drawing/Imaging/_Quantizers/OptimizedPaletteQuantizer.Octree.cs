@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 
 #endregion
 
@@ -126,14 +125,14 @@ namespace KGySoft.Drawing.Imaging
                     return children[branchIndex].AddColor(color, level + 1);
                 }
 
-                internal void MergeNodes(ref int leavesCount)
+                internal void MergeNodes(IAsyncContext context, ref int leavesCount)
                 {
                     #region Local Methods
 
                     static int CompareByBrightness(OctreeNode a, OctreeNode b)
                     {
                         if (a == null || b == null)
-                            return Int32.MinValue;
+                            return a == b ? 0 : a == null ? -1 : 1;
 
                         Color32 ca = a.ToColor();
                         Color32 cb = b.ToColor();
@@ -143,7 +142,7 @@ namespace KGySoft.Drawing.Imaging
                     int CompareByWeightedBrightness(OctreeNode a, OctreeNode b)
                     {
                         if (a == null || b == null)
-                            return Int32.MinValue;
+                            return a == b ? 0 : a == null ? -1 : 1;
 
                         Color32 ca = a.ToColor();
                         Color32 cb = b.ToColor();
@@ -173,7 +172,10 @@ namespace KGySoft.Drawing.Imaging
 
                         // Decreasing only if this node is not becoming a "leaf" while cutting a branch down.
                         if (!IsEmpty)
+                        {
                             leavesCount--;
+                            context.Progress?.Increment();
+                        }
 
                         sumRed += node.sumRed;
                         sumGreen += node.sumGreen;
@@ -189,7 +191,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
-                internal void PopulatePalette(Color32[] result, ref int palIndex, ref int remainingColors)
+                internal void PopulatePalette(IAsyncContext context, Color32[] result, ref int palIndex, ref int remainingColors)
                 {
                     // if a non-empty node is found, adding it to the resulting palette
                     if (!IsEmpty)
@@ -197,18 +199,19 @@ namespace KGySoft.Drawing.Imaging
                         result[palIndex] = ToColor();
                         palIndex += 1;
                         remainingColors -= 1;
+                        context.Progress?.Increment();
                         if (remainingColors == 0)
                             return;
                     }
 
-                    if (children == null)
+                    if (children == null || context.IsCancellationRequested)
                         return;
 
                     foreach (OctreeNode child in children)
                     {
                         if (child == null)
                             continue;
-                        child.PopulatePalette(result, ref palIndex, ref remainingColors);
+                        child.PopulatePalette(context, result, ref palIndex, ref remainingColors);
                         if (remainingColors == 0)
                             return;
                     }
@@ -280,10 +283,14 @@ namespace KGySoft.Drawing.Imaging
                     leavesCount++;
             }
 
-            public Color32[] GeneratePalette()
+            public Color32[] GeneratePalette(IAsyncContext context)
             {
+                context.Progress?.New(DrawingOperation.GeneratingPalette, maxColors + (ColorCount > maxColors ? ColorCount - maxColors : 0));
                 if (ColorCount > maxColors)
-                    ReduceTree();
+                    ReduceTree(context);
+
+                if (context.IsCancellationRequested)
+                    return null;
 
                 Debug.Assert(ColorCount <= maxColors);
 
@@ -291,7 +298,7 @@ namespace KGySoft.Drawing.Imaging
                 if (leavesCount > 0)
                 {
                     int palIndex = 0;
-                    root.PopulatePalette(result, ref palIndex, ref leavesCount);
+                    root.PopulatePalette(context, result, ref palIndex, ref leavesCount);
                     Debug.Assert(leavesCount == 0);
                 }
 
@@ -309,12 +316,12 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private void ReduceTree()
+            private void ReduceTree(IAsyncContext context)
             {
                 // Scanning all levels towards root. Leaves are skipped (hence -2) because they are not reducible.
                 for (int level = bpp - 2; level >= 0; level--)
                 {
-                    if (levels[level].Count <= 0)
+                    if (levels[level].Count == 0)
                         continue;
 
                     // Sorting nodes of the current level (least significant ones first)
@@ -324,17 +331,17 @@ namespace KGySoft.Drawing.Imaging
 
                     foreach (OctreeNode node in nodes)
                     {
-                        // As merging is stopped when we reach MaxColors leavesCount may include
-                        // some half-merged non-leaf nodes as well.
-                        node.MergeNodes(ref leavesCount);
-                        if (ColorCount <= maxColors)
+                        // As merging is stopped when we reach MaxColors.
+                        // leavesCount may include some half-merged non-leaf nodes as well.
+                        node.MergeNodes(context, ref leavesCount);
+                        if (ColorCount <= maxColors || context.IsCancellationRequested)
                             return;
                     }
                 }
 
                 // If we are here, we need to reduce also the root node (less than 8 colors or 8 colors + transparency)
-                root.MergeNodes(ref leavesCount);
-                Debug.Assert(ColorCount == maxColors);
+                root.MergeNodes(context, ref leavesCount);
+                Debug.Assert(ColorCount == maxColors || context.IsCancellationRequested);
             }
 
             #endregion
