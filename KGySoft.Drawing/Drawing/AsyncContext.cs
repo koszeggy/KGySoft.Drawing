@@ -62,6 +62,8 @@ namespace KGySoft.Drawing
         {
             #region Fields
 
+            [SuppressMessage("Style", "IDE0044:Add readonly modifier",
+                Justification = "CancellationToken is not a readonly struct in every targeted platform so not making it readonly to prevent the creation of a defensive copy.")]
             private CancellationToken token;
 
             #endregion
@@ -368,6 +370,8 @@ namespace KGySoft.Drawing
 
             internal bool IsSet { get; private set; }
 
+            [SuppressMessage("Reliability", "CA2002:Do not lock on objects with weak identity",
+                Justification = "False alarm, a freshly created ManualResetEvent cannot be a remote object. And the original implementation does the same, too.")]
             internal WaitHandle WaitHandle
             {
                 get

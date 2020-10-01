@@ -20,14 +20,11 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 #if NET35
 using System.Threading; 
+using System.Collections.Generic;
+using System.Runtime.ExceptionServices;
 #else
 using System.Collections.Concurrent;
 using System.Threading.Tasks;
-#endif
-#if NET35
-using System.Collections.Generic;
-using System.Runtime.ExceptionServices;
-using System.Threading;
 #endif
 
 #endregion
@@ -65,6 +62,10 @@ namespace KGySoft.Drawing
         /// </summary>
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Exceptions in pool threads must not be thrown in place but from the caller thread.")]
+#if NET35
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "Special optimization for .NET 3.5 version where there is no Parallel.For")]
+#endif
         internal static void For(IAsyncContext context, DrawingOperation operation, int fromInclusive, int toExclusive, Action<int> body)
         {
             #region Local Methods

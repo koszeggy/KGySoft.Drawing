@@ -744,7 +744,7 @@ namespace KGySoft.Drawing.UnitTests
         public void SaveAsTiffTest(PixelFormat pixelFormat, PixelFormat savedFormat, PixelFormat? savedFormatLinux = null)
         {
             var ms = new MemoryStream();
-            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel()) : null;
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Octree(1 << pixelFormat.ToBitsPerPixel(), Color.Silver, 0) : null;
             var refImage = Convert(Icons.Information.ExtractBitmap(new Size(256, 256)), pixelFormat, quantizer);
 
             refImage.SaveAsTiff(ms);

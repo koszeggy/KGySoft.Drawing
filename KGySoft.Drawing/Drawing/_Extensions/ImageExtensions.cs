@@ -34,6 +34,10 @@ using KGySoft.Drawing.WinApi;
 
 #endregion
 
+#if NET35
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
+#endif
+
 namespace KGySoft.Drawing
 {
     /// <summary>
@@ -1604,9 +1608,12 @@ namespace KGySoft.Drawing
         /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
         /// <list type="definition">
         /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>If palette is black and white (in this order), then pixel format will be preserved.
-        /// Otherwise, before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.</description></item>
-        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
-        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>When reloading the saved image the pixel format is preserved.</description></item>
+        /// Otherwise, if the palette has no alpha entries, then before saving the image pixel format will be converted to <see cref="PixelFormat.Format4bppIndexed"/> so the built-in encoder will preserve palette.
+        /// If the palette contains alpha entries, then the pixel format of the reloaded image may turn <see cref="PixelFormat.Format32bppArgb"/>.</description></item>
+        /// <item><term><see cref="PixelFormat.Format4bppIndexed"/></term><description>If the palette has no alpha entries the pixel format is preserved when reloading the saved image.
+        /// Otherwise, the pixel format of the reloaded image may turn <see cref="PixelFormat.Format32bppArgb"/></description></item>
+        /// <item><term><see cref="PixelFormat.Format8bppIndexed"/></term><description>If the palette has no alpha entries the pixel format is preserved when reloading the saved image.
+        /// Otherwise, the pixel format of the reloaded image may turn <see cref="PixelFormat.Format32bppArgb"/></description></item>
         /// <item><term><see cref="PixelFormat.Format16bppGrayScale"/></term><description>Before saving the image pixel format will be converted to <see cref="PixelFormat.Format8bppIndexed"/>
         /// using a grayscale palette, because otherwise GDI+ would throw an exception.</description></item>
         /// <item><term><see cref="PixelFormat.Format16bppRgb555"/></term><description>On Windows, when reloading the saved image the pixel format will turn <see cref="PixelFormat.Format24bppRgb"/>.
@@ -2165,10 +2172,10 @@ namespace KGySoft.Drawing
 
         private static Image AdjustTiffImage(Image image)
         {
-            if (image == null || image.PixelFormat != PixelFormat.Format1bppIndexed)
+            if (image == null || image.PixelFormat != PixelFormat.Format1bppIndexed || image.Palette.Entries.Any(c => c.A != Byte.MaxValue))
                 return image;
 
-            // converting non BW 1 BPP image to 4 BPP in order to preserve palette colors
+            // converting non BW 1 BPP image with no alpha palette entries to 4 BPP in order to preserve palette colors
             Color[] palette = image.Palette.Entries;
             return palette[0].ToArgb() == Color.Black.ToArgb() && palette[1].ToArgb() == Color.White.ToArgb()
                 ? image
