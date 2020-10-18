@@ -39,7 +39,7 @@ However, the preferred way is to install the package in VisualStudio either by l
 
 [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) is another GitHub repository, which contains a couple of applications built on KGy SOFT Drawing Libraries along with debugger visualizers for several `System.Drawing` types including `Bitmap`, `Metafile`, `Icon`, `Graphics` and more.
 
-![KGy SOFT Imaging Tools](https://kgysoft.net/images/ImagingTools230.png)
+![KGy SOFT Imaging Tools](https://kgysoft.net/images/ImagingTools.png)
 
 ## Project Site
 
