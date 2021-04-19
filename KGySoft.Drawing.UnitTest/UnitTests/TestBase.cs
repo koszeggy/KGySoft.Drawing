@@ -87,11 +87,7 @@ namespace KGySoft.Drawing.UnitTests
             string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : "_")}{imageName}.{DateTime.Now:yyyyMMddHHmmssffff}");
             ImageCodecInfo encoder = null;
             if (origFormat)
-            {
                 encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == image.RawFormat.Guid);
-                if (encoder != null)
-                    fileName += Path.GetExtension(encoder.FilenameExtension.Split(';').First());
-            }
 
             bool toIcon = image.RawFormat.Guid == ImageFormat.Icon.Guid;
             bool toGif = !toIcon && encoder == null && image.GetBitsPerPixel() <= 8;
