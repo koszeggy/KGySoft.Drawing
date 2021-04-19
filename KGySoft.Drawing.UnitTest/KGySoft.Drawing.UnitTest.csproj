@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0</TargetFrameworks>
-    <!--<TargetFrameworks>netcoreapp3.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;net45;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
+    <TargetFrameworks>net5.0</TargetFrameworks>
 
     <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows> 
 
@@ -31,7 +31,7 @@
   </ItemGroup>
 
   <!-- .NET Core only references -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0'">
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0' OR '$(TargetFramework)' == 'net5.0'">
     <PackageReference Include="System.Drawing.Common">
       <Version>5.0.2</Version>
     </PackageReference>
