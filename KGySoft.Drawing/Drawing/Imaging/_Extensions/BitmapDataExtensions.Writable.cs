@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <see cref="ClearAsync">ClearAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Clear(Bitmap, Color, IDitherer, Color, byte)"/>
-        public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null)
+        public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -113,7 +113,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndClear">EndClear</see> method.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
-        public static IAsyncResult BeginClear(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginClear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -145,7 +145,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
-        public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -177,6 +177,8 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData));
+            if (palette == null)
+                throw new ArgumentNullException(nameof(palette));
             return bitmapData is IBitmapDataInternal internalBitmapData && internalBitmapData.TrySetPalette(palette);
         }
 
@@ -186,8 +188,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
-        private static void DoClear(IAsyncContext context, IWritableBitmapData bitmapData, Color32 color, IDitherer ditherer)
+        private static void DoClear(IAsyncContext context, IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
             try
@@ -261,7 +262,7 @@ namespace KGySoft.Drawing.Imaging
 
             static void ClearIndexed(IAsyncContext context, IBitmapDataInternal bitmapData, int bpp, Color32 color, int width)
             {
-                int index = bitmapData.Palette.GetNearestColorIndex(color);
+                int index = bitmapData.Palette?.GetNearestColorIndex(color) ?? 0;
                 byte byteValue = bpp == 8 ? (byte)index
                     : bpp == 4 ? (byte)((index << 4) | index)
                     : index == 1 ? Byte.MaxValue : Byte.MinValue;
@@ -423,7 +424,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void ClearWithDithering(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);

@@ -25,7 +25,7 @@ using System.IO;
 using System.Linq;
 using System.Resources;
 using System.Security;
-
+using System.Threading;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
@@ -41,10 +41,10 @@ namespace KGySoft.Drawing
     {
         #region Fields
 
-        private static ResourceManager resourceManager;
+        private static ResourceManager? resourceManager;
 
-        private static readonly Dictionary<StockIcon, RawIcon> systemIconsCache = new Dictionary<StockIcon, RawIcon>(EnumComparer<StockIcon>.Comparer);
-        private static readonly Dictionary<string, RawIcon> resourceIconsCache = new Dictionary<string, RawIcon>();
+        private static readonly Dictionary<StockIcon, RawIcon?> systemIconsCache = new(EnumComparer<StockIcon>.Comparer);
+        private static readonly Dictionary<string, RawIcon> resourceIconsCache = new();
 
         #endregion
 
@@ -437,7 +437,15 @@ namespace KGySoft.Drawing
 
         #region Private Properties
 
-        private static ResourceManager ResourceManager => resourceManager ??= new ResourceManager(typeof(Icons));
+        private static ResourceManager ResourceManager
+        {
+            get
+            {
+                if (resourceManager == null)
+                    Interlocked.CompareExchange(ref resourceManager, new ResourceManager(typeof(Icons)), null);
+                return resourceManager;
+            }
+        }
 
         #endregion
 
@@ -458,7 +466,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>On non-Windows platforms this method always returns <see langword="null"/>.</note>
         /// </remarks>
-        public static Icon GetStockIcon(StockIcon id) => GetSystemIcon(id, null);
+        public static Icon? GetStockIcon(StockIcon id) => GetSystemIcon(id, null);
 
         /// <summary>
         /// Extracts icons of the specified <paramref name="size"/> from a file and returns them as separated <see cref="Icon"/> instances.
@@ -557,11 +565,11 @@ namespace KGySoft.Drawing
         /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
         /// </summary>
         /// <param name="stream">The stream to load the icon from.</param>
-        /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>.</returns>
+        /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>, or <see langword="null"/>, if <paramref name="stream"/> contains an empty icon header.</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon FromStream(Stream stream) => FromStream(stream, OSUtils.IsXpOrEarlier);
+        public static Icon? FromStream(Stream stream) => FromStream(stream, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
@@ -569,9 +577,9 @@ namespace KGySoft.Drawing
         /// <param name="stream">The stream to load the icon from.</param>
         /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
         /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
-        /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>.</returns>
+        /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>, or <see langword="null"/>, if <paramref name="stream"/> contains an empty icon header.</returns>
         [SecuritySafeCritical]
-        public static Icon FromStream(Stream stream, bool forceUncompressedResult)
+        public static Icon? FromStream(Stream stream, bool forceUncompressedResult)
         {
             using (var rawIcon = new RawIcon(stream))
                 return rawIcon.ToIcon(forceUncompressedResult);
@@ -586,7 +594,8 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(IEnumerable<Icon> icons) => Combine(OSUtils.IsXpOrEarlier, icons);
+        [return:NotNullIfNotNull("icons")]public static Icon? Combine(IEnumerable<Icon>? icons)
+            => Combine(OSUtils.IsXpOrEarlier, icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -597,7 +606,8 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="icons"/> may contain multiple icons.</para>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// </remarks>
-        public static Icon Combine(params Icon[] icons) => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Icon>)icons);
+        [return:NotNullIfNotNull("icons")]public static Icon? Combine(params Icon[]? icons)
+            => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Icon>?)icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -607,7 +617,8 @@ namespace KGySoft.Drawing
         /// <param name="icons">The icons to be combined.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
-        public static Icon Combine(bool forceUncompressedResult, params Icon[] icons) => Combine(forceUncompressedResult, (IEnumerable<Icon>)icons);
+        [return:NotNullIfNotNull("icons")]public static Icon? Combine(bool forceUncompressedResult, params Icon[]? icons)
+            => Combine(forceUncompressedResult, (IEnumerable<Icon>?)icons);
 
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -618,17 +629,17 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
         [SecuritySafeCritical]
-        public static Icon Combine(bool forceUncompressedResult, IEnumerable<Icon> icons)
+        [return:NotNullIfNotNull("icons")]public static Icon? Combine(bool forceUncompressedResult, IEnumerable<Icon>? icons)
         {
             if (icons == null)
                 return null;
 
-            using (RawIcon rawIcon = new RawIcon())
+            using (var rawIcon = new RawIcon())
             {
                 foreach (Icon icon in icons)
                     rawIcon.Add(icon);
 
-                return rawIcon.ToIcon(forceUncompressedResult);
+                return rawIcon.ToIcon(forceUncompressedResult)!;
             }
         }
 
@@ -642,7 +653,8 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        public static Icon Combine(params Bitmap[] images) => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Bitmap>)images);
+        [return:NotNullIfNotNull("images")]public static Icon? Combine(params Bitmap[]? images)
+            => Combine(OSUtils.IsXpOrEarlier, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -654,7 +666,22 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        public static Icon Combine(IEnumerable<Bitmap> images) => Combine(OSUtils.IsXpOrEarlier, images);
+        [return:NotNullIfNotNull("images")]public static Icon? Combine(IEnumerable<Bitmap>? images)
+            => Combine(OSUtils.IsXpOrEarlier, images);
+
+        /// <summary>
+        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
+        /// </summary>
+        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
+        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
+        /// Transparency is determined automatically by image format.</param>
+        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
+        /// <remarks>
+        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
+        /// </remarks>
+        [return:NotNullIfNotNull("images")]public static Icon? Combine(bool forceUncompressedResult, params Bitmap[]? images)
+            => Combine(forceUncompressedResult, (IEnumerable<Bitmap>?)images);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -668,31 +695,17 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
         [SecuritySafeCritical]
-        public static Icon Combine(bool forceUncompressedResult, params Bitmap[] images) => Combine(forceUncompressedResult, (IEnumerable<Bitmap>)images);
-
-        /// <summary>
-        /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
-        /// </summary>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
-        /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
-        /// Transparency is determined automatically by image format.</param>
-        /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
-        /// <remarks>
-        /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
-        /// </remarks>
-        [SecuritySafeCritical]
-        public static Icon Combine(bool forceUncompressedResult, IEnumerable<Bitmap> images)
+        [return:NotNullIfNotNull("images")]public static Icon? Combine(bool forceUncompressedResult, IEnumerable<Bitmap>? images)
         {
             if (images == null)
                 return null;
 
-            using (RawIcon rawIcon = new RawIcon())
+            using (var rawIcon = new RawIcon())
             {
                 foreach (Bitmap image in images)
                     rawIcon.Add(image);
 
-                return rawIcon.ToIcon(forceUncompressedResult);
+                return rawIcon.ToIcon(forceUncompressedResult)!;
             }
         }
 
@@ -708,7 +721,8 @@ namespace KGySoft.Drawing
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
-        public static Icon Combine(Bitmap[] images, Color[] transparentColors) => Combine(images, transparentColors, OSUtils.IsXpOrEarlier);
+        [return:NotNullIfNotNull("images")]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors)
+            => Combine(images, transparentColors, OSUtils.IsXpOrEarlier);
 
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
@@ -724,7 +738,7 @@ namespace KGySoft.Drawing
         /// <para>The elements of <paramref name="images"/> may contain multiple icons.</para>
         /// </remarks>
         [SecuritySafeCritical]
-        public static Icon Combine(Bitmap[] images, Color[] transparentColors, bool forceUncompressedResult)
+        [return:NotNullIfNotNull("images")]public static Icon? Combine(Bitmap[]? images, Color[]? transparentColors, bool forceUncompressedResult)
         {
             int imageCount = images?.Length ?? 0;
             int colorCount = transparentColors?.Length ?? 0;
@@ -734,12 +748,12 @@ namespace KGySoft.Drawing
             if (images == null || transparentColors == null || imageCount == 0)
                 return null;
 
-            using (RawIcon rawIcon = new RawIcon())
+            using (var rawIcon = new RawIcon())
             {
                 for (int i = 0; i < imageCount; i++)
                     rawIcon.Add(images[i], transparentColors[i]);
 
-                return rawIcon.ToIcon(forceUncompressedResult);
+                return rawIcon.ToIcon(forceUncompressedResult)!;
             }
         }
 
@@ -759,14 +773,13 @@ namespace KGySoft.Drawing
             return new CursorHandle(User32.CreateIconIndirect(ref iconInfo));
         }
 
-        [SecurityCritical] // GetHicon
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bitmap is disposed if it is not the same as image.")]
+        [SecuritySafeCritical]
         internal static Icon FromImage(Image image, int size, bool keepAspectRatio, ScalingMode scalingMode)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
-            Size resultSize = new Size(size, size);
+            var resultSize = new Size(size, size);
             Size targetSize = resultSize;
 
             // Same size and image is Bitmap
@@ -775,7 +788,7 @@ namespace KGySoft.Drawing
 
             // Different size or image is not a Bitmap
             Size sourceSize = image.Size;
-            Point targetLocation = Point.Empty;
+            var targetLocation = Point.Empty;
 
             if (keepAspectRatio && targetSize != sourceSize)
             {
@@ -795,23 +808,23 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-        [SecurityCritical] // GetHicon, RawIcon.ToIcon
+        [SecurityCritical] // GetHicon
         private static Icon FromBitmap(Bitmap bmp)
         {
             if (OSUtils.IsWindows)
                 return Icon.FromHandle(bmp.GetHicon()).ToManagedIcon();
             
-            using (RawIcon rawIcon = new RawIcon())
+            using (var rawIcon = new RawIcon())
             {
                 rawIcon.Add(bmp);
-                return rawIcon.ToIcon(true);
+                return rawIcon.ToIcon(true)!;
             }
         }
 
         [SecuritySafeCritical]
-        private static Icon GetSystemIcon(StockIcon id, Func<Icon> getLegacyIcon)
+        [return:NotNullIfNotNull("getLegacyIcon")]private static Icon? GetSystemIcon(StockIcon id, Func<Icon>? getLegacyIcon)
         {
-            RawIcon result;
+            RawIcon? result;
             lock (systemIconsCache)
             {
                 if (!systemIconsCache.TryGetValue(id, out result))
@@ -827,25 +840,23 @@ namespace KGySoft.Drawing
         }
 
         [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must be disposed by the caller.")]
         private static Icon GetResourceIcon(string resourceName)
         {
-            RawIcon result;
+            RawIcon? result;
             lock (resourceIconsCache)
             {
                 if (!resourceIconsCache.TryGetValue(resourceName, out result))
                 {
-                    result = new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture));
+                    result = new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);
                     resourceIconsCache[resourceName] = result;
                 }
             }
 
-            return result.ToIcon(OSUtils.IsXpOrEarlier);
+            return result.ToIcon(OSUtils.IsXpOrEarlier)!;
         }
 
         [SecurityCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
-        private static RawIcon DoGetStockIcon(StockIcon id)
+        private static RawIcon? DoGetStockIcon(StockIcon id)
         {
             if (id < 0 || !OSUtils.IsVistaOrLater)
                 return null;
@@ -870,13 +881,12 @@ namespace KGySoft.Drawing
         /// Gets a multi size version of a system icon provided in <paramref name="icon"/> by generating the small version internally.
         /// </summary>
         [SecurityCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static RawIcon ToCombinedIcon(Icon icon)
         {
-            RawIcon result = new RawIcon(icon);
+            var result = new RawIcon(icon);
             if (result.ImageCount == 1)
             {
-                using (Bitmap imageLarge = result.ExtractBitmap(0, false))
+                using (Bitmap imageLarge = result.ExtractBitmap(0, false)!)
                 using (Bitmap imageSmall = imageLarge.Resize(new Size(16, 16), true))
                     result.Add(imageSmall);
             }

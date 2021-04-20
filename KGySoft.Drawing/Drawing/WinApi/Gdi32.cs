@@ -25,13 +25,18 @@ using System.Security;
 
 #endregion
 
+#region Suppressions
+
+// ReSharper disable InconsistentNaming
+
+#endregion
+
 namespace KGySoft.Drawing.WinApi
 {
     /// <summary>
     /// Contains external methods for Gdi32.dll
     /// </summary>
     [SecurityCritical]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class Gdi32
     {
         #region NativeMethods class
@@ -135,7 +140,7 @@ namespace KGySoft.Drawing.WinApi
             /// The GetEnhMetaFileBits function does not invalidate the enhanced-metafile handle. The application must call the DeleteEnhMetaFile function to delete the handle when it is no longer needed.
             /// The metafile contents retrieved by this function are in the enhanced format. To retrieve the metafile contents in the Windows format, use the GetWinMetaFileBits function.</remarks>
             [DllImport("gdi32.dll")]
-            internal static extern uint GetEnhMetaFileBits(IntPtr hemf, uint cbBuffer, [Out]byte[] lpbBuffer);
+            internal static extern uint GetEnhMetaFileBits(IntPtr hemf, uint cbBuffer, [Out]byte[]? lpbBuffer);
 
             /// <summary>
             /// The GetWinMetaFileBits function converts the enhanced-format records from a metafile into Windows-format records and stores the converted records in the specified buffer.
@@ -153,7 +158,7 @@ namespace KGySoft.Drawing.WinApi
             /// To create a scalable Windows-format metafile, specify MM_ANISOTROPIC as the fnMapMode parameter.
             /// The upper-left corner of the metafile picture is always mapped to the origin of the reference device.</remarks>
             [DllImport("gdi32.dll")]
-            internal static extern uint GetWinMetaFileBits(IntPtr hemf, uint cbBuffer, [Out]byte[] lpbBuffer, MappingModes fnMapMode, IntPtr hdcRef);
+            internal static extern uint GetWinMetaFileBits(IntPtr hemf, uint cbBuffer, [Out]byte[]? lpbBuffer, MappingModes fnMapMode, IntPtr hdcRef);
 
             /// <summary>
             /// The GetMetaFileBitsEx function retrieves the contents of a Windows-format metafile and copies them into the specified buffer.
@@ -169,7 +174,7 @@ namespace KGySoft.Drawing.WinApi
             /// The GetMetaFileBitsEx function does not invalidate the metafile handle. An application must delete this handle by calling the DeleteMetaFile function.
             /// To convert a Windows-format metafile into an enhanced-format metafile, use the SetWinMetaFileBits function.</remarks>
             [DllImport("gdi32.dll")]
-            internal static extern uint GetMetaFileBitsEx(IntPtr hmf, uint nSize, [Out]byte[] lpvData);
+            internal static extern uint GetMetaFileBitsEx(IntPtr hmf, uint nSize, [Out]byte[]? lpvData);
 
             /// <summary>
             /// The DeleteEnhMetaFile function deletes an enhanced-format metafile or an enhanced-format metafile handle.

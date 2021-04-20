@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -25,8 +24,6 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-#pragma warning disable CA1814 // arrays in this class are better to be matrices than jagged arrays as they are always rectangular
-
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for dithering patterns that are based on an ordered matrix.
     /// Use the static properties of this class to use predefined patterns or the <see cref="OrderedDitherer(byte[,],float)">constructor</see> to create a custom ordered ditherer.
@@ -157,12 +154,12 @@ namespace KGySoft.Drawing.Imaging
         #region Static Fields
         // ReSharper disable InconsistentNaming - x in names are meant to be lowercase
 
-        private static OrderedDitherer bayer2x2;
-        private static OrderedDitherer bayer3x3;
-        private static OrderedDitherer bayer4x4;
-        private static OrderedDitherer bayer8x8;
-        private static OrderedDitherer dottedHalftone;
-        private static OrderedDitherer blueNoise64;
+        private static OrderedDitherer? bayer2x2;
+        private static OrderedDitherer? bayer3x3;
+        private static OrderedDitherer? bayer4x4;
+        private static OrderedDitherer? bayer8x8;
+        private static OrderedDitherer? dottedHalftone;
+        private static OrderedDitherer? blueNoise64;
 
         // ReSharper restore InconsistentNaming
         #endregion
@@ -779,16 +776,14 @@ namespace KGySoft.Drawing.Imaging
         /// IDitherer ditherer = OrderedDitherer.Bayer8x8.ConfigureStrength(0.5f);
         /// ]]></code>
         /// </example>
-        [SuppressMessage("Microsoft.Maintainability", "CA1500:VariableNamesShouldNotMatchFieldNames",
-            Justification = "No conflict, a new instance is created")]
-        // ReSharper disable once ParameterHidesMember
+        // ReSharper disable once ParameterHidesMember - No conflict, a new instance is created
         public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength);
 
         #endregion
 
         #region Explicitly Implemented Interface Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext context)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
             => new OrderedDitheringSession(quantizer, this);
 
         #endregion

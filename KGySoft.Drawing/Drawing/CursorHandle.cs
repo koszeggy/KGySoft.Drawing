@@ -62,7 +62,6 @@ namespace KGySoft.Drawing
         /// <param name="cursorHandle">The cursor handle.</param>
         /// <returns>An <see cref="IntPtr"/> instance representing the native cursor handle.</returns>
         [SecurityCritical]
-        [SuppressMessage("Microsoft.Usage", "CA2225:OperatorOverloadsHaveNamedAlternates", Justification = "The named alternative method is DangerousGetHandle, which is in the base.")]
         public static implicit operator IntPtr(CursorHandle cursorHandle) => cursorHandle?.DangerousGetHandle() ?? IntPtr.Zero;
 
         #endregion

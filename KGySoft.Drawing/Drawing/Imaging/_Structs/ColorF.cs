@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 #if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
 using System.Numerics;
 #endif
@@ -207,7 +206,6 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the string representation of this <see cref="ColorF"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="ColorF"/> instance.</returns>
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "This ToString is intended to be culture specific")]
         public override string ToString() => $"[A={A:N4}; R={R:N4}; G={G:N4}; B={B:N4}]";
 
         #endregion

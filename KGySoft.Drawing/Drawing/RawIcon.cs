@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -101,7 +100,7 @@ namespace KGySoft.Drawing
 
             private Size size;
             private int bpp;
-            private HashSet<int> transparentIndices;
+            private HashSet<int>? transparentIndices;
 
             /// <summary>
             /// Gets whether <see cref="rawColor"/> contains PNG data.
@@ -112,23 +111,23 @@ namespace KGySoft.Drawing
             /// In: Source image if it is already 32 bit ARGB and Color.Transparent is specified for transparency
             /// Out: Result image of ToBitmap(false)
             /// </summary>
-            private Bitmap bmpComposite;
+            private Bitmap? bmpComposite;
 
             /// <summary>
             /// In: Source image if it is non ARGB or when a custom transparent color is specified
             /// Out: Result image of ToBitmap(true)
             /// </summary>
-            private Bitmap bmpColor;
+            private Bitmap? bmpColor;
 
             /// <summary>
             /// Color image or the raw image itself when PNG
             /// </summary>
-            private byte[] rawColor;
+            private byte[]? rawColor;
 
             /// <summary>
             /// Mask data (can be null even if BMP)
             /// </summary>
-            private byte[] rawMask;
+            private byte[]? rawMask;
 
             /// <summary>
             /// Header (only if BMP)
@@ -138,7 +137,7 @@ namespace KGySoft.Drawing
             /// <summary>
             /// Palette (only if indexed BMP)
             /// </summary>
-            private RGBQUAD[] palette;
+            private RGBQUAD[]? palette;
 
             #endregion
 
@@ -275,7 +274,7 @@ namespace KGySoft.Drawing
                     // the mask is sometimes omitted for 32bpp images but we still generate it for best compatibility
                     GenerateMask(strideColor, strideMask);
                     return;
-                };
+                }
 
                 rawMask = new byte[maskLength];
                 Buffer.BlockCopy(rawData, offset, rawMask, 0, maskLength);
@@ -321,7 +320,7 @@ namespace KGySoft.Drawing
                     // For PNGs the header entry size is always 0
                     entry.wPlanes = 1;
                     entry.wBitCount = (ushort)bpp;
-                    entry.dwBytesInRes = (uint)rawColor.Length;
+                    entry.dwBytesInRes = (uint)rawColor!.Length;
                 }
                 else
                 {
@@ -332,7 +331,7 @@ namespace KGySoft.Drawing
                     entry.wPlanes = bmpHeader.biPlanes;
                     entry.wBitCount = bmpHeader.biBitCount;
                     entry.dwBytesInRes = (uint)(Marshal.SizeOf(typeof(BITMAPINFOHEADER)) + Marshal.SizeOf(typeof(RGBQUAD)) * PaletteColorCount +
-                        rawColor.Length + rawMask.Length);
+                        rawColor!.Length + rawMask!.Length);
                 }
 
                 bw.Write(BinarySerializer.SerializeValueType(entry));
@@ -344,7 +343,7 @@ namespace KGySoft.Drawing
                 AssureRawFormatGenerated(forceBmpFormat);
                 if (isPng)
                 {
-                    bw.Write(rawColor);
+                    bw.Write(rawColor!);
                     return;
                 }
 
@@ -353,19 +352,19 @@ namespace KGySoft.Drawing
 
                 // Palette
                 if (PaletteColorCount > 0)
-                    bw.Write(BinarySerializer.SerializeValueArray(palette));
+                    bw.Write(BinarySerializer.SerializeValueArray(palette!));
 
                 // color image (XOR)
-                bw.Write(rawColor);
+                bw.Write(rawColor!);
 
                 // mask image (AND)
-                bw.Write(rawMask);
+                bw.Write(rawMask!);
             }
 
-            [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
-            internal Icon ToIcon(bool forceBmpFormat, bool throwError)
+            // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local
+            internal Icon? ToIcon(bool forceBmpFormat, bool throwError)
             {
-                using (MemoryStream ms = new MemoryStream())
+                using (var ms = new MemoryStream())
                 {
                     Save(ms, forceBmpFormat);
 
@@ -390,7 +389,7 @@ namespace KGySoft.Drawing
                 }
             }
 
-            internal Bitmap ToBitmap(bool keepOriginalFormat, bool throwError)
+            internal Bitmap? ToBitmap(bool keepOriginalFormat, bool throwError)
             {
                 AssureBitmapsGenerated(!keepOriginalFormat);
                 if (keepOriginalFormat && bmpColor != null)
@@ -433,7 +432,7 @@ namespace KGySoft.Drawing
                         Debug.Assert(isPng, "Palette should exist for non-PNG image here");
                         AssureBitmapsGenerated(false);
                         Debug.Assert(bmpColor != null && bmpColor.GetBitsPerPixel() == bpp);
-                        result.Palette = bmpColor.Palette.Entries;
+                        result.Palette = bmpColor!.Palette.Entries;
                     }
                 }
 
@@ -464,14 +463,12 @@ namespace KGySoft.Drawing
                 bpp = bitmap.GetBitsPerPixel();
             }
 
-            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
-                Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
             private void Save(Stream stream, bool forceBmpFormat)
             {
-                BinaryWriter bw = new BinaryWriter(stream);
+                var bw = new BinaryWriter(stream);
                 
                 // header
-                ICONDIR iconDir = new ICONDIR
+                var iconDir = new ICONDIR
                 {
                     idReserved = 0,
                     idType = 1,
@@ -510,8 +507,6 @@ namespace KGySoft.Drawing
                 }
             }
 
-            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
-                Justification = "MemoryStream must not be disposed in new Bitmap(new MemoryStream(rawColor)) because it corrupts the Bitmap.")]
             private void AssureRawFormatGenerated(bool forceBmpFormat)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
@@ -527,8 +522,8 @@ namespace KGySoft.Drawing
                 // if there is only a raw PNG we create the bitmap from it to create the raw format from
                 if (forceBmpFormat && bmpColor == null && bmpComposite == null && isPng)
                 {
-                    // ReSharper disable once AssignNullToNotNullAttribute - rawColor cannot be null here, see the first check
-                    bmp = new Bitmap(new MemoryStream(rawColor));
+                    // rawColor cannot be null here, see the first check
+                    bmp = new Bitmap(new MemoryStream(rawColor!));
                     if (bmp.GetBitsPerPixel().In(invalidIconFormats))
                     {
                         // not very likely that we reach this point, at least in Windows PNG decoder does not return 16/48/64 BPP formats...
@@ -541,7 +536,7 @@ namespace KGySoft.Drawing
                     InitFromBitmap(bmpColor);
                 }
 
-                bmp = bmpColor ?? bmpComposite;
+                bmp = bmpColor ?? bmpComposite!;
 
                 // When (re)generating we allow PNG only for 32 BPP formats. Even Windows does not support 24 BPP PNG icons correctly.
                 isPng = !forceBmpFormat && IsPngPreferred;
@@ -645,27 +640,27 @@ namespace KGySoft.Drawing
                         switch (bpp)
                         {
                             case 1:
-                                int bits = rawColor[(x >> 3) + posColorY];
+                                int bits = rawColor![(x >> 3) + posColorY];
                                 int colorIndex = (bits & mask) != 0 ? 1 : 0;
-                                if (transparentIndices.Contains(colorIndex))
+                                if (transparentIndices!.Contains(colorIndex))
                                     rawMask[(x >> 3) + posMaskY] |= (byte)mask;
                                 break;
 
                             case 4:
-                                bits = rawColor[(x >> 1) + posColorY];
+                                bits = rawColor![(x >> 1) + posColorY];
                                 colorIndex = (x & 1) == 0 ? bits >> 4 : bits & 0b00001111;
-                                if (transparentIndices.Contains(colorIndex))
+                                if (transparentIndices!.Contains(colorIndex))
                                     rawMask[(x >> 3) + posMaskY] |= (byte)mask;
                                 break;
 
                             case 8:
-                                if (transparentIndices.Contains(rawColor[x + posColorY]))
+                                if (transparentIndices!.Contains(rawColor![x + posColorY]))
                                     rawMask[(x >> 3) + posMaskY] |= (byte)mask;
                                 break;
 
                             case 24:
                                 int pos = posColorY + x * 3;
-                                Color32 pixelColor = new Color32(rawColor[pos + 2],
+                                Color32 pixelColor = new Color32(rawColor![pos + 2],
                                     rawColor[pos + 1],
                                     rawColor[pos]);
                                 if (pixelColor == transparentColor)
@@ -674,7 +669,7 @@ namespace KGySoft.Drawing
 
                             case 32:
                                 pos = posColorY + (x << 2);
-                                pixelColor = new Color32(rawColor[pos + 3],
+                                pixelColor = new Color32(rawColor![pos + 3],
                                     rawColor[pos + 2],
                                     rawColor[pos + 1],
                                     rawColor[pos]);
@@ -688,7 +683,6 @@ namespace KGySoft.Drawing
                 }
             }
 
-            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The stream must not be disposed if passed to a Bitmap constructor.")]
             private void AssureBitmapsGenerated(bool isCompositeRequired)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
@@ -708,7 +702,7 @@ namespace KGySoft.Drawing
                 // BMP format - composite image
                 if (isCompositeRequired)
                 {
-                    using (Icon icon = ToIcon(true, false))
+                    using (Icon? icon = ToIcon(true, false))
                     {
                         // On Linux it may return null, in which case we fall back to non-compisite image
                         if (icon != null)
@@ -756,14 +750,14 @@ namespace KGySoft.Drawing
                 if (PaletteColorCount > 0)
                 {
                     bitmapInfo.icColors = new RGBQUAD[256];
-                    for (int i = 0; i < palette.Length; i++)
+                    for (int i = 0; i < palette!.Length; i++)
                         bitmapInfo.icColors[i] = palette[i];
                 }
 
                 // creating color raw bitmap (XOR)
                 IntPtr dcColor = Gdi32.CreateCompatibleDC(dcScreen);
                 IntPtr hbmpColor = Gdi32.CreateDibSectionRgb(dcColor, ref bitmapInfo, out IntPtr bits);
-                Marshal.Copy(rawColor, 0, bits, rawColor.Length);
+                Marshal.Copy(rawColor!, 0, bits, rawColor!.Length);
 
                 // creating bmpColor
                 bmpColor = Image.FromHbitmap(hbmpColor);
@@ -773,8 +767,6 @@ namespace KGySoft.Drawing
                 Gdi32.DeleteDC(dcColor);
             }
 
-            [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
-                Justification = "bmp must not be disposed as it is used to assign a field (which is disposed in Dispose).")]
             private void GenerateColorBitmapNonWindows()
             {
                 // On non-windows the original format will be the icon itself
@@ -805,8 +797,8 @@ namespace KGySoft.Drawing
             {
                 // Note: MemoryStream must not be in a using because that would kill the new bitmap.
                 Bitmap result = bmpComposite ?? bmpColor
-                    // ReSharper disable once AssignNullToNotNullAttribute - rawColor is available, otherwise, object would be disposed. 
-                    ?? new Bitmap(new MemoryStream(rawColor));
+                    // rawColor is available, otherwise, object would be disposed. 
+                    ?? new Bitmap(new MemoryStream(rawColor!));
 
                 // assignments below will not replace any instance, otherwise, we would have returned above
                 if (isCompositeRequired)
@@ -820,7 +812,7 @@ namespace KGySoft.Drawing
                     {
                         // generating a lower bpp image
                         // note: this code theoretically executes only for indexed PNG if the decoder restored it with higher BPP
-                        Color[] paletteBmpColor = null;
+                        Color[]? paletteBmpColor = null;
                         if (bpp <= 8)
                             paletteBmpColor = result.GetColors(1 << bpp);
 
@@ -885,7 +877,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Initializes a new instance of the <see cref="RawIcon"/> class from an <see cref="Icon"/>.
         /// </summary>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
         internal RawIcon(Icon icon, Size? size = null, int? bpp = null, int? index = null)
         {
             if (icon == null)
@@ -910,12 +901,12 @@ namespace KGySoft.Drawing
             }
 
             // initializing from stream
-            using (MemoryStream ms = new MemoryStream())
+            using (var ms = new MemoryStream())
             {
                 icon.Save(ms);
                 ms.Position = 0L;
 
-                using (BinaryReader br = new BinaryReader(ms))
+                using (var br = new BinaryReader(ms))
                     Load(br, size, bpp, index);
             }
         }
@@ -938,10 +929,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Performs application-defined tasks associated with freeing, releasing, or resetting unmanaged resources.
         /// </summary>
-        public void Dispose()
-        {
-            iconImages.Dispose();
-        }
+        public void Dispose() => iconImages.Dispose();
 
         #endregion
 
@@ -950,7 +938,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Adds an icon to the raw icon. <param name="icon"> is deserialized from stream.</param>
         /// </summary>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Disposing the new RawIcon would dispose the added images.")]
         internal void Add(Icon icon)
         {
             if (icon == null)
@@ -958,9 +945,7 @@ namespace KGySoft.Drawing
 
             // not in using so its images will not be disposed after adding them to self images
             foreach (RawIconImage image in new RawIcon(icon).iconImages)
-            {
                 iconImages.Add(image);
-            }
         }
 
         /// <summary>
@@ -1000,8 +985,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the icons of the <see cref="RawIcon"/> instance as a single, combined <see cref="Icon"/>.
         /// </summary>
-        [SuppressMessage("Microsoft.Usage", "CA2202:Do not dispose objects multiple times", Justification = "MemoryStream is not sensitive to multiple closing")]
-        internal Icon ToIcon(bool forceBmpImages)
+        internal Icon? ToIcon(bool forceBmpImages)
         {
             if (iconImages.Count == 0)
                 return null;
@@ -1029,8 +1013,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets a <see cref="Bitmap"/> instance, which contains every images of the <see cref="RawIcon"/> instance as a single, multi-resolution <see cref="Bitmap"/>.
         /// </summary>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Stream must not be disposed; otherwise, a Generic GDI+ Error will occur when using the result Bitmap.")]
-        internal Bitmap ToBitmap()
+        internal Bitmap? ToBitmap()
         {
             if (iconImages.Count == 0)
                 return null;
@@ -1054,15 +1037,13 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the icon into a stream
         /// </summary>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
-            Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
         internal void Save(Stream stream, bool forceBmpImages)
         {
             BinaryWriter bw = new BinaryWriter(stream);
             Save(bw, forceBmpImages);
         }
 
-        internal Icon ExtractIcon(int index, bool forceBmpFormat)
+        internal Icon? ExtractIcon(int index, bool forceBmpFormat)
         {
             if (index < 0 || index >= iconImages.Count)
                 return null;
@@ -1072,16 +1053,16 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the icons of the <see cref="RawIcon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
-        internal Icon[] ExtractIcons(bool forceBmpFormat)
+        internal Icon?[] ExtractIcons(bool forceBmpFormat)
         {
-            Icon[] result = new Icon[iconImages.Count];
+            Icon?[] result = new Icon[iconImages.Count];
             for (int i = 0; i < result.Length; i++)
                 result[i] = iconImages[i].ToIcon(forceBmpFormat, false);
 
             return result;
         }
 
-        internal Bitmap ExtractBitmap(int index, bool keepOriginalFormat)
+        internal Bitmap? ExtractBitmap(int index, bool keepOriginalFormat)
         {
             if (index < 0 || index >= iconImages.Count)
                 return null;
@@ -1091,13 +1072,11 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the images of the <see cref="RawIcon"/> instance as separated <see cref="Bitmap"/> instances.
         /// </summary>
-        internal Bitmap[] ExtractBitmaps(bool keepOriginalFormat)
+        internal Bitmap?[] ExtractBitmaps(bool keepOriginalFormat)
         {
-            Bitmap[] result = new Bitmap[iconImages.Count];
+            Bitmap?[] result = new Bitmap[iconImages.Count];
             for (int i = 0; i < result.Length; i++)
-            {
                 result[i] = iconImages[i].ToBitmap(keepOriginalFormat, false);
-            }
 
             return result;
         }
@@ -1105,7 +1084,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the nearest bitmap to the specified color depth and size. Bpp is matched first.
         /// </summary>
-        internal Bitmap ExtractNearestBitmap(int bpp, Size size, bool keepOriginalFormat)
+        internal Bitmap? ExtractNearestBitmap(int bpp, Size size, bool keepOriginalFormat)
         {
             if (iconImages.Count == 0)
                 return null;
@@ -1114,7 +1093,7 @@ namespace KGySoft.Drawing
                 return iconImages[0].ToBitmap(keepOriginalFormat, false);
 
             RawIconImage nearestImage = GetNearestImage(bpp, size);
-            Bitmap result = nearestImage.ToBitmap(keepOriginalFormat, false);
+            Bitmap? result = nearestImage.ToBitmap(keepOriginalFormat, false);
             if (result != null)
                 return result;
 
@@ -1124,7 +1103,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets the nearest icon to the specified color depth and size.
         /// </summary>
-        internal Icon ExtractNearestIcon(int bpp, Size size, bool forceBmpFormat)
+        internal Icon? ExtractNearestIcon(int bpp, Size size, bool forceBmpFormat)
         {
             if (iconImages.Count == 0)
                 return null;
@@ -1133,7 +1112,7 @@ namespace KGySoft.Drawing
                 return iconImages[0].ToIcon(forceBmpFormat, false);
 
             RawIconImage nearestImage = GetNearestImage(bpp, size);
-            Icon result = nearestImage.ToIcon(forceBmpFormat, false);
+            Icon? result = nearestImage.ToIcon(forceBmpFormat, false);
             if (result != null)
                 return result;
 
@@ -1149,7 +1128,7 @@ namespace KGySoft.Drawing
         private void Save(BinaryWriter bw, bool forceBmpImages)
         {
             // Icon header
-            ICONDIR iconDir = new ICONDIR
+            var iconDir = new ICONDIR
             {
                 idReserved = 0,
                 idType = 1,
@@ -1171,7 +1150,7 @@ namespace KGySoft.Drawing
         private void Load(BinaryReader br, Size? size, int? bpp, int? index)
         {
             byte[] buf = br.ReadBytes(Marshal.SizeOf(typeof(ICONDIR)));
-            ICONDIR iconDir = (ICONDIR)BinarySerializer.DeserializeValueType(typeof(ICONDIR), buf);
+            var iconDir = (ICONDIR)BinarySerializer.DeserializeValueType(typeof(ICONDIR), buf);
             if (iconDir.idReserved != 0 || iconDir.idType != 1)
                 throw new ArgumentException(Res.RawIconBadIconFormat, nameof(br));
 
@@ -1190,7 +1169,7 @@ namespace KGySoft.Drawing
 
                 br.BaseStream.Position = entryOffset;
                 buf = br.ReadBytes(entrySize);
-                ICONDIRENTRY entry = (ICONDIRENTRY)BinarySerializer.DeserializeValueType(typeof(ICONDIRENTRY), buf);
+                var entry = (ICONDIRENTRY)BinarySerializer.DeserializeValueType(typeof(ICONDIRENTRY), buf);
                 if (entry.wBitCount > 32)
                     entry.wBitCount = 32;
 
@@ -1205,7 +1184,7 @@ namespace KGySoft.Drawing
                     && (bpp == null || entry.wBitCount == 0 || reqBpp == entry.wBitCount))
                 {
                     br.BaseStream.Position = entry.dwImageOffset;
-                    RawIconImage image = new RawIconImage(br.ReadBytes((int)entry.dwBytesInRes));
+                    var image = new RawIconImage(br.ReadBytes((int)entry.dwBytesInRes));
 
                     // bpp was explicit defined, though there is 0 in dir entry: post-check for BPP
                     if (bpp != null && entry.wBitCount == 0 && image.Bpp != reqBpp
@@ -1257,8 +1236,8 @@ namespace KGySoft.Drawing
             return preferredImage;
         }
 
-        private TResult GetNextLargestResult<TResult>(RawIconImage nearestImage, int bpp, Func<RawIconImage, TResult> getResult)
-            where TResult : class
+        private TResult? GetNextLargestResult<TResult>(RawIconImage nearestImage, int bpp, Func<RawIconImage, TResult?> getResult)
+            where TResult : class?
         {
             // On Linux large icons might not be supported. Looking for the next largest one then.
             Debug.Assert(!OSUtils.IsWindows, "null result is not expected on Windows");
@@ -1281,7 +1260,7 @@ namespace KGySoft.Drawing
 
                 // trying the next size
                 nearestImage = GetNearestImage(bpp, new Size(nextSize, nextSize));
-                TResult result = getResult.Invoke(nearestImage);
+                TResult? result = getResult.Invoke(nearestImage);
                 if (result != null)
                     return result;
 

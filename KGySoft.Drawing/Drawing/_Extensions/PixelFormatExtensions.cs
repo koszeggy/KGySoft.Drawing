@@ -35,7 +35,7 @@ namespace KGySoft.Drawing
     {
         #region Fields
 
-        private static Dictionary<PixelFormat, bool> supportedFormats;
+        private static Dictionary<PixelFormat, bool>? supportedFormats;
 
         #endregion
 
@@ -85,7 +85,7 @@ namespace KGySoft.Drawing
             if (OSUtils.IsWindows)
                 return true;
 
-            Dictionary<PixelFormat, bool> map = supportedFormats;
+            Dictionary<PixelFormat, bool>? map = supportedFormats;
             if (map != null && map.TryGetValue(pixelFormat, out bool result))
                 return result;
 
@@ -172,7 +172,7 @@ namespace KGySoft.Drawing
                     return 1 << bpp;
                 case 16:
                     return pixelFormat == PixelFormat.Format16bppRgb555 ? 1 << 15
-                        : pixelFormat == PixelFormat.Format16bppRgb555 ? (1 << 15) + 1
+                        : pixelFormat == PixelFormat.Format16bppArgb1555 ? (1 << 15) + 1
                         : 1 << 16;
                 default:
                     return Int32.MaxValue;

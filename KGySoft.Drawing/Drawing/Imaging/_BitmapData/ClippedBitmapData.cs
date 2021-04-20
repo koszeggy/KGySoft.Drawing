@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -183,8 +182,9 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly BitmapDataType bitmapDataType;
 
+        // ReSharper disable once FieldCanBeMadeReadOnly.Local - not making it readonly to prevent creating defensive copies
         private Rectangle region;
-        private IBitmapDataRowInternal lastRow;
+        private IBitmapDataRowInternal? lastRow;
 
         #endregion
 
@@ -277,11 +277,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Type.ToString is not affected by culture")]
         public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
-            IBitmapDataRowInternal result = lastRow;
+            IBitmapDataRowInternal? result = lastRow;
             if (result?.Index == y)
                 return result;
 
@@ -296,7 +295,7 @@ namespace KGySoft.Drawing.Imaging
             };
         }
 
-        public override bool TrySetPalette(Palette palette) => false;
+        public override bool TrySetPalette(Palette? palette) => false;
 
         #endregion
     }

@@ -17,9 +17,9 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 using System.Security;
+
 using KGySoft.Reflection;
 
 #endregion
@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.WinApi
             /// then the return value is the number of icons contained in the specified file.
             /// Otherwise, the return value is the number of icons successfully extracted from the file.</returns>
             [DllImport("shell32.dll", CharSet = CharSet.Unicode, EntryPoint = "ExtractIconExW")]
-            internal static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPWStr)] string lpszFile, int nIconIndex, IntPtr[] phIconLarge, IntPtr[] phIconSmall, int nIcons);
+            internal static extern int ExtractIconEx([MarshalAs(UnmanagedType.LPWStr)] string lpszFile, int nIconIndex, IntPtr[]? phIconLarge, IntPtr[]? phIconSmall, int nIcons);
 
             /// <summary>
             /// Retrieves information about an object in the file system, such as a file, folder, directory, or drive root.
@@ -116,14 +116,13 @@ namespace KGySoft.Drawing.WinApi
 
         #region Methods
 
-        [SuppressMessage("Microsoft.Performance", "CA1825:AvoidZeroLengthArrayAllocations", Justification = "Array.Empty is not available in all targets")]
         internal static IntPtr[][] ExtractIconHandles(string fileName, SystemIconSize? size)
         {
             // gets the number of icons in the file
             int iconCount = NativeMethods.ExtractIconEx(fileName, -1, null, null, 0);
 
-            IntPtr[] large = size == SystemIconSize.Small ? null : new IntPtr[iconCount];
-            IntPtr[] small = size == SystemIconSize.Large ? null : new IntPtr[iconCount];
+            IntPtr[]? large = size == SystemIconSize.Small ? null : new IntPtr[iconCount];
+            IntPtr[]? small = size == SystemIconSize.Large ? null : new IntPtr[iconCount];
 
             // extracts the icons by the size that was selected.
             if (NativeMethods.ExtractIconEx(fileName, 0, large, small, iconCount) == 0)
@@ -131,11 +130,9 @@ namespace KGySoft.Drawing.WinApi
             IntPtr[][] result = new IntPtr[iconCount][];
             for (int i = 0; i < iconCount; i++)
             {
-                // ReSharper disable PossibleNullReferenceException
-                result[i] = size == SystemIconSize.Small ? new[] { small[i] }
-                    : size == SystemIconSize.Large ? new[] { large[i] }
-                    : new[] { large[i], small[i] };
-                // ReSharper restore PossibleNullReferenceException
+                result[i] = size == SystemIconSize.Small ? new[] { small![i] }
+                    : size == SystemIconSize.Large ? new[] { large![i] }
+                    : new[] { large![i], small![i] };
             }
 
             return result;

@@ -55,7 +55,7 @@ namespace KGySoft.Drawing
         /// </summary>
         [SuppressMessage("Performance", "CA1819:Properties should not return arrays",
             Justification = "It's always a copy")]
-        public Color[] Palette { get; internal set; }
+        public Color[]? Palette { get; internal set; }
 
         #endregion
     }

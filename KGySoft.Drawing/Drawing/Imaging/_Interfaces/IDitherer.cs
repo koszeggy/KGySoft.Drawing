@@ -68,7 +68,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IDitheringSession"/> instance that can be used to dither the result of the specified <see cref="IQuantizingSession"/>
         /// applied to the specified <paramref name="source"/>.</returns>
-        IDitheringSession Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext asyncContext = null);
+        IDitheringSession Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? asyncContext = null);
 
         #endregion
     }

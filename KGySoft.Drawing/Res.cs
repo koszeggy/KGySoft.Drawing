@@ -173,7 +173,7 @@ namespace KGySoft
         #region Accessors
 
         /// <summary>Instance field "{0}" not found on type "{1}".</summary>
-        internal static string AccessorsInstanceFieldDoesNotExist(string fieldName, Type type) => Get("Accessors_InstanceFieldDoesNotExistFormat", fieldName, type);
+        internal static string AccessorsInstanceFieldDoesNotExist(string? fieldName, Type type) => Get("Accessors_InstanceFieldDoesNotExistFormat", fieldName, type);
 
         #endregion
 
@@ -203,13 +203,13 @@ namespace KGySoft
 
         private static string Get(string id) => resourceManager.GetString(id, LanguageSettings.DisplayLanguage) ?? String.Format(CultureInfo.InvariantCulture, unavailableResource, id);
 
-        private static string Get(string id, params object[] args)
+        private static string Get(string id, params object?[]? args)
         {
             string format = Get(id);
             return args == null ? format : SafeFormat(format, args);
         }
 
-        private static string SafeFormat(string format, object[] args)
+        private static string SafeFormat(string format, object?[] args)
         {
             try
             {
@@ -218,10 +218,7 @@ namespace KGySoft
                 {
                     string nullRef = PublicResources.Null;
                     for (; i < args.Length; i++)
-                    {
-                        if (args[i] == null)
-                            args[i] = nullRef;
-                    }
+                        args[i] ??= nullRef;
                 }
 
                 return String.Format(LanguageSettings.FormattingLanguage, format, args);

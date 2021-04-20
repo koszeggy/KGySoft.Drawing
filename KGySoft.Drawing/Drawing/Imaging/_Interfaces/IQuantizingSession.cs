@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.Imaging
         /// is an indexed image and in that case should not contain more than 256 colors.
         /// If this <see cref="IQuantizingSession"/> is not limited to use up to 256 colors, then this property can return <see langword="null"/>.
         /// </summary>
-        Palette Palette { get; }
+        Palette? Palette { get; }
 
         /// <summary>
         /// Gets the background color for this <see cref="IQuantizingSession"/>.

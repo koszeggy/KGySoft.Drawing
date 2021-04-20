@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.Collections;
 
@@ -282,23 +281,22 @@ namespace KGySoft.Drawing.Imaging
                 m2.Buffer.GetElementReference(ind) += sqrTable[c.R] + sqrTable[c.G] + sqrTable[c.B];
             }
 
-            [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Int32.ToString is not affected by culture")]
-            public Color32[] GeneratePalette(IAsyncContext context)
+            public Color32[]? GeneratePalette(IAsyncContext context)
             {
                 // Original comment from Xiaolin Wu:
                 // We now convert histogram into moments so that we can rapidly calculate
                 // the sums of the above quantities over any desired box.
                 HistogramToMoments();
 
-                List<Box> cubes = CreatePartitions(context);
+                List<Box>? cubes = CreatePartitions(context);
                 if (context.IsCancellationRequested)
                     return null;
 
-                var result = new Color32[cubes.Count + (hasTransparency ? 1 : 0)];
+                var result = new Color32[cubes!.Count + (hasTransparency ? 1 : 0)];
                 for (int k = 0; k < cubes.Count; k++)
                 {
                     // The original algorithm here marks an array of tags but we don't need it because
-                    // we don't want to produce an array of quantized pixels but just the palette.
+                    // we don't want to produce an array of quantized pixels just the palette.
                     long weight = cubes[k].Volume(ref wt);
                     if (weight <= 0)
                     {
@@ -388,7 +386,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            private List<Box> CreatePartitions(IAsyncContext context)
+            private List<Box>? CreatePartitions(IAsyncContext context)
             {
                 int colorCount = maxColors - (hasTransparency ? 1 : 0);
                 var cubes = new List<Box>(colorCount);

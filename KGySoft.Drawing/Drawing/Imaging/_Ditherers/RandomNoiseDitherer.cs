@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+
 using KGySoft.CoreLibraries;
 
 #endregion
@@ -93,7 +94,7 @@ namespace KGySoft.Drawing.Imaging
                 this.ditherer = ditherer;
 
                 // If we have don't have a seed, we must use a thread safe random generator because pixels can be queried in any order
-                random = ditherer.seed == null ? (Random)ThreadSafeRandom.Instance : new FastRandom(ditherer.seed.Value);
+                random = ditherer.seed == null ? ThreadSafeRandom.Instance : new FastRandom(ditherer.seed.Value);
 
                 if (ditherer.strength > 0f)
                 {
@@ -121,12 +122,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        #region Instance Fields
-
         private readonly int? seed;
         private readonly float strength;
-
-        #endregion
 
         #endregion
 
@@ -199,7 +196,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext context)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
             => new RandomNoiseDitheringSession(quantizer, this);
 
         #endregion

@@ -43,11 +43,11 @@ namespace KGySoft.Drawing.Imaging
         
         public byte AlphaThreshold { get; protected set; }
 
-        public Palette Palette { get; protected set; }
+        public Palette? Palette { get; protected set; }
 
         public abstract int RowSize { get; }
 
-        public virtual bool CanSetPalette => PixelFormat.IsIndexed();
+        public virtual bool CanSetPalette => PixelFormat.IsIndexed() && Palette != null;
 
         #endregion
 
@@ -102,10 +102,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowYOutOfRange()
         {
-#pragma warning disable CA2208
             // ReSharper disable once NotResolvedInText
             throw new ArgumentOutOfRangeException("y", PublicResources.ArgumentOutOfRange);
-#pragma warning restore CA2208
         }
 
         #endregion
@@ -132,7 +130,7 @@ namespace KGySoft.Drawing.Imaging
 
         public abstract IBitmapDataRowInternal DoGetRow(int y);
 
-        public virtual bool TrySetPalette(Palette palette)
+        public virtual bool TrySetPalette(Palette? palette)
         {
             if (palette == null || Palette == null || !PixelFormat.IsIndexed() || palette.Count < Palette.Count || palette.Count > 1 << PixelFormat.ToBitsPerPixel())
                 return false;

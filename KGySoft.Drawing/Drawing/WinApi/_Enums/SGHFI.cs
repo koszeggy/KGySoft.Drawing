@@ -22,6 +22,7 @@ using System;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     [Flags]
     internal enum SGHFI : uint
     {

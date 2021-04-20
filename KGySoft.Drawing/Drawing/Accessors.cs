@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -24,7 +25,7 @@ using System.Reflection;
 using System.Threading;
 
 using KGySoft.Collections;
-#if !NETCOREAPP3_0
+#if !NETCOREAPP3_0_OR_GREATER
 using KGySoft.CoreLibraries; 
 #endif
 using KGySoft.Reflection;
@@ -38,7 +39,7 @@ namespace KGySoft.Drawing
     {
         #region Fields
 
-        private static IThreadSafeCacheAccessor<(Type DeclaringType, Type FieldType, string FieldNamePattern), FieldAccessor> fields;
+        private static IThreadSafeCacheAccessor<(Type DeclaringType, Type? FieldType, string? FieldNamePattern), FieldAccessor?>? fields;
 
         #endregion
 
@@ -49,7 +50,7 @@ namespace KGySoft.Drawing
         #region Exception
 
 #if NET35 || NET40
-        internal static string GetSource(this Exception exception) => GetFieldValueOrDefault<string>(exception, "source");
+        internal static string GetSource(this Exception exception) => GetFieldValueOrDefault<string>(exception, "source")!;
         internal static void SetSource(this Exception exception, string value) => SetFieldValue(exception, "source", value, false);
         internal static void SetRemoteStackTraceString(this Exception exception, string value) => SetFieldValue(exception, "remoteStackTraceString", value, false);
         internal static void InternalPreserveStackTrace(this Exception exception) => Reflector.TryInvokeMethod(exception, "InternalPreserveStackTrace", out var _);
@@ -59,7 +60,7 @@ namespace KGySoft.Drawing
 
         #region Graphics
 
-        internal static Image GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Image>(graphics, "backingImage");
+        internal static Image? GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Image?>(graphics, "backingImage");
 
         #endregion
 
@@ -81,16 +82,18 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-        private static FieldAccessor GetField(Type type, Type fieldType, string fieldNamePattern)
+        private static FieldAccessor? GetField(Type type, Type? fieldType, string? fieldNamePattern)
         {
+            #region Local Methods
+            
             // Fields are meant to be used for non-visible members either by type or name pattern (or both)
-            FieldAccessor GetFieldAccessor((Type DeclaringType, Type FieldType, string FieldNamePattern) key)
+            static FieldAccessor? GetFieldAccessor((Type DeclaringType, Type? FieldType, string? FieldNamePattern) key)
             {
-                for (Type t = key.DeclaringType; t != typeof(object); t = t.BaseType)
+                for (Type t = key.DeclaringType; t != typeof(object); t = t.BaseType!)
                 {
-                    FieldInfo[] fields = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
-                    FieldInfo field = fields.FirstOrDefault(f => (key.FieldType == null || f.FieldType == key.FieldType) && f.Name == key.FieldNamePattern) // exact name first
-                        ?? fields.FirstOrDefault(f => (key.FieldType == null || f.FieldType == key.FieldType)
+                    FieldInfo[] fieldsOfT = t.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.DeclaredOnly);
+                    FieldInfo? field = fieldsOfT.FirstOrDefault(f => (key.FieldType == null || f.FieldType == key.FieldType) && f.Name == key.FieldNamePattern) // exact name first
+                        ?? fieldsOfT.FirstOrDefault(f => (key.FieldType == null || f.FieldType == key.FieldType)
                             && (key.FieldNamePattern == null || f.Name.Contains(key.FieldNamePattern, StringComparison.OrdinalIgnoreCase)));
 
                     if (field != null)
@@ -100,21 +103,25 @@ namespace KGySoft.Drawing
                 return null;
             }
 
+            #endregion
+
             if (fields == null)
-                Interlocked.CompareExchange(ref fields, new Cache<(Type, Type, string), FieldAccessor>(GetFieldAccessor).GetThreadSafeAccessor(), null);
+                Interlocked.CompareExchange(ref fields, new Cache<(Type, Type?, string?), FieldAccessor?>(GetFieldAccessor).GetThreadSafeAccessor(), null);
             return fields[(type, fieldType, fieldNamePattern)];
         }
 
-        private static T GetFieldValueOrDefault<T>(object obj, string fieldNamePattern = null)
+        private static T? GetFieldValueOrDefault<T>(object obj, string? fieldNamePattern = null)
         {
-            var field = GetField(obj.GetType(), typeof(T), fieldNamePattern);
-            return field == null ? default : (T)field.Get(obj);
+            FieldAccessor? field = GetField(obj.GetType(), typeof(T), fieldNamePattern);
+            return field == null ? default : (T)field.Get(obj)!;
         }
 
-        private static void SetFieldValue<T>(object obj, string fieldNamePattern, T value, bool throwIfMissing = true)
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "False alarm, it's not precondition")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
+        private static void SetFieldValue<T>(object obj, string? fieldNamePattern, T value, bool throwIfMissing = true)
         {
             Type type = obj.GetType();
-            FieldAccessor field = GetField(type, typeof(T), fieldNamePattern);
+            FieldAccessor? field = GetField(type, typeof(T), fieldNamePattern);
             if (field == null)
             {
                 if (throwIfMissing)

@@ -25,10 +25,15 @@ using System.Security;
 
 #endregion
 
+#region Suppressions
+
+// ReSharper disable InconsistentNaming
+
+#endregion
+
 namespace KGySoft.Drawing.WinApi
 {
     [SecurityCritical]
-    [SuppressMessage("ReSharper", "InconsistentNaming")]
     internal static class User32
     {
         #region NativeMethods class

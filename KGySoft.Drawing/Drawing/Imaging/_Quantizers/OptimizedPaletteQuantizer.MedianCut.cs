@@ -17,9 +17,8 @@
 #region Usings
 
 using System;
-using System.Collections;
 using System.Collections.Generic;
-
+using System.Diagnostics.CodeAnalysis;
 using KGySoft.Collections;
 
 #endregion
@@ -78,13 +77,9 @@ namespace KGySoft.Drawing.Imaging
                 #region Properties
 
                 internal int Count => colors.Count;
-
                 internal int RangeR => rMax - rMin;
-
                 internal int RangeG => gMax - gMin;
-
                 internal int RangeB => bMax - bMin;
-
                 internal bool IsSingleColor => RangeR == 0 && RangeG == 0 && RangeB == 0;
 
                 #endregion
@@ -166,8 +161,8 @@ namespace KGySoft.Drawing.Imaging
                     // single color check is correct because we sorted by all of the components
                     bool isLeftSingleColor = colors[0] == colors[medianIndex - 1]; 
                     bool isRightSingleColor = colors[medianIndex] == colors[colors.Count - 1];
-                    ColorBucket left = isLeftSingleColor ? null : new ColorBucket(medianIndex);
-                    ColorBucket right = isRightSingleColor ? null : new ColorBucket(colors.Count - medianIndex);
+                    ColorBucket? left = isLeftSingleColor ? null : new ColorBucket(medianIndex);
+                    ColorBucket? right = isRightSingleColor ? null : new ColorBucket(colors.Count - medianIndex);
 
                     // populating the left and right buckets
                     int from = isLeftSingleColor ? (isRightSingleColor ? Int32.MaxValue : medianIndex) : 0;
@@ -175,9 +170,9 @@ namespace KGySoft.Drawing.Imaging
                     for (int i = from; i < to; i++)
                     {
                         if (i < medianIndex)
-                            left.AddColor(colors[i]);
+                            left!.AddColor(colors[i]);
                         else
-                            right.AddColor(colors[i]);
+                            right!.AddColor(colors[i]);
                     }
 
                     if (isLeftSingleColor)
@@ -195,13 +190,13 @@ namespace KGySoft.Drawing.Imaging
                         }
 
                         // the right half is assigned back to the original position
-                        buckets.ReplaceBucket(index, right);
+                        buckets.ReplaceBucket(index, right!);
                         index += 1;
                         return;
                     }
 
                     // the left half is assigned back to the original position
-                    buckets.ReplaceBucket(index, left);
+                    buckets.ReplaceBucket(index, left!);
                     index += 1;
 
                     if (isRightSingleColor)
@@ -211,7 +206,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     // the right half is added as a new bucket
-                    buckets.AddBucket(right);
+                    buckets.AddBucket(right!);
                 }
 
                 #endregion
@@ -260,7 +255,7 @@ namespace KGySoft.Drawing.Imaging
 
                 public void ReplaceBucket(int index, ColorBucket bucket) => buckets[index] = bucket;
 
-                internal ColorBucket RemoveFirstBucket()
+                internal ColorBucket? RemoveFirstBucket()
                 {
                     if (buckets.Count == 0)
                         return null;
@@ -309,9 +304,6 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 internal bool AddFinalColor(Color32 color) => finalColors.Count != maxColors && finalColors.Add(color);
-
-                //internal bool ContainsFinalColor(ColorBucket bucket) => bucket.IsSingleColor && finalColors.Contains(bucket.ToColor());
-
                 internal void CopyFinalColorsTo(Color32[] result) => finalColors.CopyTo(result);
 
                 #endregion
@@ -326,7 +318,7 @@ namespace KGySoft.Drawing.Imaging
             #region Fields
 
             private int maxColors;
-            private ColorBucket root;
+            [AllowNull]private ColorBucket root;
 
             private bool hasTransparency;
 
@@ -355,7 +347,7 @@ namespace KGySoft.Drawing.Imaging
                     root.AddColor(color);
             }
 
-            public Color32[] GeneratePalette(IAsyncContext context)
+            public Color32[]? GeneratePalette(IAsyncContext context)
             {
                 // Occurs when bitmap is completely transparent
                 if (root.Count == 0)
@@ -389,7 +381,7 @@ namespace KGySoft.Drawing.Imaging
                 // finalizing colors and continuing splitting if some buckets map to the same colors
                 while (buckets.FinalColorsCount < MaxActualColors)
                 {
-                    ColorBucket first = buckets.RemoveFirstBucket();
+                    ColorBucket? first = buckets.RemoveFirstBucket();
                     if (first == null)
                         break;
                     if (startIndex > 0)

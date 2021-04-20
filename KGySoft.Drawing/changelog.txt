@@ -6,6 +6,17 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v5.3.1:
+~~~~~~~~~
+
+- KGySoft.Drawing.Imaging namespace:
+====================================
+- BitmapDataFactory class:
+  - BeginLoad method: It didn't use the specified async configuration.
+  - LoadAsync method: It didn't use the specified async configuration.
+
+
+~~~~~~~~~
 ! v5.3.0:
 ~~~~~~~~~
 

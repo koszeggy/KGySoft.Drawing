@@ -24,6 +24,7 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// The RGBQUAD structure describes a color consisting of relative intensities of red, green, and blue.
     /// </summary>

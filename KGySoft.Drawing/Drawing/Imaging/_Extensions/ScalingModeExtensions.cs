@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.CoreLibraries;
 
@@ -31,7 +30,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Enum.ToString is not affected by culture")]
         internal static (float, Func<float, float>) GetInterpolation(this ScalingMode scalingMode)
         {
             switch (scalingMode)

@@ -49,10 +49,10 @@ namespace KGySoft.ComponentModel
         /// <param name="culture">A <see cref="CultureInfo" />. In this converter this parameter is ignored.</param>
         /// <param name="value">The <see cref="object" /> to be converted.</param>
         /// <returns>If this method succeeds, it returns the <see cref="Image" /> that it created by converting the specified object. Otherwise, it throws an exception.</returns>
-        public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+        public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value)
             => value is Icon icon
             ? icon.ToMultiResBitmap() // Base calls just icon.ToBitmap() here, which loses information.
-            : base.ConvertFrom(context, culture, value);
+            : base.ConvertFrom(context, culture, value!);
 
         /// <summary>
         /// Converts an <see cref="Image" /> (or an object that can be cast to an <see cref="Image" />) to the specified type.
@@ -63,7 +63,7 @@ namespace KGySoft.ComponentModel
         /// <param name="destinationType">The <see cref="Type" /> to convert the <see cref="Image" /> to.
         /// This type converter supports <see cref="Array">byte[]</see> type.</param>
         /// <returns>An <see cref="object" /> that represents the converted value.</returns>
-        public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value, Type destinationType)
+        public override object ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
         {
             if (destinationType != typeof(byte[]) || !(value is Image))
                 return base.ConvertTo(context, culture, value, destinationType);

@@ -31,6 +31,7 @@ namespace KGySoft.Drawing.WinApi
         #region NativeMethods class
 
         [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static class NativeMethods
         {
             #region Methods

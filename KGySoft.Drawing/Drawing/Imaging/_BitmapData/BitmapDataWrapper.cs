@@ -16,6 +16,7 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -35,8 +36,8 @@ namespace KGySoft.Drawing.Imaging
             #region Fields
 
             private readonly IBitmapDataRow row;
-            private readonly IReadableBitmapDataRow readableBitmapDataRow;
-            private readonly IWritableBitmapDataRow writableBitmapDataRow;
+            [AllowNull]private readonly IReadableBitmapDataRow readableBitmapDataRow;
+            [AllowNull]private readonly IWritableBitmapDataRow writableBitmapDataRow;
 
             #endregion
 
@@ -101,7 +102,7 @@ namespace KGySoft.Drawing.Imaging
         private readonly bool isReading;
         private readonly bool isWriting;
 
-        private IBitmapDataRowInternal lastRow;
+        private IBitmapDataRowInternal? lastRow;
 
         #endregion
 
@@ -114,7 +115,7 @@ namespace KGySoft.Drawing.Imaging
         public int Height => BitmapData.Height;
         public int Width => BitmapData.Width;
         public PixelFormat PixelFormat => BitmapData.PixelFormat;
-        public Palette Palette => BitmapData.Palette;
+        public Palette? Palette => BitmapData.Palette;
         public int RowSize => BitmapData.RowSize;
         public Color32 BackColor => BitmapData.BackColor;
         public byte AlphaThreshold => BitmapData.AlphaThreshold;
@@ -182,7 +183,7 @@ namespace KGySoft.Drawing.Imaging
         public IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
-            IBitmapDataRowInternal result = lastRow;
+            IBitmapDataRowInternal? result = lastRow;
             if (result?.Index == y)
                 return result;
 
@@ -190,7 +191,7 @@ namespace KGySoft.Drawing.Imaging
             return lastRow = new BitmapDataRowWrapper(isReading ? AsReadable[y] : (IBitmapDataRow)AsWritable[y], isReading, isWriting);
         }
 
-        public bool TrySetPalette(Palette palette) => false;
+        public bool TrySetPalette(Palette? palette) => false;
 
         #endregion
     }

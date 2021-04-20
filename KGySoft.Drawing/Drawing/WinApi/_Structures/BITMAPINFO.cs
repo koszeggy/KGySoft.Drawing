@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     [StructLayout(LayoutKind.Sequential)]
     internal struct BITMAPINFO
     {
@@ -30,7 +31,7 @@ namespace KGySoft.Drawing.WinApi
         internal BITMAPINFOHEADER icHeader;
 
         [MarshalAs(UnmanagedType.ByValArray, SizeConst = 256)]
-        internal RGBQUAD[] icColors;
+        internal RGBQUAD[]? icColors;
 
         #endregion
     }

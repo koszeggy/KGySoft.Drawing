@@ -17,8 +17,8 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 #if NET35
+using System.Diagnostics.CodeAnalysis;
 using System.Threading; 
 using System.Collections.Generic;
 using System.Runtime.ExceptionServices;
@@ -60,9 +60,9 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Similar to <see cref="Parallel.For(int,int,Action{int})"/> but tries to balance resources and works also in .NET 3.5.
         /// </summary>
+#if NET35
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Exceptions in pool threads must not be thrown in place but from the caller thread.")]
-#if NET35
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "Special optimization for .NET 3.5 version where there is no Parallel.For")]
 #endif
@@ -133,7 +133,7 @@ namespace KGySoft.Drawing
 
 #if NET35
             int busyCount = 0;
-            Exception error = null;
+            Exception? error = null;
             int maxThreads = context.MaxDegreeOfParallelism <= 0 ? CoreCount : context.MaxDegreeOfParallelism;
             int rangeSize = count / maxThreads;
 
@@ -165,6 +165,7 @@ namespace KGySoft.Drawing
                         }
                         finally
                         {
+                            // ReSharper disable once AccessToModifiedClosure - intended, both outside and inside changes matter
                             Interlocked.Decrement(ref busyCount);
                         }
                     });
@@ -202,6 +203,7 @@ namespace KGySoft.Drawing
                         }
                         finally
                         {
+                            // ReSharper disable once AccessToModifiedClosure - intended, both outside and inside changes matter
                             Interlocked.Decrement(ref busyCount);
                         }
                     });
@@ -215,10 +217,10 @@ namespace KGySoft.Drawing
             if (error != null)
                 ExceptionDispatchInfo.Capture(error).Throw();
 #else
-            Action<int, ParallelLoopState> bodyWithState = null;
-            Action<int> simpleBody = null;
+            Action<int, ParallelLoopState>? bodyWithState = null;
+            Action<int>? simpleBody = null;
             if (context.CanBeCanceled)
-                bodyWithState = context.Progress == null ? (Action<int, ParallelLoopState>)DoWorkWithCancellation : DoWorkWithCancellationAndProgress;
+                bodyWithState = context.Progress == null ? DoWorkWithCancellation : DoWorkWithCancellationAndProgress;
             else
                 simpleBody = context.Progress == null ? body : DoWorkWithProgress;
 
@@ -243,7 +245,7 @@ namespace KGySoft.Drawing
                 if (bodyWithState != null)
                     Parallel.For(fromInclusive, toExclusive, options, bodyWithState);
                 else
-                    Parallel.For(fromInclusive, toExclusive, options, simpleBody);
+                    Parallel.For(fromInclusive, toExclusive, options, simpleBody!);
                 return;
             }
 
@@ -269,7 +271,7 @@ namespace KGySoft.Drawing
             {
                 (int from, int to) = range;
                 for (int i = from; i < to; i++)
-                    simpleBody.Invoke(i);
+                    simpleBody!.Invoke(i);
             });
 #endif
         }

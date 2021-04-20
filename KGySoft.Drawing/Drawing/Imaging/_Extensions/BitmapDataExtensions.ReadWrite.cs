@@ -170,7 +170,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize">Quantize</see> method for more details.</note>
         /// </remarks>
-        public static IAsyncResult BeginQuantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginQuantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -206,7 +206,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither">Dither</see> method for more details.</note>
         /// </remarks>
-        public static IAsyncResult BeginDither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginDither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -241,7 +241,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize">Quantize</see> method for more details.</note>
         /// </remarks>
-        public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig asyncConfig = null)
+        public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -269,7 +269,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither">Dither</see> method for more details.</note>
         /// </remarks>
-        public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig asyncConfig = null)
+        public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -337,7 +337,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)">BitmapExtensions.TransformColors</see> method for an example.</note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)"/>
-        public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer)
+        public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -366,7 +366,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/> method for more details.</note>
         /// </remarks>
-        public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -401,7 +401,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/> method for more details.</note>
         /// </remarks>
-        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -439,7 +439,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.ReplaceColor"/>
-        public static void ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null)
+        public static void ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -468,7 +468,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor">ReplaceColor</see> method for more details.</note>
         /// </remarks>
-        public static IAsyncResult BeginReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -503,7 +503,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ReplaceColor">ReplaceColor</see> method for more details.</note>
         /// </remarks>
-        public static Task ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        public static Task ReplaceColorAsync(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -538,7 +538,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Invert"/>
-        public static void Invert(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null)
+        public static void Invert(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -562,7 +562,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Invert">Invert</see> method for more details.</note>
         /// </remarks>
-        public static IAsyncResult BeginInvert(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginInvert(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -592,7 +592,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Invert">Invert</see> method for more details.</note>
         /// </remarks>
-        public static Task InvertAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        public static Task InvertAsync(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -690,7 +690,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="BeginToTransparent(IReadableBitmapData, AsyncConfig)"/>
         /// <seealso cref="BeginMakeOpaque"/>
-        public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -721,7 +721,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="BeginToTransparent(IReadableBitmapData,Color32,AsyncConfig)"/>
         /// <seealso cref="BeginMakeOpaque"/>
-        public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginMakeTransparent(this IReadWriteBitmapData bitmapData, Color32 transparentColor, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -754,7 +754,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="ToTransparentAsync(IReadableBitmapData, TaskConfig)"/>
         /// <seealso cref="MakeOpaqueAsync"/>
-        public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig asyncConfig = null)
+        public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -783,7 +783,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="ToTransparentAsync(IReadableBitmapData,Color32,TaskConfig)"/>
         /// <seealso cref="MakeOpaqueAsync"/>
-        public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, Color32 transparentColor, TaskConfig asyncConfig = null)
+        public static Task MakeTransparentAsync(this IReadWriteBitmapData bitmapData, Color32 transparentColor, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -819,7 +819,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.MakeOpaque"/>
-        public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null)
+        public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -847,7 +847,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque">MakeOpaque</see> method for more details.</note>
         /// <remarks>
         /// </remarks>
-        public static IAsyncResult BeginMakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginMakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -879,7 +879,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeOpaque">MakeOpaque</see> method for more details.</note>
         /// <remarks>
         /// </remarks>
-        public static Task MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        public static Task MakeOpaqueAsync(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -917,7 +917,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="ToGrayscale"/>
         /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
         /// <seealso cref="ImageExtensions.ToGrayscale"/>
-        public static void MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null)
+        public static void MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -942,7 +942,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeGrayscale">MakeGrayscale</see> method for more details.</note>
         /// </remarks>
         /// <seealso cref="BeginToGrayscale"/>
-        public static IAsyncResult BeginMakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginMakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -973,7 +973,7 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="MakeGrayscale">MakeGrayscale</see> method for more details.</note>
         /// </remarks>
         /// <seealso cref="ToGrayscaleAsync"/>
-        public static Task MakeGrayscaleAsync(this IReadWriteBitmapData bitmapData, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        public static Task MakeGrayscaleAsync(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1014,7 +1014,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         /// <seealso cref="BitmapExtensions.AdjustBrightness"/>
-        public static void AdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        public static void AdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1061,7 +1061,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static IAsyncResult BeginAdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginAdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1112,7 +1112,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static Task AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
+        public static Task AdjustBrightnessAsync(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1166,7 +1166,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         /// <seealso cref="BitmapExtensions.AdjustContrast"/>
-        public static void AdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        public static void AdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1210,7 +1210,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static IAsyncResult BeginAdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginAdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1260,7 +1260,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static Task AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
+        public static Task AdjustContrastAsync(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1313,7 +1313,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         /// <seealso cref="BitmapExtensions.AdjustGamma"/>
-        public static void AdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        public static void AdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1355,7 +1355,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static IAsyncResult BeginAdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginAdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, AsyncConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1403,7 +1403,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        public static Task AdjustGammaAsync(this IReadWriteBitmapData bitmapData, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig asyncConfig = null)
+        public static Task AdjustGammaAsync(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb, TaskConfig? asyncConfig = null)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -1429,8 +1429,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Quantizing/Dithering
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void DoQuantize(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
@@ -1479,8 +1479,8 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void DoDither(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
@@ -1545,14 +1545,14 @@ namespace KGySoft.Drawing.Imaging
         #region Color Transformations
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed when needed")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             // Indexed format: processing the palette entries when possible
             if (bitmapData is IBitmapDataInternal bitmapDataInternal && bitmapDataInternal.CanSetPalette)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, 1);
-                Palette palette = bitmapData.Palette;
+                Palette palette = bitmapData.Palette!;
                 Color32[] oldEntries = palette.Entries;
                 Color32[] newEntries = new Color32[oldEntries.Length];
                 for (int i = 0; i < newEntries.Length; i++)
@@ -1606,8 +1606,8 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, accessor is disposed if needed")]
-        private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer ditherer)
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
+        private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
             PixelFormat pixelFormat = bitmapData.PixelFormat;
             if (ditherer == null || !pixelFormat.CanBeDithered())
@@ -1620,20 +1620,23 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer.InitializeReliesOnContent)
             {
                 // not using premultiplied format because transformation is faster on simple ARGB32
-                using IReadWriteBitmapData tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb);
+                using IReadWriteBitmapData? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb);
                 if (context.IsCancellationRequested)
                     return;
-                DoTransformColors(context, tempClone, transformFunction);
+
+                Debug.Assert(tempClone != null);
+                DoTransformColors(context, tempClone!, transformFunction);
                 if (context.IsCancellationRequested)
                     return;
-                DoCopy(context, tempClone, bitmapData, new Rectangle(Point.Empty, tempClone.GetSize()), Point.Empty, null, ditherer);
+
+                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone.GetSize()), Point.Empty, null, ditherer);
                 return;
             }
 
             if (bitmapData.Height < 1)
                 return;
 
-            var accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
+            IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
             try
             {
                 IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);

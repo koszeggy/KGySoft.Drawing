@@ -16,10 +16,7 @@
 
 #region Usings
 
-using System.ComponentModel;
-using System.Drawing;
 using System.Runtime.CompilerServices;
-using KGySoft.Collections;
 
 #endregion
 

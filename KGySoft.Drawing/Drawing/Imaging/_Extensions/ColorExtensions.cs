@@ -41,11 +41,11 @@ namespace KGySoft.Drawing.Imaging
         private static readonly object syncRoot = new object();
 
         private static bool lookupTable8To16BppInitialized;
-        private static ushort[] lookupTable8To16Bpp;
+        private static ushort[]? lookupTable8To16Bpp;
         private static ushort max16BppValue;
         
         private static bool lookupTable16To8BppInitialized;
-        private static byte[] lookupTable16To8Bpp;
+        private static byte[]? lookupTable16To8Bpp;
 
         #endregion
 

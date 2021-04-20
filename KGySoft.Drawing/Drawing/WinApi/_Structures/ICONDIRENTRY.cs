@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     [StructLayout(LayoutKind.Sequential)]
     internal struct ICONDIRENTRY
     {

@@ -42,7 +42,7 @@ namespace KGySoft.Drawing
             public int MaxDegreeOfParallelism => 0;
             public bool IsCancellationRequested => false;
             public bool CanBeCanceled => false;
-            public IDrawingProgress Progress => null;
+            public IDrawingProgress? Progress => null;
 
             #endregion
 
@@ -64,6 +64,7 @@ namespace KGySoft.Drawing
 
             [SuppressMessage("Style", "IDE0044:Add readonly modifier",
                 Justification = "CancellationToken is not a readonly struct in every targeted platform so not making it readonly to prevent the creation of a defensive copy.")]
+            // ReSharper disable once FieldCanBeMadeReadOnly.Local
             private CancellationToken token;
 
             #endregion
@@ -75,14 +76,14 @@ namespace KGySoft.Drawing
             public int MaxDegreeOfParallelism { get; }
             public bool IsCancellationRequested => token.IsCancellationRequested;
             public bool CanBeCanceled => token.CanBeCanceled;
-            public IDrawingProgress Progress { get; }
+            public IDrawingProgress? Progress { get; }
 
             #endregion
 
             #region Internal Properties
 
-            internal bool ThrowIfCanceled { get; }
-            internal object State { get; }
+            internal bool ThrowIfCanceled { get; } = true;
+            internal object? State { get; }
 
             #endregion
 
@@ -90,7 +91,7 @@ namespace KGySoft.Drawing
 
             #region Constructors
 
-            internal TaskContext(TaskConfig asyncConfig)
+            internal TaskContext(TaskConfig? asyncConfig)
             {
                 if (asyncConfig == null)
                     return;
@@ -121,12 +122,10 @@ namespace KGySoft.Drawing
 
             private volatile bool isCancellationRequested;
             private volatile bool isCompleted;
-            private Func<bool> isCancelRequestedCallback;
-            private AsyncCallback callback;
-            private ManualResetEventSlim waitHandle;
-            private volatile Exception error;
-
-            private readonly bool throwIfCanceled = true;
+            private Func<bool>? isCancelRequestedCallback;
+            private AsyncCallback? callback;
+            private ManualResetEventSlim? waitHandle;
+            private volatile Exception? error;
 
             #endregion
 
@@ -137,21 +136,22 @@ namespace KGySoft.Drawing
             public int MaxDegreeOfParallelism { get; }
             public bool IsCancellationRequested => isCancelRequestedCallback != null && (isCancellationRequested || (isCancellationRequested = isCancelRequestedCallback.Invoke()));
             public bool CanBeCanceled => isCancelRequestedCallback != null;
-            public IDrawingProgress Progress { get; }
+            public IDrawingProgress? Progress { get; }
             public bool IsCompleted => isCompleted;
 
             public WaitHandle AsyncWaitHandle => InternalWaitHandle.WaitHandle;
 
-            public object AsyncState { get; }
+            public object? AsyncState { get; }
             public bool CompletedSynchronously { get; internal set; }
 
             #endregion
 
             #region Internal Properties
 
+            internal bool ThrowIfCanceled { get; } = true;
             internal string BeginMethodName { get; }
             internal bool IsDisposed { get; private set; }
-            internal Action<IAsyncContext> Operation { get; private set; }
+            internal Action<IAsyncContext>? Operation { get; private set; }
 
             #endregion
 
@@ -182,7 +182,7 @@ namespace KGySoft.Drawing
 
             #region Constructors
 
-            internal AsyncResultContext(string beginMethod, Action<IAsyncContext> operation, AsyncConfig asyncConfig)
+            internal AsyncResultContext(string beginMethod, Action<IAsyncContext>? operation, AsyncConfig? asyncConfig)
             {
                 Operation = operation;
                 BeginMethodName = beginMethod;
@@ -191,7 +191,7 @@ namespace KGySoft.Drawing
                 MaxDegreeOfParallelism = asyncConfig.MaxDegreeOfParallelism;
                 callback = asyncConfig.CompletedCallback;
                 AsyncState = asyncConfig.State;
-                throwIfCanceled = asyncConfig.ThrowIfCanceled;
+                ThrowIfCanceled = asyncConfig.ThrowIfCanceled;
                 isCancelRequestedCallback = asyncConfig.IsCancelRequestedCallback;
                 Progress = asyncConfig.Progress;
             }
@@ -250,7 +250,7 @@ namespace KGySoft.Drawing
             {
                 if (!isCompleted)
                     InternalWaitHandle.Wait();
-                if (isCancellationRequested && throwIfCanceled)
+                if (isCancellationRequested && ThrowIfCanceled)
                     ThrowOperationCanceled();
                 if (error != null)
                     ExceptionDispatchInfo.Capture(error).Throw();
@@ -290,19 +290,19 @@ namespace KGySoft.Drawing
         #region AsyncResultContext<TResult> class
 
         private sealed class AsyncResultContext<TResult> : AsyncResultContext
-            where TResult : class
+            where TResult : class?
         {
             #region Fields
 
-            private volatile TResult result;
+            [AllowNull]private volatile TResult result;
 
             #endregion
 
             #region Properties
 
-            internal new Func<IAsyncContext, TResult> Operation { get; private set; }
+            internal new Func<IAsyncContext, TResult>? Operation { get; private set; }
 
-            internal TResult Result
+            internal TResult? Result
             {
                 get
                 {
@@ -315,7 +315,7 @@ namespace KGySoft.Drawing
 
             #region Constructors
 
-            internal AsyncResultContext(string beginMethod, Func<IAsyncContext, TResult> operation, AsyncConfig asyncConfig)
+            internal AsyncResultContext(string beginMethod, Func<IAsyncContext, TResult>? operation, AsyncConfig? asyncConfig)
                 : base(beginMethod, null, asyncConfig)
             {
                 Operation = operation;
@@ -362,7 +362,7 @@ namespace KGySoft.Drawing
             private readonly object lockObject = new object();
 
             private bool isDisposed;
-            private ManualResetEvent nativeHandle;
+            private ManualResetEvent? nativeHandle;
 
             #endregion
 
@@ -370,8 +370,6 @@ namespace KGySoft.Drawing
 
             internal bool IsSet { get; private set; }
 
-            [SuppressMessage("Reliability", "CA2002:Do not lock on objects with weak identity",
-                Justification = "False alarm, a freshly created ManualResetEvent cannot be a remote object. And the original implementation does the same, too.")]
             internal WaitHandle WaitHandle
             {
                 get
@@ -471,7 +469,7 @@ namespace KGySoft.Drawing
 
         #region Fields
 
-        private static IAsyncContext nullContext;
+        private static IAsyncContext? nullContext;
 
         #endregion
 
@@ -485,7 +483,7 @@ namespace KGySoft.Drawing
 
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Pool thread exceptions are not suppressed, they will be thrown when calling the EndOperation method.")]
-        internal static IAsyncResult BeginOperation(Action<IAsyncContext> operation, AsyncConfig asyncConfig, [CallerMemberName]string beginMethod = null)
+        internal static IAsyncResult BeginOperation(Action<IAsyncContext> operation, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
         {
             #region Local Methods
 
@@ -501,7 +499,7 @@ namespace KGySoft.Drawing
 
                 try
                 {
-                    context.Operation.Invoke(context);
+                    context.Operation!.Invoke(context);
                     if (context.IsCancellationRequested)
                         context.SetCanceled();
                     else
@@ -526,14 +524,14 @@ namespace KGySoft.Drawing
                 asyncResult.CompletedSynchronously = true;
             }
             else
-                ThreadPool.QueueUserWorkItem(DoWork, asyncResult);
+                ThreadPool.QueueUserWorkItem(DoWork!, asyncResult);
             return asyncResult;
         }
 
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
                 Justification = "Pool thread exceptions are not suppressed, they will be thrown when calling the EndOperation method.")]
-        internal static IAsyncResult BeginOperation<TResult>(Func<IAsyncContext, TResult> operation, AsyncConfig asyncConfig, [CallerMemberName] string beginMethod = null)
-            where TResult : class
+        internal static IAsyncResult BeginOperation<TResult>(Func<IAsyncContext, TResult> operation, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
+            where TResult : class?
         {
             #region Local Methods
 
@@ -549,11 +547,12 @@ namespace KGySoft.Drawing
 
                 try
                 {
-                    TResult result = context.Operation.Invoke(context);
+                    TResult result = context.Operation!.Invoke(context);
                     if (context.IsCancellationRequested)
                         context.SetCanceled();
                     else
-                        context.SetResult(result);
+                        // a non-nullable TResult will not be null if the operation was not canceled
+                        context.SetResult(result!);
                 }
                 catch (OperationCanceledException)
                 {
@@ -574,11 +573,11 @@ namespace KGySoft.Drawing
                 asyncResult.CompletedSynchronously = true;
             }
             else
-                ThreadPool.QueueUserWorkItem(DoWork, asyncResult);
+                ThreadPool.QueueUserWorkItem(DoWork!, asyncResult);
             return asyncResult;
         }
 
-        internal static IAsyncResult FromCompleted(AsyncConfig asyncConfig, [CallerMemberName]string beginMethod = null)
+        internal static IAsyncResult FromCompleted(AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
         {
             var asyncResult = new AsyncResultContext(beginMethod, null, asyncConfig);
             asyncResult.SetCompleted();
@@ -586,11 +585,20 @@ namespace KGySoft.Drawing
             return asyncResult;
         }
 
-        internal static IAsyncResult FromResult<TResult>(TResult result, AsyncConfig asyncConfig, [CallerMemberName]string beginMethod = null)
+        internal static IAsyncResult FromResult<TResult>(TResult result, TResult canceledValue, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
             where TResult : class
         {
             var asyncResult = new AsyncResultContext<TResult>(beginMethod, null, asyncConfig);
-            asyncResult.SetResult(result);
+            if (asyncResult.IsCancellationRequested)
+            {
+                if (asyncResult.ThrowIfCanceled)
+                    asyncResult.SetCanceled();
+                else
+                    asyncResult.SetResult(canceledValue);
+            }
+            else
+                asyncResult.SetResult(result);
+
             asyncResult.CompletedSynchronously = true;
             return asyncResult;
         }
@@ -599,7 +607,7 @@ namespace KGySoft.Drawing
         {
             if (asyncResult == null)
                 throw new ArgumentNullException(nameof(asyncResult), PublicResources.ArgumentNull);
-            if (!(asyncResult is AsyncResultContext result) || result.GetType() != typeof(AsyncResultContext) || result.BeginMethodName != beginMethodName || result.IsDisposed)
+            if (asyncResult is not AsyncResultContext result || result.GetType() != typeof(AsyncResultContext) || result.BeginMethodName != beginMethodName || result.IsDisposed)
                 throw new InvalidOperationException(Res.InvalidAsyncResult(beginMethodName));
             try
             {
@@ -611,12 +619,12 @@ namespace KGySoft.Drawing
             }
         }
 
-        internal static TResult EndOperation<TResult>(IAsyncResult asyncResult, string beginMethodName)
+        internal static TResult? EndOperation<TResult>(IAsyncResult asyncResult, string beginMethodName)
             where TResult : class
         {
             if (asyncResult == null)
                 throw new ArgumentNullException(nameof(asyncResult), PublicResources.ArgumentNull);
-            if (!(asyncResult is AsyncResultContext<TResult> result) || result.BeginMethodName != beginMethodName || result.IsDisposed)
+            if (asyncResult is not AsyncResultContext<TResult> result || result.BeginMethodName != beginMethodName || result.IsDisposed)
                 throw new InvalidOperationException(Res.InvalidAsyncResult(beginMethodName));
             try
             {
@@ -631,14 +639,14 @@ namespace KGySoft.Drawing
 #if !NET35
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Pool thread exceptions are not suppressed, they will be thrown when task is awaited or Result is accessed.")]
-        internal static Task<TResult> DoOperationAsync<TResult>(Func<IAsyncContext, TResult> operation, TaskConfig asyncConfig)
+        internal static Task<TResult?> DoOperationAsync<TResult>(Func<IAsyncContext, TResult?> operation, TaskConfig? asyncConfig)
         {
             #region Local Methods
 
             // this method is executed on a pool thread
             static void DoWork(object state)
             {
-                var (context, completion, func) = ((TaskContext, TaskCompletionSource<TResult>, Func<IAsyncContext, TResult>))state;
+                var (context, completion, func) = ((TaskContext, TaskCompletionSource<TResult?>, Func<IAsyncContext, TResult>))state;
                 try
                 {
                     TResult result = func.Invoke(context);
@@ -667,8 +675,8 @@ namespace KGySoft.Drawing
 
             #endregion
 
-            TaskContext taskContext = new TaskContext(asyncConfig);
-            var completionSource = new TaskCompletionSource<TResult>(taskContext.State);
+            var taskContext = new TaskContext(asyncConfig);
+            var completionSource = new TaskCompletionSource<TResult?>(taskContext.State);
             if (taskContext.IsCancellationRequested)
             {
                 if (taskContext.ThrowIfCanceled)
@@ -677,21 +685,21 @@ namespace KGySoft.Drawing
                     completionSource.SetResult(default);
             }
             else
-                ThreadPool.QueueUserWorkItem(DoWork, (taskContext, completionSource, operation));
+                ThreadPool.QueueUserWorkItem(DoWork!, (taskContext, completionSource, operation));
 
             return completionSource.Task;
         }
 
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Pool thread exceptions are not suppressed, they will be thrown when task is awaited or Result is accessed.")]
-        internal static Task DoOperationAsync(Action<IAsyncContext> operation, TaskConfig asyncConfig)
+        internal static Task DoOperationAsync(Action<IAsyncContext> operation, TaskConfig? asyncConfig)
         {
             #region Local Methods
 
             // this method is executed on a pool thread
             static void DoWork(object state)
             {
-                var (context, completion, op) = ((TaskContext, TaskCompletionSource<object>, Action<IAsyncContext>))state;
+                var (context, completion, op) = ((TaskContext, TaskCompletionSource<object?>, Action<IAsyncContext>))state;
                 try
                 {
                     op.Invoke(context);
@@ -715,8 +723,8 @@ namespace KGySoft.Drawing
 
             #endregion
 
-            TaskContext taskContext = new TaskContext(asyncConfig);
-            var completionSource = new TaskCompletionSource<object>(taskContext.State);
+            var taskContext = new TaskContext(asyncConfig);
+            var completionSource = new TaskCompletionSource<object?>(taskContext.State);
             if (taskContext.IsCancellationRequested)
             {
                 if (taskContext.ThrowIfCanceled)
@@ -725,15 +733,15 @@ namespace KGySoft.Drawing
                     completionSource.SetResult(default);
             }
             else
-                ThreadPool.QueueUserWorkItem(DoWork, (taskContext, completionSource, operation));
+                ThreadPool.QueueUserWorkItem(DoWork!, (taskContext, completionSource, operation));
 
             return completionSource.Task;
         }
 
-        internal static Task FromCompleted(TaskConfig asyncConfig)
+        internal static Task FromCompleted(TaskConfig? asyncConfig)
         {
-            TaskContext taskContext = new TaskContext(asyncConfig);
-            var completionSource = new TaskCompletionSource<object>(taskContext.State);
+            var taskContext = new TaskContext(asyncConfig);
+            var completionSource = new TaskCompletionSource<object?>(taskContext.State);
             if (taskContext.IsCancellationRequested && taskContext.ThrowIfCanceled)
                 completionSource.SetCanceled();
             else
@@ -742,17 +750,16 @@ namespace KGySoft.Drawing
             return completionSource.Task;
         }
 
-        internal static Task<TResult> FromResult<TResult>(TResult result, TaskConfig asyncConfig)
-            where TResult : class
+        internal static Task<TResult> FromResult<TResult>(TResult result, TResult canceledValue, TaskConfig? asyncConfig)
         {
-            TaskContext taskContext = new TaskContext(asyncConfig);
+            var taskContext = new TaskContext(asyncConfig);
             var completionSource = new TaskCompletionSource<TResult>(taskContext.State);
             if (taskContext.IsCancellationRequested)
             {
                 if (taskContext.ThrowIfCanceled)
                     completionSource.SetCanceled();
                 else
-                    completionSource.SetResult(default);
+                    completionSource.SetResult(canceledValue);
             }
             else
                 completionSource.SetResult(result);

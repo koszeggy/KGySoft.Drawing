@@ -34,13 +34,13 @@ namespace KGySoft.Drawing.Imaging
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
         /// so it has a bit higher chance that every thread sees the last value was set by itself and no recreation is needed.
         /// </summary>
-        private TRow lastRow;
+        private TRow? lastRow;
 
         #endregion
 
         #region Constructors
 
-        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 0, Palette palette = null)
+        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
             : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette)
         {
         }
@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
         public override unsafe IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
-            TRow result = lastRow;
+            TRow? result = lastRow;
             if (result?.Index == y)
                 return result;
 

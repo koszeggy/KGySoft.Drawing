@@ -44,7 +44,7 @@ namespace KGySoft.Drawing
         /// Gets an <see cref="IDrawingProgress"/> instance that can be used to report progress, or <see langword="null"/>&#160;if
         /// no progress reporter belongs to the current operation.
         /// </summary>
-        IDrawingProgress Progress { get; }
+        IDrawingProgress? Progress { get; }
 
         #endregion
 

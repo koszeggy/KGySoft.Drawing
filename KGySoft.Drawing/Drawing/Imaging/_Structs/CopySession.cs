@@ -40,8 +40,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Fields
         
-        internal IBitmapDataInternal Source;
-        internal IBitmapDataInternal Target;
+        [AllowNull]internal IBitmapDataInternal Source;
+        [AllowNull]internal IBitmapDataInternal Target;
         internal Rectangle SourceRectangle;
         internal Rectangle TargetRectangle;
 
@@ -206,8 +206,7 @@ namespace KGySoft.Drawing.Imaging
             });
         }
 
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-        internal void PerformDraw(IQuantizer quantizer, IDitherer ditherer)
+        internal void PerformDraw(IQuantizer? quantizer, IDitherer? ditherer)
         {
             if (quantizer == null)
             {
@@ -497,8 +496,6 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecurityCritical]
-        [SuppressMessage("Microsoft.Security", "CA2140:Transparent code must not reference security critical items",
-            Justification = "False alarm, SecurityCritical is applied**")]
         private unsafe void DoCopyRaw(int sourceStride, int targetStride, byte* sourceOrigin, byte* targetOrigin)
         {
             // Sequential processing

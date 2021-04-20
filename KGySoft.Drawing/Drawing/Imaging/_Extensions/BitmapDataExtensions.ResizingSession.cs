@@ -68,8 +68,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Internal Methods
             
-            [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-            internal void PerformResize(IQuantizer quantizer, IDitherer ditherer)
+            internal void PerformResize(IQuantizer? quantizer, IDitherer? ditherer)
             {
                 if (quantizer == null)
                 {
@@ -121,7 +120,7 @@ namespace KGySoft.Drawing.Imaging
             internal void PerformResizeDirect()
             {
                 Action<int> processRow = target.IsFastPremultiplied()
-                    ? (Action<int>)ProcessRowPremultiplied
+                    ? ProcessRowPremultiplied
                     : ProcessRowStraight;
 
                 // Sequential processing
@@ -491,8 +490,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Internal Methods
 
-            [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope", Justification = "False alarm, initSource is disposed if needed")]
-            internal void PerformResize(IQuantizer quantizer, IDitherer ditherer)
+            internal void PerformResize(IQuantizer? quantizer, IDitherer? ditherer)
             {
                 if (quantizer == null)
                 {
@@ -1139,7 +1137,6 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             internal int StartIndex { get; }
-
             internal int Length { get; }
 
             #endregion
@@ -1148,7 +1145,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal ResizeKernel(ArraySection<float> kernelMapBuffer, int startIndex, int length)
             {
-                this.kernelBuffer = kernelMapBuffer;
+                kernelBuffer = kernelMapBuffer;
                 StartIndex = startIndex;
                 Length = length;
             }

@@ -17,7 +17,6 @@
 #region Usings
 
 using System.Drawing;
-using System.Drawing.Imaging;
 
 #endregion
 

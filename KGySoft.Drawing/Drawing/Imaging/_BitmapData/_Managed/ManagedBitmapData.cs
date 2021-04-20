@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Fields
 
-        private TRow lastRow;
+        private TRow? lastRow;
 
         #endregion
 
@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette palette = null)
+        internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
         {
             Debug.Assert(size.Width > 0 && size.Height > 0, "Non-empty size expected");
             Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
@@ -109,7 +109,7 @@ namespace KGySoft.Drawing.Imaging
         public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
-            TRow result = lastRow;
+            TRow? result = lastRow;
             if (result?.Index == y)
                 return result;
 

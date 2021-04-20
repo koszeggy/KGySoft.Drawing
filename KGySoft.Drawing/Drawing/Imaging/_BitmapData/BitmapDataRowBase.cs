@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -29,7 +30,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        internal BitmapDataBase BitmapData;
+        [AllowNull]internal BitmapDataBase BitmapData;
 
         #endregion
 
@@ -76,10 +77,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowXOutOfRange()
         {
-#pragma warning disable CA2208
             // ReSharper disable once NotResolvedInText
             throw new ArgumentOutOfRangeException("x", PublicResources.ArgumentOutOfRange);
-#pragma warning restore CA2208
         }
 
         #endregion

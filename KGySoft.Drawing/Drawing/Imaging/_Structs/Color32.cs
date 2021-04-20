@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
@@ -52,7 +51,6 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Fields
 
         #region Public Fields
-#pragma warning disable CA1051 // Do not declare visible instance fields - the fields (and the whole struct) are read-only
 
         /// <summary>
         /// Gets the alpha component value of this <see cref="Color32"/> structure.
@@ -78,7 +76,6 @@ namespace KGySoft.Drawing.Imaging
         [FieldOffset(0)]
         public readonly byte B;
 
-#pragma warning restore CA1051
         #endregion
 
         #region Private Fields
@@ -249,7 +246,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="obj">The <see cref="object" /> to compare with this <see cref="Color32"/> instance.</param>
         /// <returns><see langword="true"/>, if the current <see cref="Color32"/> instance is equal to the <paramref name="obj" /> parameter; otherwise, <see langword="false" />.</returns>
-        public override bool Equals(object obj) => obj is Color32 other && Equals(other);
+        public override bool Equals(object? obj) => obj is Color32 other && Equals(other);
 
         /// <summary>
         /// Returns a hash code for this instance.
@@ -261,7 +258,6 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the string representation of this <see cref="Color32"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="Color32"/> instance.</returns>
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, ToString of integers is not affected by culture")]
         public override string ToString() => $"{value:X8} [A={A}; R={R}; G={G}; B={B}]";
 
         #endregion

@@ -23,14 +23,16 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// Receives information used to retrieve a stock Shell icon. This structure is used in a call SHGetStockIconInfo.
     /// </summary>
-    [StructLayoutAttribute(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
+    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
     internal struct SHSTOCKICONINFO
     {
         #region Constants
 
+        // ReSharper disable once InconsistentNaming
         private const int MAX_PATH = 260;
 
         #endregion

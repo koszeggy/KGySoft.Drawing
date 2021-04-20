@@ -33,13 +33,13 @@ namespace KGySoft.Drawing
         /// Gets or sets a callback that can return whether cancellation has been requested.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
-        public Func<bool> IsCancelRequestedCallback { get; set; }
+        public Func<bool>? IsCancelRequestedCallback { get; set; }
 
         /// <summary>
         /// Gets or sets a callback that will be invoked when the operation is completed.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
-        public AsyncCallback CompletedCallback { get; set; }
+        public AsyncCallback? CompletedCallback { get; set; }
 
         #endregion
 
@@ -57,7 +57,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="completedCallback">A callback that will be invoked when the operation is completed..</param>
         /// <param name="isCancelRequestedCallback">A callback that can return whether cancellation has been requested.</param>
-        public AsyncConfig(AsyncCallback completedCallback, Func<bool> isCancelRequestedCallback = null)
+        public AsyncConfig(AsyncCallback? completedCallback, Func<bool>? isCancelRequestedCallback = null)
         {
             CompletedCallback = completedCallback;
             IsCancelRequestedCallback = isCancelRequestedCallback;

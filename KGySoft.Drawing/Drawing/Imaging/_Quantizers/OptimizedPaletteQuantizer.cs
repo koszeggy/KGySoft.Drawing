@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -157,7 +156,7 @@ namespace KGySoft.Drawing.Imaging
 
             void AddColor(Color32 c);
 
-            Color32[] GeneratePalette(IAsyncContext context);
+            Color32[]? GeneratePalette(IAsyncContext context);
 
             #endregion
         }
@@ -177,7 +176,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
-            public Palette Palette { get; }
+            public Palette? Palette { get; }
 
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
@@ -202,15 +201,17 @@ namespace KGySoft.Drawing.Imaging
             {
             }
 
-            public Color32 GetQuantizedColor(Color32 origColor) => Palette.GetNearestColor(origColor);
+            public Color32 GetQuantizedColor(Color32 origColor)
+                // palette is null only if the initialization was canceled, but then this method is not called
+                => Palette!.GetNearestColor(origColor);
 
             #endregion
 
             #region Private Methods
 
-            private Palette InitializePalette(IReadableBitmapData source, IAsyncContext context)
+            private Palette? InitializePalette(IReadableBitmapData source, IAsyncContext context)
             {
-                using TAlg alg = new TAlg();
+                using var alg = new TAlg();
                 alg.Initialize(quantizer.maxColors, source);
                 int width = source.Width;
                 IReadableBitmapDataRow row = source.FirstRow;
@@ -233,8 +234,8 @@ namespace KGySoft.Drawing.Imaging
                     context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
-                Color32[] palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette, quantizer.backColor, quantizer.alphaThreshold);
+                Color32[]? palette = alg.GeneratePalette(context);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.backColor, quantizer.alphaThreshold);
             }
 
             #endregion
@@ -410,11 +411,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, Enum.ToString is not affected by culture")]
-        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext context)
+        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext? context)
         {
-            if (context == null)
-                context = AsyncContext.Null;
+            context ??= AsyncContext.Null;
             switch (algorithm)
             {
                 case Algorithm.Octree:

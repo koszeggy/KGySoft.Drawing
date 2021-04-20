@@ -17,7 +17,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -25,8 +24,6 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-#pragma warning disable CA1814 // arrays in this class are better to be matrices than jagged arrays as they are always rectangular
-
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for error diffusion dithering.
     /// Use the static properties of this class to use predefined error diffusion filters or the <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool,bool?)">constructor</see> to create a custom one.
@@ -141,15 +138,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Fields
 
-        private static ErrorDiffusionDitherer floydSteinberg;
-        private static ErrorDiffusionDitherer jarvisJudiceNinke;
-        private static ErrorDiffusionDitherer stucki;
-        private static ErrorDiffusionDitherer burkes;
-        private static ErrorDiffusionDitherer sierra3;
-        private static ErrorDiffusionDitherer sierra2;
-        private static ErrorDiffusionDitherer sierraLite;
-        private static ErrorDiffusionDitherer stevensonArce;
-        private static ErrorDiffusionDitherer atkinson;
+        private static ErrorDiffusionDitherer? floydSteinberg;
+        private static ErrorDiffusionDitherer? jarvisJudiceNinke;
+        private static ErrorDiffusionDitherer? stucki;
+        private static ErrorDiffusionDitherer? burkes;
+        private static ErrorDiffusionDitherer? sierra3;
+        private static ErrorDiffusionDitherer? sierra2;
+        private static ErrorDiffusionDitherer? sierraLite;
+        private static ErrorDiffusionDitherer? stevensonArce;
+        private static ErrorDiffusionDitherer? atkinson;
 
         #endregion
 
@@ -856,9 +853,7 @@ namespace KGySoft.Drawing.Imaging
         /// IDitherer ditherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureErrorDiffusionMode(byBrightness: true);
         /// ]]></code>
         /// </example>
-        [SuppressMessage("Microsoft.Maintainability", "CA1500:VariableNamesShouldNotMatchFieldNames",
-            Justification = "No conflict, a new instance is created")]
-        // ReSharper disable once ParameterHidesMember
+        // ReSharper disable once ParameterHidesMember - No conflict, a new instance is created
         public ErrorDiffusionDitherer ConfigureErrorDiffusionMode(bool? byBrightness) => new ErrorDiffusionDitherer(this, isSerpentineProcessing, byBrightness);
 
         /// <summary>
@@ -902,10 +897,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext context)
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
             => isSerpentineProcessing
                 ? new DitheringSessionSerpentine(quantizer, this, source)
-                : (IDitheringSession)new DitheringSessionRaster(quantizer, this, source);
+                : new DitheringSessionRaster(quantizer, this, source);
 
         #endregion
 

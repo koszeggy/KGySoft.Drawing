@@ -32,11 +32,11 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
-        [SecuritySafeCritical]
+        [SecurityCritical]
         internal static unsafe void CopyMemory(IntPtr source, IntPtr target, int length)
             => CopyMemory((byte*)source, (byte*)target, length);
 
-        [SecuritySafeCritical]
+        [SecurityCritical]
         internal static unsafe void CopyMemory(byte* source, byte* target, int length)
         {
             if (OSUtils.IsWindows)
@@ -51,11 +51,11 @@ namespace KGySoft.Drawing
             }
         }
 
-        [SecuritySafeCritical]
+        [SecurityCritical]
         internal static unsafe bool CompareMemory(IntPtr p1, IntPtr p2, int length)
             => CompareMemory((byte*)p1, (byte*)p2, length);
 
-        [SecuritySafeCritical]
+        [SecurityCritical]
         internal static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
             => OSUtils.IsWindows
                 ? msvcrt.CompareMemory(new IntPtr(p1),  new IntPtr(p2), length)

@@ -18,6 +18,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 #endregion
 
@@ -39,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
                 private uint sumGreen;
                 private uint sumBlue;
                 private int pixelCount;
-                private OctreeNode[] children;
+                private OctreeNode?[]? children;
 
                 #endregion
 
@@ -59,7 +60,7 @@ namespace KGySoft.Drawing.Imaging
                         // And due to reducing no more than two levels can have non-empty nodes.
                         for (int index = 0; index < 8; index++)
                         {
-                            OctreeNode node = children[index];
+                            OctreeNode? node = children[index];
                             if (node != null)
                                 result += node.pixelCount;
                         }
@@ -110,9 +111,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     Debug.Assert(level < parent.bpp);
-
-                    if (children == null)
-                        children = new OctreeNode[8];
+                    children ??= new OctreeNode[8];
 
                     // Generating a 0..7 index based on the color components and adding new branches on demand.
                     int mask = 128 >> level;
@@ -120,16 +119,16 @@ namespace KGySoft.Drawing.Imaging
                         | ((color.G & mask) == mask ? 2 : 0)
                         | ((color.B & mask) == mask ? 1 : 0);
 
-                    if (children[branchIndex] == null)
-                        children[branchIndex] = new OctreeNode(level, parent);
-                    return children[branchIndex].AddColor(color, level + 1);
+                    ref OctreeNode? childRef = ref children[branchIndex];
+                    childRef ??= new OctreeNode(level, parent);
+                    return childRef.AddColor(color, level + 1);
                 }
 
                 internal void MergeNodes(IAsyncContext context, ref int leavesCount)
                 {
                     #region Local Methods
 
-                    static int CompareByBrightness(OctreeNode a, OctreeNode b)
+                    static int CompareByBrightness(OctreeNode? a, OctreeNode? b)
                     {
                         if (a == null || b == null)
                             return a == b ? 0 : a == null ? -1 : 1;
@@ -139,7 +138,7 @@ namespace KGySoft.Drawing.Imaging
                         return ca.GetBrightness() - cb.GetBrightness();
                     }
 
-                    int CompareByWeightedBrightness(OctreeNode a, OctreeNode b)
+                    int CompareByWeightedBrightness(OctreeNode? a, OctreeNode? b)
                     {
                         if (a == null || b == null)
                             return a == b ? 0 : a == null ? -1 : 1;
@@ -159,12 +158,12 @@ namespace KGySoft.Drawing.Imaging
                     // Note: reordering children is not a problem because we don't add more colors in merging phase.
                     if (parent.ColorCount - parent.maxColors < 8)
                         Array.Sort(children, parent.maxColors - (parent.hasTransparency ? 1 : 0) <= 2
-                            ? (Comparison<OctreeNode>)CompareByBrightness
+                            ? CompareByBrightness
                             : CompareByWeightedBrightness);
 
                     for (int i = 0; i < 8; i++)
                     {
-                        OctreeNode node = children[i];
+                        OctreeNode? node = children[i];
                         if (node == null)
                             continue;
 
@@ -207,7 +206,7 @@ namespace KGySoft.Drawing.Imaging
                     if (children == null || context.IsCancellationRequested)
                         return;
 
-                    foreach (OctreeNode child in children)
+                    foreach (OctreeNode? child in children)
                     {
                         if (child == null)
                             continue;
@@ -243,8 +242,8 @@ namespace KGySoft.Drawing.Imaging
             private int bpp;
             private bool hasTransparency;
 
-            private List<OctreeNode>[] levels;
-            private OctreeNode root;
+            [AllowNull]private List<OctreeNode>[] levels;
+            [AllowNull]private OctreeNode root;
             private int leavesCount;
 
             #endregion
@@ -283,7 +282,7 @@ namespace KGySoft.Drawing.Imaging
                     leavesCount++;
             }
 
-            public Color32[] GeneratePalette(IAsyncContext context)
+            public Color32[]? GeneratePalette(IAsyncContext context)
             {
                 context.Progress?.New(DrawingOperation.GeneratingPalette, maxColors + (ColorCount > maxColors ? ColorCount - maxColors : 0));
                 if (ColorCount > maxColors)

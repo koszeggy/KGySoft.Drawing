@@ -72,7 +72,7 @@ namespace KGySoft.Drawing.Imaging
         /// or <see langword="null"/>&#160;if the owner <see cref="Bitmap"/> is not an indexed one. For indexed bitmaps the <see cref="PixelFormat"/>
         /// property returns <see cref="System.Drawing.Imaging.PixelFormat.Format8bppIndexed"/>, <see cref="System.Drawing.Imaging.PixelFormat.Format4bppIndexed"/> or <see cref="System.Drawing.Imaging.PixelFormat.Format1bppIndexed"/>.
         /// </summary>
-        Palette Palette { get; }
+        Palette? Palette { get; }
 
         /// <summary>
         /// Gets the size of a row in bytes, or zero, if this <see cref="IBitmapData"/> instance does not have an actual raw buffer to access.

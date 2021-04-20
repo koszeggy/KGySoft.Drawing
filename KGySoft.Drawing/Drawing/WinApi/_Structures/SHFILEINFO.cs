@@ -23,6 +23,7 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// Contains information about a file object.
     /// </summary>

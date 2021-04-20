@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [SecuritySafeCritical]
-        protected NativeBitmapDataBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette palette)
+        protected NativeBitmapDataBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette? palette)
         {
             // It must be the same as bitmap format except if LockBits is not supported with the original pixel format (occurs on Linux).
             Debug.Assert(bitmap.PixelFormat == pixelFormat || !OSUtils.IsWindows, "Unmatching pixel format");
@@ -97,11 +97,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public override bool TrySetPalette(Palette palette)
+        public override bool TrySetPalette(Palette? palette)
         {
             if (!base.TrySetPalette(palette))
                 return false;
-            bitmap.SetPalette(palette);
+            bitmap.SetPalette(palette!);
             return true;
         }
 

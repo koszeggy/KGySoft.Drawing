@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly Color32 color;
 
-        private IBitmapDataRowInternal lastRow;
+        private IBitmapDataRowInternal? lastRow;
 
         #endregion
 
@@ -89,7 +89,7 @@ namespace KGySoft.Drawing.Imaging
         public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row. This is only needed because Index is mutable.
-            IBitmapDataRowInternal result = lastRow;
+            IBitmapDataRowInternal? result = lastRow;
             if (result?.Index == y)
                 return result;
 

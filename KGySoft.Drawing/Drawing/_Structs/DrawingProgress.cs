@@ -17,7 +17,7 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
+
 using KGySoft.CoreLibraries;
 
 #endregion
@@ -99,13 +99,12 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="obj">The <see cref="object" /> to compare with this instance.</param>
         /// <returns><see langword="true"/>&#160;if the specified <see cref="object" /> is equal to this instance; otherwise, <c>false</c>.</returns>
-        public override bool Equals(object obj) => obj is DrawingProgress drawingProgress && Equals(drawingProgress);
+        public override bool Equals(object? obj) => obj is DrawingProgress drawingProgress && Equals(drawingProgress);
 
         /// <summary>
         /// Returns a hash code for this instance.
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
-        [SuppressMessage("ReSharper", "NonReadonlyMemberInGetHashCode", Justification = "A value type cannot be changed inside a hashed collection")]
         public override int GetHashCode() => ((int)OperationType, MaximumValue, CurrentValue).GetHashCode();
 
         /// <summary>

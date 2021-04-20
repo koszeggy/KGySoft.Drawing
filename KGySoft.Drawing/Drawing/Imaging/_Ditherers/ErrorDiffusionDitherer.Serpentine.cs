@@ -14,12 +14,6 @@
 
 #endregion
 
-#region Usings
-
-using System.Diagnostics;
-
-#endregion
-
 namespace KGySoft.Drawing.Imaging
 {
     public partial class ErrorDiffusionDitherer

@@ -50,7 +50,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
-            public Palette Palette => null;
+            public Palette? Palette => null;
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
 
@@ -129,11 +129,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private readonly Func<Color32, Color32> quantizingFunction;
+        private readonly Func<Color32, Color32>? quantizingFunction;
         private readonly Color32 backColor;
         private readonly byte alphaThreshold;
         private readonly bool blendAlphaBeforeQuantize;
-        private readonly Palette palette;
+        private readonly Palette? palette;
 
         #endregion
 
@@ -165,7 +165,7 @@ namespace KGySoft.Drawing.Imaging
             this.palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
             backColor = palette.BackColor;
             alphaThreshold = palette.AlphaThreshold;
-            PixelFormatHint = palette.Count > 256 ? PixelFormat.Format32bppArgb // we could detect if 24bpp but it's not worth the cost
+            PixelFormatHint = palette.Count > 256 ? palette.HasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb
                 : palette.Count > 16 ? PixelFormat.Format8bppIndexed
                 : palette.Count > 2 ? PixelFormat.Format4bppIndexed
                 : PixelFormat.Format1bppIndexed;
@@ -1487,7 +1487,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
-                    return FromCustomPalette(bitmapData.Palette);
+                    return FromCustomPalette(bitmapData.Palette!); // if palette is null, the exception will be thrown from PredefinedColorsQuantizer
                 case PixelFormat.Format16bppArgb1555:
                     return Argb1555(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold);
                 case PixelFormat.Format16bppRgb565:
@@ -1570,9 +1570,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
-        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext context)
-            => palette != null ? (IQuantizingSession)new QuantizingSessionIndexed(this, palette)
-                : new QuantizingSessionCustomMapping(this, quantizingFunction);
+        IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext? context)
+            => palette != null
+                ? new QuantizingSessionIndexed(this, palette)
+                : new QuantizingSessionCustomMapping(this, quantizingFunction!);
 
         #endregion
 

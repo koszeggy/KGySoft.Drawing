@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        private byte A => (byte)((Value & alphaMask) == 0 ? 0 : Byte.MaxValue);
+        private byte A => (Value & alphaMask) == 0 ? (byte)0 : Byte.MaxValue;
         private byte R => (byte)(((Value & redMask) >> 7) | ((Value & redMask) >> 12));
         private byte G => (byte)(((Value & greenMask) >> 2) | ((Value & greenMask) >> 7));
         private byte B => (byte)(((Value & blueMask) << 3) | ((Value & blueMask) >> 2));

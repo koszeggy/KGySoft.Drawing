@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
 
         IBitmapDataRowInternal DoGetRow(int y);
 
-        bool TrySetPalette(Palette palette);
+        bool TrySetPalette(Palette? palette);
 
         #endregion
     }

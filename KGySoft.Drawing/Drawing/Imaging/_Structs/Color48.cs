@@ -83,7 +83,7 @@ namespace KGySoft.Drawing.Imaging
 
         public bool Equals(Color48 other) => R == other.R && G == other.G && B == other.B;
 
-        public override bool Equals(object obj) => obj is Color48 other && Equals(other);
+        public override bool Equals(object? obj) => obj is Color48 other && Equals(other);
 
         #endregion
 

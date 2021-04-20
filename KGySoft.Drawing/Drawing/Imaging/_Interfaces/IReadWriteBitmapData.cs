@@ -17,8 +17,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
-using System.Drawing.Imaging;
 
 #endregion
 
@@ -32,6 +30,7 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="IReadableBitmapData"/>
     /// <seealso cref="IWritableBitmapData"/>
     /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
+    // ReSharper disable once PossibleInterfaceMemberAmbiguity - intended, see new
     public interface IReadWriteBitmapData : IReadableBitmapData, IWritableBitmapData
     {
         #region Properties and Indexers

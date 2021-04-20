@@ -139,8 +139,7 @@ namespace KGySoft.Drawing
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <exception cref="NotSupportedException"><paramref name="graphics"/> belongs to a <see cref="Metafile"/>, which cannot be accessed until the <paramref name="graphics"/> is disposed.</exception>
         [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
-        public static Bitmap ToBitmap(this Graphics graphics, bool visibleClipOnly)
+        public static Bitmap? ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
             if (!OSUtils.IsWindows)
                 throw new PlatformNotSupportedException(Res.RequiresWindows);
@@ -169,7 +168,7 @@ namespace KGySoft.Drawing
                 targetHeight = (int)visibleRect.Height;
 
                 // there is a source image: copying so transparency is preserved
-                Image imgSource = graphics.GetBackingImage();
+                Image? imgSource = graphics.GetBackingImage();
                 if (imgSource != null)
                 {
                     if (imgSource is Metafile)
@@ -283,12 +282,11 @@ namespace KGySoft.Drawing
         /// <param name="radiusTopRight">Size of the top-right radius.</param>
         /// <param name="radiusBottomRight">Size of the bottom-right radius.</param>
         /// <param name="radiusBottomLeft">Size of the bottom-left radius.</param>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radiusTopLeft, int radiusTopRight, int radiusBottomRight, int radiusBottomLeft)
         {
-            Size size = new Size(radiusTopLeft << 1, radiusTopLeft << 1);
-            Rectangle arc = new Rectangle(bounds.Location, size);
-            GraphicsPath path = new GraphicsPath();
+            var size = new Size(radiusTopLeft << 1, radiusTopLeft << 1);
+            var arc = new Rectangle(bounds.Location, size);
+            var path = new GraphicsPath();
 
             // top left arc
             if (radiusTopLeft == 0)
@@ -345,10 +343,9 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bounds">A <see cref="Rectangle"/> structure that bounds the rounded rectangle.</param>
         /// <param name="radius">Size of the corner radius for each corners.</param>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         private static GraphicsPath CreateRoundedRectangle(Rectangle bounds, int radius)
         {
-            GraphicsPath path = new GraphicsPath();
+            var path = new GraphicsPath();
             if (radius == 0)
             {
                 path.AddRectangle(bounds);
@@ -356,8 +353,8 @@ namespace KGySoft.Drawing
             }
 
             int diameter = radius * 2;
-            Size size = new Size(diameter, diameter);
-            Rectangle arc = new Rectangle(bounds.Location, size);
+            var size = new Size(diameter, diameter);
+            var arc = new Rectangle(bounds.Location, size);
 
             // top left arc
             path.AddArc(arc, 180, 90);

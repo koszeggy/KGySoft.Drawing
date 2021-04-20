@@ -33,7 +33,7 @@ namespace KGySoft.Drawing
         /// Gets or sets an <see cref="IDrawingProgress"/> instance that can handle progress notifications.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
-        public IDrawingProgress Progress { get; set; }
+        public IDrawingProgress? Progress { get; set; }
 
         /// <summary>
         /// Gets or sets the maximum degree of parallelism. Zero or less means an automatic configuration based on CPU cores.
@@ -54,7 +54,7 @@ namespace KGySoft.Drawing
         /// can be used to distinguish this particular asynchronous operation from other ones.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
-        public object State { get; set; }
+        public object? State { get; set; }
 
         #endregion
     }

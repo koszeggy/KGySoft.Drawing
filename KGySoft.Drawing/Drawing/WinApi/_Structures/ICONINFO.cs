@@ -22,6 +22,7 @@ using System;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// Contains information about an icon or a cursor.
     /// </summary>

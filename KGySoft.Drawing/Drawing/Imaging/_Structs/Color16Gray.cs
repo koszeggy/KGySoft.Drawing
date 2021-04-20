@@ -14,8 +14,12 @@
 
 #endregion
 
+#region Usings
+
 using System;
 using System.Collections.Generic;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {
@@ -51,7 +55,7 @@ namespace KGySoft.Drawing.Imaging
 
         public bool Equals(Color16Gray other) => Value == other.Value;
 
-        public override bool Equals(object obj) => obj is Color16Gray other && Equals(other);
+        public override bool Equals(object? obj) => obj is Color16Gray other && Equals(other);
 
         #endregion
 

@@ -1,6 +1,5 @@
 ﻿#if NET35 || NET40
 using KGySoft.Drawing;
-using KGySoft.Reflection;
 
 // ReSharper disable once CheckNamespace
 namespace System.Runtime.ExceptionServices

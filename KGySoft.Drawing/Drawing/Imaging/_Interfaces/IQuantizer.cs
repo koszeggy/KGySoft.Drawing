@@ -68,7 +68,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncContext">Contains information for asynchronous processing about the current operation. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IQuantizingSession"/> instance that can be used to quantize the colors of the specified <see cref="IReadableBitmapData"/> instance.</returns>
-        IQuantizingSession Initialize(IReadableBitmapData source, IAsyncContext asyncContext = null);
+        IQuantizingSession Initialize(IReadableBitmapData source, IAsyncContext? asyncContext = null);
 
         #endregion
     }

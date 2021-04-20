@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static Size GetSize(this IBitmapData bitmapData) => bitmapData == null ? default : new Size(bitmapData.Width, bitmapData.Height);
+        internal static Size GetSize(this IBitmapData? bitmapData) => bitmapData == null ? default : new Size(bitmapData.Width, bitmapData.Height);
 
         internal static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
         {
@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Imaging
         {
             PixelFormat pixelFormat = bitmapData.PixelFormat;
             return pixelFormat == PixelFormat.Format32bppPArgb
-                || pixelFormat.IsPremultiplied() && (!(bitmapData is NativeBitmapDataBase) || ColorExtensions.Max16BppValue == UInt16.MaxValue);
+                || pixelFormat.IsPremultiplied() && (bitmapData is not NativeBitmapDataBase || ColorExtensions.Max16BppValue == UInt16.MaxValue);
         }
 
         #endregion
@@ -90,7 +90,7 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static void AdjustQuantizerAndDitherer(IBitmapData target, ref IQuantizer quantizer, ref IDitherer ditherer)
+        private static void AdjustQuantizerAndDitherer(IBitmapData target, ref IQuantizer? quantizer, ref IDitherer? ditherer)
         {
             if (quantizer != null || ditherer == null)
                 return;

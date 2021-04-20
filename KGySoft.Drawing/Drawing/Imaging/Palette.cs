@@ -61,14 +61,14 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Fields
 
-        private static Color32[] system8BppPalette;
-        private static Color32[] system4BppPalette;
-        private static Color32[] system1BppPalette;
-        private static Color32[] rgb332Palette;
-        private static Color32[] grayscale256Palette;
-        private static Color32[] grayscale16Palette;
-        private static Color32[] grayscale4Palette;
-        private static Color32[] blackAndWhitePalette;
+        private static Color32[]? system8BppPalette;
+        private static Color32[]? system4BppPalette;
+        private static Color32[]? system1BppPalette;
+        private static Color32[]? rgb332Palette;
+        private static Color32[]? grayscale256Palette;
+        private static Color32[]? grayscale16Palette;
+        private static Color32[]? grayscale4Palette;
+        private static Color32[]? blackAndWhitePalette;
 
         #endregion
 
@@ -76,11 +76,11 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly int transparentIndex = -1;
         private readonly Dictionary<Color32, int> color32ToIndex;
-        private readonly Func<Color32, int> customGetNearestColorIndex;
-        private readonly object syncRoot;
+        private readonly Func<Color32, int>? customGetNearestColorIndex;
+        private readonly object? syncRoot;
 
-        private Dictionary<Color32, int> lockFreeCache;
-        private Dictionary<Color32, int> lockingCache;
+        private Dictionary<Color32, int>? lockFreeCache;
+        private Dictionary<Color32, int>? lockingCache;
 
         #endregion
 
@@ -259,7 +259,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
-        public Palette(Color32[] entries, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, int> customGetNearestColorIndex = null)
+        public Palette(Color32[] entries, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, int>? customGetNearestColorIndex = null)
         {
             Entries = entries ?? throw new ArgumentNullException(nameof(entries), PublicResources.ArgumentNull);
             if (entries.Length == 0)
@@ -330,8 +330,9 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
-        public Palette(Color[] entries, Color backColor = default, byte alphaThreshold = 128, Func<Color32, int> customGetNearestColorIndex = null)
-            : this(entries?.Select(c => new Color32(c)).ToArray(), new Color32(backColor), alphaThreshold, customGetNearestColorIndex)
+        public Palette(Color[] entries, Color backColor = default, byte alphaThreshold = 128, Func<Color32, int>? customGetNearestColorIndex = null)
+            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException so the ArgumentNullException can be thrown by the other overload
+            : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, customGetNearestColorIndex)
         {
         }
 
@@ -429,7 +430,7 @@ namespace KGySoft.Drawing.Imaging
                 return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
             }
 
-            return new Palette(Rgb332Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+            return new Palette(Rgb332Palette, backColor, 0, directMapping ? GetNearestColorIndex : null);
         }
 
         /// <summary>
@@ -477,7 +478,7 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness() >> 4;
             }
 
-            return new Palette(Grayscale16Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+            return new Palette(Grayscale16Palette, backColor, 0, directMapping ? GetNearestColorIndex : null);
         }
 
         /// <summary>
@@ -503,7 +504,7 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness() >> 6;
             }
 
-            return new Palette(Grayscale4Palette, backColor, 0, directMapping ? GetNearestColorIndex : (Func<Color32, int>)null);
+            return new Palette(Grayscale4Palette, backColor, 0, directMapping ? GetNearestColorIndex : null);
         }
 
         /// <summary>
@@ -590,12 +591,12 @@ namespace KGySoft.Drawing.Imaging
                 return customGetNearestColorIndex.Invoke(c);
 
             // 2nd level cache: from the lock-free cache. This is null until we have enough cached colors.
-            Dictionary<Color32, int> lockFreeCacheInstance = lockFreeCache;
+            Dictionary<Color32, int>? lockFreeCacheInstance = lockFreeCache;
             if (lockFreeCacheInstance != null && lockFreeCacheInstance.TryGetValue(c, out result))
                 return result;
 
             // 3rd level cache: from the locking cache. This is null until the first non-palette color is queried.
-            lock (syncRoot)
+            lock (syncRoot!)
             {
                 if (lockingCache == null)
                     lockingCache = new Dictionary<Color32, int>(minCacheSize);
@@ -674,7 +675,7 @@ namespace KGySoft.Drawing.Imaging
             return true;
         }
 
-        internal bool Equals(Palette other)
+        internal bool Equals(Palette? other)
         {
             // not a public method because we don't want to adjust GetHashCode to these comparisons
             if (other == null || customGetNearestColorIndex != other.customGetNearestColorIndex || !BackColor.Equals(other.BackColor) || AlphaThreshold != other.AlphaThreshold)

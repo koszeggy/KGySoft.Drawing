@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Runtime.InteropServices;
 
 #endregion
@@ -144,11 +143,10 @@ namespace KGySoft.Drawing.Imaging
 
         public bool Equals(Color64 other) => value == other.value;
 
-        public override bool Equals(object obj) => obj is Color64 other && Equals(other);
+        public override bool Equals(object? obj) => obj is Color64 other && Equals(other);
 
         public override int GetHashCode() => value.GetHashCode();
 
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, ToString of integers is not affected by culture")]
         public override string ToString() => $"{value:X16} [A={A}; R={R}; G={G}; B={B}]";
 
         #endregion

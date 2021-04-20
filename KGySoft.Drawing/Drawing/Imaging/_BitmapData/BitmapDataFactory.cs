@@ -30,9 +30,13 @@ using KGySoft.Drawing.WinApi;
 
 #endregion
 
+#region Suppressions
+
 #if NET35
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
 #endif
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {
@@ -134,7 +138,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
-        public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat, Palette palette)
+        public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat, Palette? palette)
         {
             if (size.Width < 1 || size.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
@@ -158,7 +162,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return DoLoadBitmapData(AsyncContext.Null, stream);
+            return DoLoadBitmapData(AsyncContext.Null, stream)!;
         }
 
         /// <summary>
@@ -175,11 +179,11 @@ namespace KGySoft.Drawing.Imaging
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndLoad">EndLoad</see> method.</para>
         /// <para>This method is not a blocking call, though the operation is not parallelized and the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// </remarks>
-        public static IAsyncResult BeginLoad(Stream stream, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginLoad(Stream stream, AsyncConfig? asyncConfig = null)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return AsyncContext.BeginOperation(ctx => DoLoadBitmapData(AsyncContext.Null, stream), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
         }
 
         /// <summary>
@@ -187,8 +191,9 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET 4.0 and above you can use the <see cref="LoadAsync">LoadAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation.</returns>
-        public static IReadWriteBitmapData EndLoad(IAsyncResult asyncResult)
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
+        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        public static IReadWriteBitmapData? EndLoad(IAsyncResult asyncResult)
             => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginLoad));
 
 #if !NET35
@@ -199,15 +204,16 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stream">The stream to load the bitmap data from.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.
+        /// its result can be <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call, though the operation is not parallelized and the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// </remarks>
-        public static Task<IReadWriteBitmapData> LoadAsync(Stream stream, TaskConfig asyncConfig = null)
+        public static Task<IReadWriteBitmapData?> LoadAsync(Stream stream, TaskConfig? asyncConfig = null)
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return AsyncContext.DoOperationAsync(ctx => DoLoadBitmapData(AsyncContext.Null, stream), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
         }
 #endif
 
@@ -218,8 +224,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a native <see cref="IBitmapDataInternal"/> from a <see cref="Bitmap"/>.
         /// </summary>
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, an enum value is not affected by culture")]
-        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -262,12 +267,12 @@ namespace KGySoft.Drawing.Imaging
 
                 case PixelFormat.Format16bppRgb565:
                     return OSUtils.IsWindows
-                        ? (NativeBitmapDataBase)new NativeBitmapData<NativeBitmapDataRow16Rgb565>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
+                        ? new NativeBitmapData<NativeBitmapDataRow16Rgb565>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
                         : new NativeBitmapData<NativeBitmapDataRow16Rgb565Via24Bpp>(bitmap, PixelFormat.Format24bppRgb, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format16bppRgb555:
                     return OSUtils.IsWindows
-                        ? (NativeBitmapDataBase)new NativeBitmapData<NativeBitmapDataRow16Rgb555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
+                        ? new NativeBitmapData<NativeBitmapDataRow16Rgb555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
                         : new NativeBitmapData<NativeBitmapDataRow16Rgb555Via24Bpp>(bitmap, PixelFormat.Format24bppRgb, lockMode, backColor, alphaThreshold);
 
                 case PixelFormat.Format16bppArgb1555:
@@ -284,7 +289,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a native <see cref="IBitmapDataInternal"/> by a quantizer session re-using its palette if possible.
         /// </summary>
-        [SuppressMessage("Microsoft.Globalization", "CA1305:SpecifyIFormatProvider", Justification = "False alarm, an enum value is not affected by culture")]
         internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, IQuantizingSession quantizingSession)
         {
             if (bitmap == null)
@@ -321,7 +325,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a managed <see cref="IBitmapDataInternal"/> with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.
         /// </summary>
-        internal static IBitmapDataInternal CreateManagedBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette palette = null)
+        internal static IBitmapDataInternal CreateManagedBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
         {
             if (pixelFormat.IsIndexed() && palette != null)
             {
@@ -380,8 +384,6 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-            Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
         internal static void DoSaveBitmapData(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, Stream stream)
         {
             PixelFormat pixelFormat = bitmapData.PixelFormat;
@@ -398,7 +400,7 @@ namespace KGySoft.Drawing.Imaging
             writer.Write(bitmapData.BackColor.ToArgb());
             writer.Write(bitmapData.AlphaThreshold);
 
-            Palette palette = bitmapData.Palette;
+            Palette? palette = bitmapData.Palette;
             writer.Write(palette?.Count ?? 0);
             if (palette != null)
             {
@@ -438,7 +440,7 @@ namespace KGySoft.Drawing.Imaging
             int byteLength = pixelFormat.ToBitsPerPixel() >> 3;
 
             // using a temp 1x1 managed bitmap data for the conversion
-            using IBitmapDataInternal tempData = BitmapDataFactory.CreateManagedBitmapData(new Size(1, 1), pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold);
+            using IBitmapDataInternal tempData = CreateManagedBitmapData(new Size(1, 1), pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold);
             IBitmapDataRowInternal tempRow = tempData.DoGetRow(0);
             IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
             for (int y = 0; y < rect.Height; y++)
@@ -565,10 +567,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Load
 
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-            Justification = "The stream must not be disposed and the leaveOpen parameter for BinaryWriter is not available for all targeted platforms")]
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static IReadWriteBitmapData DoLoadBitmapData(IAsyncContext context, Stream stream)
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
+        private static IReadWriteBitmapData? DoLoadBitmapData(IAsyncContext context, Stream stream)
         {
             context.Progress?.New(DrawingOperation.Loading, 1000);
             var reader = new BinaryReader(stream);
@@ -580,7 +581,7 @@ namespace KGySoft.Drawing.Imaging
             Color32 backColor = Color32.FromArgb(reader.ReadInt32());
             byte alphaThreshold = reader.ReadByte();
 
-            Palette palette = null;
+            Palette? palette = null;
             int paletteLength = reader.ReadInt32();
             if (paletteLength > 0)
             {

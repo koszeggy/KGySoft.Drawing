@@ -34,9 +34,13 @@ using KGySoft.Drawing.WinApi;
 
 #endregion
 
+#region Suppressions
+
 #if NET35
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
 #endif
+
+#endregion
 
 namespace KGySoft.Drawing
 {
@@ -48,9 +52,9 @@ namespace KGySoft.Drawing
     {
         #region Fields
 
-        private static ImageCodecInfo[] encoders = ImageCodecInfo.GetImageEncoders();
+        private static ImageCodecInfo[]? encoders;
 
-        private static readonly Dictionary<Guid, Dictionary<PixelFormat, (PixelFormat TargetFormat, bool NonWindowsOnly)>> saveConversions = new Dictionary<Guid, Dictionary<PixelFormat, (PixelFormat, bool)>>
+        private static readonly Dictionary<Guid, Dictionary<PixelFormat, (PixelFormat TargetFormat, bool NonWindowsOnly)>> saveConversions = new()
         {
             [ImageFormat.Bmp.Guid] = new Dictionary<PixelFormat, (PixelFormat, bool)>
             {
@@ -140,7 +144,6 @@ namespace KGySoft.Drawing
         /// <seealso cref="BitmapDataExtensions.ToGrayscale"/>
         /// <seealso cref="BitmapDataExtensions.MakeGrayscale"/>
         /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Image ToGrayscale(this Image image)
             => image.ConvertPixelFormat(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray()));
 
@@ -226,10 +229,10 @@ namespace KGySoft.Drawing
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, Palette)"/>
-        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128)
+        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, palette, backColor, alphaThreshold);
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, palette, backColor, alphaThreshold)!;
         }
 
         /// <summary>
@@ -596,10 +599,10 @@ namespace KGySoft.Drawing
         /// <seealso cref="BitmapExtensions.Quantize"/>
         /// <seealso cref="BitmapExtensions.Dither"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)"/>
-        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null)
+        public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, quantizer, ditherer);
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, quantizer, ditherer)!;
         }
 
         #endregion
@@ -632,7 +635,7 @@ namespace KGySoft.Drawing
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
-        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
             return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
@@ -661,7 +664,7 @@ namespace KGySoft.Drawing
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
-        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
             => BeginConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
 
         /// <summary>
@@ -684,7 +687,7 @@ namespace KGySoft.Drawing
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
         /// </remarks>
-        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, AsyncConfig asyncConfig = null)
+        public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
             return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
@@ -695,8 +698,9 @@ namespace KGySoft.Drawing
         /// In .NET 4.0 and above you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormatAsync">ConvertPixelFormatAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation.</returns>
-        public static Bitmap EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
+        /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
+        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        public static Bitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
 
@@ -722,13 +726,14 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format,
+        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
+        public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
             return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
@@ -750,13 +755,14 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format,
+        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig asyncConfig = null)
+        public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
             => ConvertPixelFormatAsync(image, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
 
         /// <summary>
@@ -772,13 +778,14 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format.</returns>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format,
+        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/> method, which is available on every platform.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
         /// </remarks>
-        public static Task<Bitmap> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer = null, TaskConfig asyncConfig = null)
+        public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
             return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
@@ -823,7 +830,8 @@ namespace KGySoft.Drawing
         /// <para>This overload does not resize the image even if <paramref name="source"/> and <paramref name="target"/> have different DPI resolution.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Point targetLocation = default, IQuantizer quantizer = null, IDitherer ditherer = null)
+        public static void DrawInto(this Image source, Bitmap target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, quantizer, ditherer);
 
         /// <summary>
@@ -848,7 +856,8 @@ namespace KGySoft.Drawing
         /// <para>This overload does not resize the image even if <paramref name="source"/> and <paramref name="target"/> have different DPI resolution.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IDitherer ditherer)
+        public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IDitherer? ditherer)
+            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, null, ditherer);
 
         /// <summary>
@@ -874,7 +883,7 @@ namespace KGySoft.Drawing
         /// <para>This overload does not resize the image even if <paramref name="source"/> and <paramref name="target"/> have different DPI resolution.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IDitherer ditherer)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IDitherer? ditherer)
             => DrawInto(source, target, sourceRectangle, targetLocation, null, ditherer);
 
         /// <summary>
@@ -907,8 +916,7 @@ namespace KGySoft.Drawing
         /// <para>This overload does not resize the image even if <paramref name="source"/> and <paramref name="target"/> have different DPI resolution.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IQuantizer quantizer = null, IDitherer ditherer = null)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
@@ -981,7 +989,8 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
+            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, quantizer, ditherer, scalingMode);
 
         /// <summary>
@@ -1009,7 +1018,8 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IDitherer? ditherer, ScalingMode scalingMode = ScalingMode.Auto)
+            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, null, ditherer, scalingMode);
 
         /// <summary>
@@ -1035,6 +1045,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, ScalingMode scalingMode)
+            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, null, null, scalingMode);
 
         /// <summary>
@@ -1089,7 +1100,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer ditherer, ScalingMode scalingMode = ScalingMode.Auto)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IDitherer? ditherer, ScalingMode scalingMode = ScalingMode.Auto)
             => DrawInto(source, target, sourceRectangle, targetRectangle, null, ditherer, scalingMode);
 
         /// <summary>
@@ -1125,8 +1136,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as source.")]
-        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer quantizer = null, IDitherer ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
+        public static void DrawInto(this Image source, Bitmap target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
@@ -1180,7 +1190,7 @@ namespace KGySoft.Drawing
         /// <returns><see langword="true"/>&#160;if both images have the same content; otherwise, <see langword="false"/>.</returns>
         /// <remarks>If an image is not a <see cref="Bitmap"/> instance, a temporary <see cref="Bitmap"/> is created for the check.
         /// <note>This method compares images by raw content. If the images have padding in each stride (content row), padding content is considered as well.</note></remarks>
-        public static bool EqualsByContent(this Image image1, Image image2) => CompareImages(image1, image2);
+        public static bool EqualsByContent(this Image? image1, Image? image2) => CompareImages(image1, image2);
 
         #endregion
 
@@ -1195,7 +1205,6 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
         /// <remarks>The result icon will be always square sized and will contain only a single image.
         /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
-        [SecuritySafeCritical]
         public static Icon ToIcon(this Image image, int size, bool keepAspectRatio) => Icons.FromImage(image, size, keepAspectRatio, ScalingMode.Auto);
 
         /// <summary>
@@ -1209,7 +1218,6 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="Icon"/> instance created from the <paramref name="image"/>.</returns>
         /// <remarks>The result icon will be always square sized and will contain only a single image.
         /// To create a possibly non-squared icon, use the <see cref="ToIcon(Image,Color)"/> overload or the <see cref="Icons.Combine(Bitmap[])">Icons.Combine</see> method instead.</remarks>
-        [SecuritySafeCritical]
         public static Icon ToIcon(this Image image, int size, ScalingMode scalingMode, bool keepAspectRatio = true) => Icons.FromImage(image, size, keepAspectRatio, scalingMode);
 
         /// <summary>
@@ -1516,13 +1524,16 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
-        public static void SaveAsGif(this Image image, Stream stream, IQuantizer quantizer = null, IDitherer ditherer = null)
+        public static void SaveAsGif(this Image image, Stream stream, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+
             // Shortcut: GIF is saved as a GIF, including animated ones (exploiting the workaround in Image.Save)
             // Without this workaround animated GIFs (which have 32 BPP ARGB format in GDI+) would be converted and a single frame would be saved.
-            if (stream != null && image is Bitmap bmp && bmp.RawFormat.Guid == ImageFormat.Gif.Guid && bmp.PixelFormat.ToBitsPerPixel() >= 8)
+            if (image is Bitmap bmp && bmp.RawFormat.Guid == ImageFormat.Gif.Guid && bmp.PixelFormat.ToBitsPerPixel() >= 8)
             {
-                ImageCodecInfo encoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Gif.Guid);
+                ImageCodecInfo? encoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Gif.Guid);
                 if (encoder == null)
                     throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Gif));
                 try
@@ -1551,7 +1562,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">If a quantization has to be performed can specifies the ditherer to be used. If <see langword="null"/>, then no dithering will be performed. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        public static void SaveAsGif(this Image image, string fileName, IQuantizer quantizer = null, IDitherer ditherer = null)
+        public static void SaveAsGif(this Image image, string fileName, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -1583,14 +1594,13 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
-        /// <param name="palette">The desired custom palette to use. If <see langword="null"/>, and a palette cannot be taken from the source image, then a default palette will be used.
-        /// This parameter is ignored if <paramref name="image"/> has already a palette.</param>
+        /// <param name="palette">The desired custom palette to use. If <see langword="null"/>, and a palette cannot be taken from the source image, then a default palette will be used.</param>
         /// <remarks>
         /// <para>This method is kept for compatibility reasons only and calls the <see cref="SaveAsGif(Image, Stream, IQuantizer, IDitherer)"/> overload with a quantizer obtained by the <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">PredefinedColorsQuantizer.FromCustomPalette</see> method.</para>
         /// </remarks>
         [Obsolete("This overload is kept for compatibility reasons. Use the SaveAsGif(Image, Stream, IQuantizer, IDitherer) overload instead.")]
-        public static void SaveAsGif(this Image image, Stream stream, Color[] palette)
-            => SaveAsGif(image, stream, PredefinedColorsQuantizer.FromCustomPalette(palette));
+        public static void SaveAsGif(this Image image, Stream stream, Color[]? palette)
+            => SaveAsGif(image, stream, palette == null ? null : PredefinedColorsQuantizer.FromCustomPalette(palette));
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in TIFF encoder if available in the current operating system.
@@ -1635,8 +1645,6 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
-            Justification = "toSave is disposed if it is not the same as image.")]
         public static void SaveAsTiff(this Image image, Stream stream, bool currentFrameOnly = true)
         {
             if (image == null)
@@ -1647,7 +1655,7 @@ namespace KGySoft.Drawing
             if (!currentFrameOnly && image is Bitmap bmp)
             {
                 // checking if image has multiple frames
-                FrameDimension dimension = null;
+                FrameDimension? dimension = null;
                 Guid[] dimensions = bmp.FrameDimensionsList;
                 if (dimensions.Length > 0)
                 {
@@ -1661,7 +1669,7 @@ namespace KGySoft.Drawing
 
                 int frameCount = dimension != null ? bmp.GetFrameCount(dimension) : 0;
                 bool isIcon = bmp.RawFormat.Guid == ImageFormat.Icon.Guid;
-                if (frameCount > 1 || frameCount <= 1 && isIcon)
+                if (frameCount > 1 || isIcon)
                 {
                     Bitmap[] frames = isIcon ? bmp.ExtractIconImages() : bmp.ExtractBitmaps();
                     try
@@ -1689,7 +1697,7 @@ namespace KGySoft.Drawing
             finally
             {
                 if (!ReferenceEquals(image, toSave))
-                    toSave?.Dispose();
+                    toSave.Dispose();
             }
         }
 
@@ -1725,8 +1733,6 @@ namespace KGySoft.Drawing
         /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
         /// <note>On non-Windows platform this method may throw a <see cref="NotSupportedException"/> if <paramref name="images"/> has multiple elements.</note>
         /// </remarks>
-        [SuppressMessage("Reliability", "CA2000:Dispose objects before losing scope",
-            Justification = "Replaced images are disposed at the end of the method. Cannot be done earlier if the first page is also replaced.")]
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)
         {
             if (images == null)
@@ -1734,11 +1740,11 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            ImageCodecInfo tiffEncoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
+            ImageCodecInfo? tiffEncoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Tiff.Guid);
             if (tiffEncoder == null)
                 throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(ImageFormat.Tiff));
 
-            Image tiff = null;
+            Image? tiff = null;
             var pagesToDispose = new List<Image>();
             try
             {
@@ -1815,7 +1821,6 @@ namespace KGySoft.Drawing
         /// <para>On non-Windows platforms reloading the large icons can be problematic.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
         public static void SaveAsIcon(this Image image, Stream stream, bool forceUncompressedResult = false)
             => SaveAsIcon(new[] { image }, stream, forceUncompressedResult);
 
@@ -1856,7 +1861,6 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="images"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="images"/> contains a <see langword="null"/>&#160;element.</exception>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
         [SecuritySafeCritical]
         public static void SaveAsIcon(this IEnumerable<Image> images, Stream stream, bool forceUncompressedResult = false)
         {
@@ -1865,7 +1869,7 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            using (RawIcon rawIcon = new RawIcon())
+            using (var rawIcon = new RawIcon())
             {
                 foreach (Image image in images)
                 {
@@ -1923,6 +1927,7 @@ namespace KGySoft.Drawing
 
         #region ConvertPixelFormat
 
+        // ReSharper disable once ParameterOnlyUsedForPreconditionCheck.Local - hence the method name Validate
         private static void ValidateConvertPixelFormat(Image image, PixelFormat newPixelFormat)
         {
             if (image == null)
@@ -1933,12 +1938,10 @@ namespace KGySoft.Drawing
                 throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[] palette, Color backColor, byte alphaThreshold)
+        private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
         {
             Bitmap bmp = image.AsBitmap();
-            Bitmap result = null;
+            Bitmap? result = null;
 
             try
             {
@@ -1949,7 +1952,7 @@ namespace KGySoft.Drawing
                     InitPalette(newPixelFormat, bmp, result, palette);
 
                 // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
-                Palette targetPalette =
+                Palette? targetPalette =
                     // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
                     !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
                     // using the custom colors
@@ -1984,18 +1987,17 @@ namespace KGySoft.Drawing
             }
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed; bmp is disposed if it is not the same as image.")]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static Bitmap DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer quantizer, IDitherer ditherer)
+        private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
         {
             Bitmap bmp = image.AsBitmap();
-            Bitmap result = null;
+            Bitmap? result = null;
             bool canceled = false;
 
             try
             {
-                Color[] paletteEntries = null;
+                Color[]? paletteEntries = null;
                 if (quantizer == null)
                 {
                     // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
@@ -2074,7 +2076,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Initializes target bitmap palette.
         /// </summary>
-        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[] palette)
+        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[]? palette)
         {
             int bpp = newPixelFormat.ToBitsPerPixel();
 
@@ -2099,7 +2101,7 @@ namespace KGySoft.Drawing
         #region Compare
 
         [SecuritySafeCritical]
-        private static bool CompareImages(Image image1, Image image2)
+        private static bool CompareImages(Image? image1, Image? image2)
         {
             if (ReferenceEquals(image1, image2))
                 return true;
@@ -2172,7 +2174,7 @@ namespace KGySoft.Drawing
 
         private static Image AdjustTiffImage(Image image)
         {
-            if (image == null || image.PixelFormat != PixelFormat.Format1bppIndexed || image.Palette.Entries.Any(c => c.A != Byte.MaxValue))
+            if (image.PixelFormat != PixelFormat.Format1bppIndexed || image.Palette.Entries.Any(c => c.A != Byte.MaxValue))
                 return image;
 
             // converting non BW 1 BPP image with no alpha palette entries to 4 BPP in order to preserve palette colors
@@ -2182,8 +2184,7 @@ namespace KGySoft.Drawing
                 : image.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "bmp is disposed if it is not the same as image.")]
-        private static void SaveByEncoder(Image image, Stream stream, ImageFormat imageFormat, EncoderParameters encoderParameters, bool isFallback, IQuantizer quantizer = null, IDitherer ditherer = null)
+        private static void SaveByEncoder(Image image, Stream stream, ImageFormat imageFormat, EncoderParameters? encoderParameters, bool isFallback, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -2191,7 +2192,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
             // Metafile: recursion with bitmap
-            if (!(image is Bitmap bmp))
+            if (image is not Bitmap bmp)
             {
                 using (bmp = new Bitmap(image, image.Size))
                 {
@@ -2200,7 +2201,7 @@ namespace KGySoft.Drawing
                 }
             }
 
-            ImageCodecInfo encoder = Encoders.FirstOrDefault(e => e.FormatID == imageFormat.Guid);
+            ImageCodecInfo? encoder = Encoders.FirstOrDefault(e => e.FormatID == imageFormat.Guid);
             if (encoder == null)
                 throw new InvalidOperationException(Res.ImageExtensionsNoEncoder(imageFormat));
 

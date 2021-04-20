@@ -31,9 +31,13 @@ using KGySoft.Drawing.WinApi;
 
 #endregion
 
+#region Suppressions
+
 #if NET35
 #pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
 #endif
+
+#endregion
 
 namespace KGySoft.Drawing
 {
@@ -164,7 +168,7 @@ namespace KGySoft.Drawing
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
 
             // checking if image has multiple frames
-            FrameDimension dimension = null;
+            FrameDimension? dimension = null;
             Guid[] dimensions = image.FrameDimensionsList;
             if (dimensions.Length > 0)
             {
@@ -208,7 +212,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="bitmap">The bitmap to be cloned.</param>
         /// <returns>A single frame <see cref="Bitmap"/> instance that has the same content and has the same pixel format as the current frame of the source bitmap.</returns>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
+        [SecuritySafeCritical]
         public static Bitmap CloneCurrentFrame(this Bitmap bitmap)
         {
             if (bitmap == null)
@@ -329,7 +333,6 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default)
         {
             if (bitmap == null)
@@ -644,7 +647,7 @@ namespace KGySoft.Drawing
         /// or <see cref="BitmapDataExtensions.ClearAsync">BitmapDataExtensions.ClearAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.Clear(IWritableBitmapData, Color32, IDitherer)"/>
-        public static void Clear(this Bitmap bitmap, Color color, IDitherer ditherer, Color backColor = default, byte alphaThreshold = 128)
+        public static void Clear(this Bitmap bitmap, Color color, IDitherer? ditherer, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -681,7 +684,6 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.TransformColors(IReadWriteBitmapData, Func{Color32, Color32})"/>
         [SecuritySafeCritical]
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
         public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
@@ -749,8 +751,7 @@ namespace KGySoft.Drawing
         /// </list></para>
         /// </example>
         /// <seealso cref="BitmapDataExtensions.TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)"/>
-        [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, IDitherer ditherer, Color backColor = default, byte alphaThreshold = 128)
+        public static void TransformColors(this Bitmap bitmap, Func<Color32, Color32> transformFunction, IDitherer? ditherer, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -780,7 +781,7 @@ namespace KGySoft.Drawing
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.ReplaceColor"/>
-        public static void ReplaceColor(this Bitmap bitmap, Color oldColor, Color newColor, IDitherer ditherer = null)
+        public static void ReplaceColor(this Bitmap bitmap, Color oldColor, Color newColor, IDitherer? ditherer = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -806,7 +807,7 @@ namespace KGySoft.Drawing
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.Invert"/>
-        public static void Invert(this Bitmap bitmap, IDitherer ditherer = null)
+        public static void Invert(this Bitmap bitmap, IDitherer? ditherer = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -834,7 +835,7 @@ namespace KGySoft.Drawing
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.MakeOpaque"/>
-        public static void MakeOpaque(this Bitmap bitmap, Color backColor, IDitherer ditherer = null)
+        public static void MakeOpaque(this Bitmap bitmap, Color backColor, IDitherer? ditherer = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -864,7 +865,7 @@ namespace KGySoft.Drawing
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.MakeGrayscale"/>
-        public static void MakeGrayscale(this Bitmap bitmap, IDitherer ditherer = null)
+        public static void MakeGrayscale(this Bitmap bitmap, IDitherer? ditherer = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -924,7 +925,7 @@ namespace KGySoft.Drawing
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         /// <seealso cref="BitmapDataExtensions.AdjustBrightness"/>
-        public static void AdjustBrightness(this Bitmap bitmap, float brightness, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        public static void AdjustBrightness(this Bitmap bitmap, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -984,7 +985,7 @@ namespace KGySoft.Drawing
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         /// <seealso cref="BitmapDataExtensions.AdjustContrast"/>
-        public static void AdjustContrast(this Bitmap bitmap, float contrast, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        public static void AdjustContrast(this Bitmap bitmap, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -1044,7 +1045,7 @@ namespace KGySoft.Drawing
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
         /// <seealso cref="BitmapDataExtensions.AdjustGamma"/>
-        public static void AdjustGamma(this Bitmap bitmap, float gamma, IDitherer ditherer = null, ColorChannels channels = ColorChannels.Rgb)
+        public static void AdjustGamma(this Bitmap bitmap, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -1060,7 +1061,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Tries to extract the icon images from an image.
         /// </summary>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "Non-disposed bitmaps are returned.")]
         internal static Bitmap[] ExtractIconImages(this Bitmap image)
         {
             Debug.Assert(image.RawFormat.Guid == ImageFormat.Icon.Guid);

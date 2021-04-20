@@ -41,6 +41,7 @@ namespace KGySoft.Drawing
 
         [StructLayout(LayoutKind.Sequential, Pack = 2)]
         [SuppressMessage("ReSharper", "PrivateFieldCanBeConvertedToLocalVariable", Justification = "Serialized structure")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private struct WmfHeader
         {
             #region Fields

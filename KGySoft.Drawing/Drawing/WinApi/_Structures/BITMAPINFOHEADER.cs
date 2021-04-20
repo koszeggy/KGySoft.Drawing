@@ -22,6 +22,7 @@ using System.Runtime.InteropServices;
 
 namespace KGySoft.Drawing.WinApi
 {
+    // ReSharper disable once InconsistentNaming
     /// <summary>
     /// The BITMAPINFOHEADER structure contains information about the dimensions and color format of a DIB.
     /// </summary>
