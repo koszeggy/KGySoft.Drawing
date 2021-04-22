@@ -9,6 +9,10 @@
 * v5.3.1:
 ~~~~~~~~~
 
+* Assembly changes:
+===================
+* The module initializer initializes the resources.
+
 - KGySoft.Drawing.Imaging namespace:
 ====================================
 - BitmapDataFactory class:

@@ -97,6 +97,9 @@ namespace KGySoft.Drawing.UnitTests
             foreach (MethodInfo mi in methods)
             {
                 var method = mi.IsGenericMethodDefinition ? mi.MakeGenericMethod(random.NextObject(typeof(Enum)).GetType()) : mi;
+                if (method.ReturnType == typeof(void))
+                    continue;
+
                 object[] parameters = method.GetParameters().Select(p => random.NextObject(p.ParameterType, generateSettings)).ToArray();
                 string value = method.Invoke(null, parameters).ToString();
                 Assert.IsTrue(!value.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal), $"{nameof(Res)}.{method.Name} refers to an undefined resource.");

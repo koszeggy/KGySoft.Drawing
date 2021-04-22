@@ -158,6 +158,13 @@ namespace KGySoft
 
         #region General
 
+        /// <summary>
+        /// Just an empty method to be able to trigger the static constructor without running any code other than field initializations.
+        /// </summary>
+        internal static void Initialize()
+        {
+        }
+
         /// <summary>Internal Error: {0}</summary>
         /// <remarks>Use this method to avoid CA1303 for using string literals in internal errors that never supposed to occur.</remarks>
         internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
