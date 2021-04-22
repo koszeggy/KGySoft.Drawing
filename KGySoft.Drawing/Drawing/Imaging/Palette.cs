@@ -22,6 +22,9 @@ using System.Collections.ObjectModel;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Threading;
+
+using KGySoft.Collections;
 
 #endregion
 
@@ -38,11 +41,10 @@ namespace KGySoft.Drawing.Imaging
     /// <para>By default the lookup is performed by a slightly modified euclidean-like search but if the <see cref="Palette"/> contains grayscale entries only,
     /// then it is optimized for finding the best matching gray shade based on human perception. To override this logic a custom lookup routine can be passed to the constructors.</para>
     /// <para>If the <see cref="Palette"/> instance is created without a custom lookup logic, then the search results for non-palette-entry colors are cached.
-    /// The cache is optimized for parallel processing and consists of multiple levels where the results are tried to be obtained from a non-locking
-    /// storage in the first place. The theoretical maximum of cache size (apart from the actual palette entries) is 2 x 2<sup>18</sup> but
+    /// The cache is optimized for parallel processing. The theoretical maximum of cache size (apart from the actual palette entries) is 2 x 2<sup>18</sup> but
     /// as soon as that limit is reached the amount of stored elements are halved so the cache is somewhat optimized to store the most recently processed colors.</para>
-    /// <para>In order to prevent caching you can pass a custom lookup logic to the constructors. It is expected to be fast (applying some direct mapping to a palette index, for example),
-    /// or that it uses some custom caching (which should perform well also when queried concurrently).</para>
+    /// <para>In order to prevent caching you can pass a custom lookup logic to the constructors. It is expected to be fast (applying some direct mapping to a palette index,
+    /// for example), or that it uses some custom caching (which should perform well also when queried concurrently).</para>
     /// <para>The palette can have any number of colors but as the typical usage is quantizing colors for indexed bitmaps the typical maximum palette size
     /// is 256. Generally, the more color the palette has the slower are the lookups for non-palette colors that are not cached yet.</para>
     /// </remarks>
@@ -77,10 +79,8 @@ namespace KGySoft.Drawing.Imaging
         private readonly int transparentIndex = -1;
         private readonly Dictionary<Color32, int> color32ToIndex;
         private readonly Func<Color32, int>? customGetNearestColorIndex;
-        private readonly object? syncRoot;
 
-        private Dictionary<Color32, int>? lockFreeCache;
-        private Dictionary<Color32, int>? lockingCache;
+        private IThreadSafeCacheAccessor<Color32, int>? cache;
 
         #endregion
 
@@ -295,20 +295,6 @@ namespace KGySoft.Drawing.Imaging
             }
 
             this.customGetNearestColorIndex = customGetNearestColorIndex;
-            if (customGetNearestColorIndex != null)
-                return;
-
-            // Caching results is a problem because a true color image can have millions of colors.
-            // In order not to run out of memory we need to limit the cache size but that is another problem because:
-            // - ConcurrentDictionary is actually quite slow in itself and its Count is ridiculously expensive, too.
-            //   Using it without a size limit (so we don't need to read Count) ends up consuming way too much memory.
-            // - Cache.GetThreadSafeAccessor uses lock and if colors are never the same caching is nothing but an additional cost.
-            // Conclusion: We use two levels of caching (actually 3 with color32ToIndex) where there is a lock-free first level
-            // cache and a second level used with locking. Only the locking cache is expanded continuously, which is regularly
-            // copied to the lock-free cache if elements count reaches a limit. This makes lookups significantly faster even
-            // with single-core processing. We use simple Dictionary instances. Not even a Cache because we handle both capacity and
-            // expansion explicitly. Even the most commonly used elements are irrelevant because we copy the cache before clearing it.
-            syncRoot = new object();
         }
 
         /// <summary>
@@ -582,7 +568,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public int GetNearestColorIndex(Color32 c)
         {
-            // 1st level cache: from the palette
+            // exact match: from the palette
             if (color32ToIndex.TryGetValue(c, out int result))
                 return result;
 
@@ -590,49 +576,11 @@ namespace KGySoft.Drawing.Imaging
             if (customGetNearestColorIndex != null)
                 return customGetNearestColorIndex.Invoke(c);
 
-            // 2nd level cache: from the lock-free cache. This is null until we have enough cached colors.
-            Dictionary<Color32, int>? lockFreeCacheInstance = lockFreeCache;
-            if (lockFreeCacheInstance != null && lockFreeCacheInstance.TryGetValue(c, out result))
-                return result;
-
-            // 3rd level cache: from the locking cache. This is null until the first non-palette color is queried.
-            lock (syncRoot!)
-            {
-                if (lockingCache == null)
-                    lockingCache = new Dictionary<Color32, int>(minCacheSize);
-                else if (lockingCache.TryGetValue(c, out result))
-                    return result;
-            }
-
-            // The color was not found in any cache: a lookup has to be performed.
-            // This operation is intentionally outside of a lock.
-            result = FindNearestColorIndex(c);
-            lock (syncRoot)
-            {
-                // As the lookup is outside of the lock now it can happen that an element is added twice or
-                // that element count goes a bit above maxCacheSize but this is not a problem.
-                lockingCache[c] = result;
-                int lockFreeCount = lockFreeCacheInstance?.Count ?? 0;
-                int lockingCount = lockingCache.Count;
-
-                // We overwrite the lock-free cache if either the minimal size was reached
-                // or enough new colors have been added to the locking cache. Even if more threads
-                // performed a lookup before entering the lock this operation is performed only by the first thread.
-                if (lockFreeCount == 0 && lockingCount >= minCacheSize
-                    || lockFreeCount >= minCacheSize && lockingCount >= Math.Min(lockFreeCount << 1, maxCacheSize))
-                {
-                    // We clear (reinitialize) the locking cache only if it reaches the maximum capacity
-                    if (lockingCache.Count >= maxCacheSize)
-                    {
-                        lockingCache = new Dictionary<Color32, int>(maxCacheSize);
-                        lockFreeCache = lockingCache;
-                    }
-                    else
-                        lockFreeCache = new Dictionary<Color32, int>(lockingCache);
-                }
-            }
-
-            return result;
+            // from the lock-free cache
+            if (cache == null)
+                Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create<Color32, int>(
+                    FindNearestColorIndex, new LockFreeCacheOptions { InitialCapacity = minCacheSize, ThresholdCapacity = maxCacheSize }), null);
+            return cache[c];
         }
 
         /// <summary>

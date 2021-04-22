@@ -12,8 +12,9 @@
 * Assembly changes:
 ===================
 * The module initializer initializes the resources.
++ Targeting also .NET 5.0
 
-- KGySoft.Drawing.Imaging namespace:
+* KGySoft.Drawing.Imaging namespace:
 ====================================
 - BitmapDataFactory class:
   - BeginLoad/LoadAsync methods: They didn't use the specified async configuration.
@@ -21,6 +22,7 @@
   - Clear/BeginClear/ClearAsync methods: They could throw a NullReferenceException if a custom IWritableBitmapData
     instance had indexed PixelFormat but its Palette was null. From now on even such bitmap data can be cleared but
     the specified color will be ignored and the data is always cleared with zero palette index.
+* Palette class: Improving performance when initialized without a custom mapping (cache is now totally lock-free).
 
 
 ~~~~~~~~~
