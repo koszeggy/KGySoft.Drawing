@@ -97,7 +97,7 @@ namespace KGySoft.Drawing
                 }
 
                 body.Invoke(y);
-                context.Progress.Increment();
+                context.Progress!.Increment();
             } 
 
 #endif
