@@ -26,6 +26,8 @@ using System.Linq;
 using System.Resources;
 using System.Security;
 using System.Threading;
+
+using KGySoft.Collections;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 using KGySoft.Reflection;
@@ -41,10 +43,12 @@ namespace KGySoft.Drawing
     {
         #region Fields
 
-        private static ResourceManager? resourceManager;
+        private static readonly Func<StockIcon, Func<Icon>?, RawIcon?> getSystemIconAddValueFactory = GetStockIconOrDefault;
+        private static readonly Func<string, RawIcon> getResourceIconAddValueFactory = DoGetResourceIcon;
 
-        private static readonly Dictionary<StockIcon, RawIcon?> systemIconsCache = new(EnumComparer<StockIcon>.Comparer);
-        private static readonly Dictionary<string, RawIcon> resourceIconsCache = new();
+        private static ResourceManager? resourceManager;
+        private static ThreadSafeDictionary<StockIcon, RawIcon?>? systemIconsCache;
+        private static ThreadSafeDictionary<string, RawIcon>? resourceIconsCache;
 
         #endregion
 
@@ -447,6 +451,26 @@ namespace KGySoft.Drawing
             }
         }
 
+        private static ThreadSafeDictionary<StockIcon, RawIcon?> SystemIconsCache
+        {
+            get
+            {
+                if (systemIconsCache == null)
+                    Interlocked.CompareExchange(ref systemIconsCache, new ThreadSafeDictionary<StockIcon, RawIcon?>(EnumComparer<StockIcon>.Comparer), null);
+                return systemIconsCache;
+            }
+        }
+
+        private static ThreadSafeDictionary<string, RawIcon> ResourceIconsCache
+        {
+            get
+            {
+                if (resourceIconsCache == null)
+                    Interlocked.CompareExchange(ref resourceIconsCache, new ThreadSafeDictionary<string, RawIcon>(), null);
+                return resourceIconsCache;
+            }
+        }
+
         #endregion
 
         #endregion
@@ -821,38 +845,16 @@ namespace KGySoft.Drawing
             }
         }
 
-        [SecuritySafeCritical]
         [return:NotNullIfNotNull("getLegacyIcon")]private static Icon? GetSystemIcon(StockIcon id, Func<Icon>? getLegacyIcon)
-        {
-            RawIcon? result;
-            lock (systemIconsCache)
-            {
-                if (!systemIconsCache.TryGetValue(id, out result))
-                {
-                    result = DoGetStockIcon(id);
-                    if (result == null && getLegacyIcon != null)
-                        result = ToCombinedIcon(getLegacyIcon.Invoke());
-                    systemIconsCache[id] = result;
-                }
-            }
-
-            return result?.ToIcon(false);
-        }
+            => SystemIconsCache.GetOrAdd(id, getSystemIconAddValueFactory, getLegacyIcon)?.ToIcon(false);
 
         [SecuritySafeCritical]
-        private static Icon GetResourceIcon(string resourceName)
+        private static RawIcon? GetStockIconOrDefault(StockIcon id, Func<Icon>? getLegacyIcon)
         {
-            RawIcon? result;
-            lock (resourceIconsCache)
-            {
-                if (!resourceIconsCache.TryGetValue(resourceName, out result))
-                {
-                    result = new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);
-                    resourceIconsCache[resourceName] = result;
-                }
-            }
-
-            return result.ToIcon(OSUtils.IsXpOrEarlier)!;
+            RawIcon? result = DoGetStockIcon(id);
+            if (result == null && getLegacyIcon != null)
+                result = ToCombinedIcon(getLegacyIcon.Invoke());
+            return result;
         }
 
         [SecurityCritical]
@@ -880,7 +882,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets a multi size version of a system icon provided in <paramref name="icon"/> by generating the small version internally.
         /// </summary>
-        [SecurityCritical]
         private static RawIcon ToCombinedIcon(Icon icon)
         {
             var result = new RawIcon(icon);
@@ -893,6 +894,12 @@ namespace KGySoft.Drawing
 
             return result;
         }
+
+        private static Icon GetResourceIcon(string resourceName)
+            => ResourceIconsCache.GetOrAdd(resourceName, getResourceIconAddValueFactory).ToIcon(OSUtils.IsXpOrEarlier)!;
+
+        private static RawIcon DoGetResourceIcon(string resourceName)
+            => new RawIcon(ResourceManager.GetStream(resourceName, CultureInfo.InvariantCulture)!);
 
         #endregion
 

@@ -489,22 +489,15 @@ namespace KGySoft.Drawing
             {
                 if (disposing)
                 {
-                    if (bmpColor != null)
-                    {
-                        bmpColor.Dispose();
-                        bmpColor = null;
-                    }
-
-                    if (bmpComposite != null)
-                    {
-                        bmpComposite.Dispose();
-                        bmpComposite = null;
-                    }
-
-                    rawColor = null;
-                    rawMask = null;
-                    palette = null;
+                    bmpColor?.Dispose();
+                    bmpComposite?.Dispose();
                 }
+
+                bmpColor = null;
+                bmpComposite = null;
+                rawColor = null;
+                rawMask = null;
+                palette = null;
             }
 
             private void AssureRawFormatGenerated(bool forceBmpFormat)

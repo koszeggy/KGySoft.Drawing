@@ -32,24 +32,24 @@ namespace KGySoft.Drawing.UnitTests
         #region Fields
 
         private static readonly object[] sourceKnownIconsTest =
-            {
-                new object[] { nameof(Icons.SystemInformation), Icons.SystemInformation },
-                new object[] { nameof(Icons.SystemWarning), Icons.SystemWarning },
-                new object[] { nameof(Icons.SystemError), Icons.SystemError },
-                new object[] { nameof(Icons.SystemApplication), Icons.SystemApplication },
-                new object[] { nameof(Icons.SystemShield), Icons.SystemShield },
-                new object[] { nameof(Icons.Information), Icons.Information },
-                new object[] { nameof(Icons.Warning), Icons.Warning },
-                new object[] { nameof(Icons.Question), Icons.Question },
-                new object[] { nameof(Icons.Error), Icons.Error },
-                new object[] { nameof(Icons.Shield), Icons.Shield },
-                new object[] { nameof(Icons.SecurityShield), Icons.SecurityShield },
-                new object[] { nameof(Icons.SecuritySuccess), Icons.SecuritySuccess },
-                new object[] { nameof(Icons.SecurityWarning), Icons.SecurityWarning },
-                new object[] { nameof(Icons.SecurityQuestion), Icons.SecurityQuestion },
-                new object[] { nameof(Icons.SecurityError), Icons.SecurityError },
-                new object[] { nameof(Icons.Application), Icons.Application },
-            };
+        {
+            new object[] { nameof(Icons.SystemInformation), Icons.SystemInformation },
+            new object[] { nameof(Icons.SystemWarning), Icons.SystemWarning },
+            new object[] { nameof(Icons.SystemError), Icons.SystemError },
+            new object[] { nameof(Icons.SystemApplication), Icons.SystemApplication },
+            new object[] { nameof(Icons.SystemShield), Icons.SystemShield },
+            new object[] { nameof(Icons.Information), Icons.Information },
+            new object[] { nameof(Icons.Warning), Icons.Warning },
+            new object[] { nameof(Icons.Question), Icons.Question },
+            new object[] { nameof(Icons.Error), Icons.Error },
+            new object[] { nameof(Icons.Shield), Icons.Shield },
+            new object[] { nameof(Icons.SecurityShield), Icons.SecurityShield },
+            new object[] { nameof(Icons.SecuritySuccess), Icons.SecuritySuccess },
+            new object[] { nameof(Icons.SecurityWarning), Icons.SecurityWarning },
+            new object[] { nameof(Icons.SecurityQuestion), Icons.SecurityQuestion },
+            new object[] { nameof(Icons.SecurityError), Icons.SecurityError },
+            new object[] { nameof(Icons.Application), Icons.Application },
+        };
 
         #endregion
 

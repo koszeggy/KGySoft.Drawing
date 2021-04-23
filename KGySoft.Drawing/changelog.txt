@@ -11,8 +11,13 @@
 
 * Assembly changes:
 ===================
+* Members are annotated for using C# 8.0 nullable references
 * The module initializer initializes the resources.
 + Targeting also .NET 5.0
+
+* KGySoft.Drawing namespace:
+============================
+* Icons class: Using non-locking caches
 
 * KGySoft.Drawing.Imaging namespace:
 ====================================
