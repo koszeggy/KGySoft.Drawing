@@ -13,7 +13,7 @@
     <RootNamespace>Documentation</RootNamespace>
     <Name>Documentation</Name>
     <!-- SHFB properties -->
-    <FrameworkVersion>.NET Framework 4.5</FrameworkVersion>
+    <FrameworkVersion>.NET Core/.NET Standard/.NET 5.0+</FrameworkVersion>
     <OutputPath>HelpOut\</OutputPath>
     <HtmlHelpName>KGySoft.Drawing</HtmlHelpName>
     <Language>en-US</Language>
@@ -30,8 +30,7 @@
     </FeedbackEMailAddress>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <DocumentationSources>
-      <DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.dll" />
-      <DocumentationSource sourceFile="bin\Release\net45\KGySoft.Drawing.xml" />
+      <DocumentationSource sourceFile="KGySoft.Drawing.csproj" />
     </DocumentationSources>
     <NamespaceSummaries>
     </NamespaceSummaries>
@@ -60,7 +59,7 @@
       <Argument Key="maxVersionParts" Value="" xmlns="" />
       <Argument Key="defaultLanguage" Value="cs" xmlns="" />
     </TransformComponentArguments>
-    <HelpFileVersion>5.3.0</HelpFileVersion>
+    <HelpFileVersion>5.3.1</HelpFileVersion>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <HeaderText>
     </HeaderText>
@@ -465,11 +464,6 @@
       <ImageId>Application16W10</ImageId>
       <AlternateText>Application 16 W 10</AlternateText>
     </Content>
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="KGySoft.Libraries">
-      <HintPath>bin\Release\net45\KGySoft.Libraries.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="icons\logo.png">
