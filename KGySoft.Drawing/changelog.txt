@@ -17,6 +17,7 @@
 
 * KGySoft.Drawing namespace:
 ============================
++ New DrawingModule class: To be able to trigger module initialization without calling any specific feature.
 * Icons class: Using non-locking caches
 
 * KGySoft.Drawing.Imaging namespace:

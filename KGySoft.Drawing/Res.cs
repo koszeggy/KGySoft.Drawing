@@ -161,7 +161,7 @@ namespace KGySoft
         /// <summary>
         /// Just an empty method to be able to trigger the static constructor without running any code other than field initializations.
         /// </summary>
-        internal static void Initialize()
+        internal static void EnsureInitialized()
         {
         }
 
