@@ -18,7 +18,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
@@ -68,7 +67,6 @@ namespace KGySoft.Drawing
         /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="image"/>; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope", Justification = "The result must not be disposed.")]
         public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio = false)
         {
             if (image == null)

@@ -19,7 +19,6 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -904,8 +903,6 @@ namespace KGySoft.Drawing
             }
         }
 
-        [SuppressMessage("Microsoft.Reliability", "CA2000:Dispose objects before losing scope",
-            Justification = "Stream must not be disposed and leaveOpen parameter is not available for all platforms.")]
         internal RawIcon(Stream stream)
         {
             if (stream == null)

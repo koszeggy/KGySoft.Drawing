@@ -62,9 +62,11 @@ namespace KGySoft.Drawing
         {
             #region Fields
 
+#if !(NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0)
             [SuppressMessage("Style", "IDE0044:Add readonly modifier",
-                Justification = "CancellationToken is not a readonly struct in every targeted platform so not making it readonly to prevent the creation of a defensive copy.")]
+                Justification = "CancellationToken is not a readonly struct in every targeted platform so not making it readonly to prevent the creation of a defensive copy.")] 
             // ReSharper disable once FieldCanBeMadeReadOnly.Local
+#endif
             private CancellationToken token;
 
             #endregion

@@ -753,10 +753,8 @@ namespace KGySoft.Drawing.Imaging
 
         private void ThrowIndexInvalid()
         {
-#pragma warning disable CA2208
             // ReSharper disable once NotResolvedInText
             throw new ArgumentOutOfRangeException("index", PublicResources.ArgumentMustBeBetween(0, Entries.Length - 1));
-#pragma warning restore CA2208
         }
 
         #endregion
