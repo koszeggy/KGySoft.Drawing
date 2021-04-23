@@ -84,7 +84,7 @@ namespace KGySoft.Drawing.UnitTests
             if (!Directory.Exists(dir))
                 Directory.CreateDirectory(dir);
 
-            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}{imageName}.{DateTime.Now:yyyyMMddHHmmssffff}");
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
             ImageCodecInfo encoder = null;
             if (origFormat)
                 encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == image.RawFormat.Guid);
