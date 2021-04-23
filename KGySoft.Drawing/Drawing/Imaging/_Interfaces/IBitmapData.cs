@@ -92,8 +92,8 @@ namespace KGySoft.Drawing.Imaging
         int RowSize { get; }
 
         /// <summary>
-        /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, it gets the color of the background.
-        /// For example, when setting color values with alpha, which are considered opaque the color to set will be blended with this color before setting the pixel.
+        /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, gets the color of the background.
+        /// For example, when setting color values with alpha, which are considered opaque, they will be blended with this color before setting the pixel.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method for details and examples.
         /// </summary>
         Color32 BackColor { get; }

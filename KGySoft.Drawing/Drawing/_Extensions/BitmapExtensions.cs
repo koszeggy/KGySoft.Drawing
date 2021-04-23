@@ -368,15 +368,15 @@ namespace KGySoft.Drawing
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
-        /// <param name="backColor">For the <see cref="GetReadableBitmapData">GetReadableBitmapData</see> method affects indexed bitmaps only when <see cref="Palette.GetNearestColorIndex">GetColorIndex</see>
-        /// and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods are called with an alpha color on the <see cref="IBitmapData.Palette"/> property of the returned <see cref="IReadableBitmapData"/> instance.
-        /// Queried colors with alpha, which are considered opaque will be blended with this color before performing a lookup.
-        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <param name="backColor">For an <see cref="IReadableBitmapData"/> instance the <paramref name="backColor"/> is relevant only for indexed bitmaps
+        /// when <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see> and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods
+        /// are called with an alpha color on the <see cref="IBitmapData.Palette"/> property. Queried colors with alpha, which are considered opaque will be blended
+        /// with this color before performing a lookup. The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="alphaThreshold">For the <see cref="GetReadableBitmapData">GetReadableBitmapData</see> method affects indexed bitmaps only when <see cref="Palette.GetNearestColorIndex">GetColorIndex</see>
-        /// and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods are called with an alpha color on the <see cref="IBitmapData.Palette"/> property of the returned <see cref="IReadableBitmapData"/> instance.
-        /// In such case determines the lowest alpha value of a color, which should not be considered as transparent. If 0,
-        /// then a color lookup will never return a transparent color. This parameter is optional.
+        /// <param name="alphaThreshold">Similarly to <paramref name="backColor"/>, for an <see cref="IReadableBitmapData"/> instance the <paramref name="alphaThreshold"/> is relevant
+        /// only for indexed bitmaps when <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see> and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods
+        /// are called with an alpha color on the <see cref="IBitmapData.Palette"/> property. In such case determines the lowest alpha value of a color,
+        /// which should not be considered as transparent. If 0, then a color lookup will never return a transparent color. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <seealso cref="GetWritableBitmapData"/>

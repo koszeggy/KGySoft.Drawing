@@ -53,7 +53,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="origColor">The original color to be dithered.</param>
         /// <param name="x">The x-coordinate of the pixel to be dithered represented by the specified <paramref name="origColor"/>.</param>
         /// <param name="y">The y-coordinate of the pixel to be dithered represented by the specified <paramref name="origColor"/>.</param>
-        /// <returns>The location-dependent dithered color of the specified <paramref name="origColor"/> that may depend on the specified coordinates.</returns>
+        /// <returns>The dithered color of the specified <paramref name="origColor"/> that may depend on the specified coordinates.</returns>
         Color32 GetDitheredColor(Color32 origColor, int x, int y);
 
         #endregion
