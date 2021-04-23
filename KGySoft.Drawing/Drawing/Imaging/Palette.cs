@@ -674,38 +674,77 @@ namespace KGySoft.Drawing.Imaging
                     return resultIndex;
             }
 
-            for (int i = 0; i < Entries.Length; i++)
+            // The two similar lookups could be merged but it is faster to separate them even if some parts are duplicated
+            int len = Entries.Length;
+            if (IsGrayscale)
             {
-                Color32 current = Entries[i];
-
-                // Palette color with alpha
-                if (current.A != Byte.MaxValue)
+                byte brightness = color.GetBrightness();
+                for (int i = 0; i < len; i++)
                 {
-                    // Skipping fully transparent palette colors because they were handled above
-                    if (current.A == 0)
+                    Color32 current = Entries[i];
+
+                    // Palette color with alpha
+                    if (current.A != Byte.MaxValue)
+                    {
+                        // Skipping fully transparent palette colors because they were handled above
+                        if (current.A == 0)
+                            continue;
+
+                        // Blending also the current palette color
+                        current = current.BlendWithBackground(BackColor);
+
+                        // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
+                        if (current == color)
+                            return i;
+                    }
+
+                    // If the palette is grayscale, then distance is measured by perceived brightness;
+                    // otherwise, by an Euclidean-like but much faster distance based on RGB components.
+                    int diff = Math.Abs(Entries[i].GetBrightness() - brightness);
+
+                    if (diff >= minDiff)
                         continue;
 
-                    // Blending also the current palette color
-                    current = current.BlendWithBackground(BackColor);
-
-                    // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
-                    if (current == color)
+                    // new closest match
+                    if (diff == 0)
                         return i;
-                }
-
-                // If the palette is grayscale, then distance is measured by perceived brightness;
-                // otherwise, by an Euclidean-like but much faster distance based on RGB components.
-                int diff = IsGrayscale
-                    ? Math.Abs(Entries[i].GetBrightness() - color.GetBrightness())
-                    : Math.Abs(current.R - color.R) + Math.Abs(current.G - color.G) + Math.Abs(current.B - color.B);
-
-                Debug.Assert(IsGrayscale || diff != 0, "Exact match should have been returned earlier");
-
-                // new closest match
-                if (diff < minDiff)
-                {
                     minDiff = diff;
                     resultIndex = i;
+                }
+            }
+            else
+            {
+                for (int i = 0; i < len; i++)
+                {
+                    Color32 current = Entries[i];
+
+                    // Palette color with alpha
+                    if (current.A != Byte.MaxValue)
+                    {
+                        // Skipping fully transparent palette colors because they were handled above
+                        if (current.A == 0)
+                            continue;
+
+                        // Blending also the current palette color
+                        current = current.BlendWithBackground(BackColor);
+
+                        // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
+                        if (current == color)
+                            return i;
+                    }
+
+                    // If the palette is grayscale, then distance is measured by perceived brightness;
+                    // otherwise, by an Euclidean-like but much faster distance based on RGB components.
+                    int diff = Math.Abs(current.R - color.R) + Math.Abs(current.G - color.G) + Math.Abs(current.B - color.B);
+
+                    Debug.Assert(diff != 0, "Exact match should have been returned earlier");
+
+                    // new closest match
+                    if (diff < minDiff)
+                    {
+                        minDiff = diff;
+                        resultIndex = i;
+                    }
                 }
             }
 
