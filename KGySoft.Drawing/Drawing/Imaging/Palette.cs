@@ -63,6 +63,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Fields
 
+        private static readonly LockFreeCacheOptions cacheOptions = new()
+        {
+            InitialCapacity = minCacheSize,
+            ThresholdCapacity = maxCacheSize,
+            HashingStrategy = HashingStrategy.Modulo
+        };
+
         private static Color32[]? system8BppPalette;
         private static Color32[]? system4BppPalette;
         private static Color32[]? system1BppPalette;
@@ -579,7 +586,7 @@ namespace KGySoft.Drawing.Imaging
             // from the lock-free cache
             if (cache == null)
                 Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create<Color32, int>(
-                    FindNearestColorIndex, new LockFreeCacheOptions { InitialCapacity = minCacheSize, ThresholdCapacity = maxCacheSize }), null);
+                    FindNearestColorIndex, cacheOptions), null);
             return cache[c];
         }
 

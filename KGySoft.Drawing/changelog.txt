@@ -27,6 +27,7 @@
   - Clear/BeginClear/ClearAsync methods: They could throw a NullReferenceException if a custom IWritableBitmapData
     instance had indexed PixelFormat but its Palette was null. From now on even such bitmap data can be cleared but
     the specified color will be ignored and the data is always cleared with zero palette index.
+  * AdjustGamma/BeginAdjustGamma/AdjustGammaAsync methods: Improving performance
 * Palette class: Improving performance when initialized without a custom mapping (cache is now totally lock-free).
 
 

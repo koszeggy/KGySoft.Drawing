@@ -106,7 +106,11 @@ namespace KGySoft.Drawing
             #endregion
 
             if (fields == null)
-                Interlocked.CompareExchange(ref fields, new Cache<(Type, Type?, string?), FieldAccessor?>(GetFieldAccessor).GetThreadSafeAccessor(), null);
+            {
+                var options = new LockFreeCacheOptions { ThresholdCapacity = 128, HashingStrategy = HashingStrategy.And, MergeInterval = TimeSpan.FromSeconds(1) };
+                Interlocked.CompareExchange(ref fields, ThreadSafeCacheFactory.Create<(Type, Type?, string?), FieldAccessor?>(GetFieldAccessor, options), null);
+            }
+
             return fields[(type, fieldType, fieldNamePattern)];
         }
 

@@ -20,6 +20,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Threading;
 #if !NET35
 using System.Threading.Tasks; 
 #endif
@@ -39,7 +40,25 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        private static readonly IThreadSafeCacheAccessor<float, byte[]> gammaLookupTableCache = new Cache<float, byte[]>(GenerateGammaLookupTable, 16).GetThreadSafeAccessor();
+        private static IThreadSafeCacheAccessor<float, byte[]>? gammaLookupTableCache;
+
+        #endregion
+
+        #region Properties
+
+        private static IThreadSafeCacheAccessor<float, byte[]> GammaLookupTableCache
+        {
+            get
+            {
+                if (gammaLookupTableCache == null)
+                {
+                    var options = new LockFreeCacheOptions { InitialCapacity = 4, ThresholdCapacity = 16, HashingStrategy = HashingStrategy.Modulo, MergeInterval = TimeSpan.FromSeconds(1) };
+                    Interlocked.CompareExchange(ref gammaLookupTableCache, ThreadSafeCacheFactory.Create<float, byte[]>(GenerateGammaLookupTable, options), null);
+                }
+
+                return gammaLookupTableCache;
+            }
+        }
 
         #endregion
 
@@ -1326,7 +1345,7 @@ namespace KGySoft.Drawing.Imaging
             if (channels == ColorChannels.None || gamma == 1f)
                 return;
 
-            byte[] table = gammaLookupTableCache[gamma];
+            byte[] table = GammaLookupTableCache[gamma];
             DoTransformColors(AsyncContext.Null, bitmapData, c => TransformGamma(c, channels, table), ditherer);
         }
 
@@ -1368,8 +1387,7 @@ namespace KGySoft.Drawing.Imaging
             if (channels == ColorChannels.None || gamma == 1f)
                 return AsyncContext.FromCompleted(asyncConfig);
 
-            byte[] table = gammaLookupTableCache[gamma];
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, table), ditherer), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -1416,8 +1434,7 @@ namespace KGySoft.Drawing.Imaging
             if (channels == ColorChannels.None || gamma == 1f)
                 return AsyncContext.FromCompleted(asyncConfig);
 
-            byte[] table = gammaLookupTableCache[gamma];
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, table), ditherer), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
         }
 #endif
 
