@@ -14,7 +14,7 @@ Multiple versions of .NET Framework and .NET Core are supported. Tested on Windo
 ## Table of Contents:
 1. [Download](#download)
    - [Download Binaries](#download-binaries)
-   - [Download Demo App and Debugger Visualizers](#download-demo-app-and-debugger-visualizers)
+   - [Demo Application and Debugger Visualizers](#demo-application-and-debugger-visualizers)
 2. [Project Site](#project-site)
 3. [Documentation](#documentation)
 4. [Release Notes](#release-notes)
@@ -35,11 +35,14 @@ However, the preferred way is to install the package in VisualStudio either by l
 
     PM> Install-Package KGySoft.Drawing
 
-### Download Demo App and Debugger Visualizers:
+### Demo Application and Debugger Visualizers:
 
-[KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) is another GitHub repository, which contains a couple of applications built on KGy SOFT Drawing Libraries along with debugger visualizers for several `System.Drawing` types including `Bitmap`, `Metafile`, `Icon`, `Graphics` and more.
+[KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools) is a desktop application in the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which nicely demonstrates a sort of features of Drawing Libraries, such as quantizing and dithering, resizing, adjusting brightness, contrast and gamma, etc. The tool is packed also with some debugger visualizers for several `System.Drawing` types including `Bitmap`, `Metafile`, `Icon`, `Graphics` and more.
 
-![KGy SOFT Imaging Tools](https://kgysoft.net/images/ImagingTools.png)
+<p align="center">
+  <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250655-5e760d80-db25-11eb-824f-195e5e1dbcbe.png"/></a>
+  <br/><em>KGy SOFT Imaging Tools</em>
+</p>
 
 ## Project Site
 
@@ -141,7 +144,10 @@ See the following table for the possible results (click the images for displayin
 > _Tip:_
 > Use  `KGy SOFT Imaging Tools` from the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository to try image quantization and dithering in an application.
 
-![KGy SOFT Imaging Tools](https://kgysoft.net/images/Quantizing.png)
+<p align="center">
+  <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="Quantizing and Dithering in KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250977-b3198880-db25-11eb-9f72-6fa51d54a9da.png"/></a>
+  <br/><em>Quantizing and Dithering in KGy SOFT Imaging Tools</em>
+</p>
 
 ## License
 This repository is under the [KGy SOFT License 1.0](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE), which is a permissive GPL-like license. It allows you to copy and redistribute the material in any medium or format for any purpose, even commercially. The only thing is not allowed is to distribute a modified material as yours: though you are free to change and re-use anything, do that by giving appropriate credit. See the [LICENSE](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE) file for details.
