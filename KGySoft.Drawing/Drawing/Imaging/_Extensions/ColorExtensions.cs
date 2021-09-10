@@ -296,7 +296,7 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         private static unsafe void InitializeLookupTable8To16Bpp()
         {
-            // Shared sync root is not a problem, lock will acquired only once per table
+            // Shared sync root is not a problem, lock will be acquired only once per table
             lock (syncRoot)
             {
                 // lost race
@@ -348,7 +348,7 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         private static unsafe void InitializeLookupTable16To8Bpp()
         {
-            // Shared sync root is not a problem, lock will acquired only once per table
+            // Shared sync root is not a problem, lock will be acquired only once per table
             lock (syncRoot)
             {
                 // lost race

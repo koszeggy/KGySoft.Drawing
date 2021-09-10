@@ -1351,7 +1351,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>0</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
-        /// <para>The quantizer returned by this method does not have a palette. If you need to create indexed using a custom mapping function that
+        /// <para>The quantizer returned by this method does not have a palette. If you need to create an indexed result using a custom mapping function that
         /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Palette)"/> method instead.</para>
         /// <para>This overload never calls the <paramref name="quantizingFunction"/> delegate with a color with alpha. Depending on <paramref name="alphaThreshold"/> either a completely
         /// transparent color will be returned or the color will be blended with <paramref name="backColor"/> before invoking the delegate.
