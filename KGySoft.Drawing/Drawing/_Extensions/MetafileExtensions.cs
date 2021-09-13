@@ -21,6 +21,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Runtime.InteropServices;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.CoreLibraries;
@@ -201,6 +204,9 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static void Save(this Metafile metafile, Stream stream) => Save(metafile, stream, false);
 
         /// <summary>
@@ -215,6 +221,9 @@ namespace KGySoft.Drawing
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
         [SecuritySafeCritical]
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static void Save(this Metafile metafile, Stream stream, bool forceWmfFormat)
         {
             if (metafile == null)
@@ -258,6 +267,9 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static void SaveAsEmf(this Metafile metafile, Stream stream)
         {
             if (metafile == null)
@@ -278,6 +290,9 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static void SaveAsEmf(this Metafile metafile, string fileName)
         {
             if (metafile == null)
@@ -298,6 +313,9 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static void SaveAsWmf(this Metafile metafile, Stream stream) => Save(metafile, stream, true);
 
         /// <summary>
@@ -310,6 +328,9 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
         /// </remarks>
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static void SaveAsWmf(this Metafile metafile, string fileName)
         {
             if (metafile == null)

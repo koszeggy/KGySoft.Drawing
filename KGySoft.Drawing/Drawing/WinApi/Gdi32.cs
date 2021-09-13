@@ -17,7 +17,6 @@
 
 using System;
 using System.ComponentModel;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Security;
@@ -40,7 +39,6 @@ namespace KGySoft.Drawing.WinApi
     {
         #region NativeMethods class
 
-        [SuppressMessage("ReSharper", "MemberHidesStaticFromOuterClass")]
         private static class NativeMethods
         {
             #region Methods

@@ -23,6 +23,9 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Resources;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 using System.Threading;
 
@@ -785,6 +788,9 @@ namespace KGySoft.Drawing
         #region Internal Methods
 
         [SecurityCritical]
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         internal static CursorHandle ToCursorHandle(IntPtr iconHandle, Point cursorHotspot)
         {
             if (!OSUtils.IsWindows)

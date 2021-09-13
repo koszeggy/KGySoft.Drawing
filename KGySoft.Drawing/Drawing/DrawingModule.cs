@@ -15,12 +15,12 @@
 
 #region Usings
 
-#if !NETFRAMEWORK
 using System;
-#endif
 using System.Runtime.CompilerServices;
 
+#if !NETFRAMEWORK
 using KGySoft.Drawing.WinApi;
+#endif
 
 #endregion
 

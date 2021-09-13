@@ -20,6 +20,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.Drawing.WinApi;
@@ -879,6 +882,9 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         [SecuritySafeCritical]
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static CursorHandle ToCursorHandle(this Icon icon, Point cursorHotspot = default)
         {
             if (icon == null)

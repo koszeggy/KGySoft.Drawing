@@ -21,6 +21,9 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Linq;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.CoreLibraries;
@@ -330,6 +333,9 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         [SecuritySafeCritical]
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static CursorHandle ToCursorHandle(this Bitmap bitmap, Point cursorHotspot = default)
         {
             if (bitmap == null)

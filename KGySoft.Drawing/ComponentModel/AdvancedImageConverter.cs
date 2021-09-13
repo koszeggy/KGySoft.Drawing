@@ -51,7 +51,7 @@ namespace KGySoft.ComponentModel
         public override object ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object? value)
             => value is Icon icon
             ? icon.ToMultiResBitmap() // Base calls just icon.ToBitmap() here, which loses information.
-            : base.ConvertFrom(context, culture, value!);
+            : base.ConvertFrom(context!, culture!, value!)!;
 
         /// <summary>
         /// Converts an <see cref="Image" /> (or an object that can be cast to an <see cref="Image" />) to the specified type.
@@ -65,7 +65,7 @@ namespace KGySoft.ComponentModel
         public override object ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
         {
             if (destinationType != typeof(byte[]) || !(value is Image))
-                return base.ConvertTo(context, culture, value, destinationType);
+                return base.ConvertTo(context, culture, value, destinationType)!;
 
             // 1.) Metafile: Saving as EMF/WMF (base would save a PNG here)
             if (value is Metafile metafile)
@@ -105,7 +105,7 @@ namespace KGySoft.ComponentModel
             }
 
             // 4.) Any other: base works well
-            return base.ConvertTo(context, culture, value, destinationType);
+            return base.ConvertTo(context, culture, value, destinationType)!;
         }
 
         #endregion

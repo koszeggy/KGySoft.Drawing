@@ -19,6 +19,9 @@ using System;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.Drawing.Imaging;
@@ -137,6 +140,9 @@ namespace KGySoft.Drawing
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         /// <exception cref="NotSupportedException"><paramref name="graphics"/> belongs to a <see cref="Metafile"/>, which cannot be accessed until the <paramref name="graphics"/> is disposed.</exception>
         [SecuritySafeCritical]
+#if NET
+        [SupportedOSPlatform("windows")]
+#endif
         public static Bitmap? ToBitmap(this Graphics graphics, bool visibleClipOnly)
         {
             if (!OSUtils.IsWindows)
