@@ -6,3 +6,6 @@
 using System.Diagnostics.CodeAnalysis;
 
 [assembly: SuppressMessage("Style", "IDE0063:Use simple 'using' statement", Justification = "Decided individually")]
+#if NET
+[assembly: SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "Supported also on Unix systems. See DrawingModule.")]
+#endif
