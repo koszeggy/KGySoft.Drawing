@@ -870,15 +870,19 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the provided <paramref name="icon"/> to a <see cref="CursorHandle"/>, which can be passed to the
-        /// <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> constructor
-        /// to create a new cursor.
+        /// <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">System.Windows.Forms.Cursor</a> constructor
+        /// to create a new cursor that supports colors and partial transparency. <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="icon">The <see cref="Icon"/>, which should be converted to a cursor.</param>
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor. This parameter is optional.
         /// <br/>Default value: <c>0; 0</c> (top-left corner)</param>
-        /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
+        /// <returns>A <see cref="CursorHandle"/> instance that can be used to create a <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">System.Windows.Forms.Cursor</a> instance.</returns>
         /// <remarks>
         /// <note>This method is supported on Windows only.</note>
+        /// <para>Though the documentation of the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">System.Windows.Forms.Cursor</a>
+        /// class states that it does not support cursors with colors other than black and white, by using this method you can create a cursor that supports colors and partial transparency.
+        /// Just pass the result <see cref="CursorHandle"/> to the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor.-ctor" target="_blank">Cursor(IntPtr)</a> constructor.
+        /// <note type="important">Do keep a reference to this <see cref="CursorHandle"/> instance until the cursor is in use; otherwise, the cursor resources might be disposed too soon.</note></para>
         /// </remarks>
         /// <exception cref="PlatformNotSupportedException">This method is supported on Windows only.</exception>
         [SecuritySafeCritical]

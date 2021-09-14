@@ -18,6 +18,9 @@
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.Drawing.WinApi;
@@ -27,17 +30,20 @@ using KGySoft.Drawing.WinApi;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Represents a windows cursor. The <see cref="CursorHandle"/> instance can be passed to the
-    /// <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a> constructor
-    /// to create a new cursor.
+    /// Represents a windows cursor that supports colors and partial transparency. The <see cref="CursorHandle"/> instance can be passed to the
+    /// <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">System.Windows.Forms.Cursor</a> constructor
+    /// to create a new cursor. <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
     /// <remarks>
     /// <para>A <see cref="CursorHandle"/> instance can be created from an <see cref="Icon"/> or <see cref="Bitmap"/> instance by using the
     /// <see cref="IconExtensions.ToCursorHandle(Icon,Point)">IconExtensions.ToCursorHandle</see> and <see cref="BitmapExtensions.ToCursorHandle">BitmapExtensions.ToCursorHandle</see> extension methods.</para>
-    /// <para>This class can be used to create a custom Windows Forms <a href="https://msdn.microsoft.com/en-us/library/system.windows.forms.cursor.aspx" target="_blank">System.Windows.Forms.Cursor</a>.
+    /// <para>This class can be used to create a custom Windows Forms <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">Cursor</a> that supports colors and partial transparency.
     /// <note type="important">Do keep a reference to this <see cref="CursorHandle"/> instance until the cursor is in use; otherwise, the cursor resources might be disposed too soon.</note></para>
     /// </remarks>
     [SecurityCritical]
+#if NET
+    [SupportedOSPlatform("windows")]
+#endif
     public sealed class CursorHandle : SafeHandle
     {
         #region Properties
@@ -61,7 +67,7 @@ namespace KGySoft.Drawing
         /// <param name="cursorHandle">The cursor handle.</param>
         /// <returns>An <see cref="IntPtr"/> instance representing the native cursor handle.</returns>
         [SecurityCritical]
-        public static implicit operator IntPtr(CursorHandle cursorHandle) => cursorHandle?.DangerousGetHandle() ?? IntPtr.Zero;
+        public static implicit operator IntPtr(CursorHandle? cursorHandle) => cursorHandle?.DangerousGetHandle() ?? IntPtr.Zero;
 
         #endregion
 

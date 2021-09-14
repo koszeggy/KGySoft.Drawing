@@ -793,8 +793,7 @@ namespace KGySoft.Drawing
 #endif
         internal static CursorHandle ToCursorHandle(IntPtr iconHandle, Point cursorHotspot)
         {
-            if (!OSUtils.IsWindows)
-                throw new PlatformNotSupportedException(Res.RequiresWindows);
+            Debug.Assert(OSUtils.IsWindows);
             User32.GetIconInfo(iconHandle, out ICONINFO iconInfo);
             iconInfo.xHotspot = cursorHotspot.X;
             iconInfo.yHotspot = cursorHotspot.Y;
