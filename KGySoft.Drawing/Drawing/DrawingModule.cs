@@ -28,6 +28,7 @@ namespace KGySoft.Drawing
 {
     /// <summary>
     /// Represents the <c>KGySoft.Drawing</c> module.
+    /// <br/>See the <strong>Remarks</strong> section of the <see cref="Initialize">Initialize</see> method for details.
     /// </summary>
     public static class DrawingModule
     {
@@ -50,6 +51,34 @@ namespace KGySoft.Drawing
         /// before using any <c>System.Drawing</c> type to prevent a <see cref="TypeInitializationException"/> without editing the <c>runtimeconfig.json</c> file.
         /// It is not necessary if you reference the .NET Framework build under Mono.</note>
         /// </remarks>
+        /// <example>
+        /// The following example demonstrates how to initialize the <c>KGySoft.Drawing</c> module in an application (you don't really need to do this
+        /// if you use KGy SOFT Drawing Libraries from a class library):
+        /// <code lang="C#"><![CDATA[
+	    /// using KGySoft;
+	    /// using KGySoft.Drawing;
+	    /// using KGySoft.Resources;
+	    /// 
+	    /// public class Example
+	    /// {
+	    ///     public static void Main()
+	    ///     {
+	    ///         // To make sure that configuring LanguageSettings affects also the resources in KGySoft.Drawing
+	    ///         // For non-Windows applications it also enables using System.Drawing types
+	    ///         DrawingModule.Initialize();
+	    ///
+	    ///         // Opting in to use compiled and .resx resources for the application
+	    ///         LanguageSettings.DynamicResourceManagersSource = ResourceManagerSources.CompiledAndResX;
+	    ///         LanguageSettings.DisplayLanguage = MyConfigs.GetLastlyUsedLanguage(); // Get some CultureInfo
+	    /// 
+	    ///         // Optional: To add possibly new resource entries to the localization of the current language
+	    ///         LanguageSettings.EnsureInvariantResourcesMerged();
+	    ///
+	    ///         // Now you can launch the actual application
+	    ///         LaunchMyApplication(); // whatever your app actually does
+	    ///     }
+        /// }]]></code>
+        /// </example>
         [ModuleInitializer]
         public static void Initialize()
         {
