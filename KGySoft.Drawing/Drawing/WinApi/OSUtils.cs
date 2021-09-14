@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using KGySoft.CoreLibraries;
 
 #endregion
 
@@ -52,7 +51,7 @@ namespace KGySoft.Drawing.WinApi
             }
         }
 
-        internal static bool IsWindows => isWindows ??= Environment.OSVersion.Platform.In(PlatformID.Win32NT, PlatformID.Win32Windows);
+        internal static bool IsWindows => isWindows ??= Environment.OSVersion.Platform is PlatformID.Win32NT or PlatformID.Win32Windows;
 
         internal static bool IsXpOrEarlier => IsWindows && !IsVistaOrLater;
 

@@ -141,7 +141,8 @@ namespace KGySoft.Drawing
         {
             if (OSUtils.IsWindows)
                 return pixelFormat != PixelFormat.Format16bppGrayScale;
-            return !pixelFormat.In(PixelFormat.Format16bppRgb555, PixelFormat.Format16bppRgb565) && pixelFormat.IsSupportedNatively();
+            return pixelFormat is not PixelFormat.Format16bppRgb555 or PixelFormat.Format16bppRgb565
+                && pixelFormat.IsSupportedNatively();
         }
 
         internal static int GetByteWidth(this PixelFormat pixelFormat, int pixelWidth)
