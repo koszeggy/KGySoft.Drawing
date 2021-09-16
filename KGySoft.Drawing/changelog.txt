@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v5.3.2:
+~~~~~~~~~
+
+* KGySoft.Drawing namespace:
+============================
+* DrawingModule class: On non-Windows Systems the module initializer enables using System.Drawing that depend on
+  native GDI+ calls.
+
+
+~~~~~~~~~
 * v5.3.1:
 ~~~~~~~~~
 
