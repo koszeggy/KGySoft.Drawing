@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
 
-            new PerformanceTest { Iterations = 100, CpuAffinity = null }
+            new PerformanceTest { Iterations = 100 }
                 .AddCase(() =>
                 {
                     using var result = new Bitmap(bmp.Width, bmp.Height);
@@ -169,10 +169,8 @@ namespace KGySoft.Drawing.PerformanceTests
             if (!formatSrc.IsSupportedNatively())
                 Assert.Inconclusive($"Pixel format {formatSrc} is not supported on current platform");
 
-            //using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(formatSrc);
-            //using var bmpDst = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(formatDst);
-            using var bmpSrc = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png").ConvertPixelFormat(formatSrc);
-            using var bmpDst = new Bitmap(@"D:\Dokumentumok\Képek\Formats\_test\AlphaGradient.png").ConvertPixelFormat(formatDst);
+            using var bmpSrc = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(formatSrc);
+            using var bmpDst = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(formatDst);
 
             Rectangle targetRectangle = new Rectangle(Point.Empty, bmpDst.Size);
             targetRectangle.Inflate(-32, -32);
