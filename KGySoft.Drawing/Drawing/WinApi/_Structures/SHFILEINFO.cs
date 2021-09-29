@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Runtime.InteropServices;
 
 #endregion
 
@@ -29,10 +28,11 @@ namespace KGySoft.Drawing.WinApi
     /// <remarks>
     /// This structure is used with the SHGetFileInfo function.
     /// </remarks>
-    internal struct SHFILEINFO
+    internal unsafe struct SHFILEINFO
     {
         #region Constants
 
+        // ReSharper disable once InconsistentNaming
         private const int MAX_PATH = 260;
 
         #endregion
@@ -61,16 +61,15 @@ namespace KGySoft.Drawing.WinApi
         /// Type: TCHAR[MAX_PATH]
         /// A string that contains the name of the file as it appears in the Windows Shell, or the path and file name of the file that contains the icon representing the file.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
-        internal string szDisplayName;
+        internal fixed char szDisplayName[MAX_PATH];
 
         /// <summary>
         /// Type: TCHAR[80]
         /// A string that describes the type of file.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = 80)]
-        internal string szTypeName;
+        internal fixed char szTypeName[80];
 
         #endregion
-    };
+    }
+
 }

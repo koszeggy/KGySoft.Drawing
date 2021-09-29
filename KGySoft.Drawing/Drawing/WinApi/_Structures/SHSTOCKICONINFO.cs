@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Runtime.InteropServices;
 
 #endregion
 
@@ -26,8 +25,7 @@ namespace KGySoft.Drawing.WinApi
     /// <summary>
     /// Receives information used to retrieve a stock Shell icon. This structure is used in a call SHGetStockIconInfo.
     /// </summary>
-    [StructLayout(LayoutKind.Sequential, CharSet = CharSet.Unicode)]
-    internal struct SHSTOCKICONINFO
+    internal unsafe struct SHSTOCKICONINFO
     {
         #region Constants
 
@@ -62,8 +60,7 @@ namespace KGySoft.Drawing.WinApi
         /// Type: TCHAR[MAX_PATH]
         /// When SHGetStockIconInfo is called with the SHGSI_ICONLOCATION flag, this member receives the path of the resource that contains the icon. The index of the icon within the resource is received in iIcon.
         /// </summary>
-        [MarshalAs(UnmanagedType.ByValTStr, SizeConst = MAX_PATH)]
-        internal string szPath;
+        internal fixed char szPath[MAX_PATH];
 
         #endregion
     }

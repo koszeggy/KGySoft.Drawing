@@ -208,7 +208,7 @@ namespace KGySoft.Drawing
             /// <summary>
             /// From raw data
             /// </summary>
-            internal RawIconImage(byte[] rawData)
+            internal unsafe RawIconImage(byte[] rawData)
             {
                 int signature = BitConverter.ToInt32(rawData, 0);
 
@@ -241,7 +241,7 @@ namespace KGySoft.Drawing
                 }
 
                 // BMP header: size of the BITMAPINFOHEADER structure
-                if (signature != Marshal.SizeOf(typeof(BITMAPINFOHEADER)))
+                if (signature != sizeof(BITMAPINFOHEADER))
                     throw new ArgumentException(Res.RawIconBadIconFormat, nameof(rawData));
 
                 // header
@@ -255,7 +255,7 @@ namespace KGySoft.Drawing
                 if (colorCount > 0)
                 {
                     palette = BinarySerializer.DeserializeValueArray<RGBQUAD>(rawData, offset, colorCount);
-                    offset += Marshal.SizeOf(typeof(RGBQUAD)) * palette.Length;
+                    offset += sizeof(RGBQUAD) * palette.Length;
                 }
 
                 // color image (XOR)
@@ -305,7 +305,7 @@ namespace KGySoft.Drawing
 
             #region Internal Methods
 
-            internal void WriteDirEntry(BinaryWriter bw, bool forceBmpFormat, ref uint offset)
+            internal unsafe void WriteDirEntry(BinaryWriter bw, bool forceBmpFormat, ref uint offset)
             {
                 AssureRawFormatGenerated(forceBmpFormat);
                 ICONDIRENTRY entry = new ICONDIRENTRY
@@ -328,7 +328,7 @@ namespace KGySoft.Drawing
                     entry.bColorCount = (byte)bmpHeader.biClrUsed;
                     entry.wPlanes = bmpHeader.biPlanes;
                     entry.wBitCount = bmpHeader.biBitCount;
-                    entry.dwBytesInRes = (uint)(Marshal.SizeOf(typeof(BITMAPINFOHEADER)) + Marshal.SizeOf(typeof(RGBQUAD)) * PaletteColorCount +
+                    entry.dwBytesInRes = (uint)(sizeof(BITMAPINFOHEADER) + sizeof(RGBQUAD) * PaletteColorCount +
                         rawColor!.Length + rawMask!.Length);
                 }
 
@@ -461,7 +461,7 @@ namespace KGySoft.Drawing
                 bpp = bitmap.GetBitsPerPixel();
             }
 
-            private void Save(Stream stream, bool forceBmpFormat)
+            private unsafe void Save(Stream stream, bool forceBmpFormat)
             {
                 var bw = new BinaryWriter(stream);
                 
@@ -476,7 +476,7 @@ namespace KGySoft.Drawing
                 bw.Write(BinarySerializer.SerializeValueType(iconDir));
 
                 // Icon entry
-                uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + Marshal.SizeOf(typeof(ICONDIRENTRY)));
+                uint offset = (uint)(sizeof(ICONDIR) + sizeof(ICONDIRENTRY));
                 WriteDirEntry(bw, forceBmpFormat, ref offset);
 
                 // Icon image
@@ -498,7 +498,7 @@ namespace KGySoft.Drawing
                 palette = null;
             }
 
-            private void AssureRawFormatGenerated(bool forceBmpFormat)
+            private unsafe void AssureRawFormatGenerated(bool forceBmpFormat)
             {
                 if (rawColor == null && bmpColor == null && bmpComposite == null)
                     throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
@@ -560,7 +560,7 @@ namespace KGySoft.Drawing
                 }
 
                 // header
-                bmpHeader.biSize = (uint)Marshal.SizeOf(typeof(BITMAPINFOHEADER));
+                bmpHeader.biSize = (uint)sizeof(BITMAPINFOHEADER);
                 bmpHeader.biWidth = size.Width;
                 bmpHeader.biHeight = size.Height << 1; // because of mask, should be specified as double height image
                 bmpHeader.biPlanes = 1;
@@ -1114,7 +1114,7 @@ namespace KGySoft.Drawing
 
         #region Private Methods
 
-        private void Save(BinaryWriter bw, bool forceBmpImages)
+        private unsafe void Save(BinaryWriter bw, bool forceBmpImages)
         {
             // Icon header
             var iconDir = new ICONDIR
@@ -1127,7 +1127,7 @@ namespace KGySoft.Drawing
             bw.Write(BinarySerializer.SerializeValueType(iconDir));
 
             // Icon directory entries
-            uint offset = (uint)(Marshal.SizeOf(typeof(ICONDIR)) + iconDir.idCount * Marshal.SizeOf(typeof(ICONDIRENTRY)));
+            uint offset = (uint)(sizeof(ICONDIR) + iconDir.idCount * sizeof(ICONDIRENTRY));
             foreach (RawIconImage image in iconImages)
                 image.WriteDirEntry(bw, forceBmpImages, ref offset);
 
@@ -1136,9 +1136,9 @@ namespace KGySoft.Drawing
                 image.WriteRawImage(bw, forceBmpImages);
         }
 
-        private void Load(BinaryReader br, Size? size, int? bpp, int? index)
+        private unsafe void Load(BinaryReader br, Size? size, int? bpp, int? index)
         {
-            byte[] buf = br.ReadBytes(Marshal.SizeOf(typeof(ICONDIR)));
+            byte[] buf = br.ReadBytes(sizeof(ICONDIR));
             var iconDir = (ICONDIR)BinarySerializer.DeserializeValueType(typeof(ICONDIR), buf);
             if (iconDir.idReserved != 0 || iconDir.idType != 1)
                 throw new ArgumentException(Res.RawIconBadIconFormat, nameof(br));
@@ -1146,8 +1146,8 @@ namespace KGySoft.Drawing
             if (index.HasValue && (index.Value < 0 || index.Value >= iconDir.idCount))
                 return;
 
-            int entryOffset = Marshal.SizeOf(typeof(ICONDIR));
-            int entrySize = Marshal.SizeOf(typeof(ICONDIRENTRY));
+            int entryOffset = sizeof(ICONDIR);
+            int entrySize = sizeof(ICONDIRENTRY);
             for (int i = 0; i < iconDir.idCount; i++)
             {
                 if (index.HasValue && index.Value != i)

@@ -137,16 +137,16 @@ namespace KGySoft.Drawing.WinApi
             return result;
         }
 
-        internal static IntPtr GetFileIconHandle(string extension, SystemIconSize size)
+        internal static unsafe IntPtr GetFileIconHandle(string extension, SystemIconSize size)
         {
             var tempFileInfo = new SHFILEINFO();
-            NativeMethods.SHGetFileInfo(extension, 0, ref tempFileInfo, (uint)Marshal.SizeOf(tempFileInfo), SGHFI.SHGFI_ICON | SGHFI.SHGFI_USEFILEATTRIBUTES | (SGHFI)size);
+            NativeMethods.SHGetFileInfo(extension, 0, ref tempFileInfo, (uint)sizeof(SHFILEINFO), SGHFI.SHGFI_ICON | SGHFI.SHGFI_USEFILEATTRIBUTES | (SGHFI)size);
             return tempFileInfo.hIcon;
         }
 
-        internal static IntPtr GetStockIconHandle(StockIcon id, SystemIconSize size)
+        internal static unsafe IntPtr GetStockIconHandle(StockIcon id, SystemIconSize size)
         {
-            var iconInfo = new SHSTOCKICONINFO { cbSize = (uint)Marshal.SizeOf(typeof(SHSTOCKICONINFO)) };
+            var iconInfo = new SHSTOCKICONINFO { cbSize = (uint)sizeof(SHSTOCKICONINFO) };
             return NativeMethods.SHGetStockIconInfo(id, SHGSI.ICON | (SHGSI)size, ref iconInfo) == 0 ? iconInfo.hIcon : IntPtr.Zero;
         }
 

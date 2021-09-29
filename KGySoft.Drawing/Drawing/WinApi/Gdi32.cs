@@ -217,9 +217,9 @@ namespace KGySoft.Drawing.WinApi
 
         #region Methods
 
-        internal static int GetBitmapColorDepth(IntPtr handle)
+        internal static unsafe int GetBitmapColorDepth(IntPtr handle)
         {
-            if (NativeMethods.GetObject(handle, Marshal.SizeOf(typeof(BITMAP)), out BITMAP bitmapInfo) == 0)
+            if (NativeMethods.GetObject(handle, sizeof(BITMAP), out BITMAP bitmapInfo) == 0)
                 throw new ArgumentException(Res.Gdi32InvalidHandle, nameof(handle), new Win32Exception());
 
             return bitmapInfo.bmBitsPixel;
