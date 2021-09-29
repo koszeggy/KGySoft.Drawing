@@ -6,13 +6,18 @@
 ===============================================================================
 
 ~~~~~~~~~
-* v5.3.2:
+! v6.0.0:
 ~~~~~~~~~
+
+! Assembly changes:
+===================
+! Updating System.Drawing.Common version to 6.0.0. On non-Windows systems this might be a breaking change.
+* Updating KGySoft.CoreLibraries version
 
 * KGySoft.Drawing namespace:
 ============================
-* DrawingModule class: On non-Windows Systems the module initializer enables using System.Drawing that depend on
-  native GDI+ calls.
+* DrawingModule class: On non-Windows Systems the module initializer enables using System.Drawing types that depend
+  on native GDI+ calls.
 
 
 ~~~~~~~~~
