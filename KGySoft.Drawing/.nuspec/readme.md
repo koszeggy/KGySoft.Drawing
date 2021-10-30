@@ -1,4 +1,4 @@
-[![KGy SOFT .net](https://docs.kgysoft.net/drawing/icons/logo.png)](https://kgysoft.net/drawing)
+[![KGy SOFT .net](https://user-images.githubusercontent.com/27336165/124292367-c93f3d00-db55-11eb-8003-6d943ee7d7fa.png)](https://kgysoft.net/drawing)
 
 [![Website](https://img.shields.io/website/https/kgysoft.net/drawing.svg)](https://kgysoft.net/drawing) [![Online Help](https://img.shields.io/website/https/docs.kgysoft.net/drawing.svg?label=online%20help&up_message=available)](https://docs.kgysoft.net/drawing) [![GitHub Repo](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.svg?label=github)](https://github.com/koszeggy/KGySoft.Drawing) [![Drawing Tools](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.Tools.svg?label=Drawing%20Tools)](https://github.com/koszeggy/KGySoft.Drawing.Tools)
 
