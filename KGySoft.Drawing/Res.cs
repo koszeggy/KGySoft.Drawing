@@ -109,7 +109,7 @@ namespace KGySoft
 
         #region RawIcon
 
-        /// <summary>Too many images in the icon collection.</summary>
+        /// <summary>There are too many images in the icon collection.</summary>
         internal static string RawIconTooManyImages => Get("RawIcon_TooManyImages");
 
         /// <summary>Bad icon format.</summary>

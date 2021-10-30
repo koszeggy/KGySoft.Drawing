@@ -73,7 +73,7 @@ namespace KGySoft.Drawing
             /// </summary>
             /// <param name="index">The zero-based index at which item should be inserted.</param>
             /// <param name="item">The object to insert. The value can be null for reference types.</param>
-            /// <exception cref="System.NotSupportedException">Too many images in the icon collection</exception>
+            /// <exception cref="System.NotSupportedException">There are too many images in the icon collection</exception>
             protected override void InsertItem(int index, RawIconImage item)
             {
                 if (Count == UInt16.MaxValue)
