@@ -56,19 +56,19 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
       </group>
       <group targetFramework="netstandard2.0" >
         <dependency id="KGySoft.CoreLibraries" version="6.0.0-rc.2" />
-        <dependency id="System.Drawing.Common" version="5.0.2" />
-        <dependency id="System.Resources.Extensions" version="5.0.0" />
+        <dependency id="System.Drawing.Common" version="6.0.0-rc.1.21451.13" />
+        <dependency id="System.Resources.Extensions" version="6.0.0-rc.1.21451.13" />
       </group>
       <group targetFramework="netstandard2.1" >
         <dependency id="KGySoft.CoreLibraries" version="6.0.0-rc.2" />
-        <dependency id="System.Drawing.Common" version="5.0.2" />
-        <dependency id="System.Resources.Extensions" version="5.0.0" />
+        <dependency id="System.Drawing.Common" version="6.0.0-rc.1.21451.13" />
+        <dependency id="System.Resources.Extensions" version="6.0.0-rc.1.21451.13" />
       </group>
       <group targetFramework="net5.0" >
         <dependency id="KGySoft.CoreLibraries" version="6.0.0-rc.2" />
-        <dependency id="System.Drawing.Common" version="5.0.2" />
-        <dependency id="System.Resources.Extensions" version="5.0.0" />
-        <dependency id="System.Windows.Extensions" version="5.0.0" />
+        <dependency id="System.Drawing.Common" version="6.0.0-rc.1.21451.13" />
+        <dependency id="System.Resources.Extensions" version="6.0.0-rc.1.21451.13" />
+        <dependency id="System.Windows.Extensions" version="6.0.0-rc.1.21451.13" />
       </group>
     </dependencies>
   </metadata>
