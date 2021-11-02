@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Collections.Specialized;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 
@@ -23,6 +24,9 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// In fact, Int32, UInt32, BitVector32
+    /// </summary>
     internal static class IntExtensions
     {
         #region Methods
@@ -57,6 +61,33 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentOutOfRangeException(nameof(bpp), PublicResources.ArgumentOutOfRange);
             }
         }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static int ToBitsPerPixel(this int colorCount)
+        {
+            // Bits per pixel is actually ceiling of log2(maxColors)
+            // We could use BitOperations.Log2 but that returns the floor value so we should combine it with BitOperations.IsPow2,
+            // which is available only starting with .NET 6 and in the end it would be slower for typical values not larger than 256.
+            int bpp = 0;
+            for (int n = colorCount - 1; n > 0; n >>= 1)
+                bpp++;
+
+            return bpp;
+        }
+
+        internal static int RoundUpToPowerOf2(this uint value)
+        {
+            // In .NET 6 and above there is a BitOperations.RoundUpToPowerOf2
+            --value;
+            value |= value >> 1;
+            value |= value >> 2;
+            value |= value >> 4;
+            value |= value >> 8;
+            value |= value >> 16;
+            return (int)(value + 1);
+        }
+
+        internal static int GetMask(this BitVector32.Section section) => section.Mask << section.Offset;
 
         #endregion
     }

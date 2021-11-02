@@ -261,10 +261,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 maxColors = requestedColors;
                 size = source.Width * source.Height;
-
-                // bits per pixel is actually ceiling of log2(maxColors)
-                for (int n = requestedColors - 1; n > 0; n >>= 1)
-                    bpp++;
+                bpp = requestedColors.ToBitsPerPixel();
 
                 levels = new List<OctreeNode>[bpp];
                 for (int level = 0; level < bpp; level++)

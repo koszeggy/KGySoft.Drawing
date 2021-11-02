@@ -19,6 +19,11 @@
 * DrawingModule class: On non-Windows Systems the module initializer enables using System.Drawing types that depend
   on native GDI+ calls.
 
++ KGySoft.Drawing.Imaging namespace:
+====================================
++ New GifEncoder class
++ New GifGraphicsDisposalMethod enum
+
 
 ~~~~~~~~~
 * v5.3.1:

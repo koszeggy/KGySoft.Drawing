@@ -195,6 +195,12 @@
   <data name="Imaging_NotBitmapDataStream" xml:space="preserve">
     <value>Not a valid bitmap data stream.</value>
   </data>
+  <data name="GifEncoder_CannotChangeProperty" xml:space="preserve">
+    <value>This property cannot be set after adding the first image.</value>
+  </data>
+  <data name="GifEncoder_PaletteTooLarge" xml:space="preserve">
+    <value>The palette must not have more than 256 colors.</value>
+  </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>
   </data>

@@ -82,7 +82,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Fields
 
-        private readonly int transparentIndex = -1;
         private readonly Dictionary<Color32, int> color32ToIndex;
         private readonly Func<Color32, int>? customGetNearestColorIndex;
 
@@ -237,6 +236,7 @@ namespace KGySoft.Drawing.Imaging
         internal bool IsGrayscale { get; }
         internal bool HasAlpha { get; }
         internal bool HasMultiLevelAlpha { get; }
+        internal int TransparentIndex { get; }
 
         #endregion
 
@@ -271,6 +271,7 @@ namespace KGySoft.Drawing.Imaging
             if (entries.Length == 0)
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(entries));
 
+            TransparentIndex = -1;
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
 
@@ -286,14 +287,15 @@ namespace KGySoft.Drawing.Imaging
                 if (c.A != Byte.MaxValue)
                 {
                     HasAlpha = true;
-                    HasMultiLevelAlpha = c.A > 0;
-                }
+                    if (!HasMultiLevelAlpha)
+                        HasMultiLevelAlpha = c.A > 0;
 
-                if (c.A == 0)
-                {
-                    if (transparentIndex < 0)
-                        transparentIndex = i;
-                    continue;
+                    if (c.A == 0)
+                    {
+                        if (TransparentIndex < 0)
+                            TransparentIndex = i;
+                        continue;
+                    }
                 }
 
                 if (IsGrayscale)
@@ -652,6 +654,26 @@ namespace KGySoft.Drawing.Imaging
             return true;
         }
 
+        internal bool EntriesEqual(Palette? other)
+        {
+            if (other == null)
+                return false;
+
+            Color32[] colors = other.Entries;
+            if (ReferenceEquals(colors, Entries))
+                return true;
+            if (Entries.Length != colors.Length)
+                return false;
+
+            for (int i = 0; i < colors.Length; i++)
+            {
+                if (colors[i] != Entries[i])
+                    return false;
+            }
+
+            return true;
+        }
+
         #endregion
 
         #region Private Methods
@@ -659,8 +681,8 @@ namespace KGySoft.Drawing.Imaging
         private int FindNearestColorIndex(Color32 color)
         {
             // mapping alpha to full transparency
-            if (color.A < AlphaThreshold && transparentIndex != -1)
-                return transparentIndex;
+            if (color.A < AlphaThreshold && TransparentIndex != -1)
+                return TransparentIndex;
 
             int minDiff = Int32.MaxValue;
             int resultIndex = 0;

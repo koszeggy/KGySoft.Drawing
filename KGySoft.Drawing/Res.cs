@@ -149,6 +149,16 @@ namespace KGySoft
 
         #endregion
 
+        #region GifEncoder
+
+        /// <summary>This property cannot be set after adding the first image.</summary>
+        internal static string GifEncoderCannotChangeProperty => Get("GifEncoder_CannotChangeProperty");
+
+        /// <summary>The palette must not have more than 256 colors.</summary>
+        internal static string GifEncoderPaletteTooLarge => Get("GifEncoder_PaletteTooLarge");
+
+        #endregion
+
         #endregion
 
         #region Methods
