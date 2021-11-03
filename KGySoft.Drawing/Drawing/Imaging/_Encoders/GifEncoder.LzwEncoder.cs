@@ -16,16 +16,15 @@
 #region Usings
 
 using System;
+#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Buffers;
+#endif
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
-using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
-using KGySoft.CoreLibraries;
 
 #endregion
 
@@ -75,19 +74,17 @@ namespace KGySoft.Drawing.Imaging
 
                 public bool Equals(IndexBuffer other)
                 {
-
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    return buffer.AsSpan(offset, length).SequenceEqual(other.buffer.AsSpan(other.offset, other.length));
+                    return new ReadOnlySpan<byte>(buffer, offset, length).SequenceEqual(new ReadOnlySpan<byte>(other.buffer, other.offset, other.length));
 #else
-                    if (buffer.Length != other.buffer.Length)
+                    if (length != other.length)
                         return false;
-                    ArraySegment<byte> segThis = buffer.AsArraySegment;
-                    ArraySegment<byte> segOther = other.buffer.AsArraySegment;
+
                     unsafe
                     {
-                        fixed (byte* pThis = &segThis.Array![segThis.Offset])
-                        fixed (byte* pOther = &segOther.Array![segOther.Offset])
-                            return MemoryHelper.CompareMemory(pThis, pOther, buffer.Length);
+                        fixed (byte* pThis = &buffer[offset])
+                        fixed (byte* pOther = &other.buffer[other.offset])
+                            return MemoryHelper.CompareMemory(pThis, pOther, length);
                     }
 #endif
                 }
@@ -97,16 +94,67 @@ namespace KGySoft.Drawing.Imaging
 
                 public override int GetHashCode()
                 {
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    var hashCode = new HashCode();
-                    hashCode.AddBytes(buffer.AsSpan(offset, length));
-                    return hashCode.ToHashCode();
+                    Debug.Assert(length > 1, "Obtaining hashes are expected for non-single sequences");
+
+                    // Not using HashCode even in .NET Core and above because we need a much faster solution and this is good enough for our needs
+                    long result = 13;
+
+#if NETCOREAPP3_0_OR_GREATER
+                    ref byte pos = ref buffer[offset];
+                    ref byte end = ref Unsafe.Add(ref pos, length);
+
+                    // in 8 byte chunks first
+                    while ((nint)Unsafe.ByteOffset(ref pos, ref end) >= sizeof(long))
+                    {
+                        result = result * 397 + Unsafe.ReadUnaligned<long>(ref pos);
+                        pos = ref Unsafe.Add(ref pos, 8);
+                    }
+
+                    // + 4 byte
+                    if ((nint)Unsafe.ByteOffset(ref pos, ref end) >= sizeof(int))
+                    {
+                        result = result * 397 + Unsafe.ReadUnaligned<int>(ref pos);
+                        pos = ref Unsafe.Add(ref pos, 4);
+                    }
+
+                    // up to 3 remaining bytes
+                    while (Unsafe.IsAddressLessThan(ref pos, ref end))
+                    {
+                        result = result * 397 + pos;
+                        pos = ref Unsafe.Add(ref pos, 1);
+                    }
 #else
-                    int hashCode = 0;
-                    for (int i = 0; i < length; i++)
-                        hashCode = (hashCode, buffer[offset + i]).GetHashCode();
-                    return hashCode;
+                    unsafe
+                    {
+                        fixed (byte* pBuf = buffer)
+                        {
+                            byte* pos = &pBuf[offset];
+                            byte* end = pos + length;
+
+                            // in 8 byte chunks first
+                            while (end - pos >= 8)
+                            {
+                                result = result * 397 + *(long*)pos;
+                                pos += 8;
+                            }
+
+                            // + 4 byte
+                            if (end - pos >= 4)
+                            {
+                                result = result * 397 + *(int*)pos;
+                                pos += 4;
+                            }
+
+                            // up to 3 remaining bytes
+                            while (pos < end)
+                            {
+                                result = result * 397 + *pos;
+                                pos += 1;
+                            }
+                        }
+                    }
 #endif
+                    return result.GetHashCode();
                 }
 
                 #endregion
@@ -134,11 +182,14 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Fields
 
+#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 private readonly bool ownBuffer;
+#endif
                 private readonly Dictionary<IndexBuffer, int> codeTable;
 
                 [SuppressMessage("Style", "IDE0044:Add readonly modifier",
                     Justification = "It is not readonly in all targeted platforms so we need to prevent creating defensive copies.")]
+                // ReSharper disable once FieldCanBeMadeReadOnly.Local
                 private ArraySegment<byte> indices;
 
                 private int currentPosition;
@@ -155,7 +206,7 @@ namespace KGySoft.Drawing.Imaging
                 internal int ClearCode => 1 << MinimumCodeSize;
                 internal int EndInformationCode => ClearCode + 1;
                 internal int CurrentCodeSize { get; private set; }
-                internal byte CurrentIndex => indices[currentPosition];
+                internal byte CurrentIndex => indices.Array![indices.Offset + currentPosition];
 
                 #endregion
 
@@ -184,16 +235,19 @@ namespace KGySoft.Drawing.Imaging
                     // Trying to re-use the actual buffer if it is an 8-bit managed bitmap data; otherwise, allocating a new buffer
                     // We need this to prevent allocating a huge memory for the code table keys with the segments: all segments will just be
                     // spans over the original sequence, which often will contain overlapping memory
-                    var managed8BitBitmapData = imageData as ManagedBitmapData<byte, ManagedBitmapDataRow8I>;
-                    ownBuffer = managed8BitBitmapData == null;
-                    if (!ownBuffer)
+                    if (imageData is ManagedBitmapData<byte, ManagedBitmapDataRow8I> managed8BitBitmapData)
                     {
-                        indices = managed8BitBitmapData!.Buffer.Buffer.AsArraySegment;
+                        indices = managed8BitBitmapData.Buffer.Buffer.AsArraySegment;
                         return;
                     }
 
                     int size = imageData.Width * imageData.Height;
+#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                    ownBuffer = true;
                     indices = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(size), 0, size);
+#else
+                    indices = new ArraySegment<byte>(new byte[size], 0, size);
+#endif
 
                     // If we could not obtain the actual buffer, then copying the palette indices into the newly allocated one.
                     // Not using parallel processing at this level (TODO?: use AsyncContext in encoder?)
@@ -215,8 +269,10 @@ namespace KGySoft.Drawing.Imaging
 
                 public void Dispose()
                 {
+#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     if (ownBuffer)
                         ArrayPool<byte>.Shared.Return(indices.Array!);
+#endif
                 }
 
                 #endregion

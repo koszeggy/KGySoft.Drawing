@@ -56,9 +56,7 @@ namespace KGySoft.Drawing
 
         [SecurityCritical]
         internal static unsafe bool CompareMemory(byte* p1, byte* p2, int length)
-            => OSUtils.IsWindows
-                ? msvcrt.CompareMemory(new IntPtr(p1),  new IntPtr(p2), length)
-                : DoCompareMemory(p1, p2, length);
+            => DoCompareMemory(p1, p2, length);
 
         #endregion
 

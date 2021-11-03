@@ -310,13 +310,20 @@ namespace KGySoft.Drawing.Imaging
             writer.Write(commentLabel);
 
             // signature block
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             WriteCommentSubBlock(signatureBlock);
+#else
+            WriteCommentSubBlock(new ArraySegment<byte>(signatureBlock));
+#endif
 
             // Important: not using resources here because only 7-bit ASCII is supported and because resources could be longer than 255 byte
             if (AddMetaInfo)
             {
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 Span<byte> buffer = stackalloc byte[255];
-
+#else
+                var buffer = new byte[255];
+#endif
                 WriteCommentSubBlock(FormatComment(buffer, $"Global Palette: {(globalPalette == null ? "Not present" : $"{globalPalette.Count} colors")}"));
                 WriteCommentSubBlock(FormatComment(buffer, $"Back Color: {(isTransparent || globalPalette == null ? "Transparent" : $"{globalPalette.Entries[backColorIndex >= globalPalette.Count ? 0 : backColorIndex].ToRgb():X6}")}"));
                 WriteCommentSubBlock(FormatComment(buffer, $"Repeat Count: {(repeatCount switch { null => "Not present", 0 => "Infinite", _ => repeatCount })}"));
@@ -326,6 +333,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Local Methods
 
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             static Span<byte> FormatComment(Span<byte> buffer, string text)
             {
                 Debug.Assert(text.Length <= 255);
@@ -339,6 +347,21 @@ namespace KGySoft.Drawing.Imaging
                 writer.Write((byte)buffer.Length);
                 writer.Write(buffer);
             }
+#else
+            static ArraySegment<byte> FormatComment(byte[] buffer, string text)
+            {
+                Debug.Assert(text.Length <= 255);
+                for (int i = 0; i < text.Length; i++)
+                    buffer[i] = (byte)text[i];
+                return new ArraySegment<byte>(buffer, 0, text.Length);
+            }
+
+            void WriteCommentSubBlock(ArraySegment<byte> buffer)
+            {
+                writer.Write((byte)buffer.Count);
+                writer.Write(buffer.Array!, buffer.Offset, buffer.Count);
+            }
+#endif
 
             #endregion
         }
