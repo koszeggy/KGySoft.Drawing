@@ -30,7 +30,7 @@ namespace KGySoft.Drawing.Imaging
     /// Provides an encoder for GIF image format that supports animation. Use the static members for high-level access or create an
     /// instance to control everything manually.
     /// </summary>
-    public partial class GifEncoder
+    public sealed partial class GifEncoder
     {
         #region Constants
 
@@ -412,7 +412,11 @@ namespace KGySoft.Drawing.Imaging
             writer.Write((byte)packedFields.Data);
         }
 
-        private void WriteImageData(IReadableBitmapData imageData) => new LzwEncoder(imageData, writer).Encode();
+        private void WriteImageData(IReadableBitmapData imageData)
+        {
+            using var lzwEncoder = new LzwEncoder(imageData, writer);
+            lzwEncoder.Encode();
+        }
 
         #endregion
 

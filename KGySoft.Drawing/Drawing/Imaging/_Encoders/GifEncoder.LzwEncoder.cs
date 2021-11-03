@@ -17,8 +17,14 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+using System.Runtime.CompilerServices;
+
+using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 
 #endregion
 
@@ -26,15 +32,11 @@ namespace KGySoft.Drawing.Imaging
 {
     public partial class GifEncoder
     {
-        #region Nested classes
-
-        #region LzwEncoder class
-
         /// <summary>
         /// The LZW Encoder based on the specification as per chapter 22 and Appendix F in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
         /// The detailed LZW algorithm is written here: http://giflib.sourceforge.net/whatsinagif/lzw_image_data.html
         /// </summary>
-        private class LzwEncoder
+        private class LzwEncoder : IDisposable
         {
             #region Nested structs
 
@@ -44,37 +46,13 @@ namespace KGySoft.Drawing.Imaging
             {
                 #region Fields
 
-                // TODO: keep the first 8 bytes in a long (allocation free)
-                // TODO: max 255? Fixed buffer? Array?
-                private readonly List<byte> buffer;
-
-                #endregion
-
-                #region Properties
-
-                internal int Length => buffer.Count;
-
-                #endregion
-
-                #region Operators
-
-                public static bool operator ==(IndexBuffer left, IndexBuffer right) => left.Equals(right);
-
-                public static bool operator !=(IndexBuffer left, IndexBuffer right)
-                {
-                    if (!left.Equals(right))
-                        return true;
-                    return false;
-                }
+                private ArraySection<byte> buffer;
 
                 #endregion
 
                 #region Constructors
 
-                internal IndexBuffer(byte initialByte)
-                {
-                    buffer = new List<byte> { initialByte };
-                }
+                internal IndexBuffer(ArraySection<byte> initialSegment) => buffer = initialSegment;
 
                 #endregion
 
@@ -82,25 +60,193 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Public Methods
 
-                // TODO: as span (faster if array)
-                public bool Equals(IndexBuffer other) => buffer.SequenceEqual(other.buffer);
+                public bool Equals(IndexBuffer other)
+                {
+
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                    return buffer.AsSpan.SequenceEqual(other.buffer.AsSpan);
+#else
+                    if (buffer.Length != other.buffer.Length)
+                        return false;
+                    ArraySegment<byte> segThis = buffer.AsArraySegment;
+                    ArraySegment<byte> segOther = other.buffer.AsArraySegment;
+                    unsafe
+                    {
+                        fixed (byte* pThis = &segThis.Array![segThis.Offset])
+                        fixed (byte* pOther = &segOther.Array![segOther.Offset])
+                            return MemoryHelper.CompareMemory(pThis, pOther, buffer.Length);
+                    }
+#endif
+                }
+
 
                 public override bool Equals(object? obj) => obj is IndexBuffer other && Equals(other);
 
                 public override int GetHashCode()
                 {
-                    // TODO: Span, and then just AddBytes
+#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     var hashCode = new HashCode();
-                    foreach (byte b in buffer)
-                        hashCode.Add(b);
+                    hashCode.AddBytes(buffer.AsSpan);
                     return hashCode.ToHashCode();
+#else
+                    int hashCode = 0;
+                    for (int i = 0; i < buffer.Length; i++)
+                        hashCode = (hashCode, i).GetHashCode();
+                    return hashCode;
+#endif
                 }
 
                 #endregion
 
                 #region Internal Methods
 
-                internal void Add(byte b) => buffer.Add(b);
+                // TODO: rename and remove parameter
+                internal void Add(byte b)
+                {
+                    ArraySegment<byte> segment = buffer.AsArraySegment;
+                    buffer = segment.Array!.AsSection(segment.Offset, segment.Count + 1);
+                    Debug.Assert(buffer[^1] == b);
+                }
+
+                #endregion
+
+                #endregion
+            }
+
+            #endregion
+
+            #region CodeTable struct
+
+            private struct CodeTable : IDisposable
+            {
+                #region Constants
+
+                private const int maxCodeCount = 1 << 12;
+
+                #endregion
+
+                #region Fields
+
+                private readonly bool ownBuffer;
+                private readonly Dictionary<IndexBuffer, int> codeTable;
+
+                [SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "False alarm, see ArraySection description.")]
+                private ArraySection<byte> indices;
+
+                private int currentPosition;
+                private int nextFreeCode;
+
+
+                #endregion
+
+                #region Properties
+
+                #region Internal Properties
+
+                internal int MinimumCodeSize { get; }
+                internal int ClearCode => 1 << MinimumCodeSize;
+                internal int EndInformationCode => ClearCode + 1;
+                internal int CurrentCodeSize { get; private set; }
+                internal byte CurrentIndex => indices[currentPosition];
+
+                #endregion
+
+                #region Private Properties
+
+                private int FirstAvailableCode => ClearCode + 2;
+                private int NextSizeLimit => 1 << CurrentCodeSize;
+
+                #endregion
+
+                #endregion
+
+                #region Constructors
+
+                public CodeTable(IReadableBitmapData imageData) : this()
+                {
+                    Debug.Assert(imageData.Palette?.Count <= 256);
+
+                    // According to Appendix F in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
+                    // the minimum code size is 2 "because of some algorithmic constraints" (preserved code values)
+                    MinimumCodeSize = Math.Max(2, imageData.Palette!.Count.ToBitsPerPixel());
+                    CurrentCodeSize = MinimumCodeSize + 1;
+                    currentPosition = -1;
+                    codeTable = new Dictionary<IndexBuffer, int>(maxCodeCount - FirstAvailableCode);
+
+                    // Trying to re-use the actual buffer if it is an 8-bit managed bitmap data; otherwise, allocating a new buffer
+                    // We need this to prevent allocating a huge memory for the code table keys with the segments: all segments will just be
+                    // spans over the original sequence, which often will contain overlapping memory
+                    var managed8BitBitmapData = imageData as ManagedBitmapData<byte, ManagedBitmapDataRow8I>;
+                    ownBuffer = managed8BitBitmapData == null;
+                    indices = ownBuffer
+                        ? new ArraySection<byte>(imageData.Width * imageData.Height)
+                        : managed8BitBitmapData!.Buffer.Buffer;
+
+                    if (!ownBuffer)
+                        return;
+
+                    // If we could not obtain the actual buffer, then copying the palette indices into the newly allocated one.
+                    // Not using parallel processing at this level (TODO?: use AsyncContext in encoder?)
+                    Array2D<byte> as2D = indices.AsArray2D(imageData.Height, imageData.Width);
+                    IReadableBitmapDataRow rowSrc = imageData.FirstRow;
+                    for (int y = 0; y < as2D.Height; y++, rowSrc.MoveNextRow())
+                    {
+                        for (int x = 0; x < as2D.Width; x++)
+                            as2D[y, x] = (byte)rowSrc.GetColorIndex(x);
+                    }
+                }
+
+                #endregion
+
+                #region Methods
+
+                #region Public Method
+
+                public void Dispose()
+                {
+                    if (ownBuffer)
+                        indices.Release();
+                }
+
+                #endregion
+
+                #region Internal Methods
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                internal void Reset()
+                {
+                    codeTable.Clear();
+                    CurrentCodeSize = MinimumCodeSize + 1;
+                    nextFreeCode = FirstAvailableCode;
+                }
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                internal bool MoveNextIndex()
+                {
+                    if (currentPosition == indices.Length - 1)
+                        return false;
+                    currentPosition += 1;
+                    return true;
+                }
+
+                internal IndexBuffer GetInitialSegment() => new IndexBuffer(indices.Slice(currentPosition, 1));
+
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                internal bool TryGetCode(IndexBuffer key, out int code) => codeTable.TryGetValue(key, out code);
+
+                [MethodImpl(MethodImpl.AggressiveInlining)]
+                internal bool TryAddCode(IndexBuffer key)
+                {
+                    if (nextFreeCode == maxCodeCount)
+                        return false;
+
+                    if (nextFreeCode == NextSizeLimit)
+                        CurrentCodeSize += 1;
+                    codeTable.Add(key, nextFreeCode);
+                    nextFreeCode += 1;
+                    return true;
+                }
 
                 #endregion
 
@@ -111,34 +257,21 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-            #region Constants
-
-            private const int maxCodeCount = 1 << 12;
-
-            #endregion
-
             #region Fields
 
             private readonly BinaryWriter writer;
-            private readonly int minimumCodeSize;
-            private readonly Dictionary<IndexBuffer, int> codeTable = new();
             private readonly byte[] buffer = new byte[255];
 
-            private int nextFreeCode;
-            private PixelIndexEnumerator pixelEnumerator;
+            private CodeTable codeTable;
+
             private int accumulator;
             private int accumulatorSize;
-            private int currentCodeSize;
             private int bufferLength;
 
             #endregion
 
             #region Properties
 
-            private int ClearCode => 1 << minimumCodeSize;
-            private int EndInformationCode => ClearCode + 1;
-            private int FirstAvailableCode => ClearCode + 2;
-            private int NextSizeLimit => 1 << currentCodeSize;
 
             #endregion
 
@@ -148,58 +281,56 @@ namespace KGySoft.Drawing.Imaging
             {
                 Debug.Assert(imageData.Palette != null);
                 this.writer = writer;
-
-                // According to Appendix F in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
-                // the minimum code size is 2 "because of some algorithmic constraints" (preserved code values)
-                minimumCodeSize = Math.Max(2, imageData.Palette!.Count.ToBitsPerPixel());
-                currentCodeSize = minimumCodeSize + 1;
-                pixelEnumerator = new PixelIndexEnumerator(imageData);
+                codeTable = new CodeTable(imageData);
             }
 
             #endregion
 
             #region Methods
 
+            #region Public Methods
+
+            public void Dispose() => codeTable.Dispose();
+
+            #endregion
+
             #region Internal Methods
 
             internal void Encode()
             {
-                writer.Write((byte)minimumCodeSize);
-                ResetCodeTable();
+                writer.Write((byte)codeTable.MinimumCodeSize);
+                WriteCode(codeTable.ClearCode);
+                codeTable.Reset();
 
-                pixelEnumerator.MoveNext();
-                int previousCode = pixelEnumerator.Current;
-                var indexBuffer = new IndexBuffer((byte)previousCode);
+                codeTable.MoveNextIndex();
+                int previousCode = codeTable.CurrentIndex;
+                IndexBuffer indexBuffer = codeTable.GetInitialSegment();
 
-                while (pixelEnumerator.MoveNext())
+                while (codeTable.MoveNextIndex())
                 {
-                    byte nextIndex = pixelEnumerator.Current;
-                    indexBuffer.Add(nextIndex);
+                    byte currentIndex = codeTable.CurrentIndex;
+                    indexBuffer.Add(currentIndex);
 
-                    if (codeTable.TryGetValue(indexBuffer, out int code))
+                    if (codeTable.TryGetCode(indexBuffer, out int code))
                     {
                         previousCode = code;
                         continue;
                     }
 
                     WriteCode(previousCode);
-                    previousCode = nextIndex;
+                    previousCode = currentIndex;
 
-                    if (nextFreeCode == maxCodeCount)
-                        ResetCodeTable();
-                    else
+                    if (!codeTable.TryAddCode(indexBuffer))
                     {
-                        if (nextFreeCode == NextSizeLimit)
-                            currentCodeSize += 1;
-                        codeTable.Add(indexBuffer, nextFreeCode);
-                        nextFreeCode += 1; // TODO: in CodeTable
+                        WriteCode(codeTable.ClearCode);
+                        codeTable.Reset();
                     }
 
-                    indexBuffer = new IndexBuffer(nextIndex);
+                    indexBuffer = codeTable.GetInitialSegment();
                 }
 
                 WriteCode(previousCode);
-                WriteCode(EndInformationCode);
+                WriteCode(codeTable.EndInformationCode);
                 Flush();
                 writer.Write(blockTerminator);
             }
@@ -208,32 +339,23 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private void ResetCodeTable()
-            {
-                // TODO: in some new CodeTable?
-                WriteCode(ClearCode);
-                codeTable.Clear();
-                currentCodeSize = minimumCodeSize + 1;
-                nextFreeCode = FirstAvailableCode;
-            }
-
             private void WriteCode(int code)
             {
                 // TODO: in a BitWriter type?
-                Debug.Assert(currentCodeSize + accumulatorSize <= sizeof(int) * 8);
+                Debug.Assert(codeTable.CurrentCodeSize + accumulatorSize <= sizeof(int) * 8);
                 if (BitConverter.IsLittleEndian)
                 {
-                    if (currentCodeSize == 0)
+                    if (codeTable.CurrentCodeSize == 0)
                         accumulator = code;
                     else
                         accumulator |= code << accumulatorSize;
-                    accumulatorSize += currentCodeSize;
+                    accumulatorSize += codeTable.CurrentCodeSize;
                 }
                 else
                 {
                     // TODO: test this branch
                     // we must use little endian order regardless of current architecture
-                    int remainingSize = currentCodeSize;
+                    int remainingSize = codeTable.CurrentCodeSize;
                     while (remainingSize > 8)
                     {
                         accumulator |= (code & 0xFF) << accumulatorSize;
@@ -287,9 +409,5 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
         }
-
-        #endregion
-
-        #endregion
     }
 }
