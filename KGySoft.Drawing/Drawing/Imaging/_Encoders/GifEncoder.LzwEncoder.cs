@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Buffers;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing.Imaging;
@@ -42,17 +43,29 @@ namespace KGySoft.Drawing.Imaging
 
             #region IndexBuffer struct
 
+            /// <summary>
+            /// Represents a segment of a byte array. It could also be an <see cref="ArraySegment{T}"/>
+            /// or <see cref="ArraySection{T}"/> but it is faster if we can directly mutate only the length.
+            /// </summary>
             private struct IndexBuffer : IEquatable<IndexBuffer>
             {
                 #region Fields
 
-                private ArraySection<byte> buffer;
+                private readonly byte[] buffer;
+                private readonly int offset;
+
+                private int length;
 
                 #endregion
 
                 #region Constructors
 
-                internal IndexBuffer(ArraySection<byte> initialSegment) => buffer = initialSegment;
+                internal IndexBuffer(byte[] buffer, int offset)
+                {
+                    this.buffer = buffer;
+                    this.offset = offset;
+                    length = 1;
+                }
 
                 #endregion
 
@@ -64,7 +77,7 @@ namespace KGySoft.Drawing.Imaging
                 {
 
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    return buffer.AsSpan.SequenceEqual(other.buffer.AsSpan);
+                    return buffer.AsSpan(offset, length).SequenceEqual(other.buffer.AsSpan(other.offset, other.length));
 #else
                     if (buffer.Length != other.buffer.Length)
                         return false;
@@ -86,12 +99,12 @@ namespace KGySoft.Drawing.Imaging
                 {
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     var hashCode = new HashCode();
-                    hashCode.AddBytes(buffer.AsSpan);
+                    hashCode.AddBytes(buffer.AsSpan(offset, length));
                     return hashCode.ToHashCode();
 #else
                     int hashCode = 0;
-                    for (int i = 0; i < buffer.Length; i++)
-                        hashCode = (hashCode, i).GetHashCode();
+                    for (int i = 0; i < length; i++)
+                        hashCode = (hashCode, buffer[offset + i]).GetHashCode();
                     return hashCode;
 #endif
                 }
@@ -100,13 +113,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Internal Methods
 
-                // TODO: rename and remove parameter
-                internal void Add(byte b)
-                {
-                    ArraySegment<byte> segment = buffer.AsArraySegment;
-                    buffer = segment.Array!.AsSection(segment.Offset, segment.Count + 1);
-                    Debug.Assert(buffer[^1] == b);
-                }
+                internal void AddNext() => length += 1;
 
                 #endregion
 
@@ -130,8 +137,9 @@ namespace KGySoft.Drawing.Imaging
                 private readonly bool ownBuffer;
                 private readonly Dictionary<IndexBuffer, int> codeTable;
 
-                [SuppressMessage("Style", "IDE0044:Add readonly modifier", Justification = "False alarm, see ArraySection description.")]
-                private ArraySection<byte> indices;
+                [SuppressMessage("Style", "IDE0044:Add readonly modifier",
+                    Justification = "It is not readonly in all targeted platforms so we need to prevent creating defensive copies.")]
+                private ArraySegment<byte> indices;
 
                 private int currentPosition;
                 private int nextFreeCode;
@@ -178,21 +186,24 @@ namespace KGySoft.Drawing.Imaging
                     // spans over the original sequence, which often will contain overlapping memory
                     var managed8BitBitmapData = imageData as ManagedBitmapData<byte, ManagedBitmapDataRow8I>;
                     ownBuffer = managed8BitBitmapData == null;
-                    indices = ownBuffer
-                        ? new ArraySection<byte>(imageData.Width * imageData.Height)
-                        : managed8BitBitmapData!.Buffer.Buffer;
-
                     if (!ownBuffer)
+                    {
+                        indices = managed8BitBitmapData!.Buffer.Buffer.AsArraySegment;
                         return;
+                    }
+
+                    int size = imageData.Width * imageData.Height;
+                    indices = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(size), 0, size);
 
                     // If we could not obtain the actual buffer, then copying the palette indices into the newly allocated one.
                     // Not using parallel processing at this level (TODO?: use AsyncContext in encoder?)
-                    Array2D<byte> as2D = indices.AsArray2D(imageData.Height, imageData.Width);
+                    int i = 0;
                     IReadableBitmapDataRow rowSrc = imageData.FirstRow;
-                    for (int y = 0; y < as2D.Height; y++, rowSrc.MoveNextRow())
+                    for (int y = 0; y < imageData.Height; y++, rowSrc.MoveNextRow())
                     {
-                        for (int x = 0; x < as2D.Width; x++)
-                            as2D[y, x] = (byte)rowSrc.GetColorIndex(x);
+                        // we can index directly the array here without an offset because we allocated/rented it
+                        for (int x = 0; x < imageData.Width; x++)
+                            indices.Array![i++] = (byte)rowSrc.GetColorIndex(x);
                     }
                 }
 
@@ -205,7 +216,7 @@ namespace KGySoft.Drawing.Imaging
                 public void Dispose()
                 {
                     if (ownBuffer)
-                        indices.Release();
+                        ArrayPool<byte>.Shared.Return(indices.Array!);
                 }
 
                 #endregion
@@ -223,13 +234,13 @@ namespace KGySoft.Drawing.Imaging
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal bool MoveNextIndex()
                 {
-                    if (currentPosition == indices.Length - 1)
+                    if (currentPosition == indices.Count - 1)
                         return false;
                     currentPosition += 1;
                     return true;
                 }
 
-                internal IndexBuffer GetInitialSegment() => new IndexBuffer(indices.Slice(currentPosition, 1));
+                internal IndexBuffer GetInitialSegment() => new IndexBuffer(indices.Array!, indices.Offset + currentPosition);
 
 
                 [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -308,9 +319,7 @@ namespace KGySoft.Drawing.Imaging
 
                 while (codeTable.MoveNextIndex())
                 {
-                    byte currentIndex = codeTable.CurrentIndex;
-                    indexBuffer.Add(currentIndex);
-
+                    indexBuffer.AddNext();
                     if (codeTable.TryGetCode(indexBuffer, out int code))
                     {
                         previousCode = code;
@@ -318,7 +327,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     WriteCode(previousCode);
-                    previousCode = currentIndex;
+                    previousCode = codeTable.CurrentIndex;
 
                     if (!codeTable.TryAddCode(indexBuffer))
                     {
