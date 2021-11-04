@@ -20,9 +20,9 @@ using System;
 using System.Buffers;
 #endif
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.IO;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -36,34 +36,44 @@ namespace KGySoft.Drawing.Imaging
         /// The LZW Encoder based on the specification as per chapter 22 and Appendix F in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
         /// The detailed LZW algorithm is written here: http://giflib.sourceforge.net/whatsinagif/lzw_image_data.html
         /// </summary>
-        private class LzwEncoder : IDisposable
+        // Note: ref struct because it contains a stack-only fixed buffer
+        [SecuritySafeCritical]
+        private ref struct LzwEncoder
         {
             #region Nested structs
 
             #region IndexBuffer struct
 
             /// <summary>
-            /// Represents a segment of a byte array. It could also be an <see cref="ArraySegment{T}"/>
-            /// or <see cref="ArraySection{T}"/> but it is faster if we can directly mutate only the length.
+            /// Represents a span of a byte array and has specialized GetHashCode/Equals.
+            /// It could also contain a single <see cref="ArraySegment{T}"/> or <see cref="ArraySection{T}"/> field
+            /// but it is faster if we can mutate only the length directly.
             /// </summary>
             private struct IndexBuffer : IEquatable<IndexBuffer>
             {
                 #region Fields
 
-                private readonly byte[] buffer;
-                private readonly int offset;
+                internal readonly byte[] Buffer;
+                internal readonly int Offset;
 
-                private int length;
+                internal int Length;
 
                 #endregion
 
                 #region Constructors
 
+                internal IndexBuffer(byte[] buffer, int offset, int length)
+                {
+                    Buffer = buffer;
+                    Offset = offset;
+                    Length = length;
+                }
+
                 internal IndexBuffer(byte[] buffer, int offset)
                 {
-                    this.buffer = buffer;
-                    this.offset = offset;
-                    length = 1;
+                    Buffer = buffer;
+                    Offset = offset;
+                    Length = 1;
                 }
 
                 #endregion
@@ -75,16 +85,16 @@ namespace KGySoft.Drawing.Imaging
                 public bool Equals(IndexBuffer other)
                 {
 #if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    return new ReadOnlySpan<byte>(buffer, offset, length).SequenceEqual(new ReadOnlySpan<byte>(other.buffer, other.offset, other.length));
+                    return new ReadOnlySpan<byte>(Buffer, Offset, Length).SequenceEqual(new ReadOnlySpan<byte>(other.Buffer, other.Offset, other.Length));
 #else
-                    if (length != other.length)
+                    if (Length != other.Length)
                         return false;
 
                     unsafe
                     {
-                        fixed (byte* pThis = &buffer[offset])
-                        fixed (byte* pOther = &other.buffer[other.offset])
-                            return MemoryHelper.CompareMemory(pThis, pOther, length);
+                        fixed (byte* pThis = &Buffer[Offset])
+                        fixed (byte* pOther = &other.Buffer[other.Offset])
+                            return MemoryHelper.CompareMemory(pThis, pOther, Length);
                     }
 #endif
                 }
@@ -95,14 +105,14 @@ namespace KGySoft.Drawing.Imaging
 #if NETCOREAPP3_0_OR_GREATER
                 public override int GetHashCode()
                 {
-                    Debug.Assert(length > 1, "Obtaining hashes are expected for non-single sequences");
+                    Debug.Assert(Length > 1, "Obtaining hashes are expected for non-single sequences");
 
                     int result;
-                    ref byte pos = ref buffer[offset];
-                    ref byte end = ref Unsafe.Add(ref pos, length);
+                    ref byte pos = ref Buffer[Offset];
+                    ref byte end = ref Unsafe.Add(ref pos, Length);
 
                     // 2 or 3 length
-                    if (length < 4)
+                    if (Length < 4)
                     {
                         result = 13;
                         while (Unsafe.IsAddressLessThan(ref pos, ref end))
@@ -115,23 +125,23 @@ namespace KGySoft.Drawing.Imaging
 
                     // Including only the first and last 4 bytes (overlapping is allowed) to avoid high hash code cost.
                     // Prefixes of large single color areas are still differentiated by length.
-                    result = 8209 * length;
+                    result = 8209 * Length;
                     result = result * 2053 + Unsafe.ReadUnaligned<int>(ref pos);
-                    return length == 4 ? result : result * 1031 + Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref end, -4));
+                    return Length == 4 ? result : result * 1031 + Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref end, -4));
                 }
 #else
                 public override unsafe int GetHashCode()
                 {
-                    Debug.Assert(length > 1, "Obtaining hashes are expected for non-single sequences");
+                    Debug.Assert(Length > 1, "Obtaining hashes are expected for non-single sequences");
 
-                    fixed (byte* pBuf = buffer)
+                    fixed (byte* pBuf = Buffer)
                     {
                         int result;
-                        byte* pos = &pBuf[offset];
-                        byte* end = pos + length;
+                        byte* pos = &pBuf[Offset];
+                        byte* end = pos + Length;
 
                         // 2 or 3 length
-                        if (length < 4)
+                        if (Length < 4)
                         {
                             result = 13;
                             while (pos < end)
@@ -145,9 +155,9 @@ namespace KGySoft.Drawing.Imaging
 
                         // Including only the first and last 4 bytes (overlapping is allowed) to avoid high hash code cost.
                         // Prefixes of large single color areas are still differentiated by length.
-                        result = 8209 * length;
+                        result = 8209 * Length;
                         result = result * 2053 + *(int*)pos;
-                        return length == 4 ? result : result * 1031 + *(int*)(end - 4);
+                        return Length == 4 ? result : result * 1031 + *(int*)(end - 4);
                     }
                 }
 #endif
@@ -156,7 +166,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Internal Methods
 
-                internal void AddNext() => length += 1;
+                internal void AddNext() => Length += 1;
 
                 #endregion
 
@@ -181,11 +191,7 @@ namespace KGySoft.Drawing.Imaging
                 private readonly bool ownBuffer;
 #endif
                 private readonly Dictionary<IndexBuffer, int> codeTable;
-
-                [SuppressMessage("Style", "IDE0044:Add readonly modifier",
-                    Justification = "It is not readonly in all targeted platforms so we need to prevent creating defensive copies.")]
-                // ReSharper disable once FieldCanBeMadeReadOnly.Local
-                private ArraySegment<byte> indices;
+                private readonly IndexBuffer indices;
 
                 private int currentPosition;
                 private int nextFreeCode;
@@ -201,7 +207,7 @@ namespace KGySoft.Drawing.Imaging
                 internal int ClearCode => 1 << MinimumCodeSize;
                 internal int EndInformationCode => ClearCode + 1;
                 internal int CurrentCodeSize { get; private set; }
-                internal byte CurrentIndex => indices.Array![indices.Offset + currentPosition];
+                internal byte CurrentIndex => indices.Buffer[indices.Offset + currentPosition];
 
                 #endregion
 
@@ -225,23 +231,25 @@ namespace KGySoft.Drawing.Imaging
                     MinimumCodeSize = Math.Max(2, imageData.Palette!.Count.ToBitsPerPixel());
                     CurrentCodeSize = MinimumCodeSize + 1;
                     currentPosition = -1;
-                    codeTable = new Dictionary<IndexBuffer, int>(maxCodeCount - FirstAvailableCode);
+                    int size = imageData.Width * imageData.Height;
+                    codeTable = new Dictionary<IndexBuffer, int>(Math.Min(size, maxCodeCount - FirstAvailableCode));
 
-                    // Trying to re-use the actual buffer if it is an 8-bit managed bitmap data; otherwise, allocating a new buffer
+                    // Trying to re-use the actual buffer if it is an 8-bit managed bitmap data; otherwise, allocating a new buffer.
                     // We need this to prevent allocating a huge memory for the code table keys with the segments: all segments will just be
                     // spans over the original sequence, which often will contain overlapping memory
                     if (imageData is ManagedBitmapData<byte, ManagedBitmapDataRow8I> managed8BitBitmapData)
                     {
-                        indices = managed8BitBitmapData.Buffer.Buffer.AsArraySegment;
+                        // TODO: after releasing CoreLibraries 6.0.0 the AsArraySegment is not needed
+                        ArraySegment<byte> segment = managed8BitBitmapData.Buffer.Buffer.AsArraySegment;
+                        indices = new IndexBuffer(segment.Array!, segment.Offset, segment.Count);
                         return;
                     }
 
-                    int size = imageData.Width * imageData.Height;
 #if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     ownBuffer = true;
-                    indices = new ArraySegment<byte>(ArrayPool<byte>.Shared.Rent(size), 0, size);
+                    indices = new IndexBuffer(ArrayPool<byte>.Shared.Rent(size), 0, size);
 #else
-                    indices = new ArraySegment<byte>(new byte[size], 0, size);
+                    indices = new IndexBuffer(new byte[size], 0, size);
 #endif
 
                     // If we could not obtain the actual buffer, then copying the palette indices into the newly allocated one.
@@ -252,7 +260,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         // we can index directly the array here without an offset because we allocated/rented it
                         for (int x = 0; x < imageData.Width; x++)
-                            indices.Array![i++] = (byte)rowSrc.GetColorIndex(x);
+                            indices.Buffer[i++] = (byte)rowSrc.GetColorIndex(x);
                     }
                 }
 
@@ -266,7 +274,7 @@ namespace KGySoft.Drawing.Imaging
                 {
 #if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                     if (ownBuffer)
-                        ArrayPool<byte>.Shared.Return(indices.Array!);
+                        ArrayPool<byte>.Shared.Return(indices.Buffer);
 #endif
                 }
 
@@ -285,14 +293,13 @@ namespace KGySoft.Drawing.Imaging
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal bool MoveNextIndex()
                 {
-                    if (currentPosition == indices.Count - 1)
+                    if (currentPosition == indices.Length - 1)
                         return false;
                     currentPosition += 1;
                     return true;
                 }
 
-                internal IndexBuffer GetInitialSegment() => new IndexBuffer(indices.Array!, indices.Offset + currentPosition);
-
+                internal IndexBuffer GetInitialSegment() => new IndexBuffer(indices.Buffer, indices.Offset + currentPosition);
 
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal bool TryGetCode(IndexBuffer key, out int code) => codeTable.TryGetValue(key, out code);
@@ -317,18 +324,128 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
+            #region BitWriter struct
+
+            private unsafe ref struct BitWriter
+            {
+                #region Constants
+
+                private const int bufferCapacity = 255;
+
+                #endregion
+
+                #region Fields
+
+                private readonly BinaryWriter writer;
+
+                private int accumulator;
+                private int accumulatorSize;
+                private int bufferLength;
+
+#pragma warning disable CS0649 // field is never assigned - false alarm, a fixed buffer should not be assigned
+                private fixed byte buffer[bufferCapacity];
+#pragma warning restore CS0649
+
+                #endregion
+
+                #region Constructors
+
+                internal BitWriter(BinaryWriter writer) : this() => this.writer = writer;
+
+                #endregion
+
+                #region Methods
+
+                #region Internal Methods
+
+                internal void WriteByte(byte value) => writer.Write(value);
+
+                internal void WriteCode(int code, int bitSize)
+                {
+                    Debug.Assert(bitSize + accumulatorSize <= sizeof(int) * 8);
+                    if (BitConverter.IsLittleEndian)
+                    {
+                        if (bitSize == 0)
+                            accumulator = code;
+                        else
+                            accumulator |= code << accumulatorSize;
+                        accumulatorSize += bitSize;
+                    }
+                    else
+                    {
+                        // we must use little endian order regardless of current architecture
+                        int remainingSize = bitSize;
+                        while (remainingSize > 8)
+                        {
+                            accumulator |= (code & 0xFF) << accumulatorSize;
+                            accumulatorSize += 8;
+                            remainingSize -= 8;
+                            code >>= 8;
+                        }
+
+                        if (remainingSize > 0)
+                        {
+                            accumulator |= (code & 0xFF) << accumulatorSize;
+                            accumulatorSize += remainingSize;
+                        }
+                    }
+
+                    while (accumulatorSize > 8)
+                    {
+                        Append((byte)(accumulator & 0xFF));
+                        accumulatorSize -= 8;
+                        accumulator >>= 8;
+                    }
+                }
+
+                internal void Flush()
+                {
+                    if (accumulatorSize > 0)
+                        Append((byte)(accumulator & 0xFF));
+
+                    if (bufferLength > 0)
+                        DumpImageDataSubBlock();
+                }
+
+                #endregion
+
+                #region Private Methods
+
+                private void Append(byte value)
+                {
+                    Debug.Assert(bufferLength < 255);
+                    buffer[bufferLength] = value;
+                    bufferLength += 1;
+                    if (bufferLength == bufferCapacity)
+                        DumpImageDataSubBlock();
+                }
+
+                private void DumpImageDataSubBlock()
+                {
+                    Debug.Assert(bufferLength is > 0 and <= bufferCapacity);
+                    WriteByte((byte)bufferLength);
+
+                    // This causes CS1666. TODO: apply when https://github.com/dotnet/roslyn/issues/57583 is fixed
+                    //writer.Write(new ReadOnlySpan<byte>(buffer, bufferLength));
+
+                    for (int i = 0; i < bufferLength; i++)
+                        WriteByte(buffer[i]);
+                    bufferLength = 0;
+                }
+
+                #endregion
+
+                #endregion
+            }
+
+            #endregion
+
             #endregion
 
             #region Fields
 
-            private readonly BinaryWriter writer;
-            private readonly byte[] buffer = new byte[255];
-
             private CodeTable codeTable;
-
-            private int accumulator;
-            private int accumulatorSize;
-            private int bufferLength;
+            private BitWriter writer;
 
             #endregion
 
@@ -336,9 +453,8 @@ namespace KGySoft.Drawing.Imaging
 
             internal LzwEncoder(IReadableBitmapData imageData, BinaryWriter writer)
             {
-                Debug.Assert(imageData.Palette != null);
-                this.writer = writer;
                 codeTable = new CodeTable(imageData);
+                this.writer = new BitWriter(writer);
             }
 
             #endregion
@@ -355,8 +471,8 @@ namespace KGySoft.Drawing.Imaging
 
             internal void Encode()
             {
-                writer.Write((byte)codeTable.MinimumCodeSize);
-                WriteCode(codeTable.ClearCode);
+                writer.WriteByte((byte)codeTable.MinimumCodeSize);
+                writer.WriteCode(codeTable.ClearCode, codeTable.CurrentCodeSize);
                 codeTable.Reset();
 
                 codeTable.MoveNextIndex();
@@ -372,92 +488,22 @@ namespace KGySoft.Drawing.Imaging
                         continue;
                     }
 
-                    WriteCode(previousCode);
+                    writer.WriteCode(previousCode, codeTable.CurrentCodeSize);
                     previousCode = codeTable.CurrentIndex;
 
                     if (!codeTable.TryAddCode(indexBuffer))
                     {
-                        WriteCode(codeTable.ClearCode);
+                        writer.WriteCode(codeTable.ClearCode, codeTable.CurrentCodeSize);
                         codeTable.Reset();
                     }
 
                     indexBuffer = codeTable.GetInitialSegment();
                 }
 
-                WriteCode(previousCode);
-                WriteCode(codeTable.EndInformationCode);
-                Flush();
-                writer.Write(blockTerminator);
-            }
-
-            #endregion
-
-            #region Private Methods
-
-            private void WriteCode(int code)
-            {
-                // TODO: in a BitWriter type?
-                Debug.Assert(codeTable.CurrentCodeSize + accumulatorSize <= sizeof(int) * 8);
-                if (BitConverter.IsLittleEndian)
-                {
-                    if (codeTable.CurrentCodeSize == 0)
-                        accumulator = code;
-                    else
-                        accumulator |= code << accumulatorSize;
-                    accumulatorSize += codeTable.CurrentCodeSize;
-                }
-                else
-                {
-                    // TODO: test this branch
-                    // we must use little endian order regardless of current architecture
-                    int remainingSize = codeTable.CurrentCodeSize;
-                    while (remainingSize > 8)
-                    {
-                        accumulator |= (code & 0xFF) << accumulatorSize;
-                        accumulatorSize += 8;
-                        remainingSize -= 8;
-                        code >>= 8;
-                    }
-
-                    if (remainingSize > 0)
-                    {
-                        accumulator |= (code & 0xFF) << accumulatorSize;
-                        accumulatorSize += remainingSize;
-                    }
-                }
-
-                while (accumulatorSize > 8)
-                {
-                    WriteByte((byte)(accumulator & 0xFF));
-                    accumulatorSize -= 8;
-                    accumulator >>= 8;
-                }
-            }
-
-            private void WriteByte(byte b)
-            {
-                Debug.Assert(bufferLength < 255);
-                buffer[bufferLength] = b;
-                bufferLength += 1;
-                if (bufferLength == 255)
-                    WriteImageDataSubBlock();
-            }
-
-            private void WriteImageDataSubBlock()
-            {
-                Debug.Assert(bufferLength is > 0 and <= 255);
-                writer.Write((byte)bufferLength);
-                writer.Write(buffer, 0, bufferLength);
-                bufferLength = 0;
-            }
-
-            private void Flush()
-            {
-                if (accumulatorSize > 0)
-                    WriteByte((byte)(accumulator & 0xFF));
-
-                if (bufferLength > 0)
-                    WriteImageDataSubBlock();
+                writer.WriteCode(previousCode, codeTable.CurrentCodeSize);
+                writer.WriteCode(codeTable.EndInformationCode, codeTable.CurrentCodeSize);
+                writer.Flush();
+                writer.WriteByte(blockTerminator);
             }
 
             #endregion
