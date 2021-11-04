@@ -92,70 +92,65 @@ namespace KGySoft.Drawing.Imaging
 
                 public override bool Equals(object? obj) => obj is IndexBuffer other && Equals(other);
 
+#if NETCOREAPP3_0_OR_GREATER
                 public override int GetHashCode()
                 {
                     Debug.Assert(length > 1, "Obtaining hashes are expected for non-single sequences");
 
-                    // Not using HashCode even in .NET Core and above because we need a much faster solution and this is good enough for our needs
-                    long result = 13;
-
-#if NETCOREAPP3_0_OR_GREATER
+                    int result;
                     ref byte pos = ref buffer[offset];
                     ref byte end = ref Unsafe.Add(ref pos, length);
 
-                    // in 8 byte chunks first
-                    while ((nint)Unsafe.ByteOffset(ref pos, ref end) >= sizeof(long))
+                    // 2 or 3 length
+                    if (length < 4)
                     {
-                        result = result * 397 + Unsafe.ReadUnaligned<long>(ref pos);
-                        pos = ref Unsafe.Add(ref pos, 8);
-                    }
-
-                    // + 4 byte
-                    if ((nint)Unsafe.ByteOffset(ref pos, ref end) >= sizeof(int))
-                    {
-                        result = result * 397 + Unsafe.ReadUnaligned<int>(ref pos);
-                        pos = ref Unsafe.Add(ref pos, 4);
-                    }
-
-                    // up to 3 remaining bytes
-                    while (Unsafe.IsAddressLessThan(ref pos, ref end))
-                    {
-                        result = result * 397 + pos;
-                        pos = ref Unsafe.Add(ref pos, 1);
-                    }
-#else
-                    unsafe
-                    {
-                        fixed (byte* pBuf = buffer)
+                        result = 13;
+                        while (Unsafe.IsAddressLessThan(ref pos, ref end))
                         {
-                            byte* pos = &pBuf[offset];
-                            byte* end = pos + length;
+                            result = result * 4099 + pos;
+                            pos = ref Unsafe.Add(ref pos, 1);
+                        }
+                        return result;
+                    }
 
-                            // in 8 byte chunks first
-                            while (end - pos >= 8)
-                            {
-                                result = result * 397 + *(long*)pos;
-                                pos += 8;
-                            }
+                    // Including only the first and last 4 bytes (overlapping is allowed) to avoid high hash code cost.
+                    // Prefixes of large single color areas are still differentiated by length.
+                    result = 8209 * length;
+                    result = result * 2053 + Unsafe.ReadUnaligned<int>(ref pos);
+                    return length == 4 ? result : result * 1031 + Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref end, -4));
+                }
+#else
+                public override unsafe int GetHashCode()
+                {
+                    Debug.Assert(length > 1, "Obtaining hashes are expected for non-single sequences");
 
-                            // + 4 byte
-                            if (end - pos >= 4)
-                            {
-                                result = result * 397 + *(int*)pos;
-                                pos += 4;
-                            }
+                    fixed (byte* pBuf = buffer)
+                    {
+                        int result;
+                        byte* pos = &pBuf[offset];
+                        byte* end = pos + length;
 
-                            // up to 3 remaining bytes
+                        // 2 or 3 length
+                        if (length < 4)
+                        {
+                            result = 13;
                             while (pos < end)
                             {
-                                result = result * 397 + *pos;
+                                result = result * 4099 + *pos;
                                 pos += 1;
                             }
+
+                            return result;
                         }
+
+                        // Including only the first and last 4 bytes (overlapping is allowed) to avoid high hash code cost.
+                        // Prefixes of large single color areas are still differentiated by length.
+                        result = 8209 * length;
+                        result = result * 2053 + *(int*)pos;
+                        return length == 4 ? result : result * 1031 + *(int*)(end - 4);
                     }
-#endif
-                    return result.GetHashCode();
                 }
+#endif
 
                 #endregion
 
@@ -334,11 +329,6 @@ namespace KGySoft.Drawing.Imaging
             private int accumulator;
             private int accumulatorSize;
             private int bufferLength;
-
-            #endregion
-
-            #region Properties
-
 
             #endregion
 
