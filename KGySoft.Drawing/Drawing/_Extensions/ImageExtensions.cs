@@ -1252,8 +1252,10 @@ namespace KGySoft.Drawing
 
         #endregion
 
-        #region SaveAsXXX
-        
+        #region SaveAs
+
+        #region BMP
+
         /// <summary>
         /// Saves the specified <paramref name="image"/> into a <paramref name="stream"/> using the built-in BMP encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
@@ -1346,6 +1348,10 @@ namespace KGySoft.Drawing
                 SaveAsBmp(image, fs);
         }
 
+        #endregion
+
+        #region JPEG
+
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in JPEG encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
@@ -1434,6 +1440,10 @@ namespace KGySoft.Drawing
                 SaveAsJpeg(image, fs, quality);
         }
 
+        #endregion
+
+        #region PNG
+
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in PNG encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
@@ -1495,6 +1505,10 @@ namespace KGySoft.Drawing
             using (FileStream fs = Files.CreateWithPath(fileName))
                 SaveAsPng(image, fs);
         }
+
+        #endregion
+
+        #region GIF
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in GIF encoder if available in the current operating system.
@@ -1600,6 +1614,30 @@ namespace KGySoft.Drawing
         [Obsolete("This overload is kept for compatibility reasons. Use the SaveAsGif(Image, Stream, IQuantizer, IDitherer) overload instead.")]
         public static void SaveAsGif(this Image image, Stream stream, Color[]? palette)
             => SaveAsGif(image, stream, palette == null ? null : PredefinedColorsQuantizer.FromCustomPalette(palette));
+
+        public static void SaveAnimatedGif(this IEnumerable<Image> images, Stream stream, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void SaveAnimatedGif(this IEnumerable<Image> images, string fileName, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void SaveAnimatedGif(this IList<Image> images, Stream stream, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        public static void SaveAnimatedGif(this IList<Image> images, string fileName, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            throw new NotImplementedException();
+        }
+
+        #endregion
+
+        #region TIFF
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in TIFF encoder if available in the current operating system.
@@ -1803,6 +1841,10 @@ namespace KGySoft.Drawing
             }
         }
 
+        #endregion
+
+        #region Icon
+
         /// <summary>
         /// Saves the specified <paramref name="image"/> as an Icon without relying on a built-in encoder in the operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/> and does not save a PNG stream when no built-in Icon encoder can be found in the operating system.
@@ -1889,6 +1931,8 @@ namespace KGySoft.Drawing
                 }
             }
         }
+
+        #endregion
 
         #endregion
 
@@ -2242,7 +2286,7 @@ namespace KGySoft.Drawing
                 if (!isFallback && transformations.TryGetValue(PixelFormat.Undefined, out var fallbackTransformation)
                     && fallbackTransformation.TargetFormat != bmp.PixelFormat)
                 {
-                    using (var fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat))
+                    using (Bitmap fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat))
                     {
                         SaveByEncoder(fallbackBmp, stream, imageFormat, null, true, quantizer, ditherer);
                         return;

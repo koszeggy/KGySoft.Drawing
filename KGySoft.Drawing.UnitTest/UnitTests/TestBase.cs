@@ -118,6 +118,19 @@ namespace KGySoft.Drawing.UnitTests
                 image.SaveAsPng($"{fileName}.png");
         }
 
+        protected static void SaveStream(string streamName, MemoryStream ms, string extension, [CallerMemberName]string testName = null)
+        {
+            if (!saveToFile)
+                return;
+
+            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+            string fileName = Path.Combine(dir, $"{testName}{(streamName == null ? null : $"_{streamName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.{extension}");
+            using (var fs = File.Create(fileName))
+                ms.WriteTo(fs);
+        }
+
         protected static Bitmap CreateBitmap(int size, PixelFormat pixelFormat)
         {
             try

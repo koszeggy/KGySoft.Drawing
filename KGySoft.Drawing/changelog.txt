@@ -23,6 +23,7 @@
 ====================================
 + New GifEncoder class
 + New GifGraphicsDisposalMethod enum
++ New GifCompressionMode enum
 
 
 ~~~~~~~~~

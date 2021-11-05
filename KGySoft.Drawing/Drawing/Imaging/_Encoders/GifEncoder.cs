@@ -22,6 +22,8 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -77,9 +79,10 @@ namespace KGySoft.Drawing.Imaging
         private readonly Size logicalScreenSize;
 
         private bool isFirstImage = true;
+        private byte backColorIndex;
         private int? repeatCount;
         private Palette? globalPalette;
-        private byte backColorIndex;
+        private GifCompressionMode compressionMode;
 
         #endregion
 
@@ -136,6 +139,7 @@ namespace KGySoft.Drawing.Imaging
         /// determines the initial background color if the first added image does not completely cover the virtual screen,
         /// and also the color of the cleared virtual screen.
         /// </summary>
+        /// <exception cref="InvalidOperationException">This property cannot be set after adding the first image.</exception>
         public byte BackColorIndex
         {
             get => backColorIndex;
@@ -149,9 +153,25 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets or sets whether textual meta info should be added to the result stream.
-        /// <br/>Default value: <see langword="true"/>.
+        /// <br/>Default value: <see langword="false"/>.
         /// </summary>
-        public bool AddMetaInfo { get; set; } = true;
+        public bool AddMetaInfo { get; set; }
+
+        /// <summary>
+        /// Gets or sets the compression mode to be used when adding images by the <see cref="AddImage">AddImage</see> method.
+        /// This property can be changed at any time.
+        /// <br/>Default value: <see cref="GifCompressionMode.Auto"/>.
+        /// </summary>
+        public GifCompressionMode CompressionMode
+        {
+            get => compressionMode;
+            set
+            {
+                if (!Enum<GifCompressionMode>.IsDefined(value))
+                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.EnumOutOfRange(value));
+                compressionMode = value;
+            }
+        }
 
         #endregion
 
@@ -435,11 +455,7 @@ namespace KGySoft.Drawing.Imaging
             writer.Write((byte)packedFields.Data);
         }
 
-        private void WriteImageData(IReadableBitmapData imageData)
-        {
-            using var lzwEncoder = new LzwEncoder(imageData, writer);
-            lzwEncoder.Encode();
-        }
+        private void WriteImageData(IReadableBitmapData imageData) => LzwEncoder.Encode(imageData, writer, compressionMode);
 
         #endregion
 

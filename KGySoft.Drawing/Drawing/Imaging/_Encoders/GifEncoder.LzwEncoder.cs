@@ -36,9 +36,8 @@ namespace KGySoft.Drawing.Imaging
         /// The LZW Encoder based on the specification as per chapter 22 and Appendix F in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
         /// The detailed LZW algorithm is written here: http://giflib.sourceforge.net/whatsinagif/lzw_image_data.html
         /// </summary>
-        // Note: ref struct because it contains a stack-only fixed buffer
         [SecuritySafeCritical]
-        private ref struct LzwEncoder
+        private static class LzwEncoder
         {
             #region Nested structs
 
@@ -190,8 +189,9 @@ namespace KGySoft.Drawing.Imaging
 #if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
                 private readonly bool ownBuffer;
 #endif
-                private readonly Dictionary<IndexBuffer, int> codeTable;
+                private readonly Dictionary<IndexBuffer, int>? codeTable;
                 private readonly IndexBuffer indices;
+                private readonly GifCompressionMode compressionMode;
 
                 private int currentPosition;
                 private int nextFreeCode;
@@ -201,38 +201,37 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Properties
 
-                #region Internal Properties
-
                 internal int MinimumCodeSize { get; }
                 internal int ClearCode => 1 << MinimumCodeSize;
                 internal int EndInformationCode => ClearCode + 1;
+                internal int FirstAvailableCode => ClearCode + 2;
                 internal int CurrentCodeSize { get; private set; }
+                internal int NextSizeLimit => 1 << CurrentCodeSize;
                 internal byte CurrentIndex => indices.Buffer[indices.Offset + currentPosition];
-
-                #endregion
-
-                #region Private Properties
-
-                private int FirstAvailableCode => ClearCode + 2;
-                private int NextSizeLimit => 1 << CurrentCodeSize;
-
-                #endregion
 
                 #endregion
 
                 #region Constructors
 
-                public CodeTable(IReadableBitmapData imageData) : this()
+                public CodeTable(IReadableBitmapData imageData, GifCompressionMode compressionMode) : this()
                 {
                     Debug.Assert(imageData.Palette?.Count <= 256);
+                    currentPosition = -1;
+                    this.compressionMode = compressionMode;
 
                     // According to Appendix F in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
                     // the minimum code size is 2 "because of some algorithmic constraints" (preserved code values)
                     MinimumCodeSize = Math.Max(2, imageData.Palette!.Count.ToBitsPerPixel());
                     CurrentCodeSize = MinimumCodeSize + 1;
-                    currentPosition = -1;
+
+                    // In uncompressed mode we will only need code size. Even pixel enumeration will be different
+                    // so we can spare allocating indices.
+                    if (compressionMode == GifCompressionMode.Uncompressed)
+                        return;
+
                     int size = imageData.Width * imageData.Height;
-                    codeTable = new Dictionary<IndexBuffer, int>(Math.Min(size, maxCodeCount - FirstAvailableCode));
+                    codeTable = new Dictionary<IndexBuffer, int>(Math.Min(size,
+                        (compressionMode == GifCompressionMode.DoNotIncreaseBitSize ? NextSizeLimit : maxCodeCount) - FirstAvailableCode));
 
                     // Trying to re-use the actual buffer if it is an 8-bit managed bitmap data; otherwise, allocating a new buffer.
                     // We need this to prevent allocating a huge memory for the code table keys with the segments: all segments will just be
@@ -285,7 +284,8 @@ namespace KGySoft.Drawing.Imaging
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal void Reset()
                 {
-                    codeTable.Clear();
+                    Debug.Assert(codeTable != null, "Should not be called in Uncompressed mode");
+                    codeTable!.Clear();
                     CurrentCodeSize = MinimumCodeSize + 1;
                     nextFreeCode = FirstAvailableCode;
                 }
@@ -302,17 +302,22 @@ namespace KGySoft.Drawing.Imaging
                 internal IndexBuffer GetInitialSegment() => new IndexBuffer(indices.Buffer, indices.Offset + currentPosition);
 
                 [MethodImpl(MethodImpl.AggressiveInlining)]
-                internal bool TryGetCode(IndexBuffer key, out int code) => codeTable.TryGetValue(key, out code);
+                internal bool TryGetCode(IndexBuffer key, out int code)
+                {
+                    Debug.Assert(codeTable != null, "Should not be called in Uncompressed mode");
+                    return codeTable!.TryGetValue(key, out code);
+                }
 
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal bool TryAddCode(IndexBuffer key)
                 {
-                    if (nextFreeCode == maxCodeCount)
+                    Debug.Assert(codeTable != null, "Should not be called in Uncompressed mode");
+                    if (nextFreeCode == maxCodeCount || compressionMode == GifCompressionMode.DoNotIncreaseBitSize && nextFreeCode + 1 == NextSizeLimit)
                         return false;
 
                     if (nextFreeCode == NextSizeLimit)
                         CurrentCodeSize += 1;
-                    codeTable.Add(key, nextFreeCode);
+                    codeTable!.Add(key, nextFreeCode);
                     nextFreeCode += 1;
                     return true;
                 }
@@ -365,7 +370,7 @@ namespace KGySoft.Drawing.Imaging
                     Debug.Assert(bitSize + accumulatorSize <= sizeof(int) * 8);
                     if (BitConverter.IsLittleEndian)
                     {
-                        if (bitSize == 0)
+                        if (accumulatorSize == 0)
                             accumulator = code;
                         else
                             accumulator |= code << accumulatorSize;
@@ -442,35 +447,21 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-            #region Fields
-
-            private CodeTable codeTable;
-            private BitWriter writer;
-
-            #endregion
-
-            #region Constructors
-
-            internal LzwEncoder(IReadableBitmapData imageData, BinaryWriter writer)
-            {
-                codeTable = new CodeTable(imageData);
-                this.writer = new BitWriter(writer);
-            }
-
-            #endregion
-
             #region Methods
-
-            #region Public Methods
-
-            public void Dispose() => codeTable.Dispose();
-
-            #endregion
 
             #region Internal Methods
 
-            internal void Encode()
+            internal static void Encode(IReadableBitmapData imageData, BinaryWriter bw, GifCompressionMode compressionMode)
             {
+                if (compressionMode == GifCompressionMode.Uncompressed)
+                {
+                    EncodeUncompressed(imageData, bw);
+                    return;
+                }
+
+                using var codeTable = new CodeTable(imageData, compressionMode);
+                var writer = new BitWriter(bw);
+
                 writer.WriteByte((byte)codeTable.MinimumCodeSize);
                 writer.WriteCode(codeTable.ClearCode, codeTable.CurrentCodeSize);
                 codeTable.Reset();
@@ -491,7 +482,7 @@ namespace KGySoft.Drawing.Imaging
                     writer.WriteCode(previousCode, codeTable.CurrentCodeSize);
                     previousCode = codeTable.CurrentIndex;
 
-                    if (!codeTable.TryAddCode(indexBuffer))
+                    if (!codeTable.TryAddCode(indexBuffer) && compressionMode != GifCompressionMode.DoNotClear)
                     {
                         writer.WriteCode(codeTable.ClearCode, codeTable.CurrentCodeSize);
                         codeTable.Reset();
@@ -502,6 +493,45 @@ namespace KGySoft.Drawing.Imaging
 
                 writer.WriteCode(previousCode, codeTable.CurrentCodeSize);
                 writer.WriteCode(codeTable.EndInformationCode, codeTable.CurrentCodeSize);
+                writer.Flush();
+                writer.WriteByte(blockTerminator);
+            }
+
+            #endregion
+
+            #region Private Methods
+
+            private static void EncodeUncompressed(IReadableBitmapData imageData, BinaryWriter bw)
+            {
+                using var codeTable = new CodeTable(imageData, GifCompressionMode.Uncompressed);
+                var writer = new BitWriter(bw);
+
+                int codeSize = codeTable.CurrentCodeSize;
+                writer.WriteByte((byte)codeTable.MinimumCodeSize);
+                writer.WriteCode(codeTable.ClearCode, codeSize);
+
+                // Though we do not build the code table the decoder does so we must regularly send a clear to prevent increasing code size
+                int maxLength = codeTable.NextSizeLimit - codeTable.FirstAvailableCode;
+                int currLength = 0;
+
+                // Note: Not using CodeTable.MoveNextIndex here because Uncompressed mode does not allocate the 8-bit index buffer for non 8-bit images.
+                // It would not be the cleanest design if CodeTable was not a private type but it helps avoiding unnecessary allocations.
+                IReadableBitmapDataRow row = imageData.FirstRow;
+                do
+                {
+                    for (int x = 0; x < imageData.Width; x++)
+                    {
+                        writer.WriteCode(row.GetColorIndex(x), codeSize);
+                        currLength += 1;
+                        if (currLength == maxLength)
+                        {
+                            currLength = 0;
+                            writer.WriteCode(codeTable.ClearCode, codeSize);
+                        }
+                    }
+                } while (row.MoveNextRow());
+
+                writer.WriteCode(codeTable.EndInformationCode, codeSize);
                 writer.Flush();
                 writer.WriteByte(blockTerminator);
             }

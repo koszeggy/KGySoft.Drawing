@@ -33,70 +33,62 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     {
         #region Methods
 
-        [Test]
-        public void SmokeTest()
+        [Test, Explicit]
+        public void AnimationTest()
         {
-            using var stream = File.Create(Files.GetNextFileName(@"d:\temp\tmp\test.gif")!);
-            var encoder = new GifEncoder(stream, new Size(16, 16))
+            using var stream = File.Create(Files.GetNextFileName(@"d:\temp\tmp\AnimationTest.gif")!);
+            var encoder = new GifEncoder(stream, new Size(64, 64))
             {
                 RepeatCount = 0,
                 BackColorIndex = 2,
-                GlobalPalette = Palette.SystemDefault8BppPalette()
+                GlobalPalette = Palette.SystemDefault4BppPalette()
             };
 
-            var frame = new Bitmap(13, 13);
+            var frame = new Bitmap(48, 48);
             using (Graphics g = Graphics.FromImage(frame))
             {
-                g.FillEllipse(Brushes.Cyan, 0, 0, 13, 13);
+                g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
             }
-            using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.Grayscale16()))
-                encoder.AddImage(imageData, new Point(1, 1), 100, GifGraphicDisposalMethod.RestoreToBackground);
+            using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
+                encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
             frame.Dispose();
 
-            frame = new Bitmap(13, 13);
+            frame = new Bitmap(32, 32);
             using (Graphics g = Graphics.FromImage(frame))
             {
-                g.FillEllipse(Brushes.Magenta, 0, 0, 13, 13);
+                using var pen = new Pen(Brushes.Red, 3);
+                g.DrawRectangle(pen, 4, 4, 24, 24);
             }
-            using (var imageData = frame.GetReadableBitmapData())
-                encoder.AddImage(imageData, new Point(2, 2), 100, GifGraphicDisposalMethod.RestoreToBackground);
-            frame.Dispose();
-
-            frame = new Bitmap(8, 8);
-            using (Graphics g = Graphics.FromImage(frame))
-            {
-                g.DrawRectangle(Pens.Red, 1, 1, 6, 6);
-            }
-            using (var imageData = frame.GetReadableBitmapData())
-                encoder.AddImage(imageData, new Point(5, 5), 100);
+            using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
+                encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
             frame.Dispose();
 
             stream.Flush();
 
         }
 
-        [Test]
-        public void LzwTest()
+        [TestCase(GifCompressionMode.Auto)]
+        [TestCase(GifCompressionMode.DoNotClear)]
+        [TestCase(GifCompressionMode.DoNotIncreaseBitSize)]
+        [TestCase(GifCompressionMode.Uncompressed)]
+        public void LzwTest(GifCompressionMode compressionMode)
         {
-            //using var bmp = new Bitmap(1, 1, PixelFormat.Format1bppIndexed);
-            //using var bmpData = bmp.GetReadWriteBitmapData();
-            //bmpData.Clear(new Color32(Color.White));
-
-            using var bmp = GenerateAlphaGradientBitmap(new Size(256, 256));
-            using var bmpData = bmp.GetReadWriteBitmapData().Clone(PixelFormat.Format1bppIndexed, OrderedDitherer.Bayer8x8);
-
-
-            using (var stream = File.Create(Files.GetNextFileName(@"d:\temp\tmp\lzwTest.gif")!))
+            using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256)); // GenerateAlphaGradientBitmap(new Size(256, 128));
+            using IReadableBitmapData bmpData = bmp.GetReadableBitmapData();
+            //int bpp = 8;
+            for (int bpp = 1; bpp <= 8; bpp++)
             {
-                var encoder = new GifEncoder(stream, bmp.Size)
-                {
-                    //RepeatCount = 0,
-                    //BackColorIndex = 2,
-                    //GlobalPalette = Palette.SystemDefault8BppPalette()
-                };
+                using IReadWriteBitmapData quantized = bmpData.Clone(PixelFormat.Format8bppIndexed,
+                    OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), ErrorDiffusionDitherer.FloydSteinberg);
+                using var ms = new MemoryStream();
+                new GifEncoder(ms, bmp.Size) { CompressionMode = compressionMode }
+                    .AddImage(quantized);
 
-                encoder.AddImage(bmpData);
-                stream.Flush();
+                ms.Position = 0;
+                using Bitmap gif = new Bitmap(ms);
+                using IReadableBitmapData actual = gif.GetReadableBitmapData();
+                SaveStream($"{bpp}bpp_{compressionMode}", ms, "gif");
+                AssertAreEqual(quantized, actual);
             }
         }
 
