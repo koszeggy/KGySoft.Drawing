@@ -1615,25 +1615,25 @@ namespace KGySoft.Drawing
         public static void SaveAsGif(this Image image, Stream stream, Color[]? palette)
             => SaveAsGif(image, stream, palette == null ? null : PredefinedColorsQuantizer.FromCustomPalette(palette));
 
-        public static void SaveAnimatedGif(this IEnumerable<Image> images, Stream stream, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        {
-            throw new NotImplementedException();
-        }
+        //public static void SaveAnimatedGif(this IEnumerable<Image> images, Stream stream, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public static void SaveAnimatedGif(this IEnumerable<Image> images, string fileName, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        {
-            throw new NotImplementedException();
-        }
+        //public static void SaveAnimatedGif(this IEnumerable<Image> images, string fileName, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public static void SaveAnimatedGif(this IList<Image> images, Stream stream, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        {
-            throw new NotImplementedException();
-        }
+        //public static void SaveAnimatedGif(this IList<Image> images, Stream stream, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
-        public static void SaveAnimatedGif(this IList<Image> images, string fileName, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        {
-            throw new NotImplementedException();
-        }
+        //public static void SaveAnimatedGif(this IList<Image> images, string fileName, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        //{
+        //    throw new NotImplementedException();
+        //}
 
         #endregion
 
