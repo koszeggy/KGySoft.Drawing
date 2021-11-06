@@ -91,6 +91,8 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties and Indexers
+        
         #region Properties
 
         #region Static Properties
@@ -237,6 +239,20 @@ namespace KGySoft.Drawing.Imaging
         internal bool HasAlpha { get; }
         internal bool HasMultiLevelAlpha { get; }
         internal int TransparentIndex { get; }
+
+        #endregion
+
+        #endregion
+
+        #region Indexers
+
+        /// <summary>
+        /// Gets the color entry of this <see cref="Palette"/> at the specified <paramref name="index"/>.
+        /// </summary>
+        /// <param name="index">The index of the color entry to be retrieved.</param>
+        /// <returns>A <see cref="Color32"/> instance representing the color entry of the <see cref="Palette"/> at the specified <paramref name="index"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="index"/> must be equal to or greater than zero and less <see cref="Count"/>.</exception>
+        public Color32 this[int index] => GetColor(index);
 
         #endregion
 
