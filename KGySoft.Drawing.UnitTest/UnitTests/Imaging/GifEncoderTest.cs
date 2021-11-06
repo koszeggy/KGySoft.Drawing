@@ -19,7 +19,6 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -34,37 +33,364 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         #region Methods
 
         [Test, Explicit]
-        public void AnimationTest()
+        public void ImageLowLevelSolidTest()
         {
-            using var stream = File.Create(Files.GetNextFileName(@"d:\temp\tmp\AnimationTest.gif")!);
-            var encoder = new GifEncoder(stream, new Size(64, 64))
+            using var stream = new MemoryStream();
+            var palette = new Palette(new[] { Color.Black, Color.Cyan, Color.Green, Color.Red });
+            var frame = new Bitmap(48, 48);
+            using (Graphics g = Graphics.FromImage(frame))
+                g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+            IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
+
+            new GifEncoder(stream, new Size(48, 48))
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData)
+                .FinalizeEncoding();
+
+            SaveStream("GlobalPalette, Full", stream);
+            stream.SetLength(0);
+
+            new GifEncoder(stream, new Size(64, 64))
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData, new Point(8, 8))
+                .FinalizeEncoding();
+            SaveStream("GlobalPalette, Partial", stream);
+            stream.SetLength(0);
+
+            new GifEncoder(stream, new Size(48, 48))
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData)
+                .FinalizeEncoding();
+            SaveStream("LocalPalette, Full", stream);
+            stream.SetLength(0);
+
+            new GifEncoder(stream, new Size(64, 64))
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData, new Point(8, 8))
+                .FinalizeEncoding();
+            SaveStream("LocalPalette, Partial", stream);
+            stream.SetLength(0);
+        }
+
+        [Test, Explicit]
+        public void ImageLowLevelTransparentTest()
+        {
+            using var stream = new MemoryStream();
+            var palette = new Palette(new[] { Color.Black, Color.Cyan, Color.Green, Color.Transparent });
+            var frame = new Bitmap(48, 48);
+            using (Graphics g = Graphics.FromImage(frame))
+                g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+            IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
+
+            new GifEncoder(stream, new Size(48, 48))
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData)
+                .FinalizeEncoding();
+
+            SaveStream("GlobalPalette, Full", stream);
+            stream.SetLength(0);
+
+            new GifEncoder(stream, new Size(64, 64))
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData, new Point(8, 8))
+                .FinalizeEncoding();
+            SaveStream("GlobalPalette, Partial", stream);
+            stream.SetLength(0);
+
+            new GifEncoder(stream, new Size(48, 48))
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData)
+                .FinalizeEncoding();
+            SaveStream("LocalPalette, Full", stream);
+            stream.SetLength(0);
+
+            new GifEncoder(stream, new Size(64, 64))
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
+                .AddImage(imageData, new Point(8, 8))
+                .FinalizeEncoding();
+            SaveStream("LocalPalette, Partial", stream);
+            stream.SetLength(0);
+        }
+
+        [Test, Explicit]
+        public void AnimationLowLevelSolidTest()
+        {
+            using var stream = new MemoryStream();
+            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+                   {
+                       RepeatCount = 0,
+                       BackColorIndex = 2,
+                       GlobalPalette = Palette.SystemDefault4BppPalette(),
+                       AddMetaInfo = true
+                   })
+            {
+                var frame = new Bitmap(48, 48);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+                }
+
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
+                    encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
+                frame.Dispose();
+
+                frame = new Bitmap(32, 32);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    using var pen = new Pen(Brushes.Red, 3);
+                    g.DrawRectangle(pen, 4, 4, 24, 24);
+                }
+
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
+                    encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
+                frame.Dispose();
+            }
+
+            SaveStream(null, stream);
+        }
+
+        [Test, Explicit]
+        public void AnimationLowLevelTransparentTest()
+        {
+            using var stream = new MemoryStream();
+            var palette = new Palette(new[] { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent });
+            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+                   {
+                       RepeatCount = 0,
+                       BackColorIndex = 2,
+                       GlobalPalette = palette,
+                       AddMetaInfo = true
+            })
+            {
+                var frame = new Bitmap(48, 48);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+                }
+
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, palette))
+                    encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
+                frame.Dispose();
+
+                frame = new Bitmap(32, 32);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    using var pen = new Pen(Brushes.Red, 3);
+                    g.DrawRectangle(pen, 4, 4, 24, 24);
+                }
+
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, palette))
+                    encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
+                frame.Dispose();
+            }
+
+            SaveStream(null, stream);
+        }
+
+        [Test, Explicit]
+        public void AnimationLowLevelSolidToTransparentTest()
+        {
+            using var stream = new MemoryStream();
+            Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.White };
+            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+                   {
+                       RepeatCount = 0,
+                       BackColorIndex = 2,
+                       AddMetaInfo = true
+                   })
+            {
+                var frame = new Bitmap(48, 48);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+                }
+
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
+                frame.Dispose();
+
+                frame = new Bitmap(32, 32);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    using var pen = new Pen(Brushes.Red, 3);
+                    g.DrawRectangle(pen, 4, 4, 24, 24);
+                }
+
+                palette[4] = Color.Transparent;
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
+                frame.Dispose();
+            }
+
+            SaveStream(null, stream);
+        }
+
+        [Test, Explicit]
+        public void AnimationLowLevelTransparentToSolidTest()
+        {
+            using var stream = new MemoryStream();
+            Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent };
+            using (var encoder = new GifEncoder(stream, new Size(64, 64))
+                   {
+                       RepeatCount = 0,
+                       BackColorIndex = 2,
+                       AddMetaInfo = true
+                   })
+            {
+                var frame = new Bitmap(48, 48);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+                }
+
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
+                frame.Dispose();
+
+                frame = new Bitmap(32, 32);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    using var pen = new Pen(Brushes.Red, 3);
+                    g.DrawRectangle(pen, 4, 4, 24, 24);
+                }
+
+                palette[4] = Color.White;
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
+                frame.Dispose();
+            }
+
+            SaveStream(null, stream);
+        }
+
+        [Test, Explicit]
+        public void AnimationLowLevelSolidToTransparentGlobalTest()
+        {
+            using var stream = new MemoryStream();
+            Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.White };
+            using (var encoder = new GifEncoder(stream, new Size(64, 64))
             {
                 RepeatCount = 0,
                 BackColorIndex = 2,
-                GlobalPalette = Palette.SystemDefault4BppPalette()
-            };
-
-            var frame = new Bitmap(48, 48);
-            using (Graphics g = Graphics.FromImage(frame))
+                GlobalPalette = new Palette(palette),
+                AddMetaInfo = true
+            })
             {
-                g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-            }
-            using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
-                encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
-            frame.Dispose();
+                var frame = new Bitmap(48, 48);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+                }
 
-            frame = new Bitmap(32, 32);
-            using (Graphics g = Graphics.FromImage(frame))
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
+                frame.Dispose();
+
+                frame = new Bitmap(32, 32);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    using var pen = new Pen(Brushes.Red, 3);
+                    g.DrawRectangle(pen, 4, 4, 24, 24);
+                }
+
+                palette[4] = Color.Transparent;
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
+                frame.Dispose();
+            }
+
+            SaveStream(null, stream);
+        }
+
+        [Test, Explicit]
+        public void AnimationLowLevelTransparentToSolidGlobalTest()
+        {
+            using var stream = new MemoryStream();
+            Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent };
+            using (var encoder = new GifEncoder(stream, new Size(64, 64))
             {
-                using var pen = new Pen(Brushes.Red, 3);
-                g.DrawRectangle(pen, 4, 4, 24, 24);
+                RepeatCount = 0,
+                BackColorIndex = 2,
+                GlobalPalette = new Palette(palette),
+                AddMetaInfo = true
+            })
+            {
+                var frame = new Bitmap(48, 48);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
+                }
+
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
+                frame.Dispose();
+
+                frame = new Bitmap(32, 32);
+                using (Graphics g = Graphics.FromImage(frame))
+                {
+                    using var pen = new Pen(Brushes.Red, 3);
+                    g.DrawRectangle(pen, 4, 4, 24, 24);
+                }
+
+                palette[4] = Color.White;
+                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                    encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
+                frame.Dispose();
             }
-            using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
-                encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
-            frame.Dispose();
 
-            stream.Flush();
+            SaveStream(null, stream);
+        }
 
+        [Test, Explicit]
+        public void CompareEncodersTest()
+        {
+            using Bitmap toSave = Icons.Information.ExtractBitmap(new Size(256, 256))!;
+            foreach (var bpp in new int[] { 1, 4, 8 })
+            {
+                using Bitmap quantized = toSave.ConvertPixelFormat(bpp.ToPixelFormat(), PredefinedColorsQuantizer.FromPixelFormat(bpp.ToPixelFormat(), Color.Silver, 0));
+                var msOld = new MemoryStream();
+                ((Bitmap)quantized.Clone()).SaveAsGif(msOld);
+
+                var msNew = new MemoryStream();
+                using (var bitmapData = quantized.GetReadableBitmapData())
+                {
+                    new GifEncoder(msNew, toSave.Size){ GlobalPalette = bitmapData.Palette }
+                        .AddImage(bitmapData)
+                        .FinalizeEncoding();
+                }
+
+                SaveStream($"{bpp}bpp_Old", msOld);
+                SaveStream($"{bpp}bpp_New", msNew);
+                SaveImage($"{bpp}bpp_Ref", quantized.ConvertPixelFormat(PixelFormat.Format32bppArgb));
+            }
         }
 
         [TestCase(GifCompressionMode.Auto)]
@@ -82,12 +408,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), ErrorDiffusionDitherer.FloydSteinberg);
                 using var ms = new MemoryStream();
                 new GifEncoder(ms, bmp.Size) { CompressionMode = compressionMode }
-                    .AddImage(quantized);
+                    .AddImage(quantized)
+                    .FinalizeEncoding();
 
                 ms.Position = 0;
                 using Bitmap gif = new Bitmap(ms);
                 using IReadableBitmapData actual = gif.GetReadableBitmapData();
-                SaveStream($"{bpp}bpp_{compressionMode}", ms, "gif");
+                SaveStream($"{bpp}bpp_{compressionMode}", ms);
                 AssertAreEqual(quantized, actual);
             }
         }

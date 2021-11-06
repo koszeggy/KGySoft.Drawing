@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
     /// Provides an encoder for GIF image format that supports animation. Use the static members for high-level access or create an
     /// instance to control everything manually.
     /// </summary>
-    public sealed partial class GifEncoder
+    public sealed partial class GifEncoder : IDisposable
     {
         #region Constants
 
@@ -46,6 +46,7 @@ namespace KGySoft.Drawing.Imaging
         private const byte graphicControlBlockSize = 4;
         private const byte imageSeparator = 0x2C;
         private const byte commentLabel = 0xFE;
+        private const byte trailer = 0x3B;
 
         #endregion
 
@@ -78,11 +79,13 @@ namespace KGySoft.Drawing.Imaging
         private readonly BinaryWriter writer;
         private readonly Size logicalScreenSize;
 
-        private bool isFirstImage = true;
+        private bool isDisposed;
+        private bool isInitialized;
         private byte backColorIndex;
         private int? repeatCount;
         private Palette? globalPalette;
         private GifCompressionMode compressionMode;
+        private int imagesCount;
 
         #endregion
 
@@ -105,7 +108,7 @@ namespace KGySoft.Drawing.Imaging
             get => repeatCount;
             set
             {
-                if (!isFirstImage)
+                if (isInitialized)
                     throw new InvalidOperationException(Res.GifEncoderCannotChangeProperty);
                 if (value < 0)
                     throw new ArgumentOutOfRangeException(nameof(value), PublicResources.ArgumentOutOfRange);
@@ -125,7 +128,7 @@ namespace KGySoft.Drawing.Imaging
             get => globalPalette;
             set
             {
-                if (!isFirstImage)
+                if (isInitialized)
                     throw new InvalidOperationException(Res.GifEncoderCannotChangeProperty);
                 if (globalPalette?.Count > 256)
                     throw new ArgumentException(Res.GifEncoderPaletteTooLarge, nameof(value));
@@ -145,7 +148,7 @@ namespace KGySoft.Drawing.Imaging
             get => backColorIndex;
             set
             {
-                if (!isFirstImage)
+                if (isInitialized)
                     throw new InvalidOperationException(Res.GifEncoderCannotChangeProperty);
                 backColorIndex = value;
             }
@@ -217,14 +220,19 @@ namespace KGySoft.Drawing.Imaging
         /// while GDI+ treats it zero delay only if <see cref="RepeatCount"/> is <see langword="null"/>.</param>
         /// <param name="disposalMethod">Specifies how the decoder should treat the image after being displayed. This parameter is optional.
         /// <br/>Default value: <see cref="GifGraphicDisposalMethod.NotSpecified"/>.</param>
+        /// <returns>The self <see cref="GifEncoder"/> instance allowing adding multiple images by fluent syntax.</returns>
         /// <exception cref="ArgumentNullException"></exception>
         /// <exception cref="ArgumentOutOfRangeException"></exception>
-        public void AddImage(IReadableBitmapData imageData, Point location = default, int delay = 0, GifGraphicDisposalMethod disposalMethod = GifGraphicDisposalMethod.NotSpecified)
+        public GifEncoder AddImage(IReadableBitmapData imageData, Point location = default, int delay = 0, GifGraphicDisposalMethod disposalMethod = GifGraphicDisposalMethod.NotSpecified)
         {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(GifEncoder), PublicResources.ObjectDisposed);
             if (imageData == null)
                 throw new ArgumentNullException(nameof(imageData), PublicResources.ArgumentNull);
-            if (location.X < 0 || location.Y < 0 || location.X + imageData.Width > logicalScreenSize.Width || location.Y + imageData.Height > logicalScreenSize.Height)
+            if (location.X < 0 || location.Y < 0|| location.X + imageData.Width > logicalScreenSize.Width || location.Y + imageData.Height > logicalScreenSize.Height)
                 throw new ArgumentOutOfRangeException(nameof(location), PublicResources.ArgumentOutOfRange);
+            if (imageData.Width <= 0 || imageData.Height <= 0)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(imageData));
             if ((uint)delay > UInt16.MaxValue)
                 throw new ArgumentOutOfRangeException(nameof(delay), PublicResources.ArgumentMustBeBetween(UInt16.MinValue, UInt16.MaxValue));
             if ((uint)disposalMethod > (uint)GifGraphicDisposalMethod.RestoreToPrevious)
@@ -241,17 +249,18 @@ namespace KGySoft.Drawing.Imaging
 
                 Palette usedPalette = (localPalette ?? globalPalette)!;
 
-                if (isFirstImage)
-                {
-                    isFirstImage = false;
-                    WriteHeaderAndLogicalScreenDescriptor(actualImageData.PixelFormat.ToBitsPerPixel());
-                    if (globalPalette != null)
-                        WritePalette(globalPalette);
+                if (!isInitialized)
+                    Initialize(Math.Max(actualImageData.PixelFormat.ToBitsPerPixel(), usedPalette.Count.ToBitsPerPixel()));
 
-                    WriteCommentExtension(usedPalette.TransparentIndex >= 0);
-                    if (repeatCount.HasValue)
-                        WriteNetscapeLoopBlockApplicationExtension(repeatCount.Value);
-                }
+                // Important: not using resources here because they could use non-ASCII characters or too long texts
+                if (AddMetaInfo)
+                    WriteCommentExtension($"Image #{imagesCount}: {actualImageData.Width}x{actualImageData.Height}",
+                        $"Location: {location.X}x{location.Y}",
+                        $"Local Palette: {(localPalette == null ? "Not present" : $"{localPalette.Count} colors")}",
+                        $"Disposal Method: {Enum<GifGraphicDisposalMethod>.ToString(disposalMethod)}",
+                        $"Transparent Index: {(usedPalette.TransparentIndex >= 0 ? usedPalette.TransparentIndex : "Not set")}",
+                        $"Delay: {delay}",
+                        $"Compression Mode: {compressionMode}");
 
                 if (delay != 0 || disposalMethod != GifGraphicDisposalMethod.NotSpecified || usedPalette.TransparentIndex >= 0)
                     WriteGraphicControlExtension(delay, disposalMethod, usedPalette.TransparentIndex);
@@ -261,6 +270,8 @@ namespace KGySoft.Drawing.Imaging
                     WritePalette(localPalette);
 
                 WriteImageData(actualImageData);
+                imagesCount += 1;
+                return this;
             }
             finally
             {
@@ -269,9 +280,88 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        /// <summary>
+        /// Writes textual comments to the output stream.
+        /// </summary>
+        /// <param name="comments">The comments to write. They must not be longer than 255 characters and must consist of ASCII characters.</param>
+        /// <returns>The self <see cref="GifEncoder"/> instance allowing fluent syntax.</returns>
+        /// <exception cref="ArgumentException"><paramref name="comments"/> contain a comment longer than 255 characters or that is not of ASCII characters only.</exception>
+        public GifEncoder AddComments(params string?[]? comments)
+        {
+            if (isDisposed)
+                throw new ObjectDisposedException(nameof(GifEncoder), PublicResources.ObjectDisposed);
+            if (comments == null || comments.Length == 0)
+                return this;
+
+            foreach (string? comment in comments)
+            {
+                if (String.IsNullOrEmpty(comment))
+                    continue;
+
+                if (comment.Length > 255)
+                    throw new ArgumentException(Res.GifEncoderCommentTooLong, nameof(comments));
+                if (comment.Any(c => c >= 128))
+                    throw new ArgumentException(Res.GifEncoderCommentNotAscii, nameof(comments));
+            }
+
+            if (!isInitialized)
+                Initialize(globalPalette?.Count.ToBitsPerPixel() ?? 8);
+
+            WriteCommentExtension(comments);
+            return this;
+        }
+
+        /// <summary>
+        /// Finalizes the encoding. It should be called after adding the last image.
+        /// It is implicitly called when this <see cref="GifEncoder"/> instance is disposed.
+        /// </summary>
+        /// <param name="leaveStreamOpen"><see langword="true"/>&#160;to leave the underlying stream open; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="true"/>.</param>
+        public void FinalizeEncoding(bool leaveStreamOpen = true)
+        {
+            if (isDisposed)
+                return;
+
+            // Important: not using resources here because they could use non-ASCII characters or too long texts
+            if (AddMetaInfo)
+                WriteCommentExtension($"Images Count: {imagesCount}");
+
+            isDisposed = true;
+            globalPalette = null;
+            if (isInitialized)
+                writer.Write(trailer);
+            if (leaveStreamOpen)
+                writer.Flush();
+            else
+                writer.Close();
+        }
+
         #endregion
 
         #region Private Methods
+
+        private void Initialize(int bpp)
+        {
+            Debug.Assert(!isInitialized);
+            isInitialized = true;
+            WriteHeaderAndLogicalScreenDescriptor(bpp);
+            if (globalPalette != null)
+                WritePalette(globalPalette);
+
+            WriteCommentExtension(signatureBlock);
+            if (AddMetaInfo)
+            {
+                // Important: not using resources here because they could use non-ASCII characters or too long texts
+                WriteCommentExtension($"Logical Screen Size: {logicalScreenSize.Width}x{logicalScreenSize.Height}",
+                    $"Global Palette: {(globalPalette == null ? "Not present" : $"{globalPalette.Count} colors")}",
+                    $"Color Resolution: {bpp}bpp",
+                    $"Background Color Index: {(backColorIndex < globalPalette?.Count ? backColorIndex : 0)}",
+                    $"Repeat Count: {repeatCount switch { null => "Not present", 0 => "Infinite", _ => repeatCount }}");
+            }
+
+            if (repeatCount.HasValue)
+                WriteNetscapeLoopBlockApplicationExtension(repeatCount.Value);
+        }
 
         /// <summary>
         /// See the details in chapter 17-18 in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
@@ -317,73 +407,51 @@ namespace KGySoft.Drawing.Imaging
 
             // filling up the rest of the colors (GIF supports log2 palette sizes)
             int maxColors = ((uint)palette.Count).RoundUpToPowerOf2();
-            for (int i = palette.Count + 1; i < maxColors; i++)
+            for (int i = palette.Count; i < maxColors; i++)
                 writer.Write(emptyColor);
         }
 
         /// <summary>
-        /// Writing the comment extension as per chapters 24 and 15 in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
+        /// Writing the comment extension from direct data as per chapters 24 and 15 in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
         /// </summary>
-        private void WriteCommentExtension(bool isTransparent)
+        private void WriteCommentExtension(byte[] buffer)
         {
             writer.Write(extensionIntroducer);
             writer.Write(commentLabel);
 
-            // signature block
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            WriteCommentSubBlock(signatureBlock);
-#else
-            WriteCommentSubBlock(new ArraySegment<byte>(signatureBlock));
-#endif
-
-            // Important: not using resources here because only 7-bit ASCII is supported and because resources could be longer than 255 byte
-            if (AddMetaInfo)
-            {
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                Span<byte> buffer = stackalloc byte[255];
-#else
-                var buffer = new byte[255];
-#endif
-                WriteCommentSubBlock(FormatComment(buffer, $"Global Palette: {(globalPalette == null ? "Not present" : $"{globalPalette.Count} colors")}"));
-                WriteCommentSubBlock(FormatComment(buffer, $"Back Color: {(isTransparent || globalPalette == null ? "Transparent" : $"{globalPalette.Entries[backColorIndex >= globalPalette.Count ? 0 : backColorIndex].ToRgb():X6}")}"));
-                WriteCommentSubBlock(FormatComment(buffer, $"Repeat Count: {(repeatCount switch { null => "Not present", 0 => "Infinite", _ => repeatCount })}"));
-            }
+            // Comment sub block
+            writer.Write((byte)buffer.Length);
+            writer.Write(buffer);
 
             writer.Write(blockTerminator);
 
             #region Local Methods
 
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            static Span<byte> FormatComment(Span<byte> buffer, string text)
-            {
-                Debug.Assert(text.Length <= 255);
-                for (int i = 0; i < text.Length; i++)
-                    buffer[i] = (byte)text[i];
-                return buffer.Slice(0, text.Length);
-            }
-
-            void WriteCommentSubBlock(Span<byte> buffer)
-            {
-                writer.Write((byte)buffer.Length);
-                writer.Write(buffer);
-            }
-#else
-            static ArraySegment<byte> FormatComment(byte[] buffer, string text)
-            {
-                Debug.Assert(text.Length <= 255);
-                for (int i = 0; i < text.Length; i++)
-                    buffer[i] = (byte)text[i];
-                return new ArraySegment<byte>(buffer, 0, text.Length);
-            }
-
-            void WriteCommentSubBlock(ArraySegment<byte> buffer)
-            {
-                writer.Write((byte)buffer.Count);
-                writer.Write(buffer.Array!, buffer.Offset, buffer.Count);
-            }
-#endif
-
             #endregion
+        }
+
+        /// <summary>
+        /// Writing the comment extension from strings as per chapters 24 and 15 in https://www.w3.org/Graphics/GIF/spec-gif89a.txt
+        /// </summary>
+        private void WriteCommentExtension(params string?[] comments)
+        {
+            writer.Write(extensionIntroducer);
+            writer.Write(commentLabel);
+
+            // Comment sub blocks
+            foreach (string? comment in comments)
+            {
+                if (String.IsNullOrEmpty(comment))
+                    continue;
+
+                writer.Write((byte)comment.Length);
+
+                // ReSharper disable once ForCanBeConvertedToForeach - performance
+                for (int i = 0; i < comment.Length; i++)
+                    writer.Write((byte)comment[i]);
+            }
+
+            writer.Write(blockTerminator);
         }
 
         /// <summary>
@@ -456,6 +524,12 @@ namespace KGySoft.Drawing.Imaging
         }
 
         private void WriteImageData(IReadableBitmapData imageData) => LzwEncoder.Encode(imageData, writer, compressionMode);
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
+        void IDisposable.Dispose() => FinalizeEncoding();
 
         #endregion
 

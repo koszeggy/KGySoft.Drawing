@@ -157,6 +157,12 @@ namespace KGySoft
         /// <summary>The palette must not have more than 256 colors.</summary>
         internal static string GifEncoderPaletteTooLarge => Get("GifEncoder_PaletteTooLarge");
 
+        /// <summary>GIF comments cannot be longer than 255 characters.</summary>
+        internal static string GifEncoderCommentTooLong => Get("GifEncoder_CommentTooLong");
+
+        /// <summary>GIF comments can consist of ASCII characters only.</summary>
+        internal static string GifEncoderCommentNotAscii => Get("GifEncoder_CommentNotAscii");
+
         #endregion
 
         #endregion

@@ -418,7 +418,7 @@ namespace KGySoft.Drawing.Imaging
 
                 private void Append(byte value)
                 {
-                    Debug.Assert(bufferLength < 255);
+                    Debug.Assert(bufferLength < bufferCapacity);
                     buffer[bufferLength] = value;
                     bufferLength += 1;
                     if (bufferLength == bufferCapacity)

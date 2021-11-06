@@ -118,7 +118,7 @@ namespace KGySoft.Drawing.UnitTests
                 image.SaveAsPng($"{fileName}.png");
         }
 
-        protected static void SaveStream(string streamName, MemoryStream ms, string extension, [CallerMemberName]string testName = null)
+        protected static void SaveStream(string streamName, MemoryStream ms, string extension = "gif", [CallerMemberName]string testName = null)
         {
             if (!saveToFile)
                 return;
@@ -286,7 +286,7 @@ namespace KGySoft.Drawing.UnitTests
                         Color32 c2 = rowDst[x + targetLocation.X];
 
                         // this is faster than the asserts below
-                        if (c1.A != c2.A
+                        if (c1.A != c2.A && !(c1.A == 0 && c2.A == 0)
                             || Math.Abs(c1.R - c2.R) > 5
                             || Math.Abs(c1.G - c2.G) > 5
                             || Math.Abs(c1.B - c2.B) > 5)
@@ -302,7 +302,13 @@ namespace KGySoft.Drawing.UnitTests
                 }
 
                 for (int x = 0; x < sourceRectangle.Width; x++)
-                    Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
+                {
+                    Color32 c1 = rowSrc[x + sourceRectangle.X];
+                    Color32 c2 = rowDst[x + targetLocation.X];
+                    if (c1 != c2 && !(c1.A == 0 && c2.A == 0))
+                        Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
+                    //Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
+                }
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
         }
 

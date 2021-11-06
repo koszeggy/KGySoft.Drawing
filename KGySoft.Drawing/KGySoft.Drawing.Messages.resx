@@ -195,12 +195,6 @@
   <data name="Imaging_NotBitmapDataStream" xml:space="preserve">
     <value>Not a valid bitmap data stream.</value>
   </data>
-  <data name="GifEncoder_CannotChangeProperty" xml:space="preserve">
-    <value>This property cannot be set after adding the first image.</value>
-  </data>
-  <data name="GifEncoder_PaletteTooLarge" xml:space="preserve">
-    <value>The palette must not have more than 256 colors.</value>
-  </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>
   </data>
@@ -209,5 +203,17 @@
   </data>
   <data name="ImageExtensions_MultipageTiffSaveNotSupported" xml:space="preserve">
     <value>Saving multi-page TIFF is not supported on the current platform.</value>
+  </data>
+  <data name="GifEncoder_CannotChangeProperty" xml:space="preserve">
+    <value>This property cannot be set after adding the first image.</value>
+  </data>
+  <data name="GifEncoder_PaletteTooLarge" xml:space="preserve">
+    <value>The palette must not have more than 256 colors.</value>
+  </data>
+  <data name="GifEncoder_CommentTooLong" xml:space="preserve">
+    <value>GIF comments cannot be longer than 255 characters.</value>
+  </data>
+  <data name="GifEncoder_CommentNotAscii" xml:space="preserve">
+    <value>GIF comments can consist of ASCII characters only.</value>
   </data>
 </root>

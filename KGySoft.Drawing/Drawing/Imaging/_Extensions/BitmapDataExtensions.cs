@@ -56,15 +56,15 @@ namespace KGySoft.Drawing.Imaging
                 || pixelFormat.IsPremultiplied() && (bitmapData is not NativeBitmapDataBase || ColorExtensions.Max16BppValue == UInt16.MaxValue);
         }
 
-        #endregion
-
-        #region Private Methods
-
-        private static bool HasAlpha(this IBitmapData bitmapData)
+        internal static bool HasAlpha(this IBitmapData bitmapData)
         {
             PixelFormat pixelFormat = bitmapData.PixelFormat;
             return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
         }
+
+        #endregion
+
+        #region Private Methods
 
         private static void Unwrap<TBitmapData>(ref TBitmapData source, ref Rectangle newRectangle)
             where TBitmapData : IBitmapData
