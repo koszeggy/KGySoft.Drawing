@@ -419,6 +419,25 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void EncodeImageTest(PixelFormat sourcePixelFormat)
+        {
+            using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256))!;
+            using IReadableBitmapData bitmapData = bmp.GetReadableBitmapData().Clone(sourcePixelFormat);
+
+            using var ms = new MemoryStream();
+            GifEncoder.EncodeImage(bitmapData, ms);
+
+            SaveStream(sourcePixelFormat.ToString(), ms);
+            ms.Position = 0;
+
+            Bitmap restored = new Bitmap(ms);
+            using IReadableBitmapData actual = restored.GetReadableBitmapData();
+            AssertAreEqual(bitmapData, actual, true);
+        }
+
         #endregion
     }
 }

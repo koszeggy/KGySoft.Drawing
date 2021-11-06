@@ -276,7 +276,7 @@ namespace KGySoft.Drawing.UnitTests
             IReadableBitmapDataRow rowDst = target[targetLocation.Y];
 
             bool tolerantCompare = source.GetType() != target.GetType() && source.PixelFormat.ToBitsPerPixel() > 32;
-            for (int y = 0; y < sourceRectangle.Height; y++)
+            do
             {
                 if (tolerantCompare)
                 {
@@ -305,7 +305,7 @@ namespace KGySoft.Drawing.UnitTests
                 {
                     Color32 c1 = rowSrc[x + sourceRectangle.X];
                     Color32 c2 = rowDst[x + targetLocation.X];
-                    if (c1 != c2 && !(c1.A == 0 && c2.A == 0))
+                    if (c1.A != c2.A && !(c1.A == 0 && c2.A == 0) || c1.ToRgb() != c2.ToRgb())
                         Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
                     //Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
                 }
