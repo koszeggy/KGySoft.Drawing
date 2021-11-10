@@ -180,6 +180,7 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly BitmapDataType bitmapDataType;
+        private readonly bool disposeBitmapData;
 
         // ReSharper disable once FieldCanBeMadeReadOnly.Local - not making it readonly to prevent creating defensive copies
         private Rectangle region;
@@ -217,12 +218,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ClippedBitmapData(IBitmapData source, Rectangle clippingRegion)
+        internal ClippedBitmapData(IBitmapData source, Rectangle clippingRegion, bool disposeSource)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source));
 
             region = clippingRegion;
+            disposeBitmapData = disposeSource;
 
             // source is already clipped: unwrapping to prevent tiered nesting (not calling Unwrap because other types should not be extracted here)
             if (source is ClippedBitmapData parent)
@@ -276,6 +278,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+        
         public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
@@ -295,6 +299,21 @@ namespace KGySoft.Drawing.Imaging
         }
 
         public override bool TrySetPalette(Palette? palette) => false;
+
+        #endregion
+
+        #region Protected Methods
+
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            if (disposing && disposeBitmapData)
+                BitmapData.Dispose();
+            base.Dispose(disposing);
+        }
+
+        #endregion
 
         #endregion
     }

@@ -47,6 +47,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="source">The source bitmap data to be clipped.</param>
         /// <param name="clippingRegion">A <see cref="Rectangle"/> that specifies a region within the <paramref name="source"/>.</param>
+        /// <param name="disposeSource"><see langword="true"/>&#160;to dispose <paramref name="source"/> when the result is disposed; otherwise, <see langword="false"/>.</param>
         /// <returns>An <see cref="IWritableBitmapData"/> that provides access only to the specified region withing the <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="clippingRegion"/> has no overlapping region with source bounds.</exception>
@@ -56,14 +57,29 @@ namespace KGySoft.Drawing.Imaging
         /// <para>Even if <see cref="IBitmapData.RowSize"/> property of the returned instance is a nonzero value it can happen that it is too low to access all columns
         /// by the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method. It can occur with indexed <see cref="IBitmapData.PixelFormat"/>s if the right edge of the clipping is not on byte boundary.</para>
         /// </remarks>
-        public static IWritableBitmapData Clip(this IWritableBitmapData source, Rectangle clippingRegion)
+        public static IWritableBitmapData Clip(this IWritableBitmapData source, Rectangle clippingRegion, bool disposeSource)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.GetSize()
                 ? source
-                : new ClippedBitmapData(source, clippingRegion);
+                : new ClippedBitmapData(source, clippingRegion, disposeSource);
         }
+
+        /// <summary>
+        /// Clips the specified <paramref name="source"/> using the specified <paramref name="clippingRegion"/>.
+        /// Unlike the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> methods, this one returns a wrapper,
+        /// providing access only to the specified region of the original <paramref name="source"/>.
+        /// This overload does not dispose <paramref name="source"/> when the result is disposed.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Clip(IWritableBitmapData,Rectangle,bool)"/> overload for details.
+        /// </summary>
+        /// <param name="source">The source bitmap data to be clipped.</param>
+        /// <param name="clippingRegion">A <see cref="Rectangle"/> that specifies a region within the <paramref name="source"/>.</param>
+        /// <returns>An <see cref="IWritableBitmapData"/> that provides access only to the specified region withing the <paramref name="source"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="clippingRegion"/> has no overlapping region with source bounds.</exception>
+        public static IWritableBitmapData Clip(this IWritableBitmapData source, Rectangle clippingRegion)
+            => Clip(source, clippingRegion, false);
 
         #endregion
 
