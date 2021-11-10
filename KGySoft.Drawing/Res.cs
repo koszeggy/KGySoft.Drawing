@@ -147,6 +147,9 @@ namespace KGySoft
         /// <summary>Not a valid bitmap data stream.</summary>
         internal static string ImagingNotBitmapDataStream => Get("Imaging_NotBitmapDataStream");
 
+        /// <summary>The bitmap data has an invalid size.</summary>
+        internal static string ImagingInvalidBitmapDataSize => Get("Imaging_InvalidBitmapDataSize");
+
         #endregion
 
         #region GifEncoder
@@ -162,6 +165,15 @@ namespace KGySoft
 
         /// <summary>GIF comments can consist of ASCII characters only.</summary>
         internal static string GifEncoderCommentNotAscii => Get("GifEncoder_CommentNotAscii");
+
+        /// <summary>Encoder options did not return any frames.</summary>
+        internal static string GifEncoderAnimationContainsNoFrames => Get("GifEncoder_AnimationContainsNoFrames");
+
+        /// <summary>Encoder options returned a null frame. You must initialize GifEncodingOptions with an enumeration that does not have a null element.</summary>
+        internal static string GifEncoderNullFrame => Get("GifEncoder_NullFrame");
+
+        /// <summary>A frame had an unexpected size. Set the GifEncodingOptions.SizeHandling property to allow different input sizes.</summary>
+        internal static string GifEncoderUnexpectedFrameSize => Get("GifEncoder_UnexpectedFrameSize");
 
         #endregion
 

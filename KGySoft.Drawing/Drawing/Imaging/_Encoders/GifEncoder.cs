@@ -405,8 +405,8 @@ namespace KGySoft.Drawing.Imaging
                 writer.Write(color.B);
             }
 
-            // filling up the rest of the colors (GIF supports log2 palette sizes)
-            int maxColors = ((uint)palette.Count).RoundUpToPowerOf2();
+            // filling up the rest of the colors but at least 2 (GIF supports log2 palette sizes)
+            int maxColors = Math.Max(2,  ((uint)palette.Count).RoundUpToPowerOf2());
             for (int i = palette.Count; i < maxColors; i++)
                 writer.Write(emptyColor);
         }

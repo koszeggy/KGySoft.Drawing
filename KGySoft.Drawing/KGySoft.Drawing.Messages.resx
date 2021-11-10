@@ -195,6 +195,9 @@
   <data name="Imaging_NotBitmapDataStream" xml:space="preserve">
     <value>Not a valid bitmap data stream.</value>
   </data>
+  <data name="Imaging_InvalidBitmapDataSize" xml:space="preserve">
+    <value>The bitmap data has an invalid size.</value>
+  </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>
   </data>
@@ -215,5 +218,14 @@
   </data>
   <data name="GifEncoder_CommentNotAscii" xml:space="preserve">
     <value>GIF comments can consist of ASCII characters only.</value>
+  </data>
+  <data name="GifEncoder_AnimationContainsNoFrames" xml:space="preserve">
+    <value>Encoder options did not return any frames.</value>
+  </data>
+  <data name="GifEncoder_NullFrame" xml:space="preserve">
+    <value>Encoder options returned a null frame. You must initialize GifEncodingOptions with an enumeration that does not have a null element.</value>
+  </data>
+  <data name="GifEncoder_UnexpectedFrameSize" xml:space="preserve">
+    <value>A frame had an unexpected size. Set the GifEncodingOptions.SizeHandling property to allow different input sizes.</value>
   </data>
 </root>

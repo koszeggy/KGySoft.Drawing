@@ -65,6 +65,9 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static int ToBitsPerPixel(this int colorCount)
         {
+            if (colorCount == 1)
+                return 1;
+
             // Bits per pixel is actually ceiling of log2(maxColors)
             // We could use BitOperations.Log2 but that returns the floor value so we should combine it with BitOperations.IsPow2,
             // which is available only starting with .NET 6 and in the end it would be slower for typical values not larger than 256.

@@ -433,9 +433,38 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveStream(sourcePixelFormat.ToString(), ms);
             ms.Position = 0;
 
-            Bitmap restored = new Bitmap(ms);
+            using Bitmap restored = new Bitmap(ms);
             using IReadableBitmapData actual = restored.GetReadableBitmapData();
             AssertAreEqual(bitmapData, actual, true);
+        }
+
+        [Test]
+        public void EncodeAnimationSmokeTest()
+        {
+            var size = new Size(16, 16);
+            IReadWriteBitmapData[] frames = new IReadWriteBitmapData[2];
+            frames[0] = BitmapDataFactory.CreateBitmapData(size);
+            frames[0].Clear(new Color32(255, 0, 0));
+            frames[1] = BitmapDataFactory.CreateBitmapData(size);
+            frames[1].Clear(new Color32(0, 255, 0));
+
+            using var ms = new MemoryStream();
+            var options = new AnimationParameters(frames);
+
+            GifEncoder.EncodeAnimation(options, ms);
+            SaveStream(null, ms);
+            ms.Position = 0;
+
+            using Bitmap restored = new Bitmap(ms);
+            Bitmap[] actualFrames = restored.ExtractBitmaps();
+            Assert.AreEqual(frames.Length, actualFrames.Length);
+            for (int i = 0; i < frames.Length; i++)
+            {
+                using (IReadableBitmapData bitmapData = actualFrames[i].GetReadableBitmapData())
+                    AssertAreEqual(frames[i], bitmapData);
+                actualFrames[i].Dispose();
+                frames[i].Dispose();
+            }
         }
 
         #endregion

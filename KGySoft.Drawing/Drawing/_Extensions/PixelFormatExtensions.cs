@@ -97,7 +97,7 @@ namespace KGySoft.Drawing
                 supportedFormats = map;
                 return true;
             }
-            catch (Exception e) when (!(e is StackOverflowException))
+            catch (Exception e) when (e is not StackOverflowException)
             {
                 // catching even OutOfMemoryException because GDI can throw it for unsupported formats
                 map = map == null ? new Dictionary<PixelFormat, bool>() : new Dictionary<PixelFormat, bool>(map);

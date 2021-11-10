@@ -14,8 +14,11 @@
 #endregion
 
 using System;
+using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+
+using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Imaging
 {
@@ -32,8 +35,8 @@ namespace KGySoft.Drawing.Imaging
         /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
         /// <param name="stream">The stream to save the encoded image into.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
-        /// If <see langword="null"/>&#160;and <paramref name="imageData"/> is not an indexed image,
-        /// then <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> (or "web-safe" palette) will be used. This parameter is optional.
+        /// If <see langword="null"/>&#160;and <paramref name="imageData"/> is not an indexed image or the image contains different alpha pixels,
+        /// then <see cref="OptimizedPaletteQuantizer.Wu"/> quantizer will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -45,19 +48,21 @@ namespace KGySoft.Drawing.Imaging
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            IReadableBitmapData source = GetFirstFrame(imageData, quantizer, ditherer);
+            IReadableBitmapData source = quantizer == null && imageData.PixelFormat.IsIndexed() && !HasMultipleTransparentIndices(imageData)
+                    ? imageData
+                    : imageData.Clone(PixelFormat.Format8bppIndexed, quantizer ?? OptimizedPaletteQuantizer.Wu(), ditherer);
 
             try
             {
                 Palette palette = source.Palette!;
                 new GifEncoder(stream, imageData.GetSize())
-                    {
-                        GlobalPalette = palette,
-                        BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
+                {
+                    GlobalPalette = palette,
+                    BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
 #if DEBUG
-                        AddMetaInfo = true,
+                    AddMetaInfo = true,
 #endif
-                    }
+                }
                     .AddImage(source)
                     .FinalizeEncoding();
             }
@@ -68,59 +73,142 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        /// <summary>
+        /// Encodes the frames of the specified <paramref name="options"/> as an animated GIF image and writes it into the specified <paramref name="stream"/>.
+        /// </summary>
+        /// <param name="options">A <see cref="AnimationParameters"/> instance describing the parameters of the encoding.</param>
+        /// <param name="stream">The stream to save the encoded animation into.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="options"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="options"/> is invalid.</exception>
+        public static void EncodeAnimation(AnimationParameters options, Stream stream)
+        {
+            if (options == null)
+                throw new ArgumentNullException(nameof(options), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            if (options.AnimationMode < AnimationMode.PingPong || (int)options.AnimationMode > UInt16.MaxValue)
+                throw new ArgumentException(PublicResources.PropertyMessage(nameof(options.AnimationMode), PublicResources.ArgumentOutOfRange), nameof(options));
+            if (!options.SizeHandling.IsDefined())
+                throw new ArgumentException(PublicResources.PropertyMessage(nameof(options.SizeHandling), PublicResources.EnumOutOfRange(options.SizeHandling)), nameof(options));
+
+            using var enumerator = new FramesEnumerator(options);
+            using GifEncoder encoder = enumerator.CreateEncoder(stream);
+            while (enumerator.MoveNext())
+                encoder.AddImage(enumerator.Frame!, enumerator.Location, enumerator.Delay, enumerator.DisposalMethod);
+        }
+
         #endregion
 
         #region Private Methods
 
-        private static IReadableBitmapData GetFirstFrame(IReadableBitmapData imageData, IQuantizer? quantizer, IDitherer? ditherer)
+        private static bool HasMultipleTransparentIndices(IReadableBitmapData imageData)
         {
+            Debug.Assert(imageData.PixelFormat.IsIndexed());
             Palette? palette = imageData.Palette;
-            
-            // Indexed source without a quantizer and multi-level alpha: a good candidate to return the bitmap data itself
-            if (quantizer == null && imageData.PixelFormat.IsIndexed() && palette?.Count.ToBitsPerPixel() <= imageData.PixelFormat.ToBitsPerPixel() && !palette.HasMultiLevelAlpha)
+
+            // There is no palette ir it is too large: returning true to force a quantization
+            if (palette == null || palette.Count > 256)
+                return true;
+
+            // no transparency: we are done
+            if (!palette.HasAlpha)
+                return false;
+
+            // we need to check whether the palette has multiple transparent entries (or entries with partial transparency)
+            bool multiAlpha = false;
+            int transparentIndex = palette.TransparentIndex;
+            for (int i = 0; i < palette.Count; i++)
             {
-                // no transparency: we are done
-                if (!palette.HasAlpha)
-                    return imageData;
-
-                // we need to check whether the palette has multiple transparent entries
-                bool multiAlpha = false;
-                int transparentIndex = palette.TransparentIndex;
-                for (int i = 0; i < palette.Count; i++)
+                if (palette[i].A < Byte.MaxValue && i != transparentIndex)
                 {
-                    if (palette[i].A == 0 && i != transparentIndex)
-                    {
-                        multiAlpha = true;
-                        break;
-                    }
+                    multiAlpha = true;
+                    break;
                 }
-
-                // no multiple transparent entries
-                if (!multiAlpha)
-                    return imageData;
-
-                // we need to scan the image to check whether non-first transparent index is in use
-                multiAlpha = false;
-                IReadableBitmapDataRow row = imageData.FirstRow;
-                do
-                {
-                    for (int x = 0; x < imageData.Width; x++)
-                    {
-                        int index = row.GetColorIndex(x);
-                        if (index != transparentIndex && palette[index].A == 0)
-                        {
-                            multiAlpha = true;
-                            break;
-                        }
-                    }
-                } while (row.MoveNextRow());
-
-                // There are no transparent pixels of different palette entries (in AddImage this will not be checked again)
-                if (!multiAlpha)
-                    return imageData;
             }
 
-            return imageData.Clone(PixelFormat.Format8bppIndexed, quantizer, ditherer);
+            // no multiple transparent entries
+            if (!multiAlpha)
+                return false;
+
+            // we need to scan the image to check whether alpha pixels other than transparent index is in use
+            IReadableBitmapDataRow row = imageData.FirstRow;
+            do
+            {
+                for (int x = 0; x < imageData.Width; x++)
+                {
+                    int index = row.GetColorIndex(x);
+                    if (index != transparentIndex && palette[index].A < Byte.MaxValue)
+                        return true;
+                }
+            } while (row.MoveNextRow());
+
+            return false;
+        }
+
+        private static Rectangle GetContentArea(IReadableBitmapData imageData)
+        {
+            Rectangle result = new Rectangle(Point.Empty, imageData.GetSize());
+            if (!imageData.HasAlpha())
+                return result;
+
+            IReadableBitmapDataRow row = imageData.FirstRow;
+            do
+            {
+                for (int x = 0; x < result.Width; x++)
+                {
+                    if (row[x].A != 0)
+                        goto continueBottom;
+                }
+
+                result.Y += 1;
+                result.Height -= 1;
+            } while (row.MoveNextRow());
+
+        continueBottom:
+            // fully transparent image: returning 1x1 at the center
+            if (result.Height == 0)
+                return new Rectangle(imageData.Width >> 1, imageData.Height >> 1, 1, 1);
+
+            for (int y = result.Bottom - 1; y >= result.Top; y--)
+            {
+                row = imageData[y];
+                for (int x = 0; x < result.Width; x++)
+                {
+                    if (row[x].A != 0)
+                        goto continueLeft;
+                }
+
+                result.Height -= 1;
+            }
+
+        continueLeft:
+            Debug.Assert(result.Height > 0);
+            for (int x = 0; x < result.Width; x++)
+            {
+                for (int y = result.Top; y < result.Bottom; y++)
+                {
+                    if (imageData[y][x].A != 0)
+                        goto continueRight;
+                }
+
+                result.X += 1;
+                result.Width -= 1;
+            }
+
+        continueRight:
+            Debug.Assert(result.Width > 0);
+            for (int x = result.Right - 1; x >= result.Left; x--)
+            {
+                for (int y = result.Top; y < result.Bottom; y++)
+                {
+                    if (imageData[y][x].A != 0)
+                        return result;
+                }
+
+                result.Width -= 1;
+            }
+
+            throw new InvalidOperationException(Res.InternalError("Empty result is not expected at this point"));
         }
 
         #endregion
