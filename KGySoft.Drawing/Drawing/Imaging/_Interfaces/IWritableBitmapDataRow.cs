@@ -133,7 +133,7 @@ namespace KGySoft.Drawing.Imaging
         ///     for (int x = 0; x < bitmapData.Width; x++)
         ///         Console.WriteLine(row.GetColorIndex(x));
         /// }]]></code>
-        /// <note type="tip">See also the example at the <strong>Examples</strong> section of the <see cref="IWritableBitmapDataRow.ReadRaw{T}">IWritableBitmapDataRow.ReadRaw</see> method.</note>
+        /// <note type="tip">See also the example at the <strong>Examples</strong> section of the <see cref="IReadableBitmapDataRow.ReadRaw{T}">IReadableBitmapDataRow.ReadRaw</see> method.</note>
         /// </example>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or the memory location of the value (considering the size of <typeparamref name="T"/>)
         /// at least partially exceeds the bounds of the current row.</exception>
