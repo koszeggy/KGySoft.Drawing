@@ -63,10 +63,16 @@ namespace KGySoft.Drawing.Imaging
         public bool ReplaceZeroDelays { get; set; } = true;
 
         /// <summary>
-        /// Gets or sets an optional quantizer to be used for the frames. If <see langword="null"/>, and frames should be quantized,
-        /// then an <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> instance will be used with default settings.
+        /// Gets or sets an optional quantizer to be used for the frames. 
+        /// Using a non-<see langword="null"/>&#160;value forces the quantization also of already indexed images.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
+        /// <value>
+        /// If <see langword="null"/>, then the possibly existing palette of already indexed input frames are preserved.
+        /// For non-indexed frames a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used.
+        /// <br/>If not <see langword="null"/>, then all frames will be quantized, even the already indexed ones. If does not support transparency,
+        /// then <see cref="AllowDeltaFrames"/> will be ignored.
+        /// </value>
         public IQuantizer? Quantizer { get; set; }
 
         /// <summary>

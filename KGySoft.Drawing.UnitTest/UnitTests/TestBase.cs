@@ -141,16 +141,21 @@ namespace KGySoft.Drawing.UnitTests
 
             using Bitmap restored = new Bitmap(ms);
             Bitmap[] actualFrames = restored.ExtractBitmaps();
-            Assert.AreEqual(sourceFrames.Length, actualFrames.Length);
-            if (!performCompare)
-                return;
-            for (int i = 0; i < actualFrames.Length; i++)
+            try
             {
-                using (IReadableBitmapData bitmapData = actualFrames[i].GetReadableBitmapData())
-                    AssertAreEqual(sourceFrames[i].Clone(PixelFormat.Format8bppIndexed, parameters.Quantizer ?? OptimizedPaletteQuantizer.Wu(), parameters.Ditherer), bitmapData, true);
-                Console.WriteLine($"Frame #{i} equals");
-                actualFrames[i].Dispose();
-                sourceFrames[i].Dispose();
+                Assert.AreEqual(sourceFrames.Length, actualFrames.Length);
+                if (!performCompare)
+                    return;
+                for (int i = 0; i < actualFrames.Length; i++)
+                {
+                    using (IReadableBitmapData bitmapData = actualFrames[i].GetReadableBitmapData())
+                        AssertAreEqual(sourceFrames[i].Clone(PixelFormat.Format8bppIndexed, parameters.Quantizer ?? OptimizedPaletteQuantizer.Wu(), parameters.Ditherer), bitmapData, true);
+                    Console.WriteLine($"Frame #{i} equals");
+                }
+            }
+            finally
+            {
+                actualFrames.ForEach(f => f.Dispose());
             }
         }
 

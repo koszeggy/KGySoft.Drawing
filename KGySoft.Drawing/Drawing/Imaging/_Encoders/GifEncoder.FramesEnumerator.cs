@@ -49,12 +49,12 @@ namespace KGySoft.Drawing.Imaging
             private IEnumerator<IReadableBitmapData>? inputFramesEnumerator;
             private IReadableBitmapData? nextUnprocessedInputFrame;
             private IEnumerator<TimeSpan>? delayEnumerator;
-            private Stack<(IReadWriteBitmapData BitmapData, int Delay)>? reversedFramesStack;
+            private Stack<(IReadWriteBitmapData BitmapData, int Delay, bool IsQuantized)>? reversedFramesStack;
             private Size logicalScreenSize;
             private int lastDelay;
             private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame;
             private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) current;
-            private (IReadWriteBitmapData? BitmapData, int Delay) nextPreparedFrame;
+            private (IReadWriteBitmapData? BitmapData, int Delay, bool IsQuantized) nextPreparedFrame;
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) renderBuffer;
             private (bool Initialized, bool SupportsTransparency, byte AlphaThreshold) quantizerProperties;
 
@@ -281,23 +281,14 @@ namespace KGySoft.Drawing.Imaging
                 // 1.) Generating delta image if needed
                 if (config.AllowDeltaFrames && renderBuffer.BitmapData != null && !renderBuffer.IsCleared && QuantizerSupportsTransparency)
                 {
-                    // we cannot re-use the prepared frame for the delta frame if the prepared frame does not support transparency
-                    if (!preparedFrame.BitmapData.HasAlpha())
-                    {
-                        // TODO: or the original <32bpp pixel format if has alpha
-                        // TODO: maybe in prepare create it with alpha support if AllowDeltaFrames is true and the renderBuffer/quantizer conditions above match?
-                        IReadWriteBitmapData cloned = preparedFrame.BitmapData.Clone(PixelFormat.Format32bppArgb);
-                        generatedFrame.Dispose();
-                        generatedFrame = cloned;
-                    }
-
+                    Debug.Assert(preparedFrame.BitmapData.HasAlpha(), "Frame is not prepared correctly for delta image");
+                    Debug.Assert(!preparedFrame.IsQuantized, "Prepared image must not be quantized yet if delta image is created");
                     ClearUnchangedPixels(renderBuffer.BitmapData, generatedFrame);
                 }
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
-                if (!generatedFrame.PixelFormat.IsIndexed() || config.Quantizer != null || HasMultipleTransparentIndices(generatedFrame)) // TODO: true even for partial transparency
+                if (!preparedFrame.IsQuantized && (!generatedFrame.PixelFormat.IsIndexed() || config.Quantizer != null || HasMultipleTransparentIndices(generatedFrame)))
                 {
-                    // TODO: parallel if used with async context
                     IReadWriteBitmapData quantized = generatedFrame.Clone(PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
                     generatedFrame.Dispose();
                     generatedFrame = quantized;
@@ -331,8 +322,6 @@ namespace KGySoft.Drawing.Imaging
                         if (MoveNextPreparedFrame() && HasNewTransparentPixel(renderBuffer.BitmapData, nextPreparedFrame.BitmapData!, quantizerProperties.AlphaThreshold))
                         {
                             disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
-
-                            // TODO: parallel if used with async context
                             renderBuffer.BitmapData.Clear(default);
                             renderBuffer.IsCleared = true;
                         }
@@ -354,7 +343,7 @@ namespace KGySoft.Drawing.Imaging
 
             /// <summary>
             /// It consumes <see cref="nextUnprocessedInputFrame"/> set by <see cref="MoveNextInputFrame"/>, and sets <see cref="nextPreparedFrame"/>.
-            /// Tries to prepare the next frame. Prepared frames are not processed yet but they are already adjusted to the final size.
+            /// Tries to prepare the next frame. Prepared frames are adjusted to the final size and might already be quantized if no delta frame can be generated.
             /// </summary>
             private bool MoveNextPreparedFrame()
             {
@@ -381,51 +370,72 @@ namespace KGySoft.Drawing.Imaging
                     return true;
                 }
 
-                Size inputSize = inputFrame.GetSize();
                 IReadWriteBitmapData preparedFrame;
 
+                // delta can be used if allowed and the quantizer can use transparent colors,
+                bool canUseDelta = config.AllowDeltaFrames && QuantizerSupportsTransparency
+                    // and we have a non-cleared render buffer (but in pingpong mode we don't know it yet for the reversed phase so we must assume it can be used)
+                    && (config.AnimationMode == AnimationMode.PingPong || renderBuffer.BitmapData != null && !renderBuffer.IsCleared);
+
+                PixelFormat preparedPixelFormat = !canUseDelta ? PixelFormat.Format8bppIndexed // can't use delta: we can already quantize
+                    : inputFrame.HasAlpha() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat // we have transparency: we can use the original format
+                    : PixelFormat.Format32bppArgb; // we have to add transparency (or have to reduce bpp)
+
+                // If cannot use delta image, then we can already quantize the frame.
+                // For already indexed images we preserve the original palette only if no explicit quantizer was specified.
+                IQuantizer? preparedQuantizer = !canUseDelta && (config.Quantizer != null || inputFrame.PixelFormat != preparedPixelFormat) ? quantizer : null;
+                IDitherer? preparedDitherer = preparedQuantizer == null ? null : config.Ditherer;
+
+                Size inputSize = inputFrame.GetSize();
                 if (inputSize == logicalScreenSize)
-                    preparedFrame = inputFrame.Clone();
+                    preparedFrame = inputFrame.Clone(preparedPixelFormat, preparedQuantizer, preparedDitherer);
                 else
                 {
-                    var sizeHandling = config.SizeHandling;
-                    if (sizeHandling == AnimationFramesSizeHandling.ErrorIfDiffers)
-                        throw new ArgumentException(Res.GifEncoderUnexpectedFrameSize);
-                    // TODO: - preserve possible indexed format if possible (because of palette, and do not introduce mask search with transparency if original was not transparent)
-                    // - if original was not transparent and there is resize, use 24bit rgb instead
-                    // centering can use original pixel format, if
-                    // - image is too large, cutting border
-                    // - image is too small, adding transparent border and palette has transparency
-                    IBitmapDataInternal adjusted = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, sizeHandling == AnimationFramesSizeHandling.Center
-                        && inputFrame.PixelFormat != PixelFormat.Format32bppPArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
-                    switch (sizeHandling)
+                    switch (config.SizeHandling)
                     {
                         case AnimationFramesSizeHandling.Center:
-                            inputFrame.CopyTo(adjusted, new Point((adjusted.Width >> 1) - (inputFrame.Width >> 1),
-                                (adjusted.Height >> 1) - (inputFrame.Height >> 1)));
-                            break;
-                        case AnimationFramesSizeHandling.Resize:
-                            inputFrame.DrawInto(adjusted, new Rectangle(Point.Empty, logicalScreenSize));
-                            break;
-                    }
+                            // the added frame is larger: we can cut out the middle so the calculated format can be used
+                            if (inputSize.Width >= logicalScreenSize.Width && inputSize.Height >= logicalScreenSize.Height)
+                            {
+                                Rectangle clonedArea = new Rectangle(new Point((inputSize.Width >> 1) - (logicalScreenSize.Width >> 1),
+                                    (inputSize.Height >> 1) - (logicalScreenSize.Height >> 1)), logicalScreenSize);
 
-                    preparedFrame = adjusted;
+                                preparedFrame = inputFrame.Clone(clonedArea, preparedPixelFormat, preparedQuantizer, preparedDitherer);
+                                break;
+                            }
+
+                            // Otherwise, a transparent border has to be added to the frame (that should be cleared to whatever back color if quantizer does not support transparency).
+                            // In this case we cannot re-use original indexed pixel format because we should know the result palette before creating the bitmap data.
+                            // TODO: it can use the original indexed format if palette supports transparency (just add Clear with transparent color)
+                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                            inputFrame.CopyTo(preparedFrame, new Point((logicalScreenSize.Width >> 1) - (inputFrame.Width >> 1),
+                                (logicalScreenSize.Height >> 1) - (inputFrame.Height >> 1)));
+                            break;
+
+                        case AnimationFramesSizeHandling.Resize:
+                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, PixelFormat.Format32bppPArgb);
+                            inputFrame.DrawInto(preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
+                            break;
+
+                        default:
+                            throw new ArgumentException(Res.GifEncoderUnexpectedFrameSize);
+                    }
                 }
 
+                nextPreparedFrame = (preparedFrame, GetNextDelay(), preparedQuantizer != null);
                 if (config.AnimationMode == AnimationMode.PingPong)
                 {
                     // for the first time we just create the stack so the first frame is not added
                     if (reversedFramesStack == null)
-                        reversedFramesStack = new Stack<(IReadWriteBitmapData BitmapData, int Delay)>();
+                        reversedFramesStack = new Stack<(IReadWriteBitmapData, int, bool)>();
                     else
                     {
                         // and if this is the last input frame, it is not added to the stack
                         if (MoveNextInputFrame())
-                            reversedFramesStack.Push((preparedFrame.Clone(), nextPreparedFrame.Delay));
+                            reversedFramesStack.Push((preparedFrame.Clone(), nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
                     }
                 }
 
-                nextPreparedFrame = (preparedFrame, GetNextDelay());
                 return true;
             }
 
