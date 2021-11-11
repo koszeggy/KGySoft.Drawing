@@ -131,6 +131,30 @@ namespace KGySoft.Drawing.UnitTests
                 ms.WriteTo(fs);
         }
 
+        protected static void EncodeAnimatedGif(AnimGifConfig parameters, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
+        {
+            using var ms = new MemoryStream();
+            GifEncoder.EncodeAnimation(parameters, ms);
+            IReadableBitmapData[] sourceFrames = parameters.Frames.ToArray(); // actually 2nd enumeration
+            SaveStream(streamName, ms, testName: testName);
+            ms.Position = 0;
+
+            using Bitmap restored = new Bitmap(ms);
+            Bitmap[] actualFrames = restored.ExtractBitmaps();
+            Assert.AreEqual(sourceFrames.Length, actualFrames.Length);
+            if (!performCompare)
+                return;
+            for (int i = 0; i < actualFrames.Length; i++)
+            {
+                using (IReadableBitmapData bitmapData = actualFrames[i].GetReadableBitmapData())
+                    AssertAreEqual(sourceFrames[i].Clone(PixelFormat.Format8bppIndexed, parameters.Quantizer ?? OptimizedPaletteQuantizer.Wu(), parameters.Ditherer), bitmapData, true);
+                Console.WriteLine($"Frame #{i} equals");
+                actualFrames[i].Dispose();
+                sourceFrames[i].Dispose();
+            }
+        }
+
+
         protected static Bitmap CreateBitmap(int size, PixelFormat pixelFormat)
         {
             try

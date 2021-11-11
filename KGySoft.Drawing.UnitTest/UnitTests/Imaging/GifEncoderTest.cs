@@ -15,10 +15,12 @@
 
 #region Usings
 
+using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-
+using System.Linq;
+using System.Runtime.CompilerServices;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -30,7 +32,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     [TestFixture]
     public class GifEncoderTest : TestBase
     {
-        #region Methods
+        #region  Methods
 
         [Test, Explicit]
         public void ImageLowLevelSolidTest()
@@ -43,11 +45,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
-                {
-                    BackColorIndex = 2,
-                    GlobalPalette = palette,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                GlobalPalette = palette,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData)
                 .FinalizeEncoding();
 
@@ -55,31 +57,31 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-                {
-                    BackColorIndex = 2,
-                    GlobalPalette = palette,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                GlobalPalette = palette,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("GlobalPalette, Partial", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(48, 48))
-                {
-                    BackColorIndex = 2,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData)
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Full", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-                {
-                    BackColorIndex = 2,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Partial", stream);
@@ -97,11 +99,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
-                {
-                    BackColorIndex = 2,
-                    GlobalPalette = palette,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                GlobalPalette = palette,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData)
                 .FinalizeEncoding();
 
@@ -109,31 +111,31 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-                {
-                    BackColorIndex = 2,
-                    GlobalPalette = palette,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                GlobalPalette = palette,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("GlobalPalette, Partial", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(48, 48))
-                {
-                    BackColorIndex = 2,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData)
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Full", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-                {
-                    BackColorIndex = 2,
-                    AddMetaInfo = true
-                }
+            {
+                BackColorIndex = 2,
+                AddMetaInfo = true
+            }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Partial", stream);
@@ -145,12 +147,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var stream = new MemoryStream();
             using (var encoder = new GifEncoder(stream, new Size(64, 64))
-                   {
-                       RepeatCount = 0,
-                       BackColorIndex = 2,
-                       GlobalPalette = Palette.SystemDefault4BppPalette(),
-                       AddMetaInfo = true
-                   })
+            {
+                RepeatCount = 0,
+                BackColorIndex = 2,
+                GlobalPalette = Palette.SystemDefault4BppPalette(),
+                AddMetaInfo = true
+            })
             {
                 var frame = new Bitmap(48, 48);
                 using (Graphics g = Graphics.FromImage(frame))
@@ -183,11 +185,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var stream = new MemoryStream();
             var palette = new Palette(new[] { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent });
             using (var encoder = new GifEncoder(stream, new Size(64, 64))
-                   {
-                       RepeatCount = 0,
-                       BackColorIndex = 2,
-                       GlobalPalette = palette,
-                       AddMetaInfo = true
+            {
+                RepeatCount = 0,
+                BackColorIndex = 2,
+                GlobalPalette = palette,
+                AddMetaInfo = true
             })
             {
                 var frame = new Bitmap(48, 48);
@@ -221,11 +223,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var stream = new MemoryStream();
             Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.White };
             using (var encoder = new GifEncoder(stream, new Size(64, 64))
-                   {
-                       RepeatCount = 0,
-                       BackColorIndex = 2,
-                       AddMetaInfo = true
-                   })
+            {
+                RepeatCount = 0,
+                BackColorIndex = 2,
+                AddMetaInfo = true
+            })
             {
                 var frame = new Bitmap(48, 48);
                 using (Graphics g = Graphics.FromImage(frame))
@@ -259,11 +261,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var stream = new MemoryStream();
             Color[] palette = { Color.Black, Color.Cyan, Color.Green, Color.Red, Color.Transparent };
             using (var encoder = new GifEncoder(stream, new Size(64, 64))
-                   {
-                       RepeatCount = 0,
-                       BackColorIndex = 2,
-                       AddMetaInfo = true
-                   })
+            {
+                RepeatCount = 0,
+                BackColorIndex = 2,
+                AddMetaInfo = true
+            })
             {
                 var frame = new Bitmap(48, 48);
                 using (Graphics g = Graphics.FromImage(frame))
@@ -382,7 +384,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 var msNew = new MemoryStream();
                 using (var bitmapData = quantized.GetReadableBitmapData())
                 {
-                    new GifEncoder(msNew, toSave.Size){ GlobalPalette = bitmapData.Palette }
+                    new GifEncoder(msNew, toSave.Size) { GlobalPalette = bitmapData.Palette }
                         .AddImage(bitmapData)
                         .FinalizeEncoding();
                 }
@@ -439,7 +441,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Test]
-        public void EncodeAnimationSmokeTest()
+        public void EncodeAnimationSolidFramesDefaultSettings()
         {
             var size = new Size(16, 16);
             IReadWriteBitmapData[] frames = new IReadWriteBitmapData[2];
@@ -449,22 +451,34 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             frames[1].Clear(new Color32(0, 255, 0));
 
             using var ms = new MemoryStream();
-            var options = new AnimationParameters(frames);
+            var options = new AnimGifConfig(frames);
 
-            GifEncoder.EncodeAnimation(options, ms);
-            SaveStream(null, ms);
-            ms.Position = 0;
+            EncodeAnimatedGif(options);
+        }
 
-            using Bitmap restored = new Bitmap(ms);
-            Bitmap[] actualFrames = restored.ExtractBitmaps();
-            Assert.AreEqual(frames.Length, actualFrames.Length);
-            for (int i = 0; i < frames.Length; i++)
+        [Test]
+        public void EncodeAnimationDisposeFrames()
+        {
+            static IEnumerable<IReadableBitmapData> DisposingIterator()
             {
-                using (IReadableBitmapData bitmapData = actualFrames[i].GetReadableBitmapData())
-                    AssertAreEqual(frames[i], bitmapData);
-                actualFrames[i].Dispose();
-                frames[i].Dispose();
+                IReadableBitmapData bitmapData = null;
+                Bitmap bitmap = null;
+                for (int i = 0; i < 3; i++)
+                {
+                    bitmapData?.Dispose();
+                    bitmap?.Dispose();
+                    bitmap = new Bitmap(16, 16);
+                    using (var g = Graphics.FromImage(bitmap))
+                        g.DrawString(i.ToString(), SystemFonts.DefaultFont, Brushes.Black, 0, 0);
+                    bitmapData = bitmap.GetReadableBitmapData().Clone(PixelFormat.Format8bppIndexed);
+                    yield return bitmapData;
+                }
+
+                bitmapData?.Dispose();
+                bitmap?.Dispose();
             }
+
+            EncodeAnimatedGif(new AnimGifConfig(DisposingIterator()));
         }
 
         #endregion

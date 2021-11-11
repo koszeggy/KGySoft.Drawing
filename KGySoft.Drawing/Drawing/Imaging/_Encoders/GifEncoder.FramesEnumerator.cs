@@ -43,7 +43,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Instance Fields
 
-            private readonly AnimationParameters parameters;
+            private readonly AnimGifConfig config;
             private readonly IQuantizer quantizer;
 
             private IEnumerator<IReadableBitmapData>? inputFramesEnumerator;
@@ -85,7 +85,7 @@ namespace KGySoft.Drawing.Imaging
                     quantizerProperties.Initialized = true;
 
                     // the default Wu quantizer supports transparency
-                    if (parameters.Quantizer == null)
+                    if (config.Quantizer == null)
                     {
                         quantizerProperties.SupportsTransparency = true;
                         quantizerProperties.AlphaThreshold = 128;
@@ -106,10 +106,10 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal FramesEnumerator(AnimationParameters parameters)
+            internal FramesEnumerator(AnimGifConfig config)
             {
-                this.parameters = parameters;
-                quantizer = parameters.Quantizer ?? OptimizedPaletteQuantizer.Wu();
+                this.config = config;
+                quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();
             }
 
             #endregion
@@ -204,13 +204,13 @@ namespace KGySoft.Drawing.Imaging
 
             internal GifEncoder CreateEncoder(Stream stream)
             {
-                inputFramesEnumerator = parameters.Frames.GetEnumerator();
-                delayEnumerator = parameters.Delays.GetEnumerator();
+                inputFramesEnumerator = config.Frames.GetEnumerator();
+                delayEnumerator = config.Delays.GetEnumerator();
 
                 if (!MoveNextInputFrame())
                     throw new ArgumentException(Res.GifEncoderAnimationContainsNoFrames);
 
-                logicalScreenSize = parameters.Size ?? nextUnprocessedInputFrame.GetSize();
+                logicalScreenSize = config.Size ?? nextUnprocessedInputFrame.GetSize();
 
                 // this must succeed now because we could move to the first frame
                 MoveNextGeneratedFrame();
@@ -218,18 +218,18 @@ namespace KGySoft.Drawing.Imaging
 
                 // Using a global palette only if we know that the quantizer uses always the same colors or when the first frame
                 // can have transparency. If the first frame is not transparent, then some decoders (like GDI+) use a solid color when clearing frames.
-                Palette? globalPalette = parameters.Quantizer is PredefinedColorsQuantizer || firstFrame.Palette!.HasAlpha ? firstFrame.Palette : null;
+                Palette? globalPalette = config.Quantizer is PredefinedColorsQuantizer || firstFrame.Palette!.HasAlpha ? firstFrame.Palette : null;
 
                 return new GifEncoder(stream, logicalScreenSize)
                 {
                     GlobalPalette = globalPalette,
                     BackColorIndex = (byte)(globalPalette?.HasAlpha == true ? globalPalette.TransparentIndex : 0),
-                    RepeatCount = parameters.AnimationMode switch
+                    RepeatCount = config.AnimationMode switch
                     {
                         AnimationMode.PlayOnce => null, // could be 1, null simply omits the application extension
                         AnimationMode.Repeat => 0,
                         AnimationMode.PingPong => 0,
-                        _ => (int)parameters.AnimationMode
+                        _ => (int)config.AnimationMode
                     },
 #if DEBUG
                     AddMetaInfo = true
@@ -283,7 +283,7 @@ namespace KGySoft.Drawing.Imaging
                 bool toBeDisposed = preparedFrame.DisposeBitmapData;
 
                 // 1.) Generating delta image if needed
-                if (parameters.AllowDeltaFrames && renderBuffer.BitmapData != null && !renderBuffer.IsCleared && QuantizerSupportsTransparency)
+                if (config.AllowDeltaFrames && renderBuffer.BitmapData != null && !renderBuffer.IsCleared && QuantizerSupportsTransparency)
                 {
                     IReadWriteBitmapData? deltaFrame = null;
 
@@ -312,10 +312,10 @@ namespace KGySoft.Drawing.Imaging
                     generatedFrame = preparedFrame.BitmapData;
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
-                if (!generatedFrame.PixelFormat.IsIndexed() || parameters.Quantizer != null || HasMultipleTransparentIndices(generatedFrame)) // TODO: true even for partial transparency
+                if (!generatedFrame.PixelFormat.IsIndexed() || config.Quantizer != null || HasMultipleTransparentIndices(generatedFrame)) // TODO: true even for partial transparency
                 {
                     // TODO: parallel if used with async context
-                    IReadWriteBitmapData quantized = generatedFrame.Clone(PixelFormat.Format8bppIndexed, quantizer, parameters.Ditherer);
+                    IReadWriteBitmapData quantized = generatedFrame.Clone(PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
                     if (!ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
                         generatedFrame.Dispose();
                     generatedFrame = quantized;
@@ -331,7 +331,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // 3.) Trim border (important: after quantizing so possible partially transparent pixels have their final state)
                 Point location = Point.Empty;
-                if (!parameters.EncodeTransparentBorders && generatedFrame.HasAlpha())
+                if (!config.EncodeTransparentBorders && generatedFrame.HasAlpha())
                 {
                     Rectangle contentArea = GetContentArea(generatedFrame);
 
@@ -358,7 +358,7 @@ namespace KGySoft.Drawing.Imaging
                 if (QuantizerSupportsTransparency)
                 {
                     // if delta is allowed, then clearing only if a new transparent pixel appears in the next frame (that wasn't transparent before)
-                    if (parameters.AllowDeltaFrames)
+                    if (config.AllowDeltaFrames)
                     {
                         // maintaining render buffer
                         if (renderBuffer.BitmapData == null)
@@ -366,7 +366,7 @@ namespace KGySoft.Drawing.Imaging
                         else
                             generatedFrame.DrawInto(renderBuffer.BitmapData, location);
 
-                        if (MoveNextPreparedFrame() && HasNewTransparentPixel(renderBuffer.BitmapData, preparedFrame.BitmapData, quantizerProperties.AlphaThreshold))
+                        if (MoveNextPreparedFrame() && HasNewTransparentPixel(renderBuffer.BitmapData, nextPreparedFrame.BitmapData!, quantizerProperties.AlphaThreshold))
                         {
                             disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
 
@@ -381,7 +381,7 @@ namespace KGySoft.Drawing.Imaging
                     else
                     {
                         // except the last frame if the animation is not looped indefinitely
-                        if (parameters.AnimationMode < AnimationMode.PlayOnce || MoveNextPreparedFrame())
+                        if (config.AnimationMode < AnimationMode.PlayOnce || MoveNextPreparedFrame())
                             disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                     }
                 }
@@ -431,7 +431,7 @@ namespace KGySoft.Drawing.Imaging
                     result = reversedFramesStack == null ? nextInputFrame : nextInputFrame.Clone();
                 else
                 {
-                    var sizeHandling = parameters.SizeHandling;
+                    var sizeHandling = config.SizeHandling;
                     if (sizeHandling == AnimationFramesSizeHandling.ErrorIfDiffers)
                         throw new ArgumentException(Res.GifEncoderUnexpectedFrameSize);
                     // TODO: - preserve possible indexed format if possible (because of palette, and do not introduce mask search with transparency if original was not transparent)
@@ -457,7 +457,7 @@ namespace KGySoft.Drawing.Imaging
 
                 nextPreparedFrame = (result, GetNextDelay(), !ReferenceEquals(result, nextInputFrame) && reversedFramesStack == null);
 
-                if (parameters.AnimationMode == AnimationMode.PingPong)
+                if (config.AnimationMode == AnimationMode.PingPong)
                 {
                     // for the first time we just create the stack so the first frame is not added
                     if (reversedFramesStack == null)
@@ -513,7 +513,7 @@ namespace KGySoft.Drawing.Imaging
                 TimeSpan delay = delayEnumerator.Current;
                 if (delay > maxDelay)
                     delay = maxDelay;
-                else if (delay < TimeSpan.Zero || parameters.ReplaceZeroDelays && delay == TimeSpan.Zero)
+                else if (delay < TimeSpan.Zero || config.ReplaceZeroDelays && delay == TimeSpan.Zero)
                     delay = defaultDelay;
                 else if (delay > TimeSpan.Zero && delay < minNonzeroDelay)
                     delay = minNonzeroDelay;

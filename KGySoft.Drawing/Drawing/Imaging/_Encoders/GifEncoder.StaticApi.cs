@@ -76,11 +76,11 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Encodes the frames of the specified <paramref name="options"/> as an animated GIF image and writes it into the specified <paramref name="stream"/>.
         /// </summary>
-        /// <param name="options">A <see cref="AnimationParameters"/> instance describing the parameters of the encoding.</param>
+        /// <param name="options">A <see cref="AnimGifConfig"/> instance describing the parameters of the encoding.</param>
         /// <param name="stream">The stream to save the encoded animation into.</param>
         /// <exception cref="ArgumentNullException"><paramref name="options"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="options"/> is invalid.</exception>
-        public static void EncodeAnimation(AnimationParameters options, Stream stream)
+        public static void EncodeAnimation(AnimGifConfig options, Stream stream)
         {
             if (options == null)
                 throw new ArgumentNullException(nameof(options), PublicResources.ArgumentNull);
