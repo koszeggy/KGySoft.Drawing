@@ -49,12 +49,12 @@ namespace KGySoft.Drawing.Imaging
             private IEnumerator<IReadableBitmapData>? inputFramesEnumerator;
             private IReadableBitmapData? nextUnprocessedInputFrame;
             private IEnumerator<TimeSpan>? delayEnumerator;
-            private Stack<(IReadableBitmapData BitmapData, int Delay)>? reversedFramesStack;
+            private Stack<(IReadWriteBitmapData BitmapData, int Delay)>? reversedFramesStack;
             private Size logicalScreenSize;
             private int lastDelay;
-            private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod, bool DisposeBitmapData) nextGeneratedFrame;
-            private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod, bool DisposeBitmapData) current;
-            private (IReadableBitmapData? BitmapData, int Delay, bool DisposeBitmapData) nextPreparedFrame;
+            private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame;
+            private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) current;
+            private (IReadWriteBitmapData? BitmapData, int Delay) nextPreparedFrame;
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) renderBuffer;
             private (bool Initialized, bool SupportsTransparency, byte AlphaThreshold) quantizerProperties;
 
@@ -190,12 +190,11 @@ namespace KGySoft.Drawing.Imaging
                 reversedFramesStack?.ForEach(f => f.BitmapData.Dispose());
 
                 renderBuffer.BitmapData?.Dispose();
-                if (nextPreparedFrame.DisposeBitmapData)
-                    nextPreparedFrame.BitmapData!.Dispose();
-                if (nextGeneratedFrame.DisposeBitmapData)
-                    nextGeneratedFrame.BitmapData!.Dispose();
-                if (current.DisposeBitmapData && !ReferenceEquals(current.BitmapData, nextGeneratedFrame.BitmapData))
-                    current.BitmapData!.Dispose();
+                nextPreparedFrame.BitmapData?.Dispose();
+                if (!ReferenceEquals(nextPreparedFrame.BitmapData, nextGeneratedFrame.BitmapData))
+                    nextGeneratedFrame.BitmapData?.Dispose();
+                if (!ReferenceEquals(current.BitmapData, nextGeneratedFrame.BitmapData))
+                    current.BitmapData?.Dispose();
             }
 
             #endregion
@@ -243,9 +242,7 @@ namespace KGySoft.Drawing.Imaging
             /// <returns></returns>
             internal bool MoveNext()
             {
-                if (current.DisposeBitmapData)
-                    current.BitmapData!.Dispose();
-
+                current.BitmapData?.Dispose();
                 if (nextGeneratedFrame.BitmapData == null && !MoveNextGeneratedFrame())
                 {
                     current = default;
@@ -279,74 +276,41 @@ namespace KGySoft.Drawing.Imaging
                     return false;
 
                 nextPreparedFrame = default;
-                IReadableBitmapData generatedFrame;
-                bool toBeDisposed = preparedFrame.DisposeBitmapData;
+                IReadWriteBitmapData generatedFrame = preparedFrame.BitmapData;
 
                 // 1.) Generating delta image if needed
                 if (config.AllowDeltaFrames && renderBuffer.BitmapData != null && !renderBuffer.IsCleared && QuantizerSupportsTransparency)
                 {
-                    IReadWriteBitmapData? deltaFrame = null;
-
-                    // we can re-use the prepared frame for the delta frame if the prepared frame is about to be disposed anyway and it has transparency
-                    if (preparedFrame.DisposeBitmapData && preparedFrame.BitmapData.HasAlpha())
-                        deltaFrame = preparedFrame.BitmapData as IReadWriteBitmapData;
-                    if (deltaFrame == null)
+                    // we cannot re-use the prepared frame for the delta frame if the prepared frame does not support transparency
+                    if (!preparedFrame.BitmapData.HasAlpha())
                     {
                         // TODO: or the original <32bpp pixel format if has alpha
-                        deltaFrame = preparedFrame.BitmapData.Clone(PixelFormat.Format32bppArgb);
-
-                        // disposing prepared frame if we replaced it (we could do it just in the end but this way we can optimize memory usage)
-                        if (preparedFrame.DisposeBitmapData)
-                        {
-                            preparedFrame.BitmapData.Dispose();
-                            preparedFrame.DisposeBitmapData = false;
-                        }
-
-                        toBeDisposed = true;
+                        // TODO: maybe in prepare create it with alpha support if AllowDeltaFrames is true and the renderBuffer/quantizer conditions above match?
+                        IReadWriteBitmapData cloned = preparedFrame.BitmapData.Clone(PixelFormat.Format32bppArgb);
+                        generatedFrame.Dispose();
+                        generatedFrame = cloned;
                     }
 
-                    ClearUnchangedPixels(renderBuffer.BitmapData, deltaFrame);
-                    generatedFrame = deltaFrame;
+                    ClearUnchangedPixels(renderBuffer.BitmapData, generatedFrame);
                 }
-                else
-                    generatedFrame = preparedFrame.BitmapData;
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
                 if (!generatedFrame.PixelFormat.IsIndexed() || config.Quantizer != null || HasMultipleTransparentIndices(generatedFrame)) // TODO: true even for partial transparency
                 {
                     // TODO: parallel if used with async context
                     IReadWriteBitmapData quantized = generatedFrame.Clone(PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
-                    if (!ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
-                        generatedFrame.Dispose();
+                    generatedFrame.Dispose();
                     generatedFrame = quantized;
-                    toBeDisposed = true;
-
-                    // disposing prepared frame if needed (we could do it just in the end but this way we can optimize memory usage)
-                    if (preparedFrame.DisposeBitmapData)
-                    {
-                        preparedFrame.BitmapData.Dispose();
-                        preparedFrame.DisposeBitmapData = false;
-                    }
                 }
 
                 // 3.) Trim border (important: after quantizing so possible partially transparent pixels have their final state)
                 Point location = Point.Empty;
                 if (!config.EncodeTransparentBorders && generatedFrame.HasAlpha())
                 {
+                    // clipping if possible
                     Rectangle contentArea = GetContentArea(generatedFrame);
-
-                    // trimming is possible
                     if (contentArea.Size != logicalScreenSize)
-                    {
-                        // if still using the prepared frame, disabling its disposing because now we created a wrapper for it
-                        if (ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
-                        {
-                            Debug.Assert(preparedFrame.DisposeBitmapData == toBeDisposed, "Original disposal info should be reflected by toBeDisposed");
-                            preparedFrame.DisposeBitmapData = false;
-                        }
-
-                        generatedFrame = generatedFrame.Clip(contentArea, toBeDisposed);
-                    }
+                        generatedFrame = generatedFrame.Clip(contentArea, true);
 
                     location = contentArea.Location;
                 }
@@ -361,10 +325,8 @@ namespace KGySoft.Drawing.Imaging
                     if (config.AllowDeltaFrames)
                     {
                         // maintaining render buffer
-                        if (renderBuffer.BitmapData == null)
-                            renderBuffer.BitmapData = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
-                        else
-                            generatedFrame.DrawInto(renderBuffer.BitmapData, location);
+                        renderBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                        generatedFrame.DrawInto(renderBuffer.BitmapData, location);
 
                         if (MoveNextPreparedFrame() && HasNewTransparentPixel(renderBuffer.BitmapData, nextPreparedFrame.BitmapData!, quantizerProperties.AlphaThreshold))
                         {
@@ -386,9 +348,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
-                if (preparedFrame.DisposeBitmapData)
-                    preparedFrame.BitmapData.Dispose();
-                nextGeneratedFrame = (generatedFrame, location, preparedFrame.Delay, disposeMethod, toBeDisposed);
+                nextGeneratedFrame = (generatedFrame, location, preparedFrame.Delay, disposeMethod);
                 return true;
             }
 
@@ -402,11 +362,11 @@ namespace KGySoft.Drawing.Imaging
                 if (nextUnprocessedInputFrame == null)
                     MoveNextInputFrame();
 
-                IReadableBitmapData? nextInputFrame = nextUnprocessedInputFrame;
+                IReadableBitmapData? inputFrame = nextUnprocessedInputFrame;
                 nextUnprocessedInputFrame = null;
 
                 // no more input frame
-                if (nextInputFrame == null)
+                if (inputFrame == null)
                 {
                     // and no more stacked reverse frame
                     if (reversedFramesStack == null)
@@ -414,21 +374,18 @@ namespace KGySoft.Drawing.Imaging
 
                     // in reverse phase: just popping the stack
                     Debug.Assert(reversedFramesStack.Count > 0);
-                    (nextPreparedFrame.BitmapData, nextPreparedFrame.Delay) = reversedFramesStack.Pop();
-                    nextPreparedFrame.DisposeBitmapData = true;
+                    nextPreparedFrame = reversedFramesStack.Pop();
 
                     if (reversedFramesStack.Count == 0)
                         reversedFramesStack = null;
                     return true;
                 }
 
-                Size inputSize = nextInputFrame.GetSize();
-                IReadableBitmapData result;
+                Size inputSize = inputFrame.GetSize();
+                IReadWriteBitmapData preparedFrame;
 
                 if (inputSize == logicalScreenSize)
-                    // this will use the original input frame also for the first frame in pingpong mode
-                    // we could add || !MoveNextInputFrame() to not clone the last either but if there are more frames the current one might be destroyed
-                    result = reversedFramesStack == null ? nextInputFrame : nextInputFrame.Clone();
+                    preparedFrame = inputFrame.Clone();
                 else
                 {
                     var sizeHandling = config.SizeHandling;
@@ -439,38 +396,36 @@ namespace KGySoft.Drawing.Imaging
                     // centering can use original pixel format, if
                     // - image is too large, cutting border
                     // - image is too small, adding transparent border and palette has transparency
-                    IBitmapDataInternal preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, sizeHandling == AnimationFramesSizeHandling.Center
-                        && nextInputFrame.PixelFormat != PixelFormat.Format32bppPArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
+                    IBitmapDataInternal adjusted = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, sizeHandling == AnimationFramesSizeHandling.Center
+                        && inputFrame.PixelFormat != PixelFormat.Format32bppPArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
                     switch (sizeHandling)
                     {
                         case AnimationFramesSizeHandling.Center:
-                            nextInputFrame.CopyTo(preparedFrame, new Point((preparedFrame.Width >> 1) - (nextInputFrame.Width >> 1),
-                                (preparedFrame.Height >> 1) - (nextInputFrame.Height >> 1)));
+                            inputFrame.CopyTo(adjusted, new Point((adjusted.Width >> 1) - (inputFrame.Width >> 1),
+                                (adjusted.Height >> 1) - (inputFrame.Height >> 1)));
                             break;
                         case AnimationFramesSizeHandling.Resize:
-                            nextInputFrame.DrawInto(preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
+                            inputFrame.DrawInto(adjusted, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
                     }
 
-                    result = nextInputFrame;
+                    preparedFrame = adjusted;
                 }
-
-                nextPreparedFrame = (result, GetNextDelay(), !ReferenceEquals(result, nextInputFrame) && reversedFramesStack == null);
 
                 if (config.AnimationMode == AnimationMode.PingPong)
                 {
                     // for the first time we just create the stack so the first frame is not added
                     if (reversedFramesStack == null)
-                        reversedFramesStack = new Stack<(IReadableBitmapData BitmapData, int Delay)>();
+                        reversedFramesStack = new Stack<(IReadWriteBitmapData BitmapData, int Delay)>();
                     else
                     {
-                        // if this is the last input frame, it is not added to the stack
-                        Debug.Assert(!nextPreparedFrame.DisposeBitmapData, "Prepared frame must be a clone if we look forward to next frame");
+                        // and if this is the last input frame, it is not added to the stack
                         if (MoveNextInputFrame())
-                            reversedFramesStack.Push((nextPreparedFrame.BitmapData!, nextPreparedFrame.Delay));
+                            reversedFramesStack.Push((preparedFrame.Clone(), nextPreparedFrame.Delay));
                     }
                 }
 
+                nextPreparedFrame = (preparedFrame, GetNextDelay());
                 return true;
             }
 

@@ -470,7 +470,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     bitmap = new Bitmap(16, 16);
                     using (var g = Graphics.FromImage(bitmap))
                         g.DrawString(i.ToString(), SystemFonts.DefaultFont, Brushes.Black, 0, 0);
-                    bitmapData = bitmap.GetReadableBitmapData().Clone(PixelFormat.Format8bppIndexed);
+                    using (var bmpDataNative = bitmap.GetReadableBitmapData())
+                        bitmapData = bmpDataNative.Clone(PixelFormat.Format8bppIndexed);
                     yield return bitmapData;
                 }
 
