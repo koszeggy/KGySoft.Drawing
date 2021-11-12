@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Threading;
 #if !NET35
 using System.Threading.Tasks; 
@@ -665,6 +666,25 @@ namespace KGySoft.Drawing.UnitTests
 
             Assert.AreEqual(ImageFormat.Gif, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format8bppIndexed, bmp.PixelFormat);
+            SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [TestCase(PixelFormat.Format8bppIndexed)]
+        [TestCase(PixelFormat.Format4bppIndexed)]
+        [TestCase(PixelFormat.Format1bppIndexed)]
+        public void SaveAsAnimatedGifTest(PixelFormat pixelFormat)
+        {
+            var ms = new MemoryStream();
+            int bpp = pixelFormat.ToBitsPerPixel();
+            IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0: 128)) : null;
+            IEnumerable<Bitmap> sourceImages = Icons.Information.ExtractBitmaps().Where(b => b != null);
+            sourceImages.SaveAsAnimatedGif(ms, TimeSpan.FromMilliseconds(250), quantizer, OrderedDitherer.Bayer8x8);
+
+            ms.Position = 0;
+            var bmp = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Gif, bmp.RawFormat);
+            Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
             SaveImage($"{pixelFormat}", bmp, true);
         }
 

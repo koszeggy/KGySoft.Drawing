@@ -70,7 +70,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <value>
         /// If <see langword="null"/>, then the possibly existing palette of already indexed input frames are preserved.
-        /// For non-indexed frames a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used.
+        /// For frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used.
         /// <br/>If not <see langword="null"/>, then all frames will be quantized, even the already indexed ones. If does not support transparency,
         /// then <see cref="AllowDeltaFrames"/> will be ignored.
         /// </value>

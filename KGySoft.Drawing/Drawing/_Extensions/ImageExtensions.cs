@@ -1615,25 +1615,145 @@ namespace KGySoft.Drawing
         public static void SaveAsGif(this Image image, Stream stream, Color[]? palette)
             => SaveAsGif(image, stream, palette == null ? null : PredefinedColorsQuantizer.FromCustomPalette(palette));
 
-        //public static void SaveAnimatedGif(this IEnumerable<Image> images, Stream stream, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        //{
-        //    throw new NotImplementedException();
-        //}
+        /// <summary>
+        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="frames">The frames to save into the GIF data stream.</param>
+        /// <param name="stream">The stream into the GIF data is to be saved.</param>
+        /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/>&#160;or empty,
+        /// then a default 100 ms delay will be used for all frames.
+        /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
+        /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>When <paramref name="frames"/> contain multi-frame instances, this method takes only the current frame. You can extract
+        /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
+        /// <para>The enumerator of <paramref name="frames"/> is evaluated in a lazy manner. You can even dispose the previous image once the next one is queried.</para>
+        /// <para>Though this method does not support reporting progress directly, you can pass an iterator to the <paramref name="frames"/> parameter that can track
+        /// how many images have already been processed.</para>
+        /// <para>The resolution of the animation is determined by the first frame. If subsequent frames have different sizes, then then they will be centered.</para>
+        /// <para>If <paramref name="quantizer"/> supports an optimized palette for each frames (like <see cref="OptimizedPaletteQuantizer"/>), then some
+        /// frames of the animation might have even more than 256 colors (depending on the differences between frames).</para>
+        /// <note type="tip">To customize looping mode, frame size handling, delta frames strategy, etc., then use directly the <see cref="GifEncoder"/> class
+        /// and its <see cref="GifEncoder.EncodeAnimation">EncodeAnimation</see> method. And to low level encoding you can instantiate the <see cref="GifEncoder"/>
+        /// class and add the frames manually.</note>
+        /// </remarks>
+        public static void SaveAsAnimatedGif(this IEnumerable<Image> frames, Stream stream, IEnumerable<TimeSpan>? delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            #region Local Methods
 
-        //public static void SaveAnimatedGif(this IEnumerable<Image> images, string fileName, int delay = 0, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            static IEnumerable<IReadableBitmapData> IterateFrames(IEnumerable<Image> images)
+            {
+                foreach (Image image in images)
+                {
+                    Bitmap asBitmap = image as Bitmap ?? new Bitmap(image, image.Size);
+                    try
+                    {
+                        using IReadableBitmapData bitmapData = asBitmap.GetReadableBitmapData();
+                        yield return bitmapData;
+                    }
+                    finally
+                    {
+                        if (!ReferenceEquals(image, asBitmap))
+                            asBitmap.Dispose();
+                    }
+                }
+            }
 
-        //public static void SaveAnimatedGif(this IList<Image> images, Stream stream, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            #endregion
 
-        //public static void SaveAnimatedGif(this IList<Image> images, string fileName, IList<int> delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-        //{
-        //    throw new NotImplementedException();
-        //}
+            if (frames == null)
+                throw new ArgumentNullException(nameof(frames), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+
+            var config = new AnimGifConfig(IterateFrames(frames), delays)
+            {
+                Quantizer = quantizer,
+                Ditherer = ditherer,
+                SizeHandling = AnimationFramesSizeHandling.Center
+            };
+            GifEncoder.EncodeAnimation(config, stream);
+        }
+
+        /// <summary>
+        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> for details.
+        /// </summary>
+        /// <param name="frames">The frames to save into the GIF data stream.</param>
+        /// <param name="fileName">The name of the file to which to save the <paramref name="frames"/>. The directory of the specified path is created if it does not exist.</param>
+        /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/>&#160;or empty,
+        /// then a default 100 ms delay will be used for all frames.
+        /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
+        /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        public static void SaveAsAnimatedGif(this IEnumerable<Image> frames, string fileName, IEnumerable<TimeSpan>? delays, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            if (frames == null)
+                throw new ArgumentNullException(nameof(frames), PublicResources.ArgumentNull);
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsAnimatedGif(frames, fs, delays, quantizer, ditherer);
+        }
+
+        /// <summary>
+        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> for details.
+        /// </summary>
+        /// <param name="frames">The frames to save into the GIF data stream.</param>
+        /// <param name="stream">The stream into the GIF data is to be saved.</param>
+        /// <param name="delay">An optional <see cref="TimeSpan"/> to specify the delay for all frames. If <see langword="null"/>,
+        /// then a default 100 ms delay will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        public static void SaveAsAnimatedGif(this IEnumerable<Image> frames, Stream stream, TimeSpan? delay = null, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+            => SaveAsAnimatedGif(frames, stream, delay.HasValue ? new[] { delay.Value } : null, quantizer, ditherer);
+
+        /// <summary>
+        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
+        /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="frames">The frames to save into the GIF data stream.</param>
+        /// <param name="fileName">The name of the file to which to save the <paramref name="frames"/>. The directory of the specified path is created if it does not exist.</param>
+        /// <param name="delay">An optional <see cref="TimeSpan"/> to specify the delay for all frames. If <see langword="null"/>,
+        /// then a default 100 ms delay will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
+        /// for frames with a non-indexed pixel format a quantizer returned by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>When <paramref name="frames"/> contain multi-frame instances, this method takes only the current frame. You can extract
+        /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
+        /// <para>The enumerator of <paramref name="frames"/> is evaluated in a lazy manner. You can even dispose the previous image once the next one is queried.</para>
+        /// <para>Though this method does not support reporting progress directly, you can pass an iterator to the <paramref name="frames"/> parameter that can track
+        /// how many images have already been processed.</para>
+        /// <para>The resolution of the animation is determined by the first frame. If subsequent frames have different sizes, then then they will be centered.</para>
+        /// <para>If <paramref name="quantizer"/> supports an optimized palette for each frames (like <see cref="OptimizedPaletteQuantizer"/>), then some
+        /// frames of the animation might have even more than 256 colors (depending on the differences between frames).</para>
+        /// <note type="tip">To customize looping mode, frame size handling, delta frames strategy, etc., then use directly the <see cref="GifEncoder"/> class
+        /// and its <see cref="GifEncoder.EncodeAnimation">EncodeAnimation</see> method. And to low level encoding you can instantiate the <see cref="GifEncoder"/>
+        /// class and add the frames manually.</note>
+        /// </remarks>
+        public static void SaveAsAnimatedGif(this IEnumerable<Image> frames, string fileName, TimeSpan? delay = null, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+            => SaveAsAnimatedGif(frames, fileName, delay.HasValue ? new[] { delay.Value } : null, quantizer, ditherer);
 
         #endregion
 
@@ -1839,6 +1959,24 @@ namespace KGySoft.Drawing
                 pagesToDispose.ForEach(img => img.Dispose());
                 stream.Flush();
             }
+        }
+
+        /// <summary>
+        /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
+        /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsMultipageTiff(IEnumerable{Image},Stream)"/> overload for details.
+        /// </summary>
+        /// <param name="images">The images to save into the TIFF data stream.</param>
+        /// <param name="fileName">The name of the file to which to save the <paramref name="images"/>. The directory of the specified path is created if it does not exist.</param>
+        public static void SaveAsMultipageTiff(this IEnumerable<Image> images, string fileName)
+        {
+            if (images == null)
+                throw new ArgumentNullException(nameof(images), PublicResources.ArgumentNull);
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsMultipageTiff(images, fs);
         }
 
         #endregion
