@@ -1329,7 +1329,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
         public static void SaveAsBmp(this Image image, Stream stream)
-            => SaveByEncoder(image, stream, ImageFormat.Bmp, null, false);
+            => SaveByImageCodecInfo(image, stream, ImageFormat.Bmp, null, false);
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> to the specified file using the built-in BMP encoder if available in the current operating system.
@@ -1416,7 +1416,7 @@ namespace KGySoft.Drawing
             using (var parameters = new EncoderParameters(1))
             {
                 parameters.Param[0] = new EncoderParameter(Encoder.Quality, quality);
-                SaveByEncoder(image, stream, ImageFormat.Jpeg, parameters, false);
+                SaveByImageCodecInfo(image, stream, ImageFormat.Jpeg, parameters, false);
             }
         }
 
@@ -1487,7 +1487,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">No built-in encoder was found or the saving fails in the current operating system.</exception>
         public static void SaveAsPng(this Image image, Stream stream)
-            => SaveByEncoder(image, stream, ImageFormat.Png, null, false);
+            => SaveByImageCodecInfo(image, stream, ImageFormat.Png, null, false);
 
         /// <summary>
         /// Saves the specified <paramref name="image"/> to the specified file using the built-in PNG encoder if available in the current operating system.
@@ -1523,13 +1523,9 @@ namespace KGySoft.Drawing
         /// <param name="ditherer">If a quantization has to be performed can specifies the ditherer to be used. If <see langword="null"/>, then no dithering will be performed. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
-        /// <para>The <paramref name="image"/> can only be saved if a built-in GIF encoder is available in the current operating system.</para>
+        /// <para>The <paramref name="image"/> can be saved even without a registered GIF encoder in the current operating system. To save the GIF image, the <see cref="GifEncoder"/> class is used internally.</para>
         /// <para>If <paramref name="image"/> is an animated GIF, then the whole animation will be saved (can depend on the operating system).</para>
-        /// <para>The <paramref name="image"/> will be saved always with a <see cref="PixelFormat.Format8bppIndexed"/> format, though the palette can have less than 256 colors.</para>
         /// <para>The GIF format supports single bit transparency only.</para>
-        /// <para>Images with <see cref="PixelFormat"/>s other than <see cref="PixelFormat.Format8bppIndexed"/> are converted to <see cref="PixelFormat.Format8bppIndexed"/> before saving (including other indexed formats);
-        /// otherwise, the built-in GIF encoder (at least on Windows) would save the image with a fixed palette and transparency would be lost.
-        /// <note>On Linux the built-in GIF encoder turns transparent palette entries opaque.</note></para>
         /// <para>If <paramref name="quantizer"/> is <see langword="null"/>&#160;and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
         /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method
         /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method for any other pixel formats.</para>
@@ -1542,9 +1538,9 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            // Shortcut: GIF is saved as a GIF, including animated ones (exploiting the workaround in Image.Save)
+            // Shortcut: high color GIF is saved as a GIF, (exploiting the workaround in Image.Save that saves the original stream).
             // Without this workaround animated GIFs (which have 32 BPP ARGB format in GDI+) would be converted and a single frame would be saved.
-            if (image is Bitmap bmp && bmp.RawFormat.Guid == ImageFormat.Gif.Guid && bmp.PixelFormat.ToBitsPerPixel() >= 8)
+            if (image is Bitmap bmp && bmp.RawFormat.Guid == ImageFormat.Gif.Guid && bmp.PixelFormat.ToBitsPerPixel() > 8)
             {
                 ImageCodecInfo? encoder = Encoders.FirstOrDefault(e => e.FormatID == ImageFormat.Gif.Guid);
                 if (encoder == null)
@@ -1554,13 +1550,23 @@ namespace KGySoft.Drawing
                     bmp.Save(stream, encoder, null);
                     return;
                 }
-                catch (Exception e)
+                catch (Exception e) when (e is not StackOverflowException)
                 {
-                    throw new InvalidOperationException(Res.ImageExtensionsEncoderSaveFail(ImageFormat.Gif), e);
+                    // if could not save, then falling back to GifEncoder
                 }
             }
 
-            SaveByEncoder(image, stream, ImageFormat.Gif, null, false, quantizer, ditherer);
+            Bitmap asBitmap = image as Bitmap ?? new Bitmap(image, image.Size);
+            try
+            {
+                using IReadableBitmapData bitmapData = asBitmap.GetReadableBitmapData();
+                GifEncoder.EncodeImage(bitmapData, stream, quantizer, ditherer);
+            }
+            finally
+            {
+                if (!ReferenceEquals(image, asBitmap))
+                    asBitmap.Dispose();
+            }
         }
 
         /// <summary>
@@ -1848,7 +1854,7 @@ namespace KGySoft.Drawing
                 {
                     // On Windows 10 it doesn't make any difference; otherwise, this provides the best compression
                     encoderParams.Param[0] = new EncoderParameter(Encoder.Compression, (long)EncoderValue.CompressionLZW);
-                    SaveByEncoder(toSave, stream, ImageFormat.Tiff, encoderParams, false);
+                    SaveByImageCodecInfo(toSave, stream, ImageFormat.Tiff, encoderParams, false);
                 }
             }
             finally
@@ -2365,7 +2371,7 @@ namespace KGySoft.Drawing
                 : image.ConvertPixelFormat(PixelFormat.Format4bppIndexed);
         }
 
-        private static void SaveByEncoder(Image image, Stream stream, ImageFormat imageFormat, EncoderParameters? encoderParameters, bool isFallback, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        private static void SaveByImageCodecInfo(Image image, Stream stream, ImageFormat imageFormat, EncoderParameters? encoderParameters, bool isFallback)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -2377,7 +2383,7 @@ namespace KGySoft.Drawing
             {
                 using (bmp = new Bitmap(image, image.Size))
                 {
-                    SaveByEncoder(bmp, stream, imageFormat, encoderParameters, isFallback, quantizer, ditherer);
+                    SaveByImageCodecInfo(bmp, stream, imageFormat, encoderParameters, isFallback);
                     return;
                 }
             }
@@ -2394,24 +2400,16 @@ namespace KGySoft.Drawing
             {
                 int srcBpp = srcPixelFormat.ToBitsPerPixel();
                 int dstBpp = transformation.TargetFormat.ToBitsPerPixel();
-                if (quantizer == null && transformation.TargetFormat.IsIndexed() && srcBpp > dstBpp)
+                IQuantizer? quantizer = null;
+                if (transformation.TargetFormat.IsIndexed() && srcBpp > dstBpp)
                 {
                     // auto setting quantizer if target is indexed and conversion is from higher BPP
                     quantizer = srcPixelFormat == PixelFormat.Format16bppGrayScale
                         ? PredefinedColorsQuantizer.Grayscale()
-                        : (IQuantizer)OptimizedPaletteQuantizer.Wu();
-                }
-                else if (quantizer != null && transformation.TargetFormat.IsIndexed() && srcBpp < dstBpp)
-                {
-                    // ignoring quantizer if (using source palette) if converting to higher indexed BPP
-                    quantizer = null;
-                    ditherer = null;
+                        : OptimizedPaletteQuantizer.Wu();
                 }
 
-                if (ditherer != null && !transformation.TargetFormat.CanBeDithered())
-                    ditherer = null;
-
-                bmp = ConvertPixelFormat(image, transformation.TargetFormat, quantizer, ditherer);
+                bmp = ConvertPixelFormat(image, transformation.TargetFormat, quantizer);
             }
 
             try
@@ -2426,7 +2424,7 @@ namespace KGySoft.Drawing
                 {
                     using (Bitmap fallbackBmp = bmp.ConvertPixelFormat(fallbackTransformation.TargetFormat))
                     {
-                        SaveByEncoder(fallbackBmp, stream, imageFormat, null, true, quantizer, ditherer);
+                        SaveByImageCodecInfo(fallbackBmp, stream, imageFormat, null, true);
                         return;
                     }
                 }

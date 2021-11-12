@@ -15,8 +15,13 @@
   See the description of the DrawingModule.Initialize method for details.
 * Updating KGySoft.CoreLibraries version
 
-* KGySoft.Drawing namespace:
+! KGySoft.Drawing namespace:
 ============================
+! ImageExtensions class:
+  ! The SaveAsGif methods from mow on use the new GifEncoder class. The behavior is functionally equivalent with the
+    previous versions but the actual produced stream can be different.
+  + New SaveAsAnimatedGif methods
+  + New SaveAsMultipageTiff overload
 * DrawingModule class: On non-Windows Systems the module initializer enables using System.Drawing types that depend
   on native GDI+ calls.
 
@@ -27,7 +32,7 @@
     instance is disposed.
 + Palette class:
   + New indexer (same as the GetColor method)
-+ New GifEncoder class
++ New GifEncoder class to be able to save GIF images without a system encoder, even animated ones
 + New GifGraphicsDisposalMethod enum
 + New GifCompressionMode enum
 

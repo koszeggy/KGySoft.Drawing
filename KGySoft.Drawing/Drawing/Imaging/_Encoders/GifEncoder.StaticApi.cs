@@ -50,7 +50,10 @@ namespace KGySoft.Drawing.Imaging
 
             IReadableBitmapData source = quantizer == null && imageData.PixelFormat.IsIndexed() && !HasMultipleTransparentIndices(imageData)
                     ? imageData
-                    : imageData.Clone(PixelFormat.Format8bppIndexed, quantizer ?? OptimizedPaletteQuantizer.Wu(), ditherer);
+                    : imageData.Clone(PixelFormat.Format8bppIndexed, quantizer
+                        ?? (imageData.PixelFormat == PixelFormat.Format16bppGrayScale
+                            ? PredefinedColorsQuantizer.Grayscale()
+                            : OptimizedPaletteQuantizer.Wu()), ditherer);
 
             try
             {

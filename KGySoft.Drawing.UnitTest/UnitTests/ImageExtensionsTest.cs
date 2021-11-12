@@ -666,7 +666,7 @@ namespace KGySoft.Drawing.UnitTests
 
             Assert.AreEqual(ImageFormat.Gif, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format8bppIndexed, bmp.PixelFormat);
-            SaveImage($"{pixelFormat}", bmp, true);
+            SaveStream($"{pixelFormat}", ms);
         }
 
         [TestCase(PixelFormat.Format8bppIndexed)]
