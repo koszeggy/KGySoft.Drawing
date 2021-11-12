@@ -13,16 +13,19 @@
 
 #endregion
 
+#nullable  enable
+
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
-using System.Runtime.CompilerServices;
-using KGySoft.Drawing.Imaging;
 
+using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
+using KGySoft.Reflection;
 using NUnit.Framework;
 
 #endregion
@@ -401,7 +404,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(GifCompressionMode.Uncompressed)]
         public void LzwTest(GifCompressionMode compressionMode)
         {
-            using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256)); // GenerateAlphaGradientBitmap(new Size(256, 128));
+            using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256))!; // GenerateAlphaGradientBitmap(new Size(256, 128));
             using IReadableBitmapData bmpData = bmp.GetReadableBitmapData();
             //int bpp = 8;
             for (int bpp = 1; bpp <= 8; bpp++)
@@ -454,6 +457,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var options = new AnimGifConfig(frames);
 
             EncodeAnimatedGif(options);
+            frames.ForEach(f => f.Dispose());
         }
 
         [Test]
@@ -461,8 +465,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             static IEnumerable<IReadableBitmapData> DisposingIterator()
             {
-                IReadableBitmapData bitmapData = null;
-                Bitmap bitmap = null;
+                IReadableBitmapData? bitmapData = null;
+                Bitmap? bitmap = null;
                 for (int i = 0; i < 3; i++)
                 {
                     bitmapData?.Dispose();
@@ -480,6 +484,94 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             EncodeAnimatedGif(new AnimGifConfig(DisposingIterator()));
+        }
+
+        [TestCase("32bpp, no delta, center", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Center)]
+        [TestCase("32bpp, delta, resize", PixelFormat.Format32bppArgb, false, true, AnimationFramesSizeHandling.Resize)]
+        [TestCase("32bpp, no delta, resize", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Resize)]
+        [TestCase("32bpp, bad quantizer", PixelFormat.Format32bppArgb, true, false, AnimationFramesSizeHandling.Center)]
+        [TestCase("8bpp, delta, center", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center)]
+        [TestCase("8bpp, delta, resize", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Resize)]
+        [TestCase("4bpp, delta, center", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Center)]
+        [TestCase("4bpp, no delta, center", PixelFormat.Format4bppIndexed, false, false, AnimationFramesSizeHandling.Center)]
+        [TestCase("4bpp, no delta, center, fix palette", PixelFormat.Format4bppIndexed, true, false, AnimationFramesSizeHandling.Center)]
+        [TestCase("4bpp, delta, resize", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Resize)]
+        public void EncodeAnimationDifferentImageSizes(string name, PixelFormat pixelFormat, bool explicitQuantizer, bool allowDelta, AnimationFramesSizeHandling sizeHandling)
+        {
+            Bitmap?[] frames = Icons.Information.ExtractBitmaps();
+
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                foreach (Bitmap? bitmap in frames)
+                {
+                    if (bitmap == null)
+                        continue;
+
+                    var bitmapDataNative = bitmap.GetReadableBitmapData();
+                    IReadableBitmapData currentFrame = pixelFormat == bitmapDataNative.PixelFormat ? bitmapDataNative : bitmapDataNative.Clone(pixelFormat);
+                    if (!ReferenceEquals(bitmapDataNative, currentFrame))
+                        bitmapDataNative.Dispose();
+                    yield return currentFrame;
+                    currentFrame.Dispose();
+                    //bitmap.Dispose(); // this kills the base member at compare that enumerates the frames again
+                }
+            }
+
+            using var ms = new MemoryStream();
+            var config = new AnimGifConfig(FramesIterator(), TimeSpan.FromMilliseconds(250))
+            {
+                Size = new Size(128, 128),
+                SizeHandling = sizeHandling,
+                Quantizer = explicitQuantizer ? PredefinedColorsQuantizer.FromPixelFormat(pixelFormat) : null,
+                AllowDeltaFrames = allowDelta,
+                AnimationMode = AnimationMode.PingPong
+            };
+
+            try
+            {
+                EncodeAnimatedGif(config, false, name);
+            }
+            finally
+            {
+                frames.ForEach(f => f.Dispose());
+            }
+        }
+
+        [Explicit]
+        [TestCase(nameof(OptimizedPaletteQuantizer.Wu))]
+        [TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
+        [TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
+        public void EncodeAnimationHighColor(string quantizer)
+        {
+            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
+            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
+            Bitmap[] frames = bmp.ExtractBitmaps();
+
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                foreach (Bitmap? bitmap in frames)
+                {
+                    IReadableBitmapData currentFrame = bitmap.GetReadableBitmapData();
+                    yield return currentFrame;
+                    currentFrame.Dispose();
+                    //bitmap.Dispose(); // this kills the base member at compare that enumerates the frames again
+                }
+            }
+
+            using var ms = new MemoryStream();
+            var config = new AnimGifConfig(FramesIterator())
+            {
+                Quantizer = (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!
+            };
+
+            try
+            {
+                EncodeAnimatedGif(config, false, quantizer);
+            }
+            finally
+            {
+                frames.ForEach(f => f.Dispose());
+            }
         }
 
         #endregion

@@ -47,8 +47,8 @@ namespace KGySoft.Drawing.Imaging
             private readonly IQuantizer quantizer;
 
             private IEnumerator<IReadableBitmapData>? inputFramesEnumerator;
-            private IReadableBitmapData? nextUnprocessedInputFrame;
             private IEnumerator<TimeSpan>? delayEnumerator;
+            private IReadableBitmapData? nextUnprocessedInputFrame;
             private Stack<(IReadWriteBitmapData BitmapData, int Delay, bool IsQuantized)>? reversedFramesStack;
             private Size logicalScreenSize;
             private int lastDelay;
@@ -128,7 +128,6 @@ namespace KGySoft.Drawing.Imaging
                 IReadWriteBitmapDataRow rowDelta = deltaFrame.FirstRow;
                 int width = deltaFrame.Width;
 
-                // TODO: parallel if used with async context
                 do
                 {
                     if (transparentIndex >= 0)
@@ -161,7 +160,6 @@ namespace KGySoft.Drawing.Imaging
                 IReadableBitmapDataRow rowNext = nextFrame.FirstRow;
                 int width = currentFrame.Width;
 
-                // TODO: parallel if used with async context
                 do
                 {
                     for (int x = 0; x < width; x++)
@@ -370,12 +368,32 @@ namespace KGySoft.Drawing.Imaging
                     return true;
                 }
 
+                (IReadWriteBitmapData preparedFrame, bool isQuantized) = GetPreparedFrame(inputFrame);
+                nextPreparedFrame = (preparedFrame, GetNextDelay(), isQuantized);
+                if (config.AnimationMode == AnimationMode.PingPong)
+                {
+                    // for the first time we just create the stack so the first frame is not added
+                    if (reversedFramesStack == null)
+                        reversedFramesStack = new Stack<(IReadWriteBitmapData, int, bool)>();
+                    else
+                    {
+                        // and if this is the last input frame, it is not added to the stack
+                        if (MoveNextInputFrame())
+                            reversedFramesStack.Push((preparedFrame.Clone(), nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
+                    }
+                }
+
+                return true;
+            }
+
+            private (IReadWriteBitmapData BitmapData, bool IsQuantized) GetPreparedFrame(IReadableBitmapData inputFrame)
+            {
                 IReadWriteBitmapData preparedFrame;
 
-                // delta can be used if allowed and the quantizer can use transparent colors,
-                bool canUseDelta = config.AllowDeltaFrames && QuantizerSupportsTransparency
-                    // and we have a non-cleared render buffer (but in pingpong mode we don't know it yet for the reversed phase so we must assume it can be used)
-                    && (config.AnimationMode == AnimationMode.PingPong || renderBuffer.BitmapData != null && !renderBuffer.IsCleared);
+                // Delta frames can be used if allowed and the quantizer can use transparent colors.
+                // We cannot rely on renderBuffer.IsCleared here because a forward reading is used even to determine whether to clear
+                // so if we have a render buffer (it's not the first frame), then we must assume that delta image can be used.
+                bool canUseDelta = config.AllowDeltaFrames && QuantizerSupportsTransparency && renderBuffer.BitmapData != null;
 
                 PixelFormat preparedPixelFormat = !canUseDelta ? PixelFormat.Format8bppIndexed // can't use delta: we can already quantize
                     : inputFrame.HasAlpha() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat // we have transparency: we can use the original format
@@ -393,8 +411,9 @@ namespace KGySoft.Drawing.Imaging
                 {
                     switch (config.SizeHandling)
                     {
+                        // Just centering, no actual resizing is needed: we might be able to use the calculated settings
                         case AnimationFramesSizeHandling.Center:
-                            // the added frame is larger: we can cut out the middle so the calculated format can be used
+                            // the added frame is larger: we can just cut out the middle so the calculated format can be used
                             if (inputSize.Width >= logicalScreenSize.Width && inputSize.Height >= logicalScreenSize.Height)
                             {
                                 Rectangle clonedArea = new Rectangle(new Point((inputSize.Width >> 1) - (logicalScreenSize.Width >> 1),
@@ -404,15 +423,35 @@ namespace KGySoft.Drawing.Imaging
                                 break;
                             }
 
-                            // Otherwise, a transparent border has to be added to the frame (that should be cleared to whatever back color if quantizer does not support transparency).
-                            // In this case we cannot re-use original indexed pixel format because we should know the result palette before creating the bitmap data.
-                            // TODO: it can use the original indexed format if palette supports transparency (just add Clear with transparent color)
+                            // Here a transparent border has to be added to the frame.
+                            Point location = new Point((logicalScreenSize.Width >> 1) - (inputFrame.Width >> 1),
+                                (logicalScreenSize.Height >> 1) - (inputFrame.Height >> 1));
+
+                            // We can use the calculated settings if the target pixel format supports alpha.
+                            // If the target format is indexed, then using it only if we can re-use the source palette (when there is no quantizer)
+                            // because we cannot create a new bitmap data with a palette that is created while quantizing
+                            if (preparedPixelFormat.HasAlpha() || preparedQuantizer == null && inputFrame.Palette?.HasAlpha == true)
+                            {
+                                preparedFrame = BitmapDataFactory.CreateBitmapData(logicalScreenSize, preparedPixelFormat, inputFrame.Palette);
+
+                                // if the source is indexed and transparent index is not 0, then we must clear the indexed image to be transparent
+                                if (inputFrame.Palette?.TransparentIndex > 0)
+                                    preparedFrame.Clear(default);
+
+                                inputFrame.CopyTo(preparedFrame, location, preparedQuantizer, preparedDitherer);
+                                break;
+                            }
+
+                            // Here we can't quantize the source: using a 32bpp image data
+                            preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
-                            inputFrame.CopyTo(preparedFrame, new Point((logicalScreenSize.Width >> 1) - (inputFrame.Width >> 1),
-                                (logicalScreenSize.Height >> 1) - (inputFrame.Height >> 1)));
+                            inputFrame.CopyTo(preparedFrame, location);
+
                             break;
 
+                        // Resizing: due to interpolation this is always performed without quantizing
                         case AnimationFramesSizeHandling.Resize:
+                            preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, PixelFormat.Format32bppPArgb);
                             inputFrame.DrawInto(preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
@@ -422,21 +461,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
-                nextPreparedFrame = (preparedFrame, GetNextDelay(), preparedQuantizer != null);
-                if (config.AnimationMode == AnimationMode.PingPong)
-                {
-                    // for the first time we just create the stack so the first frame is not added
-                    if (reversedFramesStack == null)
-                        reversedFramesStack = new Stack<(IReadWriteBitmapData, int, bool)>();
-                    else
-                    {
-                        // and if this is the last input frame, it is not added to the stack
-                        if (MoveNextInputFrame())
-                            reversedFramesStack.Push((preparedFrame.Clone(), nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
-                    }
-                }
-
-                return true;
+                return (preparedFrame, preparedQuantizer != null);
             }
 
             /// <summary>

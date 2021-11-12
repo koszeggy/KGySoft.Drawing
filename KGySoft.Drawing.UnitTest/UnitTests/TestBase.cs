@@ -131,26 +131,52 @@ namespace KGySoft.Drawing.UnitTests
                 ms.WriteTo(fs);
         }
 
-        protected static void EncodeAnimatedGif(AnimGifConfig parameters, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
+        protected static void EncodeAnimatedGif(AnimGifConfig config, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
         {
             using var ms = new MemoryStream();
-            GifEncoder.EncodeAnimation(parameters, ms);
-            IReadableBitmapData[] sourceFrames = parameters.Frames.ToArray(); // actually 2nd enumeration
+            GifEncoder.EncodeAnimation(config, ms);
             SaveStream(streamName, ms, testName: testName);
+            IReadableBitmapData[] sourceFrames = config.Frames.ToArray(); // actually 2nd enumeration
             ms.Position = 0;
 
             using Bitmap restored = new Bitmap(ms);
             Bitmap[] actualFrames = restored.ExtractBitmaps();
             try
             {
-                Assert.AreEqual(sourceFrames.Length, actualFrames.Length);
+                int expectedLength = sourceFrames.Length + (config.AnimationMode == AnimationMode.PingPong ? Math.Max(0, sourceFrames.Length - 2) : 0);
+                Assert.AreEqual(expectedLength, actualFrames.Length);
                 if (!performCompare)
                     return;
+
+                var quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();
                 for (int i = 0; i < actualFrames.Length; i++)
                 {
-                    using (IReadableBitmapData bitmapData = actualFrames[i].GetReadableBitmapData())
-                        AssertAreEqual(sourceFrames[i].Clone(PixelFormat.Format8bppIndexed, parameters.Quantizer ?? OptimizedPaletteQuantizer.Wu(), parameters.Ditherer), bitmapData, true);
-                    Console.WriteLine($"Frame #{i} equals");
+                    Console.Write($"Frame #{i}: ");
+                    using IReadableBitmapData actualFrame = actualFrames[i].GetReadableBitmapData();
+                    IReadableBitmapData sourceFrame = sourceFrames[i];
+                    IReadWriteBitmapData expectedFrame;
+                    if (sourceFrame.GetSize() == actualFrame.GetSize())
+                        expectedFrame = sourceFrames[i].Clone(PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    else
+                    {
+                        Assert.AreNotEqual(AnimationFramesSizeHandling.ErrorIfDiffers, config.SizeHandling);
+                        expectedFrame = BitmapDataFactory.CreateBitmapData(actualFrame.GetSize());
+                        if (config.SizeHandling == AnimationFramesSizeHandling.Resize)
+                            sourceFrame.DrawInto(expectedFrame, new Rectangle(Point.Empty, expectedFrame.GetSize()), quantizer, config.Ditherer);
+                        else
+                            sourceFrame.DrawInto(expectedFrame, new Point(expectedFrame.Width / 2 - sourceFrame.Width / 2, expectedFrame.Height / 2 - expectedFrame.Width / 2), quantizer, config.Ditherer);
+                    }
+
+                    try
+                    {
+                        AssertAreEqual(expectedFrame, actualFrame, true);
+                    }
+                    finally
+                    {
+                        expectedFrame.Dispose();
+                    }
+
+                    Console.WriteLine("Equals");
                 }
             }
             finally
@@ -158,7 +184,6 @@ namespace KGySoft.Drawing.UnitTests
                 actualFrames.ForEach(f => f.Dispose());
             }
         }
-
 
         protected static Bitmap CreateBitmap(int size, PixelFormat pixelFormat)
         {

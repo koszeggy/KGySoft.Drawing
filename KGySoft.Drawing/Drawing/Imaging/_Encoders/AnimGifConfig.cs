@@ -65,6 +65,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets or sets an optional quantizer to be used for the frames. 
         /// Using a non-<see langword="null"/>&#160;value forces the quantization also of already indexed images.
+        /// Should use up to 256 colors; otherwise, the result might be quantized further with using the default system 8-bit palette.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
         /// <value>

@@ -255,7 +255,7 @@ namespace KGySoft.Drawing.Imaging
                 // Important: not using resources here because they could use non-ASCII characters or too long texts
                 if (AddMetaInfo)
                     WriteCommentExtension($"Image #{imagesCount}: {actualImageData.Width}x{actualImageData.Height}",
-                        $"Location: {location.X}x{location.Y}",
+                        $"Location: {location.X},{location.Y}",
                         $"Local Palette: {(localPalette == null ? "Not present" : $"{localPalette.Count} colors")}",
                         $"Disposal Method: {Enum<GifGraphicDisposalMethod>.ToString(disposalMethod)}",
                         $"Transparent Index: {(usedPalette.TransparentIndex >= 0 ? usedPalette.TransparentIndex : "Not set")}",
