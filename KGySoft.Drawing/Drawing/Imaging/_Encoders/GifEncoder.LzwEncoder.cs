@@ -61,6 +61,13 @@ namespace KGySoft.Drawing.Imaging
 
                 #region Constructors
 
+                internal IndexBuffer(ArraySection<byte> buffer)
+                {
+                    Buffer = buffer.UnderlyingArray!;
+                    Offset = buffer.Offset;
+                    Length = buffer.Length;
+                }
+
                 internal IndexBuffer(byte[] buffer, int offset, int length)
                 {
                     Buffer = buffer;
@@ -238,9 +245,7 @@ namespace KGySoft.Drawing.Imaging
                     // spans over the original sequence, which often will contain overlapping memory
                     if (imageData is ManagedBitmapData<byte, ManagedBitmapDataRow8I> managed8BitBitmapData)
                     {
-                        // TODO: after releasing CoreLibraries 6.0.0 the AsArraySegment is not needed
-                        ArraySegment<byte> segment = managed8BitBitmapData.Buffer.Buffer.AsArraySegment;
-                        indices = new IndexBuffer(segment.Array!, segment.Offset, segment.Count);
+                        indices = new IndexBuffer(managed8BitBitmapData.Buffer.Buffer);
                         return;
                     }
 
