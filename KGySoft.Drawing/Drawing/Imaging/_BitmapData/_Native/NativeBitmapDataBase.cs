@@ -116,8 +116,9 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                // On Linux this may throw an exception after LockBits failed.
-                bitmap.UnlockBits(bitmapData);
+                // may happen if the constructor failed and the call comes from the finalizer
+                if (bitmapData != null!)
+                    bitmap.UnlockBits(bitmapData);
             }
             catch (Exception)
             {

@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
@@ -24,6 +25,7 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
+    [DebuggerDisplay("{" + nameof(Width) + "}x{" + nameof(Height) + "} {KGySoft.Drawing." + nameof(PixelFormatExtensions) + "." + nameof(PixelFormatExtensions.ToBitsPerPixel) + "(" + nameof(PixelFormat) + ")}bpp")]
     internal abstract class BitmapDataBase : IBitmapDataInternal
     {
         #region Properties and Indexers

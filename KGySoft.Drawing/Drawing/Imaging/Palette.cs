@@ -18,6 +18,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -49,6 +50,7 @@ namespace KGySoft.Drawing.Imaging
     /// </remarks>
     /// <threadsafety instance="false">If there is no custom lookup logic passed to the constructors, then members of this type are guaranteed to be safe for multi-threaded operations.
     /// If this type is initialized with a custom lookup logic, then thread-safety depends on the custom lookup implementation.</threadsafety>
+    [DebuggerDisplay("Count = {" + nameof(Count) + "}")]
     public sealed class Palette
     {
         #region Constants
