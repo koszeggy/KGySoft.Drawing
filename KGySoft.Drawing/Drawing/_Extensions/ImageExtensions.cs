@@ -1678,7 +1678,7 @@ namespace KGySoft.Drawing
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            var config = new AnimGifConfig(IterateFrames(frames), delays)
+            var config = new AnimatedGifConfiguration(IterateFrames(frames), delays)
             {
                 Quantizer = quantizer,
                 Ditherer = ditherer,

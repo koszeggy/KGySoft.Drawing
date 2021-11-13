@@ -43,7 +43,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Instance Fields
 
-            private readonly AnimGifConfig config;
+            private readonly AnimatedGifConfiguration config;
             private readonly IQuantizer quantizer;
 
             private IEnumerator<IReadableBitmapData>? inputFramesEnumerator;
@@ -52,9 +52,8 @@ namespace KGySoft.Drawing.Imaging
             private Stack<(IReadWriteBitmapData BitmapData, int Delay, bool IsQuantized)>? reversedFramesStack;
             private Size logicalScreenSize;
             private int lastDelay;
-            private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame;
-            private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) current;
             private (IReadWriteBitmapData? BitmapData, int Delay, bool IsQuantized) nextPreparedFrame;
+            private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame, current;
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) renderBuffer;
             private (bool Initialized, bool SupportsTransparency, byte AlphaThreshold) quantizerProperties;
 
@@ -106,7 +105,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal FramesEnumerator(AnimGifConfig config)
+            internal FramesEnumerator(AnimatedGifConfiguration config)
             {
                 this.config = config;
                 quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();

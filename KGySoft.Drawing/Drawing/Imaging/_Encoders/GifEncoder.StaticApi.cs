@@ -59,13 +59,13 @@ namespace KGySoft.Drawing.Imaging
             {
                 Palette palette = source.Palette!;
                 new GifEncoder(stream, imageData.GetSize())
-                {
-                    GlobalPalette = palette,
-                    BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
+                    {
+                        GlobalPalette = palette,
+                        BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
 #if DEBUG
-                    AddMetaInfo = true,
+                        AddMetaInfo = true,
 #endif
-                }
+                    }
                     .AddImage(source)
                     .FinalizeEncoding();
             }
@@ -77,24 +77,24 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Encodes the frames of the specified <paramref name="options"/> as an animated GIF image and writes it into the specified <paramref name="stream"/>.
+        /// Encodes the frames of the specified <paramref name="configuration"/> as an animated GIF image and writes it into the specified <paramref name="stream"/>.
         /// </summary>
-        /// <param name="options">A <see cref="AnimGifConfig"/> instance describing the parameters of the encoding.</param>
+        /// <param name="configuration">An <see cref="AnimatedGifConfiguration"/> instance describing the configuration of the encoding.</param>
         /// <param name="stream">The stream to save the encoded animation into.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="options"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="options"/> is invalid.</exception>
-        public static void EncodeAnimation(AnimGifConfig options, Stream stream)
+        /// <exception cref="ArgumentNullException"><paramref name="configuration"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="configuration"/> is invalid.</exception>
+        public static void EncodeAnimation(AnimatedGifConfiguration configuration, Stream stream)
         {
-            if (options == null)
-                throw new ArgumentNullException(nameof(options), PublicResources.ArgumentNull);
+            if (configuration == null)
+                throw new ArgumentNullException(nameof(configuration), PublicResources.ArgumentNull);
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            if (options.AnimationMode < AnimationMode.PingPong || (int)options.AnimationMode > UInt16.MaxValue)
-                throw new ArgumentException(PublicResources.PropertyMessage(nameof(options.AnimationMode), PublicResources.ArgumentOutOfRange), nameof(options));
-            if (!options.SizeHandling.IsDefined())
-                throw new ArgumentException(PublicResources.PropertyMessage(nameof(options.SizeHandling), PublicResources.EnumOutOfRange(options.SizeHandling)), nameof(options));
+            if (configuration.AnimationMode < AnimationMode.PingPong || (int)configuration.AnimationMode > UInt16.MaxValue)
+                throw new ArgumentException(PublicResources.PropertyMessage(nameof(configuration.AnimationMode), PublicResources.ArgumentOutOfRange), nameof(configuration));
+            if (!configuration.SizeHandling.IsDefined())
+                throw new ArgumentException(PublicResources.PropertyMessage(nameof(configuration.SizeHandling), PublicResources.EnumOutOfRange(configuration.SizeHandling)), nameof(configuration));
 
-            using var enumerator = new FramesEnumerator(options);
+            using var enumerator = new FramesEnumerator(configuration);
             using GifEncoder encoder = enumerator.CreateEncoder(stream);
             while (enumerator.MoveNext())
                 encoder.AddImage(enumerator.Frame!, enumerator.Location, enumerator.Delay, enumerator.DisposalMethod);

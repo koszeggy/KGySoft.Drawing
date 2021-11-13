@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.UnitTests
                 ms.WriteTo(fs);
         }
 
-        protected static void EncodeAnimatedGif(AnimGifConfig config, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
+        protected static void EncodeAnimatedGif(AnimatedGifConfiguration config, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
         {
             using var ms = new MemoryStream();
             GifEncoder.EncodeAnimation(config, ms);

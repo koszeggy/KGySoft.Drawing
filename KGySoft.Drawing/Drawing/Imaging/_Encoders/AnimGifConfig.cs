@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: AnimGifConfig.cs
+//  File: AnimatedGifConfiguration.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
 //
@@ -26,7 +26,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents the configuration for encoding a GIF animation by the <see cref="GifEncoder.EncodeAnimation">GifEncoder.EncodeAnimation</see> method.
     /// </summary>
-    public sealed class AnimGifConfig
+    public sealed class AnimatedGifConfiguration
     {
         #region Fields
 
@@ -132,7 +132,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnimGifConfig"/> class.
+        /// Initializes a new instance of the <see cref="AnimatedGifConfiguration"/> class.
         /// </summary>
         /// <param name="frames">The collection of the frames to be added to the result animation. Disposing of the frames must be performed by the caller.
         /// <see cref="GifEncoder.EncodeAnimation">GifEncoder.EncodeAnimation</see> enumerates the collection lazily so you can pass an iterator that disposes
@@ -141,13 +141,13 @@ namespace KGySoft.Drawing.Imaging
         /// then a default 100 ms delay will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="frames"/> is <see langword="null"/>.</exception>
-        public AnimGifConfig(IEnumerable<IReadableBitmapData> frames, TimeSpan? delay = null)
+        public AnimatedGifConfiguration(IEnumerable<IReadableBitmapData> frames, TimeSpan? delay = null)
             : this(frames, delay == null ? null : new[] { delay.Value })
         {
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnimGifConfig"/> class.
+        /// Initializes a new instance of the <see cref="AnimatedGifConfiguration"/> class.
         /// </summary>
         /// <param name="frames">The collection of the frames to be added to the result animation. Disposing of the frames must be performed by the caller.
         /// <see cref="GifEncoder.EncodeAnimation">GifEncoder.EncodeAnimation</see> enumerates the collection lazily so you can pass an iterator that disposes
@@ -156,21 +156,21 @@ namespace KGySoft.Drawing.Imaging
         /// then a default 100 ms delay will be used for all frames.
         /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <exception cref="ArgumentNullException"><paramref name="frames"/> is <see langword="null"/>.</exception>
-        public AnimGifConfig(IEnumerable<IReadableBitmapData> frames, IEnumerable<TimeSpan>? delays)
+        public AnimatedGifConfiguration(IEnumerable<IReadableBitmapData> frames, IEnumerable<TimeSpan>? delays)
         {
             Frames = frames ?? throw new ArgumentNullException(nameof(frames), PublicResources.ArgumentNull);
             Delays = delays ?? defaultDelays;
         }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="AnimGifConfig"/> class.
+        /// Initializes a new instance of the <see cref="AnimatedGifConfiguration"/> class.
         /// </summary>
         /// <param name="getNextFrame">A delegate that returns the next frame of the animation. It should return <see langword="null"/>&#160;after the last frame.
         /// Frames are not disposed by the encoder so the caller can dispose them once the subsequent frame is requested.</param>
         /// <param name="getNextDelay">A delegate that returns the delay for the next frame. If it returns <see langword="null"/>&#160;sooner than <paramref name="getNextFrame"/>, then
         /// the last non-<see langword="null"/>&#160;value will be re-used for the remaining frames. If it returns <see langword="null"/>&#160;for the first time, then
         /// each frame will use a default 100 ms delay.</param>
-        public AnimGifConfig(Func<IReadableBitmapData?> getNextFrame, Func<TimeSpan?> getNextDelay) : this(IterateFrames(getNextFrame), IterateDelays(getNextDelay))
+        public AnimatedGifConfiguration(Func<IReadableBitmapData?> getNextFrame, Func<TimeSpan?> getNextDelay) : this(IterateFrames(getNextFrame), IterateDelays(getNextDelay))
         {
         }
 

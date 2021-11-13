@@ -29,9 +29,46 @@ using KGySoft.CoreLibraries;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides an encoder for GIF image format that supports animation. Use the static members for high-level access or create an
-    /// instance to control everything manually.
+    /// Provides an encoder for GIF image format that supports animation. Use the static members for high-level access or create an instance to
+    /// control everything manually.
+    /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
+    /// <remarks>
+    /// <para>The simplest way to create a single-frame GIF image is calling the static <see cref="EncodeImage">EncodeImage</see> method. It can
+    /// quantizing and dithering any input <see cref="IReadableBitmapData"/> source.</para>
+    /// <para>The simplest way to create a GIF animation is calling the static <see cref="EncodeAnimation">EncodeAnimation</see> method. It expects
+    /// an <see cref="AnimatedGifConfiguration"/> that describes the frames and delays to be used along with numerous optional configuration such as
+    /// a specific quantizer and ditherer, looping mode, handling of possible different input image sizes, encoding strategies like allowing
+    /// delta images or explicitly encoding transparent borders.
+    /// <note type="tip">If you use an <see cref="OptimizedPaletteQuantizer"/> and the <see cref="AnimatedGifConfiguration.AllowDeltaFrames"/> property
+    /// is <see langword="true"/>, then you can create really high quality animations allowing more than 256 colors per frame.</note></para>
+    /// <para>Alternatively, you can instantiate the <see cref="GifEncoder"/> class, which allows you even more control at lower levels such as setting
+    /// whether to use a global palette (<see cref="GlobalPalette"/>) and background color (<see cref="BackColorIndex"/>), or even the compression strategy
+    /// (<see cref="CompressionMode"/>). The <see cref="AddImage">AddImage</see> method allows specifying a location for each frame as well as an action to be
+    /// performed after the delay interval of the corresponding frame is over. You can even write comments to the serialization stream by
+    /// the <see cref="AddComments">AddComments</see> method.</para>
+    /// </remarks>
+    /// <example>
+    /// <para>The following example demonstrates how to use the encoder in a <see langword="using"/>&#160;block:
+    /// <code lang="C#"><![CDATA[
+    /// using (var encoder = new GifEncoder(stream, new Size(48, 48)) { GlobalPalette = palette })
+    /// {
+    ///     encoder.AddComments("Here starts the 1st frame");
+    ///     encoder.AddImage(frame1, location1, delay1);
+    ///     encoder.AddComments("And here 2nd one");
+    ///     encoder.AddImage(frame2, location2, delay2);
+    /// }]]></code></para>
+    /// <para>Or, by using fluent syntax the example above can be re-written like this:
+    /// <code lang="C#"><![CDATA[
+    /// // Note the FinalizeEncoding. It was called implicitly in the previous example at the end of the using block.
+    /// new GifEncoder(stream, new Size(48, 48)) { GlobalPalette = palette }
+    ///     .AddComments("Here starts the 1st frame")
+    ///     .AddImage(frame1, location1, delay1)
+    ///     .AddComments("And here 2nd one")
+    ///     .AddImage(frame2, location2, delay2)
+    ///     .FinalizeEncoding();
+    /// }]]></code></para>
+    /// </example>
     public sealed partial class GifEncoder : IDisposable
     {
         #region Constants
@@ -98,7 +135,7 @@ namespace KGySoft.Drawing.Imaging
         /// Set a non-<see langword="null"/> value to add the <c>NETSCAPE2.0</c> extension to the stream and to indicate that added images
         /// should be interpreted as animation frames. Use <c>0</c> to loop the animation indefinitely.
         /// If <see langword="null"/>, and images are added with 0 delay, then GDI+ handles image as a multi-layer single frame image,
-        /// though some application (including browsers) still may play them as frames.
+        /// though some application (including browsers) still may play them as individual frames.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="value"/> is less than 0.</exception>
@@ -118,7 +155,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets or sets the global palette. If not set, then each added image will be stored along with their own palette.
-        /// If not <see langword="null"/>, then added the palette of the added images are stored only they are different from the global palette.
+        /// If not <see langword="null"/>, then the palette of the added images are stored only when they are different from the global palette.
         /// <br/>Default value: <see langword="null"/>.
         /// </summary>
         /// <exception cref="ArgumentException"><paramref name="value"/> has more than 256 colors.</exception>
@@ -323,7 +360,7 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             // Important: not using resources here because they could use non-ASCII characters or too long texts
-            if (AddMetaInfo)
+            if (isInitialized && AddMetaInfo)
                 WriteCommentExtension($"Images Count: {imagesCount}");
 
             isDisposed = true;

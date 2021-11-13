@@ -454,7 +454,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             frames[1].Clear(new Color32(0, 255, 0));
 
             using var ms = new MemoryStream();
-            var options = new AnimGifConfig(frames);
+            var options = new AnimatedGifConfiguration(frames);
 
             EncodeAnimatedGif(options);
             frames.ForEach(f => f.Dispose());
@@ -483,7 +483,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 bitmap?.Dispose();
             }
 
-            EncodeAnimatedGif(new AnimGifConfig(DisposingIterator()));
+            EncodeAnimatedGif(new AnimatedGifConfiguration(DisposingIterator()));
         }
 
         [TestCase("32bpp, no delta, center", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Center)]
@@ -518,7 +518,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             using var ms = new MemoryStream();
-            var config = new AnimGifConfig(FramesIterator(), TimeSpan.FromMilliseconds(250))
+            var config = new AnimatedGifConfiguration(FramesIterator(), TimeSpan.FromMilliseconds(250))
             {
                 Size = new Size(128, 128),
                 SizeHandling = sizeHandling,
@@ -559,7 +559,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             using var ms = new MemoryStream();
-            var config = new AnimGifConfig(FramesIterator())
+            var config = new AnimatedGifConfiguration(FramesIterator())
             {
                 Quantizer = (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!
             };
