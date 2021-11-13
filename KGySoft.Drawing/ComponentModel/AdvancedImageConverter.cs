@@ -64,7 +64,7 @@ namespace KGySoft.ComponentModel
         /// <returns>An <see cref="object" /> that represents the converted value.</returns>
         public override object ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value, Type destinationType)
         {
-            if (destinationType != typeof(byte[]) || !(value is Image))
+            if (destinationType != typeof(byte[]) || value is not Image)
                 return base.ConvertTo(context, culture, value, destinationType)!;
 
             // 1.) Metafile: Saving as EMF/WMF (base would save a PNG here)

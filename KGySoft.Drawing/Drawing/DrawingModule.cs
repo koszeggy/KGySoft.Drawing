@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 #if !NETFRAMEWORK
@@ -55,30 +56,34 @@ namespace KGySoft.Drawing
         /// The following example demonstrates how to initialize the <c>KGySoft.Drawing</c> module in an application (you don't really need to do this
         /// if you use KGy SOFT Drawing Libraries from a class library):
         /// <code lang="C#"><![CDATA[
-	    /// using KGySoft;
-	    /// using KGySoft.Drawing;
-	    /// using KGySoft.Resources;
-	    /// 
-	    /// public class Example
-	    /// {
-	    ///     public static void Main()
-	    ///     {
-	    ///         // To make sure that configuring LanguageSettings affects also the resources in KGySoft.Drawing
-	    ///         // For non-Windows applications it also enables using System.Drawing types
-	    ///         DrawingModule.Initialize();
-	    ///
-	    ///         // Opting in to use compiled and .resx resources for the application
-	    ///         LanguageSettings.DynamicResourceManagersSource = ResourceManagerSources.CompiledAndResX;
-	    ///         LanguageSettings.DisplayLanguage = MyConfigs.GetLastlyUsedLanguage(); // Get some CultureInfo
-	    /// 
-	    ///         // Optional: To add possibly new resource entries to the localization of the current language
-	    ///         LanguageSettings.EnsureInvariantResourcesMerged();
-	    ///
-	    ///         // Now you can launch the actual application
-	    ///         LaunchMyApplication(); // whatever your app actually does
-	    ///     }
+        /// using KGySoft;
+        /// using KGySoft.Drawing;
+        /// using KGySoft.Resources;
+        /// 
+        /// public class Example
+        /// {
+        ///     public static void Main()
+        ///     {
+        ///         // To make sure that configuring LanguageSettings affects also the resources in KGySoft.Drawing
+        ///         // For non-Windows applications it also enables using System.Drawing types
+        ///         DrawingModule.Initialize();
+        ///
+        ///         // Opting in to use compiled and .resx resources for the application
+        ///         LanguageSettings.DynamicResourceManagersSource = ResourceManagerSources.CompiledAndResX;
+        ///         LanguageSettings.DisplayLanguage = MyConfigs.GetLastlyUsedLanguage(); // Get some CultureInfo
+        /// 
+        ///         // Optional: To add possibly new resource entries to the localization of the current language
+        ///         LanguageSettings.EnsureInvariantResourcesMerged();
+        ///
+        ///         // Now you can launch the actual application
+        ///         LaunchMyApplication(); // whatever your app actually does
+        ///     }
         /// }]]></code>
         /// </example>
+#if !NET
+        [SuppressMessage("Usage", "CA2255:The 'ModuleInitializer' attribute should not be used in libraries",
+            Justification = "See the comment, it is intended and is important to work properly.")] 
+#endif
         [ModuleInitializer]
         public static void Initialize()
         {

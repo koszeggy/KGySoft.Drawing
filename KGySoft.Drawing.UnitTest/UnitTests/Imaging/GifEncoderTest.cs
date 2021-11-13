@@ -533,7 +533,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
             finally
             {
-                frames.ForEach(f => f.Dispose());
+                frames.ForEach(f => f?.Dispose());
             }
         }
 

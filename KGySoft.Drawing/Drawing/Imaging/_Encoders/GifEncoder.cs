@@ -335,7 +335,7 @@ namespace KGySoft.Drawing.Imaging
                 if (String.IsNullOrEmpty(comment))
                     continue;
 
-                if (comment.Length > 255)
+                if (comment!.Length > 255)
                     throw new ArgumentException(Res.GifEncoderCommentTooLong, nameof(comments));
                 if (comment.Any(c => c >= 128))
                     throw new ArgumentException(Res.GifEncoderCommentNotAscii, nameof(comments));
@@ -481,7 +481,7 @@ namespace KGySoft.Drawing.Imaging
                 if (String.IsNullOrEmpty(comment))
                     continue;
 
-                writer.Write((byte)comment.Length);
+                writer.Write((byte)comment!.Length);
 
                 // ReSharper disable once ForCanBeConvertedToForeach - performance
                 for (int i = 0; i < comment.Length; i++)

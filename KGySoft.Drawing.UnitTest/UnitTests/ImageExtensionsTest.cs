@@ -677,7 +677,11 @@ namespace KGySoft.Drawing.UnitTests
             var ms = new MemoryStream();
             int bpp = pixelFormat.ToBitsPerPixel();
             IQuantizer quantizer = pixelFormat.IsIndexed() ? OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0: 128)) : null;
-            IEnumerable<Bitmap> sourceImages = Icons.Information.ExtractBitmaps().Where(b => b != null);
+            var sourceImages = Icons.Information.ExtractBitmaps()
+#if NET35
+                .Cast<Image>()
+#endif
+                .Where(b => b != null);
             sourceImages.SaveAsAnimatedGif(ms, TimeSpan.FromMilliseconds(250), quantizer, OrderedDitherer.Bayer8x8);
 
             ms.Position = 0;

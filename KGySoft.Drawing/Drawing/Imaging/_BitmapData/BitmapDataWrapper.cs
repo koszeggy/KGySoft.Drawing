@@ -161,7 +161,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal BitmapDataWrapper(IBitmapData bitmapData, bool isReading, bool isWriting)
         {
-            Debug.Assert(!(bitmapData is IBitmapDataInternal), "No wrapping is needed");
+            Debug.Assert(bitmapData is not IBitmapDataInternal, "No wrapping is needed");
 
             this.BitmapData = bitmapData;
             this.isReading = isReading;
