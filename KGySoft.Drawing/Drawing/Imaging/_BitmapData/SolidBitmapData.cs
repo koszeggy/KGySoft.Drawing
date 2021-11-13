@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     /// Represents a read-only bitmap data of a single color.
     /// As a public instance should be exposed as an <see cref="IReadableBitmapData"/>.
     /// </summary>
-    internal class SolidBitmapData : BitmapDataBase
+    internal sealed class SolidBitmapData : BitmapDataBase
     {
         #region Row class
 
