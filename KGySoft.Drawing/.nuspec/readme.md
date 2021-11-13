@@ -9,6 +9,7 @@ Among others:
 - Creating [managed bitmap data](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) of any PixelFormat on every platform, including Linux and MacOS
 - Quantizing using [predefined](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer.htm) or [optimized](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer.htm) colors
 - Dithering using [ordered](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm), [error diffusion](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm), [random noise](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm) or [interleaved gradient noise](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) dithering techniques
+- Creating [GIF animations](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_GifEncoder.htm)
 - Several [built-in icons](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Icons.htm) as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.
 - Creating combined icons and multi-resolution bitmaps.

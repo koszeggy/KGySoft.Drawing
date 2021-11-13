@@ -50,16 +50,20 @@
     <IncludeFavorites>True</IncludeFavorites>
     <BinaryTOC>True</BinaryTOC>
     <TransformComponentArguments>
-      <Argument Key="logoFile" Value="logo.png" xmlns="" />
-      <Argument Key="logoHeight" Value="" xmlns="" />
-      <Argument Key="logoWidth" Value="" xmlns="" />
-      <Argument Key="logoAltText" Value="" xmlns="" />
-      <Argument Key="logoPlacement" Value="above" xmlns="" />
-      <Argument Key="logoAlignment" Value="left" xmlns="" />
-      <Argument Key="maxVersionParts" Value="" xmlns="" />
-      <Argument Key="defaultLanguage" Value="cs" xmlns="" />
+      <Argument Key="logoFile" Value="logo.png" />
+      <Argument Key="logoHeight" Value="" />
+      <Argument Key="logoWidth" Value="" />
+      <Argument Key="logoAltText" Value="" />
+      <Argument Key="logoPlacement" Value="above" />
+      <Argument Key="logoAlignment" Value="left" />
+      <Argument Key="logoUrl" Value="https://kgysoft.net/drawing" />
+      <Argument Key="maxVersionParts" Value="" />
+      <Argument Key="defaultLanguage" Value="cs" />
+      <Argument Key="includeEnumValues" Value="true" />
+      <Argument Key="baseSourceCodeUrl" Value="" />
+      <Argument Key="requestExampleUrl" Value="" />
     </TransformComponentArguments>
-    <HelpFileVersion>6.0.0-rc.1</HelpFileVersion>
+    <HelpFileVersion>6.0.0</HelpFileVersion>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <HeaderText>
     </HeaderText>
