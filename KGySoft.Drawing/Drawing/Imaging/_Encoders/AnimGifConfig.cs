@@ -57,7 +57,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="true"/>.
         /// </summary>
         /// <value>
-        /// If <see langword="true"/>, then zero values in the <see cref="Delays"/> property will be replaced to 100 milliseconds.
+        /// If <see langword="true"/>, then zero delay values will be replaced to 100 milliseconds.
         /// <br/>If <see langword="false"/>, then zero delays will be preserved and the decoders decide how to interpret them.
         /// </value>
         public bool ReplaceZeroDelays { get; set; } = true;
