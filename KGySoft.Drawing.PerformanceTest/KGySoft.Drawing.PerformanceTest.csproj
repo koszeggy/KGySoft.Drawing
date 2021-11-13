@@ -29,20 +29,6 @@
     </PackageReference>
   </ItemGroup>
 
-  <!-- .NET only references -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">
-    <PackageReference Include="System.Drawing.Common">
-      <Version>6.0.0</Version>
-    </PackageReference>
-  </ItemGroup>
-
-  <!-- Legacy .NET Core only references (it cannot be upgraded, see https://github.com/dotnet/runtime/issues/59032) -->
-  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp2.1' OR '$(TargetFramework)' == 'netcoreapp3.0'">
-    <PackageReference Include="System.Drawing.Common">
-      <Version>5.0.2</Version>
-    </PackageReference>
-  </ItemGroup>
-
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\KGySoft.Drawing\KGySoft.Drawing.csproj" />
