@@ -2012,12 +2012,16 @@ namespace KGySoft.Drawing.Imaging
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (source.Width <= 0 || source.Height <= 0)
+                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, PixelFormat pixelFormat)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (source.Width <= 0 || source.Height <= 0)
+                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
         }
@@ -2026,16 +2030,24 @@ namespace KGySoft.Drawing.Imaging
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (source.Width <= 0 || source.Height <= 0)
+                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
             if (target == null)
                 throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (target.Width <= 0 || target.Height <= 0)
+                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(target));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, IReadWriteBitmapData target, ScalingMode scalingMode)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
+            if (source.Width <= 0 || source.Height <= 0)
+                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
             if (target == null)
                 throw new ArgumentNullException(nameof(target), PublicResources.ArgumentNull);
+            if (target.Width <= 0 || target.Height <= 0)
+                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(target));
             if (!scalingMode.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(scalingMode), PublicResources.EnumOutOfRange(scalingMode));
         }
