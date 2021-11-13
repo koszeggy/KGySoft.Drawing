@@ -587,7 +587,7 @@ namespace KGySoft.Drawing.UnitTests
             ms.Position = 0;
             gif = new Bitmap(ms);
             Assert.AreEqual(ImageFormat.Gif, gif.RawFormat);
-            Assert.AreEqual(OSUtils.IsWindows ? 4 : 256, gif.Palette.Entries.Length);
+            Assert.AreEqual(4, gif.Palette.Entries.Length);
             SaveImage("customPalette", gif);
 
             ms = new MemoryStream();
@@ -688,8 +688,8 @@ namespace KGySoft.Drawing.UnitTests
             var bmp = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Gif, bmp.RawFormat);
-            Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
-            SaveImage($"{pixelFormat}", bmp, true);
+            Assert.AreEqual(OSUtils.IsWindows ? PixelFormat.Format32bppArgb : PixelFormat.Format8bppIndexed, bmp.PixelFormat);
+            SaveStream($"{pixelFormat}", ms);
         }
 
         [TestCase(PixelFormat.Format64bppArgb)]

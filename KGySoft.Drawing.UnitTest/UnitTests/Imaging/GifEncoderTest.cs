@@ -399,7 +399,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [TestCase(GifCompressionMode.Auto)]
+#if WINDOWS
         [TestCase(GifCompressionMode.DoNotClear)]
+#endif
         [TestCase(GifCompressionMode.DoNotIncreaseBitSize)]
         [TestCase(GifCompressionMode.Uncompressed)]
         public void LzwTest(GifCompressionMode compressionMode)
