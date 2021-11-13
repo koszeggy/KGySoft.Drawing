@@ -30,12 +30,13 @@ namespace KGySoft.Drawing.Imaging
         /// Indicates that once the internally used code table is full, it is not maintained anymore and all remaining codes
         /// are written using 12 bit code size. If codes so far can be re-used, then the result can be more compact than with <see cref="Auto"/> mode;
         /// otherwise, the result can be even longer than in <see cref="Uncompressed"/> mode.
+        /// This option might not be tolerated by some decoders.
         /// </summary>
         DoNotClear,
 
         /// <summary>
         /// Indicates that all written codes must use the same bit size (3 to 9 bits, depending on palette size).
-        /// It uses less memory but it may lead to pure compression, especially with palettes using no more than 4 colors.
+        /// It uses less memory but it may lead to poor compression, especially with palettes using no more than 4 colors.
         /// </summary>
         DoNotIncreaseBitSize,
 

@@ -1638,7 +1638,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <para>When <paramref name="frames"/> contain multi-frame instances, this method takes only the current frame. You can extract
-        /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
+        /// images by the <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
         /// <para>The enumerator of <paramref name="frames"/> is evaluated in a lazy manner. You can even dispose the previous image once the next one is queried.</para>
         /// <para>Though this method does not support reporting progress directly, you can pass an iterator to the <paramref name="frames"/> parameter that can track
         /// how many images have already been processed.</para>
@@ -1733,7 +1733,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
         /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
-        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="frames"/>. The directory of the specified path is created if it does not exist.</param>
@@ -1745,19 +1745,6 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">An optional ditherer to be used when quantizing the frames. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <remarks>
-        /// <para>When <paramref name="frames"/> contain multi-frame instances, this method takes only the current frame. You can extract
-        /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
-        /// <para>The enumerator of <paramref name="frames"/> is evaluated in a lazy manner. You can even dispose the previous image once the next one is queried.</para>
-        /// <para>Though this method does not support reporting progress directly, you can pass an iterator to the <paramref name="frames"/> parameter that can track
-        /// how many images have already been processed.</para>
-        /// <para>The resolution of the animation is determined by the first frame. If subsequent frames have different sizes, then then they will be centered.</para>
-        /// <para>If <paramref name="quantizer"/> supports an optimized palette for each frames (like <see cref="OptimizedPaletteQuantizer"/>), then some
-        /// frames of the animation might have even more than 256 colors (depending on the differences between frames).</para>
-        /// <note type="tip">To customize looping mode, frame size handling, delta frames strategy, etc., then use directly the <see cref="GifEncoder"/> class
-        /// and its <see cref="GifEncoder.EncodeAnimation">EncodeAnimation</see> method. And to low level encoding you can instantiate the <see cref="GifEncoder"/>
-        /// class and add the frames manually.</note>
-        /// </remarks>
         public static void SaveAsAnimatedGif(this IEnumerable<Image> frames, string fileName, TimeSpan? delay = null, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => SaveAsAnimatedGif(frames, fileName, delay.HasValue ? new[] { delay.Value } : null, quantizer, ditherer);
 
@@ -1893,7 +1880,7 @@ namespace KGySoft.Drawing
         /// <param name="stream">The stream into the TIFF data is to be saved.</param>
         /// <remarks>
         /// <para>When <paramref name="images"/> contain multi-page instances, this method takes only the current page. You can extract
-        /// images by <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
+        /// images by the <see cref="BitmapExtensions.ExtractBitmaps">ExtractBitmaps</see> extension method.</para>
         /// <note>On non-Windows platform this method may throw a <see cref="NotSupportedException"/> if <paramref name="images"/> has multiple elements.</note>
         /// </remarks>
         public static void SaveAsMultipageTiff(this IEnumerable<Image> images, Stream stream)

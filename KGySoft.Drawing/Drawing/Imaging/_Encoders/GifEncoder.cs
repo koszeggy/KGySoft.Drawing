@@ -35,39 +35,38 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     /// <remarks>
     /// <para>The simplest way to create a single-frame GIF image is calling the static <see cref="EncodeImage">EncodeImage</see> method. It can
-    /// quantizing and dithering any input <see cref="IReadableBitmapData"/> source.</para>
+    /// quantize and dither any input <see cref="IReadableBitmapData"/> source.</para>
     /// <para>The simplest way to create a GIF animation is calling the static <see cref="EncodeAnimation">EncodeAnimation</see> method. It expects
     /// an <see cref="AnimatedGifConfiguration"/> that describes the frames and delays to be used along with numerous optional configuration such as
     /// a specific quantizer and ditherer, looping mode, handling of possible different input image sizes, encoding strategies like allowing
     /// delta images or explicitly encoding transparent borders.
     /// <note type="tip">If you use an <see cref="OptimizedPaletteQuantizer"/> and the <see cref="AnimatedGifConfiguration.AllowDeltaFrames"/> property
     /// is <see langword="true"/>, then you can create really high quality animations allowing more than 256 colors per frame.</note></para>
-    /// <para>Alternatively, you can instantiate the <see cref="GifEncoder"/> class, which allows you even more control at lower levels such as setting
-    /// whether to use a global palette (<see cref="GlobalPalette"/>) and background color (<see cref="BackColorIndex"/>), or even the compression strategy
-    /// (<see cref="CompressionMode"/>). The <see cref="AddImage">AddImage</see> method allows specifying a location for each frame as well as an action to be
-    /// performed after the delay interval of the corresponding frame is over. You can even write comments to the serialization stream by
-    /// the <see cref="AddComments">AddComments</see> method.</para>
+    /// <para>Alternatively, you can instantiate the <see cref="GifEncoder"/> class, which allows you even more control at lower levels.
+    /// The <see cref="RepeatCount"/>, <see cref="GlobalPalette"/> and <see cref="BackColorIndex"/> properties should be set before adding the first frame,
+    /// whereas <see cref="CompressionMode"/> can be changed before each frame. The <see cref="AddImage">AddImage</see> method allows specifying a location
+    /// for each frame as well as an action to be performed after the delay interval of the corresponding frame is over.
+    /// You can even write comments to the serialization stream by the <see cref="AddComments">AddComments</see> method.
+    /// <note>When using the <see cref="AddImage">AddImage</see> method to add frames you should use already quantized images with indexed pixel format.
+    /// Non-indexed images will be quantized using the default 8-bit "web-safe" palette without dithering.</note></para>
     /// </remarks>
     /// <example>
     /// <para>The following example demonstrates how to use the encoder in a <see langword="using"/>&#160;block:
     /// <code lang="C#"><![CDATA[
     /// using (var encoder = new GifEncoder(stream, new Size(48, 48)) { GlobalPalette = palette })
     /// {
-    ///     encoder.AddComments("Here starts the 1st frame");
+    ///     encoder.AddComments("My GIF animation");
     ///     encoder.AddImage(frame1, location1, delay1);
-    ///     encoder.AddComments("And here 2nd one");
     ///     encoder.AddImage(frame2, location2, delay2);
     /// }]]></code></para>
     /// <para>Or, by using fluent syntax the example above can be re-written like this:
     /// <code lang="C#"><![CDATA[
-    /// // Note the FinalizeEncoding. It was called implicitly in the previous example at the end of the using block.
+    /// // Note the last FinalizeEncoding step. In the above example it is called implicitly at the end of the using block.
     /// new GifEncoder(stream, new Size(48, 48)) { GlobalPalette = palette }
-    ///     .AddComments("Here starts the 1st frame")
+    ///     .AddComments("My GIF animation")
     ///     .AddImage(frame1, location1, delay1)
-    ///     .AddComments("And here 2nd one")
     ///     .AddImage(frame2, location2, delay2)
-    ///     .FinalizeEncoding();
-    /// }]]></code></para>
+    ///     .FinalizeEncoding();]]></code></para>
     /// </example>
     public sealed partial class GifEncoder : IDisposable
     {
@@ -249,11 +248,13 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Writes an image to the output stream.
+        /// <br/>See the <strong>Remarks</strong> section if the <see cref="GifEncoder"/> class for details and examples.
         /// </summary>
         /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
-        /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
+        /// by the system default 8-bpp "web-safe" palette (see also <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see>)
+        /// using no dithering.</param>
         /// <param name="location">Specifies the location of the current image within the logical screen.</param>
-        /// <param name="delay">Specifies the delay before rendering the next image in hundredths of a second. <c>0</c> usually interpreted as 100ms by browsers (as if 10 was specified),
+        /// <param name="delay">Specifies the delay before rendering the next image in hundredths of a second. <c>0</c> is usually interpreted as 100ms by browsers (as if 10 was specified),
         /// while GDI+ treats it zero delay only if <see cref="RepeatCount"/> is <see langword="null"/>.</param>
         /// <param name="disposalMethod">Specifies how the decoder should treat the image after being displayed. This parameter is optional.
         /// <br/>Default value: <see cref="GifGraphicDisposalMethod.NotSpecified"/>.</param>
