@@ -104,6 +104,11 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         byte AlphaThreshold { get; }
 
+        /// <summary>
+        /// Gets whether this <see cref="IBitmapData"/> instance is disposed.
+        /// </summary>
+        bool IsDisposed { get; }
+
         #endregion
     }
 }

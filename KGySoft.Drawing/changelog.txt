@@ -25,8 +25,10 @@
 * DrawingModule class: On non-Windows Systems the module initializer enables using System.Drawing types that depend
   on native GDI+ calls.
 
-+ KGySoft.Drawing.Imaging namespace:
+! KGySoft.Drawing.Imaging namespace:
 ====================================
+! IBitmapData interface:
+  ! New IsDisposed property (this is a breaking change only if you have 3rd party IBitmapData implementations)
 + BitmapDataExtension class:
   + New Clip overloads to be able to specify whether the underlying bitmap data should be diposed when the returned
     instance is disposed.

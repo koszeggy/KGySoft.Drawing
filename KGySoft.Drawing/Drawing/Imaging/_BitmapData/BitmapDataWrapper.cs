@@ -119,6 +119,7 @@ namespace KGySoft.Drawing.Imaging
         public Color32 BackColor => BitmapData.BackColor;
         public byte AlphaThreshold => BitmapData.AlphaThreshold;
         public bool CanSetPalette => false;
+        public bool IsDisposed => BitmapData.IsDisposed;
 
         #endregion
 

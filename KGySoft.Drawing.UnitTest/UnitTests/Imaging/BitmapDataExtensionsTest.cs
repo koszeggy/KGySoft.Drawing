@@ -57,6 +57,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public Color32 BackColor => wrapped.BackColor;
             public byte AlphaThreshold => wrapped.AlphaThreshold;
             public IReadableBitmapDataRow FirstRow => wrapped.FirstRow;
+            public bool IsDisposed => wrapped.IsDisposed;
 
             #endregion
 

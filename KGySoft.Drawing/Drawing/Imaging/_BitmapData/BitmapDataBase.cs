@@ -35,34 +35,22 @@ namespace KGySoft.Drawing.Imaging
         #region Public Properties
 
         public abstract int Height { get; }
-
         public abstract int Width { get; }
-
         public abstract PixelFormat PixelFormat { get; }
-
         public Color32 BackColor { get; protected set; }
-        
         public byte AlphaThreshold { get; protected set; }
-
         public Palette? Palette { get; protected set; }
-
         public abstract int RowSize { get; }
-
         public virtual bool CanSetPalette => PixelFormat.IsIndexed() && Palette != null;
-
-        #endregion
-
-        #region Protected Properties
-
-        protected bool IsDisposed { get; private set; }
+        public bool IsDisposed { get; private set; }
 
         #endregion
 
         #region Explicitly Implemented Interface Properties
 
-        IReadableBitmapDataRow IReadableBitmapData.FirstRow => DoGetRow(0);
-        IWritableBitmapDataRow IWritableBitmapData.FirstRow => DoGetRow(0);
-        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => DoGetRow(0);
+        IReadableBitmapDataRow IReadableBitmapData.FirstRow => GetFirstRow();
+        IWritableBitmapDataRow IWritableBitmapData.FirstRow => GetFirstRow();
+        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => GetFirstRow();
 
         #endregion
 
@@ -71,12 +59,14 @@ namespace KGySoft.Drawing.Imaging
         #region Indexers
 
         #region Public Indexers
-        
+
         public IReadWriteBitmapDataRow this[int y]
         {
             [MethodImpl(MethodImpl.AggressiveInlining)]
             get
             {
+                if (IsDisposed)
+                    ThrowDisposed();
                 if ((uint)y >= Height)
                     ThrowYOutOfRange();
                 return DoGetRow(y);
@@ -101,6 +91,9 @@ namespace KGySoft.Drawing.Imaging
         #region Static Methods
 
         [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowDisposed() => throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowYOutOfRange()
         {
             // ReSharper disable once NotResolvedInText
@@ -116,6 +109,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public Color GetPixel(int x, int y)
         {
+            if (IsDisposed)
+                ThrowDisposed();
             if ((uint)y >= Height)
                 ThrowYOutOfRange();
             return DoGetRow(y).GetColor(x);
@@ -124,6 +119,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public void SetPixel(int x, int y, Color color)
         {
+            if (IsDisposed)
+                ThrowDisposed();
             if ((uint)y >= Height)
                 ThrowYOutOfRange();
             DoGetRow(y).SetColor(x, color);
@@ -154,6 +151,17 @@ namespace KGySoft.Drawing.Imaging
         #region Protected Methods
 
         protected virtual void Dispose(bool disposing) => IsDisposed = true;
+
+        #endregion
+
+        #region Private Methods
+
+        private IReadWriteBitmapDataRow GetFirstRow()
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            return DoGetRow(0);
+        }
 
         #endregion
 

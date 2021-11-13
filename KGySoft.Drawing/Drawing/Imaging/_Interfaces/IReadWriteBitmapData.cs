@@ -42,6 +42,7 @@ namespace KGySoft.Drawing.Imaging
         /// while it returns <see langword="true"/>. Alternatively, you can use the <see cref="this">indexer</see> to obtain any row.
         /// <br/>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.
         /// </summary>
+        /// <exception cref="ObjectDisposedException">This <see cref="IReadWriteBitmapData"/> has already been disposed.</exception>
         new IReadWriteBitmapDataRow FirstRow { get; }
 
         #endregion
@@ -54,6 +55,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="y">The y.</param>
         /// <returns>An <see cref="IReadWriteBitmapDataRow"/> representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IReadWriteBitmapData"/>.</returns>
+        /// <exception cref="ObjectDisposedException">This <see cref="IReadWriteBitmapData"/> has already been disposed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
         new IReadWriteBitmapDataRow this[int y] { get; }
 
