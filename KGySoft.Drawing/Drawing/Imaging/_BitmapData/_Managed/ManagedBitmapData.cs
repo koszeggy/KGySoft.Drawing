@@ -17,10 +17,10 @@
 
 using System.Drawing;
 using System.Drawing.Imaging;
-#if NET35 || NET40 || NET45 || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
-using System.Security;
-#else
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
+#else
+using System.Security;
 #endif
 
 using KGySoft.Collections;
@@ -125,7 +125,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-#if NET35 || NET40 || NET45 || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
+#if NETCOREAPP3_0_OR_GREATER
+        internal override ref byte GetPinnableReference()
+            => ref Unsafe.As<TColor, byte>(ref Buffer.GetPinnableReference());
+#else
         [SecuritySafeCritical]
         internal override unsafe ref byte GetPinnableReference()
         {
@@ -133,9 +136,6 @@ namespace KGySoft.Drawing.Imaging
             fixed (TColor* pHead = &head)
                 return ref *(byte*)pHead;
         }
-#else
-        internal override ref byte GetPinnableReference()
-            => ref Unsafe.As<TColor, byte>(ref Buffer.GetPinnableReference());
 #endif
 
         #endregion

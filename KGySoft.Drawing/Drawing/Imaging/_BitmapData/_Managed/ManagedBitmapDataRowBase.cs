@@ -49,14 +49,14 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override T DoReadRaw<T>(int x)
         {
-#if NETFRAMEWORK || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
+#if NETCOREAPP3_0_OR_GREATER
+            return Unsafe.Add(ref Unsafe.As<TColor, T>(ref Row.GetPinnableReference()), x);
+#else
             unsafe
             {
                 fixed (TColor* pRow = Row)
                     return ((T*)pRow)[x];
             }
-#else
-            return Unsafe.Add(ref Unsafe.As<TColor, T>(ref Row.GetPinnableReference()), x);
 #endif
         }
 
@@ -64,14 +64,14 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoWriteRaw<T>(int x, T data)
         {
-#if NETFRAMEWORK || NETCOREAPP2_0 || NETSTANDARD2_0 || NETSTANDARD2_1
+#if NETCOREAPP3_0_OR_GREATER
+            Unsafe.Add(ref Unsafe.As<TColor, T>(ref Row.GetPinnableReference()), x) = data;
+#else
             unsafe
             {
                 fixed (TColor* pRow = Row)
                     ((T*)pRow)[x] = data;
             }
-#else
-            Unsafe.Add(ref Unsafe.As<TColor, T>(ref Row.GetPinnableReference()), x) = data;
 #endif
         }
 

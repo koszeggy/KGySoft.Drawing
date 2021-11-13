@@ -11,9 +11,10 @@
 
 ! Assembly changes:
 ===================
-! Updating System.Drawing.Common version to 6.0.0. On non-Windows systems this might be a breaking change.
-  See the description of the DrawingModule.Initialize method for details.
+! Updating System.Drawing.Common version to 6.0.0. If targeting .NET 5.0 or later, then on non-Windows systems this
+  might be a breaking change. See the description of the DrawingModule.Initialize method for details.
 * Updating KGySoft.CoreLibraries version
++ Explicitly targeting also .NET Core 2.1
 
 ! KGySoft.Drawing namespace:
 ============================
