@@ -151,9 +151,11 @@ namespace KGySoft.Drawing.UnitTests
                 var quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();
                 for (int i = 0; i < actualFrames.Length; i++)
                 {
+                    IReadableBitmapData sourceFrame = sourceFrames[i];
+                    if (sourceFrame.IsDisposed)
+                        continue;
                     Console.Write($"Frame #{i}: ");
                     using IReadableBitmapData actualFrame = actualFrames[i].GetReadableBitmapData();
-                    IReadableBitmapData sourceFrame = sourceFrames[i];
                     IReadWriteBitmapData expectedFrame;
                     if (sourceFrame.GetSize() == actualFrame.GetSize())
                         expectedFrame = sourceFrames[i].Clone(PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
