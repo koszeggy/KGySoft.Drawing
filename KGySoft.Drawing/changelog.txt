@@ -6,6 +6,13 @@
 ===============================================================================
 
 ~~~~~~~~~
+- v6.?.?:
+~~~~~~~~~
+- Using unified entry points on Windows for P/Invoke calls both for .NET Framework and .NET/Core platforms. This
+  helps to avoid issues when a .NET Framework build is executed on .NET/Core (should not occur when using package
+  references but may happen when developing VisualStudio extensions).
+
+~~~~~~~~~
 ! v6.0.0:
 ~~~~~~~~~
 
