@@ -148,12 +148,11 @@ namespace KGySoft.Drawing.Imaging
                 } while (rowPrev.MoveNextRow() && rowDelta.MoveNextRow());
             }
 
-            private static bool HasNewTransparentPixel(IReadableBitmapData currentFrame, IReadableBitmapData nextFrame, byte alphaThreshold)
+            private static bool HasNewTransparentPixel(IReadableBitmapData currentFrame, IReadableBitmapData nextFrame, byte alphaThreshold, out Rectangle region)
             {
                 Debug.Assert(currentFrame.GetSize() == nextFrame.GetSize());
-
-                if (!nextFrame.HasAlpha())
-                    return false;
+                Debug.Assert(nextFrame.HasAlpha());
+                region = new Rectangle(Point.Empty, currentFrame.GetSize());
 
                 IReadableBitmapDataRow rowCurrent = currentFrame.FirstRow;
                 IReadableBitmapDataRow rowNext = nextFrame.FirstRow;
@@ -165,11 +164,59 @@ namespace KGySoft.Drawing.Imaging
                     {
                         Debug.Assert(rowCurrent[x].A is 0 or 255, "currentFrame must not have partially transparent pixels");
                         if (rowNext[x].A < alphaThreshold && rowCurrent[x].A != 0)
-                            return true;
+                            goto continueBottom;
                     }
+
+                    region.Y += 1;
+                    region.Height -= 1;
                 } while (rowCurrent.MoveNextRow() && rowNext.MoveNextRow());
 
-                return false;
+            continueBottom:
+                // no new transparent pixels: we are done
+                if (region.Height == 0)
+                    return false;
+
+                for (int y = region.Bottom - 1; y >= region.Top; y--)
+                {
+                    rowCurrent = currentFrame[y];
+                    rowNext = nextFrame[y];
+                    for (int x = 0; x < region.Width; x++)
+                    {
+                        if (rowNext[x].A < alphaThreshold && rowCurrent[x].A != 0)
+                            goto continueLeft;
+                    }
+
+                    region.Height -= 1;
+                }
+
+            continueLeft:
+                Debug.Assert(region.Height > 0);
+                for (int x = 0; x < region.Width; x++)
+                {
+                    for (int y = region.Top; y < region.Bottom; y++)
+                    {
+                        if (nextFrame[y][x].A < alphaThreshold && currentFrame[y][x].A != 0)
+                            goto continueRight;
+                    }
+
+                    region.X += 1;
+                    region.Width -= 1;
+                }
+
+            continueRight:
+                Debug.Assert(region.Width > 0);
+                for (int x = region.Right - 1; x >= region.Left; x--)
+                {
+                    for (int y = region.Top; y < region.Bottom; y++)
+                    {
+                        if (nextFrame[y][x].A < alphaThreshold && currentFrame[y][x].A != 0)
+                            return true;
+                    }
+
+                    region.Width -= 1;
+                }
+
+                throw new InvalidOperationException(Res.InternalError("Empty region is not expected at this point"));
             }
 
             #endregion
@@ -292,15 +339,12 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 // 3.) Trim border (important: after quantizing so possible partially transparent pixels have their final state)
-                Point location = Point.Empty;
+                var contentArea = new Rectangle(Point.Empty, logicalScreenSize);
                 if (!config.EncodeTransparentBorders && generatedFrame.HasAlpha())
                 {
-                    // clipping if possible
-                    Rectangle contentArea = GetContentArea(generatedFrame);
-                    if (contentArea.Size != logicalScreenSize)
-                        generatedFrame = generatedFrame.Clip(contentArea, true);
-
-                    location = contentArea.Location;
+                    // Determining the actual content without the transparent border.
+                    // If delta is allowed and clearing is needed, then this area will be expanded later
+                    contentArea = GetContentArea(generatedFrame);
                 }
 
                 // 4.) Determining image dispose method
@@ -312,13 +356,15 @@ namespace KGySoft.Drawing.Imaging
                     // if delta is allowed, then clearing only if a new transparent pixel appears in the next frame (that wasn't transparent before)
                     if (config.AllowDeltaFrames)
                     {
-                        // maintaining render buffer
+                        // maintaining the render buffer
                         renderBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
-                        generatedFrame.DrawInto(renderBuffer.BitmapData, location);
+                        generatedFrame.DrawInto(renderBuffer.BitmapData, contentArea, contentArea);
 
-                        if (MoveNextPreparedFrame() && HasNewTransparentPixel(renderBuffer.BitmapData, nextPreparedFrame.BitmapData!, quantizerProperties.AlphaThreshold))
+                        if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.HasAlpha() && HasNewTransparentPixel(
+                            renderBuffer.BitmapData, nextPreparedFrame.BitmapData!, quantizerProperties.AlphaThreshold, out Rectangle toClearRegion))
                         {
                             disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
+                            contentArea = Rectangle.Union(contentArea, toClearRegion);
                             renderBuffer.BitmapData.Clear(default);
                             renderBuffer.IsCleared = true;
                         }
@@ -326,15 +372,14 @@ namespace KGySoft.Drawing.Imaging
                             renderBuffer.IsCleared = false;
                     }
                     // if no delta is allowed, then clearing after each frame
-                    else
-                    {
-                        // except the last frame if the animation is not looped indefinitely
-                        if (config.AnimationMode < AnimationMode.PlayOnce || MoveNextPreparedFrame())
-                            disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
-                    }
+                    // except the last frame if the animation is not looped indefinitely
+                    else if (config.AnimationMode < AnimationMode.PlayOnce || MoveNextPreparedFrame())
+                        disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                 }
 
-                nextGeneratedFrame = (generatedFrame, location, preparedFrame.Delay, disposeMethod);
+                if (contentArea.Size != logicalScreenSize)
+                    generatedFrame = generatedFrame.Clip(contentArea, true);
+                nextGeneratedFrame = (generatedFrame, contentArea.Location, preparedFrame.Delay, disposeMethod);
                 return true;
             }
 

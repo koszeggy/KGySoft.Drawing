@@ -12,6 +12,11 @@
   helps to avoid issues when a .NET Framework build is executed on .NET/Core (should not occur when using package
   references but may happen when developing VisualStudio extensions).
 
+- KGySoft.Drawing.Imaging namespace:
+====================================
+- GifEncoder: Fixing possibly improper clearing regions when AnimatedGifConfiguration.AllowDeltaFrames is true and
+  AnimatedGifConfiguration.EncodeTransparentBorders is false.
+
 ~~~~~~~~~
 ! v6.0.0:
 ~~~~~~~~~
@@ -42,6 +47,7 @@
 + Palette class:
   + New indexer (same as the GetColor method)
 + New GifEncoder class to be able to save GIF images without a system encoder, even animated ones
++ New AnimatedGifConfiguration class
 + New GifGraphicsDisposalMethod enum
 + New GifCompressionMode enum
 
