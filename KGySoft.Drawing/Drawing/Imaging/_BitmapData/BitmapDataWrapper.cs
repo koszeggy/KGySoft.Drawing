@@ -45,6 +45,8 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             public int Index => row.Index;
+            public int Width => row.Width;
+            public int Size => row.Size;
 
             #endregion
 

@@ -6,14 +6,22 @@
 ===============================================================================
 
 ~~~~~~~~~
-- v6.?.?:
+! v6.1.0:
 ~~~~~~~~~
+
+- Common changes:
+=================
 - Using unified entry points on Windows for P/Invoke calls both for .NET Framework and .NET/Core platforms. This
   helps to avoid issues when a .NET Framework build is executed on .NET/Core (should not occur when using package
   references but may happen when developing VisualStudio extensions).
 
-- KGySoft.Drawing.Imaging namespace:
+! KGySoft.Drawing.Imaging namespace:
 ====================================
+! IBitmapDataRow interface:
+  ! New Width property. This is a breaking change only if you have custom implementations for this interface.
+    It simply the exposes the Width property of the owner IBitmapData instance.
+  ! New Size property. This is a breaking change only if you have custom implementations for this interface.
+    It simply the exposes the RowSize property of the owner IBitmapData instance.
 - GifEncoder: Fixing possibly improper clearing regions when AnimatedGifConfiguration.AllowDeltaFrames is true and
   AnimatedGifConfiguration.EncodeTransparentBorders is false.
 

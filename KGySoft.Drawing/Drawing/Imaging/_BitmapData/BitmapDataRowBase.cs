@@ -40,6 +40,8 @@ namespace KGySoft.Drawing.Imaging
         #region Public Properties
 
         public int Index { get; internal set; }
+        public int Width => BitmapData.Width;
+        public int Size => BitmapData.RowSize;
 
         #endregion
 

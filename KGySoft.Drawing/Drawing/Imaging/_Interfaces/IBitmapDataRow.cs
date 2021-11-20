@@ -43,6 +43,17 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         int Index { get; }
 
+        /// <summary>
+        /// Gets the width of the row in pixels.
+        /// </summary>
+        int Width { get; }
+
+        /// <summary>
+        /// Gets the size of the row in bytes, or zero, if this <see cref="IBitmapDataRow"/> instance does not have an actual raw buffer to access.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.RowSize">IBitmapData.RowSize</see> property for details.
+        /// </summary>
+        int Size { get; }
+
         #endregion
 
         #region Methods
