@@ -14,16 +14,27 @@
 #endregion
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-
+using System.Linq;
+using System.Threading;
+#if !NET35
+using System.Threading.Tasks;
+#endif
 using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Imaging
 {
     public partial class GifEncoder
     {
+        #region Constants
+
+        private const int parallelThreshold = 100;
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -48,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            IReadableBitmapData source = quantizer == null && imageData.PixelFormat.IsIndexed() && !HasMultipleTransparentIndices(imageData)
+            IReadableBitmapData source = quantizer == null && imageData.PixelFormat.IsIndexed() && !HasMultipleTransparentIndices(AsyncContext.Null, imageData)
                     ? imageData
                     : imageData.Clone(PixelFormat.Format8bppIndexed, quantizer
                         ?? (imageData.PixelFormat == PixelFormat.Format16bppGrayScale
@@ -85,6 +96,34 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="configuration"/> is invalid.</exception>
         public static void EncodeAnimation(AnimatedGifConfiguration configuration, Stream stream)
         {
+            ValidateArguments(configuration, stream);
+            DoEncodeAnimation(AsyncContext.Null, configuration, stream);
+        }
+
+        public static IAsyncResult BeginEncodeAnimation(AnimatedGifConfiguration configuration, Stream stream, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(configuration, stream);
+            return AsyncContext.BeginOperation(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
+        }
+
+        public static void EndEncodeAnimation(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeAnimation));
+
+#if !NET35
+        public static Task EncodeAnimationAsync(AnimatedGifConfiguration configuration, Stream stream, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(configuration, stream);
+            return AsyncContext.DoOperationAsync(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region Private Methods
+
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it's called Validate")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
+        private static void ValidateArguments(AnimatedGifConfiguration configuration, Stream stream)
+        {
             if (configuration == null)
                 throw new ArgumentNullException(nameof(configuration), PublicResources.ArgumentNull);
             if (stream == null)
@@ -93,23 +132,28 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(configuration.AnimationMode), PublicResources.ArgumentOutOfRange), nameof(configuration));
             if (!configuration.SizeHandling.IsDefined())
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(configuration.SizeHandling), PublicResources.EnumOutOfRange(configuration.SizeHandling)), nameof(configuration));
-
-            using var enumerator = new FramesEnumerator(configuration);
-            using GifEncoder encoder = enumerator.CreateEncoder(stream);
-            while (enumerator.MoveNext())
-                encoder.AddImage(enumerator.Frame!, enumerator.Location, enumerator.Delay, enumerator.DisposalMethod);
         }
 
-        #endregion
+        private static void DoEncodeAnimation(IAsyncContext context, AnimatedGifConfiguration configuration, Stream stream)
+        {
+            using var enumerator = new FramesEnumerator(configuration, context);
+            using GifEncoder? encoder = enumerator.CreateEncoder(stream);
+            if (encoder == null)
+                return;
 
-        #region Private Methods
+            while (enumerator.MoveNext())
+            {
+                encoder.AddImage(enumerator.Frame!, enumerator.Location, enumerator.Delay, enumerator.DisposalMethod);
+                enumerator.ReportProgress();
+            }
+        }
 
-        private static bool HasMultipleTransparentIndices(IReadableBitmapData imageData)
+        private static bool HasMultipleTransparentIndices(IAsyncContext context, IReadableBitmapData imageData)
         {
             Debug.Assert(imageData.PixelFormat.IsIndexed());
             Palette? palette = imageData.Palette;
 
-            // There is no palette ir it is too large: returning true to force a quantization
+            // There is no palette or it is too large: returning true to force a quantization
             if (palette == null || palette.Count > 256)
                 return true;
 
@@ -134,18 +178,47 @@ namespace KGySoft.Drawing.Imaging
                 return false;
 
             // we need to scan the image to check whether alpha pixels other than transparent index is in use
-            IReadableBitmapDataRow row = imageData.FirstRow;
-            do
+            int width = imageData.Width;
+
+            // sequential processing
+            if (width < parallelThreshold)
             {
-                for (int x = 0; x < imageData.Width; x++)
+                IReadableBitmapDataRow row = imageData.FirstRow;
+                do
+                {
+                    for (int x = 0; x < imageData.Width; x++)
+                    {
+                        int index = row.GetColorIndex(x);
+                        if (index != transparentIndex && palette[index].A < Byte.MaxValue)
+                            return true;
+                    }
+                } while (row.MoveNextRow());
+
+                return false;
+            }
+
+            // parallel processing
+            bool result = false;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, imageData.Height, y =>
+            {
+                if (Volatile.Read(ref result))
+                    return;
+                IReadableBitmapDataRow row = imageData[y];
+                int w = width;
+                int ti = transparentIndex;
+                Color32[] paletteEntries = palette.Entries;
+                for (int x = 0; x < w; x++)
                 {
                     int index = row.GetColorIndex(x);
-                    if (index != transparentIndex && palette[index].A < Byte.MaxValue)
-                        return true;
+                    if (index != ti && paletteEntries[index].A < Byte.MaxValue)
+                    {
+                        Volatile.Write(ref result, true);
+                        return;
+                    }
                 }
-            } while (row.MoveNextRow());
+            });
 
-            return false;
+            return result;
         }
 
         private static Rectangle GetContentArea(IReadableBitmapData imageData)

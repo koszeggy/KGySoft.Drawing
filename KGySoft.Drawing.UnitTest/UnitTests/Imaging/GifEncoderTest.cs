@@ -18,14 +18,17 @@
 #region Usings
 
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
+
 using NUnit.Framework;
 
 #endregion
@@ -35,6 +38,60 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     [TestFixture]
     public class GifEncoderTest : TestBase
     {
+        #region Nested Classes
+
+        private class TestFramesCollection : IEnumerable<IReadableBitmapData>, IDrawingProgress
+        {
+            #region Fields
+            
+            private readonly Bitmap[] frames;
+            private readonly int cancelAfter;
+
+            private int current;
+
+            #endregion
+
+            #region Constructors
+
+            internal TestFramesCollection(Bitmap[] frames, int cancelAfter)
+            {
+                this.frames = frames;
+                this.cancelAfter = cancelAfter;
+            }
+
+            #endregion
+
+            #region Methods
+
+            IEnumerator IEnumerable.GetEnumerator() => ((IEnumerable<IReadableBitmapData>)this).GetEnumerator();
+
+            IEnumerator<IReadableBitmapData> IEnumerable<IReadableBitmapData>.GetEnumerator()
+            {
+                IReadableBitmapData? bitmapData = null;
+                for (current = 0; current < frames.Length; current++)
+                {
+                    bitmapData?.Dispose();
+                    if (cancelAfter == current)
+                        yield break;
+                    bitmapData = frames[current].GetReadableBitmapData();
+                    yield return bitmapData.Clone(PixelFormat.Format8bppIndexed);
+                }
+
+                bitmapData?.Dispose();
+            }
+
+            void IDrawingProgress.Report(DrawingProgress progress) => Console.WriteLine($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.Report)}: {progress.OperationType} {progress.CurrentValue}/{progress.MaximumValue}");
+            void IDrawingProgress.New(DrawingOperation operationType, int maximumValue, int currentValue) => Console.Write($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.New)}: {operationType} {currentValue}/{maximumValue}");
+            void IDrawingProgress.Increment() => Console.Write('.');
+            void IDrawingProgress.SetProgressValue(int value) => Console.Write($"({value})");
+            void IDrawingProgress.Complete() => Console.WriteLine($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.Complete)}");
+            void IProgress<DrawingProgress>.Report(DrawingProgress value) => ((IDrawingProgress)this).Report(value);
+
+            #endregion
+        }
+
+        #endregion
+
         #region  Methods
 
         [Test, Explicit]
@@ -48,11 +105,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
-            {
-                BackColorIndex = 2,
-                GlobalPalette = palette,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData)
                 .FinalizeEncoding();
 
@@ -60,31 +117,31 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-            {
-                BackColorIndex = 2,
-                GlobalPalette = palette,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("GlobalPalette, Partial", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(48, 48))
-            {
-                BackColorIndex = 2,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData)
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Full", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-            {
-                BackColorIndex = 2,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Partial", stream);
@@ -102,11 +159,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
-            {
-                BackColorIndex = 2,
-                GlobalPalette = palette,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData)
                 .FinalizeEncoding();
 
@@ -114,31 +171,31 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-            {
-                BackColorIndex = 2,
-                GlobalPalette = palette,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    GlobalPalette = palette,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("GlobalPalette, Partial", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(48, 48))
-            {
-                BackColorIndex = 2,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData)
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Full", stream);
             stream.SetLength(0);
 
             new GifEncoder(stream, new Size(64, 64))
-            {
-                BackColorIndex = 2,
-                AddMetaInfo = true
-            }
+                {
+                    BackColorIndex = 2,
+                    AddMetaInfo = true
+                }
                 .AddImage(imageData, new Point(8, 8))
                 .FinalizeEncoding();
             SaveStream("LocalPalette, Partial", stream);
@@ -545,8 +602,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
         public void EncodeAnimationHighColor(string quantizer)
         {
-            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
-            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
+            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
+            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
+            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\gif4bit_anim.gif");
             Bitmap[] frames = bmp.ExtractBitmaps();
 
             IEnumerable<IReadableBitmapData> FramesIterator()
@@ -574,6 +632,43 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 frames.ForEach(f => f.Dispose());
             }
+        }
+
+        [TestCase(1, true)]
+        [TestCase(-1, null)]
+        [TestCase(-1, true)]
+        [TestCase(-1, false)]
+        public void BeginEncodeAnimationTest(int cancelAfter, bool? reportOverallProgress)
+        {
+            Bitmap[] frames = Icons.Information.ExtractBitmaps().Where(f => f != null).ToArray()!;
+            using var ms = new MemoryStream();
+            var framesCollection = new TestFramesCollection(frames, cancelAfter);
+            var config = new AnimatedGifConfiguration(framesCollection, TimeSpan.FromMilliseconds(250))
+            {
+                SizeHandling = AnimationFramesSizeHandling.Center,
+                ReportOverallProgress = reportOverallProgress,
+                AnimationMode = AnimationMode.PingPong
+            };
+
+            IAsyncResult asyncResult = GifEncoder.BeginEncodeAnimation(config, ms, new AsyncConfig
+            {
+                ThrowIfCanceled = true,
+                Progress = framesCollection,
+            });
+            try
+            {
+                GifEncoder.EndEncodeAnimation(asyncResult);
+            }
+            catch (OperationCanceledException)
+            {
+                Assert.IsTrue(cancelAfter >= 0);
+            }
+            finally
+            {
+                frames.ForEach(f => f.Dispose());
+            }
+
+            SaveStream($"Canceled={cancelAfter >= 0}, ReportOverallProgress={reportOverallProgress?.ToString() ?? "null"}", ms);
         }
 
         #endregion

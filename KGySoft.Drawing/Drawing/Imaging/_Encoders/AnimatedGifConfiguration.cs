@@ -117,12 +117,25 @@ namespace KGySoft.Drawing.Imaging
         /// </value>
         public bool AllowDeltaFrames { get; set; } = true;
 
+        /// <summary>
+        /// Gets or sets whether to report overall and/or sub-task progress when encoding by <see cref="GifEncoder.BeginEncodeAnimation">GifEncoder.BeginEncodeAnimation</see>
+        /// and <see cref="GifEncoder.EncodeAnimationAsync">GifEncoder.EncodeAnimationAsync</see> methods and the <see cref="AsyncConfigBase.Progress"/> property is set.
+        /// When <see langword="null"/>, then both are reported.
+        /// <br/>Default value: <see langword="null"/>.
+        /// </summary>
+        /// <value>
+        /// If <see langword="null"/>, then both overall and sub-task progress are reported. You can filter overall progress steps by considering <see cref="DrawingOperation.Saving"/> operations only.
+        /// <br/>If <see langword="true"/>, then only overall progress steps are reported. Please note that if the count of the <see cref="IEnumerable{T}"/>
+        /// instance passed to the constructor cannot be determined in a trivial way, then the maximum value of the steps will be adjusted dynamically.
+        /// <br/>If <see langword="false"/>, then only sub-task progress steps are reported such as optimizing palette, quantizing and other processing operations.
+        /// </value>
+        public bool? ReportOverallProgress { get; set; }
+
         #endregion
 
         #region Internal Properties
 
         internal IEnumerable<IReadableBitmapData> Frames { get; }
-
         internal IEnumerable<TimeSpan> Delays { get; }
 
         #endregion

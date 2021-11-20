@@ -2003,6 +2003,27 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Methods
+
+        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context) => DoCloneExact(context, source);
+
+        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+            => DoCloneWithQuantizer(context, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer);
+
+        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+            => DoCloneWithQuantizer(context, source, sourceRectangle, pixelFormat, quantizer, ditherer);
+
+        internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+            => DoCopy(context, source, target, new Rectangle(Point.Empty, source.GetSize()), targetLocation, quantizer, ditherer);
+
+        internal static void DoDrawInto(this IReadableBitmapData source, IAsyncContext context, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle)
+            => DoDrawInto(context, source, target, sourceRectangle, targetRectangle, null, null, ScalingMode.Auto);
+
+        internal static void DoDrawInto(this IReadableBitmapData source, IAsyncContext context, IReadWriteBitmapData target, Rectangle targetRectangle)
+            => DoDrawInto(context, source, target, new Rectangle(Point.Empty, source.GetSize()), targetRectangle, null, null, ScalingMode.Auto);
+
+        #endregion
+
         #region Private Methods
 
         #region Validation

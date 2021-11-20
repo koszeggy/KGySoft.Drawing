@@ -22,8 +22,13 @@
     It simply the exposes the Width property of the owner IBitmapData instance.
   ! New Size property. This is a breaking change only if you have custom implementations for this interface.
     It simply the exposes the RowSize property of the owner IBitmapData instance.
-- GifEncoder: Fixing possibly improper clearing regions when AnimatedGifConfiguration.AllowDeltaFrames is true and
-  AnimatedGifConfiguration.EncodeTransparentBorders is false.
+* GifEncoder:
+  + New BeginEncodeAnimation and EndEncodeAnimation methods
+  + New EncodeAnimationAsync method (.NET Framework 4.0 and above)
+  - Fixing possibly improper clearing regions when AnimatedGifConfiguration.AllowDeltaFrames is true and
+    AnimatedGifConfiguration.EncodeTransparentBorders is false.
++ AnimatedGifConfiguration class:
+  + New ReportOverallProgress property
 
 ~~~~~~~~~
 ! v6.0.0:

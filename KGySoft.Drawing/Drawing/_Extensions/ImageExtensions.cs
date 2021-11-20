@@ -698,7 +698,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>#if NET
+        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static Bitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion

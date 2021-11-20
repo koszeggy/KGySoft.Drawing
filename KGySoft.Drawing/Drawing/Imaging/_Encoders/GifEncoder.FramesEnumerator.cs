@@ -31,6 +31,93 @@ namespace KGySoft.Drawing.Imaging
     {
         private sealed class FramesEnumerator : IDisposable
         {
+            #region Nested Classes
+
+            private sealed class SuppressSubTaskProgressContext : IAsyncContext
+            {
+                #region Nested Classes
+
+                private sealed class SavingProgress : IDrawingProgress
+                {
+                    #region Fields
+
+                    private readonly IDrawingProgress progress;
+
+                    #endregion
+
+                    #region Constructors
+                    
+                    public SavingProgress(IDrawingProgress progress) => this.progress = progress;
+
+                    #endregion
+
+                    #region Methods
+
+                    #region Public Methods
+
+                    public void Report(DrawingProgress value)
+                    {
+                        if (value.OperationType == DrawingOperation.Saving)
+                            progress.Report(value);
+                    }
+
+                    public void New(DrawingOperation operationType, int maximumValue = 0, int currentValue = 0)
+                    {
+                        if (operationType == DrawingOperation.Saving)
+                            progress.New(operationType, maximumValue, currentValue);
+                    }
+
+                    public void Increment() { }
+                    public void SetProgressValue(int value) { }
+                    public void Complete() { }
+
+                    #endregion
+
+                    #region Explicitly Implemented Interface Methods
+
+                    void IProgress<DrawingProgress>.Report(DrawingProgress value) => Report(value);
+
+                    #endregion
+
+                    #endregion
+                }
+
+                #endregion
+
+                #region Properties
+
+                public int MaxDegreeOfParallelism => asyncContext.MaxDegreeOfParallelism;
+                public bool IsCancellationRequested => asyncContext.IsCancellationRequested;
+                public bool CanBeCanceled => asyncContext.CanBeCanceled;
+                public IDrawingProgress? Progress { get; }
+
+                #endregion
+
+                #region Fields
+
+                private readonly IAsyncContext asyncContext;
+
+                #endregion
+
+                #region Constructors
+
+                internal SuppressSubTaskProgressContext(IAsyncContext asyncContext)
+                {
+                    this.asyncContext = asyncContext;
+                    Progress = new SavingProgress(asyncContext.Progress!);
+                }
+
+                #endregion
+                
+                #region Methods
+
+                public void ThrowIfCancellationRequested() => asyncContext.ThrowIfCancellationRequested();
+
+                #endregion
+            }
+
+            #endregion
+
             #region Fields
 
             #region Static Fields
@@ -44,7 +131,9 @@ namespace KGySoft.Drawing.Imaging
             #region Instance Fields
 
             private readonly AnimatedGifConfiguration config;
+            private readonly IAsyncContext asyncContext;
             private readonly IQuantizer quantizer;
+            private readonly bool reportOverallProgress;
 
             private IEnumerator<IReadableBitmapData>? inputFramesEnumerator;
             private IEnumerator<TimeSpan>? delayEnumerator;
@@ -56,6 +145,8 @@ namespace KGySoft.Drawing.Imaging
             private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame, current;
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) renderBuffer;
             private (bool Initialized, bool SupportsTransparency, byte AlphaThreshold) quantizerProperties;
+            private int count;
+            private int currentIndex;
 
             #endregion
 
@@ -105,9 +196,11 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal FramesEnumerator(AnimatedGifConfiguration config)
+            internal FramesEnumerator(AnimatedGifConfiguration config, IAsyncContext asyncContext)
             {
                 this.config = config;
+                reportOverallProgress = asyncContext.Progress != null && config.ReportOverallProgress != false;
+                this.asyncContext = asyncContext.Progress != null && config.ReportOverallProgress == true ? new SuppressSubTaskProgressContext(asyncContext) : asyncContext;
                 quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();
             }
 
@@ -117,35 +210,63 @@ namespace KGySoft.Drawing.Imaging
 
             #region Static Methods
 
-            private static void ClearUnchangedPixels(IReadWriteBitmapData previousFrame, IReadWriteBitmapData deltaFrame)
+            private static void ClearUnchangedPixels(IAsyncContext context, IReadWriteBitmapData previousFrame, IReadWriteBitmapData deltaFrame)
             {
+                #region Local Methods
+
+                static void ProcessRowIndexed(IReadWriteBitmapDataRow rowPrev, IReadWriteBitmapDataRow rowDelta, int transparentIndex)
+                {
+                    int width = rowDelta.Width;
+                    for (int x = 0; x < width; x++)
+                    {
+                        if (rowPrev[x] == rowDelta[x])
+                            rowDelta.SetColorIndex(x, transparentIndex);
+                    }
+                }
+
+                static void ProcessRowArgb(IReadWriteBitmapDataRow rowPrev, IReadWriteBitmapDataRow rowDelta)
+                {
+                    int width = rowDelta.Width;
+                    for (int x = 0; x < width; x++)
+                    {
+                        if (rowPrev[x] == rowDelta[x])
+                            rowDelta[x] = default;
+                    }
+                }
+
+                #endregion
+
                 Debug.Assert(previousFrame.GetSize() == deltaFrame.GetSize());
                 Debug.Assert(deltaFrame.HasAlpha());
 
                 int transparentIndex = deltaFrame.Palette?.TransparentIndex ?? -1;
-                IReadWriteBitmapDataRow rowPrev = previousFrame.FirstRow;
-                IReadWriteBitmapDataRow rowDelta = deltaFrame.FirstRow;
-                int width = deltaFrame.Width;
 
-                do
+                // small width: going with sequential clear
+                if (deltaFrame.Width < parallelThreshold)
                 {
-                    if (transparentIndex >= 0)
+                    IReadWriteBitmapDataRow rowPrev = previousFrame.FirstRow;
+                    IReadWriteBitmapDataRow rowDelta = deltaFrame.FirstRow;
+
+                    do
                     {
-                        for (int x = 0; x < width; x++)
-                        {
-                            if (rowPrev[x] == rowDelta[x])
-                                rowDelta.SetColorIndex(x, transparentIndex);
-                        }
-                    }
-                    else
-                    {
-                        for (int x = 0; x < width; x++)
-                        {
-                            if (rowPrev[x] == rowDelta[x])
-                                rowDelta[x] = default;
-                        }
-                    }
-                } while (rowPrev.MoveNextRow() && rowDelta.MoveNextRow());
+                        if (context.IsCancellationRequested)
+                            return;
+
+                        if (transparentIndex >= 0)
+                            ProcessRowIndexed(rowPrev, rowDelta, transparentIndex);
+                        else
+                            ProcessRowArgb(rowPrev, rowDelta);
+                    } while (rowPrev.MoveNextRow() && rowDelta.MoveNextRow());
+                    return;
+                }
+
+                // parallel clear
+                if (transparentIndex >= 0)
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
+                        y => ProcessRowIndexed(previousFrame[y], deltaFrame[y], transparentIndex));
+                else
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
+                        y => ProcessRowArgb(previousFrame[y], deltaFrame[y]));
             }
 
             private static bool HasNewTransparentPixel(IReadableBitmapData currentFrame, IReadableBitmapData nextFrame, byte alphaThreshold, out Rectangle region)
@@ -245,18 +366,26 @@ namespace KGySoft.Drawing.Imaging
 
             #region Internal Methods
 
-            internal GifEncoder CreateEncoder(Stream stream)
+            internal GifEncoder? CreateEncoder(Stream stream)
             {
+                if (reportOverallProgress)
+                    InitProgress();
                 inputFramesEnumerator = config.Frames.GetEnumerator();
                 delayEnumerator = config.Delays.GetEnumerator();
 
                 if (!MoveNextInputFrame())
+                {
+                    if (asyncContext.IsCancellationRequested)
+                        return null;
                     throw new ArgumentException(Res.GifEncoderAnimationContainsNoFrames);
+                }
 
                 logicalScreenSize = config.Size ?? nextUnprocessedInputFrame.GetSize();
 
-                // this must succeed now because we could move to the first frame
-                MoveNextGeneratedFrame();
+                // this must succeed now because we could move to the first frame, unless a cancellation request occurred
+                if (!MoveNextGeneratedFrame())
+                    return null;
+
                 IReadableBitmapData firstFrame = nextGeneratedFrame.BitmapData!;
 
                 // Using a global palette only if we know that the quantizer uses always the same colors or when the first frame
@@ -287,7 +416,7 @@ namespace KGySoft.Drawing.Imaging
             internal bool MoveNext()
             {
                 current.BitmapData?.Dispose();
-                if (nextGeneratedFrame.BitmapData == null && !MoveNextGeneratedFrame())
+                if (asyncContext.IsCancellationRequested || nextGeneratedFrame.BitmapData == null && !MoveNextGeneratedFrame())
                 {
                     current = default;
                     return false;
@@ -296,6 +425,45 @@ namespace KGySoft.Drawing.Imaging
                 current = nextGeneratedFrame;
                 nextGeneratedFrame = default;
                 return true;
+            }
+
+            internal void ReportProgress()
+            {
+                if (!reportOverallProgress)
+                    return;
+
+                // finished
+                if (currentIndex == count)
+                {
+                    Debug.Assert(nextPreparedFrame.BitmapData == null);
+                    return;
+                }
+
+                currentIndex += 1;
+                int max = count;
+
+                // unknown frames count
+                if (max < 0)
+                {
+                    // finished
+                    if (nextPreparedFrame.BitmapData == null)
+                        max = currentIndex;
+                    // no reversed frames
+                    else if (reversedFramesStack == null)
+                        max = currentIndex + 1;
+                    else
+                    {
+                        // there is a reversed frames stack
+                        max = (reversedFramesStack.Count << 1) + 2;
+
+                        // and there are no more input frames: we know the final count
+                        if (inputFramesEnumerator == null)
+                            count = max;
+                    }
+                }
+
+                Debug.Assert(max >= currentIndex);
+                asyncContext.Progress!.Report(new DrawingProgress(DrawingOperation.Saving, max, currentIndex));
             }
 
             #endregion
@@ -316,7 +484,7 @@ namespace KGySoft.Drawing.Imaging
                 var preparedFrame = nextPreparedFrame;
 
                 // no more frame
-                if (preparedFrame.BitmapData == null)
+                if (preparedFrame.BitmapData == null || asyncContext.IsCancellationRequested)
                     return false;
 
                 nextPreparedFrame = default;
@@ -327,13 +495,15 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(preparedFrame.BitmapData.HasAlpha(), "Frame is not prepared correctly for delta image");
                     Debug.Assert(!preparedFrame.IsQuantized, "Prepared image must not be quantized yet if delta image is created");
-                    ClearUnchangedPixels(renderBuffer.BitmapData, generatedFrame);
+                    ClearUnchangedPixels(asyncContext, renderBuffer.BitmapData, generatedFrame);
                 }
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
-                if (!preparedFrame.IsQuantized && (!generatedFrame.PixelFormat.IsIndexed() || config.Quantizer != null || HasMultipleTransparentIndices(generatedFrame)))
+                if (!preparedFrame.IsQuantized && (!generatedFrame.PixelFormat.IsIndexed() || config.Quantizer != null || HasMultipleTransparentIndices(asyncContext, generatedFrame)))
                 {
-                    IReadWriteBitmapData quantized = generatedFrame.Clone(PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    IReadWriteBitmapData? quantized = generatedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    if (quantized == null)
+                        return false;
                     generatedFrame.Dispose();
                     generatedFrame = quantized;
                 }
@@ -358,14 +528,18 @@ namespace KGySoft.Drawing.Imaging
                     {
                         // maintaining the render buffer
                         renderBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
-                        generatedFrame.DrawInto(renderBuffer.BitmapData, contentArea, contentArea);
+                        generatedFrame.DoDrawInto(asyncContext, renderBuffer.BitmapData, contentArea, contentArea);
+                        if (asyncContext.IsCancellationRequested)
+                            return false;
 
                         if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.HasAlpha() && HasNewTransparentPixel(
                             renderBuffer.BitmapData, nextPreparedFrame.BitmapData!, quantizerProperties.AlphaThreshold, out Rectangle toClearRegion))
                         {
                             disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                             contentArea = Rectangle.Union(contentArea, toClearRegion);
-                            renderBuffer.BitmapData.Clear(default);
+                            renderBuffer.BitmapData.DoClear(asyncContext, default);
+                            if (asyncContext.IsCancellationRequested)
+                                return false;
                             renderBuffer.IsCleared = true;
                         }
                         else
@@ -399,20 +573,20 @@ namespace KGySoft.Drawing.Imaging
                 // no more input frame
                 if (inputFrame == null)
                 {
-                    // and no more stacked reverse frame
-                    if (reversedFramesStack == null)
+                    // And no more stacked reverse frame (Count can be 0 here only when PingPong was set but there are no more than 1 frames)
+                    if (reversedFramesStack == null || asyncContext.IsCancellationRequested || reversedFramesStack.Count == 0)
                         return false;
 
                     // in reverse phase: just popping the stack
-                    Debug.Assert(reversedFramesStack.Count > 0);
                     nextPreparedFrame = reversedFramesStack.Pop();
-
                     if (reversedFramesStack.Count == 0)
                         reversedFramesStack = null;
                     return true;
                 }
 
-                (IReadWriteBitmapData preparedFrame, bool isQuantized) = GetPreparedFrame(inputFrame);
+                (IReadWriteBitmapData? preparedFrame, bool isQuantized) = GetPreparedFrame(inputFrame);
+                if (preparedFrame == null)
+                    return false;
                 nextPreparedFrame = (preparedFrame, GetNextDelay(), isQuantized);
                 if (config.AnimationMode == AnimationMode.PingPong)
                 {
@@ -423,16 +597,20 @@ namespace KGySoft.Drawing.Imaging
                     {
                         // and if this is the last input frame, it is not added to the stack
                         if (MoveNextInputFrame())
-                            reversedFramesStack.Push((preparedFrame.Clone(), nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
+                        {
+                            IReadWriteBitmapData? clone = preparedFrame.DoClone(asyncContext);
+                            if (clone != null)
+                                reversedFramesStack.Push((clone, nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
+                        }
                     }
                 }
 
-                return true;
+                return !asyncContext.IsCancellationRequested;
             }
 
-            private (IReadWriteBitmapData BitmapData, bool IsQuantized) GetPreparedFrame(IReadableBitmapData inputFrame)
+            private (IReadWriteBitmapData? BitmapData, bool IsQuantized) GetPreparedFrame(IReadableBitmapData inputFrame)
             {
-                IReadWriteBitmapData preparedFrame;
+                IReadWriteBitmapData? preparedFrame;
 
                 // Delta frames can be used if allowed and the quantizer can use transparent colors.
                 // We cannot rely on renderBuffer.IsCleared here because a forward reading is used even to determine whether to clear
@@ -450,7 +628,7 @@ namespace KGySoft.Drawing.Imaging
 
                 Size inputSize = inputFrame.GetSize();
                 if (inputSize == logicalScreenSize)
-                    preparedFrame = inputFrame.Clone(preparedPixelFormat, preparedQuantizer, preparedDitherer);
+                    preparedFrame = inputFrame.DoClone(asyncContext, preparedPixelFormat, preparedQuantizer, preparedDitherer);
                 else
                 {
                     switch (config.SizeHandling)
@@ -463,7 +641,7 @@ namespace KGySoft.Drawing.Imaging
                                 Rectangle clonedArea = new Rectangle(new Point((inputSize.Width >> 1) - (logicalScreenSize.Width >> 1),
                                     (inputSize.Height >> 1) - (logicalScreenSize.Height >> 1)), logicalScreenSize);
 
-                                preparedFrame = inputFrame.Clone(clonedArea, preparedPixelFormat, preparedQuantizer, preparedDitherer);
+                                preparedFrame = inputFrame.DoClone(asyncContext, clonedArea, preparedPixelFormat, preparedQuantizer, preparedDitherer);
                                 break;
                             }
 
@@ -480,16 +658,20 @@ namespace KGySoft.Drawing.Imaging
 
                                 // if the source is indexed and transparent index is not 0, then we must clear the indexed image to be transparent
                                 if (inputFrame.Palette?.TransparentIndex > 0)
-                                    preparedFrame.Clear(default);
+                                {
+                                    preparedFrame.DoClear(asyncContext, default);
+                                    if (asyncContext.IsCancellationRequested)
+                                        break;
+                                }
 
-                                inputFrame.CopyTo(preparedFrame, location, preparedQuantizer, preparedDitherer);
+                                inputFrame.DoCopyTo(asyncContext, preparedFrame, location, preparedQuantizer, preparedDitherer);
                                 break;
                             }
 
                             // Here we can't quantize the source: using a 32bpp image data
                             preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
-                            inputFrame.CopyTo(preparedFrame, location);
+                            inputFrame.DoCopyTo(asyncContext, preparedFrame, location);
 
                             break;
 
@@ -497,7 +679,7 @@ namespace KGySoft.Drawing.Imaging
                         case AnimationFramesSizeHandling.Resize:
                             preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, PixelFormat.Format32bppPArgb);
-                            inputFrame.DrawInto(preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
+                            inputFrame.DoDrawInto(asyncContext, preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
 
                         default:
@@ -505,7 +687,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
-                return (preparedFrame, preparedQuantizer != null);
+                return (asyncContext.IsCancellationRequested ? null : preparedFrame, preparedQuantizer != null);
             }
 
             /// <summary>
@@ -517,7 +699,7 @@ namespace KGySoft.Drawing.Imaging
                 if (inputFramesEnumerator == null)
                     return false;
 
-                if (!inputFramesEnumerator.MoveNext())
+                if (asyncContext.IsCancellationRequested || !inputFramesEnumerator.MoveNext())
                 {
                     inputFramesEnumerator.Dispose();
                     inputFramesEnumerator = null;
@@ -553,6 +735,16 @@ namespace KGySoft.Drawing.Imaging
                     delay = minNonzeroDelay;
 
                 return lastDelay = (int)(delay.Ticks / minNonzeroDelay.Ticks);
+            }
+
+            private void InitProgress()
+            {
+                if (!config.Frames.TryGetCount(out count))
+                    count = -1;
+                else if (count > 2 && config.AnimationMode == AnimationMode.PingPong)
+                    count = (count << 1) - 2;
+
+                asyncContext.Progress!.New(DrawingOperation.Saving, Math.Max(1, count));
             }
 
             #endregion

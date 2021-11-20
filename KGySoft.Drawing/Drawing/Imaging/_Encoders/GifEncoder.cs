@@ -276,6 +276,8 @@ namespace KGySoft.Drawing.Imaging
             if ((uint)disposalMethod > (uint)GifGraphicDisposalMethod.RestoreToPrevious)
                 throw new ArgumentOutOfRangeException(nameof(disposalMethod), PublicResources.EnumOutOfRange(disposalMethod));
 
+            // Possible cloning with unlimited degree of parallelization is not an issue here.
+            // When using the async static members the input imageData is always an indexed image.
             IReadableBitmapData actualImageData = imageData.Palette == null || imageData.Palette.Count > 256 ? imageData.Clone(PixelFormat.Format8bppIndexed, globalPalette) : imageData;
 
             try

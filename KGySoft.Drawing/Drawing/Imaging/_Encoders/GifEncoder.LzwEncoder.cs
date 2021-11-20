@@ -257,7 +257,7 @@ namespace KGySoft.Drawing.Imaging
 #endif
 
                     // If we could not obtain the actual buffer, then copying the palette indices into the newly allocated one.
-                    // Not using parallel processing at this level (TODO?: use AsyncContext in encoder?)
+                    // Not using parallel processing at this level
                     int i = 0;
                     IReadableBitmapDataRow rowSrc = imageData.FirstRow;
                     for (int y = 0; y < imageData.Height; y++, rowSrc.MoveNextRow())
