@@ -155,7 +155,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A managed <see cref="IReadWriteBitmapData"/> instance loaded from the specified <paramref name="stream"/>.</returns>
         /// <remarks>
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginLoad">BeginLoad</see>
-        /// or <see cref="LoadAsync">LoadAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// or <see cref="LoadAsync">LoadAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// </remarks>
         public static IReadWriteBitmapData Load(Stream stream)
         {
@@ -187,7 +187,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginLoad">BeginLoad</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="LoadAsync">LoadAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="LoadAsync">LoadAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,

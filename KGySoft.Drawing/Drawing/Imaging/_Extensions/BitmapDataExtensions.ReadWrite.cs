@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginQuantize">BeginQuantize</see>
-        /// or <see cref="QuantizeAsync">QuantizeAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="QuantizeAsync">QuantizeAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes the specified <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
         /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
@@ -160,7 +160,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDither">BeginDither</see>
-        /// or <see cref="DitherAsync">DitherAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="DitherAsync">DitherAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes <paramref name="bitmapData"/> with dithering in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
         /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
@@ -216,7 +216,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginQuantize">BeginQuantize</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="QuantizeAsync">QuantizeAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="QuantizeAsync">QuantizeAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <exception cref="InvalidOperationException">The quantizer's <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
@@ -252,7 +252,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginDither">BeginDither</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="DitherAsync">QuantizeAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="DitherAsync">QuantizeAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
@@ -327,7 +327,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
-        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,PixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -358,7 +358,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
-        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="Clone(IReadableBitmapData,PixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -412,7 +412,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginTransformColors">BeginTransformColors</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="TransformColorsAsync">TransformColorsAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="TransformColorsAsync">TransformColorsAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndTransformColors(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginTransformColors));
@@ -462,7 +462,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginReplaceColor">BeginReplaceColor</see>
-        /// or <see cref="ReplaceColorAsync">ReplaceColorAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="ReplaceColorAsync">ReplaceColorAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newColor"/> has alpha, which cannot be represented by <paramref name="bitmapData"/>, then it will be blended with <see cref="IBitmapData.BackColor"/>.</para>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
@@ -514,7 +514,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginReplaceColor">BeginReplaceColor</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndReplaceColor(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginReplaceColor));
@@ -562,7 +562,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginInvert">BeginInvert</see>
-        /// or <see cref="InvertAsync">InvertAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="InvertAsync">InvertAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -605,7 +605,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginInvert">BeginInvert</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="InvertAsync">InvertAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="InvertAsync">InvertAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndInvert(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginInvert));
@@ -647,7 +647,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="bitmapData">The <see cref="IReadWriteBitmapData"/> to make transparent.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeTransparent(IReadWriteBitmapData, AsyncConfig)"/>
-        /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="ReplaceColor">ReplaceColor</see> method internally.</para>
         /// <para>Similarly to the <see cref="Bitmap.MakeTransparent()">Bitmap.MakeTransparent</see> method, this one uses the bottom-left pixel to determine
         /// the background color, which must be completely opaque; otherwise, <paramref name="bitmapData"/> will not be changed.</para>
@@ -684,7 +684,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="transparentColor">Specifies the color to make transparent.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeTransparent(IReadWriteBitmapData, Color32, AsyncConfig)"/>
-        /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, Color32, TaskConfig)"/> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, Color32, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="ReplaceColor">ReplaceColor</see> method internally.</para>
         /// <para>Unlike the <see cref="Bitmap.MakeTransparent(Color)">Bitmap.MakeTransparent(Color)</see> method, this one preserves the original <see cref="IBitmapData.PixelFormat"/>.
         /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
@@ -766,7 +766,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginMakeTransparent">BeginMakeTransparent</see> methods to complete.
-        /// In .NET 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.MakeTransparentAsync">MakeTransparentAsync</see> methods instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.MakeTransparentAsync">MakeTransparentAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndMakeTransparent(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeTransparent));
@@ -843,7 +843,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeOpaque">BeginMakeOpaque</see>
-        /// or <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -890,7 +890,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginMakeOpaque">BeginMakeOpaque</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndMakeOpaque(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeOpaque));
@@ -935,7 +935,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeGrayscale">BeginMakeGrayscale</see>
-        /// or <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ToGrayscale">ToGrayscale</see> extension method, which always returns a bitmap data with <see cref="PixelFormat.Format32bppArgb"/> format,
         /// or the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> method with a grayscale
@@ -985,7 +985,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginMakeGrayscale">BeginMakeGrayscale</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndMakeGrayscale(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
@@ -1033,7 +1033,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see>
-        /// or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -1117,7 +1117,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginAdjustBrightness">BeginAdjustBrightness</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndAdjustBrightness(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
@@ -1185,7 +1185,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustContrast">BeginAdjustContrast</see>
-        /// or <see cref="AdjustContrastAsync">AdjustContrastAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="AdjustContrastAsync">AdjustContrastAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -1265,7 +1265,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginAdjustContrast">BeginAdjustContrast</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndAdjustContrast(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustContrast));
@@ -1332,7 +1332,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginAdjustGamma">BeginAdjustGamma</see>
-        /// or <see cref="AdjustGammaAsync">AdjustGammaAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="AdjustGammaAsync">AdjustGammaAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -1407,7 +1407,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginAdjustGamma">BeginAdjustGamma</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndAdjustGamma(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustGamma));

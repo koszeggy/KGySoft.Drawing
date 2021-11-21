@@ -98,7 +98,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClear">BeginClear</see>
-        /// or <see cref="ClearAsync">ClearAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="ClearAsync">ClearAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Clear(Bitmap, Color, IDitherer, Color, byte)"/>
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null)
@@ -137,7 +137,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Waits for the pending asynchronous operation started by the <see cref="BeginClear">BeginClear</see> method to complete.
-        /// In .NET 4.0 and above you can use the <see cref="ClearAsync">ClearAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="ClearAsync">ClearAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndClear(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginClear));

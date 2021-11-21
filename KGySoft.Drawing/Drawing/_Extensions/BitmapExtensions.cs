@@ -123,7 +123,7 @@ namespace KGySoft.Drawing
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
-        /// (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/>&#160;<see cref="PixelFormat"/>. To resize an image
         /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
         /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods.</para>
@@ -274,7 +274,7 @@ namespace KGySoft.Drawing
         /// <returns>An array of <see cref="Color"/> entries.</returns>
         /// <remarks>
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginGetColors">BitmapDataExtensions.BeginGetColors</see>
-        /// or <see cref="BitmapDataExtensions.GetColorsAsync">BitmapDataExtensions.GetColorsAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.GetColorsAsync">BitmapDataExtensions.GetColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
         /// <para>Every <see cref="PixelFormat"/> is supported, though wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
         /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
@@ -302,7 +302,7 @@ namespace KGySoft.Drawing
         /// <returns>The actual number of colors of the specified <paramref name="bitmap"/>.</returns>
         /// <remarks>
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginGetColorCount">BitmapDataExtensions.BeginGetColorCount</see>
-        /// or <see cref="BitmapDataExtensions.GetColorCountAsync">BitmapDataExtensions.GetColorCountAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.GetColorCountAsync">BitmapDataExtensions.GetColorCountAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
         /// <para>Every <see cref="PixelFormat"/> is supported, but an accurate result is returned for wide color formats only
         /// when <see cref="IBitmapData.RowSize"/> is large enough to access all pixels directly (might not be the case for a clipped bitmap data, for example).
@@ -539,7 +539,7 @@ namespace KGySoft.Drawing
         /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginQuantize">BitmapDataExtensions.BeginQuantize</see>
-        /// or <see cref="BitmapDataExtensions.QuantizeAsync">BitmapDataExtensions.QuantizeAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.QuantizeAsync">BitmapDataExtensions.QuantizeAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes <paramref name="bitmap"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)">ConvertPixelFormat</see> extension method instead.</para>
         /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmap"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
@@ -577,7 +577,7 @@ namespace KGySoft.Drawing
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginDither">BitmapDataExtensions.BeginDither</see>
-        /// or <see cref="BitmapDataExtensions.DitherAsync">BitmapDataExtensions.DitherAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.DitherAsync">BitmapDataExtensions.DitherAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes <paramref name="bitmap"/> with dithering in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)">ConvertPixelFormat</see> extension method instead.</para>
         /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmap"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
@@ -622,7 +622,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <c>128</c>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginClear">BitmapDataExtensions.BeginClear</see>
-        /// or <see cref="BitmapDataExtensions.ClearAsync">BitmapDataExtensions.ClearAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.ClearAsync">BitmapDataExtensions.ClearAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.Clear(IWritableBitmapData, Color32, IDitherer)"/>
         public static void Clear(this Bitmap bitmap, Color color, Color backColor = default, byte alphaThreshold = 128)
@@ -651,7 +651,7 @@ namespace KGySoft.Drawing
         /// If <see langword="null"/>, then the <see cref="Clear(Bitmap,Color,Color,byte)"/> overload will be called.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginClear">BitmapDataExtensions.BeginClear</see>
-        /// or <see cref="BitmapDataExtensions.ClearAsync">BitmapDataExtensions.ClearAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.ClearAsync">BitmapDataExtensions.ClearAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.Clear(IWritableBitmapData, Color32, IDitherer)"/>
         public static void Clear(this Bitmap bitmap, Color color, IDitherer? ditherer, Color backColor = default, byte alphaThreshold = 128)
@@ -680,7 +680,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginTransformColors">BitmapDataExtensions.BeginTransformColors</see>
-        /// or <see cref="BitmapDataExtensions.TransformColorsAsync">BitmapDataExtensions.TransformColorsAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.TransformColorsAsync">BitmapDataExtensions.TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmap"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)">ConvertPixelFormat</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -721,7 +721,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginTransformColors">BitmapDataExtensions.BeginTransformColors</see>
-        /// or <see cref="BitmapDataExtensions.TransformColorsAsync">BitmapDataExtensions.TransformColorsAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.TransformColorsAsync">BitmapDataExtensions.TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmap"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)">ConvertPixelFormat</see> extension method
         /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
@@ -779,7 +779,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginReplaceColor">BitmapDataExtensions.BeginReplaceColor</see>
-        /// or <see cref="BitmapDataExtensions.ReplaceColorAsync">BitmapDataExtensions.ReplaceColorAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.ReplaceColorAsync">BitmapDataExtensions.ReplaceColorAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="newColor"/> has alpha, which cannot be represented by <paramref name="bitmap"/>, then it will be blended with black.
         /// Call <see cref="TransformColors(Bitmap,Func{Color32,Color32},IDitherer,Color,byte)">TransformColors</see> to use a custom background color instead.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
@@ -807,7 +807,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginInvert">BitmapDataExtensions.BeginInvert</see>
-        /// or <see cref="BitmapDataExtensions.InvertAsync">BitmapDataExtensions.InvertAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.InvertAsync">BitmapDataExtensions.InvertAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
@@ -835,7 +835,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginMakeOpaque">BitmapDataExtensions.BeginMakeOpaque</see>
-        /// or <see cref="BitmapDataExtensions.MakeOpaqueAsync">BitmapDataExtensions.MakeOpaqueAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.MakeOpaqueAsync">BitmapDataExtensions.MakeOpaqueAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
@@ -861,7 +861,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginMakeGrayscale">BitmapDataExtensions.BeginMakeGrayscale</see>
-        /// or <see cref="BitmapDataExtensions.MakeGrayscaleAsync">BitmapDataExtensions.MakeGrayscaleAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.MakeGrayscaleAsync">BitmapDataExtensions.MakeGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmap"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ToGrayscale">ToGrayscale</see> extension method, which always returns a bitmap with <see cref="PixelFormat.Format32bppArgb"/> format,
         /// or the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)">ConvertPixelFormat</see> method with a grayscale
@@ -895,7 +895,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginAdjustBrightness">BitmapDataExtensions.BeginAdjustBrightness</see>
-        /// or <see cref="BitmapDataExtensions.AdjustBrightnessAsync">BitmapDataExtensions.AdjustBrightnessAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.AdjustBrightnessAsync">BitmapDataExtensions.AdjustBrightnessAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
@@ -955,7 +955,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginAdjustContrast">BitmapDataExtensions.BeginAdjustContrast</see>
-        /// or <see cref="BitmapDataExtensions.AdjustContrastAsync">BitmapDataExtensions.AdjustContrastAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.AdjustContrastAsync">BitmapDataExtensions.AdjustContrastAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
@@ -1015,7 +1015,7 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see cref="ColorChannels.Rgb"/>.</param>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BitmapDataExtensions.BeginAdjustGamma">BitmapDataExtensions.BeginAdjustGamma</see>
-        /// or <see cref="BitmapDataExtensions.AdjustGammaAsync">BitmapDataExtensions.AdjustGammaAsync</see> (in .NET 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// or <see cref="BitmapDataExtensions.AdjustGammaAsync">BitmapDataExtensions.AdjustGammaAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>
