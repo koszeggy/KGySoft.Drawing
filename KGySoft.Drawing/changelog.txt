@@ -27,7 +27,10 @@
   + New EncodeAnimationAsync method (.NET Framework 4.0 and above)
   + New BeginEncodeImage and EndEncodeImage methods
   + New EncodeImageAsync method (.NET Framework 4.0 and above)
-  - Fixing possibly improper clearing regions when AnimatedGifConfiguration.AllowDeltaFrames is true and AnimatedGifConfiguration.EncodeTransparentBorders is false.
+  - AddImage method: Improving the compatibility with some decoders by always adding the Graphic Control Extension
+    for subsequent frames.
+  - Fixing possibly improper clearing regions when AnimatedGifConfiguration.AllowDeltaFrames is true and
+    AnimatedGifConfiguration.EncodeTransparentBorders is false.
 + AnimatedGifConfiguration class:
   + New ReportOverallProgress property
 

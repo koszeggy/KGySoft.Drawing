@@ -302,7 +302,10 @@ namespace KGySoft.Drawing.Imaging
                         $"Delay: {delay}",
                         $"Compression Mode: {compressionMode}");
 
-                if (delay != 0 || disposalMethod != GifGraphicDisposalMethod.NotSpecified || usedPalette.TransparentIndex >= 0)
+                // The GraphicControlExtension would be optional but always adding it to non-first images to provide better compatibility with decoders.
+                // For example, the spec contains "The scope of this extension is the first graphic rendering block to follow";
+                // still, many decoders (including GDI+ and many browsers) keep reusing the lastly specified values until they are changed.
+                if (imagesCount > 0 || delay != 0 || disposalMethod != GifGraphicDisposalMethod.NotSpecified || usedPalette.TransparentIndex >= 0)
                     WriteGraphicControlExtension(delay, disposalMethod, usedPalette.TransparentIndex);
 
                 WriteImageDescriptor(location, actualImageData.GetSize(), localPalette);
