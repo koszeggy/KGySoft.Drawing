@@ -18,7 +18,6 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Threading;
 #if !NET35
 using System.Threading.Tasks;
@@ -39,8 +38,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
+        #region EncodeImage
+
         /// <summary>
         /// Encodes the specified <paramref name="imageData"/> as a GIF image and writes it into the specified <paramref name="stream"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
         /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
@@ -52,6 +54,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="imageData"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginEncodeImage">BeginEncodeImage</see>
+        /// or <see cref="EncodeImageAsync">EncodeImageAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// <para>To encode an <see cref="Image"/> you can use also the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsGif">ImageExtensions.SaveAsGif</see>
+        /// methods that provide a higher level access.</para>
+        /// <para>To create a GIF completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
+        /// <para>If <paramref name="quantizer"/> is specified, then it will be used even for already indexed images.</para>
+        /// <para>If <paramref name="quantizer"/> is an <see cref="OptimizedPaletteQuantizer"/>, then the palette of the result image will be adjusted for the actual image content.</para>
+        /// </remarks>
         public static void EncodeImage(IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             if (imageData == null)
@@ -59,62 +70,163 @@ namespace KGySoft.Drawing.Imaging
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
 
-            IReadableBitmapData source = quantizer == null && imageData.PixelFormat.IsIndexed() && !HasMultipleTransparentIndices(AsyncContext.Null, imageData)
-                    ? imageData
-                    : imageData.Clone(PixelFormat.Format8bppIndexed, quantizer
-                        ?? (imageData.PixelFormat == PixelFormat.Format16bppGrayScale
-                            ? PredefinedColorsQuantizer.Grayscale()
-                            : OptimizedPaletteQuantizer.Wu()), ditherer);
-
-            try
-            {
-                Palette palette = source.Palette!;
-                new GifEncoder(stream, imageData.GetSize())
-                    {
-                        GlobalPalette = palette,
-                        BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
-#if DEBUG
-                        AddMetaInfo = true,
-#endif
-                    }
-                    .AddImage(source)
-                    .FinalizeEncoding();
-            }
-            finally
-            {
-                if (!ReferenceEquals(source, imageData))
-                    source.Dispose();
-            }
+            DoEncodeImage(AsyncContext.Null, imageData, stream, quantizer, ditherer);
         }
 
         /// <summary>
+        /// Begins to encode the specified <paramref name="imageData"/> as a GIF image and to write it into the specified <paramref name="stream"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
+        /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
+        /// <param name="stream">The stream to save the encoded image into.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
+        /// If <see langword="null"/>&#160;and <paramref name="imageData"/> is not an indexed image or the image contains different alpha pixels,
+        /// then <see cref="OptimizedPaletteQuantizer.Wu"/> quantizer will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="imageData"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="EncodeImageAsync">EncodeImageAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndEncodeImage">EndEncodeImage</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.
+        /// The encoding itself cannot be parallelized. The <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> setting affects only the quantizing session
+        /// if <paramref name="imageData"/> has a non-indexed pixel format, or when <paramref name="quantizer"/> is set.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="EncodeImage">EncodeImage</see> method for more details.</note>
+        /// </remarks>
+        public static IAsyncResult BeginEncodeImage(IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
+        {
+            if (imageData == null)
+                throw new ArgumentNullException(nameof(imageData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+
+            return AsyncContext.BeginOperation(ctx => DoEncodeImage(ctx, imageData, stream, quantizer, ditherer), asyncConfig);
+        }
+
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginEncodeImage">BeginEncodeImage</see> method to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="EncodeImageAsync">EncodeImageAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
+        public static void EndEncodeImage(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeImage));
+
+#if !NET35
+        /// <summary>
+        /// Encodes the specified <paramref name="imageData"/> as a GIF image asynchronously, and writes it into the specified <paramref name="stream"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
+        /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
+        /// <param name="stream">The stream to save the encoded image into.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
+        /// If <see langword="null"/>&#160;and <paramref name="imageData"/> is not an indexed image or the image contains different alpha pixels,
+        /// then <see cref="OptimizedPaletteQuantizer.Wu"/> quantizer will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="imageData"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.
+        /// The encoding itself cannot be parallelized. The <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> setting affects only the quantizing session
+        /// if <paramref name="imageData"/> has a non-indexed pixel format, or when <paramref name="quantizer"/> is set.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="EncodeImage">EncodeImage</see> method for more details.</note>
+        /// </remarks>
+        public static Task EncodeImageAsync(IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        {
+            if (imageData == null)
+                throw new ArgumentNullException(nameof(imageData), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+
+            return AsyncContext.DoOperationAsync(ctx => DoEncodeImage(ctx, imageData, stream, quantizer, ditherer), asyncConfig);
+        }
+#endif
+
+        #endregion
+
+        #region EncodeAnimation
+
+        /// <summary>
         /// Encodes the frames of the specified <paramref name="configuration"/> as an animated GIF image and writes it into the specified <paramref name="stream"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="configuration">An <see cref="AnimatedGifConfiguration"/> instance describing the configuration of the encoding.</param>
         /// <param name="stream">The stream to save the encoded animation into.</param>
         /// <exception cref="ArgumentNullException"><paramref name="configuration"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="configuration"/> is invalid.</exception>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginEncodeAnimation">BeginEncodeAnimation</see>
+        /// or <see cref="EncodeAnimationAsync">EncodeAnimationAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// <para>To encode <see cref="Image"/> instances with default configuration you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsAnimatedGif">ImageExtensions.SaveAsAnimatedGif</see>
+        /// methods that provide a higher level access.</para>
+        /// <para>To create an animation completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
+        /// </remarks>
         public static void EncodeAnimation(AnimatedGifConfiguration configuration, Stream stream)
         {
             ValidateArguments(configuration, stream);
             DoEncodeAnimation(AsyncContext.Null, configuration, stream);
         }
 
+        /// <summary>
+        /// Begins to encode the frames of the specified <paramref name="configuration"/> as an animated GIF image and to write it into the specified <paramref name="stream"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="configuration">An <see cref="AnimatedGifConfiguration"/> instance describing the configuration of the encoding.</param>
+        /// <param name="stream">The stream to save the encoded animation into.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="configuration"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="configuration"/> is invalid.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="EncodeAnimationAsync">EncodeAnimationAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndEncodeAnimation">EndEncodeAnimation</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="EncodeAnimation">EncodeAnimation</see> method for more details.</note>
+        /// </remarks>
         public static IAsyncResult BeginEncodeAnimation(AnimatedGifConfiguration configuration, Stream stream, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(configuration, stream);
             return AsyncContext.BeginOperation(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginEncodeAnimation">BeginEncodeAnimation</see> method to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="EncodeAnimationAsync">EncodeAnimationAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndEncodeAnimation(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeAnimation));
 
 #if !NET35
+        /// <summary>
+        /// Encodes the frames of the specified <paramref name="configuration"/> as an animated GIF image asynchronously, and writes it into the specified <paramref name="stream"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="configuration">An <see cref="AnimatedGifConfiguration"/> instance describing the configuration of the encoding.</param>
+        /// <param name="stream">The stream to save the encoded animation into.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="configuration"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="configuration"/> is invalid.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="EncodeAnimation">EncodeAnimation</see> method for more details.</note>
+        /// </remarks>
         public static Task EncodeAnimationAsync(AnimatedGifConfiguration configuration, Stream stream, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(configuration, stream);
             return AsyncContext.DoOperationAsync(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
         }
 #endif
+
+        #endregion
 
         #endregion
 
@@ -132,6 +244,41 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(configuration.AnimationMode), PublicResources.ArgumentOutOfRange), nameof(configuration));
             if (!configuration.SizeHandling.IsDefined())
                 throw new ArgumentException(PublicResources.PropertyMessage(nameof(configuration.SizeHandling), PublicResources.EnumOutOfRange(configuration.SizeHandling)), nameof(configuration));
+        }
+
+        private static void DoEncodeImage(IAsyncContext context, IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer, IDitherer? ditherer)
+        {
+            IReadableBitmapData? source = quantizer == null && imageData.PixelFormat.IsIndexed() && !HasMultipleTransparentIndices(context, imageData)
+                ? imageData
+                : imageData.DoClone(context, PixelFormat.Format8bppIndexed, quantizer
+                    ?? (imageData.PixelFormat == PixelFormat.Format16bppGrayScale
+                        ? PredefinedColorsQuantizer.Grayscale()
+                        : OptimizedPaletteQuantizer.Wu()), ditherer);
+
+            // cancel occurred
+            if (source == null)
+                return;
+
+            try
+            {
+                context.Progress?.New(DrawingOperation.Saving);
+                Palette palette = source.Palette!;
+                new GifEncoder(stream, imageData.GetSize())
+                    {
+                        GlobalPalette = palette,
+                        BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
+#if DEBUG
+                        AddMetaInfo = true,
+#endif
+                    }
+                    .AddImage(source)
+                    .FinalizeEncoding();
+            }
+            finally
+            {
+                if (!ReferenceEquals(source, imageData))
+                    source.Dispose();
+            }
         }
 
         private static void DoEncodeAnimation(IAsyncContext context, AnimatedGifConfiguration configuration, Stream stream)
@@ -183,15 +330,20 @@ namespace KGySoft.Drawing.Imaging
             // sequential processing
             if (width < parallelThreshold)
             {
+                context.Progress?.New(DrawingOperation.ProcessingPixels, imageData.Height);
                 IReadableBitmapDataRow row = imageData.FirstRow;
                 do
                 {
+                    if (context.IsCancellationRequested)
+                        return false;
                     for (int x = 0; x < imageData.Width; x++)
                     {
                         int index = row.GetColorIndex(x);
                         if (index != transparentIndex && palette[index].A < Byte.MaxValue)
                             return true;
                     }
+
+                    context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
                 return false;
