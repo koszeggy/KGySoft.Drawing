@@ -378,40 +378,43 @@ namespace KGySoft.Drawing.Imaging
 
                 // 2.) Expanding the region to the right
                 int additionalLimit;
+                Size partialExpansion = Size.Empty;
                 while (currentRegion.Right < size.Width)
                 {
-                    Debug.Assert(currentRegion.Height <= 16);
                     additionalColors.Clear();
                     additionalLimit = 256 - currentColors.Count;
 
-                    for (y = 0; y < currentRegion.Height && additionalColors.Count <= additionalLimit; y++)
+                    for (y = 0; y < currentRegion.Height; y++)
                     {
-                        if (maskRows[y].GetColorIndex(currentRegion.Right) != 0)
-                        {
-                            additionalColors.Add(default);
+                        color = maskRows[y].GetColorIndex(currentRegion.Right) != 0
+                            ? default
+                            : GetColor(sourceRows[y][currentRegion.Right], backColor, alphaThreshold);
+                        if (currentColors.Contains(color))
                             continue;
-                        }
-
-                        color = GetColor(sourceRows[y][currentRegion.Right], backColor, alphaThreshold);
-                        if (!currentColors.Contains(color))
+                        if (additionalColors.Count < additionalLimit)
                             additionalColors.Add(color);
+                        else
+                            break;
                     }
 
                     // could not complete the new column
-                    if (y != currentRegion.Height || additionalColors.Count > additionalLimit)
+                    if (y != currentRegion.Height)
                     {
-                        // adding as many colors as can but not expanding region any more
-                        if (additionalLimit > 0)
+                        // not even the first pixel
+                        if (y == 0 || additionalLimit == 0 && !currentColors.Contains(default))
+                            break;
+
+                        partialExpansion.Width = 1;
+
+                        if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
                         {
                             currentColors.Add(default);
-                            foreach (Color32 c in additionalColors)
-                            {
-                                if (currentColors.Count == 256)
-                                    break;
-                                currentColors.Add(c);
-                            }
+                            currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
                         }
+                        else
+                            currentColors.AddRange(additionalColors);
 
+                        currentRegion.Width += 1;
                         break;
                     }
 
@@ -420,66 +423,109 @@ namespace KGySoft.Drawing.Imaging
                     currentRegion.Width += 1;
                 }
 
-                currentOrigin.X += currentRegion.Width;
+                currentOrigin.X += currentRegion.Width - partialExpansion.Width;
 
                 // 3.) Expanding the region to the bottom
-                while (currentRegion.Bottom < size.Height)
+                if (partialExpansion.IsEmpty)
                 {
-                    additionalColors.Clear();
-                    additionalLimit = 256 - currentColors.Count;
-                    IReadableBitmapDataRow row = imageData[currentRegion.Bottom];
-                    IReadableBitmapDataRow maskRow = mask[currentRegion.Bottom];
-                    for (x = 0; x < currentRegion.Width && additionalColors.Count <= additionalLimit; x++)
+                    while (currentRegion.Bottom < size.Height)
                     {
-                        if (maskRow.GetColorIndex(x + currentRegion.Left) != 0)
+                        additionalColors.Clear();
+                        additionalLimit = 256 - currentColors.Count;
+                        IReadableBitmapDataRow row = imageData[currentRegion.Bottom];
+                        IReadableBitmapDataRow maskRow = mask[currentRegion.Bottom];
+                        for (x = 0; x < currentRegion.Width; x++)
                         {
-                            additionalColors.Add(default);
-                            continue;
+                            color = maskRow.GetColorIndex(x + currentRegion.Left) != 0
+                                ? default
+                                : GetColor(row[x + currentRegion.Left], backColor, alphaThreshold);
+
+                            if (currentColors.Contains(color))
+                                continue;
+                            if (additionalColors.Count < additionalLimit)
+                                additionalColors.Add(color);
+                            else
+                                break;
                         }
 
-                        color = GetColor(row[x + currentRegion.Left], backColor, alphaThreshold);
-                        if (!currentColors.Contains(color))
-                            additionalColors.Add(color);
-                    }
-
-                    // could not complete the new row
-                    if (x != currentRegion.Width || additionalColors.Count > additionalLimit)
-                    {
-                        // adding as many colors as can but not expanding region any more
-                        if (additionalLimit > 0)
+                        // could not complete the new row
+                        if (x != currentRegion.Width)
                         {
-                            currentColors.Add(default);
-                            foreach (Color32 c in additionalColors)
+                            // not even the first pixel or already expanded
+                            if (y == 0 || additionalLimit == 0 && !currentColors.Contains(default) /*|| !partialExpansion.IsEmpty*/)
+                                break;
+
+                            partialExpansion.Height = 1;
+
+                            if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
                             {
-                                if (currentColors.Count == 256)
-                                    break;
-                                currentColors.Add(c);
+                                currentColors.Add(default);
+                                currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
                             }
+                            else
+                                currentColors.AddRange(additionalColors);
+
+                            currentRegion.Height += 1;
+                            break;
                         }
 
-                        break;
+                        // the region can be expanded
+                        currentColors.AddRange(additionalColors);
+                        currentRegion.Height += 1;
                     }
-
-                    // the region can be expanded
-                    currentColors.AddRange(additionalColors);
-                    currentRegion.Height += 1;
                 }
 
                 if (currentOrigin.X == size.Width)
-                    currentOrigin.Y += currentRegion.Left == 0 ? currentRegion.Height : Math.Min(16, currentRegion.Height);
+                    currentOrigin.Y += (currentRegion.Left == 0 ? currentRegion.Height : Math.Min(16, currentRegion.Height)) - partialExpansion.Height;
 
-                // 4.) Expanding the palette while can
-                if (fullScan && currentColors.Contains(default))
+                // 4.) Expanding the region to the left (only if there was some expansion to the bottom)
+                if (currentRegion.Height > 16 && partialExpansion.IsEmpty && (currentColors.Count < 256 || currentColors.Contains(default)))
                 {
-                    for (y = currentRegion.Right == size.Width ? currentRegion.Bottom : currentRegion.Top; y < size.Height && currentColors.Count < 256; y++)
+                    while (currentRegion.Left > 0)
                     {
-                        IReadableBitmapDataRow row = imageData[y];
-                        IReadableBitmapDataRow maskRow = mask[y];
-                        for (x = y < currentRegion.Bottom ? currentRegion.Right : 0; x < size.Width && currentColors.Count < 256; x++)
+                        additionalColors.Clear();
+                        additionalLimit = 256 - currentColors.Count;
+                        if (!currentColors.Contains(default))
+                            additionalColors.Add(default);
+
+                        // the first 16 row can be skipped as we passed beyond that region
+                        for (y = currentRegion.Top + 16; y < currentRegion.Bottom; y++)
                         {
-                            if (maskRow.GetColorIndex(x) == 0)
-                                currentColors.Add(GetColor(row[x], backColor, alphaThreshold));
+                            color = mask[y].GetColorIndex(currentRegion.Left - 1) != 0
+                                ? default
+                                : GetColor(imageData[y][currentRegion.Left - 1], backColor, alphaThreshold);
+                            if (currentColors.Contains(color))
+                                continue;
+                            if (additionalColors.Count < additionalLimit)
+                                additionalColors.Add(color);
+                            else
+                                break;
                         }
+
+                        // could not complete the new column
+                        if (y != currentRegion.Bottom)
+                        {
+                            // not even the first pixel
+                            if (y == currentRegion.Top + 16 || additionalLimit == 0 && !currentColors.Contains(default))
+                                break;
+
+                            if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
+                            {
+                                currentColors.Add(default);
+                                currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
+                            }
+                            else
+                                currentColors.AddRange(additionalColors);
+
+                            currentRegion.Width += 1;
+                            currentRegion.X -= 1;
+                            break;
+                        }
+
+                        // the region can be expanded
+                        currentColors.AddRange(additionalColors);
+                        currentRegion.Width += 1;
+                        currentRegion.X -= 1;
                     }
                 }
 
@@ -487,18 +533,9 @@ namespace KGySoft.Drawing.Imaging
                 Palette palette = new Palette(currentColors.ToArray(), backColor, alphaThreshold);
                 if (palette.HasAlpha)
                 {
-                    Rectangle layerRegion;
-                    if (fullScan)
-                        layerRegion = new Rectangle(0, currentRegion.Top, size.Width, size.Height - currentRegion.Top);
-                    else
-                    {
-                        layerRegion = currentRegion;
-                        if (currentRegion.Width < size.Width)
-                            layerRegion.Width += 1;
-                        else
-                            layerRegion.Height += 1;
-                        layerRegion.Intersect(new Rectangle(Point.Empty, size));
-                    }
+                    Rectangle layerRegion = fullScan
+                        ? new Rectangle(0, currentRegion.Top, size.Width, size.Height - currentRegion.Top)
+                        : currentRegion;
 
                     using IReadWriteBitmapData layer = BitmapDataFactory.CreateBitmapData(layerRegion.Size, PixelFormat.Format8bppIndexed, palette);
                     if (palette.TransparentIndex != 0)
@@ -551,7 +588,7 @@ namespace KGySoft.Drawing.Imaging
                 // 6.) Adjusting origin for the next session
                 if (currentOrigin.X != size.Width)
                     continue;
-                
+
                 // trying to skip complete rows
                 currentOrigin.X = 0;
                 while (currentOrigin.Y < size.Height)
