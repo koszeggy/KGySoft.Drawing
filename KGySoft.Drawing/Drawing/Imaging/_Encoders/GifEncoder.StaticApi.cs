@@ -13,19 +13,20 @@
 
 #endregion
 
+#region Usings
+
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
-using System.Linq;
 using System.Threading;
-using KGySoft.Collections;
 #if !NET35
 using System.Threading.Tasks;
 #endif
 using KGySoft.CoreLibraries;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {
@@ -324,14 +325,6 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoEncodeHighColorImage(IAsyncContext context, IReadableBitmapData imageData, Stream stream, Color32 backColor, byte alphaThreshold, bool fullScan)
         {
-            #region Local Methods
-
-            static Color32 GetColor(Color32 color, Color32 backColor, byte alphaThreshold) => color.A == Byte.MaxValue ? color
-                : color.A >= alphaThreshold ? color.BlendWithBackground(backColor)
-                : default;
-
-            #endregion
-
             // redirecting for an already indexed image
             if (imageData.PixelFormat.ToBitsPerPixel() <= 8 && imageData.Palette != null)
             {
@@ -339,274 +332,22 @@ namespace KGySoft.Drawing.Imaging
                 return;
             }
 
-            // TODO: use array for colors if faster
-            // TODO: parallelize
-            // TODO: progress
-            // TODO: reduce complexity if possible
-            // TODO: refactoring to not use additional colors?
-            Size size = imageData.GetSize();
-            var currentColors = new HashSet<Color32>(256);
-            var additionalColors = new HashSet<Color32>();
-            var sourceRows = new IReadableBitmapDataRow[16];
-            var maskRows = new IReadableBitmapDataRow[16];
-            Point currentOrigin = Point.Empty;
-            using IReadWriteBitmapData mask = BitmapDataFactory.CreateBitmapData(size, PixelFormat.Format1bppIndexed);
-
-            using GifEncoder encoder = new GifEncoder(stream, size)
+            using var enumerator = new LayersEnumerator(context, imageData, backColor, alphaThreshold, fullScan);
+            using GifEncoder encoder = new GifEncoder(stream, imageData.GetSize())
             {
 #if DEBUG
                 AddMetaInfo = true
 #endif
             };
 
-            // while not reaching the bottom-right corner
-            while (currentOrigin.Y < size.Height)
+            while (enumerator.MoveNext())
             {
-                int x, y;
-                Color32 color;
-                currentColors.Clear();
-
-                // 1.) Collecting the colors of an up to 16x16 block
-                Rectangle currentRegion = new Rectangle(currentOrigin, new Size(Math.Min(16, size.Width - currentOrigin.X), Math.Min(16, size.Height - currentOrigin.Y)));
-                for (y = 0; y < currentRegion.Height; y++)
-                {
-                    IReadableBitmapDataRow row = sourceRows[y] = imageData[currentRegion.Top + y];
-                    IReadableBitmapDataRow maskRow = maskRows[y] = mask[currentRegion.Top + y];
-                    for (x = currentRegion.Left; x < currentRegion.Right; x++)
-                        currentColors.Add(maskRow.GetColorIndex(x) == 0 ? GetColor(row[x], backColor, alphaThreshold) : default);
-                }
-
-                // 2.) Expanding the region to the right
-                int additionalLimit;
-                Size partialExpansion = Size.Empty;
-                while (currentRegion.Right < size.Width)
-                {
-                    additionalColors.Clear();
-                    additionalLimit = 256 - currentColors.Count;
-
-                    for (y = 0; y < currentRegion.Height; y++)
-                    {
-                        color = maskRows[y].GetColorIndex(currentRegion.Right) != 0
-                            ? default
-                            : GetColor(sourceRows[y][currentRegion.Right], backColor, alphaThreshold);
-                        if (currentColors.Contains(color))
-                            continue;
-                        if (additionalColors.Count < additionalLimit)
-                            additionalColors.Add(color);
-                        else
-                            break;
-                    }
-
-                    // could not complete the new column
-                    if (y != currentRegion.Height)
-                    {
-                        // not even the first pixel
-                        if (y == 0 || additionalLimit == 0 && !currentColors.Contains(default))
-                            break;
-
-                        partialExpansion.Width = 1;
-
-                        if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
-                        {
-                            currentColors.Add(default);
-                            currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
-                        }
-                        else
-                            currentColors.AddRange(additionalColors);
-
-                        currentRegion.Width += 1;
-                        break;
-                    }
-
-                    // the region can be expanded
-                    currentColors.AddRange(additionalColors);
-                    currentRegion.Width += 1;
-                }
-
-                currentOrigin.X += currentRegion.Width - partialExpansion.Width;
-
-                // 3.) Expanding the region to the bottom
-                if (partialExpansion.IsEmpty)
-                {
-                    while (currentRegion.Bottom < size.Height)
-                    {
-                        additionalColors.Clear();
-                        additionalLimit = 256 - currentColors.Count;
-                        IReadableBitmapDataRow row = imageData[currentRegion.Bottom];
-                        IReadableBitmapDataRow maskRow = mask[currentRegion.Bottom];
-                        for (x = 0; x < currentRegion.Width; x++)
-                        {
-                            color = maskRow.GetColorIndex(x + currentRegion.Left) != 0
-                                ? default
-                                : GetColor(row[x + currentRegion.Left], backColor, alphaThreshold);
-
-                            if (currentColors.Contains(color))
-                                continue;
-                            if (additionalColors.Count < additionalLimit)
-                                additionalColors.Add(color);
-                            else
-                                break;
-                        }
-
-                        // could not complete the new row
-                        if (x != currentRegion.Width)
-                        {
-                            // not even the first pixel or already expanded
-                            if (y == 0 || additionalLimit == 0 && !currentColors.Contains(default) /*|| !partialExpansion.IsEmpty*/)
-                                break;
-
-                            partialExpansion.Height = 1;
-
-                            if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
-                            {
-                                currentColors.Add(default);
-                                currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
-                            }
-                            else
-                                currentColors.AddRange(additionalColors);
-
-                            currentRegion.Height += 1;
-                            break;
-                        }
-
-                        // the region can be expanded
-                        currentColors.AddRange(additionalColors);
-                        currentRegion.Height += 1;
-                    }
-                }
-
-                if (currentOrigin.X == size.Width)
-                    currentOrigin.Y += (currentRegion.Left == 0 ? currentRegion.Height : Math.Min(16, currentRegion.Height)) - partialExpansion.Height;
-
-                // 4.) Expanding the region to the left (only if there was some expansion to the bottom)
-                if (currentRegion.Height > 16 && partialExpansion.IsEmpty && (currentColors.Count < 256 || currentColors.Contains(default)))
-                {
-                    while (currentRegion.Left > 0)
-                    {
-                        additionalColors.Clear();
-                        additionalLimit = 256 - currentColors.Count;
-                        if (!currentColors.Contains(default))
-                            additionalColors.Add(default);
-
-                        // the first 16 row can be skipped as we passed beyond that region
-                        for (y = currentRegion.Top + 16; y < currentRegion.Bottom; y++)
-                        {
-                            color = mask[y].GetColorIndex(currentRegion.Left - 1) != 0
-                                ? default
-                                : GetColor(imageData[y][currentRegion.Left - 1], backColor, alphaThreshold);
-                            if (currentColors.Contains(color))
-                                continue;
-                            if (additionalColors.Count < additionalLimit)
-                                additionalColors.Add(color);
-                            else
-                                break;
-                        }
-
-                        // could not complete the new column
-                        if (y != currentRegion.Bottom)
-                        {
-                            // not even the first pixel
-                            if (y == currentRegion.Top + 16 || additionalLimit == 0 && !currentColors.Contains(default))
-                                break;
-
-                            if (additionalColors.Count == additionalLimit && !currentColors.Contains(default))
-                            {
-                                currentColors.Add(default);
-                                currentColors.AddRange(additionalColors.Take(additionalLimit - 1));
-                            }
-                            else
-                                currentColors.AddRange(additionalColors);
-
-                            currentRegion.Width += 1;
-                            currentRegion.X -= 1;
-                            break;
-                        }
-
-                        // the region can be expanded
-                        currentColors.AddRange(additionalColors);
-                        currentRegion.Width += 1;
-                        currentRegion.X -= 1;
-                    }
-                }
-
-                // 5.) Adding the layer
-                Palette palette = new Palette(currentColors.ToArray(), backColor, alphaThreshold);
-                if (palette.HasAlpha)
-                {
-                    Rectangle layerRegion = fullScan
-                        ? new Rectangle(0, currentRegion.Top, size.Width, size.Height - currentRegion.Top)
-                        : currentRegion;
-
-                    using IReadWriteBitmapData layer = BitmapDataFactory.CreateBitmapData(layerRegion.Size, PixelFormat.Format8bppIndexed, palette);
-                    if (palette.TransparentIndex != 0)
-                        layer.DoClear(context, default);
-
-                    // filling up colors in the whole remaining image
-                    // TODO: parallel
-                    for (y = 0; y < layerRegion.Height; y++)
-                    {
-                        IReadableBitmapDataRow rowSource = imageData[layerRegion.Top + y];
-                        IReadWriteBitmapDataRow rowMask = mask[layerRegion.Top + y];
-                        IReadWriteBitmapDataRow rowLayer = layer[y];
-
-                        for (x = 0; x < layerRegion.Width; x++)
-                        {
-                            // already masked out
-                            if (rowMask.GetColorIndex(x + layerRegion.Left) != 0)
-                                continue;
-                            color = GetColor(rowSource[x + layerRegion.Left], backColor, alphaThreshold);
-
-                            // cannot include yet
-                            if (!currentColors.Contains(color))
-                                continue;
-
-                            // can include, masking out
-                            rowMask.SetColorIndex(x + layerRegion.Left, 1);
-                            if (color.A != 0)
-                                rowLayer[x] = color;
-                        }
-                    }
-
-                    layerRegion = GetContentArea(layer, true);
-                    IReadWriteBitmapData clipped = layer.Clip(layerRegion);
-                    if (!layerRegion.IsEmpty)
-                    {
-                        if (fullScan)
-                            layerRegion.Y += currentRegion.Top;
-                        else
-                            layerRegion.Location += new Size(currentRegion.Location);
-                        encoder.AddImage(clipped, layerRegion.Location, 10);
-                    }
-                }
-                else
-                {
-                    // No transparent color: just adding the current region (not using the currentLayer here because a clipped image is slower in AddImage)
-                    using IReadWriteBitmapData layer = imageData.DoClone(context, currentRegion, PixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
-                    encoder.AddImage(layer, currentRegion.Location, 10);
-                }
-
-                // 6.) Adjusting origin for the next session
-                if (currentOrigin.X != size.Width)
-                    continue;
-
-                // trying to skip complete rows
-                currentOrigin.X = 0;
-                while (currentOrigin.Y < size.Height)
-                {
-                    IReadableBitmapDataRow rowSource = imageData[currentOrigin.Y];
-                    IReadWriteBitmapDataRow rowMask = mask[currentOrigin.Y];
-                    for (x = 0; x < size.Width; x++)
-                    {
-                        if (rowMask.GetColorIndex(x) == 0 && GetColor(rowSource[x], backColor, alphaThreshold).A != 0)
-                            break;
-                    }
-
-                    if (x != size.Width)
-                        break;
-
-                    // a complete row can be skipped
-                    currentOrigin.Y += 1;
-                }
+                if (enumerator.Layer is IReadableBitmapData layer)
+#if DEBUG
+                    encoder.AddImage(layer, enumerator.Location, 1);
+#else
+                    encoder.AddImage(layer, enumerator.Location);
+#endif
             }
         }
 

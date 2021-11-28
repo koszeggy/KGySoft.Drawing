@@ -26,6 +26,7 @@ using System.IO;
 using System.Linq;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
@@ -596,44 +597,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [Explicit]
-        [TestCase(nameof(OptimizedPaletteQuantizer.Wu))]
-        [TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
-        [TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
-        public void EncodeAnimationHighColor(string quantizer)
-        {
-            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
-            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
-            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\gif4bit_anim.gif");
-            Bitmap[] frames = bmp.ExtractBitmaps();
-
-            IEnumerable<IReadableBitmapData> FramesIterator()
-            {
-                foreach (Bitmap? bitmap in frames)
-                {
-                    IReadableBitmapData currentFrame = bitmap.GetReadableBitmapData();
-                    yield return currentFrame;
-                    currentFrame.Dispose();
-                    //bitmap.Dispose(); // this kills the base member at compare that enumerates the frames again
-                }
-            }
-
-            using var ms = new MemoryStream();
-            var config = new AnimatedGifConfiguration(FramesIterator())
-            {
-                Quantizer = (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!
-            };
-
-            try
-            {
-                EncodeAnimatedGif(config, false, quantizer);
-            }
-            finally
-            {
-                frames.ForEach(f => f.Dispose());
-            }
-        }
-
         [TestCase(1, true)]
         [TestCase(-1, null)]
         [TestCase(-1, true)]
@@ -669,6 +632,127 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             SaveStream($"Canceled={cancelAfter >= 0}, ReportOverallProgress={reportOverallProgress?.ToString() ?? "null"}", ms);
+        }
+
+        [Explicit]
+        [TestCase(nameof(OptimizedPaletteQuantizer.Wu))]
+        [TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
+        [TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
+        public void EncodeAnimationHighColorFromFile(string quantizer)
+        {
+            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
+            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
+            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\gif4bit_anim.gif");
+            Bitmap[] frames = bmp.ExtractBitmaps();
+
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                foreach (Bitmap? bitmap in frames)
+                {
+                    IReadableBitmapData currentFrame = bitmap.GetReadableBitmapData();
+                    yield return currentFrame;
+                    currentFrame.Dispose();
+                    //bitmap.Dispose(); // this kills the base member at compare that enumerates the frames again
+                }
+            }
+
+            using var ms = new MemoryStream();
+            var config = new AnimatedGifConfiguration(FramesIterator())
+            {
+                Quantizer = (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!
+            };
+
+            try
+            {
+                EncodeAnimatedGif(config, false, quantizer);
+            }
+            finally
+            {
+                frames.ForEach(f => f.Dispose());
+            }
+        }
+
+        [Test]
+        public void EncodeAnimationTrueColor()
+        {
+            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(255, 64));
+
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                using IReadWriteBitmapData currentFrame = BitmapDataFactory.CreateBitmapData(new Size(bitmapData.Width, bitmapData.Height * 2));
+
+                IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(Color.White);
+                for (int y = bitmapData.Height - 1; y >= 0; y--)
+                {
+                    bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, bitmapData.Height - y), quantizer);
+                    yield return currentFrame;
+                }
+
+                quantizer = PredefinedColorsQuantizer.Rgb888(Color.Black);
+                for (int y = 0; y < bitmapData.Height; y++)
+                {
+                    bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, y + bitmapData.Height), quantizer);
+                    yield return currentFrame;
+                }
+            }
+
+            IEnumerable<TimeSpan> DelaysIterator()
+            {
+                for (int i = 0; i < bitmapData.Height * 2 - 1; i++)
+                    yield return TimeSpan.FromMilliseconds(20);
+                yield return TimeSpan.FromSeconds(3);
+            }
+
+            using var ms = new MemoryStream();
+            var config = new AnimatedGifConfiguration(FramesIterator(), DelaysIterator())
+            {
+                Quantizer = OptimizedPaletteQuantizer.Octree()
+            };
+
+            EncodeAnimatedGif(config, false);
+        }
+
+        [Test]
+        public void EncodeHighColorImage()
+        {
+            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 128));
+            bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
+            using var ms = new MemoryStream();
+            GifEncoder.EncodeHighColorImage(bitmapData, ms);
+            SaveStream(null, ms);
+            ms.Position = 0;
+            
+            using var reloaded = new Bitmap(ms);
+            using var actual = reloaded.GetReadableBitmapData();
+
+#if !DEBUG // in debug it is animated on purpose
+            AssertAreEqual(bitmapData, actual);
+#endif
+        }
+
+        [Test, Explicit]
+        public void EncodeHighColorImageMultiTest()
+        {
+            //using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(255, 200));
+            //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb332(Color.Silver));
+            //bitmapData.Quantize(OptimizedPaletteQuantizer.Wu(256, Color.Silver, 0));
+            //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
+            //bitmapData.Quantize(PredefinedColorsQuantizer.Argb8888(Color.Magenta, 255));
+
+            using var bitmapData = Icons.Warning.ExtractBitmap(0).GetReadWriteBitmapData();
+            bitmapData.Quantize(PredefinedColorsQuantizer.Argb8888(Color.Silver));
+            //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
+
+            //using var bitmapData = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png").GetReadWriteBitmapData();
+            //bitmapData.Dither(PredefinedColorsQuantizer.Argb1555(Color.Silver), ErrorDiffusionDitherer.FloydSteinberg);
+
+            var ms = new MemoryStream();
+            GifEncoder.EncodeHighColorImage(bitmapData, ms);
+            SaveStream("FullScan=False", ms);
+
+            ms = new MemoryStream();
+            GifEncoder.EncodeHighColorImage(bitmapData, ms, true);
+            SaveStream("FullScan=True", ms);
         }
 
         #endregion
