@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.Imaging
                 additionalColors = new HashSet<Color32>();
                 sourceRows = new IReadableBitmapDataRow[16];
                 maskRows = new IReadableBitmapDataRow[16];
-                mask = BitmapDataFactory.CreateBitmapData(size, PixelFormat.Format1bppIndexed);
+                mask = BitmapDataFactory.CreateBitmapData(size, PixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }));
             }
 
             #endregion
@@ -85,12 +85,9 @@ namespace KGySoft.Drawing.Imaging
             internal bool MoveNext()
             {
                 Layer?.Dispose();
-                // TODO: mask even in non-transparent mode if region goes beyond next origin
                 // TODO: use array for colors if faster
                 // TODO: parallelize
                 // TODO: progress
-                // TODO: reduce complexity if possible
-                // TODO: refactoring to not use additional colors?
 
                 if (currentOrigin.Y >= size.Height)
                 {
@@ -109,10 +106,10 @@ namespace KGySoft.Drawing.Imaging
                 Palette palette = new Palette(currentColors.ToArray(), backColor, alphaThreshold);
                 if (!palette.HasAlpha)
                 {
-                    // TODO: mask if needed (region goes beyond next origin)
-                    // No transparent color: just adding the current region
+                    // No transparent color: just adding the current region and masking the affected area
                     Layer = imageData.DoClone(asyncContext, currentRegion, PixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
                     Location = currentRegion.Location;
+                    mask.Clip(currentRegion).Clear(default);
                 }
                 else
                 {
