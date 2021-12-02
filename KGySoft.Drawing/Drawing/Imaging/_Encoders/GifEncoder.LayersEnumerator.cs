@@ -85,8 +85,6 @@ namespace KGySoft.Drawing.Imaging
             internal bool MoveNext()
             {
                 Layer?.Dispose();
-                // TODO: use array for colors if faster
-                // TODO: parallelize
                 // TODO: progress
 
                 if (currentOrigin.Y >= size.Height)
@@ -98,74 +96,37 @@ namespace KGySoft.Drawing.Imaging
                 // 1.) Initializing an up to 16x16 block and expanding it as long as can
                 // Keeping it rectangular helps reducing the generated size, even if full scanning is allowed
                 InitializeCurrentRegion();
+                if (asyncContext.IsCancellationRequested)
+                    return false;
                 ExpandRight();
+                if (asyncContext.IsCancellationRequested)
+                    return false;
                 ExpandDown();
+                if (asyncContext.IsCancellationRequested)
+                    return false;
                 ExpandLeft();
+                if (asyncContext.IsCancellationRequested)
+                    return false;
 
                 // 2.) Generating the layer
                 Palette palette = new Palette(currentColors.ToArray(), backColor, alphaThreshold);
-                if (!palette.HasAlpha)
+                if (palette.HasAlpha)
+                {
+                    // There is transparency: masking the complete area and shrink region if possible
+                    PrepareLayerWithTransparency(palette);
+                }
+                else
                 {
                     // No transparent color: just adding the current region and masking the affected area
                     Layer = imageData.DoClone(asyncContext, currentRegion, PixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
                     Location = currentRegion.Location;
+                    if (asyncContext.IsCancellationRequested)
+                        return false;
                     mask.Clip(currentRegion).Clear(default);
                 }
-                else
-                {
-                    // There is transparency: masking the complete area and shrink region if possible
-                    Rectangle layerRegion = fullScan
-                        ? new Rectangle(0, currentRegion.Top, size.Width, size.Height - currentRegion.Top)
-                        : currentRegion;
 
-                    IReadWriteBitmapData layer = BitmapDataFactory.CreateBitmapData(layerRegion.Size, PixelFormat.Format8bppIndexed, palette);
-                    if (palette.TransparentIndex != 0)
-                        layer.DoClear(asyncContext, default);
-
-                    // filling up colors in the whole remaining image
-                    // TODO: parallel
-                    for (int y = 0; y < layerRegion.Height; y++)
-                    {
-                        IReadableBitmapDataRow rowSource = imageData[layerRegion.Top + y];
-                        IReadWriteBitmapDataRow rowMask = mask[layerRegion.Top + y];
-                        IReadWriteBitmapDataRow rowLayer = layer[y];
-
-                        for (int x = 0; x < layerRegion.Width; x++)
-                        {
-                            // already masked out
-                            if (rowMask.GetColorIndex(x + layerRegion.Left) != 0)
-                                continue;
-                            Color32 color = GetColor(rowSource[x + layerRegion.Left]);
-
-                            // cannot include yet
-                            if (!currentColors.Contains(color))
-                                continue;
-
-                            // can include, masking out
-                            rowMask.SetColorIndex(x + layerRegion.Left, 1);
-                            if (color.A != 0)
-                                rowLayer[x] = color;
-                        }
-                    }
-
-                    layerRegion = GetContentArea(layer, true);
-                    if (layerRegion.IsEmpty)
-                    {
-                        layer.Dispose();
-                        Layer = null;
-                    }
-                    else
-                    {
-                        IReadWriteBitmapData clipped = layer.Clip(layerRegion, true);
-                        if (fullScan)
-                            layerRegion.Y += currentRegion.Top;
-                        else
-                            layerRegion.Location += new Size(currentRegion.Location);
-                        Layer = clipped;
-                        Location = layerRegion.Location;
-                    }
-                }
-
+                if (asyncContext.IsCancellationRequested)
+                    return false;
                 if (currentOrigin.X != size.Width)
                     return true;
 
@@ -173,6 +134,9 @@ namespace KGySoft.Drawing.Imaging
                 currentOrigin.X = 0;
                 while (currentOrigin.Y < size.Height)
                 {
+                    if (asyncContext.IsCancellationRequested)
+                        return false;
+
                     // trying to skip complete rows
                     IReadableBitmapDataRow rowSource = imageData[currentOrigin.Y];
                     IReadWriteBitmapDataRow rowMask = mask[currentOrigin.Y];
@@ -372,6 +336,99 @@ namespace KGySoft.Drawing.Imaging
                     currentColors.AddRange(additionalColors);
                     currentRegion.Width += 1;
                     currentRegion.X -= 1;
+                }
+            }
+
+            private void PrepareLayerWithTransparency(Palette palette)
+            {
+                Rectangle layerRegion = fullScan
+                    ? new Rectangle(0, currentRegion.Top, size.Width, size.Height - currentRegion.Top)
+                    : currentRegion;
+
+                IReadWriteBitmapData layer = BitmapDataFactory.CreateBitmapData(layerRegion.Size, PixelFormat.Format8bppIndexed, palette);
+                if (palette.TransparentIndex != 0)
+                {
+                    layer.DoClear(asyncContext, default);
+                    if (asyncContext.IsCancellationRequested)
+                        return;
+                }
+
+                // filling up colors in the whole remaining image
+                if (layerRegion.Width < parallelThreshold)
+                {
+                    for (int y = 0; y < layerRegion.Height; y++)
+                    {
+                        IReadableBitmapDataRow rowSource = imageData[layerRegion.Top + y];
+                        IReadWriteBitmapDataRow rowMask = mask[layerRegion.Top + y];
+                        IReadWriteBitmapDataRow rowLayer = layer[y];
+                        if (asyncContext.IsCancellationRequested)
+                            return;
+
+                        for (int x = 0; x < layerRegion.Width; x++)
+                        {
+                            // already masked out
+                            if (rowMask.GetColorIndex(x + layerRegion.Left) != 0)
+                                continue;
+                            Color32 color = GetColor(rowSource[x + layerRegion.Left]);
+
+                            // cannot include yet
+                            if (!currentColors.Contains(color))
+                                continue;
+
+                            // can include, masking out
+                            rowMask.SetColorIndex(x + layerRegion.Left, 1);
+                            if (color.A != 0)
+                                rowLayer[x] = color;
+                        }
+                    }
+                }
+                else
+                {
+                    ParallelHelper.For(asyncContext, DrawingOperation.ProcessingPixels, 0, layerRegion.Height, y =>
+                    {
+                        // ReSharper disable AccessToModifiedClosure - false alarm, this body is not accessed after returning from the call
+                        IReadableBitmapDataRow rowSource = imageData[layerRegion.Top + y];
+                        IReadWriteBitmapDataRow rowMask = mask[layerRegion.Top + y];
+                        // ReSharper disable once AccessToDisposedClosure - false alarm, this body is not accessed after returning from the call
+                        IReadWriteBitmapDataRow rowLayer = layer[y];
+                        int width = layerRegion.Width;
+                        int left = layerRegion.Left;
+                        // ReSharper restore AccessToModifiedClosure
+
+                        for (int x = 0; x < width; x++)
+                        {
+                            // already masked out
+                            if (rowMask.GetColorIndex(x + left) != 0)
+                                continue;
+                            Color32 color = GetColor(rowSource[x + left]);
+
+                            // cannot include yet
+                            if (!currentColors.Contains(color))
+                                continue;
+
+                            // can include, masking out
+                            rowMask.SetColorIndex(x + left, 1);
+                            if (color.A != 0)
+                                rowLayer[x] = color;
+                        }
+                    });
+                }
+
+                layerRegion = GetContentArea(layer, true);
+                if (layerRegion.IsEmpty)
+                {
+                    layer.Dispose();
+                    Layer = null;
+                }
+                else
+                {
+                    IReadWriteBitmapData clipped = layer.Clip(layerRegion, true);
+                    if (fullScan)
+                        layerRegion.Y += currentRegion.Top;
+                    else
+                        layerRegion.Location += new Size(currentRegion.Location);
+                    Layer = clipped;
+                    Location = layerRegion.Location;
                 }
             }
 
