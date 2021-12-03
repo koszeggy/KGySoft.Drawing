@@ -31,9 +31,44 @@ namespace KGySoft.Drawing.Imaging
     {
         private sealed class LayersEnumerator : IDisposable
         {
+            #region Nested Classes
+
+            private sealed class SuppressProgressContext : IAsyncContext
+            {
+                #region Properties
+
+                public int MaxDegreeOfParallelism => asyncContext.MaxDegreeOfParallelism;
+                public bool IsCancellationRequested => asyncContext.IsCancellationRequested;
+                public bool CanBeCanceled => asyncContext.CanBeCanceled;
+                public IDrawingProgress? Progress => null;
+
+                #endregion
+
+                #region Fields
+
+                private readonly IAsyncContext asyncContext;
+
+                #endregion
+
+                #region Constructors
+
+                internal SuppressProgressContext(IAsyncContext asyncContext) => this.asyncContext = asyncContext;
+
+                #endregion
+
+                #region Methods
+
+                public void ThrowIfCancellationRequested() => asyncContext.ThrowIfCancellationRequested();
+
+                #endregion
+            }
+
+            #endregion
+
             #region Fields
 
             private readonly IAsyncContext asyncContext;
+            private readonly IAsyncContext subContext;
             private readonly IReadableBitmapData imageData;
             private readonly Color32 backColor;
             private readonly byte alphaThreshold;
@@ -63,12 +98,13 @@ namespace KGySoft.Drawing.Imaging
             internal LayersEnumerator(IAsyncContext asyncContext, IReadableBitmapData imageData, Color32 backColor, byte alphaThreshold, bool fullScan)
             {
                 this.asyncContext = asyncContext;
+                subContext = asyncContext.Progress != null ? new SuppressProgressContext(asyncContext) : asyncContext;
                 this.imageData = imageData;
                 this.backColor = backColor;
                 this.alphaThreshold = alphaThreshold;
                 this.fullScan = fullScan;
                 size = imageData.GetSize();
-
+                this.asyncContext.Progress?.New(DrawingOperation.Saving, size.Width * ((size.Height - 1) / 16 + 1));
                 currentColors = new HashSet<Color32>(256);
                 additionalColors = new HashSet<Color32>();
                 sourceRows = new IReadableBitmapDataRow[16];
@@ -85,16 +121,16 @@ namespace KGySoft.Drawing.Imaging
             internal bool MoveNext()
             {
                 Layer?.Dispose();
-                // TODO: progress
-
                 if (currentOrigin.Y >= size.Height)
                 {
                     Layer = null;
+                    asyncContext.Progress?.Complete();
                     return false;
                 }
 
                 // 1.) Initializing an up to 16x16 block and expanding it as long as can
                 // Keeping it rectangular helps reducing the generated size, even if full scanning is allowed
+                asyncContext.Progress?.SetProgressValue(currentOrigin.Y / 16 * size.Width + currentOrigin.X);
                 InitializeCurrentRegion();
                 if (asyncContext.IsCancellationRequested)
                     return false;
@@ -118,11 +154,11 @@ namespace KGySoft.Drawing.Imaging
                 else
                 {
                     // No transparent color: just adding the current region and masking the affected area
-                    Layer = imageData.DoClone(asyncContext, currentRegion, PixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
+                    Layer = imageData.DoClone(subContext, currentRegion, PixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
                     Location = currentRegion.Location;
                     if (asyncContext.IsCancellationRequested)
                         return false;
-                    mask.Clip(currentRegion).Clear(default);
+                    mask.Clip(currentRegion).DoClear(subContext, default);
                 }
 
                 if (asyncContext.IsCancellationRequested)
@@ -348,7 +384,7 @@ namespace KGySoft.Drawing.Imaging
                 IReadWriteBitmapData layer = BitmapDataFactory.CreateBitmapData(layerRegion.Size, PixelFormat.Format8bppIndexed, palette);
                 if (palette.TransparentIndex != 0)
                 {
-                    layer.DoClear(asyncContext, default);
+                    layer.DoClear(subContext, default);
                     if (asyncContext.IsCancellationRequested)
                         return;
                 }
@@ -384,7 +420,7 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                 {
-                    ParallelHelper.For(asyncContext, DrawingOperation.ProcessingPixels, 0, layerRegion.Height, y =>
+                    ParallelHelper.For(subContext, DrawingOperation.ProcessingPixels, 0, layerRegion.Height, y =>
                     {
                         // ReSharper disable AccessToModifiedClosure - false alarm, this body is not accessed after returning from the call
                         IReadableBitmapDataRow rowSource = imageData[layerRegion.Top + y];

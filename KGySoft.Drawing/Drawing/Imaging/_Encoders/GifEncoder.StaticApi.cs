@@ -228,10 +228,16 @@ namespace KGySoft.Drawing.Imaging
             DoEncodeHighColorImage(AsyncContext.Null, imageData, stream, backColor, alphaThreshold, allowFullScan);
         }
 
+        public static void EncodeHighColorImage2(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128)
+        {
+            ValidateArguments(imageData, stream);
+            DoEncodeHighColorImage2(AsyncContext.Null, imageData, stream, backColor, alphaThreshold, allowFullScan);
+        }
+
         public static IAsyncResult BeginEncodeHighColorImage(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.BeginOperation(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoEncodeHighColorImage2(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
         }
 
         public static void EndEncodeHighColorImage(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeHighColorImage));
@@ -239,7 +245,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task EncodeHighColorImageAsync(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.DoOperationAsync(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoEncodeHighColorImage2(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
         }
 
         #endregion
@@ -324,6 +330,34 @@ namespace KGySoft.Drawing.Imaging
         }
 
         private static void DoEncodeHighColorImage(IAsyncContext context, IReadableBitmapData imageData, Stream stream, Color32 backColor, byte alphaThreshold, bool fullScan)
+        {
+            // redirecting for an already indexed image
+            if (imageData.PixelFormat.ToBitsPerPixel() <= 8 && imageData.Palette != null)
+            {
+                DoEncodeImage(context, imageData, stream, PredefinedColorsQuantizer.FromCustomPalette(new Palette(imageData.Palette, backColor, alphaThreshold)), null);
+                return;
+            }
+
+            using var enumerator = new LayersEnumerator(context, imageData, backColor, alphaThreshold, fullScan);
+            using GifEncoder encoder = new GifEncoder(stream, imageData.GetSize())
+            {
+#if DEBUG
+                AddMetaInfo = true
+#endif
+            };
+
+            while (enumerator.MoveNext())
+            {
+                if (enumerator.Layer is IReadableBitmapData layer)
+#if DEBUG
+                    encoder.AddImage(layer, enumerator.Location, 1);
+#else
+                    encoder.AddImage(layer, enumerator.Location);
+#endif
+            }
+        }
+
+        private static void DoEncodeHighColorImage2(IAsyncContext context, IReadableBitmapData imageData, Stream stream, Color32 backColor, byte alphaThreshold, bool fullScan)
         {
             // redirecting for an already indexed image
             if (imageData.PixelFormat.ToBitsPerPixel() <= 8 && imageData.Palette != null)

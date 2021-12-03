@@ -26,7 +26,6 @@ using System.IO;
 using System.Linq;
 
 using KGySoft.CoreLibraries;
-using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
@@ -41,10 +40,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
     {
         #region Nested Classes
 
-        private class TestFramesCollection : IEnumerable<IReadableBitmapData>, IDrawingProgress
+        #region TestFramesCollection class
+        
+        private class TestFramesCollection : IEnumerable<IReadableBitmapData>
         {
             #region Fields
-            
+
             private readonly Bitmap[] frames;
             private readonly int cancelAfter;
 
@@ -81,6 +82,18 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 bitmapData?.Dispose();
             }
 
+
+            #endregion
+        }
+
+        #endregion
+
+        #region TestProgress class
+
+        private class TestProgress : IDrawingProgress
+        {
+            #region Methods
+            
             void IDrawingProgress.Report(DrawingProgress progress) => Console.WriteLine($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.Report)}: {progress.OperationType} {progress.CurrentValue}/{progress.MaximumValue}");
             void IDrawingProgress.New(DrawingOperation operationType, int maximumValue, int currentValue) => Console.Write($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.New)}: {operationType} {currentValue}/{maximumValue}");
             void IDrawingProgress.Increment() => Console.Write('.');
@@ -90,6 +103,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             #endregion
         }
+
+        #endregion
 
         #endregion
 
@@ -616,7 +631,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             IAsyncResult asyncResult = GifEncoder.BeginEncodeAnimation(config, ms, new AsyncConfig
             {
                 ThrowIfCanceled = true,
-                Progress = framesCollection,
+                Progress = new TestProgress(),
             });
             try
             {
