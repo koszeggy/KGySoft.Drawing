@@ -707,6 +707,10 @@ namespace KGySoft.Drawing.UnitTests
             var reloaded = new Bitmap(ms);
 
             Assert.AreEqual(ImageFormat.Gif, reloaded.RawFormat);
+
+            if (!OSUtils.IsWindows)
+                return;
+
             Assert.AreEqual(PixelFormat.Format32bppArgb, reloaded.PixelFormat);
 
             // quantizing source to remove partial transparency for the comparison
