@@ -750,25 +750,28 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test, Explicit]
         public void EncodeHighColorImageMultiTest()
         {
+            Color32 backColor = new Color32(Color.Silver);
+            byte alphaThreshold = 100;
+
             //using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(255, 200));
             //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb332(Color.Silver));
             //bitmapData.Quantize(OptimizedPaletteQuantizer.Wu(256, Color.Silver, 0));
             //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
             //bitmapData.Quantize(PredefinedColorsQuantizer.Argb8888(Color.Magenta, 255));
 
-            using var bitmapData = Icons.Warning.ExtractBitmap(0)!.GetReadWriteBitmapData();
-            bitmapData.Quantize(PredefinedColorsQuantizer.Argb8888(Color.Silver));
+            //using var bitmapData = Icons.Warning.ExtractBitmap(0)!.GetReadWriteBitmapData();
+            //bitmapData.Quantize(PredefinedColorsQuantizer.Argb8888(Color.Silver));
             //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
 
-            //using var bitmapData = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png").GetReadWriteBitmapData();
-            //bitmapData.Dither(PredefinedColorsQuantizer.Argb1555(Color.Silver), ErrorDiffusionDitherer.FloydSteinberg);
+            using var bitmapData = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png").GetReadWriteBitmapData();
+            bitmapData.Dither(PredefinedColorsQuantizer.Rgb565(Color.Silver), ErrorDiffusionDitherer.FloydSteinberg);
 
             var ms = new MemoryStream();
-            GifEncoder.EncodeHighColorImage(bitmapData, ms);
+            GifEncoder.EncodeHighColorImage(bitmapData, ms, false, backColor, alphaThreshold);
             SaveStream("FullScan=False", ms);
 
             ms = new MemoryStream();
-            GifEncoder.EncodeHighColorImage(bitmapData, ms, true);
+            GifEncoder.EncodeHighColorImage(bitmapData, ms, true, backColor, alphaThreshold);
             SaveStream("FullScan=True", ms);
         }
 

@@ -1,9 +1,9 @@
-Thank you for installing KGy SOFT Drawing Libraries 6.0.0
+Thank you for installing KGy SOFT Drawing Libraries 6.1.0
 KGy SOFT Drawing Libraries offer advanced drawing features both for completely managed bitmap data
 as well as native System.Drawing types on multiple platforms.
 
 Main new features in 6.x:
-- Supporting creating GIF animation on every platform.
+- Supporting creating GIF animations on every platform.
 
 Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
 
@@ -33,5 +33,6 @@ Some Highlights of KGy SOFT Drawing Libraries:
 - Creating combined icons and multi-resolution bitmaps.
 - Saving metafiles in EMF/WMF formats.
 - Advanced support for saving images as Icon, BMP, JPEG, PNG, GIF and TIFF formats.
+- Creating GIF animations even in high color.
 - Converting between various pixel formats preserving transparency if possible.
 - Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.

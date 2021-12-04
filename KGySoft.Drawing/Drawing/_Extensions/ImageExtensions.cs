@@ -1758,7 +1758,7 @@ namespace KGySoft.Drawing
         /// Encodes the specified <paramref name="image"/> as a multi-layered, single frame GIF image and writes it into the specified <paramref name="stream"/>, preserving its original color depth.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="image">The <see cref="Image"/> to save. If contains multiple images, then only the current image will be saved.</param>
+        /// <param name="image">The <see cref="Image"/> to save. If contains multiple images or frames, then only the current image or frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
         /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
         /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
@@ -1811,7 +1811,7 @@ namespace KGySoft.Drawing
         /// Encodes the specified <paramref name="image"/> as a multi-layered, single frame GIF image and writes it into the specified file, preserving its original color depth.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsHighColorGif(Image,Stream,bool,Color,byte)"/> overload for details.
         /// </summary>
-        /// <param name="image">The <see cref="Image"/> to save. If contains multiple images, then only the current image will be saved.</param>
+        /// <param name="image">The <see cref="Image"/> to save. If contains multiple images or frames, then only the current image or frame will be saved.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="image"/>. The directory of the specified path is created if it does not exist.</param>
         /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
         /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
