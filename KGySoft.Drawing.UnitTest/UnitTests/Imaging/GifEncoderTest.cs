@@ -99,7 +99,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             void IDrawingProgress.Increment() => Console.Write('.');
             void IDrawingProgress.SetProgressValue(int value) => Console.Write($"({value})");
             void IDrawingProgress.Complete() => Console.WriteLine($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.Complete)}");
-            void IProgress<DrawingProgress>.Report(DrawingProgress value) => ((IDrawingProgress)this).Report(value);
+#if !(NET35 || NET40)
+            void IProgress<DrawingProgress>.Report(DrawingProgress value) => ((IDrawingProgress)this).Report(value); 
+#endif
 
             #endregion
         }
@@ -754,7 +756,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
             //bitmapData.Quantize(PredefinedColorsQuantizer.Argb8888(Color.Magenta, 255));
 
-            using var bitmapData = Icons.Warning.ExtractBitmap(0).GetReadWriteBitmapData();
+            using var bitmapData = Icons.Warning.ExtractBitmap(0)!.GetReadWriteBitmapData();
             bitmapData.Quantize(PredefinedColorsQuantizer.Argb8888(Color.Silver));
             //bitmapData.Quantize(PredefinedColorsQuantizer.Rgb888(Color.Silver));
 

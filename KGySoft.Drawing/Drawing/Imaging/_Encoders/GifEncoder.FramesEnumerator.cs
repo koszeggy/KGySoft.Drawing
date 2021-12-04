@@ -75,7 +75,9 @@ namespace KGySoft.Drawing.Imaging
 
                     #region Explicitly Implemented Interface Methods
 
+#if !(NET35 || NET40)
                     void IProgress<DrawingProgress>.Report(DrawingProgress value) => Report(value);
+#endif
 
                     #endregion
 

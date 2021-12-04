@@ -117,7 +117,7 @@ namespace KGySoft.Drawing
             if (methodsIIListProvider_GetCount == null)
             {
                 typeIIListProvider = Reflector.ResolveType(typeof(Enumerable).Assembly, "System.Linq.IIListProvider`1");
-                Interlocked.CompareExchange(ref methodsIIListProvider_GetCount, ThreadSafeCacheFactory.Create<Type, MethodAccessor>(GetGetCountMethod, cacheProfile16), null);
+                Interlocked.CompareExchange(ref methodsIIListProvider_GetCount, ThreadSafeCacheFactory.Create<Type, MethodAccessor?>(GetGetCountMethod, cacheProfile16), null);
             }
 
             return methodsIIListProvider_GetCount[genericArgument];

@@ -334,7 +334,7 @@ namespace KGySoft.Drawing.Imaging
                     max16BppValue = lookupTable8To16Bpp?[lookupTable8To16Bpp.Length - 1] ?? UInt16.MaxValue;
                     lookupTable8To16BppInitialized = true;
                 }
-                catch (Exception e) when (!(e is StackOverflowException))
+                catch (Exception e) when (e is not StackOverflowException)
                 {
                     // catching even OutOfMemoryException because Gdip.StatusException() can throw it for unsupported formats
                     lookupTable8To16Bpp = null;
@@ -414,7 +414,7 @@ namespace KGySoft.Drawing.Imaging
                         lookupTable16To8Bpp = null;
                     lookupTable16To8BppInitialized = true;
                 }
-                catch (Exception e) when (!(e is StackOverflowException))
+                catch (Exception e) when (e is not StackOverflowException)
                 {
                     // catching even OutOfMemoryException because Gdip.StatusException() can throw it for unsupported formats
                     lookupTable16To8Bpp = null;

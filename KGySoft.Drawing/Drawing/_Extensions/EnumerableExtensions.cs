@@ -12,9 +12,11 @@ namespace KGySoft.Drawing
                 case ICollection<T> genericCollection:
                     count = genericCollection.Count;
                     return true;
+#if !(NET35 || NET40)
                 case IReadOnlyCollection<T> readOnlyCollection:
                     count = readOnlyCollection.Count;
                     return true;
+#endif
                 case ICollection nonGenericCollection:
                     count = nonGenericCollection.Count;
                     return true;

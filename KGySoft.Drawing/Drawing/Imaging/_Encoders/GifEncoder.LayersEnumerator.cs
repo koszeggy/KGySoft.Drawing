@@ -105,7 +105,11 @@ namespace KGySoft.Drawing.Imaging
                 this.fullScan = fullScan;
                 size = imageData.GetSize();
                 this.asyncContext.Progress?.New(DrawingOperation.Saving, size.Width * ((size.Height - 1) / 16 + 1));
+#if NETFRAMEWORK || NETSTANDARD2_0
+                currentColors = new HashSet<Color32>();
+#else
                 currentColors = new HashSet<Color32>(256);
+#endif
                 additionalColors = new HashSet<Color32>();
                 sourceRows = new IReadableBitmapDataRow[16];
                 maskRows = new IReadableBitmapDataRow[16];
