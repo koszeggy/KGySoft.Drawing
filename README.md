@@ -1,4 +1,4 @@
-[![KGy SOFT .net](https://docs.kgysoft.net/drawing/icons/logo.png)](https://kgysoft.net)
+﻿[![KGy SOFT .net](https://docs.kgysoft.net/drawing/icons/logo.png)](https://kgysoft.net)
 
 # KGy SOFT Drawing Libraries
 
@@ -23,6 +23,7 @@ Multiple versions of .NET Framework and .NET Core are supported. Tested on Windo
    - [Fast Bitmap Manipulation](#fast-bitmap-manipulation)
    - [Managed Bitmap Data Manipulation](#managed-bitmap-data-manipulation)
    - [Quantizing and Dithering](#quantizing-and-dithering)
+   - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
 6. [License](#license)
 
 ## Download:
@@ -148,6 +149,25 @@ See the following table for the possible results (click the images for displayin
   <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="Quantizing and Dithering in KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250977-b3198880-db25-11eb-9f72-6fa51d54a9da.png"/></a>
   <br/><em>Quantizing and Dithering in KGy SOFT Imaging Tools</em>
 </p>
+
+### Advanced GIF Encoder with High Color Support
+
+The KGy SOFT Drawing Libraries make possible creating high quality GIF images and animations:
+* For `Image` types the simplest and highest-level access is provided by the [`ImageExtension`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_ImageExtensions.htm) class and its `SaveAs*` methods.
+* Alternatively, you can use the static methods of the [`GifEncoder`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) class to create animations or even high color still images. See also the [`AnimatedGifConfiguration`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_AnimatedGifConfiguration.htm) class.
+* To create a GIF image or animation completely manually you can instantiate the [`GifEncoder`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) class that provides you the lowest-level access.
+
+#### Examples:
+
+> ⚠️ _Note:_ Please note that multi layered high color GIF images might be mistakenly rendered as animations by some decoders, including browsers. Still images do not contain the Netscape application extension and do not have any delays. Such images are processed properly by GDI+ on Windows, the `System.Drawing` `Bitmap` and `Image` classes and the application built on GDI+ such as Windows Paint.
+
+|Description|Image Example|
+|--|--|
+| True color GIF animation. The last frame has 29,731 colors. The Granger Rainbow has been generated from an alpha gradient bitmap by [this code](https://github.com/koszeggy/KGySoft.Drawing/blob/9157c58a24f29174e3475f89d0990a28f81691aa/KGySoft.Drawing.UnitTest/UnitTests/Imaging/GifEncoderTest.cs#L693). | ![True color GIF animation (29,731 colors)](KGySoft.Drawing/Help/Images/GifAnimationTrueColor.gif) |
+| Warning icon encoded as a high color GIF. It has only single bit transparency but otherwise its colors have been preserved. It consists of 18 layers and has 4,363 colors. | ![Warning icon as a high color GIF image](KGySoft.Drawing/Help/Images/WarningHighColor.gif) |
+| Test image "Lena" encoded as a true color GIF. It consists of 983 layers and has 148,702 colors. The file size is about twice as large as the [PNG encoded version](KGySoft.Drawing/Help/Images/Lena.png) (by allowing full scanning the number of layers could be decreased to 584 but the file size would be even larger). | ![Test image "Lena" encoded as a true color GIF](KGySoft.Drawing/Help/Images/LenaTrueColor.gif) |
+| Test image "Lena" encoded as a high color GIF. Before encoding it was prequantized with [RGB565 16-bit quantizer](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb565.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm). It consists of 18 layers and has 4,451 colors. The file size is about 80% of the original [PNG encoded version](KGySoft.Drawing/Help/Images/Lena.png) but could be even smaller without the dithering. | ![Test image "Lena" encoded as a high color GIF. Prequantized to the 16-bit RGB565 color space using Floyd-Steinberg dithering](KGySoft.Drawing/Help/Images/LenaRgb565DitheredFS.gif) |
+
 
 ## License
 This repository is under the [KGy SOFT License 1.0](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE), which is a permissive GPL-like license. It allows you to copy and redistribute the material in any medium or format for any purpose, even commercially. The only thing is not allowed is to distribute a modified material as yours: though you are free to change and re-use anything, do that by giving appropriate credit. See the [LICENSE](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE) file for details.
