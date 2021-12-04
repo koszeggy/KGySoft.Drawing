@@ -692,6 +692,30 @@ namespace KGySoft.Drawing.UnitTests
             SaveStream($"{pixelFormat}", ms);
         }
 
+        [TestCase(false)]
+        [TestCase(true)]
+        public void SaveAsHighColorGifTest(bool allowFullScan)
+        {
+            Color backColor = Color.Silver;
+            byte alphaThreshold = 100;
+            var ms = new MemoryStream();
+            using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256))!;
+            bmp.SaveAsHighColorGif(ms, allowFullScan, backColor, alphaThreshold);
+            SaveStream($"FullScan={allowFullScan}", ms);
+            
+            ms.Position = 0;
+            var reloaded = new Bitmap(ms);
+
+            Assert.AreEqual(ImageFormat.Gif, reloaded.RawFormat);
+            Assert.AreEqual(PixelFormat.Format32bppArgb, reloaded.PixelFormat);
+
+            // quantizing source to remove partial transparency for the comparison
+            bmp.Quantize(PredefinedColorsQuantizer.FromCustomFunction(c => c, backColor, PixelFormat.Format32bppArgb, alphaThreshold));
+            using IReadableBitmapData dataSrc = bmp.GetReadableBitmapData();
+            using IReadableBitmapData dataDst = reloaded.GetReadableBitmapData();
+            AssertAreEqual(dataSrc, dataSrc);
+        }
+
         [TestCase(PixelFormat.Format64bppArgb)]
         [TestCase(PixelFormat.Format64bppPArgb)]
         [TestCase(PixelFormat.Format48bppRgb)]

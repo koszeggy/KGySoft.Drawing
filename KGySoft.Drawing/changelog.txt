@@ -15,18 +15,25 @@
   helps to avoid issues when a .NET Framework build is executed on .NET/Core (should not occur when using package
   references but may happen when developing VisualStudio extensions).
 
++ KGySoft.Drawing namespace:
+============================
++ ImageExtensions class:
+  + New SaveAsHighColorGif methods
+
 ! KGySoft.Drawing.Imaging namespace:
 ====================================
 ! IBitmapDataRow interface:
   ! New Width property. This is a breaking change only if you have custom implementations for this interface.
-    It simply the exposes the Width property of the owner IBitmapData instance.
+    It simply exposes the Width property of the owner IBitmapData instance.
   ! New Size property. This is a breaking change only if you have custom implementations for this interface.
-    It simply the exposes the RowSize property of the owner IBitmapData instance.
+    It simply exposes the RowSize property of the owner IBitmapData instance.
 * GifEncoder:
   + New BeginEncodeAnimation and EndEncodeAnimation methods
   + New EncodeAnimationAsync method (.NET Framework 4.0 and above)
   + New BeginEncodeImage and EndEncodeImage methods
   + New EncodeImageAsync method (.NET Framework 4.0 and above)
+  + New EncodeHighColorImage/BeginEncodeHighColorImage/EndEncodeHighColorImage methods
+  + New EncodeHighColorImageAsync method (.NET Framework 4.0 and above)
   - AddImage method: Improving the compatibility with some decoders by always adding the Graphic Control Extension
     for subsequent frames.
   - Fixing possibly improper clearing regions when AnimatedGifConfiguration.AllowDeltaFrames is true and

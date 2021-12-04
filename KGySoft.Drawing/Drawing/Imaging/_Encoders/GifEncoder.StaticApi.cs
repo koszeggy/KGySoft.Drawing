@@ -222,31 +222,117 @@ namespace KGySoft.Drawing.Imaging
 
         #region EncodeHighColorImage
 
+        /// <summary>
+        /// Encodes the specified <paramref name="imageData"/> as a multi-layered, single frame GIF image and writes it into the specified <paramref name="stream"/>, preserving its original color depth.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="imageData">The image data to write. Possible alpha pixels might be blended with <paramref name="backColor"/> but otherwise the color depth will be preserved.</param>
+        /// <param name="stream">The stream to save the encoded animation into.</param>
+        /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
+        /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color32.A">Color32.A</see> field
+        /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color during the encoding.
+        /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a pixel is considered transparent.
+        /// If 0, then the final composite image will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="imageData"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginEncodeHighColorImage">BeginEncodeHighColorImage</see>
+        /// or <see cref="EncodeHighColorImageAsync">EncodeHighColorImageAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// <note type="caution">This method produces a GIF image that may have compatibility issues. Though the <see cref="Image"/> and <see cref="Bitmap"/> types (at least in Windows)
+        /// support them as expected as well as applications built on GDI+ (such as Windows Paint), many decoders may treat the result as an animation (including browsers).</note>
+        /// <para>If <paramref name="allowFullScan"/> is <see langword="true"/>, then both the processing time and memory usage is higher.
+        /// It helps to minimize the number of layers of the final image; however, the final image size will not be necessarily smaller, especially for true color images.</para>
+        /// <para>If <paramref name="allowFullScan"/> is <see langword="false"/>, then each layer is attempted to be as compact as possible. It allows a very fast processing with lower memory usage.
+        /// Though it usually produces more layers, the final size will not be necessarily larger, especially for true color images.</para>
+        /// <note type="tip">You can prequantize true color images using a 16-bit quantizer (with or without dithering) to produce fairly compact, still high color GIF images.
+        /// For such images the <paramref name="allowFullScan"/> parameter with <see langword="true"/>&#160;value typically produces more compact results.
+        /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer for images with transparency,
+        /// or the <see cref="PredefinedColorsQuantizer.Rgb565">Rgb565</see> quantizer for non-transparent images.</note>
+        /// <para>To encode an <see cref="Image"/> you can use also the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsHighColorGif">ImageExtensions.SaveAsHighColorGif</see> methods.</para>
+        /// <para>To create a multi-layered image completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
+        /// </remarks>
         public static void EncodeHighColorImage(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(imageData, stream);
             DoEncodeHighColorImage(AsyncContext.Null, imageData, stream, backColor, alphaThreshold, allowFullScan);
         }
 
-        public static void EncodeHighColorImage2(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128)
-        {
-            ValidateArguments(imageData, stream);
-            DoEncodeHighColorImage2(AsyncContext.Null, imageData, stream, backColor, alphaThreshold, allowFullScan);
-        }
-
+        /// <summary>
+        /// Begins to encode the specified <paramref name="imageData"/> as a multi-layered, single frame GIF image, writing it into the specified <paramref name="stream"/> and preserving its original color depth.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="imageData">The image data to write. Possible alpha pixels might be blended with <paramref name="backColor"/> but otherwise the color depth will be preserved.</param>
+        /// <param name="stream">The stream to save the encoded animation into.</param>
+        /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
+        /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color32.A">Color32.A</see> field
+        /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color during the encoding.
+        /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a pixel is considered transparent.
+        /// If 0, then the final composite image will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="imageData"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="EncodeHighColorImageAsync">EncodeHighColorImageAsync</see> method.</para>
+        /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndEncodeHighColorImage">EndEncodeHighColorImage</see> method.</para>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.
+        /// The encoding itself cannot be parallelized. The <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> setting affects only some processing steps if the size of a layer exceeds a threshold.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="EncodeHighColorImage">EncodeHighColorImage</see> method for more details.</note>
+        /// </remarks>
         public static IAsyncResult BeginEncodeHighColorImage(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.BeginOperation(ctx => DoEncodeHighColorImage2(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
         }
 
+        /// <summary>
+        /// Waits for the pending asynchronous operation started by the <see cref="BeginEncodeHighColorImage">BeginEncodeHighColorImage</see> method to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="EncodeHighColorImageAsync">EncodeHighColorImageAsync</see> method instead.
+        /// </summary>
+        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         public static void EndEncodeHighColorImage(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeHighColorImage));
 
+#if !NET35
+        /// <summary>
+        /// Encodes the specified <paramref name="imageData"/> as a multi-layered, single frame GIF image asynchronously, ans writes it into the specified <paramref name="stream"/>, preserving its original color depth.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="imageData">The image data to write. Possible alpha pixels might be blended with <paramref name="backColor"/> but otherwise the color depth will be preserved.</param>
+        /// <param name="stream">The stream to save the encoded animation into.</param>
+        /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
+        /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color32.A">Color32.A</see> field
+        /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color during the encoding.
+        /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which a pixel is considered transparent.
+        /// If 0, then the final composite image will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="imageData"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.
+        /// The encoding itself cannot be parallelized. The <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> setting affects only some processing steps if the size of a layer exceeds a threshold.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="EncodeHighColorImage">EncodeHighColorImage</see> method for more details.</note>
+        /// </remarks>
         public static Task EncodeHighColorImageAsync(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.DoOperationAsync(ctx => DoEncodeHighColorImage2(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
         }
+#endif
 
         #endregion
 
@@ -349,39 +435,7 @@ namespace KGySoft.Drawing.Imaging
             while (enumerator.MoveNext())
             {
                 if (enumerator.Layer is IReadableBitmapData layer)
-#if DEBUG
-                    encoder.AddImage(layer, enumerator.Location, 1);
-#else
                     encoder.AddImage(layer, enumerator.Location);
-#endif
-            }
-        }
-
-        private static void DoEncodeHighColorImage2(IAsyncContext context, IReadableBitmapData imageData, Stream stream, Color32 backColor, byte alphaThreshold, bool fullScan)
-        {
-            // redirecting for an already indexed image
-            if (imageData.PixelFormat.ToBitsPerPixel() <= 8 && imageData.Palette != null)
-            {
-                DoEncodeImage(context, imageData, stream, PredefinedColorsQuantizer.FromCustomPalette(new Palette(imageData.Palette, backColor, alphaThreshold)), null);
-                return;
-            }
-
-            using var enumerator = new LayersEnumerator(context, imageData, backColor, alphaThreshold, fullScan);
-            using GifEncoder encoder = new GifEncoder(stream, imageData.GetSize())
-            {
-#if DEBUG
-                AddMetaInfo = true
-#endif
-            };
-
-            while (enumerator.MoveNext())
-            {
-                if (enumerator.Layer is IReadableBitmapData layer)
-#if DEBUG
-                    encoder.AddImage(layer, enumerator.Location, 1);
-#else
-                    encoder.AddImage(layer, enumerator.Location);
-#endif
             }
         }
 

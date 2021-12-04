@@ -1694,9 +1694,9 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
+        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified file.
         /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> overload for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="frames"/>. The directory of the specified path is created if it does not exist.</param>
@@ -1737,9 +1737,9 @@ namespace KGySoft.Drawing
             => SaveAsAnimatedGif(frames, stream, delay.HasValue ? new[] { delay.Value } : null, quantizer, ditherer);
 
         /// <summary>
-        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
+        /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified file.
         /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsAnimatedGif(IEnumerable{Image}, Stream, IEnumerable{TimeSpan}?, IQuantizer?, IDitherer?)"/> overload for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="frames"/>. The directory of the specified path is created if it does not exist.</param>
@@ -1753,6 +1753,86 @@ namespace KGySoft.Drawing
         /// <br/>Default value: <see langword="null"/>.</param>
         public static void SaveAsAnimatedGif(this IEnumerable<Image> frames, string fileName, TimeSpan? delay = null, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => SaveAsAnimatedGif(frames, fileName, delay.HasValue ? new[] { delay.Value } : null, quantizer, ditherer);
+
+        /// <summary>
+        /// Encodes the specified <paramref name="image"/> as a multi-layered, single frame GIF image and writes it into the specified <paramref name="stream"/>, preserving its original color depth.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="image">The <see cref="Image"/> to save. If contains multiple images, then only the current image will be saved.</param>
+        /// <param name="stream">The stream to save the image into.</param>
+        /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
+        /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
+        /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color during the encoding.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a pixel is considered transparent.
+        /// If 0, then the final composite image will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="GifEncoder.BeginEncodeHighColorImage">GifEncoder.BeginEncodeHighColorImage</see> or <see cref="GifEncoder.EncodeHighColorImageAsync">GifEncoder.EncodeHighColorImageAsync</see>
+        /// (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
+        /// <note type="caution">This method produces a GIF image that may have compatibility issues. Though the <see cref="Image"/> and <see cref="Bitmap"/> types (at least in Windows)
+        /// support them as expected as well as applications built on GDI+ (such as Windows Paint), many decoders may treat the result as an animation (including browsers).</note>
+        /// <para>If <paramref name="allowFullScan"/> is <see langword="true"/>, then both the processing time and memory usage is higher.
+        /// It helps to minimize the number of layers of the final image; however, the final image size will not be necessarily smaller, especially for true color images.</para>
+        /// <para>If <paramref name="allowFullScan"/> is <see langword="false"/>, then each layer is attempted to be as compact as possible. It allows a very fast processing with lower memory usage.
+        /// Though it usually produces more layers, the final size will not be necessarily larger, especially for true color images.</para>
+        /// <note type="tip">You can prequantize true color images using a 16-bit quantizer (with or without dithering) to produce fairly compact, still high color GIF images.
+        /// For such images the <paramref name="allowFullScan"/> parameter with <see langword="true"/>&#160;value typically produces more compact results.
+        /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer for images with transparency,
+        /// or the <see cref="PredefinedColorsQuantizer.Rgb565">Rgb565</see> quantizer for non-transparent images.</note>
+        /// <para>To create a multi-layered image completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
+        /// </remarks>
+        public static void SaveAsHighColorGif(this Image image, Stream stream, bool allowFullScan = false, Color backColor = default, byte alphaThreshold = 128)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (stream == null)
+                throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
+            
+            Bitmap bitmap = image as Bitmap ?? new Bitmap(image);
+            try
+            {
+                using var bitmapData = bitmap.GetReadableBitmapData();
+                GifEncoder.EncodeHighColorImage(bitmapData, stream, allowFullScan, new Color32(backColor), alphaThreshold);
+            }
+            finally
+            {
+                if (!ReferenceEquals(image, bitmap))
+                    bitmap.Dispose();
+            }
+        }
+
+        /// <summary>
+        /// Encodes the specified <paramref name="image"/> as a multi-layered, single frame GIF image and writes it into the specified file, preserving its original color depth.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="SaveAsHighColorGif(Image,Stream,bool,Color,byte)"/> overload for details.
+        /// </summary>
+        /// <param name="image">The <see cref="Image"/> to save. If contains multiple images, then only the current image will be saved.</param>
+        /// <param name="fileName">The name of the file to which to save the <paramref name="image"/>. The directory of the specified path is created if it does not exist.</param>
+        /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
+        /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
+        /// <br/>Default value: <see langword="false"/>.</param>
+        /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
+        /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color during the encoding.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a pixel is considered transparent.
+        /// If 0, then the final composite image will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="image"/> or <paramref name="fileName"/> is <see langword="null"/>.</exception>
+        public static void SaveAsHighColorGif(this Image image, string fileName, bool allowFullScan = false, Color backColor = default, byte alphaThreshold = 128)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (fileName == null)
+                throw new ArgumentNullException(nameof(fileName), PublicResources.ArgumentNull);
+            using FileStream fs = Files.CreateWithPath(fileName);
+            SaveAsHighColorGif(image, fs, allowFullScan, backColor, alphaThreshold);
+        }
 
         #endregion
 
