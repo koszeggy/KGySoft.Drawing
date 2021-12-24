@@ -38,16 +38,11 @@ namespace KGySoft.Drawing
         [SecurityCritical]
         internal static unsafe void CopyMemory(byte* source, byte* target, int length)
         {
-            if (OSUtils.IsWindows)
-                Kernel32.CopyMemory(new IntPtr(target), new IntPtr(source), length);
-            else
-            {
 #if NET35 || NET40 || NET45
-                DoCopyMemory(source, target, length);
+            DoCopyMemory(source, target, length);
 #else
-                Buffer.MemoryCopy(source, target, length, length);
+            Buffer.MemoryCopy(source, target, length, length);
 #endif
-            }
         }
 
         [SecurityCritical]
