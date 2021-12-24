@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
+- v6.1.1:
+~~~~~~~~~
+
+- KGySoft.Drawing.Imaging namespace
+===================================
+- BitmapDataExtensions class: Fixing blending of DrawInto/BeginDrawInto/DrawIntoAsync methods if target
+  is a custom IReadWriteBitmapData implementation.
+
+
+~~~~~~~~~
 ! v6.1.0:
 ~~~~~~~~~
 

@@ -2391,7 +2391,7 @@ namespace KGySoft.Drawing.Imaging
                 targetCloned = true;
             }
             else
-                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
 
             IBitmapDataInternal? sessionSource = null;
 
@@ -2484,7 +2484,7 @@ namespace KGySoft.Drawing.Imaging
                 targetCloned = true;
             }
             else
-                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
+                sessionTarget = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, true, true);
 
             IBitmapDataInternal? sessionSource = null;
 
