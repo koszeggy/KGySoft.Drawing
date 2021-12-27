@@ -2019,8 +2019,8 @@ namespace KGySoft.Drawing.Imaging
         internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => DoCopy(context, source, target, new Rectangle(Point.Empty, source.GetSize()), targetLocation, quantizer, ditherer);
 
-        internal static void DoDrawInto(this IReadableBitmapData source, IAsyncContext context, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle)
-            => DoDrawInto(context, source, target, sourceRectangle, targetRectangle, null, null, ScalingMode.Auto);
+        internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, bool skipTransparent = false)
+            => DoCopy(context, source, target, sourceRectangle, targetLocation, quantizer, null, skipTransparent);
 
         internal static void DoDrawInto(this IReadableBitmapData source, IAsyncContext context, IReadWriteBitmapData target, Rectangle targetRectangle)
             => DoDrawInto(context, source, target, new Rectangle(Point.Empty, source.GetSize()), targetRectangle, null, null, ScalingMode.Auto);

@@ -9,12 +9,15 @@
 * v6.2.0:
 ~~~~~~~~~
 
-+ Assembly changes:
+* Assembly changes:
 ===================
 + Explicitly targeting also .NET Framework 4.6.
+- Removing P/Invoke calls for special functions, whose entry points are mocked by the JIT compiler because these
+  were not supported in all cases.
 
-- KGySoft.Drawing.Imaging namespace
+* KGySoft.Drawing.Imaging namespace
 ===================================
+* GifEncoder class: Improved quality when AnimatedGifConfiguration.AllowDeltaFrames property is true.
 - BitmapDataExtensions class: Fixing blending of DrawInto/BeginDrawInto/DrawIntoAsync methods if target
   is a custom IReadWriteBitmapData implementation.
 

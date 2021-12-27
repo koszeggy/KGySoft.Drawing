@@ -96,7 +96,7 @@ namespace KGySoft.Drawing.Imaging
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
-                byte alphaThreshold = quantizingSession.AlphaThreshold;
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.Imaging
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
-                byte alphaThreshold = session.AlphaThreshold;
+                byte alphaThreshold = Math.Max(session.AlphaThreshold, (byte)1);
                 bool skip = skipTransparent;
                 for (int x = 0; x < width; x++)
                 {
@@ -152,7 +152,7 @@ namespace KGySoft.Drawing.Imaging
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
                 IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
                 IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
-                byte alphaThreshold = quantizingSession.AlphaThreshold;
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -190,7 +190,7 @@ namespace KGySoft.Drawing.Imaging
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
-                byte alphaThreshold = quantizingSession.AlphaThreshold;
+                byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
                 bool skip = skipTransparent;
 
                 // we can pass x, y to the dithering session because if there is an offset it was initialized by a properly clipped rectangle
