@@ -126,6 +126,17 @@ namespace KGySoft.Drawing.Imaging
         public bool AllowDeltaFrames { get; set; } = true;
 
         /// <summary>
+        /// Gets or sets the allowed maximum tolerance for detecting changes of consecutive frames when <see cref="AllowDeltaFrames"/> is <see langword="true"/>.
+        /// <br/>Default value: 0.
+        /// </summary>
+        /// <value>
+        /// If 0, then even a minimal color difference will be considered as a change to be encoded.
+        /// <br/>If 255, then nothing will be treated as a change. The animation will have no new frames unless a frame contains new transparent pixels compared to the previous one.
+        /// <br/>The reasonable range is between 0 and 16 with an optimized quantizer. Predefined quantizers may tolerate larger values (eg. up to 32) with some dithering.
+        /// </value>
+        public byte DeltaTolerance { get; set; }
+
+        /// <summary>
         /// Gets or sets whether to report overall and/or sub-task progress when encoding by <see cref="GifEncoder.BeginEncodeAnimation">GifEncoder.BeginEncodeAnimation</see>
         /// and <see cref="GifEncoder.EncodeAnimationAsync">GifEncoder.EncodeAnimationAsync</see> methods and the <see cref="AsyncConfigBase.Progress"/> property is set.
         /// When <see langword="null"/>, then both are reported.

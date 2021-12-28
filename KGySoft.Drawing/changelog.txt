@@ -18,6 +18,7 @@
 * KGySoft.Drawing.Imaging namespace
 ===================================
 * GifEncoder class: Improved quality when AnimatedGifConfiguration.AllowDeltaFrames property is true.
++ AnimatedGifConfiguration: New DeltaTolerance property.
 - BitmapDataExtensions class: Fixing blending of DrawInto/BeginDrawInto/DrawIntoAsync methods if target
   is a custom IReadWriteBitmapData implementation.
 

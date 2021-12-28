@@ -601,7 +601,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 SizeHandling = sizeHandling,
                 Quantizer = explicitQuantizer ? PredefinedColorsQuantizer.FromPixelFormat(pixelFormat) : null,
                 AllowDeltaFrames = allowDelta,
-                AnimationMode = AnimationMode.PingPong
+                AnimationMode = AnimationMode.PingPong,
+               // DeltaTolerance = 32
             };
 
             try
@@ -676,7 +677,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var ms = new MemoryStream();
             var config = new AnimatedGifConfiguration(FramesIterator())
             {
-                Quantizer = (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!
+                Quantizer = (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!,
+                //DeltaTolerance = 32
             };
 
             try
@@ -692,7 +694,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void EncodeAnimationTrueColor()
         {
-            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(255, 64));
+            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 64));
 
             IEnumerable<IReadableBitmapData> FramesIterator()
             {

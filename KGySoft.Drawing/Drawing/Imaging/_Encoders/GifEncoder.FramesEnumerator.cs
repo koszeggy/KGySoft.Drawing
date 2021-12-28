@@ -217,7 +217,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Static Methods
 
-            private static void ClearUnchangedPixels(IAsyncContext context, IReadWriteBitmapData previousFrame, IReadWriteBitmapData deltaFrame)
+            private static void ClearUnchangedPixels(IAsyncContext context, IReadWriteBitmapData previousFrame, IReadWriteBitmapData deltaFrame, byte tolerance, byte alphaThreshold)
             {
                 #region Local Methods
 
@@ -241,6 +241,26 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
+                static void ProcessRowIndexedWithTolerance(IReadWriteBitmapDataRow rowPrev, IReadWriteBitmapDataRow rowDelta, int transparentIndex, byte tolerance, byte alphaThreshold)
+                {
+                    int width = rowDelta.Width;
+                    for (int x = 0; x < width; x++)
+                    {
+                        if (rowPrev[x].TolerantEquals(rowDelta[x], tolerance, alphaThreshold))
+                            rowDelta.SetColorIndex(x, transparentIndex);
+                    }
+                }
+
+                static void ProcessRowArgbWithTolerance(IReadWriteBitmapDataRow rowPrev, IReadWriteBitmapDataRow rowDelta, byte tolerance, byte alphaThreshold)
+                {
+                    int width = rowDelta.Width;
+                    for (int x = 0; x < width; x++)
+                    {
+                        if (rowPrev[x].TolerantEquals(rowDelta[x], tolerance, alphaThreshold))
+                            rowDelta[x] = default;
+                    }
+                }
+
                 #endregion
 
                 Debug.Assert(previousFrame.GetSize() == deltaFrame.GetSize());
@@ -259,21 +279,37 @@ namespace KGySoft.Drawing.Imaging
                         if (context.IsCancellationRequested)
                             return;
 
-                        if (transparentIndex >= 0)
-                            ProcessRowIndexed(rowPrev, rowDelta, transparentIndex);
+                        if (tolerance == 0)
+                        {
+                            if (transparentIndex >= 0)
+                                ProcessRowIndexed(rowPrev, rowDelta, transparentIndex);
+                            else
+                                ProcessRowArgb(rowPrev, rowDelta);
+                        }
+                        else if (transparentIndex >= 0)
+                            ProcessRowIndexedWithTolerance(rowPrev, rowDelta, transparentIndex, tolerance, alphaThreshold);
                         else
-                            ProcessRowArgb(rowPrev, rowDelta);
+                            ProcessRowArgbWithTolerance(rowPrev, rowDelta, tolerance, alphaThreshold);
                     } while (rowPrev.MoveNextRow() && rowDelta.MoveNextRow());
                     return;
                 }
 
                 // parallel clear
-                if (transparentIndex >= 0)
+                if (tolerance == 0)
+                {
+                    if (transparentIndex >= 0)
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
+                            y => ProcessRowIndexed(previousFrame[y], deltaFrame[y], transparentIndex));
+                    else
+                        ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
+                            y => ProcessRowArgb(previousFrame[y], deltaFrame[y]));
+                }
+                else if (transparentIndex >= 0)
                     ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
-                        y => ProcessRowIndexed(previousFrame[y], deltaFrame[y], transparentIndex));
+                        y => ProcessRowIndexedWithTolerance(previousFrame[y], deltaFrame[y], transparentIndex, tolerance, alphaThreshold));
                 else
                     ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
-                        y => ProcessRowArgb(previousFrame[y], deltaFrame[y]));
+                        y => ProcessRowArgbWithTolerance(previousFrame[y], deltaFrame[y], tolerance, alphaThreshold));
             }
 
             private static bool HasNewTransparentPixel(IReadableBitmapData currentFrame, IReadableBitmapData nextFrame, byte alphaThreshold, out Rectangle region)
@@ -503,8 +539,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(preparedFrame.BitmapData.HasAlpha(), "Frame is not prepared correctly for delta image");
                     Debug.Assert(!preparedFrame.IsQuantized, "Prepared image must not be quantized yet if delta image is created");
-                    // TODO: tolerance
-                    ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData, preprocessedFrame);
+                    ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData, preprocessedFrame, config.DeltaTolerance, quantizerProperties.AlphaThreshold);
                 }
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)

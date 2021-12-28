@@ -288,6 +288,16 @@ namespace KGySoft.Drawing.Imaging
                 (byte)(src.B + dst.B * inverseAlphaSrc));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, byte alphaThreshold)
+        {
+            if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
+                return true;
+            if (c1.A < alphaThreshold ^ c2.A < alphaThreshold)
+                return false;
+            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+        }
+
         #endregion
 
         #region Private Methods
