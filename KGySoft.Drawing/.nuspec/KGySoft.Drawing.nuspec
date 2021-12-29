@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing</id>
-    <version>6.1.0</version>
+    <version>6.2.0</version>
     <title>KGy SOFT Drawing Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -36,32 +36,35 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
+      </group>
+      <group targetFramework=".NETFramework4.6">
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
       </group>
       <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
         <dependency id="System.Drawing.Common" version="5.0.3" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
         <dependency id="System.Drawing.Common" version="5.0.3" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
         <dependency id="System.Drawing.Common" version="5.0.3" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
         <dependency id="System.Drawing.Common" version="5.0.3" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="6.0.1" />
         <dependency id="System.Drawing.Common" version="6.0.0" />
       </group>
     </dependencies>
@@ -77,6 +80,8 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <file src="..\bin\Release\net40\KGySoft.Drawing.xml" target="lib\net40" />
     <file src="..\bin\Release\net45\KGySoft.Drawing.dll" target="lib\net45" />
     <file src="..\bin\Release\net45\KGySoft.Drawing.xml" target="lib\net45" />
+    <file src="..\bin\Release\net46\KGySoft.Drawing.dll" target="lib\net46" />
+    <file src="..\bin\Release\net46\KGySoft.Drawing.xml" target="lib\net46" />
     <file src="..\bin\Release\netcoreapp2.0\KGySoft.Drawing.dll" target="lib\netcoreapp2.0" />
     <file src="..\bin\Release\netcoreapp2.0\KGySoft.Drawing.xml" target="lib\netcoreapp2.0" />
     <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.dll" target="lib\netcoreapp3.0" />

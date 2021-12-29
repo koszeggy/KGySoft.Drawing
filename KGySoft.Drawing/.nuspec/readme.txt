@@ -1,4 +1,4 @@
-Thank you for installing KGy SOFT Drawing Libraries 6.1.0
+Thank you for installing KGy SOFT Drawing Libraries 6.2.0
 KGy SOFT Drawing Libraries offer advanced drawing features both for completely managed bitmap data
 as well as native System.Drawing types on multiple platforms.
 
