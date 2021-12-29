@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
@@ -40,11 +39,8 @@ namespace KGySoft.Drawing
         #region Fields
 
         private static readonly LockFreeCacheOptions cacheProfile128 = new LockFreeCacheOptions { ThresholdCapacity = 128, HashingStrategy = HashingStrategy.And, MergeInterval = TimeSpan.FromSeconds(1) };
-        private static readonly LockFreeCacheOptions cacheProfile16 = new LockFreeCacheOptions { ThresholdCapacity = 16, HashingStrategy = HashingStrategy.And, MergeInterval = TimeSpan.FromSeconds(1) };
 
         private static IThreadSafeCacheAccessor<(Type DeclaringType, Type? FieldType, string? FieldNamePattern), FieldAccessor?>? fields;
-        private static IThreadSafeCacheAccessor<Type, MethodAccessor?>? methodsIIListProvider_GetCount;
-        private static Type? typeIIListProvider;
 
         #endregion
 
@@ -83,47 +79,9 @@ namespace KGySoft.Drawing
 
         #endregion
 
-        #region IEnumerable<T>
-
-        internal static int? GetListProviderCount<T>(this IEnumerable<T> collection)
-        {
-            MethodAccessor? accessor = IIListProvider_GetCount(typeof(T));
-            if (accessor == null || !accessor.MemberInfo.DeclaringType!.IsInstanceOfType(collection))
-                return null;
-            return accessor.Invoke(collection, true) as int?;
-        }
-
-        #endregion
-
         #endregion
 
         #region Private Methods
-
-        #region IIListProvider<T>
-
-        private static MethodAccessor? IIListProvider_GetCount(Type genericArgument)
-        {
-            static MethodAccessor? GetGetCountMethod(Type arg)
-            {
-                if (typeIIListProvider == null)
-                    return null;
-                Type genericType = typeIIListProvider.MakeGenericType(arg);
-                MethodInfo? getCountMethod = genericType.GetMethod("GetCount");
-                if (getCountMethod == null)
-                    return null;
-                return MethodAccessor.GetAccessor(getCountMethod);
-            }
-
-            if (methodsIIListProvider_GetCount == null)
-            {
-                typeIIListProvider = Reflector.ResolveType(typeof(Enumerable).Assembly, "System.Linq.IIListProvider`1");
-                Interlocked.CompareExchange(ref methodsIIListProvider_GetCount, ThreadSafeCacheFactory.Create<Type, MethodAccessor?>(GetGetCountMethod, cacheProfile16), null);
-            }
-
-            return methodsIIListProvider_GetCount[genericArgument];
-        }
-
-        #endregion
 
         #region General field access
 
