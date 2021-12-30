@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -162,7 +161,7 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             #region Internal Properties
-
+            
             internal IReadableBitmapData? Frame => current.BitmapData;
             internal Point Location => current.Location;
             internal int Delay => current.Delay;
@@ -172,28 +171,15 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Properties
 
-            private bool QuantizerSupportsTransparency
+            private byte AlphaThreshold
             {
                 get
                 {
-                    if (quantizerProperties.Initialized)
-                        return quantizerProperties.SupportsTransparency;
+                    if (!quantizerProperties.Initialized)
+                        CanMakeFrameTransparent(null);
 
-                    quantizerProperties.Initialized = true;
-
-                    // the default Wu quantizer supports transparency
-                    if (config.Quantizer == null)
-                    {
-                        quantizerProperties.SupportsTransparency = true;
-                        quantizerProperties.AlphaThreshold = 128;
-                        return true;
-                    }
-
-                    // we have to test the quantizer with a single pixel
-                    using IQuantizingSession session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default));
-                    quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
-                    quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
-                    return quantizerProperties.SupportsTransparency;
+                    Debug.Assert(quantizerProperties.SupportsTransparency, "Not expected to be called if transparency is not supported");
+                    return quantizerProperties.AlphaThreshold;
                 }
             }
 
@@ -264,7 +250,7 @@ namespace KGySoft.Drawing.Imaging
                 #endregion
 
                 Debug.Assert(previousFrame.GetSize() == deltaFrame.GetSize());
-                Debug.Assert(deltaFrame.HasAlpha());
+                Debug.Assert(deltaFrame.SupportsTransparency());
 
                 int transparentIndex = deltaFrame.Palette?.TransparentIndex ?? -1;
 
@@ -315,7 +301,8 @@ namespace KGySoft.Drawing.Imaging
             private static bool HasNewTransparentPixel(IReadableBitmapData currentFrame, IReadableBitmapData nextFrame, byte alphaThreshold, out Rectangle region)
             {
                 Debug.Assert(currentFrame.GetSize() == nextFrame.GetSize());
-                Debug.Assert(nextFrame.HasAlpha());
+                Debug.Assert(nextFrame.SupportsTransparency());
+                Debug.Assert(alphaThreshold > 0);
                 region = new Rectangle(Point.Empty, currentFrame.GetSize());
 
                 IReadableBitmapDataRow rowCurrent = currentFrame.FirstRow;
@@ -432,7 +419,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // Using a global palette only if we know that the quantizer uses always the same colors or when the first frame
                 // can have transparency. If the first frame is not transparent, then some decoders (like GDI+) use a solid color when clearing frames.
-                Palette? globalPalette = config.Quantizer is PredefinedColorsQuantizer || firstFrame.Palette!.HasAlpha ? firstFrame.Palette : null;
+                Palette? globalPalette = config.Quantizer is PredefinedColorsQuantizer || firstFrame.Palette!.HasTransparent ? firstFrame.Palette : null;
 
                 return new GifEncoder(stream, logicalScreenSize)
                 {
@@ -512,13 +499,43 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
+            private bool CanMakeFrameTransparent(IReadableBitmapData? bitmapData)
+            {
+                if (!config.AllowDeltaFrames)
+                    return false;
+
+                // there is no explicit quantizer: depends on current frame because palette of already indexed frames are preserved
+                if (config.Quantizer == null && bitmapData != null)
+                {
+                    // non indexed frames will be quantized by default Wu quantizer that supports transparency
+                    return !bitmapData.PixelFormat.IsIndexed() || bitmapData.SupportsTransparency();
+                }
+
+                if (quantizerProperties.Initialized)
+                    return quantizerProperties.SupportsTransparency;
+
+                quantizerProperties.Initialized = true;
+
+                // the default Wu quantizer supports transparency
+                if (config.Quantizer == null)
+                {
+                    quantizerProperties.SupportsTransparency = true;
+                    quantizerProperties.AlphaThreshold = 128;
+                    return true;
+                }
+
+                // we have to test the quantizer with a single pixel
+                using IQuantizingSession session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default));
+                quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
+                quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
+                return quantizerProperties.SupportsTransparency;
+            }
+
             /// <summary>
             /// It consumes <see cref="nextPreparedFrame"/> set by <see cref="MoveNextPreparedFrame"/>, and sets <see cref="nextGeneratedFrame"/>.
             /// Tries to generate the next frame, but it does not set <see cref="Frame"/>
             /// (it is done by <see cref="MoveNext"/>) so it can look one frame forward.
             /// </summary>
-            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
-                Justification = "It would be OK without the frequent asyncContext.IsCancellationRequested checks, it's not worth the refactoring")]
             private bool MoveNextGeneratedFrame()
             {
                 Debug.Assert(nextGeneratedFrame.BitmapData == null, "MoveNextGeneratedFrame was called without processing last result by MoveNext");
@@ -535,11 +552,11 @@ namespace KGySoft.Drawing.Imaging
                 IReadWriteBitmapData preprocessedFrame = preparedFrame.BitmapData;
 
                 // 1.) Generating delta image if needed
-                if (config.AllowDeltaFrames && !deltaBuffer.IsCleared && deltaBuffer.BitmapData != null && QuantizerSupportsTransparency)
+                if (deltaBuffer.BitmapData != null && !deltaBuffer.IsCleared && CanMakeFrameTransparent(preprocessedFrame))
                 {
-                    Debug.Assert(preparedFrame.BitmapData.HasAlpha(), "Frame is not prepared correctly for delta image");
+                    Debug.Assert(preprocessedFrame.SupportsTransparency(), "Frame is not prepared correctly for delta image");
                     Debug.Assert(!preparedFrame.IsQuantized, "Prepared image must not be quantized yet if delta image is created");
-                    ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData, preprocessedFrame, config.DeltaTolerance, quantizerProperties.AlphaThreshold);
+                    ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData, preprocessedFrame, config.DeltaTolerance, AlphaThreshold);
                 }
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
@@ -558,7 +575,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // 3.) Trim border (important: after quantizing so possible partially transparent pixels have their final state)
                 var contentArea = new Rectangle(Point.Empty, logicalScreenSize);
-                if (!config.EncodeTransparentBorders && quantizedFrame.HasAlpha())
+                if (!config.EncodeTransparentBorders && quantizedFrame.SupportsTransparency())
                 {
                     // Determining the actual content without the transparent border.
                     // If delta is allowed and clearing is needed, then this area will be expanded later
@@ -569,7 +586,7 @@ namespace KGySoft.Drawing.Imaging
                 var disposeMethod = GifGraphicDisposalMethod.DoNotDispose;
 
                 // If frames can be transparent, then clearing might be needed after frames
-                if (QuantizerSupportsTransparency)
+                if (CanMakeFrameTransparent(null))
                 {
                     // if delta is allowed, then clearing only if a new transparent pixel appears in the next frame (that wasn't transparent before)
                     if (config.AllowDeltaFrames)
@@ -585,8 +602,8 @@ namespace KGySoft.Drawing.Imaging
                             return false;
                         }
 
-                        if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.HasAlpha() && HasNewTransparentPixel(
-                                deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, quantizerProperties.AlphaThreshold, out Rectangle toClearRegion))
+                        if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency() && HasNewTransparentPixel(
+                            deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
                         {
                             disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                             contentArea = Rectangle.Union(contentArea, toClearRegion);
@@ -676,10 +693,10 @@ namespace KGySoft.Drawing.Imaging
                 // Delta frames can be used if allowed and the quantizer can use transparent colors.
                 // We cannot rely on renderBuffer.IsCleared here because a forward reading is used even to determine whether to clear
                 // so if we have a render buffer (it's not the first frame), then we must assume that delta image can be used.
-                bool canUseDelta = config.AllowDeltaFrames && QuantizerSupportsTransparency && deltaBuffer.BitmapData != null;
+                bool canUseDelta = deltaBuffer.BitmapData != null && CanMakeFrameTransparent(inputFrame);
 
                 PixelFormat preparedPixelFormat = !canUseDelta ? PixelFormat.Format8bppIndexed // can't use delta: we can already quantize
-                    : inputFrame.HasAlpha() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat // we have transparency: we can use the original format
+                    : inputFrame.SupportsTransparency() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat // we have transparency: we can use the original format
                     : PixelFormat.Format32bppArgb; // we have to add transparency (or have to reduce bpp)
 
                 // If cannot use delta image, then we can already quantize the frame.
@@ -713,12 +730,12 @@ namespace KGySoft.Drawing.Imaging
                             // We can use the calculated settings if the target pixel format supports alpha.
                             // If the target format is indexed, then using it only if we can re-use the source palette (when there is no quantizer)
                             // because we cannot create a new bitmap data with a palette that is created while quantizing
-                            if (preparedPixelFormat.HasAlpha() || preparedQuantizer == null && inputFrame.Palette?.HasAlpha == true)
+                            if (preparedPixelFormat.HasAlpha() || preparedQuantizer == null && inputFrame.Palette?.HasTransparent == true)
                             {
                                 preparedFrame = BitmapDataFactory.CreateBitmapData(logicalScreenSize, preparedPixelFormat, inputFrame.Palette);
 
                                 // if the source is indexed and transparent index is not 0, then we must clear the indexed image to be transparent
-                                if (inputFrame.Palette?.TransparentIndex > 0)
+                                if (inputFrame.Palette?.HasTransparent == true)
                                 {
                                     preparedFrame.DoClear(asyncContext, default);
                                     if (asyncContext.IsCancellationRequested)

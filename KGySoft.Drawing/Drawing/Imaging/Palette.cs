@@ -241,6 +241,7 @@ namespace KGySoft.Drawing.Imaging
         internal bool HasAlpha { get; }
         internal bool HasMultiLevelAlpha { get; }
         internal int TransparentIndex { get; }
+        internal bool HasTransparent => TransparentIndex >= 0;
 
         #endregion
 

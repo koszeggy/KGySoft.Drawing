@@ -6,6 +6,17 @@
 ===============================================================================
 
 ~~~~~~~~~
+- v6.2.1:
+~~~~~~~~~
+
+- KGySoft.Drawing.Imaging namespace
+===================================
+- GifEncoder class:
+  - EncodeAnimation method: If quantizer is not set but the input image is already indexed, then not using the
+    default Wu quantizer on the input frame.
+
+
+~~~~~~~~~
 * v6.2.0:
 ~~~~~~~~~
 

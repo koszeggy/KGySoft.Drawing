@@ -62,6 +62,12 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
         }
 
+        internal static bool SupportsTransparency(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasTransparent == true;
+        }
+
         #endregion
 
         #region Private Methods
