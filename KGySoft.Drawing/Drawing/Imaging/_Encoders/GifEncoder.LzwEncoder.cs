@@ -16,10 +16,10 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 #if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Buffers;
 #endif
-using System.Collections.Generic;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -41,168 +41,56 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Nested structs
 
-            #region IndexBuffer struct
-
-            /// <summary>
-            /// Represents a span of a byte array and has specialized GetHashCode/Equals.
-            /// It could also contain a single <see cref="ArraySegment{T}"/> or <see cref="ArraySection{T}"/> field
-            /// but it is faster if we can mutate only the length directly.
-            /// </summary>
-            private struct IndexBuffer : IEquatable<IndexBuffer>
-            {
-                #region Fields
-
-                internal readonly byte[] Buffer;
-                internal readonly int Offset;
-
-                internal int Length;
-
-                #endregion
-
-                #region Constructors
-
-                internal IndexBuffer(ArraySection<byte> buffer)
-                {
-                    Buffer = buffer.UnderlyingArray!;
-                    Offset = buffer.Offset;
-                    Length = buffer.Length;
-                }
-
-                internal IndexBuffer(byte[] buffer, int offset, int length)
-                {
-                    Buffer = buffer;
-                    Offset = offset;
-                    Length = length;
-                }
-
-                internal IndexBuffer(byte[] buffer, int offset)
-                {
-                    Buffer = buffer;
-                    Offset = offset;
-                    Length = 1;
-                }
-
-                #endregion
-
-                #region Methods
-
-                #region Public Methods
-
-                public bool Equals(IndexBuffer other)
-                {
-#if NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    return new ReadOnlySpan<byte>(Buffer, Offset, Length).SequenceEqual(new ReadOnlySpan<byte>(other.Buffer, other.Offset, other.Length));
-#else
-                    if (Length != other.Length)
-                        return false;
-
-                    unsafe
-                    {
-                        fixed (byte* pThis = &Buffer[Offset])
-                        fixed (byte* pOther = &other.Buffer[other.Offset])
-                            return MemoryHelper.CompareMemory(pThis, pOther, Length);
-                    }
-#endif
-                }
-
-
-                public override bool Equals(object? obj) => obj is IndexBuffer other && Equals(other);
-
-#if NETCOREAPP3_0_OR_GREATER
-                public override int GetHashCode()
-                {
-                    Debug.Assert(Length > 1, "Obtaining hashes are expected for non-single sequences");
-
-                    int result;
-                    ref byte pos = ref Buffer[Offset];
-                    ref byte end = ref Unsafe.Add(ref pos, Length);
-
-                    // 2 or 3 length
-                    if (Length < 4)
-                    {
-                        result = 13;
-                        while (Unsafe.IsAddressLessThan(ref pos, ref end))
-                        {
-                            result = result * 4099 + pos;
-                            pos = ref Unsafe.Add(ref pos, 1);
-                        }
-                        return result;
-                    }
-
-                    // Including only the first and last 4 bytes (overlapping is allowed) to avoid high hash code cost.
-                    // Prefixes of large single color areas are still differentiated by length.
-                    result = 8209 * Length;
-                    result = result * 2053 + Unsafe.ReadUnaligned<int>(ref pos);
-                    return Length == 4 ? result : result * 1031 + Unsafe.ReadUnaligned<int>(ref Unsafe.Add(ref end, -4));
-                }
-#else
-                public override unsafe int GetHashCode()
-                {
-                    Debug.Assert(Length > 1, "Obtaining hashes are expected for non-single sequences");
-
-                    fixed (byte* pBuf = Buffer)
-                    {
-                        int result;
-                        byte* pos = &pBuf[Offset];
-                        byte* end = pos + Length;
-
-                        // 2 or 3 length
-                        if (Length < 4)
-                        {
-                            result = 13;
-                            while (pos < end)
-                            {
-                                result = result * 4099 + *pos;
-                                pos += 1;
-                            }
-
-                            return result;
-                        }
-
-                        // Including only the first and last 4 bytes (overlapping is allowed) to avoid high hash code cost.
-                        // Prefixes of large single color areas are still differentiated by length.
-                        result = 8209 * Length;
-                        result = result * 2053 + *(int*)pos;
-                        return Length == 4 ? result : result * 1031 + *(int*)(end - 4);
-                    }
-                }
-#endif
-
-                #endregion
-
-                #region Internal Methods
-
-                internal void AddNext() => Length += 1;
-
-                #endregion
-
-                #endregion
-            }
-
-            #endregion
-
             #region CodeTable struct
 
+            /// <summary>
+            /// Provides the LZW code table implementation.
+            /// It has been refactored to use open addressing double hashing instead of a regular Dictionary.
+            /// Some implementation ideas were inspired by Kevin Weiner's Java encoder from here: http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm
+            /// Basically it uses a variant of Knuth's algorithm along with G. Knott's relatively-prime secondary probe.
+            /// </summary>
             private struct CodeTable : IDisposable
             {
                 #region Constants
 
-                private const int maxCodeCount = 1 << 12;
+                private const int maxBits = 12;
+                private const int maxCodeCount = 1 << maxBits;
+
+                /// <summary>
+                /// A prime that provides about 80% occupancy in the code table considering the max used entries when bit size is 12.
+                /// </summary>
+                private const int tableSize = 5003;
 
                 #endregion
 
                 #region Fields
 
-#if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                private readonly bool ownBuffer;
-#endif
-                private readonly Dictionary<IndexBuffer, int>? codeTable;
-                private readonly IndexBuffer indices;
                 private readonly GifCompressionMode compressionMode;
+                private readonly int hashShiftSize;
+                private readonly IReadableBitmapDataRow? currentRow;
 
+                /// <summary>
+                /// Earlier versions used a dictionary as a code table where the key was a span of palette indices.
+                /// Even with shared underlying buffer memory and optimized GetHashCode/Equals implementation it was much less efficient.
+                /// Here we can exploit that all prefixes of new codes are already stored so when there is a hash collision we don't need
+                /// to perform an equality check for the whole segment repeatedly (this is what Dictionary does when there are more entries in the same bucket).
+                /// Instead, we use double hashing and a match key for equality check:
+                /// - The primary hash is calculated for the current prefix and is used to select a code table entry
+                /// - A match key is used for equality check. It is calculated last code + current index combination and is stored along with prefix codes.
+                /// - If equality check by match key fails (collision), then using a secondary hash to jump from entry to entry.
+                /// The idea was taken from here: http://www.java2s.com/Code/Java/2D-Graphics-GUI/AnimatedGifEncoder.htm
+                /// </summary>
+                private readonly (int MatchKey, int Value)[]? entries;
+
+                [SuppressMessage("Style", "IDE0044:Add readonly modifier",
+                    Justification = "Though the used members are read-only, pre C# 8 compilers may emit a defensive copy for members access if the field is read-only")]
+                [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local", Justification = "As above")]
+                [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
+                private ArraySection<byte> indices;
                 private int currentPosition;
                 private int nextFreeCode;
-
+                private int primaryHash;
+                private int matchKey;
 
                 #endregion
 
@@ -214,7 +102,7 @@ namespace KGySoft.Drawing.Imaging
                 internal int FirstAvailableCode => ClearCode + 2;
                 internal int CurrentCodeSize { get; private set; }
                 internal int NextSizeLimit => 1 << CurrentCodeSize;
-                internal byte CurrentIndex => indices.Buffer[indices.Offset + currentPosition];
+                internal byte CurrentIndex { get; private set; }
 
                 #endregion
 
@@ -231,41 +119,28 @@ namespace KGySoft.Drawing.Imaging
                     MinimumCodeSize = Math.Max(2, imageData.Palette!.Count.ToBitsPerPixel());
                     CurrentCodeSize = MinimumCodeSize + 1;
 
+                    // Trying to use the actual 8-bit index buffer if it is an 8-bit managed bitmap data for better performance
+                    if (imageData is ManagedBitmapData<byte, ManagedBitmapDataRow8I> managed8BitBitmapData)
+                        indices = managed8BitBitmapData.Buffer.Buffer;
+                    else
+                        // Otherwise, accessing by BitmapDataRow (non-managed or 1/4 bpp images)
+                        currentRow = imageData.FirstRow;
+
                     // In uncompressed mode we will only need code size. Even pixel enumeration will be different
-                    // so we can spare allocating indices.
+                    // so we can spare allocating indices and the whole code table.
                     if (compressionMode == GifCompressionMode.Uncompressed)
                         return;
 
-                    int size = imageData.Width * imageData.Height;
-                    codeTable = new Dictionary<IndexBuffer, int>(Math.Min(size,
-                        (compressionMode == GifCompressionMode.DoNotIncreaseBitSize ? NextSizeLimit : maxCodeCount) - FirstAvailableCode));
-
-                    // Trying to re-use the actual buffer if it is an 8-bit managed bitmap data; otherwise, allocating a new buffer.
-                    // We need this to prevent allocating a huge memory for the code table keys with the segments: all segments will just be
-                    // spans over the original sequence, which often will contain overlapping memory
-                    if (imageData is ManagedBitmapData<byte, ManagedBitmapDataRow8I> managed8BitBitmapData)
-                    {
-                        indices = new IndexBuffer(managed8BitBitmapData.Buffer.Buffer);
-                        return;
-                    }
-
 #if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    ownBuffer = true;
-                    indices = new IndexBuffer(ArrayPool<byte>.Shared.Rent(size), 0, size);
+                    entries = ArrayPool<(int, int)>.Shared.Rent(tableSize);
 #else
-                    indices = new IndexBuffer(new byte[size], 0, size);
+                    entries = new (int, int)[tableSize];
 #endif
 
-                    // If we could not obtain the actual buffer, then copying the palette indices into the newly allocated one.
-                    // Not using parallel processing at this level
-                    int i = 0;
-                    IReadableBitmapDataRow rowSrc = imageData.FirstRow;
-                    for (int y = 0; y < imageData.Height; y++, rowSrc.MoveNextRow())
-                    {
-                        // we can index directly the array here without an offset because we allocated/rented it
-                        for (int x = 0; x < imageData.Width; x++)
-                            indices.Buffer[i++] = (byte)rowSrc.GetColorIndex(x);
-                    }
+                    // Initializing the shift size for hash calculations. Basically we upscale the table size to >16 bits.
+                    for (int i = tableSize; i < (1 << 16); i <<= 1)
+                        ++hashShiftSize;
+                    hashShiftSize = 8 - hashShiftSize;
                 }
 
                 #endregion
@@ -276,9 +151,10 @@ namespace KGySoft.Drawing.Imaging
 
                 public void Dispose()
                 {
+                    if (entries == null)
+                        return;
 #if NETCOREAPP2_0_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-                    if (ownBuffer)
-                        ArrayPool<byte>.Shared.Return(indices.Buffer);
+                    ArrayPool<(int, int)>.Shared.Return(entries);
 #endif
                 }
 
@@ -289,8 +165,9 @@ namespace KGySoft.Drawing.Imaging
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal void Reset()
                 {
-                    Debug.Assert(codeTable != null, "Should not be called in Uncompressed mode");
-                    codeTable!.Clear();
+                    Debug.Assert(entries != null, "Should not be called in Uncompressed mode");
+
+                    Array.Clear(entries!, 0, tableSize);
                     CurrentCodeSize = MinimumCodeSize + 1;
                     nextFreeCode = FirstAvailableCode;
                 }
@@ -298,31 +175,81 @@ namespace KGySoft.Drawing.Imaging
                 [MethodImpl(MethodImpl.AggressiveInlining)]
                 internal bool MoveNextIndex()
                 {
-                    if (currentPosition == indices.Length - 1)
-                        return false;
                     currentPosition += 1;
+
+                    // fast route for managed 8bpp bitmap data: direct access
+                    if (currentRow == null)
+                    {
+                        if (currentPosition == indices.Length)
+                            return false;
+                        CurrentIndex = indices[currentPosition];
+                        return true;
+                    }
+
+                    // fallback for non-managed or 1/4 bpp bitmap data by currentRow.GetColorIndex
+                    if (currentPosition == currentRow.Width)
+                    {
+                        if (!currentRow.MoveNextRow())
+                            return false;
+
+                        currentPosition = 0;
+                    }
+
+                    CurrentIndex = (byte)currentRow.GetColorIndex(currentPosition);
                     return true;
                 }
 
-                internal IndexBuffer GetInitialSegment() => new IndexBuffer(indices.Buffer, indices.Offset + currentPosition);
-
                 [MethodImpl(MethodImpl.AggressiveInlining)]
-                internal bool TryGetCode(IndexBuffer key, out int code)
+                internal bool TryGetNextCode(int previousCode, out int code)
                 {
-                    Debug.Assert(codeTable != null, "Should not be called in Uncompressed mode");
-                    return codeTable!.TryGetValue(key, out code);
+                    Debug.Assert(entries != null, "Should not be called in Uncompressed mode");
+                    primaryHash = (CurrentIndex << hashShiftSize) ^ previousCode;
+                    matchKey = (CurrentIndex << maxBits) + previousCode + 1;
+
+                    Debug.Assert(primaryHash is >= 0 and < tableSize, "The primary hash should be a valid index in code table entries");
+                    ref var entry = ref entries![primaryHash];
+
+                    // a code for previousCode + CurrentIndex has been found
+                    if (entry.MatchKey == matchKey)
+                    {
+                        code = entry.Value;
+                        return true;
+                    }
+
+                    // hash collision: using a relatively prime secondary hash to jump from entry to entry
+                    if (entry.MatchKey > 0)
+                    {
+                        int secondaryHash = primaryHash == 0 ? 1 : tableSize - primaryHash;
+                        do
+                        {
+                            if ((primaryHash -= secondaryHash) < 0)
+                                primaryHash += tableSize;
+
+                            entry = ref entries[primaryHash];
+                            if (entry.MatchKey == matchKey)
+                            {
+                                code = entry.Value;
+                                return true;
+                            }
+                        } while (entry.MatchKey > 0);
+                    }
+
+                    code = default;
+                    return false;
                 }
 
                 [MethodImpl(MethodImpl.AggressiveInlining)]
-                internal bool TryAddCode(IndexBuffer key)
+                internal bool TryAddNextCode()
                 {
-                    Debug.Assert(codeTable != null, "Should not be called in Uncompressed mode");
+                    Debug.Assert(entries != null, "Should not be called in Uncompressed mode");
                     if (nextFreeCode == maxCodeCount || compressionMode == GifCompressionMode.DoNotIncreaseBitSize && nextFreeCode + 1 == NextSizeLimit)
                         return false;
 
                     if (nextFreeCode == NextSizeLimit)
                         CurrentCodeSize += 1;
-                    codeTable!.Add(key, nextFreeCode);
+                    ref var entry = ref entries![primaryHash];
+                    entry.Value = nextFreeCode;
+                    entry.MatchKey = matchKey;
                     nextFreeCode += 1;
                     return true;
                 }
@@ -473,12 +400,10 @@ namespace KGySoft.Drawing.Imaging
 
                 codeTable.MoveNextIndex();
                 int previousCode = codeTable.CurrentIndex;
-                IndexBuffer indexBuffer = codeTable.GetInitialSegment();
 
                 while (codeTable.MoveNextIndex())
                 {
-                    indexBuffer.AddNext();
-                    if (codeTable.TryGetCode(indexBuffer, out int code))
+                    if (codeTable.TryGetNextCode(previousCode, out int code))
                     {
                         previousCode = code;
                         continue;
@@ -487,13 +412,11 @@ namespace KGySoft.Drawing.Imaging
                     writer.WriteCode(previousCode, codeTable.CurrentCodeSize);
                     previousCode = codeTable.CurrentIndex;
 
-                    if (!codeTable.TryAddCode(indexBuffer) && compressionMode != GifCompressionMode.DoNotClear)
+                    if (!codeTable.TryAddNextCode() && compressionMode != GifCompressionMode.DoNotClear)
                     {
                         writer.WriteCode(codeTable.ClearCode, codeTable.CurrentCodeSize);
                         codeTable.Reset();
                     }
-
-                    indexBuffer = codeTable.GetInitialSegment();
                 }
 
                 writer.WriteCode(previousCode, codeTable.CurrentCodeSize);
@@ -519,22 +442,16 @@ namespace KGySoft.Drawing.Imaging
                 int maxLength = codeTable.NextSizeLimit - codeTable.FirstAvailableCode;
                 int currLength = 0;
 
-                // Note: Not using CodeTable.MoveNextIndex here because Uncompressed mode does not allocate the 8-bit index buffer for non 8-bit images.
-                // It would not be the cleanest design if CodeTable was not a private type but it helps avoiding unnecessary allocations.
-                IReadableBitmapDataRow row = imageData.FirstRow;
-                do
+                while (codeTable.MoveNextIndex())
                 {
-                    for (int x = 0; x < imageData.Width; x++)
+                    writer.WriteCode(codeTable.CurrentIndex, codeSize);
+                    currLength += 1;
+                    if (currLength == maxLength)
                     {
-                        writer.WriteCode(row.GetColorIndex(x), codeSize);
-                        currLength += 1;
-                        if (currLength == maxLength)
-                        {
-                            currLength = 0;
-                            writer.WriteCode(codeTable.ClearCode, codeSize);
-                        }
+                        currLength = 0;
+                        writer.WriteCode(codeTable.ClearCode, codeSize);
                     }
-                } while (row.MoveNextRow());
+                }
 
                 writer.WriteCode(codeTable.EndInformationCode, codeSize);
                 writer.Flush();

@@ -6,12 +6,13 @@
 ===============================================================================
 
 ~~~~~~~~~
-- v6.2.1:
+* v6.2.1:
 ~~~~~~~~~
 
-- KGySoft.Drawing.Imaging namespace
+* KGySoft.Drawing.Imaging namespace
 ===================================
-- GifEncoder class:
+* GifEncoder class:
+  * The performance and memory usage of the LZW compression has been improved.
   - EncodeAnimation method: If quantizer is not set but the input image is already indexed, then not using the
     default Wu quantizer on the input frame.
 
