@@ -94,8 +94,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         private static long GetRawValue(PixelFormat pixelFormat, IBitmapDataInternal bitmapData)
         {
-            if (bitmapData is NativeBitmapDataBase nativeBitmapData)
-                return GetRawValueNative(pixelFormat, nativeBitmapData.Scan0);
+            if (bitmapData is UnmanagedBitmapDataBase unmanagedBitmapData)
+                return GetRawValueNative(pixelFormat, unmanagedBitmapData.Scan0);
 
             var buffer = Reflector.GetField(bitmapData, "Buffer");
             switch (pixelFormat.ToBitsPerPixel())

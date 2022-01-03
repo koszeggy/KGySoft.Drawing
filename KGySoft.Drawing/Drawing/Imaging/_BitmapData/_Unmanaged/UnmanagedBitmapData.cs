@@ -25,8 +25,8 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedBitmapData<TRow> : NativeBitmapDataBase
-        where TRow : NativeBitmapDataRowBase, new()
+    internal sealed class UnmanagedBitmapData<TRow> : UnmanagedBitmapDataBase
+        where TRow : UnmanagedBitmapDataRowBase, new()
     {
         #region Fields
 
@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
             // Otherwise, we create and cache the result.
             return lastRow = new TRow
             {
-                Address = y == 0 ? Scan0 : Scan0 + Stride * y,
+                Row = y == 0 ? Scan0 : Scan0 + Stride * y,
                 BitmapData = this,
                 Index = y,
             };

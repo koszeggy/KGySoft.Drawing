@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow32PArgb.cs
+//  File: UnmanagedBitmapDataRowBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,32 +15,41 @@
 
 #region Usings
 
+using System;
 using System.Runtime.CompilerServices;
-using System.Security; 
+using System.Security;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class NativeBitmapDataRow32PArgb : NativeBitmapDataRowBase
+    internal abstract class UnmanagedBitmapDataRowBase : BitmapDataRowBase
     {
+        #region Fields
+
+        internal IntPtr Row;
+
+        #endregion
+
         #region Methods
 
-        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32(int x) => ((Color32*)Address)[x].ToStraight();
+        public sealed override bool MoveNextRow()
+        {
+            if (!base.MoveNextRow())
+                return false;
+
+            Row += ((UnmanagedBitmapDataBase)BitmapData).Stride;
+            return true;
+        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColor32(int x, Color32 c) => ((Color32*)Address)[x] = c.ToPremultiplied();
+        public sealed override unsafe T DoReadRaw<T>(int x) => ((T*)Row)[x];
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32Premultiplied(int x) => ((Color32*)Address)[x];
-
-        [SecurityCritical]
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColor32Premultiplied(int x, Color32 c) => ((Color32*)Address)[x] = c;
+        public sealed override unsafe void DoWriteRaw<T>(int x, T data) => ((T*)Row)[x] = data;
 
         #endregion
     }

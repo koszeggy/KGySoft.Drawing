@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow1I.cs
+//  File: UnmanagedBitmapDataRow32Rgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -22,36 +23,18 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class NativeBitmapDataRow1I : NativeBitmapDataRowIndexedBase
+    internal sealed class UnmanagedBitmapDataRow32Rgb : UnmanagedBitmapDataRowBase
     {
-        #region Properties
-
-        protected override uint MaxIndex => 1;
-
-        #endregion
-
         #region Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe int DoGetColorIndex(int x)
-        {
-            int mask = 128 >> (x & 7);
-            int bits = ((byte*)Address)[x >> 3];
-            return (bits & mask) != 0 ? 1 : 0;
-        }
+        public override unsafe Color32 DoGetColor32(int x) => ((Color32*)Row)[x].ToOpaque();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColorIndex(int x, int colorIndex)
-        {
-            int pos = x >> 3;
-            int mask = 128 >> (x & 7);
-            if (colorIndex == 0)
-                ((byte*)Address)[pos] &= (byte)~mask;
-            else
-                ((byte*)Address)[pos] |= (byte)mask;
-        }
+        public override unsafe void DoSetColor32(int x, Color32 c)
+            => ((Color32*)Row)[x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor);
 
         #endregion
     }

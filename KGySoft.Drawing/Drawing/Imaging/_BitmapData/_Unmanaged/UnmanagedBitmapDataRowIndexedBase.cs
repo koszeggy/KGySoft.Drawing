@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRowIndexedBase.cs
+//  File: UnmanagedBitmapDataRowIndexedBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -22,7 +22,7 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class NativeBitmapDataRowIndexedBase : NativeBitmapDataRowBase
+    internal abstract class UnmanagedBitmapDataRowIndexedBase : UnmanagedBitmapDataRowBase
     {
         #region Properties
 

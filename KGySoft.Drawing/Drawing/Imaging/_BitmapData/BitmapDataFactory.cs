@@ -478,20 +478,20 @@ namespace KGySoft.Drawing.Imaging
 
             return pixelFormat switch
             {
-                PixelFormat.Format32bppArgb => new UnmanagedBitmapData<NativeBitmapDataRow32Argb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
-                PixelFormat.Format32bppPArgb => new UnmanagedBitmapData<NativeBitmapDataRow32PArgb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
-                PixelFormat.Format32bppRgb => new UnmanagedBitmapData<NativeBitmapDataRow32Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
-                PixelFormat.Format24bppRgb => new UnmanagedBitmapData<NativeBitmapDataRow24Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
-                PixelFormat.Format8bppIndexed => new UnmanagedBitmapData<NativeBitmapDataRow8I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
-                PixelFormat.Format4bppIndexed => new UnmanagedBitmapData<NativeBitmapDataRow4I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
-                PixelFormat.Format1bppIndexed => new UnmanagedBitmapData<NativeBitmapDataRow1I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
-                PixelFormat.Format64bppArgb => new UnmanagedBitmapData<NativeBitmapDataRow64Argb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
-                PixelFormat.Format64bppPArgb => new UnmanagedBitmapData<NativeBitmapDataRow64PArgb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
-                PixelFormat.Format48bppRgb => new UnmanagedBitmapData<NativeBitmapDataRow48Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb565 => new UnmanagedBitmapData<NativeBitmapDataRow16Rgb565>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb555 => new UnmanagedBitmapData<NativeBitmapDataRow16Rgb555>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
-                PixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData<NativeBitmapDataRow16Argb1555>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppGrayScale => new UnmanagedBitmapData<NativeBitmapDataRow16Gray>(buffer, size, stride, pixelFormat, backColor, default, palette, null, disposeCallback),
+                PixelFormat.Format32bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Argb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format32bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32PArgb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format32bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format24bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow24Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format8bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow8I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
+                PixelFormat.Format4bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow4I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
+                PixelFormat.Format1bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow1I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
+                PixelFormat.Format64bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64Argb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format64bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64PArgb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format48bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow48Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format16bppRgb565 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb565>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format16bppRgb555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb555>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Argb1555>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
+                PixelFormat.Format16bppGrayScale => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Gray>(buffer, size, stride, pixelFormat, backColor, default, palette, null, disposeCallback),
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"))
             };
         }
@@ -540,7 +540,7 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                if (pixelFormat.ToBitsPerPixel() > 32 && bitmapData is NativeBitmapDataBase && ColorExtensions.Max16BppValue != UInt16.MaxValue)
+                if (pixelFormat.ToBitsPerPixel() > 32 && bitmapData is UnmanagedBitmapDataBase && ColorExtensions.Max16BppValue != UInt16.MaxValue)
                 {
                     DoSaveWidePlatformDependent(context, bitmapData, rect, writer);
                     return;

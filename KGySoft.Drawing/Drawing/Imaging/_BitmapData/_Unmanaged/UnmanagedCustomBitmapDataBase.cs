@@ -23,7 +23,7 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class UnmanagedCustomBitmapDataBase : NativeBitmapDataBase
+    internal abstract class UnmanagedCustomBitmapDataBase : UnmanagedBitmapDataBase
     {
         #region Properties
 

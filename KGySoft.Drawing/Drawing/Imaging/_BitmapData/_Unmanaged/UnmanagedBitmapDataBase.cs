@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataBase.cs
+//  File: UnmanagedBitmapDataBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -23,7 +23,7 @@ using System.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class NativeBitmapDataBase : BitmapDataBase
+    internal abstract class UnmanagedBitmapDataBase : BitmapDataBase
     {
         #region Fields
 
@@ -43,7 +43,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        protected NativeBitmapDataBase(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+        protected UnmanagedBitmapDataBase(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
             Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
         {
             Debug.Assert(buffer != IntPtr.Zero);
@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Destructor
 
-        ~NativeBitmapDataBase() => Dispose(false);
+        ~UnmanagedBitmapDataBase() => Dispose(false);
 
         #endregion
 

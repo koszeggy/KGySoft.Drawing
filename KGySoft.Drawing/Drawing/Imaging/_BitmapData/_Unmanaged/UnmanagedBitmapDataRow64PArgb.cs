@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow8I.cs
+//  File: UnmanagedBitmapDataRow64PArgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -22,23 +22,17 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class NativeBitmapDataRow8I : NativeBitmapDataRowIndexedBase
+    internal sealed class UnmanagedBitmapDataRow64PArgb : UnmanagedBitmapDataRowBase
     {
-        #region Properties
-
-        protected override uint MaxIndex => 255;
-
-        #endregion
-
         #region Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe int DoGetColorIndex(int x) => ((byte*)Address)[x];
+        public override unsafe Color32 DoGetColor32(int x) => ((Color64*)Row)[x].ToStraight().ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColorIndex(int x, int colorIndex) => ((byte*)Address)[x] = (byte)colorIndex;
+        public override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Row)[x] = new Color64(c).ToPremultiplied();
 
         #endregion
     }

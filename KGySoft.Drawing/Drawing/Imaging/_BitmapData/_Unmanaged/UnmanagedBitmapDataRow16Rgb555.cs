@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow16Gray.cs
+//  File: UnmanagedBitmapDataRow16Rgb555.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -23,18 +23,18 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class NativeBitmapDataRow16Gray : NativeBitmapDataRowBase
+    internal sealed class UnmanagedBitmapDataRow16Rgb555 : UnmanagedBitmapDataRowBase
     {
         #region Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32(int x) => ((Color16Gray*)Address)[x].ToColor32();
+        public override unsafe Color32 DoGetColor32(int x) => ((Color16Rgb555*)Row)[x].ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe void DoSetColor32(int x, Color32 c)
-            => ((Color16Gray*)Address)[x] = new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
+            => ((Color16Rgb555*)Row)[x] = new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
 
         #endregion
     }

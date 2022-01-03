@@ -397,8 +397,8 @@ namespace KGySoft.Drawing.Imaging
         {
             // same non-custom pixel format is required
             if (Source.PixelFormat != Target.PixelFormat || Source.IsCustomPixelFormat
-                || Source is not (NativeBitmapDataBase or ManagedBitmapDataBase)
-                || Target is not (NativeBitmapDataBase or ManagedBitmapDataBase))
+                || Source is not (UnmanagedBitmapDataBase or ManagedBitmapDataBase)
+                || Target is not (UnmanagedBitmapDataBase or ManagedBitmapDataBase))
             {
                 return false;
             }
@@ -458,12 +458,12 @@ namespace KGySoft.Drawing.Imaging
         [SecuritySafeCritical]
         private unsafe void PerformCopyRaw()
         {
-            Debug.Assert(Source is NativeBitmapDataBase or ManagedBitmapDataBase);
-            Debug.Assert(Target is NativeBitmapDataBase or ManagedBitmapDataBase);
+            Debug.Assert(Source is UnmanagedBitmapDataBase or ManagedBitmapDataBase);
+            Debug.Assert(Target is UnmanagedBitmapDataBase or ManagedBitmapDataBase);
 
-            if (Source is NativeBitmapDataBase unmanagedSrc)
+            if (Source is UnmanagedBitmapDataBase unmanagedSrc)
             {
-                if (Target is NativeBitmapDataBase nativeDst)
+                if (Target is UnmanagedBitmapDataBase nativeDst)
                 {
                     DoCopyRaw(unmanagedSrc.Stride, nativeDst.Stride, (byte*)unmanagedSrc.Scan0, (byte*)nativeDst.Scan0);
                     return;
@@ -476,7 +476,7 @@ namespace KGySoft.Drawing.Imaging
             else
             {
                 var managedSrc = (ManagedBitmapDataBase)Source;
-                if (Target is NativeBitmapDataBase unmanagedDst)
+                if (Target is UnmanagedBitmapDataBase unmanagedDst)
                 {
                     fixed (byte* pSrc = &managedSrc.GetPinnableReference())
                         DoCopyRaw(managedSrc.RowSize, unmanagedDst.Stride, pSrc, (byte*)unmanagedDst.Scan0);

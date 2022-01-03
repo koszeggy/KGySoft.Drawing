@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow4I.cs
+//  File: UnmanagedBitmapDataRow4I.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -22,7 +22,7 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class NativeBitmapDataRow4I : NativeBitmapDataRowIndexedBase
+    internal sealed class UnmanagedBitmapDataRow4I : UnmanagedBitmapDataRowIndexedBase
     {
         #region Properties
 
@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe int DoGetColorIndex(int x)
         {
-            int nibbles = ((byte*)Address)[x >> 1];
+            int nibbles = ((byte*)Row)[x >> 1];
             return (x & 1) == 0
                 ? nibbles >> 4
                 : nibbles & 0b00001111;
@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Imaging
         public override unsafe void DoSetColorIndex(int x, int colorIndex)
         {
             int pos = x >> 1;
-            int nibbles = ((byte*)Address)[pos];
+            int nibbles = ((byte*)Row)[pos];
             if ((x & 1) == 0)
             {
                 nibbles &= 0b00001111;
@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
                 nibbles |= colorIndex;
             }
 
-            ((byte*)Address)[pos] = (byte)nibbles;
+            ((byte*)Row)[pos] = (byte)nibbles;
         }
 
         #endregion

@@ -30,7 +30,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region UnmanagedCustomBitmapDataRowIndexed class
 
-        private sealed class UnmanagedCustomBitmapDataRowIndexed : NativeBitmapDataRowIndexedBase
+        private sealed class UnmanagedCustomBitmapDataRowIndexed : UnmanagedBitmapDataRowIndexedBase
         {
             #region Properties
 
@@ -51,10 +51,10 @@ namespace KGySoft.Drawing.Imaging
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override int DoGetColorIndex(int x) => Parent.rowGetColorIndex.Invoke(BitmapData, Address, x);
+            public override int DoGetColorIndex(int x) => Parent.rowGetColorIndex.Invoke(BitmapData, Row, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColorIndex(int x, int colorIndex) => Parent.rowSetColorIndex.Invoke(BitmapData, Address, x, colorIndex);
+            public override void DoSetColorIndex(int x, int colorIndex) => Parent.rowSetColorIndex.Invoke(BitmapData, Row, x, colorIndex);
 
             #endregion
         }
@@ -102,7 +102,7 @@ namespace KGySoft.Drawing.Imaging
             // Otherwise, we create and cache the result.
             return lastRow = new UnmanagedCustomBitmapDataRowIndexed
             {
-                Address = y == 0 ? Scan0 : Scan0 + Stride * y,
+                Row = y == 0 ? Scan0 : Scan0 + Stride * y,
                 BitmapData = this,
                 Index = y,
             };
