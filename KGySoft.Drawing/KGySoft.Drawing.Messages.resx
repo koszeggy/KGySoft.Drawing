@@ -198,6 +198,15 @@
   <data name="Imaging_InvalidBitmapDataSize" xml:space="preserve">
     <value>The bitmap data has an invalid size.</value>
   </data>
+  <data name="Imaging_InvalidStride" xml:space="preserve">
+    <value>Stride is invalid for the given width and pixel format.</value>
+  </data>
+  <data name="Imaging_NonIndexedPixelFormatExpected" xml:space="preserve">
+    <value>This method expects a non-indexed pixel format.</value>
+  </data>
+  <data name="Imaging_IndexedPixelFormatExpected" xml:space="preserve">
+    <value>This method expects an indexed pixel format.</value>
+  </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>
   </data>

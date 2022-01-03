@@ -29,12 +29,12 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32(int x) => ((Color48*)Address)[x].ToColor32PlatformDependent();
+        public override unsafe Color32 DoGetColor32(int x) => ((Color48*)Address)[x].ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe void DoSetColor32(int x, Color32 c)
-            => ((Color48*)Address)[x] = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)).ToColor48PlatformDependent();
+            => ((Color48*)Address)[x] = new Color48(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
 
         #endregion
     }

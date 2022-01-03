@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRowBase.cs
+//  File: NativeBitmapDataRow64Argb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
 //
@@ -22,35 +22,17 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class NativeBitmapDataRowBase : BitmapDataRowBase
+    internal sealed class NativeBitmapDataRow64Argb : NativeBitmapDataRowBase
     {
-        #region Fields
-
-        [SecurityCritical]
-        internal unsafe byte* Address;
-
-        #endregion
-
         #region Methods
 
-        [SecuritySafeCritical]
+        [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe bool MoveNextRow()
-        {
-            if (!base.MoveNextRow())
-                return false;
-
-            Address += ((NativeBitmapDataBase)BitmapData).Stride;
-            return true;
-        }
+        public override unsafe Color32 DoGetColor32(int x) => ((Color64*)Address)[x].ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe T DoReadRaw<T>(int x) => ((T*)Address)[x];
-
-        [SecurityCritical]
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoWriteRaw<T>(int x, T data) => ((T*)Address)[x] = data;
+        public override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Address)[x] = new Color64(c);
 
         #endregion
     }

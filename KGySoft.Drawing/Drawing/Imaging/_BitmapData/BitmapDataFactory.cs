@@ -20,6 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using KGySoft.Collections;
 #if !NET35
 using System.Threading.Tasks; 
 #endif
@@ -54,6 +55,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
+        #region CreateBitmapData
+
+        #region Self-Allocating
+        
         /// <summary>
         /// Creates a managed <see cref="IReadWriteBitmapData"/> with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -147,6 +152,82 @@ namespace KGySoft.Drawing.Imaging
             return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
         }
 
+        #endregion
+
+        #region Unmanaged Wrapper for IntPtr
+
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            if (Math.Abs(stride) < (size.Width * pixelFormat.ToBitsPerPixel()) >> 3)
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingInvalidStride);
+
+            return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback);
+        }
+
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            if (Math.Abs(stride) < (size.Width * pixelFormat.ToBitsPerPixel()) >> 3)
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingInvalidStride);
+
+            return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback);
+        }
+
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
+            Func<IBitmapData, IntPtr, int, Color32> rowGetColor, Action<IBitmapData, IntPtr, int, Color32> rowSetColor,
+            Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (pixelFormatInfo.BitsPerPixel == 0)
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+            if (pixelFormatInfo.IsIndexed)
+                throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
+            if (rowGetColor == null)
+                throw new ArgumentNullException(nameof(rowGetColor), PublicResources.ArgumentNull);
+            if (rowSetColor == null)
+                throw new ArgumentNullException(nameof(rowGetColor), PublicResources.ArgumentNull);
+            return CreateUnmanagedCustomBitmapData(buffer, size, stride, pixelFormatInfo, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+        }
+
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
+            Func<IBitmapData, IntPtr, int, int> rowGetColorIndex, Action<IBitmapData, IntPtr, int, int> rowSetColorIndex,
+            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (pixelFormatInfo.BitsPerPixel == 0)
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+            if (!pixelFormatInfo.IsIndexed)
+                throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
+            if (rowGetColorIndex == null)
+                throw new ArgumentNullException(nameof(rowGetColorIndex), PublicResources.ArgumentNull);
+            if (rowSetColorIndex == null)
+                throw new ArgumentNullException(nameof(rowSetColorIndex), PublicResources.ArgumentNull);
+            return CreateUnmanagedCustomBitmapData(buffer, size, stride, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
+        }
+
+        #endregion
+
+        #endregion
+
+        #region Load
+
         /// <summary>
         /// Loads a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> that was saved by
         /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
@@ -218,67 +299,81 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #endregion
+
         #region Internal Methods
 
         /// <summary>
         /// Creates a native <see cref="IBitmapDataInternal"/> from a <see cref="Bitmap"/>.
         /// </summary>
-        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
+        internal static unsafe IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (!lockMode.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(lockMode), PublicResources.EnumOutOfRange(lockMode));
-            Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
 
-            var pixelFormat = bitmap.PixelFormat;
+            PixelFormat pixelFormat = bitmap.PixelFormat;
+
+            // On Linux with libgdiplus 16bpp formats can be accessed only via 24bpp bitmap data
+            PixelFormat bitmapDataPixelFormat = OSUtils.IsWindows
+                ? pixelFormat
+                : pixelFormat is PixelFormat.Format16bppRgb565 or PixelFormat.Format16bppRgb555 ? PixelFormat.Format24bppRgb : pixelFormat;
+
+            Size size = bitmap.Size;
+            BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
+            Action dispose = () => bitmap.UnlockBits(bitmapData);
+
             switch (pixelFormat)
             {
                 case PixelFormat.Format32bppArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow32Argb>(bitmap, pixelFormat, lockMode);
-
                 case PixelFormat.Format32bppPArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow32PArgb>(bitmap, pixelFormat, lockMode);
-
                 case PixelFormat.Format32bppRgb:
-                    return new NativeBitmapData<NativeBitmapDataRow32Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
-
                 case PixelFormat.Format24bppRgb:
-                    return new NativeBitmapData<NativeBitmapDataRow24Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                case PixelFormat.Format16bppArgb1555:
+                case PixelFormat.Format16bppGrayScale:
+                    return CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose);
 
                 case PixelFormat.Format8bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow8I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette);
-
                 case PixelFormat.Format4bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow4I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette);
-
                 case PixelFormat.Format1bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow1I>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette);
+                    Debug.Assert(palette == null || palette.Equals(bitmap.Palette.Entries), "Non-null palette entries must match actual palette. Expected to be passed to re-use its cache only.");
+                    palette ??= new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
+                    return CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, palette, bitmap.SetPalette, dispose);
 
                 case PixelFormat.Format64bppArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow64Argb>(bitmap, pixelFormat, lockMode);
+                    return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
+                        (_, row, x) => ((Color64*)row)[x].ToColor32PlatformDependent(),
+                        (_, row, x, c) => ((Color64*)row)[x] = c.ToColor64PlatformDependent(),
+                        disposeCallback: dispose);
 
                 case PixelFormat.Format64bppPArgb:
-                    return new NativeBitmapData<NativeBitmapDataRow64PArgb>(bitmap, pixelFormat, lockMode);
+                    return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
+                        (_, row, x) => ((Color64*)row)[x].ToStraight32PlatformDependent(),
+                        (_, row, x, c) => ((Color64*)row)[x] = c.ToPremultiplied64PlatformDependent(),
+                        disposeCallback: dispose);
 
                 case PixelFormat.Format48bppRgb:
-                    return new NativeBitmapData<NativeBitmapDataRow48Rgb>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
+                        (_, row, x) => ((Color48*)row)[x].ToColor32PlatformDependent(),
+                        (bmpData, row, x, c) => ((Color48*)row)[x] = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(bmpData.BackColor)).ToColor48PlatformDependent(),
+                        backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb565:
-                    return OSUtils.IsWindows
-                        ? new NativeBitmapData<NativeBitmapDataRow16Rgb565>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
-                        : new NativeBitmapData<NativeBitmapDataRow16Rgb565Via24Bpp>(bitmap, PixelFormat.Format24bppRgb, lockMode, backColor, alphaThreshold);
+                    return pixelFormat == bitmapDataPixelFormat
+                        ? CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
+                        : CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
+                            (_, row, x) => new Color16Rgb565(((Color24*)row)[x].ToColor32()).ToColor32(),
+                            (bmpData, row, x, c) => ((Color24*)row)[x] = new Color24(new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(bmpData.BackColor)).ToColor32()),
+                            backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb555:
-                    return OSUtils.IsWindows
-                        ? new NativeBitmapData<NativeBitmapDataRow16Rgb555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold)
-                        : new NativeBitmapData<NativeBitmapDataRow16Rgb555Via24Bpp>(bitmap, PixelFormat.Format24bppRgb, lockMode, backColor, alphaThreshold);
-
-                case PixelFormat.Format16bppArgb1555:
-                    return new NativeBitmapData<NativeBitmapDataRow16Argb1555>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
-
-                case PixelFormat.Format16bppGrayScale:
-                    return new NativeBitmapData<NativeBitmapDataRow16Gray>(bitmap, pixelFormat, lockMode, backColor, alphaThreshold);
+                    return pixelFormat == bitmapDataPixelFormat
+                        ? CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
+                        : CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
+                            (_, row, x) => new Color16Rgb555(((Color24*)row)[x].ToColor32()).ToColor32(),
+                            (bmpData, row, x, c) => ((Color24*)row)[x] = new Color24(new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(bmpData.BackColor)).ToColor32()),
+                            backColor, alphaThreshold, dispose);
 
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"));
@@ -305,20 +400,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(lockMode), PublicResources.EnumOutOfRange(lockMode));
 
             // here the quantizer and the target bitmap uses the same palette
-            switch (pixelFormat)
-            {
-                case PixelFormat.Format8bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow8I>(bitmap, pixelFormat, lockMode, quantizingSession);
-
-                case PixelFormat.Format4bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow4I>(bitmap, pixelFormat, lockMode, quantizingSession);
-
-                case PixelFormat.Format1bppIndexed:
-                    return new NativeBitmapData<NativeBitmapDataRow1I>(bitmap, pixelFormat, lockMode, quantizingSession);
-
-                default:
-                    throw new InvalidOperationException(Res.InternalError($"Unexpected indexed format: {pixelFormat}"));
-            }
+            return CreateBitmapData(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
         }
 
         /// <summary>
@@ -381,6 +463,51 @@ namespace KGySoft.Drawing.Imaging
                 default:
                     throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
             }
+        }
+
+        internal static IBitmapDataInternal CreateUnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
+            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+        {
+            if (pixelFormat.IsIndexed() && palette != null)
+            {
+                int maxColors = 1 << pixelFormat.ToBitsPerPixel();
+                if (palette.Count > maxColors)
+                    throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, pixelFormat), nameof(palette));
+            }
+            Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
+
+            return pixelFormat switch
+            {
+                PixelFormat.Format32bppArgb => new UnmanagedBitmapData<NativeBitmapDataRow32Argb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format32bppPArgb => new UnmanagedBitmapData<NativeBitmapDataRow32PArgb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format32bppRgb => new UnmanagedBitmapData<NativeBitmapDataRow32Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format24bppRgb => new UnmanagedBitmapData<NativeBitmapDataRow24Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format8bppIndexed => new UnmanagedBitmapData<NativeBitmapDataRow8I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
+                PixelFormat.Format4bppIndexed => new UnmanagedBitmapData<NativeBitmapDataRow4I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
+                PixelFormat.Format1bppIndexed => new UnmanagedBitmapData<NativeBitmapDataRow1I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback),
+                PixelFormat.Format64bppArgb => new UnmanagedBitmapData<NativeBitmapDataRow64Argb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format64bppPArgb => new UnmanagedBitmapData<NativeBitmapDataRow64PArgb>(buffer, size, stride, pixelFormat, default, default, null, null, disposeCallback),
+                PixelFormat.Format48bppRgb => new UnmanagedBitmapData<NativeBitmapDataRow48Rgb>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format16bppRgb565 => new UnmanagedBitmapData<NativeBitmapDataRow16Rgb565>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format16bppRgb555 => new UnmanagedBitmapData<NativeBitmapDataRow16Rgb555>(buffer, size, stride, pixelFormat, backColor, default, null, null, disposeCallback),
+                PixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData<NativeBitmapDataRow16Argb1555>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
+                PixelFormat.Format16bppGrayScale => new UnmanagedBitmapData<NativeBitmapDataRow16Gray>(buffer, size, stride, pixelFormat, backColor, default, palette, null, disposeCallback),
+                _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"))
+            };
+        }
+
+        internal static IBitmapDataInternal CreateUnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
+            Func<IBitmapData, IntPtr, int, Color32> rowGetColor, Action<IBitmapData, IntPtr, int, Color32> rowSetColor,
+            Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        {
+            return new UnmanagedCustomBitmapData(buffer, size, stride, pixelFormat.PixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+        }
+
+        internal static IBitmapDataInternal CreateUnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
+            Func<IBitmapData, IntPtr, int, int> rowGetColorIndex, Action<IBitmapData, IntPtr, int, int> rowSetColorIndex,
+            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+        {
+            return new UnmanagedCustomBitmapDataIndexed(buffer, size, stride, pixelFormat.PixelFormat, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
         }
 
         internal static void DoSaveBitmapData(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, Stream stream)

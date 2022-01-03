@@ -46,7 +46,7 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void SetColorIndex(int x, int colorIndex)
+        public sealed override void SetColorIndex(int x, int colorIndex)
         {
             if (colorIndex >= BitmapData.Palette!.Count || (uint)colorIndex > MaxIndex)
                 ThrowColorIndexOutOfRange();
@@ -54,10 +54,10 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override Color32 DoGetColor32(int x) => BitmapData.Palette!.GetColor(DoGetColorIndex(x));
+        public sealed override Color32 DoGetColor32(int x) => BitmapData.Palette!.GetColor(DoGetColorIndex(x));
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColor32(int x, Color32 c) => DoSetColorIndex(x, BitmapData.Palette!.GetNearestColorIndex(c));
+        public sealed override void DoSetColor32(int x, Color32 c) => DoSetColorIndex(x, BitmapData.Palette!.GetNearestColorIndex(c));
 
         #endregion
 

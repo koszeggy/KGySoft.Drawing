@@ -120,8 +120,9 @@ namespace KGySoft.Drawing.Imaging
         public int RowSize => BitmapData.RowSize;
         public Color32 BackColor => BitmapData.BackColor;
         public byte AlphaThreshold => BitmapData.AlphaThreshold;
-        public bool CanSetPalette => false;
         public bool IsDisposed => BitmapData.IsDisposed;
+        public bool CanSetPalette => false;
+        public bool IsCustomPixelFormat => !BitmapData.PixelFormat.IsValidFormat();
 
         #endregion
 

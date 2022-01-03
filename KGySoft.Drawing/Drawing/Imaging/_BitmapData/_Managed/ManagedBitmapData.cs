@@ -49,18 +49,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Properties
-
-        public override PixelFormat PixelFormat { get; }
-
-        public override int Width { get; }
-
-        public override int Height => Buffer.Height;
-
-        public override int RowSize { get; }
-
-        #endregion
-
         #region Constructors
 
         internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
@@ -73,6 +61,7 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
             PixelFormat = pixelFormat;
             Width = size.Width;
+            Height = size.Height;
 
             // Unlike native bitmaps our stride have 1 byte alignment so Stride = (Width * bpp + 7) / 8)
             int bpp = pixelFormat.ToBitsPerPixel();

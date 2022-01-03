@@ -62,15 +62,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Properties
-
-        public override int Height { get; }
-        public override int Width { get; }
-        public override PixelFormat PixelFormat => PixelFormat.Format32bppArgb;
-        public override int RowSize => 0;
-
-        #endregion
-
         #region Constructors
 
         internal SolidBitmapData(Size size, Color32 color)
@@ -78,6 +69,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(size.Width > 0 && size.Height > 0);
             Width = size.Width;
             Height = size.Height;
+            PixelFormat = PixelFormat.Format32bppArgb;
             this.color = color;
         }
 

@@ -34,15 +34,16 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Properties
 
-        public abstract int Height { get; }
-        public abstract int Width { get; }
-        public abstract PixelFormat PixelFormat { get; }
+        public int Height { get; protected set; }
+        public int Width { get; protected set; }
+        public PixelFormat PixelFormat { get; protected set; }
         public Color32 BackColor { get; protected set; }
         public byte AlphaThreshold { get; protected set; }
         public Palette? Palette { get; protected set; }
-        public abstract int RowSize { get; }
-        public virtual bool CanSetPalette => PixelFormat.IsIndexed() && Palette != null;
+        public int RowSize { get; protected set; }
         public bool IsDisposed { get; private set; }
+        public virtual bool CanSetPalette => PixelFormat.IsIndexed() && Palette != null;
+        public virtual bool IsCustomPixelFormat => !PixelFormat.IsValidFormat();
 
         #endregion
 

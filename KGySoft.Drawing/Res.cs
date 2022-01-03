@@ -150,6 +150,15 @@ namespace KGySoft
         /// <summary>The bitmap data has an invalid size.</summary>
         internal static string ImagingInvalidBitmapDataSize => Get("Imaging_InvalidBitmapDataSize");
 
+        /// <summary>Stride is invalid for the given width and pixel format.</summary>
+        internal static string ImagingInvalidStride => Get("Imaging_InvalidStride");
+
+        /// <summary>This method expects a non-indexed pixel format.</summary>
+        internal static string ImagingNonIndexedPixelFormatExpected => Get("Imaging_NonIndexedPixelFormatExpected");
+
+        /// <summary>This method expects an indexed pixel format.</summary>
+        internal static string ImagingIndexedPixelFormatExpected => Get("Imaging_IndexedPixelFormatExpected");
+
         #endregion
 
         #region GifEncoder

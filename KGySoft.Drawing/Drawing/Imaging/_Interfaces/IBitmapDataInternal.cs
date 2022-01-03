@@ -20,6 +20,7 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         bool CanSetPalette { get; }
+        bool IsCustomPixelFormat { get; }
 
         #endregion
 

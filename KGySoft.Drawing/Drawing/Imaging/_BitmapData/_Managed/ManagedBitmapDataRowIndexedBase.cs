@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void SetColorIndex(int x, int colorIndex)
+        public sealed override void SetColorIndex(int x, int colorIndex)
         {
             if (colorIndex >= BitmapData.Palette!.Count || (uint)colorIndex > MaxIndex)
                 ThrowColorIndexOutOfRange();

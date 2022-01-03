@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow16Rgb565Via24Bpp.cs
+//  File: NativeBitmapDataRow64PArgb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
 //
@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -23,21 +22,17 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class NativeBitmapDataRow16Rgb565Via24Bpp : NativeBitmapDataRowBase
+    internal sealed class NativeBitmapDataRow64PArgb : NativeBitmapDataRowBase
     {
         #region Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32(int x)
-            // performing the quantization to RGB565 from the actual RGB888
-            => new Color16Rgb565(((Color24*)Address)[x].ToColor32()).ToColor32();
+        public override unsafe Color32 DoGetColor32(int x) => ((Color64*)Address)[x].ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColor32(int x, Color32 c)
-            // performing the quantization to RGB565 before setting as RGB888
-            => ((Color24*)Address)[x] = new Color24(new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)).ToColor32());
+        public override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Address)[x] = new Color64(c);
 
         #endregion
     }

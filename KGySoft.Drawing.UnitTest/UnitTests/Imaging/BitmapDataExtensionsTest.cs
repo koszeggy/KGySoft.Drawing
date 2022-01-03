@@ -592,9 +592,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // clipping a clipped region
             using var clipped = bitmapData.Clip(new Rectangle(50, 80, 100, 100));
-            Assert.AreEqual(new Rectangle(50, 80, 50, 20), Reflector.GetField(clipped, "region"));
+            Assert.AreEqual(new Rectangle(50, 80, 50, 20), Reflector.GetProperty(clipped, "Region"));
             using var subClipped = clipped.Clip(new Rectangle(20, -10, 20, 50));
-            Assert.AreEqual(new Rectangle(70, 80, 20, 20), Reflector.GetField(subClipped, "region"));
+            Assert.AreEqual(new Rectangle(70, 80, 20, 20), Reflector.GetProperty(subClipped, "Region"));
         }
 
         [Test]

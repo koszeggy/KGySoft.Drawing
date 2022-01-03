@@ -34,11 +34,11 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe int DoGetColorIndex(int x) => Address[x];
+        public override unsafe int DoGetColorIndex(int x) => ((byte*)Address)[x];
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColorIndex(int x, int colorIndex) => Address[x] = (byte)colorIndex;
+        public override unsafe void DoSetColorIndex(int x, int colorIndex) => ((byte*)Address)[x] = (byte)colorIndex;
 
         #endregion
     }

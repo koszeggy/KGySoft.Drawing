@@ -395,10 +395,10 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         private bool TryPerformRawCopy()
         {
-            // same pixel format and a well-known bitmap data type is required
-            if (Source.PixelFormat != Target.PixelFormat
-                || !(Source is NativeBitmapDataBase || Source is ManagedBitmapDataBase)
-                || !(Target is NativeBitmapDataBase || Target is ManagedBitmapDataBase))
+            // same non-custom pixel format is required
+            if (Source.PixelFormat != Target.PixelFormat || Source.IsCustomPixelFormat
+                || Source is not (NativeBitmapDataBase or ManagedBitmapDataBase)
+                || Target is not (NativeBitmapDataBase or ManagedBitmapDataBase))
             {
                 return false;
             }
@@ -407,10 +407,6 @@ namespace KGySoft.Drawing.Imaging
 
             if (bpp > 8)
             {
-                // wide colors: allowing raw copy only if wide color transformations are the same on managed and native bitmap data
-                if (bpp > 32 && Source.GetType() != Target.GetType() && ColorExtensions.Max16BppValue != UInt16.MaxValue)
-                    return false;
-
                 int byteSize = bpp >> 3;
                 SourceRectangle.X *= byteSize;
                 TargetRectangle.X *= byteSize;
@@ -462,28 +458,28 @@ namespace KGySoft.Drawing.Imaging
         [SecuritySafeCritical]
         private unsafe void PerformCopyRaw()
         {
-            Debug.Assert(Source is NativeBitmapDataBase || Source is ManagedBitmapDataBase);
-            Debug.Assert(Target is NativeBitmapDataBase || Target is ManagedBitmapDataBase);
+            Debug.Assert(Source is NativeBitmapDataBase or ManagedBitmapDataBase);
+            Debug.Assert(Target is NativeBitmapDataBase or ManagedBitmapDataBase);
 
-            if (Source is NativeBitmapDataBase nativeSrc)
+            if (Source is NativeBitmapDataBase unmanagedSrc)
             {
                 if (Target is NativeBitmapDataBase nativeDst)
                 {
-                    DoCopyRaw(nativeSrc.Stride, nativeDst.Stride, (byte*)nativeSrc.Scan0, (byte*)nativeDst.Scan0);
+                    DoCopyRaw(unmanagedSrc.Stride, nativeDst.Stride, (byte*)unmanagedSrc.Scan0, (byte*)nativeDst.Scan0);
                     return;
                 }
 
                 var managedDst = (ManagedBitmapDataBase)Target;
                 fixed (byte* pDst = &managedDst.GetPinnableReference())
-                    DoCopyRaw(nativeSrc.Stride, managedDst.RowSize, (byte*)nativeSrc.Scan0, pDst);
+                    DoCopyRaw(unmanagedSrc.Stride, managedDst.RowSize, (byte*)unmanagedSrc.Scan0, pDst);
             }
             else
             {
                 var managedSrc = (ManagedBitmapDataBase)Source;
-                if (Target is NativeBitmapDataBase nativeDst)
+                if (Target is NativeBitmapDataBase unmanagedDst)
                 {
                     fixed (byte* pSrc = &managedSrc.GetPinnableReference())
-                        DoCopyRaw(managedSrc.RowSize, nativeDst.Stride, pSrc, (byte*)nativeDst.Scan0);
+                        DoCopyRaw(managedSrc.RowSize, unmanagedDst.Stride, pSrc, (byte*)unmanagedDst.Scan0);
                     return;
                 }
 

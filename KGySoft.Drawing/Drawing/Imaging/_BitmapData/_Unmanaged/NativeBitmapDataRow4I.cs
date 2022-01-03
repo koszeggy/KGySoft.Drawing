@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow1I.cs
+//  File: NativeBitmapDataRow4I.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
 //
@@ -22,11 +22,11 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class NativeBitmapDataRow1I : NativeBitmapDataRowIndexedBase
+    internal class NativeBitmapDataRow4I : NativeBitmapDataRowIndexedBase
     {
         #region Properties
 
-        protected override uint MaxIndex => 1;
+        protected override uint MaxIndex => 15;
 
         #endregion
 
@@ -36,21 +36,30 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe int DoGetColorIndex(int x)
         {
-            int mask = 128 >> (x & 7);
-            int bits = Address[x >> 3];
-            return (bits & mask) != 0 ? 1 : 0;
+            int nibbles = ((byte*)Address)[x >> 1];
+            return (x & 1) == 0
+                ? nibbles >> 4
+                : nibbles & 0b00001111;
         }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override unsafe void DoSetColorIndex(int x, int colorIndex)
         {
-            int pos = x >> 3;
-            int mask = 128 >> (x & 7);
-            if (colorIndex == 0)
-                Address[pos] &= (byte)~mask;
+            int pos = x >> 1;
+            int nibbles = ((byte*)Address)[pos];
+            if ((x & 1) == 0)
+            {
+                nibbles &= 0b00001111;
+                nibbles |= colorIndex << 4;
+            }
             else
-                Address[pos] |= (byte)mask;
+            {
+                nibbles &= 0b11110000;
+                nibbles |= colorIndex;
+            }
+
+            ((byte*)Address)[pos] = (byte)nibbles;
         }
 
         #endregion

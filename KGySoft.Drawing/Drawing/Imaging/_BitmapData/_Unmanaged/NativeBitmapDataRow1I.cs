@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapDataRow64PArgb.cs
+//  File: NativeBitmapDataRow1I.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
 //
@@ -22,17 +22,36 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class NativeBitmapDataRow64PArgb : NativeBitmapDataRowBase
+    internal class NativeBitmapDataRow1I : NativeBitmapDataRowIndexedBase
     {
+        #region Properties
+
+        protected override uint MaxIndex => 1;
+
+        #endregion
+
         #region Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32(int x) => ((Color64*)Address)[x].ToStraight32PlatformDependent();
+        public override unsafe int DoGetColorIndex(int x)
+        {
+            int mask = 128 >> (x & 7);
+            int bits = ((byte*)Address)[x >> 3];
+            return (bits & mask) != 0 ? 1 : 0;
+        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Address)[x] = c.ToPremultiplied64PlatformDependent();
+        public override unsafe void DoSetColorIndex(int x, int colorIndex)
+        {
+            int pos = x >> 3;
+            int mask = 128 >> (x & 7);
+            if (colorIndex == 0)
+                ((byte*)Address)[pos] &= (byte)~mask;
+            else
+                ((byte*)Address)[pos] |= (byte)mask;
+        }
 
         #endregion
     }

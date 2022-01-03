@@ -18,9 +18,6 @@
 using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Security;
-
-using KGySoft.Drawing.WinApi;
 
 #endregion
 
@@ -30,31 +27,15 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
-        private readonly Bitmap bitmap;
-        private readonly BitmapData bitmapData;
+        private Action? disposeCallback;
+        private Action<Palette>? setPalette;
 
         #endregion
 
         #region Properties
 
-        #region Public Properties
-
-        public override int Height => bitmapData.Height;
-
-        public override int Width => bitmapData.Width;
-
-        public override PixelFormat PixelFormat => bitmapData.PixelFormat;
-
-        public override int RowSize { get; }
-
-        #endregion
-
-        #region Internal Properties
-
-        internal IntPtr Scan0 => bitmapData.Scan0;
-        internal int Stride => bitmapData.Stride;
-
-        #endregion
+        internal IntPtr Scan0 { get; }
+        internal int Stride { get; }
 
         #endregion
 
@@ -62,24 +43,37 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        [SecuritySafeCritical]
-        protected NativeBitmapDataBase(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, Palette? palette)
+        protected NativeBitmapDataBase(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
         {
-            // It must be the same as bitmap format except if LockBits is not supported with the original pixel format (occurs on Linux).
-            Debug.Assert(bitmap.PixelFormat == pixelFormat || !OSUtils.IsWindows, "Unmatching pixel format");
+            Debug.Assert(buffer != IntPtr.Zero);
+            Debug.Assert(size.Width > 0 && size.Height > 0);
+            Debug.Assert(pixelFormat.ToBitsPerPixel() > 0);
+            Debug.Assert(palette == null || palette.BackColor == backColor.ToOpaque() && palette.AlphaThreshold == alphaThreshold);
 
-            // If palette is passed it must match with actual palette
-            Debug.Assert(palette == null || palette.Equals(bitmap.Palette.Entries), "Unmatching palette");
-
-            this.bitmap = bitmap;
+            this.disposeCallback = disposeCallback;
+            this.setPalette = setPalette;
+            Width = size.Width;
+            Height = size.Height;
+            PixelFormat = pixelFormat;
+            Scan0 = buffer;
+            Stride = stride;
             BackColor = pixelFormat.HasMultiLevelAlpha() ? default : backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
-
-            bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, bitmap.Size), lockMode, pixelFormat);
-            RowSize = Math.Abs(bitmapData.Stride);
+            RowSize = Math.Abs(stride);
 
             if (pixelFormat.IsIndexed())
-                Palette = palette ?? new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
+            {
+                Palette = palette ?? pixelFormat switch
+                {
+                    PixelFormat.Format8bppIndexed => Palette.SystemDefault8BppPalette(backColor, alphaThreshold),
+                    PixelFormat.Format4bppIndexed => Palette.SystemDefault4BppPalette(backColor),
+                    PixelFormat.Format1bppIndexed => Palette.SystemDefault1BppPalette(backColor),
+                    _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format for palette: {pixelFormat}"))
+                };
+
+                AlphaThreshold = Palette.AlphaThreshold;
+            }
         }
 
         #endregion
@@ -96,19 +90,20 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Methods
 
-        public override bool TrySetPalette(Palette? palette)
+        public sealed override bool CanSetPalette => base.CanSetPalette && setPalette != null;
+
+        public sealed override bool TrySetPalette(Palette? palette)
         {
-            if (!base.TrySetPalette(palette))
+            if (setPalette == null || !base.TrySetPalette(palette))
                 return false;
-            bitmap.SetPalette(palette!);
+            setPalette.Invoke(palette!);
             return true;
         }
 
         #endregion
 
-        #region Protected Methods
+        #region Protectd Methods
 
-        [SecuritySafeCritical]
         protected override void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -117,8 +112,7 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 // may happen if the constructor failed and the call comes from the finalizer
-                if (bitmapData != null!)
-                    bitmap.UnlockBits(bitmapData);
+                disposeCallback?.Invoke();
             }
             catch (Exception)
             {
@@ -128,6 +122,8 @@ namespace KGySoft.Drawing.Imaging
             }
             finally
             {
+                disposeCallback = null;
+                setPalette = null;
                 base.Dispose(disposing);
             }
         }

@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: NativeBitmapData.cs
+//  File: UnmanagedBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
@@ -24,7 +25,7 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class NativeBitmapData<TRow> : NativeBitmapDataBase
+    internal sealed class UnmanagedBitmapData<TRow> : NativeBitmapDataBase
         where TRow : NativeBitmapDataRowBase, new()
     {
         #region Fields
@@ -39,14 +40,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
-            : base(bitmap, pixelFormat, lockMode, backColor, alphaThreshold, palette)
+        internal UnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
+            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
         {
-        }
-
-        internal NativeBitmapData(Bitmap bitmap, PixelFormat pixelFormat, ImageLockMode lockMode, IQuantizingSession quantizingSession)
-            : base(bitmap, pixelFormat, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette)
-        {
+            Debug.Assert(pixelFormat.IsValidFormat());
         }
 
         #endregion
@@ -55,7 +52,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe IBitmapDataRowInternal DoGetRow(int y)
+        public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
             TRow? result = lastRow;
@@ -65,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
             // Otherwise, we create and cache the result.
             return lastRow = new TRow
             {
-                Address = y == 0 ? (byte*)Scan0 : (byte*)Scan0 + Stride * y,
+                Address = y == 0 ? Scan0 : Scan0 + Stride * y,
                 BitmapData = this,
                 Index = y,
             };
