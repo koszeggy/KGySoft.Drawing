@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapDataRow8I.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class ManagedBitmapDataRow8I : ManagedBitmapDataRowIndexedBase<ManagedBitmapDataRow8I>
+    internal sealed class ManagedBitmapDataRow8I : ManagedBitmapDataRowIndexedBase<byte>
     {
         #region Properties
 
@@ -36,6 +36,26 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorIndex(int x, int colorIndex) => Row[x] = (byte)colorIndex;
+
+        #endregion
+    }
+
+    internal sealed class ManagedBitmapDataRow8I<T> : ManagedBitmapDataRowIndexedBase<T>
+        where T : unmanaged
+    {
+        #region Properties
+
+        protected override uint MaxIndex => 255;
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override int DoGetColorIndex(int x) => DoReadRaw<byte>(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColorIndex(int x, int colorIndex) => DoWriteRaw(x, (byte)colorIndex);
 
         #endregion
     }

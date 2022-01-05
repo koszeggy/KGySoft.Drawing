@@ -187,12 +187,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
-        #region Public Properties
-
-        public override bool CanSetPalette => false;
-
-        #endregion
-
         #region Internal Properties
 
         private int X { get; }
@@ -202,15 +196,19 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Protected Properties
+
+        protected override bool AllowSetPalette => false;
+
+        #endregion
+
         #endregion
 
         #region Constructors
 
         internal ClippedBitmapData(IBitmapData source, Rectangle clippingRegion, bool disposeSource)
+            : base(clippingRegion.Size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette, null, null)
         {
-            if (source == null)
-                throw new ArgumentNullException(nameof(source));
-
             disposeBitmapData = disposeSource;
 
             // source is already clipped: unwrapping to prevent tiered nesting (not calling Unwrap because other types should not be extracted here)
@@ -242,12 +240,7 @@ namespace KGySoft.Drawing.Imaging
             Y = clippingRegion.Y;
             Width = clippingRegion.Width;
             Height = clippingRegion.Height;
-            PixelFormat = BitmapData.PixelFormat;
-            BackColor = BitmapData.BackColor;
-            AlphaThreshold = BitmapData.AlphaThreshold;
-            Palette = BitmapData.Palette;
             int bpp = PixelFormat.ToBitsPerPixel();
-
             int maxRowSize = (Width * bpp) >> 3;
             RowSize = X > 0 
                 // Any clipping from the left disables raw access because ReadRaw/WriteRaw offset depends on size of T,
@@ -288,8 +281,6 @@ namespace KGySoft.Drawing.Imaging
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected row access on type: {BitmapData.GetType()}")),
             };
         }
-
-        public override bool TrySetPalette(Palette? palette) => false;
 
         #endregion
 

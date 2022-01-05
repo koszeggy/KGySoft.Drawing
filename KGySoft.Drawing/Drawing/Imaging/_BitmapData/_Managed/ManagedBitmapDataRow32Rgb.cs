@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapDataRow32Rgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -22,7 +22,7 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow32Rgb : ManagedBitmapDataRowBase<Color32, ManagedBitmapDataRow32Rgb>
+    internal sealed class ManagedBitmapDataRow32Rgb : ManagedBitmapDataRowBase<Color32>
     {
         #region Methods
 
@@ -32,6 +32,21 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, Color32 c)
             => Row[x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor);
+
+        #endregion
+    }
+
+    internal sealed class ManagedBitmapDataRow32Rgb<T> : ManagedBitmapDataRowBase<T>
+        where T : unmanaged
+    {
+        #region Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override Color32 DoGetColor32(int x) => DoReadRaw<Color32>(x).ToOpaque();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColor32(int x, Color32 c)
+            => DoWriteRaw(x, c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
 
         #endregion
     }

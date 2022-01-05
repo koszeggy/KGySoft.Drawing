@@ -24,49 +24,35 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedCustomBitmapDataIndexed : UnmanagedCustomBitmapDataBase
+    internal sealed class UnmanagedCustomBitmapDataIndexed : UnmanagedBitmapDataBase
     {
-        #region Nested classes
-
         #region UnmanagedCustomBitmapDataRowIndexed class
 
         private sealed class UnmanagedCustomBitmapDataRowIndexed : UnmanagedBitmapDataRowIndexedBase
         {
             #region Properties
 
-            #region Protected Properties
-
             protected override uint MaxIndex => (1u << BitmapData.PixelFormat.ToBitsPerPixel()) - 1u;
-
-            #endregion
-
-            #region Private Properties
-
-            private UnmanagedCustomBitmapDataIndexed Parent => (UnmanagedCustomBitmapDataIndexed)BitmapData;
-
-            #endregion
 
             #endregion
 
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override int DoGetColorIndex(int x) => Parent.rowGetColorIndex.Invoke(BitmapData, Row, x);
+            public override int DoGetColorIndex(int x) => ((UnmanagedCustomBitmapDataIndexed)BitmapData).rowGetColorIndex.Invoke(BitmapData, Row, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColorIndex(int x, int colorIndex) => Parent.rowSetColorIndex.Invoke(BitmapData, Row, x, colorIndex);
+            public override void DoSetColorIndex(int x, int colorIndex) => ((UnmanagedCustomBitmapDataIndexed)BitmapData).rowSetColorIndex.Invoke(BitmapData, Row, x, colorIndex);
 
             #endregion
         }
 
         #endregion
 
-        #endregion
-
         #region Fields
 
-        private Func<IBitmapData, IntPtr, int, int> rowGetColorIndex;
-        private Action<IBitmapData, IntPtr, int, int> rowSetColorIndex;
+        private RowGetColorIndex<IntPtr> rowGetColorIndex;
+        private RowSetColorIndex<IntPtr> rowSetColorIndex;
 
         /// <summary>
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
@@ -76,11 +62,21 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        public override bool IsCustomPixelFormat => true;
+
+        #endregion
+
         #region Constructors
 
-        public UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Func<IBitmapData, IntPtr, int, int> rowGetColorIndex, Action<IBitmapData, IntPtr, int, int> rowSetColorIndex, Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
+        public UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat,
+            RowGetColorIndex<IntPtr> rowGetColorIndex, RowSetColorIndex<IntPtr> rowSetColorIndex,
+            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
             : base(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback)
         {
+            Debug.Assert(pixelFormat.IsIndexed());
+
             this.rowGetColorIndex = rowGetColorIndex;
             this.rowSetColorIndex = rowSetColorIndex;
         }

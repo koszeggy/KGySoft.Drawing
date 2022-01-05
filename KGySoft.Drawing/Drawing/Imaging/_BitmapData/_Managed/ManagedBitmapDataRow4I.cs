@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapDataRow4I.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,13 +16,12 @@
 #region Usings
 
 using System.Runtime.CompilerServices;
-using System.Security;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal class ManagedBitmapDataRow4I : ManagedBitmapDataRowIndexedBase<ManagedBitmapDataRow4I>
+    internal sealed class ManagedBitmapDataRow4I : ManagedBitmapDataRowIndexedBase<byte>
     {
         #region Properties
 
@@ -45,7 +44,47 @@ namespace KGySoft.Drawing.Imaging
         public override void DoSetColorIndex(int x, int colorIndex)
         {
             int pos = x >> 1;
-            int nibbles = Row[pos];
+            ref byte nibbles = ref Row.GetElementReference(pos);
+            if ((x & 1) == 0)
+            {
+                nibbles &= 0b00001111;
+                nibbles |= (byte)(colorIndex << 4);
+            }
+            else
+            {
+                nibbles &= 0b11110000;
+                nibbles |= (byte)colorIndex;
+            }
+        }
+
+        #endregion
+    }
+
+    internal sealed class ManagedBitmapDataRow4I<T> : ManagedBitmapDataRowIndexedBase<T>
+        where T : unmanaged
+    {
+        #region Properties
+
+        protected override uint MaxIndex => 15;
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override int DoGetColorIndex(int x)
+        {
+            int nibbles = DoReadRaw<byte>(x >> 1);
+            return (x & 1) == 0
+                ? nibbles >> 4
+                : nibbles & 0b00001111;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColorIndex(int x, int colorIndex)
+        {
+            int pos = x >> 1;
+            int nibbles = DoReadRaw<byte>(pos);
             if ((x & 1) == 0)
             {
                 nibbles &= 0b00001111;
@@ -57,9 +96,10 @@ namespace KGySoft.Drawing.Imaging
                 nibbles |= colorIndex;
             }
 
-            Row[pos] = (byte)nibbles;
+            DoWriteRaw(pos, (byte)nibbles);
         }
 
         #endregion
     }
+
 }

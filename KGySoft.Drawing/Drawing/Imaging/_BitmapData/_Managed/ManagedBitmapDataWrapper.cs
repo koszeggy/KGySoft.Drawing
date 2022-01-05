@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapData.cs
+//  File: ManagedBitmapDataWrapper.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,8 +15,10 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -25,9 +27,9 @@ using KGySoft.Collections;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a self-allocating managed bitmap data
+    /// Represents a managed bitmap data wrapper backed by a 1D array (wrapped into an <see cref="Array2D{T}"/>).
     /// </summary>
-    internal sealed class ManagedBitmapData<T, TRow> : ManagedBitmapDataSingleArrayBased<T>
+    internal sealed class ManagedBitmapDataWrapper<T, TRow> : ManagedBitmapDataSingleArrayBased<T>
         where T : unmanaged
         where TRow : ManagedBitmapDataRowBase<T>, new()
     {
@@ -37,32 +39,22 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Properties
-
-        protected override bool AllowSetPalette => true;
-
-        #endregion
-
         #region Constructors
 
-        internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, null, null)
+        [SecuritySafeCritical]
+        internal unsafe ManagedBitmapDataWrapper(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
+            : base(new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
         {
             Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
-            Debug.Assert(!pixelFormat.IsIndexed() || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
 
-            // For internally allocated bitmap data stride always has 1 byte alignment so Stride = (Width * bpp + 7) / 8)
-            int bpp = pixelFormat.ToBitsPerPixel();
-            int byteWidth = pixelFormat.GetByteWidth(size.Width);
-            RowSize = byteWidth;
-            Buffer = new Array2D<T>(size.Height, bpp <= 8 ? byteWidth : size.Width);
+            Buffer = buffer;
+            RowSize = buffer.Width * sizeof(T);
         }
 
         #endregion
 
         #region Methods
-
-        #region Public Methods
 
         public override IBitmapDataRowInternal DoGetRow(int y)
         {
@@ -79,21 +71,6 @@ namespace KGySoft.Drawing.Imaging
                 Index = y,
             };
         }
-
-        #endregion
-
-        #region Protected Methods
-
-        protected override void Dispose(bool disposing)
-        {
-            if (IsDisposed)
-                return;
-            if (disposing)
-                Buffer.Dispose();
-            base.Dispose(disposing);
-        }
-
-        #endregion
 
         #endregion
     }

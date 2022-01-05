@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapDataRow64Argb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -21,7 +21,7 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow64Argb : ManagedBitmapDataRowBase<Color64, ManagedBitmapDataRow64Argb>
+    internal sealed class ManagedBitmapDataRow64Argb : ManagedBitmapDataRowBase<Color64>
     {
         #region Methods
 
@@ -30,6 +30,20 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, Color32 c) => Row[x] = new Color64(c);
+
+        #endregion
+    }
+
+    internal sealed class ManagedBitmapDataRow64Argb<T> : ManagedBitmapDataRowBase<T>
+        where T : unmanaged
+    {
+        #region Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override Color32 DoGetColor32(int x) => DoReadRaw<Color64>(x).ToColor32();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColor32(int x, Color32 c) => DoWriteRaw(x, new Color64(c));
 
         #endregion
     }

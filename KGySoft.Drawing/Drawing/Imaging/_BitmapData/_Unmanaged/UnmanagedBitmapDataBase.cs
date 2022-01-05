@@ -25,13 +25,6 @@ namespace KGySoft.Drawing.Imaging
 {
     internal abstract class UnmanagedBitmapDataBase : BitmapDataBase
     {
-        #region Fields
-
-        private Action? disposeCallback;
-        private Action<Palette>? setPalette;
-
-        #endregion
-
         #region Properties
 
         internal IntPtr Scan0 { get; }
@@ -45,35 +38,14 @@ namespace KGySoft.Drawing.Imaging
 
         protected UnmanagedBitmapDataBase(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
             Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
+            : base(size, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
         {
             Debug.Assert(buffer != IntPtr.Zero);
-            Debug.Assert(size.Width > 0 && size.Height > 0);
-            Debug.Assert(pixelFormat.ToBitsPerPixel() > 0);
-            Debug.Assert(palette == null || palette.BackColor == backColor.ToOpaque() && palette.AlphaThreshold == alphaThreshold);
+            Debug.Assert(Math.Abs(stride) >= pixelFormat.GetByteWidth(size.Width));
 
-            this.disposeCallback = disposeCallback;
-            this.setPalette = setPalette;
-            Width = size.Width;
-            Height = size.Height;
-            PixelFormat = pixelFormat;
             Scan0 = buffer;
             Stride = stride;
-            BackColor = pixelFormat.HasMultiLevelAlpha() ? default : backColor.ToOpaque();
-            AlphaThreshold = alphaThreshold;
             RowSize = Math.Abs(stride);
-
-            if (pixelFormat.IsIndexed())
-            {
-                Palette = palette ?? pixelFormat switch
-                {
-                    PixelFormat.Format8bppIndexed => Palette.SystemDefault8BppPalette(backColor, alphaThreshold),
-                    PixelFormat.Format4bppIndexed => Palette.SystemDefault4BppPalette(backColor),
-                    PixelFormat.Format1bppIndexed => Palette.SystemDefault1BppPalette(backColor),
-                    _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format for palette: {pixelFormat}"))
-                };
-
-                AlphaThreshold = Palette.AlphaThreshold;
-            }
         }
 
         #endregion
@@ -81,52 +53,6 @@ namespace KGySoft.Drawing.Imaging
         #region Destructor
 
         ~UnmanagedBitmapDataBase() => Dispose(false);
-
-        #endregion
-
-        #endregion
-
-        #region Methods
-
-        #region Public Methods
-
-        public sealed override bool CanSetPalette => base.CanSetPalette && setPalette != null;
-
-        public sealed override bool TrySetPalette(Palette? palette)
-        {
-            if (setPalette == null || !base.TrySetPalette(palette))
-                return false;
-            setPalette.Invoke(palette!);
-            return true;
-        }
-
-        #endregion
-
-        #region Protectd Methods
-
-        protected override void Dispose(bool disposing)
-        {
-            if (IsDisposed)
-                return;
-
-            try
-            {
-                // may happen if the constructor failed and the call comes from the finalizer
-                disposeCallback?.Invoke();
-            }
-            catch (Exception)
-            {
-                // From explicit dispose we throw it further but we ignore it from destructor.
-                if (disposing)
-                    throw;
-            }
-            finally
-            {
-                disposeCallback = null;
-                setPalette = null;
-                base.Dispose(disposing);
-            }
-        }
 
         #endregion
 

@@ -198,14 +198,23 @@
   <data name="Imaging_InvalidBitmapDataSize" xml:space="preserve">
     <value>The bitmap data has an invalid size.</value>
   </data>
-  <data name="Imaging_InvalidStride" xml:space="preserve">
-    <value>Stride is invalid for the given width and pixel format.</value>
+  <data name="Imaging_StrideTooSmallFormat" xml:space="preserve">
+    <value>For the given pixel format and width stride must not be less than {0}.</value>
+  </data>
+  <data name="Imaging_StrideInvalidFormat" xml:space="preserve">
+    <value>For element type '{0}' stride must be a multiple of {1}.</value>
+  </data>
+  <data name="Imaging_BufferLengthTooSmallFormat" xml:space="preserve">
+    <value>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</value>
   </data>
   <data name="Imaging_NonIndexedPixelFormatExpected" xml:space="preserve">
     <value>This method expects a non-indexed pixel format.</value>
   </data>
   <data name="Imaging_IndexedPixelFormatExpected" xml:space="preserve">
     <value>This method expects an indexed pixel format.</value>
+  </data>
+  <data name="Imaging_WidthTooLarge" xml:space="preserve">
+    <value>The specified width is too large for the given buffer width and pixel format.</value>
   </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for pixel format '{1}'.</value>

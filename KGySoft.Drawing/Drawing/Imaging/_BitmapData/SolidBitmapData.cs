@@ -44,10 +44,8 @@ namespace KGySoft.Drawing.Imaging
             public override Color32 DoGetColor32(int x) => Color;
 
             public override T DoReadRaw<T>(int x) => throw new InvalidOperationException();
-            public override int DoGetColorIndex(int x) => throw new InvalidOperationException();
             public override void DoSetColor32(int x, Color32 c) => throw new InvalidOperationException();
             public override void DoWriteRaw<T>(int x, T data) => throw new InvalidOperationException();
-            public override void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException();
 
             #endregion
         }
@@ -65,11 +63,8 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal SolidBitmapData(Size size, Color32 color)
+            : base(size, PixelFormat.Format32bppArgb)
         {
-            Debug.Assert(size.Width > 0 && size.Height > 0);
-            Width = size.Width;
-            Height = size.Height;
-            PixelFormat = PixelFormat.Format32bppArgb;
             this.color = color;
         }
 

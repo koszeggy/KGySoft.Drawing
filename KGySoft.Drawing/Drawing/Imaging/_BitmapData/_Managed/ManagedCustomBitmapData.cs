@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: UnmanagedCustomBitmapData.cs
+//  File: ManagedCustomBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -19,24 +19,31 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
+using System.Security;
+
+using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedCustomBitmapData : UnmanagedBitmapDataBase
+    /// <summary>
+    /// Represents a managed bitmap data wrapper with custom pixel format, backed by a 1D array (wrapped into an <see cref="Array2D{T}"/>).
+    /// </summary>
+    internal sealed class ManagedCustomBitmapData<T> : ManagedBitmapDataSingleArrayBased<T>
+        where T : unmanaged
     {
-        #region UnmanagedCustomBitmapDataRow class
+        #region ManagedCustomBitmapDataRow class
 
-        private sealed class UnmanagedCustomBitmapDataRow : UnmanagedBitmapDataRowBase
+        private sealed class ManagedCustomBitmapDataRow : ManagedBitmapDataRowBase<T>
         {
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetColor.Invoke(BitmapData, Row, x);
+            public override Color32 DoGetColor32(int x) => ((ManagedCustomBitmapData<T>)BitmapData).rowGetColor.Invoke(BitmapData, Row, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32(int x, Color32 c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetColor.Invoke(BitmapData, Row, x, c);
+            public override void DoSetColor32(int x, Color32 c) => ((ManagedCustomBitmapData<T>)BitmapData).rowSetColor.Invoke(BitmapData, Row, x, c);
 
             #endregion
         }
@@ -45,14 +52,14 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private RowGetColor<IntPtr> rowGetColor;
-        private RowSetColor<IntPtr> rowSetColor;
+        private RowGetColor<ArraySection<T>> rowGetColor;
+        private RowSetColor<ArraySection<T>> rowSetColor;
 
         /// <summary>
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
         /// so it has a bit higher chance that every thread sees the last value was set by itself and no recreation is needed.
         /// </summary>
-        private UnmanagedCustomBitmapDataRow? lastRow;
+        private ManagedCustomBitmapDataRow? lastRow;
 
         #endregion
 
@@ -64,12 +71,16 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal UnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat,
-            RowGetColor<IntPtr> rowGetColor, RowSetColor<IntPtr> rowSetColor,
+        [SecuritySafeCritical]
+        public unsafe ManagedCustomBitmapData(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat,
+            RowGetColor<ArraySection<T>> rowGetColor, RowSetColor<ArraySection<T>> rowSetColor,
             Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
+            : base(new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
         {
             Debug.Assert(!pixelFormat.IsIndexed());
+
+            Buffer = buffer;
+            RowSize = buffer.Width * sizeof(T);
             this.rowGetColor = rowGetColor;
             this.rowSetColor = rowSetColor;
         }
@@ -84,14 +95,14 @@ namespace KGySoft.Drawing.Imaging
         public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
-            UnmanagedCustomBitmapDataRow? result = lastRow;
+            ManagedCustomBitmapDataRow? result = lastRow;
             if (result?.Index == y)
                 return result;
 
             // Otherwise, we create and cache the result.
-            return lastRow = new UnmanagedCustomBitmapDataRow
+            return lastRow = new ManagedCustomBitmapDataRow
             {
-                Row = y == 0 ? Scan0 : Scan0 + Stride * y,
+                Row = Buffer[y],
                 BitmapData = this,
                 Index = y,
             };

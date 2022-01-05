@@ -150,14 +150,14 @@ namespace KGySoft
         /// <summary>The bitmap data has an invalid size.</summary>
         internal static string ImagingInvalidBitmapDataSize => Get("Imaging_InvalidBitmapDataSize");
 
-        /// <summary>Stride is invalid for the given width and pixel format.</summary>
-        internal static string ImagingInvalidStride => Get("Imaging_InvalidStride");
-
         /// <summary>This method expects a non-indexed pixel format.</summary>
         internal static string ImagingNonIndexedPixelFormatExpected => Get("Imaging_NonIndexedPixelFormatExpected");
 
         /// <summary>This method expects an indexed pixel format.</summary>
         internal static string ImagingIndexedPixelFormatExpected => Get("Imaging_IndexedPixelFormatExpected");
+
+        /// <summary>The specified width is too large for the given buffer width and pixel format.</summary>
+        internal static string ImagingWidthTooLarge => Get("Imaging_WidthTooLarge");
 
         #endregion
 
@@ -237,6 +237,15 @@ namespace KGySoft
 
         /// <summary>Palette must not have more than {0} colors for pixel format '{1}'.</summary>
         internal static string ImagingPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("Imaging_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));
+
+        /// <summary>For the given pixel format and width stride must not be less than {0}.</summary>
+        internal static string ImagingStrideTooSmall(int min) => Get("Imaging_StrideTooSmallFormat", min);
+
+        /// <summary>For element type '{0}' stride must be a multiple of {1}.</summary>
+        internal static string ImagingStrideInvalid(Type t, int size) => Get("Imaging_StrideInvalidFormat", t, size);
+
+        /// <summary>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</summary>
+        internal static string ImagingBufferLengthTooSmall(int minSize) => Get("Imaging_BufferLengthTooSmallFormat", minSize);
 
         #endregion
 
