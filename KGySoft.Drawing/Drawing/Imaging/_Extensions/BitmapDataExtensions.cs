@@ -50,11 +50,8 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static bool IsFastPremultiplied(this IBitmapData bitmapData)
-        {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return pixelFormat == PixelFormat.Format32bppPArgb
-                || pixelFormat.IsPremultiplied() && (bitmapData is not UnmanagedBitmapDataBase || ColorExtensions.Max16BppValue == UInt16.MaxValue);
-        }
+            => bitmapData.PixelFormat.IsPremultiplied()
+                && bitmapData is ManagedBitmapDataBase { IsCustomPixelFormat: false } or UnmanagedBitmapDataBase { IsCustomPixelFormat: false };
 
         internal static bool HasAlpha(this IBitmapData bitmapData)
         {

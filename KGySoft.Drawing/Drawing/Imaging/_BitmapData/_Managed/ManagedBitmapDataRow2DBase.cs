@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataRowBase.cs
+//  File: ManagedBitmapDataRow2DBase.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,45 +15,36 @@
 
 #region Usings
 
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Security;
-
-using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class ManagedBitmapDataRowBase<T> : BitmapDataRowBase
+    internal abstract class ManagedBitmapDataRow2DBase<T> : BitmapDataRowBase
         where T : unmanaged
     {
-        #region Fields
+        #region Properties
 
-        internal ArraySection<T> Row;
+        [AllowNull]
+        internal T[,] Buffer { get; init; }
 
         #endregion
 
         #region Methods
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override bool MoveNextRow()
-        {
-            if (!base.MoveNextRow())
-                return false;
-            Row = ((ManagedBitmapData1DArrayBase<T>)BitmapData).Buffer[Index];
-            return true;
-        }
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override TResult DoReadRaw<TResult>(int x)
         {
 #if NETCOREAPP3_0_OR_GREATER
-            return Unsafe.Add(ref Unsafe.As<T, TResult>(ref Row.GetPinnableReference()), x);
+            return Unsafe.Add(ref Unsafe.As<T, TResult>(ref Buffer[Index, 0]), x);
 #else
             unsafe
             {
-                fixed (T* pRow = Row)
+                fixed (T* pRow = &Buffer[Index, 0])
                     return ((TResult*)pRow)[x];
             }
 #endif
@@ -64,11 +55,11 @@ namespace KGySoft.Drawing.Imaging
         public sealed override void DoWriteRaw<TValue>(int x, TValue data)
         {
 #if NETCOREAPP3_0_OR_GREATER
-            Unsafe.Add(ref Unsafe.As<T, TValue>(ref Row.GetPinnableReference()), x) = data;
+            Unsafe.Add(ref Unsafe.As<T, TValue>(ref Buffer[Index, 0]), x) = data;
 #else
             unsafe
             {
-                fixed (T* pRow = Row)
+                fixed (T* pRow = &Buffer[Index, 0])
                     ((TValue*)pRow)[x] = data;
             }
 #endif

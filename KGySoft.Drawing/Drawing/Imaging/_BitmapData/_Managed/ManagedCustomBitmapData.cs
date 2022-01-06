@@ -19,7 +19,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
-using System.Security;
 
 using KGySoft.Collections;
 
@@ -28,9 +27,9 @@ using KGySoft.Collections;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a managed bitmap data wrapper with custom pixel format, backed by a 1D array (wrapped into an <see cref="Array2D{T}"/>).
+    /// Represents a managed bitmap data wrapper with custom pixel format for a 1D array (wrapped into an <see cref="Array2D{T}"/>).
     /// </summary>
-    internal sealed class ManagedCustomBitmapData<T> : ManagedBitmapDataSingleArrayBased<T>
+    internal sealed class ManagedCustomBitmapData<T> : ManagedBitmapData1DArrayBase<T>
         where T : unmanaged
     {
         #region ManagedCustomBitmapDataRow class
@@ -71,16 +70,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        [SecuritySafeCritical]
-        public unsafe ManagedCustomBitmapData(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat,
+        public ManagedCustomBitmapData(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat,
             RowGetColor<ArraySection<T>> rowGetColor, RowSetColor<ArraySection<T>> rowSetColor,
             Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
+            : base(buffer, new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
         {
             Debug.Assert(!pixelFormat.IsIndexed());
 
-            Buffer = buffer;
-            RowSize = buffer.Width * sizeof(T);
             this.rowGetColor = rowGetColor;
             this.rowSetColor = rowSetColor;
         }

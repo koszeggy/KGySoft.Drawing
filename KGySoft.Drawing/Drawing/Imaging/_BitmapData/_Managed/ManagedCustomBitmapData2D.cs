@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedCustomBitmapDataIndexed.cs
+//  File: ManagedCustomBitmapData2D.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -20,33 +20,27 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 
-using KGySoft.Collections;
-
 #endregion
-
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedCustomBitmapDataIndexed<T> : ManagedBitmapData1DArrayBase<T>
+    /// <summary>
+    /// Represents a managed bitmap data wrapper with custom pixel format for an actual 2D array.
+    /// </summary>
+    internal sealed class ManagedCustomBitmapData2D<T> : ManagedBitmapData2DArrayBase<T>
         where T : unmanaged
     {
         #region ManagedCustomBitmapDataRow class
 
-        private sealed class ManagedCustomBitmapDataRow : ManagedBitmapDataRowIndexedBase<T>
+        private sealed class ManagedCustomBitmapDataRow2D : ManagedBitmapDataRow2DBase<T>
         {
-            #region Properties
-
-            protected override uint MaxIndex => (1u << BitmapData.PixelFormat.ToBitsPerPixel()) - 1u;
-
-            #endregion
-
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override int DoGetColorIndex(int x) => ((ManagedCustomBitmapDataIndexed<T>)BitmapData).rowGetColorIndex.Invoke(BitmapData, Row, x);
+            public override Color32 DoGetColor32(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetColor.Invoke(BitmapData, ref Buffer[Index, 0], x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColorIndex(int x, int colorIndex) => ((ManagedCustomBitmapDataIndexed<T>)BitmapData).rowSetColorIndex.Invoke(BitmapData, Row, x, colorIndex);
+            public override void DoSetColor32(int x, Color32 c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetColor.Invoke(BitmapData, ref Buffer[Index, 0], x, c);
 
             #endregion
         }
@@ -55,14 +49,14 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private RowGetColorIndex<ArraySection<T>> rowGetColorIndex;
-        private RowSetColorIndex<ArraySection<T>> rowSetColorIndex;
+        private RowGetColorByRef<T> rowGetColor;
+        private RowSetColorByRef<T> rowSetColor;
 
         /// <summary>
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
         /// so it has a bit higher chance that every thread sees the last value was set by itself and no recreation is needed.
         /// </summary>
-        private ManagedCustomBitmapDataRow? lastRow;
+        private ManagedCustomBitmapDataRow2D? lastRow;
 
         #endregion
 
@@ -74,15 +68,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        public ManagedCustomBitmapDataIndexed(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat,
-            RowGetColorIndex<ArraySection<T>> rowGetColorIndex, RowSetColorIndex<ArraySection<T>> rowSetColorIndex,
-            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
-            : base(buffer, new Size(pixelWidth, buffer.Height), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback)
+        public ManagedCustomBitmapData2D(T[,] buffer, int pixelWidth, PixelFormat pixelFormat,
+            RowGetColorByRef<T> rowGetColor, RowSetColorByRef<T> rowSetColor,
+            Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
         {
-            Debug.Assert(pixelFormat.IsIndexed());
+            Debug.Assert(!pixelFormat.IsIndexed());
 
-            this.rowGetColorIndex = rowGetColorIndex;
-            this.rowSetColorIndex = rowSetColorIndex;
+            this.rowGetColor = rowGetColor;
+            this.rowSetColor = rowSetColor;
         }
 
         #endregion
@@ -95,14 +89,14 @@ namespace KGySoft.Drawing.Imaging
         public override IBitmapDataRowInternal DoGetRow(int y)
         {
             // If the same row is accessed repeatedly we return the cached last row.
-            ManagedCustomBitmapDataRow? result = lastRow;
+            ManagedCustomBitmapDataRow2D? result = lastRow;
             if (result?.Index == y)
                 return result;
 
             // Otherwise, we create and cache the result.
-            return lastRow = new ManagedCustomBitmapDataRow
+            return lastRow = new ManagedCustomBitmapDataRow2D
             {
-                Row = Buffer[y],
+                Buffer = Buffer,
                 BitmapData = this,
                 Index = y,
             };
@@ -116,8 +110,8 @@ namespace KGySoft.Drawing.Imaging
         {
             if (IsDisposed)
                 return;
-            rowGetColorIndex = null!;
-            rowSetColorIndex = null!;
+            rowGetColor = null!;
+            rowSetColor = null!;
             base.Dispose(disposing);
         }
 

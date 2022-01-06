@@ -191,7 +191,7 @@ namespace KGySoft.Drawing.Imaging
                 return result;
 
             // Otherwise, we create and cache the result.
-            return lastRow = new BitmapDataRowWrapper(isReading ? AsReadable[y] : (IBitmapDataRow)AsWritable[y], isReading, isWriting);
+            return lastRow = new BitmapDataRowWrapper(isReading ? AsReadable[y] : AsWritable[y], isReading, isWriting);
         }
 
         public bool TrySetPalette(Palette? palette) => false;

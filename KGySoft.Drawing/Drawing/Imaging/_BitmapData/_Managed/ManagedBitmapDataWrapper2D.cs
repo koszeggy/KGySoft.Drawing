@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataWrapper.cs
+//  File: ManagedBitmapDataWrapper2D.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -19,18 +19,16 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using KGySoft.Collections;
-
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a managed bitmap data wrapper for a 1D array (wrapped into an <see cref="Array2D{T}"/>).
+    /// Represents a managed bitmap data wrapper for a 2D array
     /// </summary>
-    internal sealed class ManagedBitmapDataWrapper<T, TRow> : ManagedBitmapData1DArrayBase<T>
+    internal sealed class ManagedBitmapDataWrapper2D<T, TRow> : ManagedBitmapData2DArrayBase<T>
         where T : unmanaged
-        where TRow : ManagedBitmapDataRowBase<T>, new()
+        where TRow : ManagedBitmapDataRow2DBase<T>, new()
     {
         #region Fields
 
@@ -40,9 +38,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapDataWrapper(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+        internal ManagedBitmapDataWrapper2D(T[,] buffer, int pixelWidth, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
             Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
-            : base(buffer, new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
+            : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
         {
             Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
         }
@@ -61,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
             // Otherwise, we create and cache the result.
             return lastRow = new TRow
             {
-                Row = Buffer[y],
+                Buffer = Buffer,
                 BitmapData = this,
                 Index = y,
             };

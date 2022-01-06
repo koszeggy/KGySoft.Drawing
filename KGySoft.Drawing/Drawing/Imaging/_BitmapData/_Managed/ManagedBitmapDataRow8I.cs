@@ -59,4 +59,24 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
     }
+
+    internal sealed class ManagedBitmapDataRow8I2D<T> : ManagedBitmapDataRowIndexed2DBase<T>
+        where T : unmanaged
+    {
+        #region Properties
+
+        protected override uint MaxIndex => 255;
+
+        #endregion
+
+        #region Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override int DoGetColorIndex(int x) => DoReadRaw<byte>(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColorIndex(int x, int colorIndex) => DoWriteRaw(x, (byte)colorIndex);
+
+        #endregion
+    }
 }

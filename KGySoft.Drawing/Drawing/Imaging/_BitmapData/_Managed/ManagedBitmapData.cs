@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a self-allocating managed bitmap data
     /// </summary>
-    internal sealed class ManagedBitmapData<T, TRow> : ManagedBitmapDataSingleArrayBased<T>
+    internal sealed class ManagedBitmapData<T, TRow> : ManagedBitmapData1DArrayBase<T>
         where T : unmanaged
         where TRow : ManagedBitmapDataRowBase<T>, new()
     {
@@ -46,16 +46,11 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, null, null)
+            : base(new Array2D<T>(size.Height, pixelFormat.ToBitsPerPixel() <= 8 ? pixelFormat.GetByteWidth(size.Width) : size.Width),
+                size, pixelFormat, backColor, alphaThreshold, palette, null, null)
         {
             Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
             Debug.Assert(!pixelFormat.IsIndexed() || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
-
-            // For internally allocated bitmap data stride always has 1 byte alignment so Stride = (Width * bpp + 7) / 8)
-            int bpp = pixelFormat.ToBitsPerPixel();
-            int byteWidth = pixelFormat.GetByteWidth(size.Width);
-            RowSize = byteWidth;
-            Buffer = new Array2D<T>(size.Height, bpp <= 8 ? byteWidth : size.Width);
         }
 
         #endregion

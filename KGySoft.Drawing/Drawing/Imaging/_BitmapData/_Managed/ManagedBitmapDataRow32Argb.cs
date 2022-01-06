@@ -47,4 +47,18 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
     }
+
+    internal sealed class ManagedBitmapDataRow32Argb2D<T> : ManagedBitmapDataRow2DBase<T>
+        where T : unmanaged
+    {
+        #region Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override Color32 DoGetColor32(int x) => DoReadRaw<Color32>(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColor32(int x, Color32 c) => DoWriteRaw(x, c);
+
+        #endregion
+    }
 }

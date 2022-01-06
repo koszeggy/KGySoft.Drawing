@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataSingleArrayBased.cs
+//  File: ManagedBitmapData1DArrayBase.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -20,9 +20,8 @@ using System.Drawing;
 using System.Drawing.Imaging;
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
-#else
-using System.Security;
 #endif
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -30,13 +29,14 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class ManagedBitmapDataSingleArrayBased<T> : ManagedBitmapDataBase
+    internal abstract class ManagedBitmapData1DArrayBase<T> : ManagedBitmapDataBase
+        where T : unmanaged
     {
         #region Fields
         
         /// <summary>
-        /// The pixel buffer backed by a single dimensional array.
-        /// It is a field rather than a property so possible Dispose from derived classes allow mutating it.
+        /// The pixel buffer where the underlying array is a single dimensional one.
+        /// It is a field rather than a property so possible Dispose from a self-allocating derived classes allows mutating it.
         /// </summary>
         internal Array2D<T> Buffer;
 
@@ -44,9 +44,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        protected ManagedBitmapDataSingleArrayBased(Size size, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
+        [SecuritySafeCritical]
+        protected unsafe ManagedBitmapData1DArrayBase(Array2D<T> buffer, Size size, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
             : base(size, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
         {
+            Buffer = buffer;
+            RowSize = buffer.Width * sizeof(T);
         }
 
         #endregion
