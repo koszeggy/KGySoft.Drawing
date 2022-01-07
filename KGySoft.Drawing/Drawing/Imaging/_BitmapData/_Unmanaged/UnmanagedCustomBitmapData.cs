@@ -45,8 +45,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private RowGetColor<IntPtr> rowGetColor;
-        private RowSetColor<IntPtr> rowSetColor;
+        private RowGetColor<IntPtr, Color32> rowGetColor;
+        private RowSetColor<IntPtr, Color32> rowSetColor;
 
         /// <summary>
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
@@ -65,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal UnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat,
-            RowGetColor<IntPtr> rowGetColor, RowSetColor<IntPtr> rowSetColor,
+            RowGetColor<IntPtr, Color32> rowGetColor, RowSetColor<IntPtr, Color32> rowSetColor,
             Color32 backColor, byte alphaThreshold, Action? disposeCallback)
             : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
         {

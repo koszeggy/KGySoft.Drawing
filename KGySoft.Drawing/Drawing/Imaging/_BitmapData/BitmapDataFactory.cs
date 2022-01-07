@@ -156,84 +156,27 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Unmanaged Wrapper for IntPtr
-
-        [SecurityCritical]
-        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
-        {
-            if (buffer == IntPtr.Zero)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (size.Width < 1 || size.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
-            if (!pixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
-                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
-
-            return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback);
-        }
-
-        [SecurityCritical]
-        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette, Action<Palette>? setPalette = null, Action? disposeCallback = null)
-        {
-            if (buffer == IntPtr.Zero)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (size.Width < 1 || size.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
-            if (!pixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
-                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
-
-            return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback);
-        }
-
-        [SecurityCritical]
-        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<IntPtr> rowGetColor, RowSetColor<IntPtr> rowSetColor, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
-        {
-            if (buffer == IntPtr.Zero)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (size.Width < 1 || size.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
-            if (pixelFormatInfo.BitsPerPixel == 0)
-                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (Math.Abs(stride) < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
-                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
-            if (pixelFormatInfo.IsIndexed)
-                throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
-            if (rowGetColor == null)
-                throw new ArgumentNullException(nameof(rowGetColor), PublicResources.ArgumentNull);
-            if (rowSetColor == null)
-                throw new ArgumentNullException(nameof(rowSetColor), PublicResources.ArgumentNull);
-            return CreateUnmanagedCustomBitmapData(buffer, size, stride, pixelFormatInfo, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
-        }
-
-        [SecurityCritical]
-        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColorIndex<IntPtr> rowGetColorIndex, RowSetColorIndex<IntPtr> rowSetColorIndex,
-            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
-        {
-            if (buffer == IntPtr.Zero)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (size.Width < 1 || size.Height < 1)
-                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
-            if (pixelFormatInfo.BitsPerPixel == 0)
-                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (Math.Abs(stride) < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
-                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
-            if (!pixelFormatInfo.IsIndexed)
-                throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
-            if (rowGetColorIndex == null)
-                throw new ArgumentNullException(nameof(rowGetColorIndex), PublicResources.ArgumentNull);
-            if (rowSetColorIndex == null)
-                throw new ArgumentNullException(nameof(rowSetColorIndex), PublicResources.ArgumentNull);
-            return CreateUnmanagedCustomBitmapData(buffer, size, stride, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
-        }
-
-        #endregion
-
         #region Managed Wrapper for 1D Arrays
+
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+            where T : unmanaged
+            => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormat, backColor, alphaThreshold, disposeCallback);
+
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+            where T : unmanaged
+            => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormat, palette, setPalette, disposeCallback);
+
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
+            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
+            Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+            where T : unmanaged
+            => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
+            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
+            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+            where T : unmanaged
+            => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -281,7 +224,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>> rowGetColor, RowSetColor<ArraySection<T>> rowSetColor,
+            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -311,7 +254,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColorIndex<ArraySection<T>> rowGetColorIndex, RowSetColorIndex<ArraySection<T>> rowSetColorIndex,
+            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -337,91 +280,6 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(rowSetColorIndex), PublicResources.ArgumentNull);
 
             return CreateManagedCustomBitmapData(new Array2D<T>(buffer, size.Height, elementWidth), size.Width, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
-        }
-
-
-        [SecuritySafeCritical]
-        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
-            where T : unmanaged
-        {
-            if (buffer.IsNull)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (buffer.Length == 0)
-                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
-            if (!pixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            int stride = sizeof(T) * buffer.Width;
-            if (stride < pixelFormat.GetByteWidth(pixelWidth))
-                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
-
-            return CreateManagedBitmapData(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback);
-        }
-
-        [SecuritySafeCritical]
-        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat, Palette? palette, Action<Palette>? setPalette = null, Action? disposeCallback = null)
-            where T : unmanaged
-        {
-            if (buffer.IsNull)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (buffer.Length == 0)
-                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
-            if (!pixelFormat.IsValidFormat())
-                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            int stride = sizeof(T) * buffer.Width;
-            if (stride < pixelFormat.GetByteWidth(pixelWidth))
-                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
-
-            return CreateManagedBitmapData(buffer, pixelWidth, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback);
-        }
-
-        [SecuritySafeCritical]
-        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>> rowGetColor, RowSetColor<ArraySection<T>> rowSetColor,
-            Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
-            where T : unmanaged
-        {
-            if (buffer.IsNull)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (buffer.Length == 0)
-                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
-            if (pixelFormatInfo.BitsPerPixel == 0)
-                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (pixelFormatInfo.IsIndexed)
-                throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
-            int stride = sizeof(T) * buffer.Width;
-            if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
-                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
-            if (rowGetColor == null)
-                throw new ArgumentNullException(nameof(rowGetColor), PublicResources.ArgumentNull);
-            if (rowSetColor == null)
-                throw new ArgumentNullException(nameof(rowSetColor), PublicResources.ArgumentNull);
-
-            return CreateManagedCustomBitmapData(buffer, pixelWidth, pixelFormatInfo, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
-        }
-
-        [SecuritySafeCritical]
-        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColorIndex<ArraySection<T>> rowGetColorIndex, RowSetColorIndex<ArraySection<T>> rowSetColorIndex,
-            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
-            where T : unmanaged
-        {
-            if (buffer.IsNull)
-                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
-            if (buffer.Length == 0)
-                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
-            if (pixelFormatInfo.BitsPerPixel == 0)
-                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (!pixelFormatInfo.IsIndexed)
-                throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
-            int stride = sizeof(T) * buffer.Width;
-            if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
-                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
-            if (rowGetColorIndex == null)
-                throw new ArgumentNullException(nameof(rowGetColorIndex), PublicResources.ArgumentNull);
-            if (rowSetColorIndex == null)
-                throw new ArgumentNullException(nameof(rowSetColorIndex), PublicResources.ArgumentNull);
-
-            return CreateManagedCustomBitmapData(buffer, pixelWidth, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
         }
 
         #endregion
@@ -464,7 +322,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColorByRef<T> rowGetColor, RowSetColorByRef<T> rowSetColor,
+            RowGetColorByRef<T, Color32> rowGetColor, RowSetColorByRef<T, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -489,7 +347,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColorIndexByRef<T> rowGetColorIndex, RowSetColorIndexByRef<T> rowSetColorIndex,
+            RowGetColorByRef<T, int> rowGetColorIndex, RowSetColorByRef<T, int > rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -510,6 +368,167 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(rowSetColorIndex), PublicResources.ArgumentNull);
 
             return CreateManagedCustomBitmapData(buffer, pixelWidth, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
+        }
+
+        [SecuritySafeCritical]
+        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        where T : unmanaged
+        {
+            if (buffer.IsNull)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (buffer.Length == 0)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            int stride = sizeof(T) * buffer.Width;
+            if (stride < pixelFormat.GetByteWidth(pixelWidth))
+                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
+
+            return CreateManagedBitmapData(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback);
+        }
+
+        [SecuritySafeCritical]
+        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat, Palette? palette, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+            where T : unmanaged
+        {
+            if (buffer.IsNull)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (buffer.Length == 0)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            int stride = sizeof(T) * buffer.Width;
+            if (stride < pixelFormat.GetByteWidth(pixelWidth))
+                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
+
+            return CreateManagedBitmapData(buffer, pixelWidth, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback);
+        }
+
+        [SecuritySafeCritical]
+        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
+            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
+            Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+            where T : unmanaged
+        {
+            if (buffer.IsNull)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (buffer.Length == 0)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
+            if (pixelFormatInfo.BitsPerPixel == 0)
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+            if (pixelFormatInfo.IsIndexed)
+                throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
+            int stride = sizeof(T) * buffer.Width;
+            if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
+                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
+            if (rowGetColor == null)
+                throw new ArgumentNullException(nameof(rowGetColor), PublicResources.ArgumentNull);
+            if (rowSetColor == null)
+                throw new ArgumentNullException(nameof(rowSetColor), PublicResources.ArgumentNull);
+
+            return CreateManagedCustomBitmapData(buffer, pixelWidth, pixelFormatInfo, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+        }
+
+        [SecuritySafeCritical]
+        public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
+            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
+            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+            where T : unmanaged
+        {
+            if (buffer.IsNull)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (buffer.Length == 0)
+                throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
+            if (pixelFormatInfo.BitsPerPixel == 0)
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+            if (!pixelFormatInfo.IsIndexed)
+                throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
+            int stride = sizeof(T) * buffer.Width;
+            if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
+                throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
+            if (rowGetColorIndex == null)
+                throw new ArgumentNullException(nameof(rowGetColorIndex), PublicResources.ArgumentNull);
+            if (rowSetColorIndex == null)
+                throw new ArgumentNullException(nameof(rowSetColorIndex), PublicResources.ArgumentNull);
+
+            return CreateManagedCustomBitmapData(buffer, pixelWidth, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
+        }
+
+        #endregion
+
+        #region Unmanaged Wrapper for IntPtr
+
+        [SecurityCritical]
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
+
+            return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback);
+        }
+
+        [SecurityCritical]
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
+
+            return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback);
+        }
+
+        [SecurityCritical]
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
+            RowGetColor<IntPtr, Color32> rowGetColor, RowSetColor<IntPtr, Color32> rowSetColor, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (pixelFormatInfo.BitsPerPixel == 0)
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+            if (Math.Abs(stride) < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
+            if (pixelFormatInfo.IsIndexed)
+                throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
+            if (rowGetColor == null)
+                throw new ArgumentNullException(nameof(rowGetColor), PublicResources.ArgumentNull);
+            if (rowSetColor == null)
+                throw new ArgumentNullException(nameof(rowSetColor), PublicResources.ArgumentNull);
+            return CreateUnmanagedCustomBitmapData(buffer, size, stride, pixelFormatInfo, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+        }
+
+        [SecurityCritical]
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
+            RowGetColor<IntPtr, int> rowGetColorIndex, RowSetColor<IntPtr, int> rowSetColorIndex,
+            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+        {
+            if (buffer == IntPtr.Zero)
+                throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
+            if (size.Width < 1 || size.Height < 1)
+                throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
+            if (pixelFormatInfo.BitsPerPixel == 0)
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+            if (Math.Abs(stride) < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
+            if (!pixelFormatInfo.IsIndexed)
+                throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
+            if (rowGetColorIndex == null)
+                throw new ArgumentNullException(nameof(rowGetColorIndex), PublicResources.ArgumentNull);
+            if (rowSetColorIndex == null)
+                throw new ArgumentNullException(nameof(rowSetColorIndex), PublicResources.ArgumentNull);
+            return CreateUnmanagedCustomBitmapData(buffer, size, stride, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
         }
 
         #endregion
@@ -592,6 +611,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Internal Methods
+
+        #region Native Bitmap
 
         /// <summary>
         /// Creates a native <see cref="IBitmapDataInternal"/> from a <see cref="Bitmap"/>.
@@ -694,6 +715,10 @@ namespace KGySoft.Drawing.Imaging
             return CreateBitmapData(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
         }
 
+        #endregion
+
+        #region Managed
+
         /// <summary>
         /// Creates a managed <see cref="IBitmapDataInternal"/> with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.
         /// </summary>
@@ -728,7 +753,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Creates a managed <see cref="IBitmapDataInternal"/> for a preallocated 1D array.
+        /// Creates a managed <see cref="IBitmapDataInternal"/> for a preallocated 1D array (wrapped into an <see cref="Array2D{T}"/> struct).
         /// </summary>
         internal static IBitmapDataInternal CreateManagedBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
@@ -791,7 +816,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColor<ArraySection<T>> rowGetColor, RowSetColor<ArraySection<T>> rowSetColor,
+            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -799,7 +824,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColorIndex<ArraySection<T>> rowGetColorIndex, RowSetColorIndex<ArraySection<T>> rowSetColorIndex,
+            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -842,7 +867,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColorByRef<T> rowGetColor, RowSetColorByRef<T> rowSetColor,
+            RowGetColorByRef<T, Color32> rowGetColor, RowSetColorByRef<T, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -850,16 +875,20 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColorIndexByRef<T> rowGetColorIndex, RowSetColorIndexByRef<T> rowSetColorIndex,
+            RowGetColorByRef<T, int> rowGetColorIndex, RowSetColorByRef<T, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
             return new ManagedCustomBitmapDataIndexed2D<T>(buffer, pixelWidth, pixelFormat.PixelFormat, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
         }
 
+        #endregion
+
+        #region Unmanaged
+
         [SecurityCritical]
         internal static IBitmapDataInternal CreateUnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
-            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+    Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
         {
             if (pixelFormat.IsIndexed() && palette != null)
             {
@@ -891,7 +920,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         internal static IBitmapDataInternal CreateUnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
-            RowGetColor<IntPtr> rowGetColor, RowSetColor<IntPtr> rowSetColor,
+            RowGetColor<IntPtr, Color32> rowGetColor, RowSetColor<IntPtr, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             return new UnmanagedCustomBitmapData(buffer, size, stride, pixelFormat.PixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
@@ -899,7 +928,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         internal static IBitmapDataInternal CreateUnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
-            RowGetColorIndex<IntPtr> rowGetColorIndex, RowSetColorIndex<IntPtr> rowSetColorIndex,
+            RowGetColor<IntPtr, int> rowGetColorIndex, RowSetColor<IntPtr, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
         {
             return new UnmanagedCustomBitmapDataIndexed(buffer, size, stride, pixelFormat.PixelFormat, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
@@ -948,6 +977,8 @@ namespace KGySoft.Drawing.Imaging
                 stream.Flush();
             }
         }
+
+        #endregion
 
         #endregion
 
