@@ -396,7 +396,7 @@ namespace KGySoft.Drawing.Imaging
         private bool TryPerformRawCopy()
         {
             // same non-custom pixel format is required
-            if (Source.PixelFormat != Target.PixelFormat || Source.IsCustomPixelFormat
+            if (Source.PixelFormat != Target.PixelFormat || Source.IsCustomPixelFormat || Target.IsCustomPixelFormat
                 || Source is not (UnmanagedBitmapDataBase or ManagedBitmapDataBase)
                 || Target is not (UnmanagedBitmapDataBase or ManagedBitmapDataBase))
             {
