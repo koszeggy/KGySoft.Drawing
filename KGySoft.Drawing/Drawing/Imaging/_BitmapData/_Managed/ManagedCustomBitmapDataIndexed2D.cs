@@ -19,34 +19,76 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
-
-using KGySoft.Collections;
+using System.Security;
 
 #endregion
-
 
 namespace KGySoft.Drawing.Imaging
 {
     internal sealed class ManagedCustomBitmapDataIndexed2D<T> : ManagedBitmapData2DArrayBase<T>
         where T : unmanaged
     {
-        #region ManagedCustomBitmapDataRow class
+        #region ManagedCustomBitmapDataRow2D class
 
-        private sealed class ManagedCustomBitmapDataRow2D : ManagedBitmapDataRowIndexed2DBase<T>
+        private sealed class ManagedCustomBitmapDataRow2D : ManagedBitmapDataRowIndexed2DBase<T>, ICustomBitmapDataRow<T>
         {
+            #region Properties and Indexers
+
             #region Properties
 
+            #region Protected Properties
+
             protected override uint MaxIndex => (1u << BitmapData.PixelFormat.ToBitsPerPixel()) - 1u;
+
+            #endregion
+
+            #region Explicitly Implemented Interface Properties
+
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
+
+            #endregion
+
+            #region Indexers
+
+            ref T ICustomBitmapDataRow<T>.this[int index] => ref Buffer[Index, index];
+
+            #endregion
 
             #endregion
 
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override int DoGetColorIndex(int x) => ((ManagedCustomBitmapDataIndexed2D<T>)BitmapData).rowGetColorIndex.Invoke(BitmapData, ref Buffer[Index, 0], x);
+            public override int DoGetColorIndex(int x) => ((ManagedCustomBitmapDataIndexed2D<T>)BitmapData).rowGetColorIndex.Invoke(this, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColorIndex(int x, int colorIndex) => ((ManagedCustomBitmapDataIndexed2D<T>)BitmapData).rowSetColorIndex.Invoke(BitmapData, ref Buffer[Index, 0], x, colorIndex);
+            public override void DoSetColorIndex(int x, int colorIndex) => ((ManagedCustomBitmapDataIndexed2D<T>)BitmapData).rowSetColorIndex.Invoke(this, x, colorIndex);
+
+            [SecuritySafeCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public unsafe ref TValue GetRefAs<TValue>(int x) where TValue : unmanaged
+            {
+                if ((x + 1) * sizeof(TValue) > BitmapData.RowSize)
+                    ThrowXOutOfRange();
+                return ref UnsafeGetRefAs<TValue>(x);
+            }
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public ref TValue UnsafeGetRefAs<TValue>(int x) where TValue : unmanaged
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                return ref Unsafe.Add(ref Unsafe.As<T, TValue>(ref Buffer[Index, 0]), x);
+#else
+                unsafe
+                {
+                    fixed (T* pRow = &Buffer[Index, 0])
+                        return ref ((TValue*)pRow)[x];
+                }
+#endif
+            }
 
             #endregion
         }
@@ -55,8 +97,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private RowGetColorByRef<T, int> rowGetColorIndex;
-        private RowSetColorByRef<T, int> rowSetColorIndex;
+        private Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex;
+        private Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex;
 
         /// <summary>
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
@@ -75,7 +117,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         public ManagedCustomBitmapDataIndexed2D(T[,] buffer, int pixelWidth, PixelFormat pixelFormat,
-            RowGetColorByRef<T, int> rowGetColorIndex, RowSetColorByRef<T, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
             : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback)
         {

@@ -14,8 +14,8 @@
 + BitmapDataFactory class:
   + New CreateBitmapData overloads to create bitmap data for preallocated memory. Supporting 1D/2D arrays of any
     unmanaged element type (structs without references) as well as unmanaged memory and custom pixel formats.
-+ New RowGetColor[Index][ByRef]<T>/RowSetColor[Index][ByRef]<T> delegate types to support custom pixel formats.
 + New PixelFormatInfo struct to support custom pixel formats.
++ New ICustomBitmapDataRow/ICustomBitmapDataRow<T> interfaces to support accessing rows with custom pixel formats.
 * GifEncoder class:
   * The performance and memory usage of the LZW compression has been improved.
   - EncodeAnimation method: If quantizer is not set but the input image is already indexed, then not using the

@@ -19,6 +19,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -30,17 +31,57 @@ namespace KGySoft.Drawing.Imaging
     internal sealed class ManagedCustomBitmapData2D<T> : ManagedBitmapData2DArrayBase<T>
         where T : unmanaged
     {
-        #region ManagedCustomBitmapDataRow class
+        #region ManagedCustomBitmapDataRow2D class
 
-        private sealed class ManagedCustomBitmapDataRow2D : ManagedBitmapDataRow2DBase<T>
+        private sealed class ManagedCustomBitmapDataRow2D : ManagedBitmapDataRow2DBase<T>, ICustomBitmapDataRow<T>
         {
+            #region Properties and Indexers
+
+            #region Properties
+
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
+
+            #region Indexers
+
+            ref T ICustomBitmapDataRow<T>.this[int index] => ref Buffer[Index, index];
+
+            #endregion
+
+            #endregion
+
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetColor.Invoke(BitmapData, ref Buffer[Index, 0], x);
+            public override Color32 DoGetColor32(int x) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowGetColor.Invoke(this, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32(int x, Color32 c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetColor.Invoke(BitmapData, ref Buffer[Index, 0], x, c);
+            public override void DoSetColor32(int x, Color32 c) => ((ManagedCustomBitmapData2D<T>)BitmapData).rowSetColor.Invoke(this, x, c);
+
+            [SecuritySafeCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public unsafe ref TValue GetRefAs<TValue>(int x) where TValue : unmanaged
+            {
+                if ((x + 1) * sizeof(TValue) > BitmapData.RowSize)
+                    ThrowXOutOfRange();
+                return ref UnsafeGetRefAs<TValue>(x);
+            }
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public ref TValue UnsafeGetRefAs<TValue>(int x) where TValue : unmanaged
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                return ref Unsafe.Add(ref Unsafe.As<T, TValue>(ref Buffer[Index, 0]), x);
+#else
+                unsafe
+                {
+                    fixed (T* pRow = &Buffer[Index, 0])
+                        return ref ((TValue*)pRow)[x];
+                }
+#endif
+            }
 
             #endregion
         }
@@ -49,8 +90,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private RowGetColorByRef<T, Color32> rowGetColor;
-        private RowSetColorByRef<T, Color32> rowSetColor;
+        private Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor;
+        private Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor;
 
         /// <summary>
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
@@ -69,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         public ManagedCustomBitmapData2D(T[,] buffer, int pixelWidth, PixelFormat pixelFormat,
-            RowGetColorByRef<T, Color32> rowGetColor, RowSetColorByRef<T, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor, byte alphaThreshold, Action? disposeCallback)
             : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
         {

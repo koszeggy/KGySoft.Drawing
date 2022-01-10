@@ -19,6 +19,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -34,15 +35,55 @@ namespace KGySoft.Drawing.Imaging
     {
         #region ManagedCustomBitmapDataRow class
 
-        private sealed class ManagedCustomBitmapDataRow : ManagedBitmapDataRowBase<T>
+        private sealed class ManagedCustomBitmapDataRow : ManagedBitmapDataRowBase<T>, ICustomBitmapDataRow<T>
         {
+            #region Properties and Indexers
+
+            #region Properties
+
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
+
+            #region Indexers
+
+            ref T ICustomBitmapDataRow<T>.this[int index] => ref Row.GetElementReference(index);
+
+            #endregion
+
+            #endregion
+
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32(int x) => ((ManagedCustomBitmapData<T>)BitmapData).rowGetColor.Invoke(BitmapData, Row, x);
+            public override Color32 DoGetColor32(int x) => ((ManagedCustomBitmapData<T>)BitmapData).rowGetColor.Invoke(this, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32(int x, Color32 c) => ((ManagedCustomBitmapData<T>)BitmapData).rowSetColor.Invoke(BitmapData, Row, x, c);
+            public override void DoSetColor32(int x, Color32 c) => ((ManagedCustomBitmapData<T>)BitmapData).rowSetColor.Invoke(this, x, c);
+
+            [SecuritySafeCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public unsafe ref TValue GetRefAs<TValue>(int x) where TValue : unmanaged
+            {
+                if ((x + 1) * sizeof(TValue) > BitmapData.RowSize)
+                    ThrowXOutOfRange();
+                return ref UnsafeGetRefAs<TValue>(x);
+            }
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public ref TValue UnsafeGetRefAs<TValue>(int x) where TValue : unmanaged
+            {
+#if NETCOREAPP3_0_OR_GREATER
+                return ref Unsafe.Add(ref Unsafe.As<T, TValue>(ref Row.GetPinnableReference()), x);
+#else
+                unsafe
+                {
+                    fixed (T* pRow = Row)
+                        return ref ((TValue*)pRow)[x];
+                }
+#endif
+            }
 
             #endregion
         }
@@ -51,8 +92,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private RowGetColor<ArraySection<T>, Color32> rowGetColor;
-        private RowSetColor<ArraySection<T>, Color32> rowSetColor;
+        private Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor;
+        private Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor;
 
         /// <summary>
         /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
@@ -71,7 +112,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         public ManagedCustomBitmapData(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat,
-            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor, byte alphaThreshold, Action? disposeCallback)
             : base(buffer, new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
         {

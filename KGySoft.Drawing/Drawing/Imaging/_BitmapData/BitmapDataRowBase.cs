@@ -76,7 +76,7 @@ namespace KGySoft.Drawing.Imaging
         #region Static Methods
 
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void ThrowXOutOfRange()
+        protected static void ThrowXOutOfRange()
         {
             // ReSharper disable once NotResolvedInText
             throw new ArgumentOutOfRangeException("x", PublicResources.ArgumentOutOfRange);

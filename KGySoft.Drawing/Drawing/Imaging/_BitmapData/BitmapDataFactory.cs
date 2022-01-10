@@ -167,13 +167,13 @@ namespace KGySoft.Drawing.Imaging
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormat, palette, setPalette, disposeCallback);
 
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
 
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormatInfo, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
@@ -224,7 +224,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -254,7 +254,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -322,7 +322,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColorByRef<T, Color32> rowGetColor, RowSetColorByRef<T, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -347,7 +347,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColorByRef<T, int> rowGetColorIndex, RowSetColorByRef<T, int > rowSetColorIndex,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -406,7 +406,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -431,7 +431,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         public static unsafe IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -490,7 +490,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<IntPtr, Color32> rowGetColor, RowSetColor<IntPtr, Color32> rowSetColor, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+            Func<ICustomBitmapDataRow, int, Color32> rowGetColor, Action<ICustomBitmapDataRow, int, Color32> rowSetColor, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             if (buffer == IntPtr.Zero)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
@@ -511,7 +511,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
-            RowGetColor<IntPtr, int> rowGetColorIndex, RowSetColor<IntPtr, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
         {
             if (buffer == IntPtr.Zero)
@@ -618,7 +618,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates a native <see cref="IBitmapDataInternal"/> from a <see cref="Bitmap"/>.
         /// </summary>
         [SecuritySafeCritical]
-        internal static unsafe IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
+        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -655,36 +655,36 @@ namespace KGySoft.Drawing.Imaging
 
                 case PixelFormat.Format64bppArgb:
                     return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
-                        (_, row, x) => ((Color64*)row)[x].ToColor32PlatformDependent(),
-                        (_, row, x, c) => ((Color64*)row)[x] = c.ToColor64PlatformDependent(),
+                        (row, x) => row.UnsafeGetRefAs<Color64>(x).ToColor32PlatformDependent(),
+                        (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToColor64PlatformDependent(),
                         disposeCallback: dispose);
 
                 case PixelFormat.Format64bppPArgb:
                     return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
-                        (_, row, x) => ((Color64*)row)[x].ToStraight32PlatformDependent(),
-                        (_, row, x, c) => ((Color64*)row)[x] = c.ToPremultiplied64PlatformDependent(),
+                        (row, x) => row.UnsafeGetRefAs<Color64>(x).ToStraight32PlatformDependent(),
+                        (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToPremultiplied64PlatformDependent(),
                         disposeCallback: dispose);
 
                 case PixelFormat.Format48bppRgb:
                     return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
-                        (_, row, x) => ((Color48*)row)[x].ToColor32PlatformDependent(),
-                        (bmpData, row, x, c) => ((Color48*)row)[x] = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(bmpData.BackColor)).ToColor48PlatformDependent(),
+                        (row, x) => row.UnsafeGetRefAs<Color48>(x).ToColor32PlatformDependent(),
+                        (row, x, c) => row.UnsafeGetRefAs<Color48>(x) = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor48PlatformDependent(),
                         backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb565:
                     return pixelFormat == bitmapDataPixelFormat
                         ? CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
                         : CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
-                            (_, row, x) => new Color16Rgb565(((Color24*)row)[x].ToColor32()).ToColor32(),
-                            (bmpData, row, x, c) => ((Color24*)row)[x] = new Color24(new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(bmpData.BackColor)).ToColor32()),
+                            (row, x) => new Color16Rgb565(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
+                            (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
                             backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb555:
                     return pixelFormat == bitmapDataPixelFormat
                         ? CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
                         : CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
-                            (_, row, x) => new Color16Rgb555(((Color24*)row)[x].ToColor32()).ToColor32(),
-                            (bmpData, row, x, c) => ((Color24*)row)[x] = new Color24(new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(bmpData.BackColor)).ToColor32()),
+                            (row, x) => new Color16Rgb555(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
+                            (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
                             backColor, alphaThreshold, dispose);
 
                 default:
@@ -816,7 +816,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColor<ArraySection<T>, Color32> rowGetColor, RowSetColor<ArraySection<T>, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -824,7 +824,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColor<ArraySection<T>, int> rowGetColorIndex, RowSetColor<ArraySection<T>, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -867,7 +867,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColorByRef<T, Color32> rowGetColor, RowSetColorByRef<T, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -875,7 +875,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            RowGetColorByRef<T, int> rowGetColorIndex, RowSetColorByRef<T, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -920,7 +920,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         internal static IBitmapDataInternal CreateUnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
-            RowGetColor<IntPtr, Color32> rowGetColor, RowSetColor<IntPtr, Color32> rowSetColor,
+            Func<ICustomBitmapDataRow, int, Color32> rowGetColor, Action<ICustomBitmapDataRow, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             return new UnmanagedCustomBitmapData(buffer, size, stride, pixelFormat.PixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
@@ -928,7 +928,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         internal static IBitmapDataInternal CreateUnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
-            RowGetColor<IntPtr, int> rowGetColorIndex, RowSetColor<IntPtr, int> rowSetColorIndex,
+            Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex,
             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
         {
             return new UnmanagedCustomBitmapDataIndexed(buffer, size, stride, pixelFormat.PixelFormat, rowGetColorIndex, rowSetColorIndex, palette, setPalette, disposeCallback);
