@@ -64,6 +64,9 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasTransparent == true;
         }
 
+        internal static bool IsGrayscale(this IBitmapData bitmapData)
+            => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.IsGrayscale();
+
         #endregion
 
         #region Private Methods

@@ -16,8 +16,18 @@
 #region Usings
 
 using System;
+#if NET35 || NET40
+using System.Collections.Generic;
+#endif
 using System.Drawing;
 using System.Drawing.Imaging;
+#if !(NET35 || NET40)
+using System.Threading;
+#endif
+
+#if NET35 || NET40
+using KGySoft.Collections; 
+#endif
 
 #endregion
 
@@ -124,6 +134,100 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region QuantizingSessionByCustomBitmapData class
+
+        private sealed class QuantizingSessionByCustomBitmapData : IQuantizingSession, IQuantizingSessionInternal
+        {
+            #region Fields
+
+            #region Static Fields
+
+#if NET35 || NET40
+            private static readonly LockFreeCacheOptions cacheOptions = new()
+            {
+                InitialCapacity = Environment.ProcessorCount,
+                ThresholdCapacity = Environment.ProcessorCount,
+                HashingStrategy = HashingStrategy.Modulo,
+            };
+#endif
+
+            #endregion
+
+            #region Instance Fields
+
+            private readonly PredefinedColorsQuantizer quantizer;
+#if NET35 || NET40
+            private readonly IThreadSafeCacheAccessor<int, IBitmapDataRowInternal> rowsCache;
+            private readonly List<IBitmapData> bitmapDataList;
+#else
+            private readonly ThreadLocal<IBitmapDataRowInternal> rowsCache;
+#endif
+
+            #endregion
+
+            #endregion
+
+            #region Properties
+
+            public Palette? Palette => null;
+            public Color32 BackColor => quantizer.backColor;
+            public byte AlphaThreshold => quantizer.alphaThreshold;
+            public bool IsGrayscale => quantizer.isGrayscale;
+
+            #endregion
+
+            #region Constructors
+
+            internal QuantizingSessionByCustomBitmapData(PredefinedColorsQuantizer quantizer, Func<Size, IBitmapDataInternal> compatibleBitmapDataFactory)
+            {
+                this.quantizer = quantizer;
+#if NET35 || NET40
+                bitmapDataList = new List<IBitmapData>(Environment.ProcessorCount);
+                Func<int, IBitmapDataRowInternal> createRowFactory = _ =>
+                {
+                    var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1)).DoGetRow(0);
+                    lock (bitmapDataList)
+                        bitmapDataList.Add(result.BitmapData);
+                    return result;
+                };
+                rowsCache = ThreadSafeCacheFactory.Create(createRowFactory, cacheOptions);
+#else
+                rowsCache = new ThreadLocal<IBitmapDataRowInternal>(() => compatibleBitmapDataFactory.Invoke(new Size(1, 1)).DoGetRow(0), true);
+#endif
+            }
+
+            #endregion
+
+            #region Methods
+
+            public Color32 GetQuantizedColor(Color32 origColor)
+            {
+#if NET35 || NET40
+                IBitmapDataRowInternal row = rowsCache[Thread.CurrentThread.ManagedThreadId];
+#else
+                IBitmapDataRowInternal row = rowsCache.Value!;
+#endif
+                row.DoSetColor32(0, origColor);
+                return row.DoGetColor32(0);
+            }
+
+            public void Dispose()
+            {
+#if NET35 || NET40
+                foreach (IBitmapData bitmapData in bitmapDataList)
+                    bitmapData.Dispose();
+#else
+                foreach (IBitmapDataRowInternal row in rowsCache.Values)
+                    row.BitmapData.Dispose();
+                rowsCache.Dispose();
+#endif
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #endregion
 
         #region Fields
@@ -132,7 +236,9 @@ namespace KGySoft.Drawing.Imaging
         private readonly Color32 backColor;
         private readonly byte alphaThreshold;
         private readonly bool blendAlphaBeforeQuantize;
+        private readonly bool isGrayscale;
         private readonly Palette? palette;
+        private readonly Func<Size, IBitmapDataInternal>? compatibleBitmapDataFactory;
 
         #endregion
 
@@ -164,6 +270,7 @@ namespace KGySoft.Drawing.Imaging
             this.palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
             backColor = palette.BackColor;
             alphaThreshold = palette.AlphaThreshold;
+            isGrayscale = palette.IsGrayscale;
             PixelFormatHint = palette.Count > 256 ? palette.HasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb
                 : palette.Count > 16 ? PixelFormat.Format8bppIndexed
                 : palette.Count > 2 ? PixelFormat.Format4bppIndexed
@@ -184,6 +291,15 @@ namespace KGySoft.Drawing.Imaging
             if (!pixelFormatHint.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormatHint), Res.PixelFormatInvalid(pixelFormatHint));
             PixelFormatHint = pixelFormatHint;
+        }
+
+        private PredefinedColorsQuantizer(ICustomBitmapData customBitmapData)
+        {
+            compatibleBitmapDataFactory = customBitmapData.CreateCompatibleBitmapDataFactory;
+            isGrayscale = customBitmapData.IsGrayscale();
+            PixelFormatHint = customBitmapData.PixelFormat.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+            backColor = customBitmapData.BackColor;
+            alphaThreshold = customBitmapData.AlphaThreshold;
         }
 
         #endregion
@@ -1396,6 +1512,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        // TODO: add isGrayscale = false in next major version change along with removing IQuantizingSessionInternal
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, PixelFormat pixelFormatHint = PixelFormat.Format24bppRgb, byte alphaThreshold = 0)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, new Color32(backColor), alphaThreshold);
 
@@ -1450,6 +1567,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
+        // TODO: add isGrayscale = false in next major version change along with removing IQuantizingSessionInternal
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint = PixelFormat.Format32bppArgb)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint);
 
@@ -1500,7 +1618,18 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format32bppRgb:
                     return Rgb888(bitmapData.BackColor.ToColor());
                 default:
-                    return Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold);
+                    // handling custom formats
+                    if (bitmapData is ICustomBitmapData customBitmapData)
+                        return new PredefinedColorsQuantizer(customBitmapData);
+
+                    // handling other custom indexed formats
+                    if (bitmapData.Palette is Palette palette)
+                        return FromCustomPalette(palette);
+
+                    // fallback: 24/32-bit [A]RGB
+                    return bitmapData.PixelFormat.HasAlpha()
+                        ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
+                        : Rgb888(bitmapData.BackColor.ToColor());
             }
         }
 
@@ -1570,9 +1699,11 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Methods
 
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext? context)
-            => palette != null
-                ? new QuantizingSessionIndexed(this, palette)
-                : new QuantizingSessionCustomMapping(this, quantizingFunction!);
+            => compatibleBitmapDataFactory == null
+                ? palette != null
+                    ? new QuantizingSessionIndexed(this, palette)
+                    : new QuantizingSessionCustomMapping(this, quantizingFunction!)
+                : new QuantizingSessionByCustomBitmapData(this, compatibleBitmapDataFactory);
 
         #endregion
 

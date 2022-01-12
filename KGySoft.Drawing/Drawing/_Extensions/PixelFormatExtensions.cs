@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
 
 #endregion
@@ -178,6 +179,9 @@ namespace KGySoft.Drawing
                     return Int32.MaxValue;
             }
         }
+
+        internal static bool IsGrayscale(this PixelFormat pixelFormat)
+            => pixelFormat == PixelFormat.Format16bppGrayScale || new PixelFormatInfo(pixelFormat).IsGrayscale;
 
         #endregion
 
