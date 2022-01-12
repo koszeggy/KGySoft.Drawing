@@ -17,6 +17,12 @@ namespace KGySoft.Drawing.Imaging
 {
     internal interface IBitmapDataRowInternal : IReadWriteBitmapDataRow
     {
+        #region Properties
+        
+        IBitmapData BitmapData { get; }
+
+        #endregion
+
         #region Methods
 
         Color32 DoGetColor32(int x);

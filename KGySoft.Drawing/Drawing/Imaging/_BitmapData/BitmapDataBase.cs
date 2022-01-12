@@ -144,15 +144,23 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
+        #region Protected Methods
+        
         [MethodImpl(MethodImplOptions.NoInlining)]
-        private static void ThrowDisposed() => throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
+        protected static void ThrowDisposed() => throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
+        #endregion
+
+        #region Private Methods
+        
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowYOutOfRange()
         {
             // ReSharper disable once NotResolvedInText
             throw new ArgumentOutOfRangeException("y", PublicResources.ArgumentOutOfRange);
         }
+
+        #endregion
 
         #endregion
 

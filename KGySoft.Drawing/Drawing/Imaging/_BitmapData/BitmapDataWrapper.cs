@@ -44,6 +44,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
+            public IBitmapData BitmapData { get; }
             public int Index => row.Index;
             public int Width => row.Width;
             public int Size => row.Size;
@@ -64,9 +65,10 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal BitmapDataRowWrapper(IBitmapDataRow row, bool isReading, bool isWriting)
+            internal BitmapDataRowWrapper(BitmapDataWrapper parent, IBitmapDataRow row, bool isReading, bool isWriting)
             {
                 this.row = row;
+                BitmapData = parent;
                 if (isReading)
                     readableBitmapDataRow = (IReadableBitmapDataRow)row;
                 if (isWriting)
@@ -84,6 +86,7 @@ namespace KGySoft.Drawing.Imaging
             public void SetColor(int x, Color color) => writableBitmapDataRow.SetColor(x, color);
             public void SetColorIndex(int x, int colorIndex) => writableBitmapDataRow.SetColorIndex(x, colorIndex);
             public void WriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
+
             public Color32 DoGetColor32(int x) => readableBitmapDataRow[x];
             public void DoSetColor32(int x, Color32 c) => writableBitmapDataRow[x] = c;
             public T DoReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
@@ -191,7 +194,7 @@ namespace KGySoft.Drawing.Imaging
                 return result;
 
             // Otherwise, we create and cache the result.
-            return lastRow = new BitmapDataRowWrapper(isReading ? AsReadable[y] : AsWritable[y], isReading, isWriting);
+            return lastRow = new BitmapDataRowWrapper(this, isReading ? AsReadable[y] : AsWritable[y], isReading, isWriting);
         }
 
         public bool TrySetPalette(Palette? palette) => false;

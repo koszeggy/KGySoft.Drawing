@@ -27,18 +27,13 @@ namespace KGySoft.Drawing.Imaging
 {
     internal abstract class BitmapDataRowBase : IBitmapDataRowInternal
     {
-        #region Fields
-
-        [AllowNull]internal BitmapDataBase BitmapData;
-
-        #endregion
-
         #region Properties and Indexers
 
         #region Properties
 
         #region Public Properties
 
+        [AllowNull]public IBitmapData BitmapData { get; internal set; }
         public int Index { get; internal set; }
         public int Width => BitmapData.Width;
         public int Size => BitmapData.RowSize;

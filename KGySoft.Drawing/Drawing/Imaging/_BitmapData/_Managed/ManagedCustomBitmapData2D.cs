@@ -28,26 +28,16 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a managed bitmap data wrapper with custom pixel format for an actual 2D array.
     /// </summary>
-    internal sealed class ManagedCustomBitmapData2D<T> : ManagedBitmapData2DArrayBase<T>
+    internal sealed class ManagedCustomBitmapData2D<T> : ManagedBitmapData2DArrayBase<T>, ICustomBitmapData
         where T : unmanaged
     {
         #region ManagedCustomBitmapDataRow2D class
 
         private sealed class ManagedCustomBitmapDataRow2D : ManagedBitmapDataRow2DBase<T>, ICustomBitmapDataRow<T>
         {
-            #region Properties and Indexers
-
-            #region Properties
-
-            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
-
-            #endregion
-
             #region Indexers
 
             ref T ICustomBitmapDataRow<T>.this[int index] => ref Buffer[Index, index];
-
-            #endregion
 
             #endregion
 
@@ -104,6 +94,45 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         public override bool IsCustomPixelFormat => true;
+
+        public unsafe Func<Size, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
+        {
+            [SecuritySafeCritical]
+            get
+            {
+                if (IsDisposed)
+                    ThrowDisposed();
+
+                // Creating locals for all used members so self reference will not be captured.
+                Func<ICustomBitmapDataRow<T>, int, Color32> getter = rowGetColor;
+                Action<ICustomBitmapDataRow<T>, int, Color32> setter = rowSetColor;
+                Color32 backColor = BackColor;
+                byte alphaThreshold = AlphaThreshold;
+                var pixelFormat = PixelFormat;
+                int origWidth = Width;
+                int origBufferWidth = Buffer.GetLength(1);
+                return size =>
+                {
+                    Debug.Assert(size.Width > 0 && size.Height > 0);
+                    T[,] newBuffer;
+
+                    // original width: the original stride must be alright
+                    if (size.Width == origWidth)
+                        newBuffer = new T[size.Height, origBufferWidth];
+                    else
+                    {
+                        // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
+                        int stride = pixelFormat.GetByteWidth(size.Width);
+                        stride += 16 - stride % 16;
+                        if (16 % sizeof(T) != 0)
+                            stride += sizeof(T) - stride % sizeof(T);
+                        newBuffer = new T[size.Height, stride / sizeof(T)];
+                    }
+
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, new PixelFormatInfo(pixelFormat), getter, setter, backColor, alphaThreshold);
+                };
+            }
+        }
 
         #endregion
 
