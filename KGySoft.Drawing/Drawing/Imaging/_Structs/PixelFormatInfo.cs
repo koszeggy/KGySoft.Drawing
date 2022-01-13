@@ -19,6 +19,8 @@ using System;
 using System.Diagnostics;
 using System.Drawing.Imaging;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -28,7 +30,9 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Constants
 
-        private const int isGrayscale = 1 << 24;
+        private const int isCustom = 1 << 24;
+        private const int isGrayscale = 1 << 25;
+        private const int hasSingleBitAlpha = 1 << 26;
 
         #endregion
 
@@ -41,9 +45,11 @@ namespace KGySoft.Drawing.Imaging
             get => (byte)PixelFormat.ToBitsPerPixel();
             set
             {
-                if (value > 128)
-                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.ArgumentMustBeLessThanOrEqualTo(128));
-                PixelFormat = (PixelFormat)((value & ~0xFF00) | (value << 8));
+                if (value == BitsPerPixel)
+                    return;
+                if (value is 0 or > 128)
+                    throw new ArgumentOutOfRangeException(nameof(value), PublicResources.ArgumentMustBeBetween(1, 128));
+                PixelFormat = (PixelFormat)(isCustom | (value & ~0xFF00) | (value << 8));
             }
         }
 
@@ -52,21 +58,27 @@ namespace KGySoft.Drawing.Imaging
             get => PixelFormat.HasAlpha();
             set
             {
+                if (value == HasAlpha)
+                    return;
                 if (value)
                 {
                     PixelFormat |= PixelFormat.Alpha;
-                    IsIndexed = false;
+                    Indexed = false;
                 }
                 else
                     PixelFormat &= ~PixelFormat.Alpha;
+
+                PixelFormat |= (PixelFormat)isCustom;
             }
         }
 
-        public bool IsIndexed
+        public bool Indexed
         {
             get => PixelFormat.IsIndexed();
             set
             {
+                if (value == Indexed)
+                    return;
                 if (value)
                 {
                     PixelFormat |= PixelFormat.Indexed;
@@ -74,19 +86,64 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                     PixelFormat &= ~PixelFormat.Indexed;
+
+                PixelFormat |= (PixelFormat)isCustom;
             }
         }
 
         // TODO: needed for non-indexed grayscale types for ErrorDiffusionDitherer to auto detect ByBrightness
-        public bool IsGrayscale
+        public bool Grayscale
         {
             get => ((int)PixelFormat & isGrayscale) != 0;
             set
             {
+                if (value == Grayscale)
+                    return;
                 if (value)
                     PixelFormat |= (PixelFormat)isGrayscale;
                 else
                     PixelFormat &= (PixelFormat)~isGrayscale;
+                PixelFormat |= (PixelFormat)isCustom;
+            }
+        }
+
+        // actually not used effectively but affects the result of GetClosestKnownPixelFormat
+        public bool HasPremultipliedAlpha
+        {
+            get => PixelFormat.IsPremultiplied();
+            set
+            {
+                if (value == HasPremultipliedAlpha)
+                    return;
+                if (value)
+                {
+                    PixelFormat |= PixelFormat.PAlpha;
+                    HasAlpha = true;
+                }
+                else
+                    PixelFormat &= ~PixelFormat.PAlpha;
+
+                PixelFormat |= (PixelFormat)isCustom;
+            }
+        }
+
+        // may help optimize drawing operations for non-indexed formats
+        public bool HasSingleBitAlpha
+        {
+            get => ((int)PixelFormat & hasSingleBitAlpha) != 0;
+            set
+            {
+                if (value == HasSingleBitAlpha)
+                    return;
+                if (value)
+                {
+                    PixelFormat |= (PixelFormat)hasSingleBitAlpha;
+                    HasAlpha = true;
+                }
+                else
+                    PixelFormat &= (PixelFormat)~hasSingleBitAlpha;
+
+                PixelFormat |= (PixelFormat)isCustom;
             }
         }
 
@@ -96,11 +153,21 @@ namespace KGySoft.Drawing.Imaging
 
         internal PixelFormat PixelFormat { get; private set; }
 
+        internal bool HasMultiLevelAlpha => PixelFormat != PixelFormat.Format16bppArgb1555 // TODO: remove this clause when removing Drawing.Common
+            && HasAlpha && !HasSingleBitAlpha;
+
         #endregion
 
         #region Private Properties
 
-        private string DebuggerValue => $"{BitsPerPixel}bpp{(HasAlpha ? $"| {nameof(HasAlpha)}" : null)}{(IsIndexed ? $"| {nameof(IsIndexed)}" : null)}";
+        private string DebuggerValue => PixelFormat.IsValidFormat()
+            ? Enum<PixelFormat>.ToString(PixelFormat)
+            : $"{BitsPerPixel}bpp"
+            + $"{(Indexed ? $" | {nameof(Indexed)}" : null)}"
+            + $"{(HasAlpha ? $" | {nameof(HasAlpha)}" : null)}"
+            + $"{(HasPremultipliedAlpha ? $" | {nameof(HasPremultipliedAlpha)}" : null)}"
+            + $"{(HasSingleBitAlpha ? $" | {nameof(HasSingleBitAlpha)}" : null)}"
+            + $"{(Grayscale ? $" | {nameof(Grayscale)}" : null)}";
 
         #endregion
 
@@ -118,11 +185,40 @@ namespace KGySoft.Drawing.Imaging
 
         internal PixelFormatInfo(PixelFormat pixelFormat)
         {
-            Debug.Assert(pixelFormat.ToBitsPerPixel() <= 128);
+            // TODO: make public and accept known pixel formats only. For now it must accept any pixel format because IBitmapData.PixelFormat is not PixelFormatInfo yet.
+            Debug.Assert(pixelFormat.ToBitsPerPixel() is > 0 and <= 128);
             PixelFormat = pixelFormat;
         }
 
         #endregion
+
+        #endregion
+
+        #region Methods
+
+        internal PixelFormat ToKnownPixelFormat()
+        {
+            if (PixelFormat.IsValidFormat())
+                return PixelFormat;
+
+            int bpp = BitsPerPixel;
+            if (bpp > 32)
+                return HasPremultipliedAlpha ? PixelFormat.Format64bppPArgb
+                    : HasAlpha ? PixelFormat.Format64bppArgb
+                    : Grayscale ? PixelFormat.Format16bppGrayScale
+                    : PixelFormat.Format48bppRgb;
+            if (bpp > 8 || !Indexed)
+                return HasPremultipliedAlpha ? PixelFormat.Format32bppPArgb
+                    : HasAlpha ? PixelFormat.Format32bppArgb
+                    : Grayscale ? PixelFormat.Format16bppGrayScale
+                    : PixelFormat.Format24bppRgb;
+            return bpp switch
+            {
+                > 4 => PixelFormat.Format8bppIndexed,
+                > 1 => PixelFormat.Format4bppIndexed,
+                _ => PixelFormat.Format1bppIndexed
+            };
+        }
 
         #endregion
     }
