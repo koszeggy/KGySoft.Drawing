@@ -131,6 +131,15 @@ namespace KGySoft.Drawing.UnitTests
                 ms.WriteTo(fs);
         }
 
+        protected static void SaveBitmapData(string imageName, IReadWriteBitmapData bitmapData, [CallerMemberName]string testName = null)
+        {
+            if (!saveToFile)
+                return;
+
+            using var bmp = bitmapData.ToBitmap();
+            SaveImage(imageName, bmp, false, testName);
+        }
+
         protected static void EncodeAnimatedGif(AnimatedGifConfiguration config, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
         {
             using var ms = new MemoryStream();
@@ -319,7 +328,7 @@ namespace KGySoft.Drawing.UnitTests
             } while (row.MoveNextRow());
         }
 
-        protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default)
+        protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default, int tolerance = 0)
         {
             if (sourceRectangle == default)
                 sourceRectangle = new Rectangle(Point.Empty, source.GetSize());
@@ -331,10 +340,9 @@ namespace KGySoft.Drawing.UnitTests
             IReadableBitmapDataRow rowSrc = source[sourceRectangle.Y];
             IReadableBitmapDataRow rowDst = target[targetLocation.Y];
 
-            bool tolerantCompare = source.GetType() != target.GetType() && source.PixelFormat.ToBitsPerPixel() > 32;
             do
             {
-                if (tolerantCompare)
+                if (tolerance > 0)
                 {
                     for (int x = 0; x < sourceRectangle.Width; x++)
                     {
@@ -343,9 +351,9 @@ namespace KGySoft.Drawing.UnitTests
 
                         // this is faster than the asserts below
                         if (c1.A != c2.A && !(c1.A == 0 && c2.A == 0)
-                            || Math.Abs(c1.R - c2.R) > 5
-                            || Math.Abs(c1.G - c2.G) > 5
-                            || Math.Abs(c1.B - c2.B) > 5)
+                            || Math.Abs(c1.R - c2.R) > tolerance
+                            || Math.Abs(c1.G - c2.G) > tolerance
+                            || Math.Abs(c1.B - c2.B) > tolerance)
                             Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
 
                         //Assert.AreEqual(c1.A, c2.A, $"Diff at {x}; {rowSrc.Index}");
