@@ -11,6 +11,8 @@
 
 * KGySoft.Drawing.Imaging namespace
 ===================================
++ BitmapDataExtensions class:
+  + New Clone/BeginClone/CloneAsync overloads to be able to clone a specific region without specifying pixel format.
 + BitmapDataFactory class:
   + New CreateBitmapData overloads to create bitmap data for preallocated memory. Supporting 1D/2D arrays of any
     unmanaged element type (structs without references) as well as unmanaged memory and custom pixel formats.

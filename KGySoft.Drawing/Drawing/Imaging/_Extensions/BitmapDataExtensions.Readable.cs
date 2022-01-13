@@ -63,6 +63,12 @@ namespace KGySoft.Drawing.Imaging
             return DoCloneExact(AsyncContext.Null, source)!;
         }
 
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle)
+        {
+            ValidateArguments(source);
+            return DoCloneDirect(AsyncContext.Null, source, sourceRectangle, source.PixelFormat)!;
+        }
+
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and color settings.
         /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
@@ -387,6 +393,12 @@ namespace KGySoft.Drawing.Imaging
             return AsyncContext.BeginOperation(ctx => DoCloneExact(ctx, source), asyncConfig);
         }
 
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, Rectangle sourceRectangle, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat), asyncConfig);
+        }
+
         /// <summary>
         /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings asynchronously.
         /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
@@ -528,6 +540,12 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source);
             return AsyncContext.DoOperationAsync(ctx => DoCloneExact(ctx, source), asyncConfig);
+        }
+
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, Rectangle sourceRectangle, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat), asyncConfig);
         }
 
         /// <summary>
@@ -2091,7 +2109,9 @@ namespace KGySoft.Drawing.Imaging
             session.TargetRectangle = session.SourceRectangle;
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette);
+            session.Target = source is ICustomBitmapData customBitmapData
+                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
+                : BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat.ToKnownPixelFormat(), source.BackColor, source.AlphaThreshold, source.Palette);
             bool canceled = false;
             try
             {
@@ -2130,7 +2150,9 @@ namespace KGySoft.Drawing.Imaging
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, backColor, alphaThreshold, palette);
+            session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat == pixelFormat
+                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
+                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.ToKnownPixelFormat(), backColor, alphaThreshold, palette);
             bool canceled = false;
             try
             {
@@ -2807,25 +2829,11 @@ namespace KGySoft.Drawing.Imaging
             Size size = bitmapData.GetSize();
             var srcRect = new Rectangle(Point.Empty, size);
             Unwrap(ref bitmapData, ref srcRect);
-            var pixelFormat = bitmapData.PixelFormat;
-            IBitmapDataInternal? source;
-
-            // Making sure we can access the raw content. ARGB32 doesn't have to be accessible because accessing it by colors is actually the same content.
-            if (pixelFormat != PixelFormat.Format32bppArgb && (bitmapData.RowSize < pixelFormat.GetByteWidth(srcRect.Right) || !pixelFormat.IsAtByteBoundary(srcRect.Left)))
-            {
-                source = (IBitmapDataInternal?)DoCloneDirect(context, bitmapData, srcRect, pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, bitmapData.Palette);
-                if (context.IsCancellationRequested)
-                    return;
-
-                Debug.Assert(source != null);
-                srcRect.Location = Point.Empty;
-            }
-            else
-                source = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
+            IBitmapDataInternal source = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, false);
 
             try
             {
-                BitmapDataFactory.DoSaveBitmapData(context, source!, srcRect, stream);
+                BitmapDataFactory.DoSaveBitmapData(context, source, srcRect, stream);
             }
             finally
             {
