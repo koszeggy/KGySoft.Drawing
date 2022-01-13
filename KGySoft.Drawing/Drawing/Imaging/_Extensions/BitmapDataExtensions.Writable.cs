@@ -233,6 +233,25 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Local Methods to Reduce Complexity
 
+            static void Clear64Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
+            {
+                int longWidth = bitmapData.RowSize >> 3;
+
+                // writing as longs
+                if (longWidth > 0)
+                {
+                    Color64 rawColor = new Color64(color);
+                    if (bitmapData.PixelFormat == PixelFormat.Format64bppPArgb)
+                        rawColor = rawColor.ToPremultiplied();
+                    ClearRaw(context, bitmapData, longWidth, rawColor);
+                }
+
+                // handling the rest (can be even the whole content if RowSize is 0)
+                int left = longWidth;
+                if (left < width && !context.IsCancellationRequested)
+                    ClearDirectFallback(context, bitmapData, color, left);
+            }
+
             static void Clear32Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
             {
                 int longWidth = bitmapData.RowSize >> 3;
@@ -388,31 +407,34 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-            int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
-            int width = bitmapData.Width;
-            switch (bpp)
+            if (bitmapData is { IsCustomPixelFormat: false })
             {
-                case 32:
-                    Clear32Bpp(context, bitmapData, color, width);
-                    return;
+                int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
+                int width = bitmapData.Width;
+                switch (bpp)
+                {
+                    case 64:
+                        Clear64Bpp(context, bitmapData, color, width);
+                        return;
 
-                case 16:
-                    Clear16Bpp(context, bitmapData, color, width);
-                    return;
+                    case 32:
+                        Clear32Bpp(context, bitmapData, color, width);
+                        return;
 
-                case 8:
-                case 4:
-                case 1:
-                    ClearIndexed(context, bitmapData, bpp, color, width);
-                    return;
+                    case 16:
+                        Clear16Bpp(context, bitmapData, color, width);
+                        return;
 
-                // Direct color-based clear (24/48/64 bit formats as well as raw-inaccessible bitmap data)
-                // 64 bit is not handled above because its actual format may depend on actual bitmap data type
-                default:
-                    // small width: going with sequential clear
-                    ClearDirectFallback(context, bitmapData, color, 0);
-                    return;
+                    case 8:
+                    case 4:
+                    case 1:
+                        ClearIndexed(context, bitmapData, bpp, color, width);
+                        return;
+                }
             }
+
+            // Direct color-based clear (24/48 bit formats as well as raw-inaccessible and custom bitmap data)
+            ClearDirectFallback(context, bitmapData, color, 0);
         }
 
         private static void ClearRaw<T>(IAsyncContext context, IBitmapDataInternal bitmapData, int width, T data)
