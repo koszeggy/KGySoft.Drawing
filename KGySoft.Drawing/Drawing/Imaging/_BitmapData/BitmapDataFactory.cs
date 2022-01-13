@@ -20,6 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Runtime.CompilerServices;
 using System.Security;
 using KGySoft.Collections;
 #if !NET35
@@ -234,7 +235,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
             if (pixelFormatInfo.BitsPerPixel == 0)
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (pixelFormatInfo.IsIndexed)
+            if (pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
@@ -264,7 +265,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
             if (pixelFormatInfo.BitsPerPixel == 0)
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (!pixelFormatInfo.IsIndexed)
+            if (!pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
@@ -332,7 +333,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
             if (pixelFormatInfo.BitsPerPixel == 0)
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (pixelFormatInfo.IsIndexed)
+            if (pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             int stride = sizeof(T) * buffer.GetLength(1);
             if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
@@ -357,7 +358,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
             if (pixelFormatInfo.BitsPerPixel == 0)
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (!pixelFormatInfo.IsIndexed)
+            if (!pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             int stride = sizeof(T) * buffer.GetLength(1);
             if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
@@ -416,7 +417,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
             if (pixelFormatInfo.BitsPerPixel == 0)
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (pixelFormatInfo.IsIndexed)
+            if (pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             int stride = sizeof(T) * buffer.Width;
             if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
@@ -441,7 +442,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
             if (pixelFormatInfo.BitsPerPixel == 0)
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (!pixelFormatInfo.IsIndexed)
+            if (!pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             int stride = sizeof(T) * buffer.Width;
             if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
@@ -500,7 +501,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
             if (Math.Abs(stride) < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
-            if (pixelFormatInfo.IsIndexed)
+            if (pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingNonIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             if (rowGetColor == null)
                 throw new ArgumentNullException(nameof(rowGetColor), PublicResources.ArgumentNull);
@@ -522,7 +523,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
             if (Math.Abs(stride) < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
-            if (!pixelFormatInfo.IsIndexed)
+            if (!pixelFormatInfo.Indexed)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatExpected, nameof(pixelFormatInfo));
             if (rowGetColorIndex == null)
                 throw new ArgumentNullException(nameof(rowGetColorIndex), PublicResources.ArgumentNull);
@@ -888,7 +889,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         internal static IBitmapDataInternal CreateUnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
-    Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+             Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
         {
             if (pixelFormat.IsIndexed() && palette != null)
             {
@@ -936,9 +937,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal static void DoSaveBitmapData(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, Stream stream)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            Debug.Assert(pixelFormat == PixelFormat.Format32bppArgb || bitmapData.RowSize >= pixelFormat.GetByteWidth(rect.Right));
-            Debug.Assert(pixelFormat.IsAtByteBoundary(rect.Left));
+            PixelFormat pixelFormat = bitmapData.PixelFormat.ToKnownPixelFormat();
 
             context.Progress?.New(DrawingOperation.Saving, rect.Height + 1);
             var writer = new BinaryWriter(stream);
@@ -950,7 +949,8 @@ namespace KGySoft.Drawing.Imaging
             writer.Write(bitmapData.BackColor.ToArgb());
             writer.Write(bitmapData.AlphaThreshold);
 
-            Palette? palette = bitmapData.Palette;
+            // preventing saving too large palette of custom pixel formats
+            Palette? palette = pixelFormat.IsIndexed() && bitmapData.Palette?.Count <= 1 << pixelFormat.ToBitsPerPixel() ? bitmapData.Palette : null;
             writer.Write(palette?.Count ?? 0);
             if (palette != null)
             {
@@ -964,13 +964,17 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                if (pixelFormat.ToBitsPerPixel() > 32 && bitmapData is UnmanagedBitmapDataBase && ColorExtensions.Max16BppValue != UInt16.MaxValue)
+                if ((bitmapData is ManagedBitmapDataBase { IsCustomPixelFormat: false } or UnmanagedBitmapDataBase { IsCustomPixelFormat: false }
+                        // TODO: Add this in next major version. Now it can't be used because native wide formats also return valid formats even though they are custom ones
+                        //|| bitmapData.PixelFormat == pixelFormat
+                        )
+                    && bitmapData.RowSize >= pixelFormat.GetByteWidth(rect.Right) && pixelFormat.IsAtByteBoundary(rect.Left))
                 {
-                    DoSaveWidePlatformDependent(context, bitmapData, rect, writer);
+                    DoSaveRaw(context, bitmapData, rect, writer);
                     return;
                 }
 
-                DoSaveRaw(context, bitmapData, rect, writer);
+                DoSaveCustom(context, bitmapData, rect, writer);
             }
             finally
             {
@@ -986,15 +990,82 @@ namespace KGySoft.Drawing.Imaging
 
         #region Save
 
-        private static void DoSaveWidePlatformDependent(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        private static unsafe void DoSaveCustom(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            int byteLength = pixelFormat.ToBitsPerPixel() >> 3;
+            PixelFormat pixelFormat = bitmapData.PixelFormat.ToKnownPixelFormat();
+            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+
+            if (pixelFormat.ToBitsPerPixel() <= 8)
+            {
+                for (int y = 0; y < rect.Height; y++)
+                {
+                    if (context.IsCancellationRequested)
+                        return;
+
+                    switch (pixelFormat)
+                    {
+                        case PixelFormat.Format1bppIndexed:
+                            byte bits = 0;
+                            int x;
+                            for (x = 0; x < rect.Width; x++)
+                            {
+                                if (row.DoGetColorIndex(rect.Left + x) != 0)
+                                    bits |= (byte)(128 >> (x & 7));
+
+                                if ((x & 7) == 7)
+                                {
+                                    writer.Write(bits);
+                                    bits = 0;
+                                }
+                            }
+
+                            // columns are not multiple of 8: writing last byte
+                            if ((x & 7) != 0)
+                                writer.Write(bits);
+                            break;
+
+                        case PixelFormat.Format4bppIndexed:
+                            bits = 0;
+                            for (x = 0; x < rect.Width; x++)
+                            {
+                                int colorIndex = row.DoGetColorIndex(rect.Left + x);
+                                if ((x & 1) == 0)
+                                    bits = (byte)(colorIndex << 4);
+                                else
+                                    writer.Write((byte)(bits | colorIndex));
+                            }
+
+                            // odd columns: writing last byte
+                            if ((x & 1) != 0)
+                                writer.Write(bits);
+                            break;
+
+                        case PixelFormat.Format8bppIndexed:
+                            for (x = rect.Left; x < rect.Right; x++)
+                                writer.Write((byte)row.DoGetColorIndex(x));
+                            break;
+
+                        default:
+                            throw new InvalidOperationException(Res.InternalError($"Unexpected indexed format: {pixelFormat}"));
+                    }
+
+                    row.MoveNextRow();
+                    context.Progress?.Increment();
+                }
+
+                return;
+            }
 
             // using a temp 1x1 managed bitmap data for the conversion
-            using IBitmapDataInternal tempData = CreateManagedBitmapData(new Size(1, 1), pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold);
+            int byteLength = pixelFormat.ToBitsPerPixel() >> 3;
+#if NETCOREAPP3_0_OR_GREATER
+            Span<byte> buffer = stackalloc byte[byteLength];
+            using IBitmapDataInternal tempData = CreateUnmanagedBitmapData((IntPtr)Unsafe.AsPointer(ref buffer[0]), new Size(1, 1), byteLength, pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, bitmapData.Palette);
+#else
+            var buffer = new byte[byteLength];
+            using IBitmapDataInternal tempData = CreateManagedBitmapData(new Array2D<byte>(buffer, 1, byteLength), 1, pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, bitmapData.Palette);
+#endif
             IBitmapDataRowInternal tempRow = tempData.DoGetRow(0);
-            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
             for (int y = 0; y < rect.Height; y++)
             {
                 if (context.IsCancellationRequested)
@@ -1003,8 +1074,7 @@ namespace KGySoft.Drawing.Imaging
                 for (int x = rect.Left; x < rect.Right; x++)
                 {
                     tempRow.DoSetColor32(0, row.DoGetColor32(x));
-                    for (int i = 0; i < byteLength; i++)
-                        writer.Write(tempRow.DoReadRaw<byte>(i));
+                    writer.Write(buffer);
                 }
 
                 row.MoveNextRow();

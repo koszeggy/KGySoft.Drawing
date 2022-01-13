@@ -113,7 +113,7 @@ namespace KGySoft.Drawing.Imaging
             this.setPalette = setPalette;
             Width = size.Width;
             Height = size.Height;
-            BackColor = pixelFormat.HasMultiLevelAlpha() ? default : backColor.ToOpaque();
+            BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
             PixelFormat = pixelFormat;
             if (!pixelFormat.IsIndexed())
