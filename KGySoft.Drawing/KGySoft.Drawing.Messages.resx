@@ -177,9 +177,6 @@
   <data name="ImageExtensions_EncoderSaveFailFormat" xml:space="preserve">
     <value>Could not save the image by the '{0}' encoder.</value>
   </data>
-  <data name="Accessors_InstanceFieldDoesNotExistFormat" xml:space="preserve">
-    <value>Instance field "{0}" not found on type "{1}".</value>
-  </data>
   <data name="Imaging_InvalidOperationIndexedOnly" xml:space="preserve">
     <value>This method can be used only on bitmaps with indexed pixel format.</value>
   </data>

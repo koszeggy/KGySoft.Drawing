@@ -37,12 +37,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Properties
-
-        protected override bool AllowSetPalette => true;
-
-        #endregion
-
         #region Constructors
 
         internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)

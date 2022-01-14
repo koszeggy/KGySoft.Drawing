@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
@@ -74,8 +73,8 @@ namespace KGySoft.Drawing
 
         #region ColorPalette
         
-        internal static void SetEntries(this ColorPalette palette, Color[] value) => SetFieldValue(palette, "entries", value);
-        internal static void SetFlags(this ColorPalette palette, int value) => SetFieldValue(palette, "flags", value);
+        internal static bool TrySetEntries(this ColorPalette palette, Color[] value) => TrySetFieldValue(palette, "entries", value);
+        internal static void SetFlags(this ColorPalette palette, int value) => TrySetFieldValue(palette, "flags", value);
 
         #endregion
 
@@ -119,27 +118,23 @@ namespace KGySoft.Drawing
             return field == null ? default : (T)field.Get(obj)!;
         }
 
-        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "False alarm, it's not precondition")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        private static void SetFieldValue<T>(object obj, string? fieldNamePattern, T value, bool throwIfMissing = true)
+        private static bool TrySetFieldValue<T>(object obj, string? fieldNamePattern, T value)
         {
             Type type = obj.GetType();
             FieldAccessor? field = GetField(type, typeof(T), fieldNamePattern);
             if (field == null)
-            {
-                if (throwIfMissing)
-                    throw new InvalidOperationException(Res.AccessorsInstanceFieldDoesNotExist(fieldNamePattern, type));
-                return;
-            }
+                return false;
+
 #if NETSTANDARD2_0
             if (field.IsReadOnly || field.MemberInfo.DeclaringType?.IsValueType == true)
             {
                 ((FieldInfo)field.MemberInfo).SetValue(obj, value);
-                return;
+                return true;
             }
 #endif
 
             field.Set(obj, value);
+            return true;
         }
 
         #endregion

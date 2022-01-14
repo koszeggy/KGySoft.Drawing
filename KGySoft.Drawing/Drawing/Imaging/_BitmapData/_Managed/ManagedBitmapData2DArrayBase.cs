@@ -42,8 +42,8 @@ namespace KGySoft.Drawing.Imaging
 
         [SecuritySafeCritical]
         protected unsafe ManagedBitmapData2DArrayBase(T[,] buffer, Size size, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
-            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
+            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
+            : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
             Buffer = buffer;
             RowSize = buffer.GetLength(1) * sizeof(T);

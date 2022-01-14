@@ -108,8 +108,9 @@ namespace KGySoft.Drawing.Imaging
 
         public ManagedCustomBitmapDataIndexed2D(T[,] buffer, int pixelWidth, PixelFormat pixelFormat,
             Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
-            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
-            : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, setPalette, disposeCallback)
+            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
+            : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128,
+                palette, trySetPaletteCallback, disposeCallback)
         {
             Debug.Assert(pixelFormat.IsIndexed());
 

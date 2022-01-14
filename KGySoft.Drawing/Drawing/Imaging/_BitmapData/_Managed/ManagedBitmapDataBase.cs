@@ -34,8 +34,8 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         protected ManagedBitmapDataBase(Size size, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
-            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
+            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
+            : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
         }
 

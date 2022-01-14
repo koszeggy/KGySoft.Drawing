@@ -1112,13 +1112,15 @@ namespace KGySoft.Drawing
         /// </summary>
         internal static Bitmap CloneBitmap(this Bitmap bmp) => bmp.Clone(new Rectangle(Point.Empty, bmp.Size), bmp.PixelFormat);
 
-        internal static void SetPalette(this Bitmap target, Color[] palette)
+        internal static bool TrySetPalette(this Bitmap target, Color[] palette)
         {
+            if (palette.Length > 1 << target.GetBitsPerPixel())
+                return false;
             ColorPalette targetPalette = target.Palette;
             bool setEntries = palette.Length != targetPalette.Entries.Length;
             Color[] targetColors = setEntries ? new Color[palette.Length] : targetPalette.Entries;
 
-            // Flags actually matter on Mono/Linux
+            // Flags actually matter on Mono/Linux with libgdiplus
             bool hasAlpha = false;
             bool isGrayscale = true;
             for (int i = 0; i < palette.Length; i++)
@@ -1130,16 +1132,19 @@ namespace KGySoft.Drawing
                     isGrayscale = palette[i].R == palette[i].G && palette[i].R == palette[i].B;
             }
 
-            if (setEntries)
-                targetPalette.SetEntries(targetColors);
+            if (setEntries && !targetPalette.TrySetEntries(targetColors))
+                return false;
             int flags = (hasAlpha ? 1 : 0) | (isGrayscale ? 2 : 0);
             if (flags != targetPalette.Flags)
                 targetPalette.SetFlags(flags);
             target.Palette = targetPalette;
+            return true;
         }
 
-        internal static void SetPalette(this Bitmap target, Palette palette)
+        internal static bool TrySetPalette(this Bitmap target, Palette palette)
         {
+            if (palette.Count > 1 << target.GetBitsPerPixel())
+                return false;
             ColorPalette targetPalette = target.Palette;
             Color32[] sourceColors = palette.Entries;
             bool setEntries = sourceColors.Length != targetPalette.Entries.Length;
@@ -1148,12 +1153,13 @@ namespace KGySoft.Drawing
             for (int i = 0; i < sourceColors.Length; i++)
                 targetColors[i] = sourceColors[i].ToColor();
 
-            if (setEntries)
-                targetPalette.SetEntries(targetColors);
+            if (setEntries && !targetPalette.TrySetEntries(targetColors))
+                return false;
             int flags = (palette.HasAlpha ? 1 : 0) | (palette.IsGrayscale ? 2 : 0);
             if (flags != targetPalette.Flags)
                 targetPalette.SetFlags(flags);
             target.Palette = targetPalette;
+            return true;
         }
 
         #endregion

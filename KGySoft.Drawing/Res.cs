@@ -213,13 +213,6 @@ namespace KGySoft
 
         #endregion
 
-        #region Accessors
-
-        /// <summary>Instance field "{0}" not found on type "{1}".</summary>
-        internal static string AccessorsInstanceFieldDoesNotExist(string? fieldName, Type type) => Get("Accessors_InstanceFieldDoesNotExistFormat", fieldName, type);
-
-        #endregion
-
         #region ImageExtensions
 
         /// <summary>No encoder was found for the '{0}' format.</summary>

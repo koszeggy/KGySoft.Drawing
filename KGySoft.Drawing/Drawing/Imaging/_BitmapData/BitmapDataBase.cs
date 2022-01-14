@@ -31,7 +31,7 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private Action? disposeCallback;
-        private Action<Palette>? setPalette;
+        private Func<Palette, bool>? trySetPaletteCallback;
 
         #endregion
 
@@ -49,14 +49,14 @@ namespace KGySoft.Drawing.Imaging
         public Palette? Palette { get; private set; }
         public int RowSize { get; protected init; }
         public bool IsDisposed { get; private set; }
-        public bool CanSetPalette => AllowSetPalette && PixelFormat.IsIndexed() && Palette != null;
+        public bool CanSetPalette => PixelFormat.IsIndexed() && Palette != null && AllowSetPalette;
         public virtual bool IsCustomPixelFormat => !PixelFormat.IsValidFormat();
 
         #endregion
 
         #region Protected Properties
 
-        protected virtual bool AllowSetPalette => setPalette != null;
+        protected virtual bool AllowSetPalette => true;
 
         #endregion
 
@@ -100,17 +100,30 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Construction and Destruction
+        
         #region Constructors
 
         protected BitmapDataBase(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
-            Palette? palette = null, Action<Palette>? setPalette = null, Action? disposeCallback = null)
+            Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
         {
+            #region Local Methods
+
+            static Palette ExpandPalette(Palette palette, int bpp)
+            {
+                var entries = new Color32[1 << bpp];
+                palette.Entries.CopyTo(entries, 0);
+                return new Palette(entries, palette.BackColor, palette.AlphaThreshold);
+            }
+
+            #endregion
+
             Debug.Assert(size.Width > 0 && size.Height > 0, "Non-empty size expected");
-            Debug.Assert(pixelFormat.ToBitsPerPixel() > 0);
+            Debug.Assert(pixelFormat.ToBitsPerPixel() is > 0 and <= 128);
             Debug.Assert(palette == null || palette.BackColor == backColor.ToOpaque() && palette.AlphaThreshold == alphaThreshold);
 
             this.disposeCallback = disposeCallback;
-            this.setPalette = setPalette;
+            this.trySetPaletteCallback = trySetPaletteCallback;
             Width = size.Width;
             Height = size.Height;
             BackColor = backColor.ToOpaque();
@@ -126,12 +139,15 @@ namespace KGySoft.Drawing.Imaging
                 return;
             }
 
-            Palette = palette ?? pixelFormat switch
+            int bpp;
+            Palette = palette ?? (bpp = pixelFormat.ToBitsPerPixel()) switch
             {
-                PixelFormat.Format8bppIndexed => Palette.SystemDefault8BppPalette(backColor, alphaThreshold),
-                PixelFormat.Format4bppIndexed => Palette.SystemDefault4BppPalette(backColor),
-                PixelFormat.Format1bppIndexed => Palette.SystemDefault1BppPalette(backColor),
-                _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format for palette: {pixelFormat}"))
+                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(backColor, alphaThreshold), bpp),
+                8 => Palette.SystemDefault8BppPalette(backColor, alphaThreshold),
+                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(backColor), bpp),
+                4 => Palette.SystemDefault4BppPalette(backColor),
+                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(backColor), bpp),
+                _ => Palette.SystemDefault1BppPalette(backColor)
             };
 
             AlphaThreshold = Palette.AlphaThreshold;
@@ -140,12 +156,20 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Destructor
+
+        ~BitmapDataBase() => Dispose(false);
+
+        #endregion
+
+        #endregion
+
         #region Methods
 
         #region Static Methods
 
         #region Protected Methods
-        
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         protected static void ThrowDisposed() => throw new ObjectDisposedException(null, PublicResources.ObjectDisposed);
 
@@ -194,12 +218,15 @@ namespace KGySoft.Drawing.Imaging
         {
             if (!CanSetPalette || palette == null || palette.Count < Palette!.Count || palette.Count > 1 << PixelFormat.ToBitsPerPixel())
                 return false;
+
+            if (trySetPaletteCallback?.Invoke(palette) == false)
+                return false;
+
             if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold)
                 Palette = palette;
             else
                 Palette = new Palette(palette, BackColor, AlphaThreshold);
 
-            setPalette?.Invoke(palette);
             return true;
         }
 
@@ -232,7 +259,7 @@ namespace KGySoft.Drawing.Imaging
             finally
             {
                 disposeCallback = null;
-                setPalette = null;
+                trySetPaletteCallback = null;
                 IsDisposed = true;
             }
         }

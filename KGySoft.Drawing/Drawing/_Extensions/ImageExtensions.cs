@@ -2353,7 +2353,7 @@ namespace KGySoft.Drawing
             if (palette.Length > maxColors)
                 throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
 
-            target.SetPalette(palette);
+            target.TrySetPalette(palette);
         }
 
         #endregion

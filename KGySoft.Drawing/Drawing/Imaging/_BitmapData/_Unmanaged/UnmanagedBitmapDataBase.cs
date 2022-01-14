@@ -32,13 +32,11 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Construction and Destruction
-
         #region Constructors
 
         protected UnmanagedBitmapDataBase(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
-            Palette? palette, Action<Palette>? setPalette, Action? disposeCallback)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, setPalette, disposeCallback)
+            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
+            : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
             Debug.Assert(buffer != IntPtr.Zero);
             Debug.Assert(Math.Abs(stride) >= pixelFormat.GetByteWidth(size.Width));
@@ -47,14 +45,6 @@ namespace KGySoft.Drawing.Imaging
             Stride = stride;
             RowSize = Math.Abs(stride);
         }
-
-        #endregion
-
-        #region Destructor
-
-        ~UnmanagedBitmapDataBase() => Dispose(false);
-
-        #endregion
 
         #endregion
     }

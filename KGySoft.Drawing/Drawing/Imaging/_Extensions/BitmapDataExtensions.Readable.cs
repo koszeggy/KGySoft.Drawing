@@ -2668,7 +2668,7 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 if (pixelFormat.IsIndexed() && source.Palette != null)
-                    result.SetPalette(source.Palette);
+                    result.TrySetPalette(source.Palette);
 
                 if (canceled = context.IsCancellationRequested)
                     return null;
