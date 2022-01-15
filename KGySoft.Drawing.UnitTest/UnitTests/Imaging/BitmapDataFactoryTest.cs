@@ -19,6 +19,7 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
+using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -151,12 +152,55 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 static Palette GetPalette3Bpp() => new Palette(new[] { Color.Black, Color.White, Color.Red, Color.Yellow, Color.Lime, Color.Cyan, Color.Blue, Color.Magenta });
 
+                static int GetColorIndex9Bpp(ICustomBitmapDataRow row, int x)
+                {
+                    // bit order is not the same as for usual 1/4bpp formats: bits are filled up from LSB to MSB
+                    int bitPos = x * 9;
+                    int bytePos = bitPos >> 3;
+                    int bits = row.UnsafeGetRefAs<byte>(bytePos) | (row.UnsafeGetRefAs<byte>(bytePos + 1) << 8);
+                    int offset = bitPos % 8;
+                    return (bits >> offset) & 511;
+                }
+
+                static void SetColorIndex9Bpp(ICustomBitmapDataRow row, int x, int colorIndex)
+                {
+                    Debug.Assert(colorIndex is >= 0 and < 512);
+                    int bitPos = x * 9;
+                    int bytePos = bitPos >> 3;
+                    int bits = row.UnsafeGetRefAs<byte>(bytePos) | (row.UnsafeGetRefAs<byte>(bytePos + 1) << 8);
+                    int offset = bitPos % 8;
+                    bits &= ~(511 << offset);
+                    bits |= colorIndex << offset;
+                    row.UnsafeGetRefAs<byte>(bytePos) = (byte)bits;
+                    row.UnsafeGetRefAs<byte>(bytePos + 1) = (byte)(bits >> 8);
+
+                    Assert.AreEqual(colorIndex, GetColorIndex9Bpp(row, x));
+                }
+
+                static Palette GetPalette9Bpp()
+                {
+                    var result = new Color32[512];
+                    for (int i = 0; i < 512; i++)
+                    {
+                        byte r = (byte)((i & 0b111_000_000) >> 1);
+                        r |= (byte)((r >> 3) | (r >> 6));
+                        byte g = (byte)((i & 0b000_111_000) << 2);
+                        g |= (byte)((g >> 3) | (g >> 6));
+                        byte b = (byte)((i & 0b000_000_111) << 5);
+                        b |= (byte)((b >> 3) | (b >> 6));
+                        result[i] = new Color32(r, g, b);
+                    }
+
+                    return new Palette(result);
+                }
+
                 #endregion
 
                 return new[]
                 {
-                    new object[] { "1bpp Indexed", new PixelFormatInfo(1) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex1Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex1Bpp), Palette.SystemDefault1BppPalette() },
-                    new object[] { "3bpp Indexed", new PixelFormatInfo(3) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex3Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex3Bpp), GetPalette3Bpp() },
+                    //new object[] { "1bpp Indexed", new PixelFormatInfo(1) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex1Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex1Bpp), Palette.SystemDefault1BppPalette() },
+                    //new object[] { "3bpp Indexed", new PixelFormatInfo(3) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex3Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex3Bpp), GetPalette3Bpp() },
+                    new object[] { "9bpp Indexed", new PixelFormatInfo(9) { Indexed = true }, new Func<ICustomBitmapDataRow, int, int>(GetColorIndex9Bpp), new Action<ICustomBitmapDataRow, int, int>(SetColorIndex9Bpp), GetPalette9Bpp() },
                 };
             }
         }
@@ -323,22 +367,21 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             // Indexed specific tests
             int bpp = pixelFormat.BitsPerPixel;
             int maxColors = 1 << bpp;
-            using IReadableBitmapData optimizedReferenceBitmapData = Icons.Information.ExtractBitmap(new Size(256, 256))!.GetReadableBitmapData()
-                .Clone(PixelFormat.Format8bppIndexed, OptimizedPaletteQuantizer.Wu(Math.Min(256, 1 << bpp), Color.Silver, (byte)(bpp == 1 ? 0 : 128)), OrderedDitherer.Bayer8x8);
-            size = optimizedReferenceBitmapData.GetSize();
-            stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+            foreach (var getQuantizer in new Func<int, Color, byte, OptimizedPaletteQuantizer>[] { OptimizedPaletteQuantizer.Octree, OptimizedPaletteQuantizer.MedianCut, OptimizedPaletteQuantizer.Wu })
+            {
+                using IReadableBitmapData optimizedReferenceBitmapData = Icons.Information.ExtractBitmap(new Size(256, 256))!.GetReadableBitmapData()
+                    .Clone(bpp <= 8 ? PixelFormat.Format8bppIndexed : PixelFormat.Format32bppArgb, getQuantizer.Invoke(maxColors, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), OrderedDitherer.Bayer8x8);
+                size = optimizedReferenceBitmapData.GetSize();
+                stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
 
-            // Creating custom bitmap data (without a palette)
-            using IReadWriteBitmapData bitmapDataOptimizedPalette = BitmapDataFactory.CreateBitmapData(new byte[stride * size.Height], size, stride, pixelFormat, getColorIndex, setColorIndex);
-            Assert.AreEqual(maxColors, bitmapDataOptimizedPalette.Palette!.Count);
-            Assert.IsTrue(bpp is 1 or 4 or 8 || bitmapDataOptimizedPalette.Palette![maxColors - 1] == default, "Non-standard palette sizes are completed with transparent colors");
-
-            // Setting actual optimized palette lately and copying the optimized indexed image
-            Assert.IsFalse(bitmapDataOptimizedPalette.TrySetPalette(new Palette(new Color[maxColors + 1])));
-            Assert.IsTrue(bitmapDataOptimizedPalette.TrySetPalette(optimizedReferenceBitmapData.Palette!));
-            optimizedReferenceBitmapData.CopyTo(bitmapDataOptimizedPalette);
-            SaveBitmapData($"{testName} Optimized palette", bitmapDataOptimizedPalette);
-            AssertAreEqual(optimizedReferenceBitmapData, bitmapDataOptimizedPalette, true);
+                // Creating custom bitmap data with optimized palette
+                palette = optimizedReferenceBitmapData.Palette ?? new Palette(optimizedReferenceBitmapData.GetColors().ToArray());
+                using IReadWriteBitmapData bitmapDataOptimizedPalette = BitmapDataFactory.CreateBitmapData(new byte[stride * size.Height], size, stride, pixelFormat, getColorIndex, setColorIndex, palette);
+                Assert.GreaterOrEqual(maxColors, bitmapDataOptimizedPalette.Palette!.Count);
+                optimizedReferenceBitmapData.CopyTo(bitmapDataOptimizedPalette);
+                SaveBitmapData($"{testName} Optimized palette {getQuantizer.Method.Name}", bitmapDataOptimizedPalette);
+                AssertAreEqual(optimizedReferenceBitmapData, bitmapDataOptimizedPalette, true);
+            }
         }
 
         #endregion
