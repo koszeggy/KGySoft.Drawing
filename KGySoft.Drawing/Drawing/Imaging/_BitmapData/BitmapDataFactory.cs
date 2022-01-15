@@ -853,6 +853,8 @@ namespace KGySoft.Drawing.Imaging
             int bpp = pixelFormat.BitsPerPixel;
             if (bpp == 0)
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormat.BitsPerPixel), 0), nameof(pixelFormat));
+            if (pixelFormat.Indexed && bpp > 16)
+                throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
             if (stride < pixelFormat.PixelFormat.GetByteWidth(size.Width))
                 throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.PixelFormat.GetByteWidth(size.Width)));
             int elementSize = sizeof(T);
@@ -863,6 +865,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingBufferLengthTooSmall(elementWidth * size.Height), nameof(buffer));
             if (palette == null)
                 return elementWidth;
+
             int maxColors = 1 << bpp;
             if (palette.Count > maxColors)
                 throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, bpp), nameof(palette));
@@ -890,17 +893,19 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo, Palette? palette = null) where T : unmanaged
+        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat, Palette? palette = null) where T : unmanaged
         {
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
             if (buffer.Length == 0)
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
-            int bpp = pixelFormatInfo.BitsPerPixel;
+            int bpp = pixelFormat.BitsPerPixel;
             if (bpp == 0)
-                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormat.BitsPerPixel), 0), nameof(pixelFormat));
+            if (pixelFormat.Indexed && bpp > 16)
+                throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
             int stride = sizeof(T) * buffer.GetLength(1);
-            if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
+            if (stride < pixelFormat.PixelFormat.GetByteWidth(pixelWidth))
                 throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
             if (palette == null)
                 return;
@@ -929,17 +934,19 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo, Palette? palette = null) where T : unmanaged
+        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat, Palette? palette = null) where T : unmanaged
         {
             if (buffer.IsNull)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
             if (buffer.Length == 0)
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(buffer));
-            int bpp = pixelFormatInfo.BitsPerPixel;
+            int bpp = pixelFormat.BitsPerPixel;
             if (bpp == 0)
-                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormat.BitsPerPixel), 0), nameof(pixelFormat));
+            if (pixelFormat.Indexed && bpp > 16)
+                throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
             int stride = sizeof(T) * buffer.Width;
-            if (stride < pixelFormatInfo.PixelFormat.GetByteWidth(pixelWidth))
+            if (stride < pixelFormat.PixelFormat.GetByteWidth(pixelWidth))
                 throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
             if (palette == null)
                 return;
@@ -965,17 +972,19 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, pixelFormat.ToBitsPerPixel()), nameof(palette));
         }
 
-        private static void ValidateArguments(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo, Palette? palette = null)
+        private static void ValidateArguments(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Palette? palette = null)
         {
             if (buffer == IntPtr.Zero)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
             if (size.Width < 1 || size.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
-            int bpp = pixelFormatInfo.BitsPerPixel;
+            int bpp = pixelFormat.BitsPerPixel;
             if (bpp == 0)
-                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormatInfo.BitsPerPixel), 0), nameof(pixelFormatInfo));
-            if (Math.Abs(stride) < pixelFormatInfo.PixelFormat.GetByteWidth(size.Width))
-                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormatInfo.PixelFormat.GetByteWidth(size.Width)));
+                throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormat.BitsPerPixel), 0), nameof(pixelFormat));
+            if (pixelFormat.Indexed && bpp > 16)
+                throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
+            if (Math.Abs(stride) < pixelFormat.PixelFormat.GetByteWidth(size.Width))
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.PixelFormat.GetByteWidth(size.Width)));
             if (palette == null)
                 return;
             int maxColors = 1 << bpp;

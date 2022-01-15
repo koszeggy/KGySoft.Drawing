@@ -159,6 +159,9 @@ namespace KGySoft
         /// <summary>The specified width is too large for the given buffer width and pixel format.</summary>
         internal static string ImagingWidthTooLarge => Get("Imaging_WidthTooLarge");
 
+        /// <summary>An indexed pixel format should not be larger than 16 bits per pixel.</summary>
+        internal static string ImagingIndexedPixelFormatTooLarge => Get("Imaging_IndexedPixelFormatTooLarge");
+
         #endregion
 
         #region GifEncoder
@@ -228,8 +231,8 @@ namespace KGySoft
         /// <summary>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</summary>
         internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
-        /// <summary>Palette must not have more than {0} colors for pixel format '{1}'.</summary>
-        internal static string ImagingPaletteTooLarge(int max, PixelFormat pixelFormat) => Get("Imaging_PaletteTooLargeFormat", max, Enum<PixelFormat>.ToString(pixelFormat));
+        /// <summary>Palette must not have more than {0} colors for a pixel format of '{1}' bits per pixel.</summary>
+        internal static string ImagingPaletteTooLarge(int max, int bpp) => Get("Imaging_PaletteTooLargeFormat", max, bpp);
 
         /// <summary>For the given pixel format and width stride must not be less than {0}.</summary>
         internal static string ImagingStrideTooSmall(int min) => Get("Imaging_StrideTooSmallFormat", min);
