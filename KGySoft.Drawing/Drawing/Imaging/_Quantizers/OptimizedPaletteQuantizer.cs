@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OptimizedPaletteQuantizer.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Methods
 
-            void Initialize(int requestedColors, IBitmapData source);
+            void Initialize(int requestedColors, byte? bitLevel, IBitmapData source);
 
             void AddColor(Color32 c);
 
@@ -211,7 +211,7 @@ namespace KGySoft.Drawing.Imaging
             private Palette? InitializePalette(IReadableBitmapData source, IAsyncContext context)
             {
                 using var alg = new TAlg();
-                alg.Initialize(quantizer.maxColors, source);
+                alg.Initialize(quantizer.maxColors, quantizer.bitLevel, source);
                 int width = source.Width;
                 IReadableBitmapDataRow row = source.FirstRow;
                 context.Progress?.New(DrawingOperation.InitializingQuantizer, source.Height);
@@ -220,7 +220,6 @@ namespace KGySoft.Drawing.Imaging
                     if (context.IsCancellationRequested)
                         return null;
 
-                    // TODO: parallel if possible
                     for (int x = 0; x < width; x++)
                     {
                         Color32 c = row[x];
@@ -252,20 +251,24 @@ namespace KGySoft.Drawing.Imaging
         private readonly Color32 backColor;
         private readonly byte alphaThreshold;
         private readonly Algorithm algorithm;
+        private readonly byte? bitLevel;
 
         #endregion
 
         #region Properties
 
         #region Public Properties
-        
+
         /// <summary>
-        /// Gets a <see cref="PixelFormat"/> representing the lowest bits-per-pixel value format, which is compatible with this <see cref="OptimizedPaletteQuantizer"/> instance.
+        /// Gets a <see cref="PixelFormat"/>, which is compatible with this <see cref="OptimizedPaletteQuantizer"/> instance.
         /// </summary>
-        public PixelFormat PixelFormatHint
-            => maxColors > 16 ? PixelFormat.Format8bppIndexed
-                : maxColors > 2 ? PixelFormat.Format4bppIndexed
-                : PixelFormat.Format1bppIndexed;
+        public PixelFormat PixelFormatHint => maxColors switch
+        {
+            > 256 => alphaThreshold == 0 ? PixelFormat.Format24bppRgb : PixelFormat.Format32bppArgb,
+            > 16 => PixelFormat.Format8bppIndexed,
+            > 2 => PixelFormat.Format4bppIndexed,
+            _ => PixelFormat.Format1bppIndexed
+        };
 
         #endregion
 
@@ -281,12 +284,19 @@ namespace KGySoft.Drawing.Imaging
 
         private OptimizedPaletteQuantizer(Algorithm algorithm, int maxColors, Color backColor, byte alphaThreshold)
         {
-            if (maxColors < 2 || maxColors > 256)
-                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentMustBeBetween(2, 256));
+            const int max = 1 << 16;
+            if (maxColors is < 2 or > max)
+                throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentMustBeBetween(2, max));
             this.algorithm = algorithm;
             this.maxColors = maxColors;
             this.backColor = new Color32(backColor).ToOpaque();
             this.alphaThreshold = alphaThreshold;
+        }
+
+        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel)
+            : this(original.algorithm, original.maxColors, original.backColor.ToColor(), original.alphaThreshold)
+        {
+            this.bitLevel = bitLevel;
         }
 
         #endregion
@@ -410,21 +420,45 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Configures the bit level per color channel to be used while optimizing the palette.
+        /// If the input image is a monochromatic one, then determines the bit depth of the result.
+        /// Affects the quality, speed and memory usage.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitLevel">Specifies the desired bit level. If <see langword="null"/>, then the value is automatically set by the chosen algorithm.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="bitLevel"/> must be either <see langword="null"/>, or between 1 and 8.</exception>
+        /// <remarks>
+        /// TODO: memory usage, default values, effect for each quantizers
+        /// </remarks>
+        public OptimizedPaletteQuantizer ConfigureBitLevel(int? bitLevel)
+        {
+            if (this.bitLevel == bitLevel)
+                return this;
+            if (bitLevel is < 1 or > 8)
+                throw new ArgumentOutOfRangeException(nameof(bitLevel), PublicResources.ArgumentMustBeBetween(1, 8));
+            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel);
+        }
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext? context)
         {
             context ??= AsyncContext.Null;
-            switch (algorithm)
+            return algorithm switch
             {
-                case Algorithm.Octree:
-                    return new OptimizedPaletteQuantizerSession<OctreeQuantizer>(this, source, context);
-                case Algorithm.MedianCut:
-                    return new OptimizedPaletteQuantizerSession<MedianCutQuantizer>(this, source, context);
-                case Algorithm.Wu:
-                    return new OptimizedPaletteQuantizerSession<WuQuantizer>(this, source, context);
-                default:
-                    throw new InvalidOperationException(Res.InternalError($"Unexpected algorithm: {algorithm}"));
-            }
+                Algorithm.Octree => new OptimizedPaletteQuantizerSession<OctreeQuantizer>(this, source, context),
+                Algorithm.MedianCut => new OptimizedPaletteQuantizerSession<MedianCutQuantizer>(this, source, context),
+                Algorithm.Wu => new OptimizedPaletteQuantizerSession<WuQuantizer>(this, source, context),
+                _ => throw new InvalidOperationException(Res.InternalError($"Unexpected algorithm: {algorithm}"))
+            };
         }
+
+        #endregion
 
         #endregion
 

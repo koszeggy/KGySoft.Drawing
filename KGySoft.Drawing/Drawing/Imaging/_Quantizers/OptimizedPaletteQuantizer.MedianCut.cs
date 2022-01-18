@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OptimizedPaletteQuantizer.MedianCut.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -41,27 +41,61 @@ namespace KGySoft.Drawing.Imaging
 
             private sealed class ColorBucket
             {
+
+                #region Nested Classes
+
+                #region RedComparer class
+
+                private sealed class RedComparer : IComparer<Color32>
+                {
+                    #region Methods
+
+                    public int Compare(Color32 a, Color32 b) => a.R - b.R;
+
+                    #endregion
+                }
+
+                #endregion
+
+                #region GreenComparer class
+
+                private sealed class GreenComparer : IComparer<Color32>
+                {
+                    #region Methods
+
+                    public int Compare(Color32 a, Color32 b) => a.G - b.G;
+
+                    #endregion
+                }
+
+                #endregion
+
+                #region BlueComparer class
+
+                private sealed class BlueComparer : IComparer<Color32>
+                {
+                    #region Methods
+
+                    public int Compare(Color32 a, Color32 b) => a.B - b.B;
+
+                    #endregion
+                }
+
+                #endregion
+
+                #endregion
+
+                #region Fields
+
+                #region Static Fields
+
                 private static readonly IComparer<Color32> redSorter = new RedComparer();
                 private static readonly IComparer<Color32> greenSorter = new GreenComparer();
                 private static readonly IComparer<Color32> blueSorter = new BlueComparer();
 
-                private sealed class RedComparer : IComparer<Color32>
-                {
-                    public int Compare(Color32 a, Color32 b) => ((a.R << 16) | (a.G << 8) | a.B) - ((b.R << 16) | (b.G << 8) | b.B);
-                }
+                #endregion
 
-                private sealed class GreenComparer : IComparer<Color32>
-                {
-                    public int Compare(Color32 a, Color32 b) => ((a.G << 16) | (a.R << 8) | a.B) - ((b.G << 16) | (b.R << 8) | b.B);
-                }
-
-                private sealed class BlueComparer : IComparer<Color32>
-                {
-                    public int Compare(Color32 a, Color32 b) => ((a.B << 16) | (a.G << 8) | a.R) - ((b.B << 16) | (b.G << 8) | b.R);
-                }
-
-
-                #region Fields
+                #region Instance Fields
 
                 private readonly List<Color32> colors;
 
@@ -71,6 +105,8 @@ namespace KGySoft.Drawing.Imaging
                 private int gMax;
                 private int bMin;
                 private int bMax;
+
+                #endregion
 
                 #endregion
 
@@ -159,7 +195,7 @@ namespace KGySoft.Drawing.Imaging
                     int medianIndex = colors.Count >> 1;
 
                     // single color check is correct because we sorted by all of the components
-                    bool isLeftSingleColor = colors[0] == colors[medianIndex - 1]; 
+                    bool isLeftSingleColor = colors[0] == colors[medianIndex - 1];
                     bool isRightSingleColor = colors[medianIndex] == colors[colors.Count - 1];
                     ColorBucket? left = isLeftSingleColor ? null : new ColorBucket(medianIndex);
                     ColorBucket? right = isRightSingleColor ? null : new ColorBucket(colors.Count - medianIndex);
@@ -219,7 +255,7 @@ namespace KGySoft.Drawing.Imaging
             private sealed class ColorBucketCollection
             {
                 #region Fields
-                
+
                 private readonly int maxColors;
                 private readonly CircularList<ColorBucket> buckets;
                 private readonly HashSet<Color32> finalColors = new HashSet<Color32>();
@@ -330,12 +366,12 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-
             #region Methods
 
-            public void Initialize(int requestedColors, IBitmapData source)
+            public void Initialize(int requestedColors, byte? bitLevel, IBitmapData source)
             {
-                maxColors = requestedColors;
+                int maxLevels = 1 << (bitLevel ?? 8);
+                maxColors = Math.Min(requestedColors, maxLevels * maxLevels * maxLevels);
                 root = new ColorBucket(source.Width * source.Height);
             }
 

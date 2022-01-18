@@ -84,6 +84,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
+        [SecurityCritical]
         public UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat,
             Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)

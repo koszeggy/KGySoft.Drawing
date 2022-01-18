@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OptimizedPaletteQuantizer.Wu.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Security;
 
 using KGySoft.Collections;
 
@@ -27,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     public sealed partial class OptimizedPaletteQuantizer
     {
         /// <summary>
-        /// Credits to Xiaolin Wu's Color Quantizer published at https://www.ece.mcmaster.ca/~xwu/cq.c
+        /// Credit to Xiaolin Wu's Color Quantizer published at https://www.ece.mcmaster.ca/~xwu/cq.c
         /// This quantizer is mainly based on his code.
         /// </summary>
         private sealed class WuQuantizer : IOptimizedPaletteQuantizer
@@ -158,13 +159,6 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
 
-            #region Constants
-
-            private const int histCount = 33;
-            private const int histSize = 32;
-
-            #endregion
-
             #region Fields
 
             #region Static Fields
@@ -179,6 +173,7 @@ namespace KGySoft.Drawing.Imaging
             #region Instance Fields
 
             private int maxColors;
+            private int histBitSize;
 
             /// <summary>
             /// The squared moment values of color RGB values.
@@ -187,43 +182,50 @@ namespace KGySoft.Drawing.Imaging
             /// and after <see cref="HistogramToMoments"/> it contains cumulative moments.
             /// The strictly taken Bernoulli probability is actually multiplied by image size.
             /// but it does not matter here.
-            /// Effective histogram elements are in 1..<see cref="histSize"/> along each axis,
+            /// Effective histogram elements are in 1..<see cref="HistSize"/> along each axis,
             /// element 0 is just for base or marginal value.
             /// Values are floats just because of the possible big ranges due to squared values.
             /// </summary>
-            private Array3D<float> m2 = new Array3D<float>(histCount, histCount, histCount);
+            private Array3D<float> m2;
 
             /// <summary>
             /// The counts of voxels of the 3D color cubes in each position.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of P(c)
             /// </summary>
-            private Array3D<long> wt = new Array3D<long>(histCount, histCount, histCount);
+            private Array3D<long> wt;
 
             /// <summary>
             /// The moment values of red color components.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of r*P(c)
             /// </summary>
-            private Array3D<long> mr = new Array3D<long>(histCount, histCount, histCount);
+            private Array3D<long> mr;
 
             /// <summary>
             /// The moment values of green color components.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of g*P(c)
             /// </summary>
-            private Array3D<long> mg = new Array3D<long>(histCount, histCount, histCount);
+            private Array3D<long> mg;
 
             /// <summary>
             /// The moment values of green color components.
             /// The same applies as for <see cref="m2"/> except that after <see cref="AddColor"/> values are interpreted as
             /// wt[r, g, b] = sum over voxel of b*P(c)
             /// </summary>
-            private Array3D<long> mb = new Array3D<long>(histCount, histCount, histCount);
+            private Array3D<long> mb;
 
             private bool hasTransparency;
 
             #endregion
+
+            #endregion
+
+            #region Properties
+
+            private int HistSize => 1 << histBitSize;
+            private int HistCount => HistSize + 1;
 
             #endregion
 
@@ -245,7 +247,18 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public void Initialize(int requestedColors, IBitmapData source) => maxColors = requestedColors;
+            public void Initialize(int requestedColors, byte? bitLevel, IBitmapData source)
+            {
+                maxColors = requestedColors;
+
+                // unless 8 bit is explicitly specified, not using more than 7 bit levels due to huge memory requirement
+                histBitSize = bitLevel ?? Math.Min(7, requestedColors.ToBitsPerPixel());
+                m2 = new Array3D<float>(HistCount, HistCount, HistCount);
+                wt = new Array3D<long>(HistCount, HistCount, HistCount);
+                mr = new Array3D<long>(HistCount, HistCount, HistCount);
+                mg = new Array3D<long>(HistCount, HistCount, HistCount);
+                mb = new Array3D<long>(HistCount, HistCount, HistCount);
+            }
 
             public void AddColor(Color32 c)
             {
@@ -266,13 +279,12 @@ namespace KGySoft.Drawing.Imaging
                 // Actually each of these should be divided by 'size' to give the usual
                 // interpretation of P() as ranging from 0 to 1, but we needn't do that here.
 
-                // We pre-quantize the color components to 5 bit to reduce the size of the 3D histogram.
-                int indR = (c.R >> 3) + 1;
-                int indG = (c.G >> 3) + 1;
-                int indB = (c.B >> 3) + 1;
+                // We pre-quantize the color components to histBitDepth bits (unless it is 8 bits) to reduce the size of the 3D histogram.
+                // Using a 1D index instead of [r + 1, g + 1, b + 1], which would use multiplication inside
+                int ind = GetFlattenIndex((c.R >> (8 - histBitSize)) + 1,
+                    (c.G >> (8 - histBitSize)) + 1,
+                    (c.B >> (8 - histBitSize)) + 1);
 
-                // instead of [indR, indG, indB], which would use multiplication inside
-                int ind = (indR << 10) + (indR << 6) + indR + (indG << 5) + indG + indB;
                 wt.Buffer.GetElementReference(ind) += 1;
                 mr.Buffer.GetElementReference(ind) += c.R;
                 mg.Buffer.GetElementReference(ind) += c.G;
@@ -280,6 +292,7 @@ namespace KGySoft.Drawing.Imaging
                 m2.Buffer.GetElementReference(ind) += sqrTable[c.R] + sqrTable[c.G] + sqrTable[c.B];
             }
 
+            [SecuritySafeCritical]
             public Color32[]? GeneratePalette(IAsyncContext context)
             {
                 // Original comment from Xiaolin Wu:
@@ -325,31 +338,34 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
+            private int GetFlattenIndex(int indR, int indG, int indB)
+                => (indR << (histBitSize << 1)) + (indR << (histBitSize + 1)) + indR + (indG << histBitSize) + indG + indB;
+
             /// <summary>
             /// Computing cumulative moments from the histogram.
             /// </summary>
-            private void HistogramToMoments()
+            [SecurityCritical]
+            private unsafe void HistogramToMoments()
             {
-                // Not using ArraySection for these because they are too small for pooling.
-                // We could use stackalloc but it's too negligible advantage for a fairly large stack allocation
-                long[] area = new long[histCount];
-                long[] areaR = new long[histCount];
-                long[] areaG = new long[histCount];
-                long[] areaB = new long[histCount];
-                float[] area2 = new float[histCount];
+                long* area = stackalloc long[HistCount];
+                long* areaR = stackalloc long[HistCount];
+                long* areaG = stackalloc long[HistCount];
+                long* areaB = stackalloc long[HistCount];
+                float* area2 = stackalloc float[HistCount];
 
+                // Getting the 1D view of the Array3D fields because we will repeatedly re-use the same indices
                 ArraySection<long> wtBuf = wt.Buffer;
                 ArraySection<long> mrBuf = mr.Buffer;
                 ArraySection<long> mgBuf = mg.Buffer;
                 ArraySection<long> mbBuf = mb.Buffer;
                 ArraySection<float> m2Buf = m2.Buffer;
 
-                for (int r = 1; r <= histSize; r++)
+                for (int r = 1; r <= HistSize; r++)
                 {
-                    for (int i = 0; i <= histSize; i++)
+                    for (int i = 0; i <= HistSize; i++)
                         area2[i] = area[i] = areaR[i] = areaG[i] = areaB[i] = 0;
 
-                    for (int g = 1; g <= histSize; g++)
+                    for (int g = 1; g <= HistSize; g++)
                     {
                         float line2 = 0f;
                         long line = 0;
@@ -357,10 +373,10 @@ namespace KGySoft.Drawing.Imaging
                         long lineG = 0;
                         long lineB = 0;
 
-                        for (int b = 1; b <= histSize; b++)
+                        for (int b = 1; b <= HistSize; b++)
                         {
                             // instead of [r, g, b]
-                            int ind1 = (r << 10) + (r << 6) + r + (g << 5) + g + b;
+                            int ind1 = GetFlattenIndex(r, g, b);
                             line += wtBuf[ind1];
                             lineR += mrBuf[ind1];
                             lineG += mgBuf[ind1];
@@ -373,8 +389,7 @@ namespace KGySoft.Drawing.Imaging
                             areaB[b] += lineB;
                             area2[b] += line2;
 
-                            // instead of [r-1, g, b]
-                            int ind2 = ind1 - 1089;
+                            int ind2 = GetFlattenIndex(r - 1, g, b);
                             wtBuf[ind1] = wtBuf[ind2] + area[b];
                             mrBuf[ind1] = mrBuf[ind2] + areaR[b];
                             mgBuf[ind1] = mgBuf[ind2] + areaG[b];
@@ -392,7 +407,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // Adding an initial item with largest possible size. We split it until we
                 // have the needed colors or we cannot split further any of the boxes.
-                cubes.Add(new Box { RMax = histSize, GMax = histSize, BMax = histSize });
+                cubes.Add(new Box { RMax = HistSize, GMax = HistSize, BMax = HistSize });
                 context.Progress?.New(DrawingOperation.GeneratingPalette, colorCount, 1);
 
                 float[] vv = new float[colorCount];
@@ -522,11 +537,11 @@ namespace KGySoft.Drawing.Imaging
                 long wholeW = set1.Volume(ref wt);
 
                 float maxR = Maximize(set1, Direction.Red, set1.RMin + 1, set1.RMax,
-                        out int cutR, wholeR, wholeG, wholeB, wholeW);
+                    out int cutR, wholeR, wholeG, wholeB, wholeW);
                 float maxG = Maximize(set1, Direction.Green, set1.GMin + 1, set1.GMax,
-                        out int cutG, wholeR, wholeG, wholeB, wholeW);
+                    out int cutG, wholeR, wholeG, wholeB, wholeW);
                 float maxB = Maximize(set1, Direction.Blue, set1.BMin + 1, set1.BMax,
-                        out int cutB, wholeR, wholeG, wholeB, wholeW);
+                    out int cutB, wholeR, wholeG, wholeB, wholeW);
 
                 Direction dir;
                 if (maxR >= maxG && maxR >= maxB)

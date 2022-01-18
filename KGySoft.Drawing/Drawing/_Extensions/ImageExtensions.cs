@@ -2351,7 +2351,7 @@ namespace KGySoft.Drawing
             // there is a desired palette to apply
             int maxColors = 1 << bpp;
             if (palette.Length > maxColors)
-                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, newPixelFormat), nameof(palette));
+                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, bpp), nameof(palette));
 
             target.TrySetPalette(palette);
         }

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OptimizedPaletteQuantizer.Octree.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.Imaging
                         if (children == null)
                             return result;
 
-                        // Adding also the direct children because reducing the tree starts at level BPP - 2.
+                        // Adding also the direct children because reducing the tree starts at level levelCount - 2.
                         // And due to reducing no more than two levels can have non-empty nodes.
                         for (int index = 0; index < 8; index++)
                         {
@@ -83,7 +83,7 @@ namespace KGySoft.Drawing.Imaging
                 internal OctreeNode(int level, OctreeQuantizer parent)
                 {
                     this.parent = parent;
-                    Debug.Assert(level < parent.bpp);
+                    Debug.Assert(level < parent.levelCount);
 
                     if (level >= 0)
                         parent.levels[level].Add(this);
@@ -98,7 +98,7 @@ namespace KGySoft.Drawing.Imaging
                 internal bool AddColor(Color32 color, int level)
                 {
                     // In the populating phase all colors are summed up in leaves at deepest level.
-                    if (level == parent.bpp)
+                    if (level == parent.levelCount)
                     {
                         sumRed += color.R;
                         sumGreen += color.G;
@@ -109,7 +109,7 @@ namespace KGySoft.Drawing.Imaging
                         return pixelCount == 1;
                     }
 
-                    Debug.Assert(level < parent.bpp);
+                    Debug.Assert(level < parent.levelCount);
                     children ??= new OctreeNode[8];
 
                     // Generating a 0..7 index based on the color components and adding new branches on demand.
@@ -238,7 +238,7 @@ namespace KGySoft.Drawing.Imaging
 
             private int maxColors;
             private int size;
-            private int bpp;
+            private int levelCount;
             private bool hasTransparency;
 
             [AllowNull]private List<OctreeNode>[] levels;
@@ -257,14 +257,14 @@ namespace KGySoft.Drawing.Imaging
 
             #region Public Methods
 
-            public void Initialize(int requestedColors, IBitmapData source)
+            public void Initialize(int requestedColors, byte? bitLevel, IBitmapData source)
             {
                 maxColors = requestedColors;
                 size = source.Width * source.Height;
-                bpp = requestedColors.ToBitsPerPixel();
 
-                levels = new List<OctreeNode>[bpp];
-                for (int level = 0; level < bpp; level++)
+                levelCount = bitLevel ?? Math.Min(8, requestedColors.ToBitsPerPixel());
+                levels = new List<OctreeNode>[levelCount];
+                for (int level = 0; level < levelCount; level++)
                     levels[level] = new List<OctreeNode>();
 
                 root = new OctreeNode(-1, this);
@@ -314,7 +314,7 @@ namespace KGySoft.Drawing.Imaging
             private void ReduceTree(IAsyncContext context)
             {
                 // Scanning all levels towards root. Leaves are skipped (hence -2) because they are not reducible.
-                for (int level = bpp - 2; level >= 0; level--)
+                for (int level = levelCount - 2; level >= 0; level--)
                 {
                     if (levels[level].Count == 0)
                         continue;
