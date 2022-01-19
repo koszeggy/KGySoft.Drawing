@@ -249,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
                 // Even one byte padding is disabled to protect the right edge of a region by default
                 : Math.Min(source.RowSize, maxRowSize);
 
-            if (bpp >= 8 || RowSize < maxRowSize)
+            if (RowSize < maxRowSize)
                 return;
 
             // 1/4bpp: Adjust RowSize if needed

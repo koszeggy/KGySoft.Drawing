@@ -151,32 +151,18 @@ namespace KGySoft.Drawing
         internal static bool IsAtByteBoundary(this PixelFormat pixelFormat, int x)
         {
             int bpp = pixelFormat.ToBitsPerPixel();
-            if (bpp >= 8)
-                return true;
-
-            int alignmentMask = bpp == 1 ? 7 : 1;
-            return (x & alignmentMask) == 0;
+            return (bpp & 7) == 0 || ((bpp * x) & 7) == 0;
         }
 
         internal static int GetColorsLimit(this PixelFormat pixelFormat)
         {
             int bpp = pixelFormat.ToBitsPerPixel();
-            switch (bpp)
+            return bpp switch
             {
-                case 32:
-                    return pixelFormat == PixelFormat.Format32bppRgb ? 1 << 24 : Int32.MaxValue;
-                case 1:
-                case 4:
-                case 8:
-                case 24:
-                    return 1 << bpp;
-                case 16:
-                    return pixelFormat == PixelFormat.Format16bppRgb555 ? 1 << 15
-                        : pixelFormat == PixelFormat.Format16bppArgb1555 ? (1 << 15) + 1
-                        : 1 << 16;
-                default:
-                    return Int32.MaxValue;
-            }
+                32 => pixelFormat == PixelFormat.Format32bppRgb ? 1 << 24 : Int32.MaxValue,
+                16 => pixelFormat == PixelFormat.Format16bppRgb555 ? 1 << 15 : pixelFormat == PixelFormat.Format16bppArgb1555 ? (1 << 15) + 1 : 1 << 16,
+                _ => bpp <= 30 ? 1 << bpp : Int32.MaxValue
+            };
         }
 
         internal static bool IsGrayscale(this PixelFormat pixelFormat)
