@@ -2111,7 +2111,7 @@ namespace KGySoft.Drawing.Imaging
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
-                : BitmapDataFactory.CreateManagedBitmapData(size, source.PixelFormat.ToKnownPixelFormat(), source.BackColor, source.AlphaThreshold, source.Palette);
+                : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(), source.BackColor, source.AlphaThreshold, source.Palette);
             bool canceled = false;
             try
             {
@@ -2152,7 +2152,7 @@ namespace KGySoft.Drawing.Imaging
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat == pixelFormat
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
-                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.ToKnownPixelFormat(), backColor, alphaThreshold, palette);
+                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, source.GetKnownPixelFormat(), backColor, alphaThreshold, palette);
             bool canceled = false;
             try
             {

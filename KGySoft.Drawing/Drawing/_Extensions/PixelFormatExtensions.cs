@@ -182,9 +182,6 @@ namespace KGySoft.Drawing
         internal static bool IsGrayscale(this PixelFormat pixelFormat)
             => pixelFormat == PixelFormat.Format16bppGrayScale || new PixelFormatInfo(pixelFormat).Grayscale;
 
-        internal static PixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat)
-            => new PixelFormatInfo(pixelFormat).ToKnownPixelFormat();
-
         #endregion
 
         #endregion

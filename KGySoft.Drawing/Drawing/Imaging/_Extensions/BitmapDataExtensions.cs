@@ -67,6 +67,32 @@ namespace KGySoft.Drawing.Imaging
         internal static bool IsGrayscale(this IBitmapData bitmapData)
             => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.IsGrayscale();
 
+        internal static PixelFormat GetKnownPixelFormat(this IBitmapData bitmapData)
+        {
+            PixelFormat pixelFormat = bitmapData.PixelFormat;
+            if (pixelFormat.IsValidFormat())
+                return pixelFormat;
+
+            var info = new PixelFormatInfo(pixelFormat);
+            int bpp = info.BitsPerPixel;
+            if (bpp > 32)
+                return info.HasPremultipliedAlpha ? PixelFormat.Format64bppPArgb
+                    : bitmapData.HasAlpha() ? PixelFormat.Format64bppArgb
+                    : info.Grayscale ? PixelFormat.Format16bppGrayScale
+                    : PixelFormat.Format48bppRgb;
+            if (bpp > 8 || !info.Indexed)
+                return info.HasPremultipliedAlpha ? PixelFormat.Format32bppPArgb
+                    : bitmapData.HasAlpha() ? PixelFormat.Format32bppArgb
+                    : info.Grayscale ? PixelFormat.Format16bppGrayScale
+                    : PixelFormat.Format24bppRgb;
+            return bpp switch
+            {
+                > 4 => PixelFormat.Format8bppIndexed,
+                > 1 => PixelFormat.Format4bppIndexed,
+                _ => PixelFormat.Format1bppIndexed
+            };
+        }
+
         #endregion
 
         #region Private Methods

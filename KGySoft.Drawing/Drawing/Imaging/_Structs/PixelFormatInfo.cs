@@ -193,33 +193,5 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #endregion
-
-        #region Methods
-
-        internal PixelFormat ToKnownPixelFormat()
-        {
-            if (PixelFormat.IsValidFormat())
-                return PixelFormat;
-
-            int bpp = BitsPerPixel;
-            if (bpp > 32)
-                return HasPremultipliedAlpha ? PixelFormat.Format64bppPArgb
-                    : HasAlpha ? PixelFormat.Format64bppArgb
-                    : Grayscale ? PixelFormat.Format16bppGrayScale
-                    : PixelFormat.Format48bppRgb;
-            if (bpp > 8 || !Indexed)
-                return HasPremultipliedAlpha ? PixelFormat.Format32bppPArgb
-                    : HasAlpha ? PixelFormat.Format32bppArgb
-                    : Grayscale ? PixelFormat.Format16bppGrayScale
-                    : PixelFormat.Format24bppRgb;
-            return bpp switch
-            {
-                > 4 => PixelFormat.Format8bppIndexed,
-                > 1 => PixelFormat.Format4bppIndexed,
-                _ => PixelFormat.Format1bppIndexed
-            };
-        }
-
-        #endregion
     }
 }

@@ -751,7 +751,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal static void DoSaveBitmapData(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, Stream stream)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat.ToKnownPixelFormat();
+            PixelFormat pixelFormat = bitmapData.GetKnownPixelFormat();
 
             context.Progress?.New(DrawingOperation.Saving, rect.Height + 1);
             var writer = new BinaryWriter(stream);
@@ -998,7 +998,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static unsafe void DoSaveCustom(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat.ToKnownPixelFormat();
+            PixelFormat pixelFormat = bitmapData.GetKnownPixelFormat();
             IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
 
             if (pixelFormat.ToBitsPerPixel() <= 8)
