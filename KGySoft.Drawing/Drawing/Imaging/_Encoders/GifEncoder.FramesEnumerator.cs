@@ -175,8 +175,9 @@ namespace KGySoft.Drawing.Imaging
             {
                 get
                 {
+                    Debug.Assert(config.AllowDeltaFrames, "Not expected to be called if delta frames are not allowed");
                     if (!quantizerProperties.Initialized)
-                        CanMakeFrameTransparent(null);
+                        CanUseDelta(null);
 
                     Debug.Assert(quantizerProperties.SupportsTransparency, "Not expected to be called if transparency is not supported");
                     return quantizerProperties.AlphaThreshold;
@@ -499,7 +500,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private bool CanMakeFrameTransparent(IReadableBitmapData? bitmapData)
+            private bool CanUseDelta(IReadableBitmapData? bitmapData)
             {
                 if (!config.AllowDeltaFrames)
                     return false;
@@ -552,7 +553,7 @@ namespace KGySoft.Drawing.Imaging
                 IReadWriteBitmapData preprocessedFrame = preparedFrame.BitmapData;
 
                 // 1.) Generating delta image if needed
-                if (deltaBuffer.BitmapData != null && !deltaBuffer.IsCleared && CanMakeFrameTransparent(preprocessedFrame))
+                if (deltaBuffer.BitmapData != null && !deltaBuffer.IsCleared && CanUseDelta(preprocessedFrame))
                 {
                     Debug.Assert(preprocessedFrame.SupportsTransparency(), "Frame is not prepared correctly for delta image");
                     Debug.Assert(!preparedFrame.IsQuantized, "Prepared image must not be quantized yet if delta image is created");
@@ -585,16 +586,26 @@ namespace KGySoft.Drawing.Imaging
                 // 4.) Determining image dispose method
                 var disposeMethod = GifGraphicDisposalMethod.DoNotDispose;
 
-                // If frames can be transparent, then clearing might be needed after frames
-                if (CanMakeFrameTransparent(null))
+                // If the frame can have transparency, then clearing might be needed afterwards
+                if (CanUseDelta(quantizedFrame))
                 {
-                    // if delta is allowed, then clearing only if a new transparent pixel appears in the next frame (that wasn't transparent before)
-                    if (config.AllowDeltaFrames)
+                    // Maintaining the delta buffer: copying the processed part of the possibly non-quantized original image,
+                    // which helps to determine the unchanged part for the next frame.
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                    preprocessedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location, identityQuantizer, true);
+                    if (asyncContext.IsCancellationRequested)
                     {
-                        // Maintaining the delta buffer: copying the processed part of the possibly non-quantized original image,
-                        // which helps to determine the unchanged part for the next frame.
-                        deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
-                        preprocessedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location, identityQuantizer, true);
+                        preprocessedFrame.Dispose();
+                        quantizedFrame.Dispose();
+                        return false;
+                    }
+
+                    if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency() && HasNewTransparentPixel(
+                            deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
+                    {
+                        disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
+                        contentArea = Rectangle.Union(contentArea, toClearRegion);
+                        deltaBuffer.BitmapData.DoClear(asyncContext, default);
                         if (asyncContext.IsCancellationRequested)
                         {
                             preprocessedFrame.Dispose();
@@ -602,29 +613,15 @@ namespace KGySoft.Drawing.Imaging
                             return false;
                         }
 
-                        if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency() && HasNewTransparentPixel(
-                            deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
-                        {
-                            disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
-                            contentArea = Rectangle.Union(contentArea, toClearRegion);
-                            deltaBuffer.BitmapData.DoClear(asyncContext, default);
-                            if (asyncContext.IsCancellationRequested)
-                            {
-                                preprocessedFrame.Dispose();
-                                quantizedFrame.Dispose();
-                                return false;
-                            }
-
-                            deltaBuffer.IsCleared = true;
-                        }
-                        else
-                            deltaBuffer.IsCleared = false;
+                        deltaBuffer.IsCleared = true;
                     }
-                    // if no delta is allowed, then clearing after each frame
-                    // except the last frame if the animation is not looped indefinitely
-                    else if (config.AnimationMode < AnimationMode.PlayOnce || MoveNextPreparedFrame())
-                        disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
+                    else
+                        deltaBuffer.IsCleared = false;
                 }
+                // if no delta is allowed but the frame has transparency, then clearing after each frame
+                // except the last frame if the animation is not looped indefinitely
+                else if (quantizedFrame.SupportsTransparency() && (config.AnimationMode < AnimationMode.PlayOnce || MoveNextPreparedFrame()))
+                    disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
 
                 if (!ReferenceEquals(preprocessedFrame, quantizedFrame))
                     preprocessedFrame.Dispose();
@@ -693,7 +690,7 @@ namespace KGySoft.Drawing.Imaging
                 // Delta frames can be used if allowed and the quantizer can use transparent colors.
                 // We cannot rely on renderBuffer.IsCleared here because a forward reading is used even to determine whether to clear
                 // so if we have a render buffer (it's not the first frame), then we must assume that delta image can be used.
-                bool canUseDelta = deltaBuffer.BitmapData != null && CanMakeFrameTransparent(inputFrame);
+                bool canUseDelta = deltaBuffer.BitmapData != null && CanUseDelta(inputFrame);
 
                 PixelFormat preparedPixelFormat = !canUseDelta ? PixelFormat.Format8bppIndexed // can't use delta: we can already quantize
                     : inputFrame.SupportsTransparency() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat // we have transparency: we can use the original format
