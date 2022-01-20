@@ -2146,13 +2146,13 @@ namespace KGySoft.Drawing.Imaging
             {
                 int bpp = pixelFormat.ToBitsPerPixel();
                 if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
-                    palette = source.Palette;
+                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold ? source.Palette : new Palette(source.Palette.Entries, backColor, alphaThreshold);
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat == pixelFormat
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
-                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, source.GetKnownPixelFormat(), backColor, alphaThreshold, palette);
+                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(), backColor, alphaThreshold, palette);
             bool canceled = false;
             try
             {
