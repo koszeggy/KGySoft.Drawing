@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataBase.cs
+//  File: ManagedBitmapDataRow8I.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,29 +15,27 @@
 
 #region Usings
 
-using System;
-using System.Drawing;
-using System.Drawing.Imaging;
+using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class ManagedBitmapDataBase : BitmapDataBase
+    internal sealed class ManagedBitmapDataRow8I : ManagedBitmapDataRowIndexedBase<byte>
     {
-        #region Constructors
+        #region Properties
 
-        protected ManagedBitmapDataBase(Size size, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
-            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
-        {
-        }
+        protected override uint MaxIndex => 255;
 
         #endregion
 
         #region Methods
 
-        internal abstract ref byte GetPinnableReference();
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override int DoGetColorIndex(int x) => Row[x];
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public override void DoSetColorIndex(int x, int colorIndex) => Row[x] = (byte)colorIndex;
 
         #endregion
     }

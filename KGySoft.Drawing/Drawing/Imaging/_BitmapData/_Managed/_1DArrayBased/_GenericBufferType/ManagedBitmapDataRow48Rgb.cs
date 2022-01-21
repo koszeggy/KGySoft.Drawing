@@ -22,20 +22,6 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow48Rgb : ManagedBitmapDataRowBase<Color48>
-    {
-        #region Methods
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override Color32 DoGetColor32(int x) => Row[x].ToColor32();
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColor32(int x, Color32 c)
-            => Row[x] = new Color48(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
-
-        #endregion
-    }
-
     internal sealed class ManagedBitmapDataRow48Rgb<T> : ManagedBitmapDataRowBase<T>
         where T : unmanaged
     {
@@ -47,21 +33,6 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColor32(int x, Color32 c)
             => DoWriteRaw(x,new Color48(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)));
-
-        #endregion
-    }
-
-    internal sealed class ManagedBitmapDataRow48Rgb2D<T> : ManagedBitmapDataRow2DBase<T>
-        where T : unmanaged
-    {
-        #region Methods
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override Color32 DoGetColor32(int x) => DoReadRaw<Color48>(x).ToColor32();
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColor32(int x, Color32 c)
-            => DoWriteRaw(x, new Color48(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)));
 
         #endregion
     }
