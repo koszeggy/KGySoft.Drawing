@@ -132,15 +132,16 @@ namespace KGySoft.Drawing.Imaging
             if (!pixelFormat.IsIndexed())
                 return;
 
+            int bpp = pixelFormat.ToBitsPerPixel();
             if (palette != null)
             {
-                Debug.Assert(palette.Entries.Length <= (1 << pixelFormat.ToBitsPerPixel()), "Too many colors");
+                if (palette.Count > 1 << bpp)
+                    throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), nameof(palette));
                 Palette = palette;
                 return;
             }
 
-            int bpp;
-            Palette = palette ?? (bpp = pixelFormat.ToBitsPerPixel()) switch
+            Palette = palette ?? bpp switch
             {
                 > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(backColor, alphaThreshold), bpp),
                 8 => Palette.SystemDefault8BppPalette(backColor, alphaThreshold),

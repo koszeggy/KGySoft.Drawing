@@ -350,16 +350,17 @@ namespace KGySoft.Drawing.UnitTests
                         Color32 c2 = rowDst[x + targetLocation.X];
 
                         // this is faster than the asserts below
-                        if (c1.A != c2.A && !(c1.A == 0 && c2.A == 0)
+                        if (!(c1.A == 0 && c2.A == 0) &&
+                            (c1.A != c2.A
                             || Math.Abs(c1.R - c2.R) > tolerance
                             || Math.Abs(c1.G - c2.G) > tolerance
-                            || Math.Abs(c1.B - c2.B) > tolerance)
+                            || Math.Abs(c1.B - c2.B) > tolerance))
                             Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
 
                         //Assert.AreEqual(c1.A, c2.A, $"Diff at {x}; {rowSrc.Index}");
-                        //Assert.That(() => Math.Abs(c1.R - c2.R), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
-                        //Assert.That(() => Math.Abs(c1.G - c2.G), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
-                        //Assert.That(() => Math.Abs(c1.B - c2.B), new LessThanOrEqualConstraint(1), $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.R - c2.R), new LessThanOrEqualConstraint(tolerance), $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.G - c2.G), new LessThanOrEqualConstraint(tolerance), $"Diff at {x}; {rowSrc.Index}");
+                        //Assert.That(() => Math.Abs(c1.B - c2.B), new LessThanOrEqualConstraint(tolerance), $"Diff at {x}; {rowSrc.Index}");
                     }
 
                     continue;
@@ -369,7 +370,7 @@ namespace KGySoft.Drawing.UnitTests
                 {
                     Color32 c1 = rowSrc[x + sourceRectangle.X];
                     Color32 c2 = rowDst[x + targetLocation.X];
-                    if (c1.A != c2.A && !(c1.A == 0 && c2.A == 0) || c1.ToRgb() != c2.ToRgb())
+                    if (!(c1.A == 0 && c2.A == 0) && c1.ToArgb() != c2.ToArgb())
                         Assert.Fail($"Diff at {x}; {rowSrc.Index}: {c1} vs. {c2}");
                     //Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
                 }

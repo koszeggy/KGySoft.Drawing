@@ -241,8 +241,154 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         #endregion
 
         #region Methods
-        
-        #region Public Methods
+
+        #region Static Methods
+
+        private static void DoCommonCustomBitmapDataTests(string caseName, Size size, IReadWriteBitmapData bitmapDataNonDithered, IReadWriteBitmapData bitmapDataDitheredContentIndependent, IReadWriteBitmapData bitmapDataDitheredContentDependent, [CallerMemberName] string testName = null)
+        {
+            using IReadWriteBitmapData referenceBitmapData = BitmapDataFactory.CreateBitmapData(size);
+
+            OrderedDitherer contentIndependentDitherer = OrderedDitherer.Bayer8x8;
+            ErrorDiffusionDitherer contentDependentDitherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true);
+            PredefinedColorsQuantizer referenceQuantizer = bitmapDataNonDithered.PixelFormat.CanBeDithered() ? PredefinedColorsQuantizer.FromBitmapData(bitmapDataNonDithered) : null;
+            Assert.IsTrue(referenceQuantizer == null || referenceQuantizer.PixelFormatHint.IsIndexed() || Reflector.TryGetField(referenceQuantizer, "compatibleBitmapDataFactory", out var _));
+
+            // CopyTo
+            using IReadWriteBitmapData alphaGradient = GenerateAlphaGradientBitmapData(size);
+
+            alphaGradient.CopyTo(bitmapDataNonDithered);
+            SaveBitmapData($"{caseName} CopyTo", bitmapDataNonDithered, testName);
+            alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
+
+            alphaGradient.CopyTo(bitmapDataDitheredContentIndependent, default, contentIndependentDitherer);
+            SaveBitmapData($"{caseName} CopyTo independent ditherer", bitmapDataDitheredContentIndependent, testName);
+            alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer, contentIndependentDitherer);
+            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
+
+            alphaGradient.CopyTo(bitmapDataDitheredContentDependent, default, contentDependentDitherer);
+            SaveBitmapData($"{caseName} CopyTo dependent ditherer", bitmapDataDitheredContentDependent, testName);
+            alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer, contentDependentDitherer);
+            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentDependent, true);
+
+            // Clone with original or indexed pixel format
+            using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone())
+                AssertAreEqual(bitmapDataNonDithered, clone, bitmapDataNonDithered.PixelFormat.IsIndexed());
+            using (IReadWriteBitmapData clone = bitmapDataDitheredContentIndependent.Clone())
+                AssertAreEqual(bitmapDataDitheredContentIndependent, clone, bitmapDataDitheredContentIndependent.PixelFormat.IsIndexed());
+            using (IReadWriteBitmapData clone = bitmapDataDitheredContentDependent.Clone())
+                AssertAreEqual(bitmapDataDitheredContentDependent, clone, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+
+            // Clone with known pixel format
+            using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone(bitmapDataNonDithered.GetKnownPixelFormat()))
+                AssertAreEqual(bitmapDataNonDithered, clone, true);
+            using (IReadWriteBitmapData clone = bitmapDataDitheredContentIndependent.Clone(bitmapDataDitheredContentIndependent.GetKnownPixelFormat(), contentIndependentDitherer))
+                AssertAreEqual(bitmapDataDitheredContentIndependent, clone, true);
+            using (IReadWriteBitmapData clone = bitmapDataDitheredContentDependent.Clone(bitmapDataDitheredContentDependent.GetKnownPixelFormat(), contentDependentDitherer))
+                AssertAreEqual(bitmapDataDitheredContentDependent, clone, true);
+
+            // Clear
+            bitmapDataNonDithered.Clear(new Color32(Color.Silver));
+            SaveBitmapData($"{caseName} Clear solid", bitmapDataNonDithered, testName);
+            bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            AssertAreEqual(bitmapDataNonDithered, referenceBitmapData, true);
+
+            bitmapDataDitheredContentIndependent.Clear(new Color32(Color.Silver), contentIndependentDitherer);
+            SaveBitmapData($"{caseName} Clear independent ditherer", bitmapDataDitheredContentIndependent, testName);
+            bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            AssertAreEqual(bitmapDataDitheredContentIndependent, referenceBitmapData, true);
+
+            bitmapDataDitheredContentDependent.Clear(new Color32(Color.Silver), contentDependentDitherer);
+            SaveBitmapData($"{caseName} Clear dependent ditherer", bitmapDataDitheredContentDependent, testName);
+            bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            AssertAreEqual(bitmapDataDitheredContentDependent, referenceBitmapData, true);
+
+            // DrawInto
+            using IReadableBitmapData icon32 = Icons.Information.ExtractBitmap(new Size(48, 48)).GetReadableBitmapData();
+            Point iconLocation = new Point(10, 10);
+            Rectangle gradientRectangle = new Rectangle(60, 10, 50, 42);
+
+            bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer);
+            alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer);
+            icon32.DrawInto(bitmapDataNonDithered, iconLocation);
+            alphaGradient.DrawInto(bitmapDataNonDithered, gradientRectangle);
+            SaveBitmapData($"{caseName} DrawInto", bitmapDataNonDithered, testName);
+            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
+
+            bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentIndependentDitherer);
+            alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer, contentIndependentDitherer);
+            icon32.DrawInto(bitmapDataDitheredContentIndependent, iconLocation, contentIndependentDitherer);
+            alphaGradient.DrawInto(bitmapDataDitheredContentIndependent, gradientRectangle, contentIndependentDitherer);
+            SaveBitmapData($"{caseName} DrawInto independent ditherer", bitmapDataDitheredContentIndependent, testName);
+            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
+
+            bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentDependentDitherer);
+            alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer, contentDependentDitherer);
+            icon32.DrawInto(bitmapDataDitheredContentDependent, iconLocation, contentDependentDitherer);
+            alphaGradient.DrawInto(bitmapDataDitheredContentDependent, gradientRectangle, contentDependentDitherer);
+            SaveBitmapData($"{caseName} DrawInto dependent ditherer", bitmapDataDitheredContentDependent, testName);
+            //AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentDependent, true); //- Due to serpentine processing the resizing draw can be different on 32bpp reference and actual bitmap data
+
+            // Clip + Clone region
+            var clippingRegion = new Rectangle(Point.Empty, new Size(50, 50));
+            using (IReadWriteBitmapData clipped = bitmapDataNonDithered.Clip(clippingRegion))
+            {
+                using IReadWriteBitmapData clonedRegion = bitmapDataNonDithered.Clone(clippingRegion);
+                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+            }
+
+            using (IReadWriteBitmapData clipped = bitmapDataDitheredContentIndependent.Clip(clippingRegion))
+            {
+                using IReadWriteBitmapData clonedRegion = bitmapDataDitheredContentIndependent.Clone(clippingRegion);
+                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+            }
+
+            using (IReadWriteBitmapData clipped = bitmapDataDitheredContentDependent.Clip(clippingRegion))
+            {
+                using IReadWriteBitmapData clonedRegion = bitmapDataDitheredContentDependent.Clone(clippingRegion);
+                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+            }
+
+            // TransformColors (Invert)
+            bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            referenceBitmapData.Invert();
+            if (referenceQuantizer != null && !bitmapDataNonDithered.PixelFormat.IsIndexed())
+                // not quantizing reference with original indexed palette because without a ditherer the palette entries themselves are inverted
+                referenceBitmapData.Quantize(referenceQuantizer);
+            bitmapDataNonDithered.Invert();
+            SaveBitmapData($"{caseName} TransformColors", bitmapDataNonDithered, testName);
+            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
+
+            bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            referenceBitmapData.Invert(contentIndependentDitherer);
+            if (referenceQuantizer != null)
+                referenceBitmapData.Dither(referenceQuantizer, contentIndependentDitherer);
+            bitmapDataDitheredContentIndependent.Invert(contentIndependentDitherer);
+            SaveBitmapData($"{caseName} TransformColors independent ditherer", bitmapDataDitheredContentIndependent, testName);
+            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
+
+            bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
+            referenceBitmapData.Invert(contentDependentDitherer);
+            if (referenceQuantizer != null)
+                referenceBitmapData.Dither(referenceQuantizer, contentDependentDitherer);
+            bitmapDataDitheredContentDependent.Invert(contentDependentDitherer);
+            SaveBitmapData($"{caseName} TransformColors dependent ditherer", bitmapDataDitheredContentDependent, testName);
+            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentDependent, true);
+
+            // Save/Load
+            using var ms = new MemoryStream();
+            bitmapDataDitheredContentDependent.Save(ms);
+            ms.Position = 0L;
+            using IReadWriteBitmapData reloaded = BitmapDataFactory.Load(ms);
+            AssertAreEqual(bitmapDataDitheredContentDependent, reloaded, true);
+        }
+
+        #endregion
+
+        #region Instance Methods
 
         [Test]
         public void ValidationTest()
@@ -420,152 +566,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 SaveBitmapData($"{testName} Optimized palette {getQuantizer.Method.Name}", bitmapDataOptimizedPalette);
                 AssertAreEqual(optimizedReferenceBitmapData, bitmapDataOptimizedPalette, true);
             }
-        }
-
-        #endregion
-
-        #region Private Methods
-
-        private void DoCommonCustomBitmapDataTests(string caseName, Size size, IReadWriteBitmapData bitmapDataNonDithered, IReadWriteBitmapData bitmapDataDitheredContentIndependent, IReadWriteBitmapData bitmapDataDitheredContentDependent, [CallerMemberName]string testName = null)
-        {
-            using IReadWriteBitmapData referenceBitmapData = BitmapDataFactory.CreateBitmapData(size);
-
-            OrderedDitherer contentIndependentDitherer = OrderedDitherer.Bayer8x8;
-            ErrorDiffusionDitherer contentDependentDitherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true);
-            PredefinedColorsQuantizer referenceQuantizer = bitmapDataNonDithered.PixelFormat.CanBeDithered() ? PredefinedColorsQuantizer.FromBitmapData(bitmapDataNonDithered) : null;
-            Assert.IsTrue(referenceQuantizer == null || referenceQuantizer.PixelFormatHint.IsIndexed() || Reflector.TryGetField(referenceQuantizer, "compatibleBitmapDataFactory", out var _));
-
-            // CopyTo
-            using IReadWriteBitmapData alphaGradient = GenerateAlphaGradientBitmapData(size);
-
-            alphaGradient.CopyTo(bitmapDataNonDithered);
-            SaveBitmapData($"{caseName} CopyTo", bitmapDataNonDithered, testName);
-            alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
-
-            alphaGradient.CopyTo(bitmapDataDitheredContentIndependent, default, contentIndependentDitherer);
-            SaveBitmapData($"{caseName} CopyTo independent ditherer", bitmapDataDitheredContentIndependent, testName);
-            alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer, contentIndependentDitherer);
-            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
-
-            alphaGradient.CopyTo(bitmapDataDitheredContentDependent, default, contentDependentDitherer);
-            SaveBitmapData($"{caseName} CopyTo dependent ditherer", bitmapDataDitheredContentDependent, testName);
-            alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer, contentDependentDitherer);
-            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentDependent, true);
-
-            // Clone with original or indexed pixel format
-            using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone())
-                AssertAreEqual(bitmapDataNonDithered, clone, bitmapDataNonDithered.PixelFormat.IsIndexed());
-            using (IReadWriteBitmapData clone = bitmapDataDitheredContentIndependent.Clone())
-                AssertAreEqual(bitmapDataDitheredContentIndependent, clone, bitmapDataDitheredContentIndependent.PixelFormat.IsIndexed());
-            using (IReadWriteBitmapData clone = bitmapDataDitheredContentDependent.Clone())
-                AssertAreEqual(bitmapDataDitheredContentDependent, clone, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
-
-            // Clone with known pixel format
-            using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone(bitmapDataNonDithered.GetKnownPixelFormat()))
-                AssertAreEqual(bitmapDataNonDithered, clone, true);
-            using (IReadWriteBitmapData clone = bitmapDataDitheredContentIndependent.Clone(bitmapDataDitheredContentIndependent.GetKnownPixelFormat(), contentIndependentDitherer))
-                AssertAreEqual(bitmapDataDitheredContentIndependent, clone, true);
-            using (IReadWriteBitmapData clone = bitmapDataDitheredContentDependent.Clone(bitmapDataDitheredContentDependent.GetKnownPixelFormat(), contentDependentDitherer))
-                AssertAreEqual(bitmapDataDitheredContentDependent, clone, true);
-
-            // Clear
-            bitmapDataNonDithered.Clear(new Color32(Color.Silver));
-            SaveBitmapData($"{caseName} Clear solid", bitmapDataNonDithered, testName);
-            bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            AssertAreEqual(bitmapDataNonDithered, referenceBitmapData, true);
-
-            bitmapDataDitheredContentIndependent.Clear(new Color32(Color.Silver), contentIndependentDitherer);
-            SaveBitmapData($"{caseName} Clear independent ditherer", bitmapDataDitheredContentIndependent, testName);
-            bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            AssertAreEqual(bitmapDataDitheredContentIndependent, referenceBitmapData, true);
-
-            bitmapDataDitheredContentDependent.Clear(new Color32(Color.Silver), contentDependentDitherer);
-            SaveBitmapData($"{caseName} Clear dependent ditherer", bitmapDataDitheredContentDependent, testName);
-            bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            AssertAreEqual(bitmapDataDitheredContentDependent, referenceBitmapData, true);
-
-            // DrawInto
-            using IReadableBitmapData icon32 = Icons.Information.ExtractBitmap(new Size(48, 48)).GetReadableBitmapData();
-            Point iconLocation = new Point(10, 10);
-            Rectangle gradientRectangle = new Rectangle(60, 10, 50, 42);
-
-            bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer);
-            alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer);
-            icon32.DrawInto(bitmapDataNonDithered, iconLocation);
-            alphaGradient.DrawInto(bitmapDataNonDithered, gradientRectangle);
-            SaveBitmapData($"{caseName} DrawInto", bitmapDataNonDithered, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
-
-            bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentIndependentDitherer);
-            alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer, contentIndependentDitherer);
-            icon32.DrawInto(bitmapDataDitheredContentIndependent, iconLocation, contentIndependentDitherer);
-            alphaGradient.DrawInto(bitmapDataDitheredContentIndependent, gradientRectangle, contentIndependentDitherer);
-            SaveBitmapData($"{caseName} DrawInto independent ditherer", bitmapDataDitheredContentIndependent, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
-
-            bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentDependentDitherer);
-            alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer, contentDependentDitherer);
-            icon32.DrawInto(bitmapDataDitheredContentDependent, iconLocation, contentDependentDitherer);
-            alphaGradient.DrawInto(bitmapDataDitheredContentDependent, gradientRectangle, contentDependentDitherer);
-            SaveBitmapData($"{caseName} DrawInto dependent ditherer", bitmapDataDitheredContentDependent, testName);
-            //AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentDependent, true); //- Due to serpentine processing the resizing draw can be different on 32bpp reference and actual bitmap data
-
-            // Clip + Clone region
-            var clippingRegion = new Rectangle(Point.Empty, new Size(50, 50));
-            using (IReadWriteBitmapData clipped = bitmapDataNonDithered.Clip(clippingRegion))
-            {
-                using IReadWriteBitmapData clonedRegion = bitmapDataNonDithered.Clone(clippingRegion);
-                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
-            }
-
-            using (IReadWriteBitmapData clipped = bitmapDataDitheredContentIndependent.Clip(clippingRegion))
-            {
-                using IReadWriteBitmapData clonedRegion = bitmapDataDitheredContentIndependent.Clone(clippingRegion);
-                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
-            }
-
-            using (IReadWriteBitmapData clipped = bitmapDataDitheredContentDependent.Clip(clippingRegion))
-            {
-                using IReadWriteBitmapData clonedRegion = bitmapDataDitheredContentDependent.Clone(clippingRegion);
-                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
-            }
-
-            // TransformColors (Invert)
-            bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            referenceBitmapData.Invert();
-            if (referenceQuantizer != null && !bitmapDataNonDithered.PixelFormat.IsIndexed())
-                // not quantizing reference with original indexed palette because without a ditherer the palette entries themselves are inverted
-                referenceBitmapData.Quantize(referenceQuantizer);
-            bitmapDataNonDithered.Invert();
-            SaveBitmapData($"{caseName} TransformColors", bitmapDataNonDithered, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
-
-            bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            referenceBitmapData.Invert(contentIndependentDitherer);
-            if (referenceQuantizer != null)
-                referenceBitmapData.Dither(referenceQuantizer, contentIndependentDitherer);
-            bitmapDataDitheredContentIndependent.Invert(contentIndependentDitherer);
-            SaveBitmapData($"{caseName} TransformColors independent ditherer", bitmapDataDitheredContentIndependent, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
-
-            bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            referenceBitmapData.Invert(contentDependentDitherer);
-            if (referenceQuantizer != null)
-                referenceBitmapData.Dither(referenceQuantizer, contentDependentDitherer);
-            bitmapDataDitheredContentDependent.Invert(contentDependentDitherer);
-            SaveBitmapData($"{caseName} TransformColors dependent ditherer", bitmapDataDitheredContentDependent, testName);
-            AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentDependent, true);
-
-            // Save/Load
-            using var ms = new MemoryStream();
-            bitmapDataDitheredContentDependent.Save(ms);
-            ms.Position = 0L;
-            using IReadWriteBitmapData reloaded = BitmapDataFactory.Load(ms);
-            AssertAreEqual(bitmapDataDitheredContentDependent, reloaded, true);
         }
 
         #endregion

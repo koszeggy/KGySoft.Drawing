@@ -654,8 +654,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         [Explicit]
         [TestCase(nameof(OptimizedPaletteQuantizer.Wu))]
-        [TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
-        [TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
+        //[TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
+        //[TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
         public void EncodeAnimationHighColorFromFile(string quantizer)
         {
             using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
@@ -775,6 +775,20 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             ms = new MemoryStream();
             GifEncoder.EncodeHighColorImage(bitmapData, ms, true, backColor, alphaThreshold);
             SaveStream("FullScan=True", ms);
+        }
+
+        [Test]
+        public void QuantizerWithLargePaletteTest()
+        {
+            var colors = new Color32[512];
+            ((ICollection<Color32>)Palette.Grayscale256().Entries).CopyTo(colors, 0);
+            var palette = new Palette(colors);
+            var e = Assert.Throws<ArgumentException>(() => GifEncoder.EncodeAnimation(new AnimatedGifConfiguration(new[] { Icons.Shield.ExtractBitmap(new Size(256, 256))!.GetReadableBitmapData() })
+            {
+                Quantizer = PredefinedColorsQuantizer.FromCustomPalette(palette)
+            }, new MemoryStream()));
+
+            Assert.IsTrue(e!.Message.StartsWith(Res.ImagingPaletteTooLarge(256, 8), StringComparison.Ordinal));
         }
 
         #endregion

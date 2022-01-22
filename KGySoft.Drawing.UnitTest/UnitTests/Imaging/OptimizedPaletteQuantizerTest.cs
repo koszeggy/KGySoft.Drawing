@@ -16,8 +16,11 @@
 #region Usings
 
 using System;
+using System.Buffers;
 using System.Drawing;
+using System.Threading.Tasks;
 
+using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -27,7 +30,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests.Imaging
 {
     [TestFixture]
-    public class OptimizedPaletteQuantizerTest
+    public class OptimizedPaletteQuantizerTest : TestBase
     {
         #region Fields
 
@@ -35,10 +38,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             new object[] { "Octree TR", OptimizedPaletteQuantizer.Octree() },
             new object[] { "Octree Solid", OptimizedPaletteQuantizer.Octree(alphaThreshold: 0) },
-            new object[] { "MedianCut TR", OptimizedPaletteQuantizer.MedianCut(),  },
-            new object[] { "MedianCut Solid", OptimizedPaletteQuantizer.MedianCut(alphaThreshold: 0),  },
-            new object[] { "Wu TR", OptimizedPaletteQuantizer.Wu(),  },
-            new object[] { "Wu Solid", OptimizedPaletteQuantizer.Wu(alphaThreshold: 0),  },
+            new object[] { "MedianCut TR", OptimizedPaletteQuantizer.MedianCut(), },
+            new object[] { "MedianCut Solid", OptimizedPaletteQuantizer.MedianCut(alphaThreshold: 0), },
+            new object[] { "Wu TR", OptimizedPaletteQuantizer.Wu(), },
+            new object[] { "Wu Solid", OptimizedPaletteQuantizer.Wu(alphaThreshold: 0), },
         };
 
         #endregion
@@ -51,6 +54,32 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Console.WriteLine(testName);
             using var bmp = new Bitmap(1, 1);
             Assert.DoesNotThrow(() => bmp.Quantize(quantizer));
+        }
+
+        [TestCase(2)]
+        [TestCase(4)]
+        [TestCase(16)]
+        [TestCase(256)]
+        [TestCase(512)]
+        [TestCase(1024)]
+        [TestCase(65536)]
+        public void MaxColorsTest(int colorCount)
+        {
+            IReadWriteBitmapData source = GenerateAlphaGradientBitmapData(new Size(256, 128));
+
+            foreach (var getQuantizer in new Func<int, Color, byte, OptimizedPaletteQuantizer>[]
+                {
+                    OptimizedPaletteQuantizer.Octree,
+                    OptimizedPaletteQuantizer.MedianCut,
+                    OptimizedPaletteQuantizer.Wu
+                })
+            {
+                OptimizedPaletteQuantizer quantizer = getQuantizer.Invoke(colorCount, Color.Silver, 0);
+                using IReadWriteBitmapData clone = source.Clone(quantizer.PixelFormatHint, quantizer);
+                Assert.AreEqual(quantizer.PixelFormatHint, clone.PixelFormat);
+                SaveBitmapData($"{getQuantizer.Method.Name} {colorCount}", clone);
+                clone.Dispose();
+            }
         }
 
         #endregion
