@@ -22,6 +22,7 @@ using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Threading;
 
 using KGySoft.Collections;
@@ -577,7 +578,7 @@ namespace KGySoft.Drawing.Imaging
         public Color32 GetColor(int index)
         {
             if ((uint)index >= (uint)Entries.Length)
-                ThrowIndexInvalid();
+                ThrowIndexInvalid(index);
             return Entries[index];
         }
 
@@ -605,8 +606,7 @@ namespace KGySoft.Drawing.Imaging
 
             // from the lock-free cache
             if (cache == null)
-                Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create<Color32, int>(
-                    FindNearestColorIndex, cacheOptions), null);
+                Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create<Color32, int>(FindNearestColorIndex, cacheOptions), null);
             return cache[c];
         }
 
@@ -791,11 +791,8 @@ namespace KGySoft.Drawing.Imaging
             return resultIndex;
         }
 
-        private void ThrowIndexInvalid()
-        {
-            // ReSharper disable once NotResolvedInText
-            throw new ArgumentOutOfRangeException("index", PublicResources.ArgumentMustBeBetween(0, Entries.Length - 1));
-        }
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void ThrowIndexInvalid(int index) => throw new ArgumentOutOfRangeException(nameof(index), Res.ImagingInvalidPaletteIndex(index, Entries.Length));
 
         #endregion
 

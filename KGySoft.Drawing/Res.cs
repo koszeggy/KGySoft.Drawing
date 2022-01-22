@@ -231,7 +231,7 @@ namespace KGySoft
         /// <summary>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</summary>
         internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
-        /// <summary>Palette must not have more than {0} colors for a pixel format of '{1}' bits per pixel.</summary>
+        /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
         internal static string ImagingPaletteTooLarge(int max, int bpp) => Get("Imaging_PaletteTooLargeFormat", max, bpp);
 
         /// <summary>For the given pixel format and width stride must not be less than {0}.</summary>
@@ -242,6 +242,9 @@ namespace KGySoft
 
         /// <summary>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</summary>
         internal static string ImagingBufferLengthTooSmall(int minSize) => Get("Imaging_BufferLengthTooSmallFormat", minSize);
+
+        /// <summary>Palette index {0} is invalid. It must be less than palette count {1}.</summary>
+        internal static string ImagingInvalidPaletteIndex(int index, int count) => Get("Imaging_InvalidPaletteIndexFormat", index, count);
 
         #endregion
 
