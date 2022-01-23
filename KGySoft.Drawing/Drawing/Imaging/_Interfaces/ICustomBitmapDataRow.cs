@@ -13,6 +13,13 @@
 
 #endregion
 
+#region Usings
+
+using System;
+using System.Security;
+
+#endregion
+
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
@@ -37,28 +44,20 @@ namespace KGySoft.Drawing.Imaging
         /// <typeparam name="T">The type of the value to return a reference for. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>
         /// <returns>A reference to a value interpreted as <typeparamref name="T"/> within the current row at the specified <paramref name="x"/> index.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is not valid for <see cref="IBitmapData.RowSize"/> and <typeparamref name="T"/>.</exception>
         ref T GetRefAs<T>(int x) where T : unmanaged;
 
+        /// <summary>
+        /// Gets a reference to a value interpreted as <typeparamref name="T"/> within the current row at the specified <paramref name="x"/> index.
+        /// This method is similar to <see cref="GetRefAs{T}"/> but it does not check whether <paramref name="x"/> is valid for <see cref="IBitmapData.RowSize"/> and the size of <typeparamref name="T"/>.
+        /// It may provide a better performance but if <paramref name="x"/> is invalid, then memory can be either corrupted or an <see cref="AccessViolationException"/> can be thrown.
+        /// </summary>
+        /// <typeparam name="T">The type of the value to return a reference for. Must be a value type without managed references.</typeparam>
+        /// <param name="x">The x-coordinate of the value within the row to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>
+        /// <returns>A reference to a value interpreted as <typeparamref name="T"/> within the current row at the specified <paramref name="x"/> index.</returns>
+        [SecurityCritical]
         ref T UnsafeGetRefAs<T>(int x) where T : unmanaged;
         
-        #endregion
-    }
-
-    /// <summary>
-    /// Represents a low-level custom accessor to a bitmap data row.
-    /// </summary>
-    /// <typeparam name="T">The element type of the underlying custom buffer.</typeparam>
-    public interface ICustomBitmapDataRow<T> : ICustomBitmapDataRow where T : unmanaged
-    {
-        #region Indexers
-
-        /// <summary>
-        /// Gets a reference to the actual underlying buffer element at the specified index.
-        /// </summary>
-        /// <param name="index">The element index of the value withing the current row to obtain.</param>
-        /// <returns>A reference to the actual underlying buffer element at the specified index.</returns>
-        ref T this[int index] { get; }
-
         #endregion
     }
 }
