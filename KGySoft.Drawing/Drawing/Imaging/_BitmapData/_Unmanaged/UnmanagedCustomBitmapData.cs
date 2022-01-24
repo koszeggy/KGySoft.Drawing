@@ -19,9 +19,14 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
+#if NET35
+using System.Runtime.InteropServices;
+#endif
 using System.Security;
 
+#if !NET35
 using KGySoft.Collections;
+#endif
 
 #endregion
 
@@ -94,6 +99,24 @@ namespace KGySoft.Drawing.Imaging
                 return size =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
+
+#if NET35
+                    // In .NET 3.5 we cannot use a generic buffer for the clone because delegate parameters are invariant
+                    int stride;
+
+                    // original width: the original stride must be alright
+                    if (size.Width == origWidth)
+                        stride = origStride;
+                    else
+                    {
+                        // new width: assuming at least 16 byte units for custom ICustomBitmapDataRow casts
+                        stride = pixelFormat.GetByteWidth(size.Width);
+                        stride += 16 - stride % 16;
+                    }
+
+                    IntPtr newBuffer = Marshal.AllocHGlobal(stride * size.Height);
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, new PixelFormatInfo(pixelFormat), getter, setter, backColor, alphaThreshold, () => Marshal.FreeHGlobal(newBuffer));
+#else
                     Array2D<byte> newBuffer;
 
                     // original width: the original stride must be alright
@@ -108,6 +131,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, new PixelFormatInfo(pixelFormat), getter, setter, backColor, alphaThreshold, () => newBuffer.Dispose());
+#endif
                 };
             }
         }
@@ -143,7 +167,11 @@ namespace KGySoft.Drawing.Imaging
             // Otherwise, we create and cache the result.
             return lastRow = new UnmanagedCustomBitmapDataRow
             {
+#if NET35
+                Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
+#else
                 Row = y == 0 ? Scan0 : Scan0 + Stride * y,
+#endif
                 BitmapData = this,
                 Index = y,
             };

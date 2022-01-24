@@ -16,7 +16,9 @@
 #region Usings
 
 using System;
+#if NETCOREAPP || NETSTANDARD2_1_OR_GREATER
 using System.Buffers;
+#endif
 using System.Collections.Generic;
 using System.Security;
 

@@ -15,7 +15,7 @@
 
 namespace KGySoft.Drawing.Imaging
 {
-    // TODO: move this in IQuantizingSession on next major version change
+    // TODO: move this in IQuantizingSession in next major version change
     internal interface IQuantizingSessionInternal : IQuantizingSession
     {
         #region Properties

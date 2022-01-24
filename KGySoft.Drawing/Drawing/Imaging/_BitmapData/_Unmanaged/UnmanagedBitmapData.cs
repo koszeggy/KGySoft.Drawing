@@ -63,7 +63,11 @@ namespace KGySoft.Drawing.Imaging
             // Otherwise, we create and cache the result.
             return lastRow = new TRow
             {
+#if NET35
+                Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
+#else
                 Row = y == 0 ? Scan0 : Scan0 + Stride * y,
+#endif
                 BitmapData = this,
                 Index = y,
             };

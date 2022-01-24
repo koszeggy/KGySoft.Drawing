@@ -453,7 +453,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 isDisposed.Value = true;
             }
 
-            var isDisposedTracker = new StrongBox<bool>();
+            var isDisposedTracker = new StrongBox<bool>(false);
             CreateAndAbandon(isDisposedTracker);
             Assert.IsFalse(isDisposedTracker.Value);
             GC.Collect();
@@ -517,6 +517,18 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             Size size = new Size(128, 64);
 
+#if NET35
+            // Creating custom bitmap data with 3 different strides (in .NET 3.5 we cannot create managed bitmap data for these delegates because they are invariant)
+            int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+            IntPtr buffer1 = Marshal.AllocHGlobal(stride * size.Height);
+            using IReadWriteBitmapData bitmapDataNonDithered = BitmapDataFactory.CreateBitmapData(buffer1, size, stride, pixelFormat, getColor, setColor, default, 16, () => Marshal.FreeHGlobal(buffer1));
+            stride = (stride + 3) / 4 * 4; // stride with 4 bytes boundary
+            IntPtr buffer2 = Marshal.AllocHGlobal(stride * size.Height);
+            using IReadWriteBitmapData bitmapDataDitheredContentIndependent = BitmapDataFactory.CreateBitmapData(buffer2, size, stride, pixelFormat, getColor, setColor, default, 16, () => Marshal.FreeHGlobal(buffer2));
+            stride = (stride + 7) / 8 * 8; // stride with 8 bytes boundary
+            IntPtr buffer3 = Marshal.AllocHGlobal(stride * size.Height);
+            using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(buffer3, size, stride, pixelFormat, getColor, setColor, default, 16, () => Marshal.FreeHGlobal(buffer3));
+#else
             // Creating custom bitmap data in 3 different forms (1D/2D arrays and unmanaged memory)
             int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
             stride = (stride + 7) / 8 * 8; // custom stride with 8 bytes boundary
@@ -525,7 +537,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var buffer2D = new short[size.Height, stride / sizeof(short)];
             using IReadWriteBitmapData bitmapDataDitheredContentIndependent = BitmapDataFactory.CreateBitmapData(buffer2D, size.Width, pixelFormat, getColor, setColor, default, 16);
             IntPtr bufferUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
-            using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(bufferUnmanaged, size, stride, pixelFormat, getColor, setColor, default, 16, disposeCallback: () => Marshal.FreeHGlobal(bufferUnmanaged));
+            using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(bufferUnmanaged, size, stride, pixelFormat, getColor, setColor, default, 16, () => Marshal.FreeHGlobal(bufferUnmanaged));
+#endif
 
             DoCommonCustomBitmapDataTests(testName, size, bitmapDataNonDithered, bitmapDataDitheredContentIndependent, bitmapDataDitheredContentDependent);
         }
@@ -535,6 +548,18 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             Size size = new Size(128, 64);
 
+#if NET35
+            // Creating custom bitmap data with 3 different strides (in .NET 3.5 we cannot create managed bitmap data for these delegates because they are invariant)
+            int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+            IntPtr buffer1 = Marshal.AllocHGlobal(stride * size.Height);
+            using IReadWriteBitmapData bitmapDataNonDithered = BitmapDataFactory.CreateBitmapData(buffer1, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(buffer1));
+            stride = (stride + 3) / 4 * 4; // stride with 4 bytes boundary
+            IntPtr buffer2 = Marshal.AllocHGlobal(stride * size.Height);
+            using IReadWriteBitmapData bitmapDataDitheredContentIndependent = BitmapDataFactory.CreateBitmapData(buffer2, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(buffer2));
+            stride = (stride + 7) / 8 * 8; // stride with 8 bytes boundary
+            IntPtr buffer3 = Marshal.AllocHGlobal(stride * size.Height);
+            using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(buffer3, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(buffer3));
+#else
             // Creating custom bitmap data in 3 different forms (1D/2D arrays and unmanaged memory)
             int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
             stride = (stride + 7) / 8 * 8; // custom stride with 8 bytes boundary
@@ -543,7 +568,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var buffer2D = new short[size.Height, stride / sizeof(short)];
             using IReadWriteBitmapData bitmapDataDitheredContentIndependent = BitmapDataFactory.CreateBitmapData(buffer2D, size.Width, pixelFormat, getColorIndex, setColorIndex, palette);
             IntPtr bufferUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
-            using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(bufferUnmanaged, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, disposeCallback: () => Marshal.FreeHGlobal(bufferUnmanaged));
+            using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(bufferUnmanaged, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(bufferUnmanaged));
+#endif
 
             // Common custom bitmap data tests
             DoCommonCustomBitmapDataTests(testName, size, bitmapDataNonDithered, bitmapDataDitheredContentIndependent, bitmapDataDitheredContentDependent);
@@ -560,7 +586,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 // Creating custom bitmap data with optimized palette
                 palette = optimizedReferenceBitmapData.Palette ?? new Palette(optimizedReferenceBitmapData.GetColors().ToArray());
+#if NET35
+                IntPtr bufferOptimized = Marshal.AllocHGlobal(stride * size.Height);
+                using IReadWriteBitmapData bitmapDataOptimizedPalette = BitmapDataFactory.CreateBitmapData(bufferOptimized, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(bufferOptimized));
+#else
                 using IReadWriteBitmapData bitmapDataOptimizedPalette = BitmapDataFactory.CreateBitmapData(new byte[stride * size.Height], size, stride, pixelFormat, getColorIndex, setColorIndex, palette);
+#endif
                 Assert.GreaterOrEqual(maxColors, bitmapDataOptimizedPalette.Palette!.Count);
                 optimizedReferenceBitmapData.CopyTo(bitmapDataOptimizedPalette);
                 SaveBitmapData($"{testName} Optimized palette {getQuantizer.Method.Name}", bitmapDataOptimizedPalette);

@@ -20,6 +20,7 @@ using System.Drawing;
 using System.Drawing.Imaging;
 
 using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;

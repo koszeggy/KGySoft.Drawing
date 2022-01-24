@@ -29,7 +29,7 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         [AllowNull]
-        internal T[,] Buffer { get; init; }
+        internal T[,] Buffer { get; set; }
 
         #endregion
 

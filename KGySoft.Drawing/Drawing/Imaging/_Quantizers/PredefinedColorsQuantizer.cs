@@ -18,12 +18,11 @@
 using System;
 #if NET35 || NET40
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 #endif
 using System.Drawing;
 using System.Drawing.Imaging;
-#if !(NET35 || NET40)
 using System.Threading;
-#endif
 
 #if NET35 || NET40
 using KGySoft.Collections; 
@@ -136,7 +135,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region QuantizingSessionByCustomBitmapData class
 
-        private sealed class QuantizingSessionByCustomBitmapData : IQuantizingSession, IQuantizingSessionInternal
+        private sealed class QuantizingSessionByCustomBitmapData : IQuantizingSessionInternal
         {
             #region Fields
 
@@ -178,6 +177,9 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
+#if NET35 || NET40
+            [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
+#endif
             internal QuantizingSessionByCustomBitmapData(PredefinedColorsQuantizer quantizer, Func<Size, IBitmapDataInternal> compatibleBitmapDataFactory)
             {
                 this.quantizer = quantizer;

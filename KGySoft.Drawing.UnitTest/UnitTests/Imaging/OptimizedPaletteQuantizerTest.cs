@@ -16,11 +16,8 @@
 #region Usings
 
 using System;
-using System.Buffers;
 using System.Drawing;
-using System.Threading.Tasks;
 
-using KGySoft.Diagnostics;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;

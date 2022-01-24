@@ -51,8 +51,8 @@ namespace KGySoft.Drawing
 
 #if NET35 || NET40
         internal static string GetSource(this Exception exception) => GetFieldValueOrDefault<string>(exception, "source")!;
-        internal static void SetSource(this Exception exception, string value) => SetFieldValue(exception, "source", value, false);
-        internal static void SetRemoteStackTraceString(this Exception exception, string value) => SetFieldValue(exception, "remoteStackTraceString", value, false);
+        internal static void SetSource(this Exception exception, string value) => TrySetFieldValue(exception, "source", value);
+        internal static void SetRemoteStackTraceString(this Exception exception, string value) => TrySetFieldValue(exception, "remoteStackTraceString", value);
         internal static void InternalPreserveStackTrace(this Exception exception) => Reflector.TryInvokeMethod(exception, "InternalPreserveStackTrace", out var _);
 #endif
 

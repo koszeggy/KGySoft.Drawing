@@ -39,7 +39,11 @@ namespace KGySoft.Drawing.Imaging
             if (!base.MoveNextRow())
                 return false;
 
+#if NET35
+            Row = new IntPtr(Row.ToInt64() + ((UnmanagedBitmapDataBase)BitmapData).Stride);
+#else
             Row += ((UnmanagedBitmapDataBase)BitmapData).Stride;
+#endif
             return true;
         }
 
