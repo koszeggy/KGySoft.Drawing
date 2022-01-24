@@ -31,9 +31,9 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         /// <summary>
-        /// Gets the palette containing the colors of the quantized result. Expected to be called if the result of the quantization
-        /// is an indexed image and in that case should not contain more than 256 colors.
-        /// If this <see cref="IQuantizingSession"/> is not limited to use up to 256 colors, then this property can return <see langword="null"/>.
+        /// Gets the palette containing the colors of the quantized result. Expected to be called if the target of the quantization
+        /// is indexed. Typical indexed pixel formats contain no more than 256 colors; however, it is allowed to return a bigger <see cref="Imaging.Palette"/>.
+        /// If the corresponding <see cref="IQuantizer"/> returns a non-indexed pixel format in its <see cref="IQuantizer.PixelFormatHint"/> property, then this property can return <see langword="null"/>.
         /// </summary>
         Palette? Palette { get; }
 

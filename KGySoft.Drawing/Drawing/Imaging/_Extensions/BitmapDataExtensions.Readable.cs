@@ -1991,8 +1991,8 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginSave">BeginSave</see>
         /// or <see cref="SaveAsync">SaveAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// <para>To reload the content use the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see> method.</para>
-        /// <para>The saved content always preserves <see cref="PixelFormat"/> so the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see>
-        /// method can restore it the same way on any platform.</para>
+        /// <para>The saved content always preserves known <see cref="PixelFormat"/>s so the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see>
+        /// method can restore it the same way on any platform. Custom pixel formats are saved by a compatible known pixel format.</para>
         /// <note>If <paramref name="bitmapData"/> represents the bitmap data of a native <see cref="Bitmap"/> with <see cref="PixelFormat.Format48bppRgb"/>,
         /// <see cref="PixelFormat.Format64bppArgb"/> or <see cref="PixelFormat.Format64bppPArgb"/>&#160;<see cref="PixelFormat"/>, then on Windows the actual
         /// color depth is quantized to 32bpp because these formats have a different raw interpretation than managed bitmaps used by <c>KGySoft Drawing Libraries</c>.</note>
