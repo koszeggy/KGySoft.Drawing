@@ -22,10 +22,10 @@
 + PredefinedColorsQuantizer:
   + FromBitmapData method: From now on it supports also custom pixel formats.
 * OptimizedPaletteQuantizer:
-  + Maximum colors is no longer limited to 256 colors. New limit is now 65536 colors.
+  + Maximum colors upper bound is no longer limited to 256 colors. New limit is now 65536 colors.
   + New ConfigureBitLevel method to adjust possible quality and memory usage.
   * Improving MedianCut quantizer performance
-  * Improving default quality of Wu quantizer (7 bits per channel instead of 5, but adjustable by ConfigureBitLevel)
+  * Optimizing memory usage of Wu quantizer
 * GifEncoder class:
   * The performance and memory usage of the LZW compression has been improved.
   - EncodeAnimation method: If quantizer is not set but the input image is already indexed, then not using the

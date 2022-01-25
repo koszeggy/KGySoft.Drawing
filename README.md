@@ -22,6 +22,8 @@ Multiple versions of .NET Framework and .NET Core are supported. Tested on Windo
    - [Icon Manipulation](#icon-manipulation)
    - [Fast Bitmap Manipulation](#fast-bitmap-manipulation)
    - [Managed Bitmap Data Manipulation](#managed-bitmap-data-manipulation)
+   - [WriteableBitmap and Other 3rd Party Bitmap Types Support](#writeablebitmap-and-other-3rd-party-bitmap-types-support)
+   - [Supporting Custom Pixel Formats](#supporting-custom-pixel-formats)
    - [Quantizing and Dithering](#quantizing-and-dithering)
    - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
 6. [License](#license)
@@ -109,7 +111,62 @@ If you know the actual pixel format you can also access the raw data in a manage
 
 ### Managed Bitmap Data Manipulation
 
-Not only for the native `Bitmap` type can you obtain a managed accessor (as described above) but you can also create a completely managed bitmap data instance by the [BitmapDataFactory](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class. There are more benefits of using managed bitmap data: not just that they don't use any GDI or other native resources but also that they support every `PixelFormat` on any platform. See the [`BitmapDataExtensions`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataExtensions.htm) for the available operations on bitmap data where bitmap data can be either a managed one or a managed accessor to a native `Bitmap` instance.
+Not only for the native `Bitmap` type can you obtain a managed accessor (as described above) but you can also create a completely managed bitmap data instance by the [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class. There are more benefits of using managed bitmap data: not just that they don't use any GDI or other native resources but also that they support every `PixelFormat` on any platform. See the [`BitmapDataExtensions`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataExtensions.htm) for the available operations on bitmap data where bitmap data can be either a managed one or a managed accessor to a native `Bitmap` instance.
+
+#### Self-allocating vs. Preallocated Buffers
+
+The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class has many [`CreateBitmapData`](https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads. The ones whose first parameter is `Size` allocate the underlying buffer by themselves, which is not directly accessible from outside. But you are also able to use predefined arrays of any primitive element type (one or two dimensional ones), and also [`ArraySection<T>`](https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_ArraySection_1.htm) or [`Array2D<T>`](https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_Array2D_1.htm) buffers to create a managed bitmap data for.
+
+### WriteableBitmap and Other 3rd Party Bitmap Types Support
+
+The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class has also [`CreateBitmapData`](https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads to support unmanaged memory. This makes possible to support any bitmap representation that expose its buffer by a pointer.
+
+For example, this is how you can create a managed accessor for a `WriteableBitmap` instance commonly used in WPF/WinRT/UWP and other XAML-based environment, which exposes such a pointer:
+
+```cs
+// Despite of the naming difference, PixelFormats.Pbgra32 is actually the same as PixelFormat.Format32bppPArgb.
+var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Pbgra32, null);
+
+// creating the managed bitmap data for writeableBitmap:
+using (var bitmapData = BitmapDataFactory.CreateBitmapData(
+    bitmap.BackBuffer,
+    new Size(bitmap.PixelWidth, bitmap.PixelHeight),
+    bitmap.BackBufferStride,
+    PixelFormat.Format32bppPArgb)
+{
+    // Do whatever with bitmapData
+}
+
+// Actualizing changes. But see also the next example to see how to do these along with disposing.
+bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+bitmap.Unlock();
+```
+
+### Supporting Custom Pixel Formats
+
+The previous example demonstrated how we can create a managed accessor for a `WriteableBitmap`. But it worked only because we used a pixel format that happen to have built-in support also in KGy SOFT Drawing Libraries. In fact, the libraries provide support for any custom pixel format. The [`CreateBitmapData`](https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) methods have several overloads that allow you to specify a custom pixel format along with a couple of delegates to be called when pixels are read or written:
+
+```cs
+// Gray8 format has no built-in support
+var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Gray8, null);
+
+// But we can specify how to use it (note: setPixel may also blend alpha colors with row.BitmapData.BackColor)
+var customPixelFormat = new PixelFormatInfo { BitsPerPixel = 8, Grayscale = true };
+Func<ICustomBitmapDataRow, int, Color32> getPixel = (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
+Action<ICustomBitmapDataRow, int, Color32> setPixel = (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.ToGray().R;
+
+// This time we specify also a dispose callback to be executed when the returned instance is disposed:
+return BitmapDataFactory.CreateBitmapData(
+    bitmap.BackBuffer, new Size(bitmap.PixelWidth, bitmap.PixelHeight), bitmap.BackBufferStride,
+    customPixelFormat, getPixel, setPixel,
+    disposeCallback: () =>
+    {
+        bitmap.AddDirtyRect(new Int32Rect(0, 0, bitmap.PixelWidth, bitmap.PixelHeight));
+        bitmap.Unlock();
+    });
+```
+
+Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you always can access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
 
 ### Quantizing and Dithering
 
@@ -159,14 +216,14 @@ The KGy SOFT Drawing Libraries make possible creating high quality GIF images an
 
 #### Examples:
 
-> ⚠️ _Note:_ Please note that multi layered high color GIF images might be mistakenly rendered as animations by some decoders, including browsers. Still images do not contain the Netscape application extension and do not have any delays. Such images are processed properly by GDI+ on Windows, by the `System.Drawing.Bitmap` and `Image` classes and applications relying on GDI+ decoders such as Windows Paint or [KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools).
-
 |Description|Image Example|
 |--|--|
 | High color GIF animation. The last frame has 29,731 colors. The Granger Rainbow has been generated from an alpha gradient bitmap by [this code](https://github.com/koszeggy/KGySoft.Drawing/blob/9157c58a24f29174e3475f89d0990a28f81691aa/KGySoft.Drawing.UnitTest/UnitTests/Imaging/GifEncoderTest.cs#L693). | ![True color GIF animation (29,731 colors)](KGySoft.Drawing/Help/Images/GifAnimationTrueColor.gif) |
 | Warning icon encoded as a high color GIF. It has only single bit transparency but otherwise its colors have been preserved. It consists of 18 layers and has 4,363 colors. | ![Warning icon as a high color GIF image](KGySoft.Drawing/Help/Images/WarningHighColor.gif) |
 | Test image "Lena" encoded as a true color GIF. It consists of 983 layers and has 148,702 colors. The file size is about twice as large as the [PNG encoded version](KGySoft.Drawing/Help/Images/Lena.png) (by allowing full scanning the number of layers could be decreased to 584 but the file size would be even larger). | ![Test image "Lena" encoded as a true color GIF](KGySoft.Drawing/Help/Images/LenaTrueColor.gif) |
 | Test image "Lena" encoded as a high color GIF. Before encoding it was prequantized with [RGB565 16-bit quantizer](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb565.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm). It consists of 18 layers and has 4,451 colors. The file size is about 80% of the original [PNG encoded version](KGySoft.Drawing/Help/Images/Lena.png) but could be even smaller without the dithering. | ![Test image "Lena" encoded as a high color GIF. Prequantized to the 16-bit RGB565 color space using Floyd-Steinberg dithering](KGySoft.Drawing/Help/Images/LenaRgb565DitheredFS.gif) |
+
+> ⚠️ _Note:_ Please note that multi layered high color GIF images might be mistakenly rendered as animations by some decoders, including browsers. Still images do not contain the Netscape application extension and do not have any delays. Such images are processed properly by GDI+ on Windows, by the `System.Drawing.Bitmap` and `Image` classes and applications relying on GDI+ decoders such as Windows Paint or [KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools).
 
 ## License
 This repository is under the [KGy SOFT License 1.0](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE), which is a permissive GPL-like license. It allows you to copy and redistribute the material in any medium or format for any purpose, even commercially. The only thing is not allowed is to distribute a modified material as yours: though you are free to change and re-use anything, do that by giving appropriate credit. See the [LICENSE](https://github.com/koszeggy/KGySoft.Drawing/blob/master/LICENSE) file for details.

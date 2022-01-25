@@ -42,21 +42,25 @@ namespace KGySoft.Drawing.Imaging
     /// <listheader><term></term><term><see cref="Octree">Octree</see></term><term><see cref="MedianCut">MedianCut</see></term><term><see cref="Wu">Wu</see></term></listheader>
     /// <item>
     /// <term><strong>Speed</strong></term>
-    /// <term>Slower than the <see cref="Wu">Wu</see>'s algorithm but faster than <see cref="MedianCut">MedianCut</see>.</term>
-    /// <term>This is the slowest one of the three algorithms.</term>
-    /// <term>This is the fastest one of the three algorithms (still much slower though than the quantizers of the <see cref="PredefinedColorsQuantizer"/> class).</term>
+    /// <term>With default settings usually slower than the <see cref="Wu">Wu</see>'s algorithm but faster than <see cref="MedianCut">MedianCut</see>.
+    /// When using high <see cref="ConfigureBitLevel">bit levels</see> and the source is a true color image, then it is generally faster for high requested colors,
+    /// can be even faster than <see cref="Wu">Wu</see>'s algorithm.</term>
+    /// <term>In most cases this is the slowest one of the three algorithms, especially for larger images.</term>
+    /// <term>With default settings this is almost always the fastest one of the three algorithms
+    /// (still much slower though than the quantizers of the <see cref="PredefinedColorsQuantizer"/> class).
+    /// When using high <see cref="ConfigureBitLevel">bit levels</see> it can be slowest one for small images but still beats the other algorithms for large ones.</term>
     /// </item>
     /// <item>
     /// <term><strong>Memory consumption<sup>*</sup></strong></term>
     /// <term>Generating the palette may consume quite a large amount of memory but it also depends on the number of different colors
-    /// of the source image and the requested color count. The memory is continuously allocated on demand and in extreme cases it may consume more memory than <see cref="Wu">Wu</see>'s algorithm.
-    /// The memory usage can limited by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</term>
+    /// of the source image and the requested color count. The memory is continuously allocated on demand and in extreme cases it may consume a huge amount of memory.
+    /// The memory usage can be limited by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</term>
     /// <term>The memory usage mainly depends on the image size and somewhat on the requested color count. Quantizing a large image may consume a large amount of memory
     /// even if the image itself consist of just a few colors.</term>
-    /// <term>In general case this quantizer consumes the most memory, even if the source has few colors and the requested color count is small.
+    /// <term>This quantizer consumes a fairly large fix amount of memory, even if the source has few colors and the requested color count is small.
     /// Most of the memory is allocated at once, regardless of the image size or its actual colors, and a smaller portion is allocated dynamically, which depends on the number of requested colors.
-    /// On platforms where available, array pooling is used, which release the used memory only after a while if the buffers are not re-used within a time interval.
-    /// The memory usage can limited by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</term>
+    /// On platforms where available, array pooling is used, which releases the used memory only after a while if the buffers are not re-used within a time interval.
+    /// The memory usage can be adjusted by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</term>
     /// </item>
     /// <item>
     /// <term><strong>Quality</strong></term>
@@ -72,10 +76,9 @@ namespace KGySoft.Drawing.Imaging
     /// </list></term>
     /// <term><list type="bullet">
     /// <item>Usually very good quality even for smaller palettes.</item>
-    /// <item>Banding may appear in images with large low-frequency areas (eg. sky or water in photos), though not as heavily as in case of the <see cref="Octree">Octree</see> algorithm
-    /// (and it can be blended by dithering anyway). By default, banding may appear for monochromatic images even if the requested number of colors would allow a banding-free result
-    /// but this can be configured by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.
-    /// </item>
+    /// <item>Banding may appear in images with large low-frequency areas (eg. sky or water in photos).
+    /// By default, banding may appear for monochromatic images even if the requested number of colors would allow a banding-free result
+    /// but this can be configured by the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method.</item>
     /// <item>Very good quality for photo-like images, especially if the image has no homogeneous low-frequency areas.</item>
     /// </list></term>
     /// </item>
@@ -129,8 +132,8 @@ namespace KGySoft.Drawing.Imaging
     /// <para><img src="../Help/Images/InformationWu256Black.gif" alt="Information icon quantized by Wu's algorithm using 256 colors, black background, alpha threshold = 128"/>
     /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, black background, alpha threshold = 128. A slight banding can be observed,
     /// as if the source image had been quantized by the <see cref="PredefinedColorsQuantizer.Argb1555">PredefinedColorsQuantizer.Argb1555</see> quantizer first.
-    /// It used to be result of earlier versions and starting with version 6.3.0 you get this result if you use the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method with 5 bits.
-    /// The new default bit level for <see cref="Wu">Wu</see>'s algorithm is 7, which reduces the banding even more, while uses more memory.</para>
+    /// You get this result if you use the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method with 5 bits (which is the default for Wu with 256 colors).
+    /// The banding can be reduced by using higher bit levels, which increases also memory usage and processing time.</para>
     /// </div></term>
     /// </item>
     /// </list>
@@ -321,7 +324,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for an example,
         /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
-        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 256, inclusive bounds. This parameter is optional.
+        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -330,7 +333,7 @@ namespace KGySoft.Drawing.Imaging
         /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Octree quantizing algorithm.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 256, inclusive bounds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
@@ -358,7 +361,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for an example,
         /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
-        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 256, inclusive bounds. This parameter is optional.
+        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -367,7 +370,7 @@ namespace KGySoft.Drawing.Imaging
         /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Median Cut quantizing algorithm.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 256, inclusive bounds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
@@ -395,7 +398,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Examples</strong> section for an example,
         /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
-        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 256, inclusive bounds. This parameter is optional.
+        /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
         /// <param name="backColor">Colors with alpha above the <paramref name="alphaThreshold"/> will be blended with this color before quantizing.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -404,7 +407,7 @@ namespace KGySoft.Drawing.Imaging
         /// If 0, then the quantized colors will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image by Xiaolin Wu's quantizing algorithm.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 256, inclusive bounds.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
@@ -435,7 +438,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Configures the bit level per color channel to be used while optimizing the palette.
-        /// If the input image is a monochromatic one, then determines the bit depth of the result.
+        /// If the input image is a monochromatic one, then may determine the bit depth of the result, depending on the used algorithm.
         /// Affects the quality, speed and memory usage.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -448,13 +451,14 @@ namespace KGySoft.Drawing.Imaging
         /// <para>When using the <see cref="MedianCut">MedianCut</see> algorithm, configuring the bit level has no other effects.
         /// When using the <see cref="Octree">Octree</see> or <see cref="Wu">Wu</see>'s algorithms, <paramref name="bitLevel"/> determines also the amount of
         /// minimum distinguishable monochromatic shades. For example, when <see cref="bitLevel"/> is 5, then up to 32 monochromatic shades can be differentiated
-        /// so close shades might be merged even if the requested number of colors could allow returning all the shades.</para>
+        /// so close shades might be merged even if the requested number of colors would allow returning all the shades.</para>
         /// <para>For the <see cref="Octree">Octree</see> algorithm the default value is the ceiling of the base 2 logarithm of the requested number of colors
         /// (eg. 1 for 2 colors, 8 for 129 or more colors). This is alright for most cases. You can increase the default value if the image has only a few but very close colors
         /// or decrease it if the image has so many colors that the quantization would use too much memory.</para>
-        /// <para>For <see cref="Wu">Wu</see>'s algorithm the default value is 7, which means about 80 MB memory usage, regardless of the number of requested colors.
-        /// You can decrease it if this is also too much (for example, 5 requires about 1.5 MB of memory), or you can increase it to 8 if you want to be able to
-        /// differentiate 256 monochromatic shades, but this pushes up the memory consumption to about 650 MB).</para>
+        /// <para>For <see cref="Wu">Wu</see>'s algorithm the default value is 5 for no more than 256 colors (requires about 1.5 MB fix memory) and 6 for more colors (requires about 10 MB).
+        /// This provides good enough quality in most cases but may cause visible banding if the input image is monochrome. To avoid that you can increase the bit level,
+        /// which dramatically increases also the memory requirement: 7 bits requires about 80 MB memory, whereas 8 bits demands about 650 MB, regardless of
+        /// the number of actual colors in the source image.</para>
         /// </remarks>
         public OptimizedPaletteQuantizer ConfigureBitLevel(int? bitLevel)
         {
