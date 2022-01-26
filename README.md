@@ -121,10 +121,10 @@ The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft
 
 The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class has also [`CreateBitmapData`](https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads to support unmanaged memory. This makes possible to support any bitmap representation that expose its buffer by a pointer.
 
-For example, this is how you can create a managed accessor for a `WriteableBitmap` instance commonly used in WPF/WinRT/UWP and other XAML-based environment, which exposes such a pointer:
+For example, this is how you can create a managed accessor for a `WriteableBitmap` instance commonly used in WPF/WinRT/UWP and other XAML-based environments, which exposes such a pointer:
 
 ```cs
-// Despite of the naming difference, PixelFormats.Pbgra32 is actually the same as PixelFormat.Format32bppPArgb.
+// Though naming is different, PixelFormats.Pbgra32 is the same as PixelFormat.Format32bppPArgb.
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Pbgra32, null);
 
 // creating the managed bitmap data for writeableBitmap:
@@ -150,12 +150,15 @@ The previous example demonstrated how we can create a managed accessor for a `Wr
 // Gray8 format has no built-in support
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Gray8, null);
 
-// But we can specify how to use it (note: setPixel may also blend alpha colors with row.BitmapData.BackColor)
+// But we can specify how to use it
+// (note: setPixel may also blend alpha colors with row.BitmapData.BackColor)
 var customPixelFormat = new PixelFormatInfo { BitsPerPixel = 8, Grayscale = true };
-Func<ICustomBitmapDataRow, int, Color32> getPixel = (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
-Action<ICustomBitmapDataRow, int, Color32> setPixel = (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.ToGray().R;
+Func<ICustomBitmapDataRow, int, Color32> getPixel =
+    (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
+Action<ICustomBitmapDataRow, int, Color32> setPixel =
+    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.ToGray().R;
 
-// This time we specify also a dispose callback to be executed when the returned instance is disposed:
+// Now we specify also a dispose callback to be executed when the returned instance is disposed:
 return BitmapDataFactory.CreateBitmapData(
     bitmap.BackBuffer, new Size(bitmap.PixelWidth, bitmap.PixelHeight), bitmap.BackBufferStride,
     customPixelFormat, getPixel, setPixel,
@@ -166,7 +169,7 @@ return BitmapDataFactory.CreateBitmapData(
     });
 ```
 
-Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you always can access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
+Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you can always access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
 
 ### Quantizing and Dithering
 
