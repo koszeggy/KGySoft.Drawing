@@ -1595,7 +1595,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppGrayScale"/>,
         /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is an indexed format,
-        /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Palette)"/> using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
+        /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Palette)"/> method using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
         /// <para>If none of above and the <paramref name="bitmapData"/> has been created by one of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods
         /// that create bitmap data with custom pixel format, then a special quantizer is returned that produces exactly the same colors as the specified <paramref name="bitmapData"/>.</para>
         /// <para>Otherwise, this method returns either the same quantizer as the <see cref="Argb8888">Argb8888</see> method (if the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> supports alpha);

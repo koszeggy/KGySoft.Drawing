@@ -168,7 +168,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormat"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormat"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>.</exception>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride,
             PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
@@ -200,9 +200,9 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormat"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormat"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
@@ -233,12 +233,12 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <remarks>
         /// <para>This method allows creating an <see cref="IReadWriteBitmapData"/> instance with custom pixel format. You need to specify a <see cref="PixelFormatInfo"/>
-        /// and pair of delegates that are called whenever a pixel is get or set.</para>
+        /// and a pair of delegates that are called whenever a pixel is get or set.</para>
         /// <para>A custom pixel format can have any <see cref="PixelFormatInfo.BitsPerPixel"/> value between 1 and 128. A typical bits-per-pixel value is a power of two; however,
         /// any other value can be used if you handle them in the provided delegates.</para>
         /// <para>The <paramref name="rowGetColor"/> and <paramref name="rowSetColor"/> delegates are called whenever a pixel is needed to be get or set.
         /// The delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.
-        /// <note type="implement">The delegates must not refer the <paramref name="buffer"/> directly.
+        /// <note type="implement">The delegates must not use the <paramref name="buffer"/> directly.
         /// They must access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row.</note></para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/>, <paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
@@ -248,9 +248,9 @@ namespace KGySoft.Drawing.Imaging
         /// </exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormatInfo"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -281,16 +281,16 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <remarks>
         /// <para>This method allows creating an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format. You need to specify a <see cref="PixelFormatInfo"/>
-        /// and pair of delegates that are called whenever a pixel is get or set.</para>
+        /// and a pair of delegates that are called whenever a pixel is get or set.</para>
         /// <para>An indexed custom pixel format can have any <see cref="PixelFormatInfo.BitsPerPixel"/> value between 1 and 16. A typical bits-per-pixel value is a power of two and is not greater than 8;
         /// however, any other value can be used if you handle them in the provided delegates.</para>
         /// <para>The <paramref name="rowGetColorIndex"/> and <paramref name="rowSetColorIndex"/> delegates are called whenever a pixel is needed to be get or set.
         /// The delegates are always called with an <c>x</c> coordinate meaning the pixel offset in the corresponding row.
-        /// <note type="implement">The delegates must not refer the <paramref name="buffer"/> directly.
+        /// <note type="implement">The delegates must not use the <paramref name="buffer"/> directly.
         /// They must access the actual data using their <see cref="ICustomBitmapDataRow"/> argument, which allows reading and writing raw data within the corresponding row.</note></para>
         /// <para>If <paramref name="palette"/> is <see langword="null"/>, then the closest not larger system palette will be used, possibly completed with transparent entries.
         /// For example, if <see cref="PixelFormatInfo.BitsPerPixel">PixelFormatInfo.BitsPerPixel</see> is 9 and <paramref name="palette"/> is <see langword="null"/>, then
-        /// a <see cref="Palette"/> with 512 colors will be created where the first 256 colors will be the same as in <see cref="Palette.System8BppPalette"/>.
+        /// a <see cref="Palette"/> with 512 colors will be created where the first 256 colors will be the same as in <see cref="Palette.SystemDefault8BppPalette">SystemDefault8BppPalette</see>.
         /// <note>For that reason it is always recommended to set the <paramref name="palette"/> parameter, especially if it has fewer entries than the possible allowed maximum
         /// because replacing the palette afterwards by the <see cref="BitmapDataExtensions.TrySetPalette">TrySetPalette</see> extension method allows only to set a palette that has no
         /// fewer entries. It's because the <see cref="BitmapDataExtensions.TrySetPalette">TrySetPalette</see> method assumes that the underlying buffer might already have pixels whose
@@ -303,11 +303,11 @@ namespace KGySoft.Drawing.Imaging
         /// </exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormatInfo"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
@@ -343,7 +343,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormat"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormat"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>.</exception>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride,
             PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
@@ -377,9 +377,9 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormat"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormat"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
@@ -413,15 +413,15 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/?topic=html/F_KGySoft_Collections_ArraySection_1_Null.htm" target="_blank">Null</a>
         /// <br/>-or-
-        /// <paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
+        /// <br/><paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormatInfo"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -460,18 +460,18 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/?topic=html/F_KGySoft_Collections_ArraySection_1_Null.htm" target="_blank">Null</a>
         /// <br/>-or-
-        /// <paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
+        /// <br/><paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/><paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>
         /// </exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is too small for the specified <paramref name="size"/>, <paramref name="pixelFormatInfo"/> and <paramref name="stride"/>
         /// <br/>-or-
-        /// <paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
+        /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
@@ -545,7 +545,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
@@ -579,7 +579,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -619,9 +619,9 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
@@ -690,7 +690,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
@@ -722,11 +722,11 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Collections_Array2D_1_IsNull.htm" target="_blank">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
         /// <br/>-or-
-        /// <paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
+        /// <br/><paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is 0.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
@@ -764,13 +764,13 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Collections_Array2D_1_IsNull.htm" target="_blank">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
         /// <br/>-or-
-        /// <paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
+        /// <br/><paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormatInfo"/>
         /// <br/>-or-
-        /// <paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
+        /// <br/><paramref name="pixelFormatInfo"/> is not indexed or its <see cref="PixelFormatInfo.BitsPerPixel"/> is not between 1 and 16.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormatInfo,
             Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
@@ -797,7 +797,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <paramref name="pixelFormat"/>;
-        /// otherwise, accessing pixels may corrupt memory throw an <see cref="AccessViolationException"/>.
+        /// otherwise, accessing pixels may corrupt memory or throw an <see cref="AccessViolationException"/>.
         /// If it points to managed memory make sure it is pinned until the returned bitmap data is disposed.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.
@@ -831,7 +831,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <paramref name="pixelFormat"/>;
-        /// otherwise, accessing pixels may corrupt memory throw an <see cref="AccessViolationException"/>.
+        /// otherwise, accessing pixels may corrupt memory or throw an <see cref="AccessViolationException"/>.
         /// If it points to managed memory make sure it is pinned until the returned bitmap data is disposed.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.
@@ -855,7 +855,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/>The absolute value of <paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormat"/>
         /// <br/>-or-
-        /// <paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
+        /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
         [SecurityCritical]
         public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette,
             Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
@@ -870,7 +870,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <paramref name="pixelFormatInfo"/>;
-        /// otherwise, accessing pixels may corrupt memory throw an <see cref="AccessViolationException"/>.
+        /// otherwise, accessing pixels may corrupt memory or throw an <see cref="AccessViolationException"/>.
         /// If it points to managed memory make sure it is pinned until the returned bitmap data is disposed.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.
@@ -890,7 +890,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see cref="IntPtr.Zero">IntPtr.Zero</see>
         /// <br/>-or-
-        /// <paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
+        /// <br/><paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/>The absolute value of <paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>.</exception>
@@ -915,7 +915,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <paramref name="pixelFormatInfo"/>;
-        /// otherwise, accessing pixels may corrupt memory throw an <see cref="AccessViolationException"/>.
+        /// otherwise, accessing pixels may corrupt memory or throw an <see cref="AccessViolationException"/>.
         /// If it points to managed memory make sure it is pinned until the returned bitmap data is disposed.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.
@@ -934,7 +934,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <see cref="IntPtr.Zero">IntPtr.Zero</see>
         /// <br/>-or-
-        /// <paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
+        /// <br/><paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/>The absolute value of <paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormatInfo"/>.</exception>

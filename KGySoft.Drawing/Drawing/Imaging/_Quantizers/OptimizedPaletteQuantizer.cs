@@ -44,11 +44,11 @@ namespace KGySoft.Drawing.Imaging
     /// <term><strong>Speed</strong></term>
     /// <term>With default settings usually slower than the <see cref="Wu">Wu</see>'s algorithm but faster than <see cref="MedianCut">MedianCut</see>.
     /// When using high <see cref="ConfigureBitLevel">bit levels</see> and the source is a true color image, then it is generally faster for high requested colors,
-    /// can be even faster than <see cref="Wu">Wu</see>'s algorithm.</term>
+    /// and can be faster even than <see cref="Wu">Wu</see>'s algorithm using the same bit level.</term>
     /// <term>In most cases this is the slowest one of the three algorithms, especially for larger images.</term>
     /// <term>With default settings this is almost always the fastest one of the three algorithms
     /// (still much slower though than the quantizers of the <see cref="PredefinedColorsQuantizer"/> class).
-    /// When using high <see cref="ConfigureBitLevel">bit levels</see> it can be slowest one for small images but still beats the other algorithms for large ones.</term>
+    /// When using high <see cref="ConfigureBitLevel">bit levels</see> it can be the slowest one for small images and gets to be the fastest one for larger image sizes.</term>
     /// </item>
     /// <item>
     /// <term><strong>Memory consumption<sup>*</sup></strong></term>
@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.Imaging
     /// <br/><see cref="MedianCut">MedianCut</see> algorithm, 256 colors, black background, alpha threshold = 128. Practically there is no banding in the result.</para>
     /// <para><img src="../Help/Images/InformationWu256Black.gif" alt="Information icon quantized by Wu's algorithm using 256 colors, black background, alpha threshold = 128"/>
     /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, black background, alpha threshold = 128. A slight banding can be observed,
-    /// as if the source image had been quantized by the <see cref="PredefinedColorsQuantizer.Argb1555">PredefinedColorsQuantizer.Argb1555</see> quantizer first.
+    /// as if the source image had been prequantized by the <see cref="PredefinedColorsQuantizer.Argb1555">PredefinedColorsQuantizer.Argb1555</see> quantizer first.
     /// You get this result if you use the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method with 5 bits (which is the default for Wu with 256 colors).
     /// The banding can be reduced by using higher bit levels, which increases also memory usage and processing time.</para>
     /// </div></term>
@@ -443,14 +443,15 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitLevel">Specifies the desired bit level. If <see langword="null"/>, then the value is automatically set by the chosen algorithm.</param>
+        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified bit level.</returns>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="bitLevel"/> must be either <see langword="null"/>, or between 1 and 8.</exception>
         /// <remarks>
         /// <para>As a primary effect, <paramref name="bitLevel"/> determines the upper limit of the possible colors in the generated palette.
-        /// For example, if <paramref name="bitLevel"/> is 1, then the result palette cannot have more than 8 colors, or when it is 2, no more than 64 colors.
+        /// For example, if <paramref name="bitLevel"/> is 1, then the result palette will not have more than 8 colors, or when it is 2, more than 64 colors.
         /// If you want to quantize an image using the allowed maximum of 65536 colors, then <paramref name="bitLevel"/> should be at least 6 because 5 allows up to 32768 colors.</para>
         /// <para>When using the <see cref="MedianCut">MedianCut</see> algorithm, configuring the bit level has no other effects.
         /// When using the <see cref="Octree">Octree</see> or <see cref="Wu">Wu</see>'s algorithms, <paramref name="bitLevel"/> determines also the amount of
-        /// minimum distinguishable monochromatic shades. For example, when <see cref="bitLevel"/> is 5, then up to 32 monochromatic shades can be differentiated
+        /// minimum distinguishable monochromatic shades. For example, when <paramref name="bitLevel"/> is 5, then up to 32 monochromatic shades can be differentiated
         /// so close shades might be merged even if the requested number of colors would allow returning all the shades.</para>
         /// <para>For the <see cref="Octree">Octree</see> algorithm the default value is the ceiling of the base 2 logarithm of the requested number of colors
         /// (eg. 1 for 2 colors, 8 for 129 or more colors). This is alright for most cases. You can increase the default value if the image has only a few but very close colors
@@ -458,7 +459,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>For <see cref="Wu">Wu</see>'s algorithm the default value is 5 for no more than 256 colors (requires about 1.5 MB fix memory) and 6 for more colors (requires about 10 MB).
         /// This provides good enough quality in most cases but may cause visible banding if the input image is monochrome. To avoid that you can increase the bit level,
         /// which dramatically increases also the memory requirement: 7 bits requires about 80 MB memory, whereas 8 bits demands about 650 MB, regardless of
-        /// the number of actual colors in the source image.</para>
+        /// the actual number of colors in the source image.</para>
         /// </remarks>
         public OptimizedPaletteQuantizer ConfigureBitLevel(int? bitLevel)
         {
