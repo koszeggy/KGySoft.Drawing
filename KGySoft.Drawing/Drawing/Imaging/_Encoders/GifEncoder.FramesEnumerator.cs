@@ -618,9 +618,8 @@ namespace KGySoft.Drawing.Imaging
                     else
                         deltaBuffer.IsCleared = false;
                 }
-                // if no delta is allowed but the frame has transparency, then clearing after each frame
-                // except the last frame if the animation is not looped indefinitely
-                else if (quantizedFrame.SupportsTransparency() && (config.AnimationMode < AnimationMode.PlayOnce || MoveNextPreparedFrame()))
+                // if no delta is allowed, then clearing before all frames with transparency, or even after the last frame if the animation is looped indefinitely
+                else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency() || config.AnimationMode < AnimationMode.PlayOnce)
                     disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
 
                 if (!ReferenceEquals(preprocessedFrame, quantizedFrame))
