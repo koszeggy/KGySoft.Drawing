@@ -449,30 +449,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveStream(null, stream);
         }
 
-        [Test, Explicit]
-        public void CompareEncodersTest()
-        {
-            using Bitmap toSave = Icons.Information.ExtractBitmap(new Size(256, 256))!;
-            foreach (var bpp in new int[] { 1, 4, 8 })
-            {
-                using Bitmap quantized = toSave.ConvertPixelFormat(bpp.ToPixelFormat(), PredefinedColorsQuantizer.FromPixelFormat(bpp.ToPixelFormat(), Color.Silver, 0));
-                var msOld = new MemoryStream();
-                ((Bitmap)quantized.Clone()).SaveAsGif(msOld);
-
-                var msNew = new MemoryStream();
-                using (var bitmapData = quantized.GetReadableBitmapData())
-                {
-                    new GifEncoder(msNew, toSave.Size) { GlobalPalette = bitmapData.Palette }
-                        .AddImage(bitmapData)
-                        .FinalizeEncoding();
-                }
-
-                SaveStream($"{bpp}bpp_Old", msOld);
-                SaveStream($"{bpp}bpp_New", msNew);
-                SaveImage($"{bpp}bpp_Ref", quantized.ConvertPixelFormat(PixelFormat.Format32bppArgb));
-            }
-        }
-
         [TestCase(GifCompressionMode.Auto)]
 #if WINDOWS
         [TestCase(GifCompressionMode.DoNotClear)]
@@ -654,13 +630,14 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         [Explicit]
         [TestCase(nameof(OptimizedPaletteQuantizer.Wu))]
-        //[TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
-        //[TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
+        [TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
+        [TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
         public void EncodeAnimationHighColorFromFile(string quantizer)
         {
-            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
+            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\gif4bit_anim.gif");
+            using var bmp = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\GifAnimationTrueColor.gif");
             Bitmap[] frames = bmp.ExtractBitmaps();
 
             IEnumerable<IReadableBitmapData> FramesIterator()
