@@ -326,8 +326,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 maxColors = requestedColors;
 
-                // unless 8 bit is explicitly specified, not using more than 7 bit levels due to huge memory requirement
-                histBitSize = bitLevel ?? Math.Min(7, requestedColors.ToBitsPerPixel());
+                // unless explicitly specified, not using more than 6 bit levels due to speed and memory requirement
+                histBitSize = bitLevel ?? (requestedColors > 256 ? 6 : 5);
                 histSize = 1 << histBitSize;
                 m2 = new CubicBuffer<float>(histBitSize);
                 wt = new CubicBuffer<long>(histBitSize);
@@ -371,10 +371,14 @@ namespace KGySoft.Drawing.Imaging
             [SecuritySafeCritical]
             public Color32[]? GeneratePalette(IAsyncContext context)
             {
+                context.Progress?.New(DrawingOperation.GeneratingPalette, histSize + maxColors - (hasTransparency ? 1 : 0));
+
                 // Original comment from Xiaolin Wu:
                 // We now convert histogram into moments so that we can rapidly calculate
                 // the sums of the above quantities over any desired box.
-                HistogramToMoments();
+                HistogramToMoments(context);
+                if (context.IsCancellationRequested)
+                    return null;
 
                 List<Box>? cubes = CreatePartitions(context);
                 if (context.IsCancellationRequested)
@@ -398,6 +402,7 @@ namespace KGySoft.Drawing.Imaging
                         (byte)(cubes[k].Volume(ref mb) / weight));
                 }
 
+                context.Progress?.Complete();
                 return result;
             }
 
@@ -422,7 +427,7 @@ namespace KGySoft.Drawing.Imaging
             /// Computing cumulative moments from the histogram.
             /// </summary>
             [SecurityCritical]
-            private unsafe void HistogramToMoments()
+            private unsafe void HistogramToMoments(IAsyncContext context)
             {
                 long* area = stackalloc long[histSize];
                 long* areaR = stackalloc long[histSize];
@@ -432,8 +437,14 @@ namespace KGySoft.Drawing.Imaging
 
                 for (int r = 0; r < histSize; r++)
                 {
+                    if (context.IsCancellationRequested)
+                        return;
+
                     for (int i = 0; i < histSize; i++)
-                        area2[i] = area[i] = areaR[i] = areaG[i] = areaB[i] = 0;
+                    {
+                        area[i] = areaR[i] = areaG[i] = areaB[i] = 0L;
+                        area2[i] = 0f;
+                    }
 
                     for (int g = 0; g < histSize; g++)
                     {
@@ -466,6 +477,8 @@ namespace KGySoft.Drawing.Imaging
                             m2.GetRef(ind1) = m2[ind2] + area2[b];
                         }
                     }
+
+                    context.Progress?.Increment();
                 }
             }
 
@@ -477,7 +490,6 @@ namespace KGySoft.Drawing.Imaging
                 // Adding an initial item with largest possible size. We split it until we
                 // have the needed colors or we cannot split further any of the boxes.
                 cubes.Add(new Box { RMin = -1, RMax = histSize - 1, GMin = -1, GMax = histSize - 1, BMin = -1, BMax = histSize - 1 });
-                context.Progress?.New(DrawingOperation.GeneratingPalette, colorCount, 1);
 
                 float[] vv = new float[colorCount];
                 int next = 0;
@@ -523,7 +535,6 @@ namespace KGySoft.Drawing.Imaging
                         break;
                 }
 
-                context.Progress?.Complete();
                 return cubes;
             }
 
