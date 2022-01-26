@@ -1,9 +1,10 @@
-Thank you for installing KGy SOFT Drawing Libraries 6.2.0
+Thank you for installing KGy SOFT Drawing Libraries 6.3.0
 KGy SOFT Drawing Libraries offer advanced drawing features both for completely managed bitmap data
 as well as native System.Drawing types on multiple platforms.
 
 Main new features in 6.x:
 - Supporting creating GIF animations on every platform.
+- Supporting bitmap data creation for preallocated buffers and custom pixel formats
 
 Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
 
