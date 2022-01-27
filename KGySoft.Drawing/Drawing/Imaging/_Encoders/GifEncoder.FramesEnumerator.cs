@@ -587,7 +587,7 @@ namespace KGySoft.Drawing.Imaging
                 var disposeMethod = GifGraphicDisposalMethod.DoNotDispose;
 
                 // If the frame can have transparency, then clearing might be needed afterwards
-                if (CanUseDelta(quantizedFrame))
+                if (CanUseDelta(null))
                 {
                     // Maintaining the delta buffer: copying the processed part of the possibly non-quantized original image,
                     // which helps to determine the unchanged part for the next frame.
