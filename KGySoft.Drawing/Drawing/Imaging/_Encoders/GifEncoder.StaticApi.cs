@@ -528,7 +528,7 @@ namespace KGySoft.Drawing.Imaging
             return result;
         }
 
-        private static Rectangle GetContentArea(IReadableBitmapData imageData, bool allowEmpty = false)
+        private static Rectangle GetContentArea(IReadableBitmapData imageData)
         {
             Rectangle result = new Rectangle(0, 0, imageData.Width, imageData.Height);
             if (!imageData.HasAlpha())
@@ -548,9 +548,9 @@ namespace KGySoft.Drawing.Imaging
             } while (row.MoveNextRow());
 
         continueBottom:
-            // fully transparent image: returning 1x1 at the center
+            // fully transparent image
             if (result.Height == 0)
-                return allowEmpty ? Rectangle.Empty : new Rectangle(imageData.Width >> 1, imageData.Height >> 1, 1, 1);
+                return Rectangle.Empty;
 
             for (int y = result.Bottom - 1; y >= result.Top; y--)
             {

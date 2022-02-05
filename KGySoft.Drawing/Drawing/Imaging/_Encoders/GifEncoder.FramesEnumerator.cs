@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -150,7 +151,8 @@ namespace KGySoft.Drawing.Imaging
             private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame, current;
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) deltaBuffer;
 
-            private (bool Initialized, bool SupportsTransparency, byte AlphaThreshold) quantizerProperties;
+            private (bool Initialized, bool SupportsTransparency, Color32 BackColor, byte AlphaThreshold) quantizerProperties;
+            private IQuantizer? deltaBufferQuantizer;
             private int count;
             private int currentIndex;
 
@@ -161,7 +163,7 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             #region Internal Properties
-            
+
             internal IReadableBitmapData? Frame => current.BitmapData;
             internal Point Location => current.Location;
             internal int Delay => current.Delay;
@@ -171,13 +173,26 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Properties
 
+            private Color32 BackColor
+            {
+                get
+                {
+                    Debug.Assert(config.AllowDeltaFrames, "Not expected to be called if delta frames are not allowed");
+                    if (!quantizerProperties.Initialized)
+                        CanUseDeltaByTransparentMask(null);
+
+                    Debug.Assert(config.Quantizer == null || !quantizerProperties.SupportsTransparency, "Not expected to be called if transparency not supported");
+                    return quantizerProperties.BackColor;
+                }
+            }
+
             private byte AlphaThreshold
             {
                 get
                 {
                     Debug.Assert(config.AllowDeltaFrames, "Not expected to be called if delta frames are not allowed");
                     if (!quantizerProperties.Initialized)
-                        CanUseDelta(null);
+                        CanUseDeltaByTransparentMask(null);
 
                     Debug.Assert(quantizerProperties.SupportsTransparency, "Not expected to be called if transparency is not supported");
                     return quantizerProperties.AlphaThreshold;
@@ -370,6 +385,171 @@ namespace KGySoft.Drawing.Imaging
                 throw new InvalidOperationException(Res.InternalError("Empty region is not expected at this point"));
             }
 
+            [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+                Justification = "False alarm, the new analyzer includes the complexity of local methods")]
+            private static Rectangle GetDifferentRegion(IReadableBitmapData previousFrame, IReadableBitmapData currentFrame, byte tolerance, Color32 backColor)
+            {
+                #region Local Methods
+
+                static bool RowEquals(IReadableBitmapDataRow rowPrev, IReadableBitmapDataRow rowCurrent, byte tolerance)
+                {
+                    int width = rowCurrent.Width;
+                    if (tolerance == 0)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            if (rowPrev[x] != rowCurrent[x])
+                                return false;
+                        }
+                    }
+                    else
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            if (!rowPrev[x].TolerantEquals(rowCurrent[x], tolerance))
+                                return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                static bool RowEqualsWithAlpha(IReadableBitmapDataRow rowPrev, IReadableBitmapDataRow rowCurrent, byte tolerance, Color32 backColor)
+                {
+                    int width = rowCurrent.Width;
+                    if (tolerance == 0)
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            if (rowPrev[x] != rowCurrent[x].BlendWithBackground(backColor))
+                                return false;
+                        }
+                    }
+                    else
+                    {
+                        for (int x = 0; x < width; x++)
+                        {
+                            if (!rowPrev[x].TolerantEquals(rowCurrent[x], tolerance, backColor))
+                                return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                static bool ColumnEquals(IReadableBitmapData bitmapDataPrev, IReadableBitmapData bitmapDataCurrent, int x, int top, int bottom, byte tolerance)
+                {
+                    if (tolerance == 0)
+                    {
+                        for (int y = top; y < bottom; y++)
+                        {
+                            if (bitmapDataPrev[y][x] != bitmapDataCurrent[y][x])
+                                return false;
+                        }
+                    }
+                    else
+                    {
+                        for (int y = top; y < bottom; y++)
+                        {
+                            if (!bitmapDataPrev[y][x].TolerantEquals(bitmapDataCurrent[y][x], tolerance))
+                                return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                static bool ColumnEqualsWithAlpha(IReadableBitmapData bitmapDataPrev, IReadableBitmapData bitmapDataCurrent, int x, int top, int bottom, byte tolerance, Color32 backColor)
+                {
+                    if (tolerance == 0)
+                    {
+                        for (int y = top; y < bottom; y++)
+                        {
+                            if (bitmapDataPrev[y][x] != bitmapDataCurrent[y][x].BlendWithBackground(backColor))
+                                return false;
+                        }
+                    }
+                    else
+                    {
+                        for (int y = top; y < bottom; y++)
+                        {
+                            if (!bitmapDataPrev[y][x].TolerantEquals(bitmapDataCurrent[y][x], tolerance, backColor))
+                                return false;
+                        }
+                    }
+
+                    return true;
+                }
+
+                #endregion
+
+                Debug.Assert(previousFrame.GetSize() == currentFrame.GetSize());
+
+                bool hasAlpha = currentFrame.HasAlpha();
+                var region = new Rectangle(Point.Empty, currentFrame.GetSize());
+
+                IReadableBitmapDataRow rowPrev = previousFrame.FirstRow;
+                IReadableBitmapDataRow rowCurrent = currentFrame.FirstRow;
+
+                // 1.) Top
+                do
+                {
+                    if (!hasAlpha && !RowEquals(rowPrev, rowCurrent, tolerance)
+                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor))
+                    {
+                        break;
+                    }
+
+                    region.Y += 1;
+                    region.Height -= 1;
+                } while (rowPrev.MoveNextRow() && rowCurrent.MoveNextRow());
+
+                // no difference: we are done
+                if (region.Height == 0)
+                    return Rectangle.Empty;
+
+                // 2.) Bottom
+                for (int y = region.Bottom - 1; y >= region.Top; y--)
+                {
+                    if (!hasAlpha && !RowEquals(previousFrame[y], currentFrame[y], tolerance)
+                        || hasAlpha && !RowEqualsWithAlpha(previousFrame[y], currentFrame[y], tolerance, backColor))
+                    {
+                        break;
+                    }
+
+                    region.Height -= 1;
+                }
+
+                // 3.) Left
+                Debug.Assert(region.Height > 0);
+                for (int x = 0; x < region.Width; x++)
+                {
+                    if (!hasAlpha && !ColumnEquals(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance)
+                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor))
+                    {
+                        break;
+                    }
+
+                    region.X += 1;
+                    region.Width -= 1;
+                }
+
+                // 4.) Right
+                Debug.Assert(region.Width > 0);
+                for (int x = region.Right - 1; x >= region.Left; x--)
+                {
+                    if (!hasAlpha && !ColumnEquals(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance)
+                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor))
+                    {
+                        return region;
+                    }
+
+                    region.Width -= 1;
+                }
+
+                throw new InvalidOperationException(Res.InternalError("Empty region is not expected at this point"));
+            }
+
             #endregion
 
             #region Instance Methods
@@ -500,7 +680,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
-            private bool CanUseDelta(IReadableBitmapData? bitmapData)
+            private bool CanUseDeltaByTransparentMask(IBitmapData? bitmapData)
             {
                 if (!config.AllowDeltaFrames)
                     return false;
@@ -508,7 +688,7 @@ namespace KGySoft.Drawing.Imaging
                 // there is no explicit quantizer: depends on current frame because palette of already indexed frames are preserved
                 if (config.Quantizer == null && bitmapData != null)
                 {
-                    // non indexed frames will be quantized by default Wu quantizer that supports transparency
+                    // non-indexed frames will be quantized by default Wu quantizer that supports transparency
                     return !bitmapData.PixelFormat.IsIndexed() || bitmapData.SupportsTransparency();
                 }
 
@@ -517,20 +697,24 @@ namespace KGySoft.Drawing.Imaging
 
                 quantizerProperties.Initialized = true;
 
-                // the default Wu quantizer supports transparency
+                // the default Wu quantizer supports transparency and has black back color
                 if (config.Quantizer == null)
                 {
                     quantizerProperties.SupportsTransparency = true;
+                    quantizerProperties.BackColor = Color32.Black;
                     quantizerProperties.AlphaThreshold = 128;
                     return true;
                 }
 
                 // we have to test the quantizer with a single pixel
                 using IQuantizingSession session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default));
+                quantizerProperties.BackColor = session.BackColor;
                 quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
                 quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
                 return quantizerProperties.SupportsTransparency;
             }
+
+            private bool CanUseDeltaByClipping() => config.AllowDeltaFrames && config.AllowClippedFrames;
 
             /// <summary>
             /// It consumes <see cref="nextPreparedFrame"/> set by <see cref="MoveNextPreparedFrame"/>, and sets <see cref="nextGeneratedFrame"/>.
@@ -550,85 +734,229 @@ namespace KGySoft.Drawing.Imaging
                     return false;
 
                 nextPreparedFrame = default;
-                IReadWriteBitmapData preprocessedFrame = preparedFrame.BitmapData;
 
-                // 1.) Generating delta image if needed
-                if (deltaBuffer.BitmapData != null && !deltaBuffer.IsCleared && CanUseDelta(preprocessedFrame))
+                IReadWriteBitmapData? generatedFrame;
+                Rectangle contentArea;
+                GifGraphicDisposalMethod disposeMethod;
+                if (deltaBuffer.BitmapData != null && !deltaBuffer.IsCleared)
                 {
-                    Debug.Assert(preprocessedFrame.SupportsTransparency(), "Frame is not prepared correctly for delta image");
-                    Debug.Assert(!preparedFrame.IsQuantized, "Prepared image must not be quantized yet if delta image is created");
-                    ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData, preprocessedFrame, config.DeltaTolerance, AlphaThreshold);
+                    Debug.Assert(!preparedFrame.IsQuantized, "Prepared image must not be quantized yet if delta image might be created");
+                    if (CanUseDeltaByTransparentMask(preparedFrame.BitmapData))
+                        (generatedFrame, contentArea, disposeMethod) = GetGeneratedFrameByTransparencyDelta(preparedFrame.BitmapData);
+                    else if (CanUseDeltaByClipping())
+                        (generatedFrame, contentArea, disposeMethod) = GetGeneratedFrameByClippingDelta(preparedFrame.BitmapData);
+                    else
+                        (generatedFrame, contentArea, disposeMethod) = GetGeneratedFullFrame(preparedFrame.BitmapData, preparedFrame.IsQuantized);
                 }
+                else
+                    (generatedFrame, contentArea, disposeMethod) = GetGeneratedFullFrame(preparedFrame.BitmapData, preparedFrame.IsQuantized);
+
+                if (asyncContext.IsCancellationRequested)
+                {
+                    preparedFrame.BitmapData.Dispose();
+                    generatedFrame?.Dispose();
+                    return false;
+                }
+
+                // fully transparent image: returning 1x1 at the center
+                if (contentArea.IsEmpty)
+                    contentArea = new Rectangle(logicalScreenSize.Width >> 1, logicalScreenSize.Height >> 1, 1, 1);
+
+                if (!ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
+                    preparedFrame.BitmapData.Dispose();
+
+                if (contentArea.Size != generatedFrame.GetSize())
+                {
+                    Debug.Assert(generatedFrame.GetSize() == logicalScreenSize);
+                    generatedFrame = generatedFrame!.Clip(contentArea, true);
+                }
+
+                nextGeneratedFrame = (generatedFrame, contentArea.Location, preparedFrame.Delay, disposeMethod);
+                return true;
+            }
+
+            private (IReadWriteBitmapData? BitmapData, Rectangle ContentArea, GifGraphicDisposalMethod DisposeMethod) GetGeneratedFrameByTransparencyDelta(IReadWriteBitmapData preparedFrame)
+            {
+                Debug.Assert(deltaBuffer.BitmapData != null && !deltaBuffer.IsCleared && CanUseDeltaByTransparentMask(preparedFrame));
+                Debug.Assert(preparedFrame.SupportsTransparency(), "Frame is not prepared correctly for transparency delta image");
+
+                // 1.) Generating delta image
+                ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance, AlphaThreshold);
+                if (asyncContext.IsCancellationRequested)
+                    return default;
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
                 IReadWriteBitmapData? quantizedFrame;
-                if (preparedFrame.IsQuantized || preprocessedFrame.PixelFormat.IsIndexed() && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preprocessedFrame))
-                    quantizedFrame = preprocessedFrame;
+                if (preparedFrame.PixelFormat.IsIndexed() && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
+                    quantizedFrame = preparedFrame;
                 else
-                {
-                    quantizedFrame = preprocessedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
-                    if (quantizedFrame == null)
-                    {
-                        preprocessedFrame.Dispose();
-                        return false;
-                    }
-                }
+                    quantizedFrame = preparedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
 
-                // 3.) Trim border (important: after quantizing so possible partially transparent pixels have their final state)
+                if (asyncContext.IsCancellationRequested)
+                    return (quantizedFrame, default, default);
+
+                Debug.Assert(quantizedFrame != null);
+
+                // 3.) Trimming border (important: after quantizing so possible partially transparent pixels have their final state)
                 var contentArea = new Rectangle(Point.Empty, logicalScreenSize);
-                if (!config.EncodeTransparentBorders && quantizedFrame.SupportsTransparency())
+                if (config.AllowClippedFrames && quantizedFrame!.SupportsTransparency())
                 {
                     // Determining the actual content without the transparent border.
                     // If delta is allowed and clearing is needed, then this area will be expanded later
-                    contentArea = GetContentArea(quantizedFrame);
+                    contentArea = GetContentArea(quantizedFrame!);
                 }
 
-                // 4.) Determining image dispose method
-                var disposeMethod = GifGraphicDisposalMethod.DoNotDispose;
+                // 4.) Maintaining the delta buffer: copying the processed part of the possibly non-quantized but already masked original image,
+                // which helps to determine the unchanged part for the next frame.
+                preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData!, contentArea, contentArea.Location, identityQuantizer, true);
+                if (asyncContext.IsCancellationRequested)
+                    return (quantizedFrame, default, default);
 
-                // If the frame can have transparency, then clearing might be needed afterwards
-                if (CanUseDelta(null))
+                // 5.) Determining image dispose method and possibly expanding encoded size if clearing is needed
+                GifGraphicDisposalMethod disposeMethod;
+                if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency()
+                    && HasNewTransparentPixel(deltaBuffer.BitmapData!, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
                 {
-                    // Maintaining the delta buffer: copying the processed part of the possibly non-quantized original image,
-                    // which helps to determine the unchanged part for the next frame.
-                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
-                    preprocessedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location, identityQuantizer, true);
+                    disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
+                    contentArea = Rectangle.Union(contentArea, toClearRegion);
+                    deltaBuffer.BitmapData!.DoClear(asyncContext, default);
                     if (asyncContext.IsCancellationRequested)
-                    {
-                        preprocessedFrame.Dispose();
-                        quantizedFrame.Dispose();
-                        return false;
-                    }
+                        return (quantizedFrame, default, default);
 
-                    if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency() && HasNewTransparentPixel(
-                            deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
+                    deltaBuffer.IsCleared = true;
+                }
+                else
+                {
+                    disposeMethod = GifGraphicDisposalMethod.DoNotDispose;
+                    deltaBuffer.IsCleared = false;
+                }
+
+                return (quantizedFrame, contentArea, disposeMethod);
+            }
+
+            private (IReadWriteBitmapData? QuantizedFrame, Rectangle ContentArea, GifGraphicDisposalMethod DisposeMethod) GetGeneratedFrameByClippingDelta(IReadWriteBitmapData preparedFrame)
+            {
+                Debug.Assert(deltaBuffer.BitmapData != null && !deltaBuffer.IsCleared && CanUseDeltaByClipping());
+                Debug.Assert(config.AllowClippedFrames && !CanUseDeltaByTransparentMask(preparedFrame), "Image with transparency support must be generated by using transparency delta");
+                Debug.Assert(config.Quantizer == null || !deltaBuffer.BitmapData!.SupportsTransparency());
+
+                // 1.) Determining smallest changed rectangle
+                Rectangle contentArea = GetDifferentRegion(deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance, BackColor);
+
+                // 2.) Maintaining the delta buffer: as this frame has no alpha just copying the changed part of the prepared frame.
+                preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData!, contentArea, contentArea.Location, deltaBufferQuantizer);
+                if (asyncContext.IsCancellationRequested)
+                {
+                    Debug.Assert(asyncContext.IsCancellationRequested);
+                    return default;
+                }
+
+                // 3.) Determining image dispose method and possibly expanding encoded size if clearing is needed
+                GifGraphicDisposalMethod disposeMethod;
+                if (CanUseDeltaByTransparentMask(null)
+                    && MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency()
+                    && HasNewTransparentPixel(deltaBuffer.BitmapData!, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
+                {
+                    disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
+                    contentArea = Rectangle.Union(contentArea, toClearRegion);
+                    deltaBuffer.BitmapData!.DoClear(asyncContext, default);
+                    if (asyncContext.IsCancellationRequested)
+                        return default;
+
+                    deltaBuffer.IsCleared = true;
+                }
+                else
+                {
+                    disposeMethod = GifGraphicDisposalMethod.DoNotDispose;
+                    deltaBuffer.IsCleared = false;
+                }
+
+                // 4.) Quantizing if needed
+                IReadWriteBitmapData? quantizedFrame;
+
+                // Unchanged image: returning 1x1 pixel of the previous frame in the middle
+                // (from the previous because it can be "unchanged" even just because of a nonzero tolerance)
+                if (contentArea.IsEmpty)
+                {
+                    contentArea = new Rectangle(logicalScreenSize.Width >> 1, logicalScreenSize.Height >> 1, 1, 1);
+                    quantizedFrame = deltaBuffer.BitmapData!.DoClone(asyncContext, contentArea, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                }
+                // original pixel format can be preserved (possible clipping is in caller)
+                else if (config.Quantizer == null && preparedFrame.PixelFormat.IsIndexed())
+                    quantizedFrame = preparedFrame;
+                else
+                {
+                    quantizedFrame = preparedFrame.DoClone(asyncContext, contentArea, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    if (quantizedFrame == null)
+                    {
+                        Debug.Assert(asyncContext.IsCancellationRequested);
+                        return default;
+                    }
+                }
+
+                return (quantizedFrame, contentArea, disposeMethod);
+            }
+
+            private (IReadWriteBitmapData? QuantizedFrame, Rectangle ContentArea, GifGraphicDisposalMethod DisposeMethod) GetGeneratedFullFrame(IReadWriteBitmapData preparedFrame, bool isQuantized)
+            {
+                Debug.Assert(deltaBuffer.BitmapData == null || deltaBuffer.IsCleared || !CanUseDeltaByTransparentMask(preparedFrame) && !CanUseDeltaByClipping());
+
+                // 1.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
+                IReadWriteBitmapData? quantizedFrame;
+                if (isQuantized || preparedFrame.PixelFormat.IsIndexed() && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
+                    quantizedFrame = preparedFrame;
+                else
+                    quantizedFrame = preparedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+
+                if (asyncContext.IsCancellationRequested)
+                    return (quantizedFrame, default, default);
+
+                Debug.Assert(quantizedFrame != null);
+
+                // 2.) Trimming border (important: after quantizing so possible partially transparent pixels have their final state)
+                var contentArea = new Rectangle(Point.Empty, logicalScreenSize);
+                if (config.AllowClippedFrames)
+                {
+                    // Determining the actual content without the transparent border.
+                    // If delta is allowed and clearing is needed, then this area will be expanded later
+                    contentArea = GetContentArea(quantizedFrame!);
+                }
+
+                // 3.) Determining image dispose method and possibly expanding encoded size if clearing is needed, while maintaining delta buffer
+                var disposeMethod = GifGraphicDisposalMethod.DoNotDispose;
+                if (CanUseDeltaByTransparentMask(null))
+                {
+                    Debug.Assert(quantizerProperties.SupportsTransparency);
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                    preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location);
+                    if (asyncContext.IsCancellationRequested)
+                        return (quantizedFrame, default, default);
+
+                    if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency()
+                        && HasNewTransparentPixel(deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
                     {
                         disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                         contentArea = Rectangle.Union(contentArea, toClearRegion);
                         deltaBuffer.BitmapData.DoClear(asyncContext, default);
                         if (asyncContext.IsCancellationRequested)
-                        {
-                            preprocessedFrame.Dispose();
-                            quantizedFrame.Dispose();
-                            return false;
-                        }
+                            return (quantizedFrame, default, default);
 
                         deltaBuffer.IsCleared = true;
                     }
                     else
                         deltaBuffer.IsCleared = false;
                 }
-                // if no delta is allowed, then clearing before all frames with transparency, or even after the last frame if the animation is looped indefinitely
-                else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency() || config.AnimationMode < AnimationMode.PlayOnce)
+                else if (CanUseDeltaByClipping())
+                {
+                    Debug.Assert(contentArea.Size == logicalScreenSize);
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, PixelFormat.Format24bppRgb);
+                    preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??= PredefinedColorsQuantizer.Rgb888(quantizerProperties.BackColor.ToColor()));
+                }
+                // if no delta is allowed, then clearing before all frames with transparency
+                else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency())
                     disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
 
-                if (!ReferenceEquals(preprocessedFrame, quantizedFrame))
-                    preprocessedFrame.Dispose();
-
-                if (contentArea.Size != logicalScreenSize)
-                    quantizedFrame = quantizedFrame.Clip(contentArea, true);
-                nextGeneratedFrame = (quantizedFrame, contentArea.Location, preparedFrame.Delay, disposeMethod);
-                return true;
+                return (quantizedFrame, contentArea, disposeMethod);
             }
 
             /// <summary>
@@ -685,15 +1013,25 @@ namespace KGySoft.Drawing.Imaging
             private (IReadWriteBitmapData? BitmapData, bool IsQuantized) GetPreparedFrame(IReadableBitmapData inputFrame)
             {
                 IReadWriteBitmapData? preparedFrame;
+                PixelFormat preparedPixelFormat = PixelFormat.Format8bppIndexed;
+                bool canUseDelta = false;
 
-                // Delta frames can be used if allowed and the quantizer can use transparent colors.
-                // We cannot rely on renderBuffer.IsCleared here because a forward reading is used even to determine whether to clear
-                // so if we have a render buffer (it's not the first frame), then we must assume that delta image can be used.
-                bool canUseDelta = deltaBuffer.BitmapData != null && CanUseDelta(inputFrame);
-
-                PixelFormat preparedPixelFormat = !canUseDelta ? PixelFormat.Format8bppIndexed // can't use delta: we can already quantize
-                    : inputFrame.SupportsTransparency() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat // we have transparency: we can use the original format
-                    : PixelFormat.Format32bppArgb; // we have to add transparency (or have to reduce bpp)
+                // Delta frames can be used if allowed and either the quantizer can use transparent colors or clipping the frames is allowed.
+                // We cannot rely on deltaBuffer.IsCleared here because a forward reading is used even to determine whether to clear
+                // so if delta can be used in general, then we must delay quantizing (even for the first frame because the buffer uses non-quantized image).
+                if (CanUseDeltaByTransparentMask(inputFrame))
+                {
+                    canUseDelta = true;
+                    preparedPixelFormat = inputFrame.SupportsTransparency() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32
+                        ? inputFrame.PixelFormat // we have transparency: we can use the original format
+                        : PixelFormat.Format32bppArgb; // we have to add transparency (or have to reduce bpp)
+                }
+                else if (CanUseDeltaByClipping())
+                {
+                    // Note: not using 24bpp fallback format here because possible input transparency would be blended with black instead of the back color of the quantizer
+                    canUseDelta = true;
+                    preparedPixelFormat = inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat : PixelFormat.Format32bppArgb;
+                }
 
                 // If cannot use delta image, then we can already quantize the frame.
                 // For already indexed images we preserve the original palette only if no explicit quantizer was specified.
@@ -731,7 +1069,7 @@ namespace KGySoft.Drawing.Imaging
                                 preparedFrame = BitmapDataFactory.CreateBitmapData(logicalScreenSize, preparedPixelFormat, inputFrame.Palette);
 
                                 // if the source is indexed and transparent index is not 0, then we must clear the indexed image to be transparent
-                                if (inputFrame.Palette?.HasTransparent == true)
+                                if (inputFrame.Palette?.TransparentIndex > 0)
                                 {
                                     preparedFrame.DoClear(asyncContext, default);
                                     if (asyncContext.IsCancellationRequested)

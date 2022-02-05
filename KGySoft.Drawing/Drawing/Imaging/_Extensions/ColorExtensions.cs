@@ -289,6 +289,15 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance)
+        {
+            Debug.Assert(c1.A == 255 && c2.A == 255);
+            if (c1 == c2)
+                return true;
+            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, byte alphaThreshold)
         {
             if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
@@ -296,6 +305,13 @@ namespace KGySoft.Drawing.Imaging
             if (c1.A < alphaThreshold ^ c2.A < alphaThreshold)
                 return false;
             return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor)
+        {
+            Debug.Assert(c1.A == 255);
+            return TolerantEquals(c1, c2.BlendWithBackground(backColor), tolerance);
         }
 
         #endregion

@@ -2078,7 +2078,7 @@ namespace KGySoft.Drawing.Imaging
         internal static IReadWriteBitmapData DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, PixelFormat pixelFormat, Palette palette)
             => DoCloneDirect(context, source, sourceRectangle, pixelFormat, palette.BackColor, palette.AlphaThreshold, palette)!;
 
-        internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => DoCopy(context, source, target, new Rectangle(Point.Empty, source.GetSize()), targetLocation, quantizer, ditherer);
 
         internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer = null, bool skipTransparent = false)

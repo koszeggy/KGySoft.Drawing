@@ -112,17 +112,36 @@ namespace KGySoft.Drawing.Imaging
         /// enlarged, too). This produces a bit larger encoded size but provides better compatibility.
         /// <br/>If <see langword="false"/>, then always only the smallest possible non-transparent area will be encoded. Some decoders may not tolerate this option.
         /// </value>
-        public bool EncodeTransparentBorders { get; set; }
+        [Obsolete("This property is obsolete. Use AllowClippedFrames instead.")]
+        public bool EncodeTransparentBorders { get => !AllowClippedFrames; set => AllowClippedFrames = !value; }
 
         /// <summary>
-        /// Gets or sets whether it is allowed to encode only the changed part of a frame. In some circumstances the value of this property might be ignored.
+        /// Gets or sets whether the encoder is allowed to add smaller actual frames than the <see cref="Size"/> of the animation.
         /// <br/>Default value: <see langword="true"/>.
+        /// <br/>See also the <strong>Remarks</strong> section of the <see cref="AllowDeltaFrames"/> property for more details.
         /// </summary>
         /// <value>
-        /// If <see langword="true"/>, then the encoding time and the required memory may be larger but it allows creating high-color GIF animations.
-        /// This depends also on the used <see cref="Quantizer"/>, though: an <see cref="OptimizedPaletteQuantizer"/> allows creating a specific palette for each frame, for example.
-        /// <br/>If <see langword="false"/>, then all frames will be encoded individually. This provides faster encoding time with lower memory consumption.
+        /// If <see langword="false"/>, then always full-sized frames are added to the animation. This might end up in a larger encoded size but provides better compatibility.
+        /// <br/>If <see langword="true"/>, then actual frames might be clipped. If <see cref="AllowDeltaFrames"/> is <see langword="false"/>, then it affects only the clipping of possible
+        /// transparent borders. Some decoders may not tolerate this option.
         /// </value>
+        public bool AllowClippedFrames { get; set; } = true;
+
+        /// <summary>
+        /// Gets or sets whether it is allowed to encode only the changed region of a frame. In some circumstances the value of this property might be ignored.
+        /// <br/>Default value: <see langword="true"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <value>
+        /// If <see langword="true"/>, then the required memory during encoding may be larger but it allows creating more compact files and even high color frames (see also the <strong>Remarks</strong> section).
+        /// <br/>If <see langword="false"/>, then all frames will be encoded individually. This provides lower memory consumption but may produce larger files.
+        /// </value>
+        /// <remarks>
+        /// <para>If <see cref="Quantizer"/> is set to an <see cref="OptimizedPaletteQuantizer"/> that allows creating a specific palette for each frame,
+        /// then setting this property to <see langword="true"/>&#160;might also allow producing high color frames.</para>
+        /// <para>If <see cref="AllowClippedFrames"/> is <see langword="false"/>, then this property is ignored for quantizers with no transparency support.
+        /// TTherefore make sure that you set also the <see cref="AllowClippedFrames"/> to <see langword="true"/>&#160;if you use a quantizer without transparency support.</para>
+        /// </remarks>
         public bool AllowDeltaFrames { get; set; } = true;
 
         /// <summary>

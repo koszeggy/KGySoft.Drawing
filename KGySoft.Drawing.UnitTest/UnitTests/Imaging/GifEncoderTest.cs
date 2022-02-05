@@ -539,17 +539,20 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             EncodeAnimatedGif(new AnimatedGifConfiguration(DisposingIterator()));
         }
 
-        [TestCase("32bpp, no delta, center", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Center)]
-        [TestCase("32bpp, delta, resize", PixelFormat.Format32bppArgb, false, true, AnimationFramesSizeHandling.Resize)]
-        [TestCase("32bpp, no delta, resize", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Resize)]
-        [TestCase("32bpp, bad quantizer", PixelFormat.Format32bppArgb, true, false, AnimationFramesSizeHandling.Center)]
-        [TestCase("8bpp, delta, center", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center)]
-        [TestCase("8bpp, delta, resize", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Resize)]
-        [TestCase("4bpp, delta, center", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Center)]
-        [TestCase("4bpp, no delta, center", PixelFormat.Format4bppIndexed, false, false, AnimationFramesSizeHandling.Center)]
-        [TestCase("4bpp, no delta, center, fix palette", PixelFormat.Format4bppIndexed, true, false, AnimationFramesSizeHandling.Center)]
-        [TestCase("4bpp, delta, resize", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Resize)]
-        public void EncodeAnimationDifferentImageSizes(string name, PixelFormat pixelFormat, bool explicitQuantizer, bool allowDelta, AnimationFramesSizeHandling sizeHandling)
+        [TestCase("32bpp, no delta, center", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("32bpp, delta, resize", PixelFormat.Format32bppArgb, false, true, AnimationFramesSizeHandling.Resize, 0)]
+        [TestCase("32bpp, no delta, resize", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Resize, 0)]
+        [TestCase("32bpp, bad quantizer", PixelFormat.Format32bppArgb, true, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("8bpp, delta, center", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("8bpp, delta, center, high tolerance", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center, 255)]
+        [TestCase("8bpp, delta, resize", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Resize, 0)]
+        [TestCase("4bpp, delta, center", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, no delta, center", PixelFormat.Format4bppIndexed, false, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, no delta, center, fix palette", PixelFormat.Format4bppIndexed, true, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, delta, center, fix palette", PixelFormat.Format4bppIndexed, true, true, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, delta, center, fix palette high tolerance", PixelFormat.Format4bppIndexed, true, true, AnimationFramesSizeHandling.Center, 255)]
+        [TestCase("4bpp, delta, resize", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Resize, 0)]
+        public void EncodeAnimationDifferentImageSizes(string name, PixelFormat pixelFormat, bool explicitQuantizer, bool allowDelta, AnimationFramesSizeHandling sizeHandling, byte tolerance)
         {
             Bitmap?[] frames = Icons.Information.ExtractBitmaps();
 
@@ -570,15 +573,14 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 }
             }
 
-            using var ms = new MemoryStream();
             var config = new AnimatedGifConfiguration(FramesIterator(), TimeSpan.FromMilliseconds(250))
             {
                 Size = new Size(128, 128),
                 SizeHandling = sizeHandling,
-                Quantizer = explicitQuantizer ? PredefinedColorsQuantizer.FromPixelFormat(pixelFormat) : null,
+                Quantizer = explicitQuantizer ? PredefinedColorsQuantizer.FromBitmapData(BitmapDataFactory.CreateBitmapData(new Size(1, 1), pixelFormat, new Color32(Color.Green))) : null,
                 AllowDeltaFrames = allowDelta,
                 AnimationMode = AnimationMode.PingPong,
-               // DeltaTolerance = 32
+                DeltaTolerance = tolerance
             };
 
             try
@@ -589,6 +591,110 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 frames.ForEach(f => f?.Dispose());
             }
+        }
+
+        [TestCase("Not quantized, delta off", null, false, 0, false)]
+        [TestCase("Not quantized", null, false, 0, true)]
+        [TestCase("Optimized, delta off", nameof(OptimizedPaletteQuantizer.Octree), false, 0, false)]
+        [TestCase("Optimized", nameof(OptimizedPaletteQuantizer.Octree), false, 0, true)]
+        [TestCase("Optimized, mixed", nameof(OptimizedPaletteQuantizer.Octree), true, 0, true)]
+        [TestCase("Optimized, high tolerance", nameof(OptimizedPaletteQuantizer.Octree), false, 255, true)]
+        [TestCase("Grayscale, delta off", nameof(PredefinedColorsQuantizer.Grayscale), false, 0, false)]
+        [TestCase("Grayscale", nameof(PredefinedColorsQuantizer.Grayscale), false, 0, true)]
+        [TestCase("Grayscale, mixed", nameof(PredefinedColorsQuantizer.Grayscale), true, 0, true)]
+        [TestCase("Grayscale, high tolerance", nameof(PredefinedColorsQuantizer.Grayscale), false, 255, true)]
+        [TestCase("Default 4bpp", nameof(PredefinedColorsQuantizer.SystemDefault4BppPalette), false, 0, true)]
+        [TestCase("Default 4bpp, mixed", nameof(PredefinedColorsQuantizer.SystemDefault4BppPalette), true, 0, true)]
+        [TestCase("Default 4bpp, high tolerance", nameof(PredefinedColorsQuantizer.SystemDefault4BppPalette), false, 255, true)]
+        [TestCase("Default 8bpp", nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette), false, 0, true)]
+        [TestCase("Default 8bpp, mixed", nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette), true, 0, true)]
+        [TestCase("Default 8bpp, high tolerance", nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette), false, 255, true)]
+        public void PreserveQuantizedSourceTest(string name, string quantizer, bool mixed, byte tolerance, bool allowDelta)
+        {
+            Bitmap?[] frames =
+            {
+                Icons.Information.ExtractBitmap(0),
+                Icons.Question.ExtractBitmap(0),
+                Icons.Error.ExtractBitmap(0),
+                Icons.Warning.ExtractBitmap(0),
+                Icons.Shield.ExtractBitmap(0),
+                Icons.Application.ExtractBitmap(0),
+                Icons.SecurityShield.ExtractBitmap(0),
+                Icons.SecurityError.ExtractBitmap(0),
+                Icons.SecuritySuccess.ExtractBitmap(0),
+                Icons.SecurityQuestion.ExtractBitmap(0),
+                Icons.SecurityWarning.ExtractBitmap(0),
+            };
+
+            IQuantizer GetQuantizer() => quantizer switch
+            {
+                nameof(OptimizedPaletteQuantizer.Octree) => OptimizedPaletteQuantizer.Octree(),
+                nameof(PredefinedColorsQuantizer.Grayscale) => PredefinedColorsQuantizer.Grayscale(Color.Green),
+                nameof(PredefinedColorsQuantizer.SystemDefault4BppPalette) => PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.Green),
+                nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette) => PredefinedColorsQuantizer.SystemDefault8BppPalette(),
+                _ => throw new ArgumentException("Unexpected quantizer")
+            };
+
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                int frameCount = 0;
+                foreach (Bitmap? bitmap in frames)
+                {
+                    if (bitmap == null)
+                        continue;
+
+                    var bitmapDataNative = bitmap.GetReadableBitmapData();
+                    IReadableBitmapData currentFrame = quantizer == null || mixed && (++frameCount & 1) == 0
+                        ? bitmapDataNative.Clone()
+                        : bitmapDataNative.Clone(PixelFormat.Format8bppIndexed, GetQuantizer());
+                    if (!ReferenceEquals(bitmapDataNative, currentFrame))
+                        bitmapDataNative.Dispose();
+                    yield return currentFrame;
+                    currentFrame.Dispose();
+                    //bitmap.Dispose(); // this kills the base member at compare that enumerates the frames again
+                }
+            }
+
+            using var ms = new MemoryStream();
+            var config = new AnimatedGifConfiguration(FramesIterator(), TimeSpan.FromMilliseconds(250))
+            {
+                AllowDeltaFrames = allowDelta,
+                DeltaTolerance = tolerance
+            };
+
+            try
+            {
+                EncodeAnimatedGif(config, false, name);
+            }
+            finally
+            {
+                frames.ForEach(f => f?.Dispose());
+            }
+        }
+
+        [Explicit]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", true, false)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", false, false)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", true, true)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", false, true)]
+        public void ApngToGifTest(string dir, bool allowDelta, bool prequantize)
+        {
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                foreach (string file in Directory.EnumerateFiles(dir, "*.png"))
+                {
+                    using Bitmap bmp = new Bitmap(file);
+                    using IReadableBitmapData bitmapData = bmp.GetReadableBitmapData();
+                    yield return prequantize ? bitmapData.Clone(PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.Grayscale(Color.Silver)) : bitmapData;
+                }
+            }
+
+            var config = new AnimatedGifConfiguration(FramesIterator())
+            {
+                AllowDeltaFrames = allowDelta,
+            };
+
+            EncodeAnimatedGif(config, false, $"{Path.GetFileName(dir)} {(allowDelta ? "delta" : "no delta")} {(prequantize ? "quantized" : "original")}");
         }
 
         [TestCase(1, true)]
@@ -629,15 +735,16 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Explicit]
-        [TestCase(nameof(OptimizedPaletteQuantizer.Wu))]
-        [TestCase(nameof(OptimizedPaletteQuantizer.MedianCut))]
-        [TestCase(nameof(OptimizedPaletteQuantizer.Octree))]
-        public void EncodeAnimationHighColorFromFile(string quantizer)
+        [TestCase(null, 0)]
+        [TestCase(nameof(OptimizedPaletteQuantizer.Wu), 0)]
+        [TestCase(nameof(OptimizedPaletteQuantizer.MedianCut), 0)]
+        [TestCase(nameof(OptimizedPaletteQuantizer.Octree), 0)]
+        public void EncodeAnimationHighColorFromFile(string? quantizer, byte tolerance)
         {
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
-            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
+            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\gif4bit_anim.gif");
-            using var bmp = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\GifAnimationTrueColor.gif");
+            //using var bmp = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\GifAnimationTrueColor.gif");
             Bitmap[] frames = bmp.ExtractBitmaps();
 
             IEnumerable<IReadableBitmapData> FramesIterator()
@@ -654,13 +761,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var ms = new MemoryStream();
             var config = new AnimatedGifConfiguration(FramesIterator())
             {
-                Quantizer = (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!,
-                //DeltaTolerance = 32
+                Quantizer = quantizer == null ? null : (IQuantizer)Reflector.InvokeMethod(typeof(OptimizedPaletteQuantizer), quantizer, 256, Color.Empty, (byte)128)!,
+                DeltaTolerance = tolerance
             };
 
             try
             {
-                EncodeAnimatedGif(config, false, quantizer);
+                EncodeAnimatedGif(config, false, $"{quantizer ?? "default"}, Tolerance={tolerance}");
             }
             finally
             {

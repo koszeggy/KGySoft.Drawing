@@ -454,7 +454,7 @@ namespace KGySoft.Drawing.Imaging
                     });
                 }
 
-                layerRegion = GetContentArea(layer, true);
+                layerRegion = GetContentArea(layer);
                 if (layerRegion.IsEmpty)
                 {
                     layer.Dispose();

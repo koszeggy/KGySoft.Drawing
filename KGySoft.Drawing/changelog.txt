@@ -6,6 +6,20 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v6.3.1:
+~~~~~~~~~
+
+* KGySoft.Drawing.Imaging namespace
+===================================
+* AnimatedGifConfiguration class:
+  + New AllowClippedFrames property
+  * The EncodeTransparentBorders property have been made obsolete in favor of the new AllowClippedFrames property.
+* GifEncoder.EncodeAnimation method:
+  + AnimatedGifConfiguration.AllowDeltaFrames is now supported also for quantizers without transparency.
+  - If quantizer was not explicitly set, AnimatedGifConfiguration.AllowDeltaFrames was ignored.
+
+
+~~~~~~~~~
 * v6.3.0:
 ~~~~~~~~~
 
