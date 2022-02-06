@@ -681,7 +681,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             IEnumerable<IReadableBitmapData> FramesIterator()
             {
-                foreach (string file in Directory.EnumerateFiles(dir, "*.png"))
+                foreach (string file in Directory.GetFiles(dir, "*.png"))
                 {
                     using Bitmap bmp = new Bitmap(file);
                     using IReadableBitmapData bitmapData = bmp.GetReadableBitmapData();
@@ -743,9 +743,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void EncodeAnimationHighColorFromFile(string? quantizer, byte tolerance)
         {
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifHighColor_Anim.gif");
-            using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
+            //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\GifTrueColor_Anim.gif");
             //using var bmp = new Bitmap(@"D:\Dokumentumok\Képek\Formats\gif4bit_anim.gif");
-            //using var bmp = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\GifAnimationTrueColor.gif");
+            using var bmp = new Bitmap(@"..\..\..\..\KGySoft.Drawing\Help\Images\GifAnimationTrueColor.gif");
             Bitmap[] frames = bmp.ExtractBitmaps();
 
             IEnumerable<IReadableBitmapData> FramesIterator()
