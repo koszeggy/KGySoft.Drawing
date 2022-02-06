@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.Imaging
                 IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
-                byte alphaThreshold = target.AlphaThreshold;
+                byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha() ? (byte)0 : target.AlphaThreshold;
                 int width = sourceWidth;
 
                 for (int x = 0; x < width; x++)
