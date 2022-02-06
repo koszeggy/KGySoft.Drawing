@@ -17,6 +17,10 @@
 * GifEncoder.EncodeAnimation method:
   + AnimatedGifConfiguration.AllowDeltaFrames is now supported also for quantizers without transparency.
   - If quantizer was not explicitly set, AnimatedGifConfiguration.AllowDeltaFrames was ignored.
+  - Input frames with custom indexed pixel format with more than 8 bpp were not always handled correctly.
+- BitmapDataFactory.CreateBitmapData methods: Not omitting backColor and alphaThreshold parameters even for pixel
+  formats with alpha support because in some rare cases their value can be relevant (eg. when using the
+  PredefinedColorsQuantizer.FromBitmapData method)
 
 
 ~~~~~~~~~

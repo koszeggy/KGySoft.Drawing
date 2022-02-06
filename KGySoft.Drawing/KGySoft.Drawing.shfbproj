@@ -63,7 +63,7 @@
       <Argument Key="baseSourceCodeUrl" Value="" />
       <Argument Key="requestExampleUrl" Value="" />
     </TransformComponentArguments>
-    <HelpFileVersion>6.3.0</HelpFileVersion>
+    <HelpFileVersion>6.3.1</HelpFileVersion>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <HeaderText>
     </HeaderText>
@@ -74,10 +74,10 @@
     <PlugInConfigurations>
       <PlugInConfig id="Additional Reference Links" enabled="True">
         <configuration>
-  <targets>
-    <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.shfbproj" />
-  </targets>
-</configuration>
+          <targets>
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.shfbproj" />
+          </targets>
+        </configuration>
       </PlugInConfig>
     </PlugInConfigurations>
   </PropertyGroup>
