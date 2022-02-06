@@ -219,6 +219,8 @@ namespace KGySoft.Drawing.Imaging
 
             #region Static Methods
 
+            private static bool HasSupportedIndexedFormat(IBitmapData bitmapData) => bitmapData.PixelFormat.IsIndexed() && bitmapData.Palette?.Count <= 256;
+
             private static void ClearUnchangedPixels(IAsyncContext context, IReadWriteBitmapData previousFrame, IReadWriteBitmapData deltaFrame, byte tolerance, byte alphaThreshold)
             {
                 #region Local Methods
@@ -689,7 +691,7 @@ namespace KGySoft.Drawing.Imaging
                 if (config.Quantizer == null && bitmapData != null)
                 {
                     // non-indexed frames will be quantized by default Wu quantizer that supports transparency
-                    return !bitmapData.PixelFormat.IsIndexed() || bitmapData.SupportsTransparency();
+                    return !HasSupportedIndexedFormat(bitmapData) || bitmapData.SupportsTransparency();
                 }
 
                 if (quantizerProperties.Initialized)
@@ -787,7 +789,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // 2.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
                 IReadWriteBitmapData? quantizedFrame;
-                if (preparedFrame.PixelFormat.IsIndexed() && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
+                if (HasSupportedIndexedFormat(preparedFrame) && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
                     quantizedFrame = preparedFrame;
                 else
                     quantizedFrame = preparedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
@@ -882,7 +884,7 @@ namespace KGySoft.Drawing.Imaging
                     quantizedFrame = deltaBuffer.BitmapData!.DoClone(asyncContext, contentArea, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
                 }
                 // original pixel format can be preserved (possible clipping is in caller)
-                else if (config.Quantizer == null && preparedFrame.PixelFormat.IsIndexed())
+                else if (config.Quantizer == null && HasSupportedIndexedFormat(preparedFrame))
                     quantizedFrame = preparedFrame;
                 else
                 {
@@ -903,7 +905,7 @@ namespace KGySoft.Drawing.Imaging
 
                 // 1.) Quantizing if needed (when source is not indexed, quantizer is specified or indexed source uses multiple transparent indices)
                 IReadWriteBitmapData? quantizedFrame;
-                if (isQuantized || preparedFrame.PixelFormat.IsIndexed() && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
+                if (isQuantized || HasSupportedIndexedFormat(preparedFrame) && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
                     quantizedFrame = preparedFrame;
                 else
                     quantizedFrame = preparedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);

@@ -692,6 +692,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var config = new AnimatedGifConfiguration(FramesIterator())
             {
                 AllowDeltaFrames = allowDelta,
+                Quantizer = prequantize ? null : PredefinedColorsQuantizer.Grayscale(Color.Silver)
             };
 
             EncodeAnimatedGif(config, false, $"{Path.GetFileName(dir)} {(allowDelta ? "delta" : "no delta")} {(prequantize ? "quantized" : "original")}");
