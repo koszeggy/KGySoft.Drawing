@@ -9,6 +9,11 @@
 * v6.3.2:
 ~~~~~~~~~
 
+* Assembly changes:
+===================
+* Upgrading KGySoft.CoreLibraries to version 6.0.2. This may also fix some possible issues if your project uses
+  partially trusted domains (.NET Framework 4.x), or when you target the x86 platform (.NET Core 3.0 and above).
+
 + KGySoft.Drawing.Imaging namespace
 ===================================
 + The ColorExtensions class is now public. Available extension methods: Blend, TolerantEquals and GetBrightness.
