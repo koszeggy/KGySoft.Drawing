@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ColorExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
@@ -25,7 +26,10 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal static class ColorExtensions
+    /// <summary>
+    /// Contains extension methods for the <see cref="Color32"/> struct.
+    /// </summary>
+    public static class ColorExtensions
     {
         #region Constants
 
@@ -61,6 +65,57 @@ namespace KGySoft.Drawing.Imaging
                     InitializeLookupTable8To16Bpp();
                 return max16BppValue;
             }
+        }
+
+        #endregion
+
+        #region Public Methods
+
+        /// <summary>
+        /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="byte">byte</see> based on human perception.
+        /// The <see cref="Color32.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color32"/> instance to get the brightness of.</param>
+        /// <returns>A <see cref="byte">byte</see> value where 0 represents the darkest and 255 represents the brightest possible value.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static byte GetBrightness(this Color32 c)
+            => c.R == c.G && c.R == c.B
+                ? c.R
+                : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
+
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/>.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        public static Color32 Blend(this Color32 foreColor, Color32 backColor)
+            => foreColor.A == Byte.MaxValue ? foreColor
+                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor)
+                : foreColor.BlendWith(backColor);
+
+        /// <summary>
+        /// Gets whether two <see cref="Color32"/> instances are equal using a specified <paramref name="tolerance"/>.
+        /// </summary>
+        /// <param name="c1">The first color to compare.</param>
+        /// <param name="c2">The second color to compare.</param>
+        /// <param name="tolerance">The allowed tolerance for ARGB components.</param>
+        /// <param name="alphaThreshold">Specifies a threshold under which colors are considered transparent. If both colors have lower <see cref="Color32.A"/> value than the threshold, then they are considered equal.
+        /// If only one of the specified colors has lower <see cref="Color32.A"/> value than the threshold, then the colors are considered different.
+        /// If both colors' <see cref="Color32.A"/> value are equal to or greater than this value, then <paramref name="tolerance"/> is applied to the <see cref="Color32.A"/> value, too. This parameter is optional.
+        /// <br/>Default value: 0.</param>
+        /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "MethodOverloadWithOptionalParameter", Justification = "False alarm, the 'hiding' method is internal so 3rd party consumers call always this method.")]
+        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
+        public static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, byte alphaThreshold = 0)
+        {
+            if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
+                return true;
+            if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
+                return false;
+            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
         }
 
         #endregion
@@ -240,12 +295,6 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static byte GetBrightness(this Color32 c)
-            => c.R == c.G && c.R == c.B
-                ? c.R
-                : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
             // The blending is applied only to the color and not the resulting alpha, which will always be opaque
@@ -295,16 +344,6 @@ namespace KGySoft.Drawing.Imaging
             if (c1 == c2)
                 return true;
             return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance;
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, byte alphaThreshold)
-        {
-            if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
-                return true;
-            if (c1.A < alphaThreshold ^ c2.A < alphaThreshold)
-                return false;
-            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

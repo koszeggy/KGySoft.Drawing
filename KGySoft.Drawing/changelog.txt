@@ -6,6 +6,15 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v6.3.2:
+~~~~~~~~~
+
++ KGySoft.Drawing.Imaging namespace
+===================================
++ The ColorExtensions class is now public. Available extension methods: Blend, TolerantEquals and GetBrightness.
+
+
+~~~~~~~~~
 * v6.3.1:
 ~~~~~~~~~
 
