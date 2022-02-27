@@ -151,12 +151,11 @@ The previous example demonstrated how we can create a managed accessor for a `Wr
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Gray8, null);
 
 // But we can specify how to use it
-// (note: setPixel may also blend alpha colors with row.BitmapData.BackColor)
 var customPixelFormat = new PixelFormatInfo { BitsPerPixel = 8, Grayscale = true };
 Func<ICustomBitmapDataRow, int, Color32> getPixel =
     (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
 Action<ICustomBitmapDataRow, int, Color32> setPixel =
-    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.ToGray().R;
+    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor).GetBrightness();
 
 // Now we specify also a dispose callback to be executed when the returned instance is disposed:
 return BitmapDataFactory.CreateBitmapData(
