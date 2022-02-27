@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 #region Local Methods
 
                 static Color32 GetColor8BppGray(ICustomBitmapDataRow row, int x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
-                static void SetColor8BppGray(ICustomBitmapDataRow row, int x, Color32 c) => row.UnsafeGetRefAs<byte>(x) = c.BlendWithBackground(row.BitmapData.BackColor).GetBrightness();
+                static void SetColor8BppGray(ICustomBitmapDataRow row, int x, Color32 c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor).GetBrightness();
 
                 static Color32 GetColor4BppArgb1111(ICustomBitmapDataRow row, int x)
                 {
@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 {
                     ref byte nibbles = ref row.GetRefAs<byte>(x >> 1);
                     if (c.A != 255)
-                        c = c.A >= row.BitmapData.AlphaThreshold ? c.BlendWithBackground(row.BitmapData.BackColor) : default;
+                        c = c.A >= row.BitmapData.AlphaThreshold ? c.Blend(row.BitmapData.BackColor) : default;
                     int color = ((c.A & 128) >> 4)
                         | ((c.R & 128) >> 5)
                         | ((c.G & 128) >> 6)
