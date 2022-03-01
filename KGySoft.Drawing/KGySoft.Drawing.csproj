@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>
-    <!--<TargetFrameworks>net6.0</TargetFrameworks>-->
+    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;netstandard2.0;netstandard2.1;net5.0</TargetFrameworks>-->
+    <TargetFrameworks>net6.0</TargetFrameworks>
 
     <!--For UnitTesting the .NET Standard versions-->
     <!--<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>-->
@@ -14,7 +14,7 @@
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
-    <CodeAnalysisRuleSet>KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
@@ -43,6 +43,11 @@
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
+  </ItemGroup>
+
+  <!-- Project references -->
+  <ItemGroup>
+    <ProjectReference Include="..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
   </ItemGroup>
 
   <!-- .NET 5.0 or newer references -->

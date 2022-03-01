@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.29519.181
+# Visual Studio Version 17
+VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing", "KGySoft.Drawing\KGySoft.Drawing.csproj", "{06AEC656-8AE3-409C-AB2E-64C6A3712F8B}"
 EndProject
@@ -9,12 +9,15 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.UnitTest", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0FE0FF5-C320-44F4-AA26-B0600C69CD38}"
 	ProjectSection(SolutionItems) = preProject
+		KGySoft.Drawing.ruleset = KGySoft.Drawing.ruleset
 		KGySoft.snk = KGySoft.snk
 		LICENSE = LICENSE
 		README.md = README.md
 	EndProjectSection
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.PerformanceTest", "KGySoft.Drawing.PerformanceTest\KGySoft.Drawing.PerformanceTest.csproj", "{E6759E07-91EA-4736-A256-268BDC8ABC65}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Core", "KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj", "{F030BCA6-4FE3-481B-BA49-5BB66C305408}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -34,6 +37,10 @@ Global
 		{E6759E07-91EA-4736-A256-268BDC8ABC65}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{E6759E07-91EA-4736-A256-268BDC8ABC65}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{E6759E07-91EA-4736-A256-268BDC8ABC65}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F030BCA6-4FE3-481B-BA49-5BB66C305408}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F030BCA6-4FE3-481B-BA49-5BB66C305408}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F030BCA6-4FE3-481B-BA49-5BB66C305408}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F030BCA6-4FE3-481B-BA49-5BB66C305408}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
