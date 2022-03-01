@@ -444,7 +444,7 @@ namespace KGySoft.Drawing.Imaging
                 return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
             }
 
-            return new Palette(Rgb332Palette, backColor, 0, directMapping ? GetNearestColorIndex : null);
+            return new Palette(Rgb332Palette, backColor, 0, directMapping ? GetNearestColorIndex : default);
         }
 
         /// <summary>
@@ -492,7 +492,7 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness() >> 4;
             }
 
-            return new Palette(Grayscale16Palette, backColor, 0, directMapping ? GetNearestColorIndex : null);
+            return new Palette(Grayscale16Palette, backColor, 0, directMapping ? GetNearestColorIndex : default);
         }
 
         /// <summary>
@@ -518,7 +518,7 @@ namespace KGySoft.Drawing.Imaging
                 return c.GetBrightness() >> 6;
             }
 
-            return new Palette(Grayscale4Palette, backColor, 0, directMapping ? GetNearestColorIndex : null);
+            return new Palette(Grayscale4Palette, backColor, 0, directMapping ? GetNearestColorIndex : default);
         }
 
         /// <summary>
