@@ -19,8 +19,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Security; 
 
-using KGySoft.Drawing.WinApi; 
-
 #endregion
 
 namespace KGySoft.Drawing

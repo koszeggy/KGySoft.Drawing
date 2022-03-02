@@ -2390,7 +2390,7 @@ namespace KGySoft.Drawing
                     {
                         fixed (byte* pbuf1 = ms1.GetBuffer())
                         fixed (byte* pbuf2 = ms2.GetBuffer())
-                            return MemoryHelper.CompareMemory(new IntPtr(pbuf1), new IntPtr(pbuf2), (int)ms1.Length);
+                            return MemoryHelper.CompareMemory(pbuf1, pbuf2, (int)ms1.Length);
                     }
                 }
             }
