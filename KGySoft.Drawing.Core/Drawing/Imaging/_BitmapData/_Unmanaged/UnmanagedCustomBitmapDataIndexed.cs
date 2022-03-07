@@ -33,7 +33,7 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Properties
 
-            protected override uint MaxIndex => (1u << BitmapData.PixelFormat.ToBitsPerPixel()) - 1u;
+            protected override uint MaxIndex => (1u << BitmapData.PixelFormat.BitsPerPixel) - 1u;
 
             #endregion
 
@@ -85,12 +85,12 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [SecurityCritical]
-        public UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat,
+        public UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
             Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
             : base(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, trySetPaletteCallback, disposeCallback)
         {
-            Debug.Assert(pixelFormat.IsIndexed());
+            Debug.Assert(pixelFormat.Indexed);
 
             this.rowGetColorIndex = rowGetColorIndex;
             this.rowSetColorIndex = rowSetColorIndex;

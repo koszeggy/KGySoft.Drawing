@@ -44,52 +44,51 @@ namespace KGySoft.Drawing.Imaging
 
         internal static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return pixelFormat.HasMultiLevelAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasMultiLevelAlpha == true;
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.HasMultiLevelAlpha || pixelFormat.Indexed && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
 
         internal static bool IsFastPremultiplied(this IBitmapData bitmapData)
-            => bitmapData.PixelFormat.IsPremultiplied()
+            => bitmapData.PixelFormat.HasPremultipliedAlpha
                 && bitmapData is ManagedBitmapDataBase { IsCustomPixelFormat: false } or UnmanagedBitmapDataBase { IsCustomPixelFormat: false };
 
         internal static bool HasAlpha(this IBitmapData bitmapData)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasAlpha == true;
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.HasAlpha || pixelFormat.Indexed && bitmapData.Palette?.HasAlpha == true;
         }
 
         internal static bool SupportsTransparency(this IBitmapData bitmapData)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            return pixelFormat.HasAlpha() || pixelFormat.IsIndexed() && bitmapData.Palette?.HasTransparent == true;
+            PixelFormatInfo pixelFormat = bitmapData.PixelFormat;
+            return pixelFormat.HasAlpha || pixelFormat.Indexed && bitmapData.Palette?.HasTransparent == true;
         }
 
         internal static bool IsGrayscale(this IBitmapData bitmapData)
-            => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.IsGrayscale();
+            => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.Grayscale;
 
-        internal static PixelFormat GetKnownPixelFormat(this IBitmapData bitmapData)
+        internal static KnownPixelFormat GetKnownPixelFormat(this IBitmapData bitmapData)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            if (pixelFormat.IsValidFormat())
-                return pixelFormat;
+            PixelFormatInfo info = bitmapData.PixelFormat;
+            if (!info.IsCustomFormat)
+                return info.AsKnownPixelFormatInternal;
 
-            var info = new PixelFormatInfo(pixelFormat);
             int bpp = info.BitsPerPixel;
             if (bpp > 32)
-                return info.HasPremultipliedAlpha ? PixelFormat.Format64bppPArgb
-                    : bitmapData.HasAlpha() ? PixelFormat.Format64bppArgb
-                    : info.Grayscale ? PixelFormat.Format16bppGrayScale
-                    : PixelFormat.Format48bppRgb;
+                return info.HasPremultipliedAlpha ? KnownPixelFormat.Format64bppPArgb
+                    : bitmapData.HasAlpha() ? KnownPixelFormat.Format64bppArgb
+                    : info.Grayscale ? KnownPixelFormat.Format16bppGrayScale
+                    : KnownPixelFormat.Format48bppRgb;
             if (bpp > 8 || !info.Indexed)
-                return info.HasPremultipliedAlpha ? PixelFormat.Format32bppPArgb
-                    : bitmapData.HasAlpha() ? PixelFormat.Format32bppArgb
-                    : info.Grayscale ? PixelFormat.Format16bppGrayScale
-                    : PixelFormat.Format24bppRgb;
+                return info.HasPremultipliedAlpha ? KnownPixelFormat.Format32bppPArgb
+                    : bitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb
+                    : info.Grayscale ? KnownPixelFormat.Format16bppGrayScale
+                    : KnownPixelFormat.Format24bppRgb;
             return bpp switch
             {
-                > 4 => PixelFormat.Format8bppIndexed,
-                > 1 => PixelFormat.Format4bppIndexed,
-                _ => PixelFormat.Format1bppIndexed
+                > 4 => KnownPixelFormat.Format8bppIndexed,
+                > 1 => KnownPixelFormat.Format4bppIndexed,
+                _ => KnownPixelFormat.Format1bppIndexed
             };
         }
 
@@ -125,7 +124,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer != null || ditherer == null)
                 return;
 
-            if (target.PixelFormat.CanBeDithered())
+            if (target.PixelFormat.CanBeDithered)
                 quantizer = PredefinedColorsQuantizer.FromBitmapData(target);
             else
                 ditherer = null;

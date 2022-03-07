@@ -118,14 +118,14 @@ namespace KGySoft.Drawing.Imaging
 
         public int Height => BitmapData.Height;
         public int Width => BitmapData.Width;
-        public PixelFormat PixelFormat => BitmapData.PixelFormat;
+        public PixelFormatInfo PixelFormat => BitmapData.PixelFormat;
         public Palette? Palette => BitmapData.Palette;
         public int RowSize => BitmapData.RowSize;
         public Color32 BackColor => BitmapData.BackColor;
         public byte AlphaThreshold => BitmapData.AlphaThreshold;
         public bool IsDisposed => BitmapData.IsDisposed;
         public bool CanSetPalette => false;
-        public bool IsCustomPixelFormat => !BitmapData.PixelFormat.IsValidFormat();
+        public bool IsCustomPixelFormat => BitmapData.PixelFormat.IsCustomFormat;
 
         #endregion
 

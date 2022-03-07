@@ -240,7 +240,7 @@ namespace KGySoft.Drawing.Imaging
             Y = clippingRegion.Y;
             Width = clippingRegion.Width;
             Height = clippingRegion.Height;
-            int bpp = PixelFormat.ToBitsPerPixel();
+            int bpp = PixelFormat.BitsPerPixel;
             int maxRowSize = (Width * bpp) >> 3;
             RowSize = X > 0 
                 // Any clipping from the left disables raw access because ReadRaw/WriteRaw offset depends on size of T,

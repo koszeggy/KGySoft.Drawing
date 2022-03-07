@@ -28,17 +28,17 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     /// <seealso cref="PredefinedColorsQuantizer"/>
     /// <seealso cref="OptimizedPaletteQuantizer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
     /// <seealso cref="BitmapExtensions.Quantize"/>
     public interface IQuantizer
     {
         #region Properties
 
         /// <summary>
-        /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="IQuantizer"/>.
+        /// Gets a <see cref="KnownPixelFormat"/> that is compatible with this <see cref="IQuantizer"/>.
         /// It is recommended to return the format with the lowest bits-per-pixel value that is still compatible with this instance.
         /// </summary>
-        PixelFormat PixelFormatHint { get; }
+        KnownPixelFormat PixelFormatHint { get; }
 
         /// <summary>
         /// Gets whether <see cref="Initialize">Initialize</see> relies on the actual content of the source to be quantized.

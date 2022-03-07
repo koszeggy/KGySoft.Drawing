@@ -113,7 +113,7 @@ namespace KGySoft.Drawing.Imaging
                 additionalColors = new HashSet<Color32>();
                 sourceRows = new IReadableBitmapDataRow[16];
                 maskRows = new IReadableBitmapDataRow[16];
-                mask = BitmapDataFactory.CreateBitmapData(size, PixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }));
+                mask = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }));
             }
 
             #endregion
@@ -158,7 +158,7 @@ namespace KGySoft.Drawing.Imaging
                 else
                 {
                     // No transparent color: just adding the current region and masking the affected area
-                    Layer = imageData.DoClone(subContext, currentRegion, PixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
+                    Layer = imageData.DoClone(subContext, currentRegion, KnownPixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
                     Location = currentRegion.Location;
                     if (asyncContext.IsCancellationRequested)
                         return false;
@@ -385,7 +385,7 @@ namespace KGySoft.Drawing.Imaging
                     ? new Rectangle(0, currentRegion.Top, size.Width, size.Height - currentRegion.Top)
                     : currentRegion;
 
-                IReadWriteBitmapData layer = BitmapDataFactory.CreateBitmapData(layerRegion.Size, PixelFormat.Format8bppIndexed, palette);
+                IReadWriteBitmapData layer = BitmapDataFactory.CreateBitmapData(layerRegion.Size, KnownPixelFormat.Format8bppIndexed, palette);
                 if (palette.TransparentIndex != 0)
                 {
                     layer.DoClear(subContext, default);

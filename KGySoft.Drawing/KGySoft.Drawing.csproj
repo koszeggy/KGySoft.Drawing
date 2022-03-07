@@ -72,8 +72,4 @@
     </EmbeddedResource>
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Drawing\Imaging\" />
-  </ItemGroup>
-
 </Project>

@@ -125,8 +125,8 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginQuantize">BeginQuantize</see>
         /// or <see cref="QuantizeAsync">QuantizeAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes the specified <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
-        /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
+        /// use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
+        /// <para>If the <see cref="KnownPixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
         /// the result may not be correct.</para>
         /// <para>If <paramref name="bitmapData"/> has already the same set of colors that the specified <paramref name="quantizer"/>, then it can happen
         /// that calling this method does not change the <paramref name="bitmapData"/> at all.</para>
@@ -162,8 +162,8 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginDither">BeginDither</see>
         /// or <see cref="DitherAsync">DitherAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method quantizes <paramref name="bitmapData"/> with dithering in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
-        /// <para>If the <see cref="PixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
+        /// use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> extension method instead.</para>
+        /// <para>If the <see cref="KnownPixelFormat"/> or the palette of <paramref name="bitmapData"/> is not compatible with the colors of the specified <paramref name="quantizer"/>, then
         /// the result may not be correct.</para>
         /// <para>If <paramref name="bitmapData"/> has already the same set of colors that the specified <paramref name="quantizer"/>, then it can happen
         /// that calling this method does not change <paramref name="bitmapData"/> at all.</para>
@@ -329,8 +329,8 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
         /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="Clone(IReadableBitmapData,PixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
-        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
+        /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
+        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and it supports setting the <see cref="IBitmapData.Palette"/>, then its palette entries will be transformed instead of the actual pixels.</para>
         /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmapData"/>, or you want to transform the actual
@@ -360,14 +360,14 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginTransformColors">BeginTransformColors</see>
         /// or <see cref="TransformColorsAsync">TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="Clone(IReadableBitmapData,PixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
-        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
+        /// use the <see cref="Clone(IReadableBitmapData,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see> extension method
+        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
         /// <para>If <paramref name="bitmapData"/> has an indexed <see cref="IBitmapData.PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)">BitmapExtensions.TransformColors</see> method for an example.</note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)"/>
@@ -470,7 +470,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.ReplaceColor"/>
         public static void ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
@@ -569,7 +569,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Invert"/>
         public static void Invert(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
@@ -655,7 +655,7 @@ namespace KGySoft.Drawing.Imaging
         /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
         /// color of the bottom-left pixel will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData)">ToTransparent</see> method instead,
-        /// which returns a new instance with <see cref="PixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
+        /// which returns a new instance with <see cref="KnownPixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> overload instead.</para>
         /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For any customization use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32})">TransformColors</see> method instead.</note>
@@ -690,7 +690,7 @@ namespace KGySoft.Drawing.Imaging
         /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
         /// <paramref name="transparentColor"/> will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData,Color32)">ToTransparent</see> method instead,
-        /// which returns a new instance with <see cref="PixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
+        /// which returns a new instance with <see cref="KnownPixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
         /// <para>To auto-detect the background color to be made transparent use the <see cref="MakeTransparent(IReadWriteBitmapData)"/> overload instead.</para>
         /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
         /// For any customization use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32})">TransformColors</see> method instead.</note>
@@ -850,7 +850,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.MakeOpaque"/>
         public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null)
@@ -937,8 +937,8 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeGrayscale">BeginMakeGrayscale</see>
         /// or <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmapData"/> in place (its original content will be overwritten). To return a new instance
-        /// use the <see cref="ToGrayscale">ToGrayscale</see> extension method, which always returns a bitmap data with <see cref="PixelFormat.Format32bppArgb"/> format,
-        /// or the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> method with a grayscale
+        /// use the <see cref="ToGrayscale">ToGrayscale</see> extension method, which always returns a bitmap data with <see cref="KnownPixelFormat.Format32bppArgb"/> format,
+        /// or the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a grayscale
         /// quantizer (<see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>, for example).</para>
         /// <para>This method calls the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method internally. See
         /// the <strong>Remarks</strong> section of the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer)">TransformColors</see> method for more details.</para>
@@ -946,7 +946,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="ToGrayscale"/>
         /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
@@ -1040,7 +1040,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustBrightness">BitmapExtensions.AdjustBrightness</see> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1192,7 +1192,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustContrast">BitmapExtensions.AdjustContrast</see> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1339,7 +1339,7 @@ namespace KGySoft.Drawing.Imaging
         /// then its palette entries are tried to be transformed instead of the actual pixels in the first place (if it is supported by <paramref name="bitmapData"/>).
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
-        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="PixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="PixelFormat.Format16bppGrayScale"/> format.</para>
+        /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustGamma">BitmapExtensions.AdjustGamma</see> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
@@ -1462,7 +1462,6 @@ namespace KGySoft.Drawing.Imaging
         #region Quantizing/Dithering
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void DoQuantize(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
@@ -1512,7 +1511,6 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void DoDither(IAsyncContext context, IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
         {
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, true, true);
@@ -1577,7 +1575,6 @@ namespace KGySoft.Drawing.Imaging
         #region Color Transformations
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             // Indexed format: processing the palette entries when possible
@@ -1638,11 +1635,9 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void DoTransformColors(IAsyncContext context, IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
-            if (ditherer == null || !pixelFormat.CanBeDithered())
+            if (ditherer == null || !bitmapData.PixelFormat.CanBeDithered)
             {
                 DoTransformColors(context, bitmapData, transformFunction);
                 return;
@@ -1652,7 +1647,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer.InitializeReliesOnContent)
             {
                 // not using premultiplied format because transformation is faster on simple ARGB32
-                using IReadWriteBitmapData? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb);
+                using IReadWriteBitmapData? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb);
                 if (context.IsCancellationRequested)
                     return;
 

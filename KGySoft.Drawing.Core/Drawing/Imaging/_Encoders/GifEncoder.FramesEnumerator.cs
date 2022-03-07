@@ -219,7 +219,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Static Methods
 
-            private static bool HasSupportedIndexedFormat(IBitmapData bitmapData) => bitmapData.PixelFormat.IsIndexed() && bitmapData.Palette?.Count <= 256;
+            private static bool HasSupportedIndexedFormat(IBitmapData bitmapData) => bitmapData.PixelFormat.Indexed && bitmapData.Palette?.Count <= 256;
 
             private static void ClearUnchangedPixels(IAsyncContext context, IReadWriteBitmapData previousFrame, IReadWriteBitmapData deltaFrame, byte tolerance, byte alphaThreshold)
             {
@@ -792,7 +792,7 @@ namespace KGySoft.Drawing.Imaging
                 if (HasSupportedIndexedFormat(preparedFrame) && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
                     quantizedFrame = preparedFrame;
                 else
-                    quantizedFrame = preparedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    quantizedFrame = preparedFrame.DoClone(asyncContext, KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
 
                 if (asyncContext.IsCancellationRequested)
                     return (quantizedFrame, default, default);
@@ -881,14 +881,14 @@ namespace KGySoft.Drawing.Imaging
                 if (contentArea.IsEmpty)
                 {
                     contentArea = new Rectangle(logicalScreenSize.Width >> 1, logicalScreenSize.Height >> 1, 1, 1);
-                    quantizedFrame = deltaBuffer.BitmapData!.DoClone(asyncContext, contentArea, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    quantizedFrame = deltaBuffer.BitmapData!.DoClone(asyncContext, contentArea, KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
                 }
                 // original pixel format can be preserved (possible clipping is in caller)
                 else if (config.Quantizer == null && HasSupportedIndexedFormat(preparedFrame))
                     quantizedFrame = preparedFrame;
                 else
                 {
-                    quantizedFrame = preparedFrame.DoClone(asyncContext, contentArea, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    quantizedFrame = preparedFrame.DoClone(asyncContext, contentArea, KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
                     if (quantizedFrame == null)
                     {
                         Debug.Assert(asyncContext.IsCancellationRequested);
@@ -908,7 +908,7 @@ namespace KGySoft.Drawing.Imaging
                 if (isQuantized || HasSupportedIndexedFormat(preparedFrame) && config.Quantizer == null && !HasMultipleTransparentIndices(asyncContext, preparedFrame))
                     quantizedFrame = preparedFrame;
                 else
-                    quantizedFrame = preparedFrame.DoClone(asyncContext, PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                    quantizedFrame = preparedFrame.DoClone(asyncContext, KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
 
                 if (asyncContext.IsCancellationRequested)
                     return (quantizedFrame, default, default);
@@ -951,7 +951,7 @@ namespace KGySoft.Drawing.Imaging
                 else if (CanUseDeltaByClipping())
                 {
                     Debug.Assert(contentArea.Size == logicalScreenSize);
-                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, PixelFormat.Format24bppRgb);
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??= PredefinedColorsQuantizer.Rgb888(quantizerProperties.BackColor.ToColor()));
                 }
                 // if no delta is allowed, then clearing before all frames with transparency
@@ -1015,7 +1015,7 @@ namespace KGySoft.Drawing.Imaging
             private (IReadWriteBitmapData? BitmapData, bool IsQuantized) GetPreparedFrame(IReadableBitmapData inputFrame)
             {
                 IReadWriteBitmapData? preparedFrame;
-                PixelFormat preparedPixelFormat = PixelFormat.Format8bppIndexed;
+                KnownPixelFormat preparedPixelFormat = KnownPixelFormat.Format8bppIndexed;
                 bool canUseDelta = false;
 
                 // Delta frames can be used if allowed and either the quantizer can use transparent colors or clipping the frames is allowed.
@@ -1024,20 +1024,22 @@ namespace KGySoft.Drawing.Imaging
                 if (CanUseDeltaByTransparentMask(inputFrame))
                 {
                     canUseDelta = true;
-                    preparedPixelFormat = inputFrame.SupportsTransparency() && inputFrame.PixelFormat.ToBitsPerPixel() <= 32
-                        ? inputFrame.PixelFormat // we have transparency: we can use the original format
-                        : PixelFormat.Format32bppArgb; // we have to add transparency (or have to reduce bpp)
+                    preparedPixelFormat = inputFrame.SupportsTransparency() && inputFrame.PixelFormat.BitsPerPixel <= 32 && inputFrame.PixelFormat.IsKnownFormat
+                        ? inputFrame.PixelFormat.AsKnownPixelFormatInternal // we have transparency: we can use the original format
+                        : KnownPixelFormat.Format32bppArgb; // we have to add transparency, reduce bpp or use a known pixel format
                 }
                 else if (CanUseDeltaByClipping())
                 {
                     // Note: not using 24bpp fallback format here because possible input transparency would be blended with black instead of the back color of the quantizer
                     canUseDelta = true;
-                    preparedPixelFormat = inputFrame.PixelFormat.ToBitsPerPixel() <= 32 ? inputFrame.PixelFormat : PixelFormat.Format32bppArgb;
+                    preparedPixelFormat = inputFrame.PixelFormat.BitsPerPixel <= 32 && inputFrame.PixelFormat.IsKnownFormat
+                        ? inputFrame.PixelFormat.AsKnownPixelFormatInternal
+                        : KnownPixelFormat.Format32bppArgb;
                 }
 
                 // If cannot use delta image, then we can already quantize the frame.
                 // For already indexed images we preserve the original palette only if no explicit quantizer was specified.
-                IQuantizer? preparedQuantizer = !canUseDelta && (config.Quantizer != null || inputFrame.PixelFormat != preparedPixelFormat) ? quantizer : null;
+                IQuantizer? preparedQuantizer = !canUseDelta && (config.Quantizer != null || inputFrame.PixelFormat.AsKnownPixelFormatInternal != preparedPixelFormat) ? quantizer : null;
                 IDitherer? preparedDitherer = preparedQuantizer == null ? null : config.Ditherer;
 
                 Size inputSize = inputFrame.GetSize();
@@ -1092,7 +1094,7 @@ namespace KGySoft.Drawing.Imaging
                         // Resizing: due to interpolation this is always performed without quantizing
                         case AnimationFramesSizeHandling.Resize:
                             preparedQuantizer = null;
-                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, PixelFormat.Format32bppPArgb);
+                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppPArgb);
                             inputFrame.DoDrawInto(asyncContext, preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
 

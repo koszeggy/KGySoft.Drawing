@@ -78,13 +78,13 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle)
         {
             ValidateArguments(source);
-            return DoCloneDirect(AsyncContext.Null, source, sourceRectangle, source.PixelFormat)!;
+            return DoCloneDirect(AsyncContext.Null, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal)!;
         }
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and color settings.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -99,23 +99,23 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
         /// ones during the operation.</para>
         /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
-        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, PixelFormat, Palette)"/> overload.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> extension method
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, Palette)"/> overload.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color, byte)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, backColor, alphaThreshold)!;
@@ -123,8 +123,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -135,22 +135,22 @@ namespace KGySoft.Drawing.Imaging
         /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, Palette, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, Palette, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
         /// ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> extension method
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, Palette? palette)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette)!;
@@ -158,8 +158,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -175,16 +175,16 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
         /// ones during the operation.</para>
         /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
-        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, Palette)"/> overload.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> extension method
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Palette)"/> overload.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color, byte)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
@@ -192,8 +192,8 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(AsyncContext.Null, source, sourceRectangle, pixelFormat, backColor, alphaThreshold)!;
@@ -201,8 +201,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -214,14 +214,14 @@ namespace KGySoft.Drawing.Imaging
         /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, Palette, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, Palette, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
         /// ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> extension method
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
@@ -230,8 +230,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Palette? palette)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(AsyncContext.Null, source, sourceRectangle, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette)!;
@@ -239,8 +239,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -252,24 +252,24 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually quantized, though the result may have a poorer quality than expected.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats if there is no <paramref name="quantizer"/> specified. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
         /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> extension method
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneWithQuantizer(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer)!;
@@ -277,8 +277,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -286,21 +286,21 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="pixelFormat"/> represents an at least 24 bits-per-pixel size.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
         /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> extension method
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, PixelFormat pixelFormat, IDitherer? ditherer)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IDitherer? ditherer)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneWithQuantizer(AsyncContext.Null, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, null, ditherer)!;
@@ -308,8 +308,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -318,14 +318,14 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="pixelFormat"/> represents an at least 24 bits-per-pixel size.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
         /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> extension method
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
@@ -333,8 +333,8 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IDitherer? ditherer)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IDitherer? ditherer)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneWithQuantizer(AsyncContext.Null, source, sourceRectangle, pixelFormat, null, ditherer)!;
@@ -342,8 +342,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -356,16 +356,16 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
-        /// or <see cref="CloneAsync(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space,
         /// even if there is no <paramref name="quantizer"/> specified. To use dithering a <paramref name="ditherer"/> must be explicitly specified though.</para>
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually quantized, though the result may have a poorer quality than expected.</para>
-        /// <para>Color depth of wide-color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/>, <see cref="PixelFormat.Format64bppPArgb"/>)
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
         /// can be preserved only between the same pixel formats if there is no <paramref name="quantizer"/> specified. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
         /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> extension method
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
         /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
@@ -374,8 +374,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneWithQuantizer(AsyncContext.Null, source, sourceRectangle, pixelFormat, quantizer, ditherer)!;
@@ -424,13 +424,13 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginClone(this IReadableBitmapData source, Rectangle sourceRectangle, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncContext.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal), asyncConfig);
         }
 
         /// <summary>
         /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color, byte, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -449,17 +449,17 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, PixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> method.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndClone">EndClone</see> method.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, Color32, byte)"/> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Color32, byte)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
+        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color, byte, AsyncConfig)"/>
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncContext.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, backColor, alphaThreshold), asyncConfig);
@@ -467,8 +467,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -483,18 +483,18 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, PixelFormat, Palette, Rectangle?, TaskConfig)"/> method.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndClone">EndClone</see> method.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, Palette)"/> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Palette)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, PixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
+        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte, AsyncConfig)"/>
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncContext.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette), asyncConfig);
@@ -502,8 +502,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -519,18 +519,18 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, PixelFormat, Palette, Rectangle?, TaskConfig)"/> method.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Palette, Rectangle?, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndClone">EndClone</see> method.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, IQuantizer, IDitherer)"/> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, IQuantizer, IDitherer)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
+        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncContext.BeginOperation(ctx => DoCloneWithQuantizer(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer), asyncConfig);
@@ -589,13 +589,13 @@ namespace KGySoft.Drawing.Imaging
         public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, Rectangle sourceRectangle, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncContext.DoOperationAsync(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal), asyncConfig);
         }
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color, byte, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -616,14 +616,14 @@ namespace KGySoft.Drawing.Imaging
         /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, Color32, byte)"/> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Color32, byte)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color, byte, TaskConfig)"/>
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncContext.DoOperationAsync(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, backColor, alphaThreshold), asyncConfig);
@@ -631,8 +631,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color[], Color, byte, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -649,15 +649,15 @@ namespace KGySoft.Drawing.Imaging
         /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, Palette)"/> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Palette)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, PixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color[], Color, byte, TaskConfig)"/>
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncContext.DoOperationAsync(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette), asyncConfig);
@@ -665,8 +665,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="PixelFormat"/> is supported on any platform.
+        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, IQuantizer, IDitherer, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
+        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -684,15 +684,15 @@ namespace KGySoft.Drawing.Imaging
         /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, PixelFormat, IQuantizer, IDitherer)"/> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, IQuantizer, IDitherer)"/> method for more details.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
+        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, IQuantizer, IDitherer, TaskConfig)"/>
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncContext.DoOperationAsync(ctx => DoCloneWithQuantizer(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer), asyncConfig);
@@ -709,7 +709,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
-        /// without scaling and blending. This method works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -739,7 +739,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
-        /// without scaling and blending. This method works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -761,7 +761,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
-        /// without scaling and blending. This method works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -783,7 +783,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/>
-        /// without scaling and blending. This method works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -819,7 +819,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to copy the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> asynchronously,
-        /// without scaling and blending. This method works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.BeginDrawInto">BeginDrawInto</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -865,7 +865,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Copies the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IWritableBitmapData"/> asynchronously,
-        /// without scaling and blending. This method works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To draw a bitmap data into another one with blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawIntoAsync">DrawIntoAsync</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -909,7 +909,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -943,7 +943,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -969,7 +969,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -995,7 +995,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1035,7 +1035,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Begins to draw the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/> overload.
         /// To copy a bitmap data into another one without blending use the <see cref="BeginCopyTo">BeginCopyTo</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1083,7 +1083,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> overload.
         /// To copy a bitmap data into another one without blending use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1130,7 +1130,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1167,7 +1167,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1197,7 +1197,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1224,7 +1224,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1251,7 +1251,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1282,7 +1282,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1326,7 +1326,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Begins to draw the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="BeginCopyTo">BeginCopyTo</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1376,7 +1376,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
         /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
+        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1469,84 +1469,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region ToBitmap
-
-        /// <summary>
-        /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
-        /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
-        /// <returns>A <see cref="Bitmap"/> instance that has the same content as the specified <paramref name="source"/>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToBitmap">BeginToBitmap</see>
-        /// or <see cref="ToBitmapAsync">ToBitmapAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>If supported on the current platform, the result <see cref="Bitmap"/> will have the same <see cref="PixelFormat"/> as <paramref name="source"/>.
-        /// Otherwise, the result will have either <see cref="PixelFormat.Format24bppRgb"/> or <see cref="PixelFormat.Format32bppArgb"/> format, depending whether source has transparency.
-        /// <note>On Windows every format is supported with more or less limitations. For details and further information about the possible usable <see cref="PixelFormat"/>s on different platforms
-        /// see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.
-        /// </note></para>
-        /// </remarks>
-        public static Bitmap ToBitmap(this IReadableBitmapData source)
-        {
-            ValidateArguments(source);
-            return DoConvertToBitmap(AsyncContext.Null, source)!;
-        }
-
-        /// <summary>
-        /// Begins to convert the specified <paramref name="source"/> to a <see cref="Bitmap"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
-        /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        /// <remarks>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ToBitmapAsync">ToBitmapAsync</see> method.</para>
-        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndToBitmap">EndToBitmap</see> method.</para>
-        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToBitmap">ToBitmap</see> method for more details.</note>
-        /// </remarks>
-        public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, AsyncConfig? asyncConfig = null)
-        {
-            ValidateArguments(source);
-            return AsyncContext.BeginOperation(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
-        }
-
-        /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="BeginToBitmap">BeginToBitmap</see> method to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="ToBitmapAsync">ToBitmapAsync</see> method instead.
-        /// </summary>
-        /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
-        public static Bitmap? EndToBitmap(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
-
-#if !NET35
-        /// <summary>
-        /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
-        /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
-        /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns>A task that represents the asynchronous operation. Its result is a <see cref="Bitmap"/> instance that has the same content as the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        /// <remarks>
-        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToBitmap">ToBitmap</see> method for more details.</note>
-        /// </remarks>
-        public static Task<Bitmap?> ToBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
-        {
-            ValidateArguments(source);
-            return AsyncContext.DoOperationAsync(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
-        }
-#endif
-
-        #endregion
-
         #region GetColors
 
         /// <summary>
@@ -1566,8 +1488,8 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginGetColors">BeginGetColors</see>
         /// or <see cref="GetColorsAsync">GetColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
-        /// <para>Every <see cref="PixelFormat"/> is supported, though wide color formats (<see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>,
-        /// <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
+        /// <para>Every <see cref="KnownPixelFormat"/> is supported, though wide color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>,
+        /// <see cref="KnownPixelFormat.Format64bppArgb"/> and <see cref="KnownPixelFormat.Format64bppPArgb"/>) are quantized to 32 bit during the processing.
         /// To get the actual <em>number</em> of colors, which can be accurate even for wide color formats, use the <see cref="GetColorCount">GetColorCount</see> method.
         /// </para>
         /// </remarks>
@@ -1576,7 +1498,7 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
 
-            if (!forceScanningContent && bitmapData.PixelFormat.IsIndexed() && bitmapData.Palette != null)
+            if (!forceScanningContent && bitmapData.PixelFormat.Indexed && bitmapData.Palette != null)
                 return bitmapData.Palette.GetEntries();
 
             return DoGetColors(AsyncContext.Null, bitmapData, maxColors);
@@ -1608,7 +1530,7 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
 
-            return !forceScanningContent && bitmapData.PixelFormat.IsIndexed() && bitmapData.Palette != null
+            return !forceScanningContent && bitmapData.PixelFormat.Indexed && bitmapData.Palette != null
                 ? AsyncContext.FromResult(bitmapData.Palette.GetEntries(), Reflector.EmptyArray<Color32>(), asyncConfig)
                 : AsyncContext.BeginOperation(ctx => DoGetColors(ctx, bitmapData, maxColors), asyncConfig);
         }
@@ -1648,7 +1570,7 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
 
-            return !forceScanningContent && bitmapData.PixelFormat.IsIndexed() && bitmapData.Palette != null
+            return !forceScanningContent && bitmapData.PixelFormat.Indexed && bitmapData.Palette != null
                 ? AsyncContext.FromResult((ICollection<Color32>)bitmapData.Palette.GetEntries(), Reflector.EmptyArray<Color32>(), asyncConfig)
                 : AsyncContext.DoOperationAsync(ctx => DoGetColors(ctx, bitmapData, maxColors), asyncConfig)!;
         }
@@ -1668,10 +1590,10 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginGetColorCount">BeginGetColorCount</see>
         /// or <see cref="GetColorCountAsync">GetColorCountAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// <para>Completely transparent pixels are considered the same regardless of their color information.</para>
-        /// <para>Every <see cref="PixelFormat"/> is supported, but an accurate result is returned for wide color formats only
+        /// <para>Every <see cref="KnownPixelFormat"/> is supported, but an accurate result is returned for wide color formats only
         /// when <see cref="IBitmapData.RowSize"/> is large enough to access all pixels directly (might not be the case for a clipped bitmap data, for example).
         /// Otherwise, colors are quantized to 32 bits-per-pixel values while counting them.
-        /// Wide pixel formats are <see cref="PixelFormat.Format16bppGrayScale"/>, <see cref="PixelFormat.Format48bppRgb"/>, <see cref="PixelFormat.Format64bppArgb"/> and <see cref="PixelFormat.Format64bppPArgb"/>.</para>
+        /// Wide pixel formats are <see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/> and <see cref="KnownPixelFormat.Format64bppPArgb"/>.</para>
         /// </remarks>
         public static int GetColorCount(this IReadableBitmapData bitmapData)
         {
@@ -1745,9 +1667,9 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToGrayscale">BeginToGrayscale</see>
         /// or <see cref="ToGrayscaleAsync">ToGrayscaleAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To return an <see cref="IReadWriteBitmapData"/> with arbitrary <see cref="IBitmapData.PixelFormat"/> use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> overloads with a grayscale palette,
-        /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="PixelFormat.Format16bppGrayScale"/>).</para>
+        /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="KnownPixelFormat.Format16bppGrayScale"/>).</para>
         /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale">MakeGrayscale</see> method.</para>
         /// </remarks>
         /// <seealso cref="ImageExtensions.ToGrayscale"/>
@@ -1757,7 +1679,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return DoCloneWithQuantizer(AsyncContext.Null, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+            return DoCloneWithQuantizer(AsyncContext.Null, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale))!;
         }
 
@@ -1780,7 +1702,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.BeginOperation(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+            return AsyncContext.BeginOperation(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
         }
 
@@ -1812,7 +1734,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.DoOperationAsync(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), PixelFormat.Format32bppArgb,
+            return AsyncContext.DoOperationAsync(ctx => DoCloneWithQuantizer(ctx, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(TransformMakeGrayscale)), asyncConfig);
         }
 #endif
@@ -1832,12 +1754,12 @@ namespace KGySoft.Drawing.Imaging
         /// or <see cref="ToTransparentAsync(IReadableBitmapData, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>Similarly to the <see cref="Bitmap.MakeTransparent()">Bitmap.MakeTransparent</see> method, this one uses the bottom-left pixel to determine
         /// the background color, which must be completely opaque; otherwise, just an exact clone of <paramref name="bitmapData"/> will be returned.</para>
-        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData)">MakeTransparent</see> method.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="ToTransparent(IReadableBitmapData, Color32)"/> overload instead.</para>
         /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
-        /// For any customization use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
-        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
+        /// For any customization use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
+        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
         /// </remarks>
         /// <seealso cref="MakeTransparent(IReadWriteBitmapData)"/>
         /// <seealso cref="MakeOpaque"/>
@@ -1858,12 +1780,12 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToTransparent(IReadableBitmapData, Color32, AsyncConfig)"/>
         /// or <see cref="ToTransparentAsync(IReadableBitmapData, Color32, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData,Color32)">MakeTransparent</see> method.</para>
         /// <para>To auto-detect the background color to be made transparent use the <see cref="ToTransparent(IReadableBitmapData)"/> overload instead.</para>
         /// <note>Please note that unlike the <see cref="MakeOpaque">MakeOpaque</see> method, this one changes exactly one color shade without any tolerance.
-        /// For any customization use the <see cref="Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
-        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
+        /// For any customization use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)">Clone</see> method with a quantizer
+        /// created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32, Color32}, KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</note>
         /// </remarks>
         /// <seealso cref="MakeTransparent(IReadWriteBitmapData,Color32)"/>
         /// <seealso cref="MakeOpaque"/>
@@ -1991,10 +1913,10 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginSave">BeginSave</see>
         /// or <see cref="SaveAsync">SaveAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
         /// <para>To reload the content use the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see> method.</para>
-        /// <para>The saved content always preserves known <see cref="PixelFormat"/>s so the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see>
+        /// <para>The saved content always preserves known <see cref="KnownPixelFormat"/>s so the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see>
         /// method can restore it the same way on any platform. Custom pixel formats are saved by a compatible known pixel format.</para>
-        /// <note>If <paramref name="bitmapData"/> represents the bitmap data of a native <see cref="Bitmap"/> with <see cref="PixelFormat.Format48bppRgb"/>,
-        /// <see cref="PixelFormat.Format64bppArgb"/> or <see cref="PixelFormat.Format64bppPArgb"/>&#160;<see cref="PixelFormat"/>, then on Windows the actual
+        /// <note>If <paramref name="bitmapData"/> represents the bitmap data of a native <see cref="Bitmap"/> with <see cref="KnownPixelFormat.Format48bppRgb"/>,
+        /// <see cref="KnownPixelFormat.Format64bppArgb"/> or <see cref="KnownPixelFormat.Format64bppPArgb"/>&#160;<see cref="KnownPixelFormat"/>, then on Windows the actual
         /// color depth is quantized to 32bpp because these formats have a different raw interpretation than managed bitmaps used by <c>KGySoft Drawing Libraries</c>.</note>
         /// </remarks>
         public static void Save(this IReadableBitmapData bitmapData, Stream stream)
@@ -2069,13 +1991,13 @@ namespace KGySoft.Drawing.Imaging
 
         internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context) => DoCloneExact(context, source);
 
-        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
             => DoCloneWithQuantizer(context, source, new Rectangle(Point.Empty, source.GetSize()), pixelFormat, quantizer, ditherer);
 
-        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
             => DoCloneWithQuantizer(context, source, sourceRectangle, pixelFormat, quantizer, ditherer);
 
-        internal static IReadWriteBitmapData DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, PixelFormat pixelFormat, Palette palette)
+        internal static IReadWriteBitmapData DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Palette palette)
             => DoCloneDirect(context, source, sourceRectangle, pixelFormat, palette.BackColor, palette.AlphaThreshold, palette)!;
 
         internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
@@ -2102,7 +2024,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
         }
 
-        private static void ValidateArguments(IReadableBitmapData source, PixelFormat pixelFormat)
+        private static void ValidateArguments(IReadableBitmapData source, KnownPixelFormat pixelFormat)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
@@ -2144,7 +2066,6 @@ namespace KGySoft.Drawing.Imaging
         #region Copy
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static IReadWriteBitmapData? DoCloneExact(IAsyncContext context, IReadableBitmapData source)
         {
             Size size = source.GetSize();
@@ -2176,9 +2097,9 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        private static IReadWriteBitmapData? DoCloneDirect(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
+        private static IReadWriteBitmapData? DoCloneDirect(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
         {
+            // NOTE: pixelFormat actually can be unknown here
             var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.GetSize());
             Unwrap(ref source, ref sourceRectangle);
@@ -2194,7 +2115,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-            session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat == pixelFormat
+            session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat.AsKnownPixelFormatInternal == pixelFormat
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
                 : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(), backColor, alphaThreshold, palette);
             bool canceled = false;
@@ -2217,8 +2138,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        private static IReadWriteBitmapData? DoCloneWithQuantizer(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
+        private static IReadWriteBitmapData? DoCloneWithQuantizer(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             if (quantizer == null)
             {
@@ -2319,7 +2239,7 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
                 {
-                    session.Source = (IBitmapDataInternal?)DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat);
+                    session.Source = (IBitmapDataInternal?)DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
                     if (context.IsCancellationRequested)
                     {
                         session.Source?.Dispose();
@@ -2445,7 +2365,8 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = (IBitmapDataInternal?)DoCloneDirect(context, target, actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb);
+                sessionTarget = (IBitmapDataInternal?)DoCloneDirect(context, target, actualTargetRectangle,
+                    target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -2471,7 +2392,7 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = (IBitmapDataInternal?)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat);
+                    sessionSource = (IBitmapDataInternal?)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
@@ -2537,8 +2458,9 @@ namespace KGySoft.Drawing.Imaging
             if (isTwoPass)
             {
                 sessionTarget = source.HasMultiLevelAlpha()
-                    ? (IBitmapDataInternal?)DoCloneDirect(context, target, actualTargetRectangle, target.PixelFormat == PixelFormat.Format32bppArgb ? PixelFormat.Format32bppArgb : PixelFormat.Format32bppPArgb)
-                    : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, PixelFormat.Format32bppPArgb);
+                    ? (IBitmapDataInternal?)DoCloneDirect(context, target, actualTargetRectangle,
+                        target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb)
+                    : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, KnownPixelFormat.Format32bppPArgb);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -2564,7 +2486,7 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = (IBitmapDataInternal?)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat);
+                    sessionSource = (IBitmapDataInternal?)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
@@ -2697,44 +2619,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region ToBitmap
-
-        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        private static Bitmap? DoConvertToBitmap(IAsyncContext context, IReadableBitmapData source)
-        {
-            PixelFormat pixelFormat = source.PixelFormat.IsSupportedNatively() ? source.PixelFormat
-                : source.HasAlpha() ? PixelFormat.Format32bppArgb
-                : PixelFormat.Format24bppRgb;
-
-            var result = new Bitmap(source.Width, source.Height, pixelFormat);
-            bool canceled = false;
-            try
-            {
-                if (pixelFormat.IsIndexed() && source.Palette != null)
-                    result.TrySetPalette(source.Palette);
-
-                if (canceled = context.IsCancellationRequested)
-                    return null;
-                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
-                    DoCopy(context, source, target, new Rectangle(Point.Empty, source.GetSize()), Point.Empty, null, null);
-                return (canceled = context.IsCancellationRequested) ? null : result;
-            }
-            catch (Exception)
-            {
-                result.Dispose();
-                result = null;
-                throw;
-            }
-            finally
-            {
-                if (canceled)
-                    result?.Dispose();
-            }
-        }
-
-        #endregion
-
         #region GetColors
 
         private static ICollection<Color32> DoGetColors(IAsyncContext context, IReadableBitmapData bitmapData, int maxColors)
@@ -2782,18 +2666,18 @@ namespace KGySoft.Drawing.Imaging
 
         private static int DoGetColorCount(IAsyncContext context, IReadableBitmapData bitmapData)
         {
-            switch (bitmapData.PixelFormat)
+            switch (bitmapData.PixelFormat.AsKnownPixelFormatInternal)
             {
-                case PixelFormat.Format16bppGrayScale:
+                case KnownPixelFormat.Format16bppGrayScale:
                     return bitmapData.RowSize >= bitmapData.Width << 1
                         ? GetColorCount<Color16Gray>(context, bitmapData)
                         : DoGetColors(context, bitmapData, 0).Count;
-                case PixelFormat.Format48bppRgb:
+                case KnownPixelFormat.Format48bppRgb:
                     return bitmapData.RowSize >= bitmapData.Width * 6
                         ? GetColorCount<Color48>(context, bitmapData)
                         : DoGetColors(context, bitmapData, 0).Count;
-                case PixelFormat.Format64bppArgb:
-                case PixelFormat.Format64bppPArgb:
+                case KnownPixelFormat.Format64bppArgb:
+                case KnownPixelFormat.Format64bppPArgb:
                     return bitmapData.RowSize >= bitmapData.Width << 3
                         ? GetColorCount<Color64>(context, bitmapData)
                         : DoGetColors(context, bitmapData, 0).Count;
@@ -2847,11 +2731,11 @@ namespace KGySoft.Drawing.Imaging
         {
             var srcRect = new Rectangle(Point.Empty, bitmapData.GetSize());
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
-                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
+                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb);
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
-                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
-            return DoCloneWithQuantizer(context, bitmapData, srcRect, PixelFormat.Format32bppArgb,
+                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb);
+            return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
         }
 
@@ -2859,8 +2743,8 @@ namespace KGySoft.Drawing.Imaging
         {
             var srcRect = new Rectangle(Point.Empty, bitmapData.GetSize());
             if (transparentColor.A == 0)
-                return DoCloneDirect(context, bitmapData, srcRect, PixelFormat.Format32bppArgb);
-            return DoCloneWithQuantizer(context, bitmapData, srcRect, PixelFormat.Format32bppArgb,
+                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb);
+            return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
         }
 

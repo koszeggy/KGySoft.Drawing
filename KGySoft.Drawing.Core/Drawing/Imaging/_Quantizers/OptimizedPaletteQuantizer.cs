@@ -141,7 +141,7 @@ namespace KGySoft.Drawing.Imaging
     /// </remarks>
     /// <seealso cref="IQuantizer"/>
     /// <seealso cref="PredefinedColorsQuantizer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
     /// <seealso cref="BitmapExtensions.Quantize"/>
     /// <seealso cref="BitmapExtensions.Dither"/>
     public sealed partial class OptimizedPaletteQuantizer : IQuantizer
@@ -274,14 +274,14 @@ namespace KGySoft.Drawing.Imaging
         #region Public Properties
 
         /// <summary>
-        /// Gets a <see cref="PixelFormat"/>, which is compatible with this <see cref="OptimizedPaletteQuantizer"/> instance.
+        /// Gets a <see cref="KnownPixelFormat"/>, which is compatible with this <see cref="OptimizedPaletteQuantizer"/> instance.
         /// </summary>
-        public PixelFormat PixelFormatHint => maxColors switch
+        public KnownPixelFormat PixelFormatHint => maxColors switch
         {
-            > 256 => alphaThreshold == 0 ? PixelFormat.Format24bppRgb : PixelFormat.Format32bppArgb,
-            > 16 => PixelFormat.Format8bppIndexed,
-            > 2 => PixelFormat.Format4bppIndexed,
-            _ => PixelFormat.Format1bppIndexed
+            > 256 => alphaThreshold == 0 ? KnownPixelFormat.Format24bppRgb : KnownPixelFormat.Format32bppArgb,
+            > 16 => KnownPixelFormat.Format8bppIndexed,
+            > 2 => KnownPixelFormat.Format4bppIndexed,
+            _ => KnownPixelFormat.Format1bppIndexed
         };
 
         #endregion

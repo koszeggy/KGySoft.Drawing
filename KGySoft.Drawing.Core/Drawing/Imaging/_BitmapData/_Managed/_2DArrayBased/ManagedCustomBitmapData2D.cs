@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.Imaging
                         newBuffer = new T[size.Height, stride / sizeof(T)];
                     }
 
-                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, new PixelFormatInfo(pixelFormat), getter, setter, backColor, alphaThreshold);
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold);
                 };
             }
         }
@@ -138,12 +138,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        public ManagedCustomBitmapData2D(T[,] buffer, int pixelWidth, PixelFormat pixelFormat,
+        public ManagedCustomBitmapData2D(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat,
             Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
             Color32 backColor, byte alphaThreshold, Action? disposeCallback)
             : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
         {
-            Debug.Assert(!pixelFormat.IsIndexed());
+            Debug.Assert(!pixelFormat.Indexed);
 
             this.rowGetColor = rowGetColor;
             this.rowSetColor = rowSetColor;

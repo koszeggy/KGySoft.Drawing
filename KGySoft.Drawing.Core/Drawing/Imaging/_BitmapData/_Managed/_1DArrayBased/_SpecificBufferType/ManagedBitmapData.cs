@@ -39,12 +39,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
-            : base(new Array2D<T>(size.Height, pixelFormat.ToBitsPerPixel() <= 8 ? pixelFormat.GetByteWidth(size.Width) : size.Width),
+        internal ManagedBitmapData(Size size, PixelFormatInfo pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
+            : base(new Array2D<T>(size.Height, pixelFormat.BitsPerPixel <= 8 ? pixelFormat.GetByteWidth(size.Width) : size.Width),
                 size, pixelFormat, backColor, alphaThreshold, palette, null, null)
         {
-            Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
-            Debug.Assert(!pixelFormat.IsIndexed() || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
+            Debug.Assert(pixelFormat.IsKnownFormat, "Known format expected");
+            Debug.Assert(!pixelFormat.Indexed || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
         }
 
         #endregion

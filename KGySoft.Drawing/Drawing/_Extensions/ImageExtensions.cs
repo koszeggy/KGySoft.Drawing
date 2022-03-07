@@ -2195,7 +2195,7 @@ namespace KGySoft.Drawing
             if (!newPixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
             if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.ImagingPixelFormatNotSupported(newPixelFormat));
+                throw new PlatformNotSupportedException(Res.ImageExtensionsPixelFormatNotSupported(newPixelFormat));
         }
 
         private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
@@ -2248,7 +2248,6 @@ namespace KGySoft.Drawing
         }
 
         [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
         {
             Bitmap bmp = image.AsBitmap();
@@ -2287,7 +2286,7 @@ namespace KGySoft.Drawing
                     if (canceled = context.IsCancellationRequested)
                         return null;
                     if (quantizingSession == null)
-                        throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
+                        throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
                     // validating and initializing palette
                     if (newPixelFormat.IsIndexed())
                         InitPalette(newPixelFormat, bmp, result, paletteEntries ?? quantizingSession.Palette?.Entries.Select(c => c.ToColor()).ToArray());
@@ -2309,7 +2308,7 @@ namespace KGySoft.Drawing
                                 if (canceled = context.IsCancellationRequested)
                                     return null;
                                 if (ditheringSession == null)
-                                    throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
+                                    throw new InvalidOperationException(Res.ImageExtensionsDithererInitializeNull);
                                 session.PerformCopyWithDithering(quantizingSession, ditheringSession, false);
                             }
                         }
@@ -2351,7 +2350,7 @@ namespace KGySoft.Drawing
             // there is a desired palette to apply
             int maxColors = 1 << bpp;
             if (palette.Length > maxColors)
-                throw new ArgumentException(Res.ImagingPaletteTooLarge(maxColors, bpp), nameof(palette));
+                throw new ArgumentException(Res.ImageExtensionsPaletteTooLarge(maxColors, bpp), nameof(palette));
 
             target.TrySetPalette(palette);
         }

@@ -117,8 +117,11 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="General_RequiresWindows" xml:space="preserve">
-    <value>This operation is supported on Windows only.</value>
+  <data name="General_OperationCanceled" xml:space="preserve">
+    <value>The operation was canceled.</value>
+  </data>
+  <data name="General_InvalidAsyncResultFormat" xml:space="preserve">
+    <value>Either the IAsyncResult object did not come from the corresponding '{0}' method, or the End method was called multiple times with the same IAsyncResult.</value>
   </data>
   <data name="General_InternalErrorFormat" xml:space="preserve">
     <value>Internal Error: {0}</value>
@@ -126,67 +129,67 @@
   <data name="General_PixelFormatInvalidFormat" xml:space="preserve">
     <value>Pixel format '{0}' does not represent an actual format.</value>
   </data>
-  <data name="Gdi32_InvalidHandle" xml:space="preserve">
-    <value>Invalid GDI object handle.</value>
+  <data name="Imaging_InvalidOperationIndexedOnly" xml:space="preserve">
+    <value>This method can be used only on bitmaps with indexed pixel format.</value>
   </data>
-  <data name="Gdi32_GetEmfContentFailed" xml:space="preserve">
-    <value>Could not retrieve Enhanced Metafile content.</value>
-  </data>
-  <data name="Gdi32_GetWmfContentFailed" xml:space="preserve">
-    <value>Could not retrieve Windows Metafile content.</value>
-  </data>
-  <data name="Gdi32_InvalidEmfHandle" xml:space="preserve">
-    <value>Invalid Enhanced Metafile handle.</value>
-  </data>
-  <data name="Gdi32_InvalidWmfHandle" xml:space="preserve">
-    <value>Invalid Windows Metafile handle.</value>
-  </data>
-  <data name="GraphicsExtensions_MetafileGraphicsNotSupported" xml:space="preserve">
-    <value>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</value>
-  </data>
-  <data name="User32_InvalidHandle" xml:space="preserve">
-    <value>Invalid handle.</value>
-  </data>
-  <data name="User32_CreateIconIndirectFailed" xml:space="preserve">
-    <value>Could not create icon or cursor.</value>
-  </data>
-  <data name="RawIcon_TooManyImages" xml:space="preserve">
-    <value>There are too many images in the icon collection.</value>
-  </data>
-  <data name="RawIcon_BadIconFormat" xml:space="preserve">
-    <value>Bad icon format.</value>
-  </data>
-  <data name="RawIcon_CannotBeInstantiatedAsIcon" xml:space="preserve">
-    <value>On this platform this icon cannot be instantiated with the current size or compression.</value>
-  </data>
-  <data name="RawIcon_CannotBeInstantiatedAsBitmap" xml:space="preserve">
-    <value>On this platform this icon cannot be instantiated as a bitmap with the current size or compression.</value>
-  </data>
-  <data name="IconExtensions_ImagesColorsDifferentLength" xml:space="preserve">
-    <value>Length of images and transparentColors must be the same.</value>
-  </data>
-  <data name="ImageExtensions_NoEncoderFormat" xml:space="preserve">
-    <value>No encoder was found for the '{0}' format.</value>
-  </data>
-  <data name="ImageExtensions_EncoderSaveFailFormat" xml:space="preserve">
-    <value>Could not save the image by the '{0}' encoder.</value>
-  </data>
-  <data name="ImageExtensions_PixelFormatNotSupportedFormat" xml:space="preserve">
-    <value>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</value>
-  </data>
-  <data name="ImageExtensions_QuantizerInitializeNull" xml:space="preserve">
+  <data name="Imaging_QuantizerInitializeNull" xml:space="preserve">
     <value>The IQuantizer.Initialize method returned a null reference.</value>
   </data>
-  <data name="ImageExtensions_DithererInitializeNull" xml:space="preserve">
+  <data name="Imaging_DithererInitializeNull" xml:space="preserve">
     <value>The IDitherer.Initialize method returned a null reference.</value>
   </data>
-  <data name="ImageExtensions_PaletteTooLargeFormat" xml:space="preserve">
+  <data name="Imaging_NotBitmapDataStream" xml:space="preserve">
+    <value>Not a valid bitmap data stream.</value>
+  </data>
+  <data name="Imaging_InvalidBitmapDataSize" xml:space="preserve">
+    <value>The bitmap data has an invalid size.</value>
+  </data>
+  <data name="Imaging_StrideTooSmallFormat" xml:space="preserve">
+    <value>For the given pixel format and width stride must not be less than {0}.</value>
+  </data>
+  <data name="Imaging_StrideInvalidFormat" xml:space="preserve">
+    <value>For element type '{0}' stride must be a multiple of {1}.</value>
+  </data>
+  <data name="Imaging_BufferLengthTooSmallFormat" xml:space="preserve">
+    <value>The specified buffer should have at least {0} elements for the specified size, stride and pixel format.</value>
+  </data>
+  <data name="Imaging_InvalidPaletteIndexFormat" xml:space="preserve">
+    <value>Palette index {0} is invalid. It must be less than palette count {1}.</value>
+  </data>
+  <data name="Imaging_NonIndexedPixelFormatExpected" xml:space="preserve">
+    <value>This method expects a non-indexed pixel format.</value>
+  </data>
+  <data name="Imaging_IndexedPixelFormatExpected" xml:space="preserve">
+    <value>This method expects an indexed pixel format.</value>
+  </data>
+  <data name="Imaging_WidthTooLarge" xml:space="preserve">
+    <value>The specified width is too large for the given buffer width and pixel format.</value>
+  </data>
+  <data name="Imaging_IndexedPixelFormatTooLarge" xml:space="preserve">
+    <value>An indexed pixel format should not be larger than 16 bits per pixel.</value>
+  </data>
+  <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>
-  <data name="MetafileExtensions_CannotBeSavesAsEmf" xml:space="preserve">
-    <value>The specified metafile can only be saved as WMF.</value>
+  <data name="GifEncoder_CannotChangeProperty" xml:space="preserve">
+    <value>This property cannot be set after adding the first image.</value>
   </data>
-  <data name="ImageExtensions_MultipageTiffSaveNotSupported" xml:space="preserve">
-    <value>Saving multi-page TIFF is not supported on the current platform.</value>
+  <data name="GifEncoder_PaletteTooLarge" xml:space="preserve">
+    <value>The palette must not have more than 256 colors.</value>
+  </data>
+  <data name="GifEncoder_CommentTooLong" xml:space="preserve">
+    <value>GIF comments cannot be longer than 255 characters.</value>
+  </data>
+  <data name="GifEncoder_CommentNotAscii" xml:space="preserve">
+    <value>GIF comments can consist of ASCII characters only.</value>
+  </data>
+  <data name="GifEncoder_AnimationContainsNoFrames" xml:space="preserve">
+    <value>Encoder options did not return any frames.</value>
+  </data>
+  <data name="GifEncoder_NullFrame" xml:space="preserve">
+    <value>Encoder options returned a null frame. You must initialize GifEncodingOptions with an enumeration that does not have a null element.</value>
+  </data>
+  <data name="GifEncoder_UnexpectedFrameSize" xml:space="preserve">
+    <value>A frame had an unexpected size. Set the GifEncodingOptions.SizeHandling property to allow different input sizes.</value>
   </data>
 </root>

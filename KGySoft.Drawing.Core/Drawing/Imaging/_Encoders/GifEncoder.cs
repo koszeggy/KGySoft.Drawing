@@ -278,7 +278,7 @@ namespace KGySoft.Drawing.Imaging
 
             // Possible cloning with unlimited degree of parallelization is not an issue here.
             // When using the async static members the input imageData is always an indexed image.
-            IReadableBitmapData actualImageData = imageData.Palette == null || imageData.Palette.Count > 256 ? imageData.Clone(PixelFormat.Format8bppIndexed, globalPalette) : imageData;
+            IReadableBitmapData actualImageData = imageData.Palette == null || imageData.Palette.Count > 256 ? imageData.Clone(KnownPixelFormat.Format8bppIndexed, globalPalette) : imageData;
 
             try
             {
@@ -290,7 +290,7 @@ namespace KGySoft.Drawing.Imaging
                 Palette usedPalette = (localPalette ?? globalPalette)!;
 
                 if (!isInitialized)
-                    Initialize(Math.Max(actualImageData.PixelFormat.ToBitsPerPixel(), usedPalette.Count.ToBitsPerPixel()));
+                    Initialize(Math.Max(actualImageData.PixelFormat.BitsPerPixel, usedPalette.Count.ToBitsPerPixel()));
 
                 // Important: not using resources here because they could use non-ASCII characters or too long texts
                 if (AddMetaInfo)

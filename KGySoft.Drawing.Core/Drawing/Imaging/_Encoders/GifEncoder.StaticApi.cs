@@ -352,7 +352,6 @@ namespace KGySoft.Drawing.Imaging
         #region Private Methods
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it's called Validate")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void ValidateArguments(AnimatedGifConfiguration configuration, Stream stream)
         {
             if (configuration == null)
@@ -366,7 +365,6 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it's called Validate")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void ValidateArguments(IReadableBitmapData imageData, Stream stream)
         {
             if (imageData == null)
@@ -379,10 +377,10 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoEncodeImage(IAsyncContext context, IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer, IDitherer? ditherer)
         {
-            IReadableBitmapData? source = quantizer == null && imageData.PixelFormat.IsIndexed() && !HasMultipleTransparentIndices(context, imageData)
+            IReadableBitmapData? source = quantizer == null && imageData.PixelFormat.Indexed && !HasMultipleTransparentIndices(context, imageData)
                 ? imageData
-                : imageData.DoClone(context, PixelFormat.Format8bppIndexed, quantizer
-                    ?? (imageData.PixelFormat == PixelFormat.Format16bppGrayScale
+                : imageData.DoClone(context, KnownPixelFormat.Format8bppIndexed, quantizer
+                    ?? (imageData.PixelFormat.Grayscale
                         ? PredefinedColorsQuantizer.Grayscale()
                         : OptimizedPaletteQuantizer.Wu()), ditherer);
 
@@ -429,7 +427,7 @@ namespace KGySoft.Drawing.Imaging
         private static void DoEncodeHighColorImage(IAsyncContext context, IReadableBitmapData imageData, Stream stream, Color32 backColor, byte alphaThreshold, bool fullScan)
         {
             // redirecting for an already indexed image
-            if (imageData.PixelFormat.ToBitsPerPixel() <= 8 && imageData.Palette != null)
+            if (imageData.PixelFormat.BitsPerPixel <= 8 && imageData.Palette != null)
             {
                 DoEncodeImage(context, imageData, stream, PredefinedColorsQuantizer.FromCustomPalette(new Palette(imageData.Palette, backColor, alphaThreshold)), null);
                 return;
@@ -452,7 +450,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static bool HasMultipleTransparentIndices(IAsyncContext context, IReadableBitmapData imageData)
         {
-            Debug.Assert(imageData.PixelFormat.IsIndexed());
+            Debug.Assert(imageData.PixelFormat.Indexed);
             Palette? palette = imageData.Palette;
 
             // There is no palette or it is too large: returning true to force a quantization

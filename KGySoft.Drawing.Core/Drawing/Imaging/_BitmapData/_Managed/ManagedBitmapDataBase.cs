@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Constructors
 
-        protected ManagedBitmapDataBase(Size size, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+        protected ManagedBitmapDataBase(Size size, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
             : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {

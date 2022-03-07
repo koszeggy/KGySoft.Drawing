@@ -50,7 +50,7 @@ namespace KGySoft.Drawing.Imaging
         int Width { get; }
 
         /// <summary>
-        /// Gets the <see cref="PixelFormat"/> of the current <see cref="IBitmapData"/> instance.
+        /// Gets a <see cref="PixelFormatInfo"/> of the current <see cref="IBitmapData"/> instance.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <remarks>
@@ -58,13 +58,10 @@ namespace KGySoft.Drawing.Imaging
         /// are accessed by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see>
         /// methods. Otherwise, in most cases using the members of the interfaces derived from the <see cref="IBitmapData"/> and <see cref="IBitmapDataRow"/> interfaces
         /// work seamlessly.</para>
-        /// <para>If this property returns an indexed format (<see cref="System.Drawing.Imaging.PixelFormat.Format8bppIndexed"/>, <see cref="System.Drawing.Imaging.PixelFormat.Format4bppIndexed"/> or <see cref="System.Drawing.Imaging.PixelFormat.Format1bppIndexed"/>),
+        /// <para>If this property returns an indexed format (see <see cref="PixelFormatInfo.Indexed"/>),
         /// then the <see cref="Palette"/> property returns a non-<see langword="null"/>&#160;value.</para>
-        /// <note>If this <see cref="IBitmapData"/> instance represents a native <see cref="Bitmap"/>, then on some platforms this property can return a different <see cref="System.Drawing.Imaging.PixelFormat"/>
-        /// from the <see cref="Image.PixelFormat">Image.PixelFormat</see> property of the original image.
-        /// <br/>For details and further information about the possible usable <see cref="System.Drawing.Imaging.PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,System.Drawing.Imaging.PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </remarks>
-        PixelFormat PixelFormat { get; }
+        PixelFormatInfo PixelFormat { get; }
 
         /// <summary>
         /// Gets a <see cref="Imaging.Palette"/> instance representing the colors of the owner <see cref="Bitmap"/> if it has an indexed <see cref="System.Drawing.Imaging.PixelFormat"/>,

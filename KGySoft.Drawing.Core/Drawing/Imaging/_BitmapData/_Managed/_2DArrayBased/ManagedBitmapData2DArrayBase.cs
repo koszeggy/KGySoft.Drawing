@@ -41,7 +41,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [SecuritySafeCritical]
-        protected unsafe ManagedBitmapData2DArrayBase(T[,] buffer, Size size, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+        protected unsafe ManagedBitmapData2DArrayBase(T[,] buffer, Size size, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
             : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {

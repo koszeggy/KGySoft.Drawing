@@ -85,7 +85,6 @@ namespace KGySoft.Drawing.Imaging
                 [SuppressMessage("Style", "IDE0044:Add readonly modifier",
                     Justification = "Though the used members are read-only, pre C# 8 compilers may emit a defensive copy for members access if the field is read-only")]
                 [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local", Justification = "As above")]
-                [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
                 private ArraySection<byte> indices;
                 private int currentPosition;
                 private int nextFreeCode;

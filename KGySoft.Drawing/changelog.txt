@@ -6,6 +6,23 @@
 ===============================================================================
 
 ~~~~~~~~~
+! v7.0.0:
+~~~~~~~~~
+
+! Assembly changes:
+===================
+! APIs that are not dependent on System.Drawing.Common (.NET Core/Standard 2.0 and above) have been extracted into a
+  new library, KGySoft.Drawing.Core, which is now referenced by this library.
+
+! KGySoft.Drawing.Imaging namespace
+===================================
+! Most public APIs have been moved into the KGySoft.Drawing.Core package. See the changes in detail in a separate
+  log file here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
++ New ReadableBitmapDataExtensions class: contains the ToBitmap/BeginToBitmap/EndToBitmap/ToBitmapAsync methods of
+  the original BitmapDataExtensions class that is now in the KGySoft.Drawing.Core package.
+
+
+~~~~~~~~~
 * v6.3.2:
 ~~~~~~~~~
 

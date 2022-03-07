@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     /// <seealso cref="IQuantizer" />
     /// <seealso cref="OptimizedPaletteQuantizer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
     /// <seealso cref="BitmapExtensions.Quantize"/>
     public sealed class PredefinedColorsQuantizer : IQuantizer
     {
@@ -249,11 +249,11 @@ namespace KGySoft.Drawing.Imaging
         #region Public Properties
 
         /// <summary>
-        /// Gets a <see cref="PixelFormat"/> that is compatible with this <see cref="PredefinedColorsQuantizer"/> instance.
+        /// Gets a <see cref="KnownPixelFormat"/> that is compatible with this <see cref="PredefinedColorsQuantizer"/> instance.
         /// If this <see cref="PredefinedColorsQuantizer"/> was not initialized with custom color mapping logic,
         /// then this is the possible lowest bits-per-pixel value format.
         /// </summary>
-        public PixelFormat PixelFormatHint { get; }
+        public KnownPixelFormat PixelFormatHint { get; }
 
         #endregion
 
@@ -275,14 +275,14 @@ namespace KGySoft.Drawing.Imaging
             isGrayscale = palette.IsGrayscale;
             PixelFormatHint = palette.Count switch
             {
-                > 256 => palette.HasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb,
-                > 16 => PixelFormat.Format8bppIndexed,
-                > 2 => PixelFormat.Format4bppIndexed,
-                _ => PixelFormat.Format1bppIndexed
+                > 256 => palette.HasAlpha ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb,
+                > 16 => KnownPixelFormat.Format8bppIndexed,
+                > 2 => KnownPixelFormat.Format4bppIndexed,
+                _ => KnownPixelFormat.Format1bppIndexed
             };
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0, bool blend = true)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0, bool blend = true)
             : this(quantizingFunction, pixelFormatHint)
         {
             this.backColor = backColor.ToOpaque();
@@ -290,7 +290,7 @@ namespace KGySoft.Drawing.Imaging
             blendAlphaBeforeQuantize = blend;
         }
 
-        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint)
+        private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint)
         {
             this.quantizingFunction = quantizingFunction ?? throw new ArgumentNullException(nameof(quantizingFunction), PublicResources.ArgumentNull);
             if (!pixelFormatHint.IsValidFormat())
@@ -302,7 +302,7 @@ namespace KGySoft.Drawing.Imaging
         {
             compatibleBitmapDataFactory = customBitmapData.CreateCompatibleBitmapDataFactory;
             isGrayscale = customBitmapData.IsGrayscale();
-            PixelFormatHint = customBitmapData.PixelFormat.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+            PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
             backColor = customBitmapData.BackColor;
             alphaThreshold = customBitmapData.AlphaThreshold;
         }
@@ -328,10 +328,10 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to the 32-bit ARGB color space.</returns>
         /// <remarks>
         /// <para>If <paramref name="alphaThreshold"/> is zero, then the returned <see cref="PredefinedColorsQuantizer"/> instance is practically just a pass-through filter in the 32-bit color space
-        /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,PixelFormat,IQuantizer,IDitherer)">Clone</see>),
-        /// which could possibly preserve wide color information (<see cref="PixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
+        /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see>),
+        /// which could possibly preserve wide color information (<see cref="KnownPixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
         /// <para>If <paramref name="alphaThreshold"/> is not zero, then every partially transparent pixel with lower <see cref="Color.A">Color.A</see> value than the threshold will turn completely transparent.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -396,7 +396,7 @@ namespace KGySoft.Drawing.Imaging
         {
             Color32 Quantize(Color32 c) => c.A < alphaThreshold ? default : c;
 
-            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format32bppArgb, new Color32(backColor), alphaThreshold, false);
+            return new PredefinedColorsQuantizer(Quantize, KnownPixelFormat.Format32bppArgb, new Color32(backColor), alphaThreshold, false);
         }
 
         /// <summary>
@@ -410,8 +410,8 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256<sup>3</sup> (16,777,216) colors.
         /// It practically just removes transparency and does not change colors without alpha.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format24bppRgb"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format24bppRgb"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -461,7 +461,7 @@ namespace KGySoft.Drawing.Imaging
             // just returning the already blended color
             static Color32 Quantize(Color32 c) => c;
 
-            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format24bppRgb, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, KnownPixelFormat.Format24bppRgb, new Color32(backColor));
         }
 
         /// <summary>
@@ -476,8 +476,8 @@ namespace KGySoft.Drawing.Imaging
         /// green and blue components are encoded in 5, 6 and 5 bits, respectively.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 65,536 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format16bppRgb565"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format16bppRgb565"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -534,7 +534,7 @@ namespace KGySoft.Drawing.Imaging
         {
             static Color32 Quantize(Color32 c) => new Color16Rgb565(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format16bppRgb565, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, KnownPixelFormat.Format16bppRgb565, new Color32(backColor));
         }
 
         /// <summary>
@@ -547,8 +547,8 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where each color component is encoded in 5 bits.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 32,768 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format16bppRgb555"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format16bppRgb555"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -605,7 +605,7 @@ namespace KGySoft.Drawing.Imaging
         {
             static Color32 Quantize(Color32 c) => new Color16Rgb555(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format16bppRgb555, new Color32(backColor));
+            return new PredefinedColorsQuantizer(Quantize, KnownPixelFormat.Format16bppRgb555, new Color32(backColor));
         }
 
         /// <summary>
@@ -623,8 +623,8 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where each color component is encoded in 5 bits.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 32,768 colors, and a transparent color.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format16bppArgb1555"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format16bppArgb1555"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -682,7 +682,7 @@ namespace KGySoft.Drawing.Imaging
         {
             static Color32 Quantize(Color32 c) => new Color16Argb1555(c).ToColor32();
 
-            return new PredefinedColorsQuantizer(Quantize, PixelFormat.Format16bppArgb1555, new Color32(backColor), alphaThreshold);
+            return new PredefinedColorsQuantizer(Quantize, KnownPixelFormat.Format16bppArgb1555, new Color32(backColor), alphaThreshold);
         }
 
         /// <summary>
@@ -703,9 +703,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="directMapping"/> is <see langword="true"/>, then the result of the quantization may have a higher contrast than without direct color mapping,
         /// though this can be compensated if the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>. Other ditherers preserve the effect of the <paramref name="directMapping"/> parameter.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format8bppIndexed"/> pixel format.</para>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
         /// <para>The palette of this quantizer does not contain the transparent color.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -803,8 +803,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256 possible shades of gray.</para>
         /// <para>The palette of this quantizer does not contain the transparent color. To make an image grayscale with transparency you can use the
         /// <see cref="ImageExtensions.ToGrayscale">ToGrayscale</see> and <see cref="BitmapExtensions.MakeGrayscale">MakeGrayscale</see> extension methods.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format8bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -865,8 +865,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="directMapping"/> is <see langword="true"/>, then the result of the quantization may have a higher contrast than without direct color mapping,
         /// though this can be compensated if the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>. Other ditherers preserve the effect of the <paramref name="directMapping"/> parameter.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 16 possible shades of gray.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format4bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -952,8 +952,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="directMapping"/> is <see langword="true"/>, then the result of the quantization may have a higher contrast than without direct color mapping,
         /// though this can be compensated if the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>. Other ditherers preserve the effect of the <paramref name="directMapping"/> parameter.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 4 possible shades of gray.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format4bppIndexed"/> pixel format, though only 4 palette entries are used instead of the possible maximum of 16.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format, though only 4 palette entries are used instead of the possible maximum of 16.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1050,8 +1050,8 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>If the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>, then the effect of the <paramref name="whiteThreshold"/> parameter is
         /// mostly compensated. Other ditherers preserve the effect of the <paramref name="whiteThreshold"/> parameter.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format1bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1152,9 +1152,9 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256 colors.
         /// On Windows this amount is somewhat smaller because of redundant entries in the palette.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format8bppIndexed"/> pixel format.</para>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
         /// <para>On Windows the palette of this quantizer contains transparent entries.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1247,10 +1247,10 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 4-bit palette.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 16 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format4bppIndexed"/> pixel format.</para>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format.</para>
         /// <para>The palette of this quantizer is not expected to contain transparent entries.
         /// On Windows the palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a></para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1334,8 +1334,8 @@ namespace KGySoft.Drawing.Imaging
         /// The system 1-bit palette expected to have the black and white colors on most operating systems.
         /// <note type="tip">To make sure that you use a black and white palette use the <see cref="BlackAndWhite">BlackAndWhite</see> method instead, which provides white threshold adjustment as well.
         /// <br/>For more details and examples see the <strong>Examples</strong> section of the <see cref="BlackAndWhite">BlackAndWhite</see> method.</note></para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="PixelFormat.Format1bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
+        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <seealso cref="Palette.SystemDefault1BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault1BppPalette(Color backColor = default)
@@ -1464,8 +1464,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before invoking the <paramref name="quantizingFunction"/> delegate.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored.</param>
-        /// <param name="pixelFormatHint">The <see cref="PixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
-        /// <br/>Default value: <see cref="PixelFormat.Format24bppRgb"/>, which is valid only if <paramref name="alphaThreshold"/> has the default zero value.</param>
+        /// <param name="pixelFormatHint">The <see cref="KnownPixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format24bppRgb"/>, which is valid only if <paramref name="alphaThreshold"/> has the default zero value.</param>
         /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
         /// If 0, then even the completely transparent colors will be blended with <paramref name="backColor"/> before invoking the <paramref name="quantizingFunction"/> delegate. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
@@ -1475,7 +1475,7 @@ namespace KGySoft.Drawing.Imaging
         /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Palette)"/> method instead.</para>
         /// <para>This overload never calls the <paramref name="quantizingFunction"/> delegate with a color with alpha. Depending on <paramref name="alphaThreshold"/> either a completely
         /// transparent color will be returned or the color will be blended with <paramref name="backColor"/> before invoking the delegate.
-        /// In order to allow invoking <paramref name="quantizingFunction"/> with alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32},PixelFormat)"/> overload instead.</para>
+        /// In order to allow invoking <paramref name="quantizingFunction"/> with alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32},KnownPixelFormat)"/> overload instead.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1518,7 +1518,7 @@ namespace KGySoft.Drawing.Imaging
         /// </list></para>
         /// </example>
         // TODO: add isGrayscale = false in next major version change along with removing IQuantizingSessionInternal
-        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, PixelFormat pixelFormatHint = PixelFormat.Format24bppRgb, byte alphaThreshold = 0)
+        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format24bppRgb, byte alphaThreshold = 0)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, new Color32(backColor), alphaThreshold);
 
         /// <summary>
@@ -1527,14 +1527,14 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="quantizingFunction">A delegate that specifies the custom quantization logic. It must be thread-safe for parallel invoking and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
-        /// <param name="pixelFormatHint">The <see cref="PixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
-        /// <br/>Default value: <see cref="PixelFormat.Format32bppArgb"/>.</param>
+        /// <param name="pixelFormatHint">The <see cref="KnownPixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
         /// <para>The quantizer returned by this method does not have a palette. If you need to create indexed using a custom mapping function that
         /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Palette)"/> method instead.</para>
         /// <para>This overload always calls the <paramref name="quantizingFunction"/> delegate without preprocessing the input colors.
-        /// In order to pass only opaque colors to the <paramref name="quantizingFunction"/> delegate use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, PixelFormat, byte)"/> overload instead.</para>
+        /// In order to pass only opaque colors to the <paramref name="quantizingFunction"/> delegate use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, KnownPixelFormat, byte)"/> overload instead.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1573,7 +1573,7 @@ namespace KGySoft.Drawing.Imaging
         /// </list></para>
         /// </example>
         // TODO: add isGrayscale = false in next major version change along with removing IQuantizingSessionInternal
-        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, PixelFormat pixelFormatHint = PixelFormat.Format32bppArgb)
+        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format32bppArgb)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint);
 
         /// <summary>
@@ -1584,15 +1584,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="bitmapData">The <see cref="IBitmapData"/> to get a compatible quantizer for.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="bitmapData"/>.</returns>
         /// <remarks>
-        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format24bppRgb"/>, <see cref="PixelFormat.Format48bppRgb"/> or <see cref="PixelFormat.Format32bppRgb"/>,
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format24bppRgb"/>, <see cref="KnownPixelFormat.Format48bppRgb"/> or <see cref="KnownPixelFormat.Format32bppRgb"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb888">Rgb888</see> method.</para>
-        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppArgb1555"/>,
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppArgb1555"/>,
         /// then this method returns the same quantizer as the <see cref="Argb1555">Argb1555</see> method.</para>
-        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppRgb565"/>,
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppRgb565"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb565">Rgb565</see> method.</para>
-        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppRgb555"/>,
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppRgb555"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb555">Rgb555</see> method.</para>
-        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="PixelFormat.Format16bppGrayScale"/>,
+        /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppGrayScale"/>,
         /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is an indexed format,
         /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Palette)"/> method using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
@@ -1606,23 +1606,23 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            switch (bitmapData.PixelFormat)
+            switch (bitmapData.PixelFormat.AsKnownPixelFormatInternal)
             {
-                case PixelFormat.Format8bppIndexed:
-                case PixelFormat.Format4bppIndexed:
-                case PixelFormat.Format1bppIndexed:
+                case KnownPixelFormat.Format8bppIndexed:
+                case KnownPixelFormat.Format4bppIndexed:
+                case KnownPixelFormat.Format1bppIndexed:
                     return FromCustomPalette(bitmapData.Palette!); // if palette is null, the exception will be thrown from PredefinedColorsQuantizer
-                case PixelFormat.Format16bppArgb1555:
+                case KnownPixelFormat.Format16bppArgb1555:
                     return Argb1555(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold);
-                case PixelFormat.Format16bppRgb565:
+                case KnownPixelFormat.Format16bppRgb565:
                     return Rgb565(bitmapData.BackColor.ToColor());
-                case PixelFormat.Format16bppRgb555:
+                case KnownPixelFormat.Format16bppRgb555:
                     return Rgb555(bitmapData.BackColor.ToColor());
-                case PixelFormat.Format16bppGrayScale:
+                case KnownPixelFormat.Format16bppGrayScale:
                     return Grayscale(bitmapData.BackColor.ToColor());
-                case PixelFormat.Format24bppRgb:
-                case PixelFormat.Format48bppRgb:
-                case PixelFormat.Format32bppRgb:
+                case KnownPixelFormat.Format24bppRgb:
+                case KnownPixelFormat.Format48bppRgb:
+                case KnownPixelFormat.Format32bppRgb:
                     return Rgb888(bitmapData.BackColor.ToColor());
                 default:
                     // handling custom formats
@@ -1634,7 +1634,7 @@ namespace KGySoft.Drawing.Imaging
                         return FromCustomPalette(palette);
 
                     // fallback: 24/32-bit [A]RGB
-                    return bitmapData.PixelFormat.HasAlpha()
+                    return bitmapData.HasAlpha()
                         ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
                         : Rgb888(bitmapData.BackColor.ToColor());
             }
@@ -1644,7 +1644,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to get a compatible quantizer for.</param>
+        /// <param name="pixelFormat">The <see cref="KnownPixelFormat"/> to get a compatible quantizer for.</param>
         /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -1653,48 +1653,48 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
         /// <remarks>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format24bppRgb"/>, <see cref="PixelFormat.Format48bppRgb"/> or <see cref="PixelFormat.Format32bppRgb"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format24bppRgb"/>, <see cref="KnownPixelFormat.Format48bppRgb"/> or <see cref="KnownPixelFormat.Format32bppRgb"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb888">Rgb888</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppArgb1555"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format16bppArgb1555"/>,
         /// then this method returns the same quantizer as the <see cref="Argb1555">Argb1555</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppRgb565"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format16bppRgb565"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb565">Rgb565</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppRgb555"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format16bppRgb555"/>,
         /// then this method returns the same quantizer as the <see cref="Rgb555">Rgb555</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format16bppGrayScale"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format16bppGrayScale"/>,
         /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format8bppIndexed"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format8bppIndexed"/>,
         /// then this method returns the same quantizer as the <see cref="SystemDefault8BppPalette">SystemDefault8BppPalette</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format4bppIndexed"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format4bppIndexed"/>,
         /// then this method returns the same quantizer as the <see cref="SystemDefault4BppPalette">SystemDefault4BppPalette</see> method.</para>
-        /// <para>If <paramref name="pixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>,
+        /// <para>If <paramref name="pixelFormat"/> is <see cref="KnownPixelFormat.Format1bppIndexed"/>,
         /// then this method returns the same quantizer as the <see cref="SystemDefault1BppPalette">SystemDefault1BppPalette</see> method.</para>
         /// <para>In any other case than the ones above this method the same quantizer as the <see cref="Argb8888">Argb8888</see> method.</para>
         /// <note>For examples see the <strong>Examples</strong> section of the mentioned methods above.</note>
         /// </remarks>
-        public static PredefinedColorsQuantizer FromPixelFormat(PixelFormat pixelFormat, Color backColor = default, byte alphaThreshold = 128)
+        public static PredefinedColorsQuantizer FromPixelFormat(KnownPixelFormat pixelFormat, Color backColor = default, byte alphaThreshold = 128)
         {
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
             switch (pixelFormat)
             {
-                case PixelFormat.Format8bppIndexed:
+                case KnownPixelFormat.Format8bppIndexed:
                     return SystemDefault8BppPalette(backColor, alphaThreshold);
-                case PixelFormat.Format4bppIndexed:
+                case KnownPixelFormat.Format4bppIndexed:
                     return SystemDefault4BppPalette(backColor);
-                case PixelFormat.Format1bppIndexed:
+                case KnownPixelFormat.Format1bppIndexed:
                     return SystemDefault1BppPalette(backColor);
-                case PixelFormat.Format16bppArgb1555:
+                case KnownPixelFormat.Format16bppArgb1555:
                     return Argb1555(backColor, alphaThreshold);
-                case PixelFormat.Format16bppRgb565:
+                case KnownPixelFormat.Format16bppRgb565:
                     return Rgb565(backColor);
-                case PixelFormat.Format16bppRgb555:
+                case KnownPixelFormat.Format16bppRgb555:
                     return Rgb555(backColor);
-                case PixelFormat.Format16bppGrayScale:
+                case KnownPixelFormat.Format16bppGrayScale:
                     return Grayscale(backColor);
-                case PixelFormat.Format24bppRgb:
-                case PixelFormat.Format48bppRgb:
-                case PixelFormat.Format32bppRgb:
+                case KnownPixelFormat.Format24bppRgb:
+                case KnownPixelFormat.Format48bppRgb:
+                case KnownPixelFormat.Format32bppRgb:
                     return Rgb888(backColor);
                 default:
                     return Argb8888(backColor, alphaThreshold);

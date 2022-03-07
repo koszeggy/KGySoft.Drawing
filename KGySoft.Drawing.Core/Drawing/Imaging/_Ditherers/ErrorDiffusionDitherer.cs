@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="OrderedDitherer"/>
     /// <seealso cref="RandomNoiseDitherer"/>
     /// <seealso cref="InterleavedGradientNoiseDitherer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
+    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
     /// <seealso cref="BitmapExtensions.Dither"/>
     public sealed partial class ErrorDiffusionDitherer : IDitherer
     {

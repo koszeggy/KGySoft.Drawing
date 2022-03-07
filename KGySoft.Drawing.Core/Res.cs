@@ -20,6 +20,7 @@ using System.Drawing.Imaging;
 using System.Globalization;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Imaging;
 using KGySoft.Resources;
 
 #endregion
@@ -52,84 +53,8 @@ namespace KGySoft
 
         #region General
 
-        /// <summary>This operation is supported on Windows only.</summary>
-        internal static string RequiresWindows => Get("General_RequiresWindows");
-
         /// <summary>The operation was canceled.</summary>
         internal static string OperationCanceled => Get("General_OperationCanceled");
-
-        #endregion
-
-        #region Gdi32
-
-        /// <summary>Invalid GDI object handle.</summary>
-        internal static string Gdi32InvalidHandle => Get("Gdi32_InvalidHandle");
-
-        /// <summary>Could not retrieve Enhanced Metafile content.</summary>
-        internal static string Gdi32GetEmfContentFailed => Get("Gdi32_GetEmfContentFailed");
-
-        /// <summary>Could not retrieve Windows Metafile content.</summary>
-        internal static string Gdi32GetWmfContentFailed => Get("Gdi32_GetWmfContentFailed");
-
-        /// <summary>Invalid Enhanced Metafile handle.</summary>
-        internal static string Gdi32InvalidEmfHandle => Get("Gdi32_InvalidEmfHandle");
-
-        /// <summary>Invalid Windows Metafile handle.</summary>
-        internal static string Gdi32InvalidWmfHandle => Get("Gdi32_InvalidWmfHandle");
-
-        #endregion
-
-        #region GraphicsExtensions
-
-        /// <summary>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</summary>
-        internal static string GraphicsExtensionsToBitmapMetafileNotSupported => Get("GraphicsExtensions_MetafileGraphicsNotSupported");
-
-        #endregion
-
-        #region IconExtensions
-
-        /// <summary>Length of images and transparentColors must be the same.</summary>
-        internal static string IconExtensionsImagesColorsDifferentLength => Get("IconExtensions_ImagesColorsDifferentLength");
-
-        #endregion
-
-        #region ImageExtensions
-
-        /// <summary>Saving multi-page TIFF is not supported on the current platform.</summary>
-        internal static string ImageExtensionsMultipageTiffSaveNotSupported => Get("ImageExtensions_MultipageTiffSaveNotSupported");
-
-        #endregion
-
-        #region MetafileExtensions
-
-        /// <summary>The specified metafile can only be saved as WMF.</summary>
-        internal static string MetafileExtensionsCannotBeSavedAsEmf => Get("MetafileExtensions_CannotBeSavesAsEmf");
-
-        #endregion
-
-        #region RawIcon
-
-        /// <summary>There are too many images in the icon collection.</summary>
-        internal static string RawIconTooManyImages => Get("RawIcon_TooManyImages");
-
-        /// <summary>Bad icon format.</summary>
-        internal static string RawIconBadIconFormat => Get("RawIcon_BadIconFormat");
-
-        /// <summary>On this platform this icon cannot be instantiated with the current size or compression.</summary>
-        internal static string RawIconCannotBeInstantiatedAsIcon  => Get("RawIcon_CannotBeInstantiatedAsIcon");
-
-        /// <summary>On this platform this icon cannot be instantiated as a bitmap with the current size or compression.</summary>
-        internal static string RawIconCannotBeInstantiatedAsBitmap => Get("RawIcon_CannotBeInstantiatedAsBitmap");
-
-        #endregion
-
-        #region User32
-
-        /// <summary>Invalid handle.</summary>
-        internal static string User32InvalidHandle => Get("User32_InvalidHandle");
-
-        /// <summary>Could not create icon or cursor.</summary>
-        internal static string User32CreateIconIndirectFailed => Get("User32_CreateIconIndirectFailed");
 
         #endregion
 
@@ -138,10 +63,10 @@ namespace KGySoft
         /// <summary>This method can be used only on bitmaps with indexed pixel format.</summary>
         internal static string ImagingInvalidOperationIndexedOnly => Get("Imaging_InvalidOperationIndexedOnly");
 
-        /// <summary>The IQuantizer.Initialize method returned a null value.</summary>
+        /// <summary>The IQuantizer.Initialize method returned a null reference.</summary>
         internal static string ImagingQuantizerInitializeNull => Get("Imaging_QuantizerInitializeNull");
 
-        /// <summary>The IDitherer.Initialize method returned a null value.</summary>
+        /// <summary>The IDitherer.Initialize method returned a null reference.</summary>
         internal static string ImagingDithererInitializeNull => Get("Imaging_DithererInitializeNull");
 
         /// <summary>Not a valid bitmap data stream.</summary>
@@ -209,27 +134,14 @@ namespace KGySoft
         internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
 
         /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
-        internal static string PixelFormatInvalid(PixelFormat pixelFormat) => Get("General_PixelFormatInvalidFormat", Enum<PixelFormat>.ToString(pixelFormat));
+        internal static string PixelFormatInvalid(KnownPixelFormat pixelFormat) => Get("General_PixelFormatInvalidFormat", Enum<KnownPixelFormat>.ToString(pixelFormat));
 
         /// <summary>Either the IAsyncResult object did not come from the corresponding '{0}' method, or the End method was called multiple times with the same IAsyncResult.</summary>
         internal static string InvalidAsyncResult(string beginMethodName) => Get("General_InvalidAsyncResultFormat", beginMethodName);
 
         #endregion
 
-        #region ImageExtensions
-
-        /// <summary>No encoder was found for the '{0}' format.</summary>
-        internal static string ImageExtensionsNoEncoder(ImageFormat imageFormat) => Get("ImageExtensions_NoEncoderFormat", imageFormat);
-
-        /// <summary>Could not save the image by the '{0}' encoder.</summary>
-        internal static string ImageExtensionsEncoderSaveFail(ImageFormat imageFormat) => Get("ImageExtensions_EncoderSaveFailFormat", imageFormat);
-
-        #endregion
-
         #region Imaging
-
-        /// <summary>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</summary>
-        internal static string ImagingPixelFormatNotSupported(PixelFormat pixelFormat) => Get("Imaging_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
         /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
         internal static string ImagingPaletteTooLarge(int max, int bpp) => Get("Imaging_PaletteTooLargeFormat", max, bpp);

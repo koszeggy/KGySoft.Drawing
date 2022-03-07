@@ -25,7 +25,7 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    [DebuggerDisplay("{" + nameof(Width) + "}x{" + nameof(Height) + "} {KGySoft.Drawing." + nameof(PixelFormatExtensions) + "." + nameof(PixelFormatExtensions.ToBitsPerPixel) + "(" + nameof(PixelFormat) + ")}bpp")]
+    [DebuggerDisplay("{" + nameof(Width) + "}x{" + nameof(Height) + "} {" + nameof(PixelFormat) + "." + nameof(PixelFormatInfo.BitsPerPixel) + ")}bpp")]
     internal abstract class BitmapDataBase : IBitmapDataInternal
     {
         #region Fields
@@ -43,14 +43,14 @@ namespace KGySoft.Drawing.Imaging
 
         public int Height { get; protected set; }
         public int Width { get; protected set; }
-        public PixelFormat PixelFormat { get; }
+        public PixelFormatInfo PixelFormat { get; }
         public Color32 BackColor { get; }
         public byte AlphaThreshold { get; }
         public Palette? Palette { get; private set; }
         public int RowSize { get; protected set; }
         public bool IsDisposed { get; private set; }
-        public bool CanSetPalette => PixelFormat.IsIndexed() && Palette != null && AllowSetPalette;
-        public virtual bool IsCustomPixelFormat => !PixelFormat.IsValidFormat();
+        public bool CanSetPalette => PixelFormat.Indexed && Palette != null && AllowSetPalette;
+        public virtual bool IsCustomPixelFormat => PixelFormat.IsCustomFormat;
 
         #endregion
 
@@ -104,7 +104,7 @@ namespace KGySoft.Drawing.Imaging
         
         #region Constructors
 
-        protected BitmapDataBase(Size size, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
+        protected BitmapDataBase(Size size, PixelFormatInfo pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
         {
             #region Local Methods
@@ -119,7 +119,7 @@ namespace KGySoft.Drawing.Imaging
             #endregion
 
             Debug.Assert(size.Width > 0 && size.Height > 0, "Non-empty size expected");
-            Debug.Assert(pixelFormat.ToBitsPerPixel() is > 0 and <= 128);
+            Debug.Assert(pixelFormat.BitsPerPixel is > 0 and <= 128);
             Debug.Assert(palette == null || palette.BackColor == backColor.ToOpaque() && palette.AlphaThreshold == alphaThreshold);
 
             this.disposeCallback = disposeCallback;
@@ -129,10 +129,10 @@ namespace KGySoft.Drawing.Imaging
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
             PixelFormat = pixelFormat;
-            if (!pixelFormat.IsIndexed())
+            if (!pixelFormat.Indexed)
                 return;
 
-            int bpp = pixelFormat.ToBitsPerPixel();
+            int bpp = pixelFormat.BitsPerPixel;
             if (palette != null)
             {
                 if (palette.Count > 1 << bpp)
@@ -217,7 +217,7 @@ namespace KGySoft.Drawing.Imaging
 
         public bool TrySetPalette(Palette? palette)
         {
-            if (!CanSetPalette || palette == null || palette.Count < Palette!.Count || palette.Count > 1 << PixelFormat.ToBitsPerPixel())
+            if (!CanSetPalette || palette == null || palette.Count < Palette!.Count || palette.Count > 1 << PixelFormat.BitsPerPixel)
                 return false;
 
             if (trySetPaletteCallback?.Invoke(palette) == false)

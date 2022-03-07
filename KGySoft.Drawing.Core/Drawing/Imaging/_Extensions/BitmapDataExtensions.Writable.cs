@@ -87,7 +87,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>.
-        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="PixelFormat"/> and also dithering.
+        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="KnownPixelFormat"/> and also dithering.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
         /// <param name="color">A <see cref="Color32"/> that represents the desired result color of the <paramref name="bitmapData"/>.
@@ -110,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to clear the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/> asynchronously.
-        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="PixelFormat"/> and also dithering.
+        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="KnownPixelFormat"/> and also dithering.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
@@ -145,7 +145,7 @@ namespace KGySoft.Drawing.Imaging
 #if !NET35
         /// <summary>
         /// Begins to clear the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/> asynchronously.
-        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="PixelFormat"/> and also dithering.
+        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="KnownPixelFormat"/> and also dithering.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
         /// <param name="color">A <see cref="Color32"/> that represents the desired result color of the <paramref name="bitmapData"/>.
@@ -215,7 +215,7 @@ namespace KGySoft.Drawing.Imaging
             IBitmapDataInternal accessor = bitmapData as IBitmapDataInternal ?? new BitmapDataWrapper(bitmapData, false, true);
             try
             {
-                if (ditherer == null || !accessor.PixelFormat.CanBeDithered())
+                if (ditherer == null || !accessor.PixelFormat.CanBeDithered)
                     ClearDirect(context, accessor, color);
                 else
                     ClearWithDithering(context, accessor, color, ditherer);
@@ -235,13 +235,14 @@ namespace KGySoft.Drawing.Imaging
 
             static void Clear64Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
             {
+                Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
                 int longWidth = bitmapData.RowSize >> 3;
 
                 // writing as longs
                 if (longWidth > 0)
                 {
                     Color64 rawColor = new Color64(color);
-                    if (bitmapData.PixelFormat == PixelFormat.Format64bppPArgb)
+                    if (bitmapData.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format64bppPArgb)
                         rawColor = rawColor.ToPremultiplied();
                     ClearRaw(context, bitmapData, longWidth, rawColor);
                 }
@@ -254,15 +255,16 @@ namespace KGySoft.Drawing.Imaging
 
             static void Clear32Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
             {
+                Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
                 int longWidth = bitmapData.RowSize >> 3;
 
                 // writing as longs
                 if (longWidth > 0)
                 {
-                    Color32 rawColor = bitmapData.PixelFormat switch
+                    Color32 rawColor = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
                     {
-                        PixelFormat.Format32bppPArgb => color.ToPremultiplied(),
-                        PixelFormat.Format32bppRgb => color.BlendWithBackground(bitmapData.BackColor),
+                        KnownPixelFormat.Format32bppPArgb => color.ToPremultiplied(),
+                        KnownPixelFormat.Format32bppRgb => color.BlendWithBackground(bitmapData.BackColor),
                         _ => color,
                     };
 
@@ -278,16 +280,17 @@ namespace KGySoft.Drawing.Imaging
 
             static void Clear16Bpp(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, int width)
             {
+                Debug.Assert(bitmapData.PixelFormat.IsKnownFormat);
                 int longWidth = bitmapData.RowSize >> 3;
 
                 // writing as longs
                 if (longWidth > 0)
                 {
-                    ushort shortValue = bitmapData.PixelFormat switch
+                    ushort shortValue = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
                     {
-                        PixelFormat.Format16bppArgb1555 => new Color16Argb1555(color).Value,
-                        PixelFormat.Format16bppRgb565 => new Color16Rgb565(color).Value,
-                        PixelFormat.Format16bppRgb555 => new Color16Rgb555(color).Value,
+                        KnownPixelFormat.Format16bppArgb1555 => new Color16Argb1555(color).Value,
+                        KnownPixelFormat.Format16bppRgb565 => new Color16Rgb565(color).Value,
+                        KnownPixelFormat.Format16bppRgb555 => new Color16Rgb555(color).Value,
                         _ => new Color16Gray(color).Value
                     };
 
@@ -409,7 +412,7 @@ namespace KGySoft.Drawing.Imaging
 
             if (bitmapData is { IsCustomPixelFormat: false })
             {
-                int bpp = bitmapData.PixelFormat.ToBitsPerPixel();
+                int bpp = bitmapData.PixelFormat.BitsPerPixel;
                 int width = bitmapData.Width;
                 switch (bpp)
                 {
@@ -468,7 +471,6 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void ClearWithDithering(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color, IDitherer ditherer)
         {
             IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(bitmapData);

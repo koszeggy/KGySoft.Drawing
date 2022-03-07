@@ -28,7 +28,6 @@ using System.Threading.Tasks;
 #endif
 
 using KGySoft.CoreLibraries;
-using KGySoft.Drawing.WinApi;
 
 #endregion
 
@@ -67,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The desired pixel format of the bitmap data to create. This parameter is optional.
-        /// <br/>Default value: <see cref="PixelFormat.Format32bppArgb"/>.</param>
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section for details. The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -85,14 +84,14 @@ namespace KGySoft.Drawing.Imaging
         /// will be transparent only if the color to set is completely transparent (has zero alpha).</para>
         /// <para>If <paramref name="alphaThreshold"/> is <c>255</c>, then the result color of setting a pixel of a bitmap data with indexed or single-bit-alpha pixel format
         /// will be opaque only if the color to set is completely opaque (its alpha value is <c>255</c>).</para>
-        /// <para>For <see cref="PixelFormat"/>s without any alpha support the specified <paramref name="alphaThreshold"/> is used only to determine the source pixels to skip
+        /// <para>For <see cref="KnownPixelFormat"/>s without any alpha support the specified <paramref name="alphaThreshold"/> is used only to determine the source pixels to skip
         /// when another bitmap data is drawn into the returned instance.</para>
         /// <para>If a pixel of a bitmap data without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
         /// <note type="tip">
         /// <list type="bullet">
-        /// <item>If <paramref name="pixelFormat"/> represents an indexed format you can use the <see cref="CreateBitmapData(Size, PixelFormat, Palette)"/> overload to specify the desired palette of the result.</item>
+        /// <item>If <paramref name="pixelFormat"/> represents an indexed format you can use the <see cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/> overload to specify the desired palette of the result.</item>
         /// <item>You can use the <see cref="BitmapDataExtensions.ToBitmap">ToBitmap</see> extension method to convert the created <see cref="IReadWriteBitmapData"/> to a <see cref="Bitmap"/> instance.</item>
         /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a native <see cref="Bitmap"/> use the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method.</item>
         /// </list></note>
@@ -100,12 +99,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
-        /// <seealso cref="CreateBitmapData(Size, PixelFormat, Palette)"/>
+        /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
         /// <seealso cref="BitmapDataExtensions.ToBitmap"/>
         /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
-        public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128)
+        public static IReadWriteBitmapData CreateBitmapData(Size size, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(size, pixelFormat);
             return CreateManagedBitmapData(size, pixelFormat, backColor, alphaThreshold);
@@ -123,12 +122,12 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
+        /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
         /// <seealso cref="BitmapDataExtensions.ToBitmap"/>
         /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
         /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
-        public static IReadWriteBitmapData CreateBitmapData(Size size, PixelFormat pixelFormat, Palette? palette)
+        public static IReadWriteBitmapData CreateBitmapData(Size size, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(size, pixelFormat, palette);
             return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
@@ -140,22 +139,22 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated one dimensional array with the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// It can be larger than it is required for the specified parameters.
-        /// If the actual image data starts at some offset use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, PixelFormat, Color32, byte, Action?)"/> overload instead.</param>
+        /// If the actual image data starts at some offset use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, KnownPixelFormat, Color32, byte, Action?)"/> overload instead.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create. This parameter is optional.
-        /// <br/>Default value: <see cref="PixelFormat.Format32bppArgb"/>.</param>
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -170,7 +169,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride,
-            PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+            KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormat, backColor, alphaThreshold, disposeCallback);
 
@@ -180,7 +179,7 @@ namespace KGySoft.Drawing.Imaging
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// It can be larger than it is required for the specified parameters.
-        /// If the actual image data starts at some offset use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, PixelFormat, Palette?, Func{Palette, bool}?, Action?)"/> overload instead.</param>
+        /// If the actual image data starts at some offset use the <see cref="CreateBitmapData{T}(ArraySection{T}, Size, int, KnownPixelFormat, Palette?, Func{Palette, bool}?, Action?)"/> overload instead.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
@@ -203,7 +202,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
         /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, PixelFormat pixelFormat,
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[] buffer, Size size, int stride, KnownPixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
             => CreateBitmapData(buffer.AsSection(), size, stride, pixelFormat, palette, trySetPaletteCallback, disposeCallback);
@@ -222,11 +221,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -316,7 +315,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_ArraySection_1.htm" target="_blank">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -324,13 +323,13 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create. This parameter is optional.
-        /// <br/>Default value: <see cref="PixelFormat.Format32bppArgb"/>.</param>
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -345,7 +344,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>.</exception>
         public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride,
-            PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+            KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
             int elementWidth = ValidateArguments(buffer, size, stride, pixelFormat);
@@ -380,7 +379,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="stride"/> is not a multiple of the size of <typeparamref name="T"/>
         /// <br/>-or-
         /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, PixelFormat pixelFormat,
+        public static IReadWriteBitmapData CreateBitmapData<T>(ArraySection<T> buffer, Size size, int stride, KnownPixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -402,11 +401,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -495,19 +494,19 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance for a preallocated two dimensional array with the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create. This parameter is optional.
-        /// <br/>Default value: <see cref="PixelFormat.Format32bppArgb"/>.</param>
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -517,7 +516,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty.</exception>
-        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, pixelFormat);
@@ -546,7 +545,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
         /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormat pixelFormat,
+        public static IReadWriteBitmapData CreateBitmapData<T>(T[,] buffer, int pixelWidth, KnownPixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -566,11 +565,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -640,19 +639,19 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_Array2D_1.htm" target="_blank">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create. This parameter is optional.
-        /// <br/>Default value: <see cref="PixelFormat.Format32bppArgb"/>.</param>
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -662,7 +661,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty.</exception>
-        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         where T : unmanaged
         {
             ValidateArguments(buffer, pixelWidth, pixelFormat);
@@ -691,7 +690,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="buffer"/> is empty
         /// <br/>-or-
         /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat,
+        public static IReadWriteBitmapData CreateBitmapData<T>(Array2D<T> buffer, int pixelWidth, KnownPixelFormat pixelFormat,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
         {
@@ -711,11 +710,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -793,7 +792,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance wrapping an unmanaged <paramref name="buffer"/> and using the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// </summary>
         /// <param name="buffer">The memory address to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// Make sure there is enough allocated memory for the specified <paramref name="size"/>, <paramref name="stride"/> and <paramref name="pixelFormat"/>;
@@ -804,11 +803,11 @@ namespace KGySoft.Drawing.Imaging
         /// It can be negative for bottom-up layout (ie. when <paramref name="buffer"/> points to the first pixel of the bottom row).</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -820,7 +819,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/>The absolute value of <paramref name="stride"/> is too small for the specified width and <paramref name="pixelFormat"/>.</exception>
         [SecurityCritical]
-        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             ValidateArguments(buffer, size, stride, pixelFormat);
             return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback);
@@ -857,7 +856,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
         [SecurityCritical]
-        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette,
+        public static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, Size size, int stride, KnownPixelFormat pixelFormat, Palette? palette,
             Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
         {
             ValidateArguments(buffer, size, stride, pixelFormat, palette);
@@ -879,11 +878,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <param name="alphaThreshold">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.AlphaThreshold"/> value of the returned <see cref="IReadWriteBitmapData"/> instance.
-        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, PixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
+        /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -1035,138 +1034,30 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        #region Native Bitmap
-
-        /// <summary>
-        /// Creates a native <see cref="IBitmapDataInternal"/> from a <see cref="Bitmap"/>.
-        /// </summary>
-        [SecuritySafeCritical]
-        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
-            Justification = "Very straightforward switch with many conditions. Would be OK without the libgdiplus special handling for 16bpp RGB555/565 formats.")]
-        [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
-        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
-        {
-            if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            if (!lockMode.IsDefined())
-                throw new ArgumentOutOfRangeException(nameof(lockMode), PublicResources.EnumOutOfRange(lockMode));
-
-            PixelFormat pixelFormat = bitmap.PixelFormat;
-
-            // On Linux with libgdiplus 16bpp formats can be accessed only via 24bpp bitmap data
-            PixelFormat bitmapDataPixelFormat = OSUtils.IsWindows
-                ? pixelFormat
-                : pixelFormat is PixelFormat.Format16bppRgb565 or PixelFormat.Format16bppRgb555 ? PixelFormat.Format24bppRgb : pixelFormat;
-
-            Size size = bitmap.Size;
-            BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
-            Action dispose = () => bitmap.UnlockBits(bitmapData);
-
-            switch (pixelFormat)
-            {
-                case PixelFormat.Format32bppArgb:
-                case PixelFormat.Format32bppPArgb:
-                case PixelFormat.Format32bppRgb:
-                case PixelFormat.Format24bppRgb:
-                case PixelFormat.Format16bppArgb1555:
-                case PixelFormat.Format16bppGrayScale:
-                    return CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose);
-
-                case PixelFormat.Format8bppIndexed:
-                case PixelFormat.Format4bppIndexed:
-                case PixelFormat.Format1bppIndexed:
-                    Debug.Assert(palette == null || palette.Equals(bitmap.Palette.Entries), "Non-null palette entries must match actual palette. Expected to be passed to re-use its cache only.");
-                    palette ??= new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
-                    return CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, palette, bitmap.TrySetPalette, dispose);
-
-                case PixelFormat.Format64bppArgb:
-                    return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
-                        (row, x) => row.UnsafeGetRefAs<Color64>(x).ToColor32PlatformDependent(),
-                        (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToColor64PlatformDependent(),
-                        disposeCallback: dispose);
-
-                case PixelFormat.Format64bppPArgb:
-                    return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
-                        (row, x) => row.UnsafeGetRefAs<Color64>(x).ToStraight32PlatformDependent(),
-                        (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToPremultiplied64PlatformDependent(),
-                        disposeCallback: dispose);
-
-                case PixelFormat.Format48bppRgb:
-                    return CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
-                        (row, x) => row.UnsafeGetRefAs<Color48>(x).ToColor32PlatformDependent(),
-                        (row, x, c) => row.UnsafeGetRefAs<Color48>(x) = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor48PlatformDependent(),
-                        backColor, alphaThreshold, dispose);
-
-                case PixelFormat.Format16bppRgb565:
-                    return pixelFormat == bitmapDataPixelFormat
-                        ? CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
-                        : CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
-                            (row, x) => new Color16Rgb565(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
-                            (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
-                            backColor, alphaThreshold, dispose);
-
-                case PixelFormat.Format16bppRgb555:
-                    return pixelFormat == bitmapDataPixelFormat
-                        ? CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
-                        : CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
-                            (row, x) => new Color16Rgb555(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
-                            (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
-                            backColor, alphaThreshold, dispose);
-
-                default:
-                    throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"));
-            }
-        }
-
-        /// <summary>
-        /// Creates a native <see cref="IBitmapDataInternal"/> by a quantizer session re-using its palette if possible.
-        /// </summary>
-        internal static IBitmapDataInternal CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, IQuantizingSession quantizingSession)
-        {
-            if (bitmap == null)
-                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-
-            var pixelFormat = bitmap.PixelFormat;
-            if (!pixelFormat.IsIndexed() || quantizingSession.Palette == null)
-                return CreateBitmapData(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold);
-
-            // checking if bitmap and quantizer palette has the same entries
-            if (!quantizingSession.Palette.Equals(bitmap.Palette.Entries))
-                return CreateBitmapData(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold);
-
-            if (!lockMode.IsDefined())
-                throw new ArgumentOutOfRangeException(nameof(lockMode), PublicResources.EnumOutOfRange(lockMode));
-
-            // here the quantizer and the target bitmap uses the same palette
-            return CreateBitmapData(bitmap, lockMode, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
-        }
-
-        #endregion
-
         #region Managed
 
         /// <summary>
         /// Creates a managed <see cref="IBitmapDataInternal"/> with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.
         /// </summary>
-        internal static IBitmapDataInternal CreateManagedBitmapData(Size size, PixelFormat pixelFormat = PixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
+        internal static IBitmapDataInternal CreateManagedBitmapData(Size size, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
         {
             Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             return pixelFormat switch
             {
-                PixelFormat.Format32bppArgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32Argb>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format32bppPArgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32PArgb>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format32bppRgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32Rgb>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format24bppRgb => new ManagedBitmapData<Color24, ManagedBitmapDataRow24Rgb>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format8bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow8I>(size, pixelFormat, backColor, alphaThreshold, palette),
-                PixelFormat.Format4bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow4I>(size, pixelFormat, backColor, alphaThreshold, palette),
-                PixelFormat.Format1bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow1I>(size, pixelFormat, backColor, alphaThreshold, palette),
-                PixelFormat.Format64bppArgb => new ManagedBitmapData<Color64, ManagedBitmapDataRow64Argb>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format64bppPArgb => new ManagedBitmapData<Color64, ManagedBitmapDataRow64PArgb>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format48bppRgb => new ManagedBitmapData<Color48, ManagedBitmapDataRow48Rgb>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format16bppRgb565 => new ManagedBitmapData<Color16Rgb565, ManagedBitmapDataRow16Rgb565>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format16bppRgb555 => new ManagedBitmapData<Color16Rgb555, ManagedBitmapDataRow16Rgb555>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format16bppArgb1555 => new ManagedBitmapData<Color16Argb1555, ManagedBitmapDataRow16Argb1555>(size, pixelFormat, backColor, alphaThreshold),
-                PixelFormat.Format16bppGrayScale => new ManagedBitmapData<Color16Gray, ManagedBitmapDataRow16Gray>(size, pixelFormat, backColor, alphaThreshold),
+                KnownPixelFormat.Format32bppArgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32Argb>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format32bppPArgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32PArgb>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format32bppRgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32Rgb>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData<Color24, ManagedBitmapDataRow24Rgb>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format8bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow8I>(size, pixelFormat.ToInfo(), backColor, alphaThreshold, palette),
+                KnownPixelFormat.Format4bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow4I>(size, pixelFormat.ToInfo(), backColor, alphaThreshold, palette),
+                KnownPixelFormat.Format1bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow1I>(size, pixelFormat.ToInfo(), backColor, alphaThreshold, palette),
+                KnownPixelFormat.Format64bppArgb => new ManagedBitmapData<Color64, ManagedBitmapDataRow64Argb>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format64bppPArgb => new ManagedBitmapData<Color64, ManagedBitmapDataRow64PArgb>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData<Color48, ManagedBitmapDataRow48Rgb>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData<Color16Rgb565, ManagedBitmapDataRow16Rgb565>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData<Color16Rgb555, ManagedBitmapDataRow16Rgb555>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData<Color16Argb1555, ManagedBitmapDataRow16Argb1555>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData<Color16Gray, ManagedBitmapDataRow16Gray>(size, pixelFormat.ToInfo(), backColor, alphaThreshold),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1174,55 +1065,55 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a managed <see cref="IBitmapDataInternal"/> for a preallocated 1D array (wrapped into an <see cref="Array2D{T}"/> struct).
         /// </summary>
-        internal static IBitmapDataInternal CreateManagedBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
+        internal static IBitmapDataInternal CreateManagedBitmapData<T>(Array2D<T> buffer, int pixelWidth, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
         {
             Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             return pixelFormat switch
             {
-                PixelFormat.Format32bppArgb => buffer is Array2D<Color32> buf
-                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32Argb>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32Argb<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format32bppPArgb => buffer is Array2D<Color32> buf
-                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32PArgb>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32PArgb<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format32bppRgb => buffer is Array2D<Color32> buf
-                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32Rgb>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32Rgb<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format24bppRgb => buffer is Array2D<Color24> buf
-                    ? new ManagedBitmapDataWrapper<Color24, ManagedBitmapDataRow24Rgb>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow24Rgb<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format8bppIndexed => buffer is Array2D<byte> buf
-                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow8I>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow8I<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format4bppIndexed => buffer is Array2D<byte> buf
-                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow4I>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow4I<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format1bppIndexed => buffer is Array2D<byte> buf
-                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow1I>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow1I<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format64bppArgb => buffer is Array2D<Color64> buf
-                    ? new ManagedBitmapDataWrapper<Color64, ManagedBitmapDataRow64Argb>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow64Argb<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format64bppPArgb => buffer is Array2D<Color64> buf
-                    ? new ManagedBitmapDataWrapper<Color64, ManagedBitmapDataRow64PArgb>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow64PArgb<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format48bppRgb => buffer is Array2D<Color48> buf
-                    ? new ManagedBitmapDataWrapper<Color48, ManagedBitmapDataRow48Rgb>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow48Rgb<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb565 => buffer is Array2D<Color16Rgb565> buf
-                    ? new ManagedBitmapDataWrapper<Color16Rgb565, ManagedBitmapDataRow16Rgb565>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Rgb565<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb555 => buffer is Array2D<Color16Rgb555> buf
-                    ? new ManagedBitmapDataWrapper<Color16Rgb555, ManagedBitmapDataRow16Rgb555>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Rgb555<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppArgb1555 => buffer is Array2D<Color16Argb1555> buf
-                    ? new ManagedBitmapDataWrapper<Color16Argb1555, ManagedBitmapDataRow16Argb1555>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Argb1555<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppGrayScale => buffer is Array2D<Color16Gray> buf
-                    ? new ManagedBitmapDataWrapper<Color16Gray, ManagedBitmapDataRow16Gray>(buf, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Gray<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppArgb => buffer is Array2D<Color32> buf
+                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32Argb>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32Argb<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppPArgb => buffer is Array2D<Color32> buf
+                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32PArgb>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32PArgb<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppRgb => buffer is Array2D<Color32> buf
+                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32Rgb>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32Rgb<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format24bppRgb => buffer is Array2D<Color24> buf
+                    ? new ManagedBitmapDataWrapper<Color24, ManagedBitmapDataRow24Rgb>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow24Rgb<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format8bppIndexed => buffer is Array2D<byte> buf
+                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow8I>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow8I<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format4bppIndexed => buffer is Array2D<byte> buf
+                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow4I>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow4I<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format1bppIndexed => buffer is Array2D<byte> buf
+                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow1I>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow1I<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format64bppArgb => buffer is Array2D<Color64> buf
+                    ? new ManagedBitmapDataWrapper<Color64, ManagedBitmapDataRow64Argb>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow64Argb<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format64bppPArgb => buffer is Array2D<Color64> buf
+                    ? new ManagedBitmapDataWrapper<Color64, ManagedBitmapDataRow64PArgb>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow64PArgb<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format48bppRgb => buffer is Array2D<Color48> buf
+                    ? new ManagedBitmapDataWrapper<Color48, ManagedBitmapDataRow48Rgb>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow48Rgb<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppRgb565 => buffer is Array2D<Color16Rgb565> buf
+                    ? new ManagedBitmapDataWrapper<Color16Rgb565, ManagedBitmapDataRow16Rgb565>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Rgb565<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppRgb555 => buffer is Array2D<Color16Rgb555> buf
+                    ? new ManagedBitmapDataWrapper<Color16Rgb555, ManagedBitmapDataRow16Rgb555>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Rgb555<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppArgb1555 => buffer is Array2D<Color16Argb1555> buf
+                    ? new ManagedBitmapDataWrapper<Color16Argb1555, ManagedBitmapDataRow16Argb1555>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Argb1555<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppGrayScale => buffer is Array2D<Color16Gray> buf
+                    ? new ManagedBitmapDataWrapper<Color16Gray, ManagedBitmapDataRow16Gray>(buf, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback)
+                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Gray<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1232,7 +1123,7 @@ namespace KGySoft.Drawing.Imaging
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
-            return new ManagedCustomBitmapData<T>(buffer, pixelWidth, pixelFormat.PixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+            return new ManagedCustomBitmapData<T>(buffer, pixelWidth, pixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
@@ -1240,33 +1131,33 @@ namespace KGySoft.Drawing.Imaging
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
         {
-            return new ManagedCustomBitmapDataIndexed<T>(buffer, pixelWidth, pixelFormat.PixelFormat, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
+            return new ManagedCustomBitmapDataIndexed<T>(buffer, pixelWidth, pixelFormat, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
         }
 
         /// <summary>
         /// Creates a managed <see cref="IBitmapDataInternal"/> for a preallocated 2D array.
         /// </summary>
-        internal static IBitmapDataInternal CreateManagedBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
+        internal static IBitmapDataInternal CreateManagedBitmapData<T>(T[,] buffer, int pixelWidth, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
         {
             Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             return pixelFormat switch
             {
-                PixelFormat.Format32bppArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32Argb2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format32bppPArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32PArgb2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format32bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32Rgb2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format24bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow24Rgb2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format8bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow8I2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format4bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow4I2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format1bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow1I2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format64bppArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow64Argb2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format64bppPArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow64PArgb2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format48bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow48Rgb2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb565 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Rgb565_2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb555 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Rgb555_2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppArgb1555 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Argb1555_2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppGrayScale => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Gray2D<T>>(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32Argb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppPArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32PArgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32Rgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format24bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow24Rgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format8bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow8I2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format4bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow4I2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format1bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow1I2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format64bppArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow64Argb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format64bppPArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow64PArgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format48bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow48Rgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Rgb565_2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Rgb555_2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Argb1555_2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Gray2D<T>>(buffer, pixelWidth, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1276,7 +1167,7 @@ namespace KGySoft.Drawing.Imaging
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
             where T : unmanaged
         {
-            return new ManagedCustomBitmapData2D<T>(buffer, pixelWidth, pixelFormat.PixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+            return new ManagedCustomBitmapData2D<T>(buffer, pixelWidth, pixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
         }
 
         internal static IBitmapDataInternal CreateManagedCustomBitmapData<T>(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat,
@@ -1284,7 +1175,7 @@ namespace KGySoft.Drawing.Imaging
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
             where T : unmanaged
         {
-            return new ManagedCustomBitmapDataIndexed2D<T>(buffer, pixelWidth, pixelFormat.PixelFormat, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
+            return new ManagedCustomBitmapDataIndexed2D<T>(buffer, pixelWidth, pixelFormat, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
         }
 
         #endregion
@@ -1292,27 +1183,27 @@ namespace KGySoft.Drawing.Imaging
         #region Unmanaged
 
         [SecurityCritical]
-        internal static IBitmapDataInternal CreateUnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
+        internal static IBitmapDataInternal CreateUnmanagedBitmapData(IntPtr buffer, Size size, int stride, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
              Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
         {
             Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
 
             return pixelFormat switch
             {
-                PixelFormat.Format32bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Argb>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format32bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32PArgb>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format32bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Rgb>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format24bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow24Rgb>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format8bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow8I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format4bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow4I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format1bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow1I>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                PixelFormat.Format64bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64Argb>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format64bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64PArgb>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format48bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow48Rgb>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb565 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb565>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppRgb555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb555>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Argb1555>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback),
-                PixelFormat.Format16bppGrayScale => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Gray>(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, null, disposeCallback),
+                KnownPixelFormat.Format32bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Argb>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32PArgb>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Rgb>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format24bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow24Rgb>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format8bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow8I>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format4bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow4I>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format1bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow1I>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format64bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64Argb>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format64bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64PArgb>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format48bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow48Rgb>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppRgb565 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb565>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppRgb555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb555>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Argb1555>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format16bppGrayScale => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Gray>(buffer, size, stride, pixelFormat.ToInfo(), backColor, alphaThreshold, palette, null, disposeCallback),
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"))
             };
         }
@@ -1322,7 +1213,7 @@ namespace KGySoft.Drawing.Imaging
             Func<ICustomBitmapDataRow, int, Color32> rowGetColor, Action<ICustomBitmapDataRow, int, Color32> rowSetColor,
             Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
-            return new UnmanagedCustomBitmapData(buffer, size, stride, pixelFormat.PixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
+            return new UnmanagedCustomBitmapData(buffer, size, stride, pixelFormat, rowGetColor, rowSetColor, backColor, alphaThreshold, disposeCallback);
         }
 
         [SecurityCritical]
@@ -1330,12 +1221,12 @@ namespace KGySoft.Drawing.Imaging
             Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
         {
-            return new UnmanagedCustomBitmapDataIndexed(buffer, size, stride, pixelFormat.PixelFormat, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
+            return new UnmanagedCustomBitmapDataIndexed(buffer, size, stride, pixelFormat, rowGetColorIndex, rowSetColorIndex, palette, trySetPaletteCallback, disposeCallback);
         }
 
         internal static void DoSaveBitmapData(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, Stream stream)
         {
-            PixelFormat pixelFormat = bitmapData.GetKnownPixelFormat();
+            KnownPixelFormat pixelFormat = bitmapData.GetKnownPixelFormat();
 
             context.Progress?.New(DrawingOperation.Saving, rect.Height + 1);
             var writer = new BinaryWriter(stream);
@@ -1368,11 +1259,11 @@ namespace KGySoft.Drawing.Imaging
                         )
                     && bitmapData.RowSize >= pixelFormat.GetByteWidth(rect.Right) && pixelFormat.IsAtByteBoundary(rect.Left))
                 {
-                    DoSaveRaw(context, bitmapData, rect, writer);
+                    DoSaveRaw(context, bitmapData, pixelFormat, rect, writer);
                     return;
                 }
 
-                DoSaveCustom(context, bitmapData, rect, writer);
+                DoSaveCustom(context, bitmapData, pixelFormat, rect, writer);
             }
             finally
             {
@@ -1389,8 +1280,7 @@ namespace KGySoft.Drawing.Imaging
         #region Validation
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        private static void ValidateArguments(Size size, PixelFormat pixelFormat, Palette? palette = null)
+        private static void ValidateArguments(Size size, KnownPixelFormat pixelFormat, Palette? palette = null)
         {
             if (size.Width < 1 || size.Height < 1)
                 throw new ArgumentOutOfRangeException(nameof(size), PublicResources.ArgumentOutOfRange);
@@ -1404,7 +1294,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe int ValidateArguments<T>(ArraySection<T> buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette = null) where T : unmanaged
+        private static unsafe int ValidateArguments<T>(ArraySection<T> buffer, Size size, int stride, KnownPixelFormat pixelFormat, Palette? palette = null) where T : unmanaged
         {
             if (buffer.IsNull)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
@@ -1441,8 +1331,8 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormat.BitsPerPixel), 0), nameof(pixelFormat));
             if (pixelFormat.Indexed && bpp > 16)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
-            if (stride < pixelFormat.PixelFormat.GetByteWidth(size.Width))
-                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.PixelFormat.GetByteWidth(size.Width)));
+            if (stride < pixelFormat.GetByteWidth(size.Width))
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
             int elementSize = sizeof(T);
             if (stride % elementSize != 0)
                 throw new ArgumentException(Res.ImagingStrideInvalid(typeof(T), sizeof(T)), nameof(stride));
@@ -1460,7 +1350,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, PixelFormat pixelFormat, Palette? palette = null) where T : unmanaged
+        private static unsafe void ValidateArguments<T>(T[,] buffer, int pixelWidth, KnownPixelFormat pixelFormat, Palette? palette = null) where T : unmanaged
         {
             if (buffer == null)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
@@ -1491,7 +1381,7 @@ namespace KGySoft.Drawing.Imaging
             if (pixelFormat.Indexed && bpp > 16)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
             int stride = sizeof(T) * buffer.GetLength(1);
-            if (stride < pixelFormat.PixelFormat.GetByteWidth(pixelWidth))
+            if (stride < pixelFormat.GetByteWidth(pixelWidth))
                 throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
             if (palette == null)
                 return;
@@ -1501,7 +1391,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecuritySafeCritical]
-        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, PixelFormat pixelFormat, Palette? palette = null) where T : unmanaged
+        private static unsafe void ValidateArguments<T>(Array2D<T> buffer, int pixelWidth, KnownPixelFormat pixelFormat, Palette? palette = null) where T : unmanaged
         {
             if (buffer.IsNull)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
@@ -1532,7 +1422,7 @@ namespace KGySoft.Drawing.Imaging
             if (pixelFormat.Indexed && bpp > 16)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
             int stride = sizeof(T) * buffer.Width;
-            if (stride < pixelFormat.PixelFormat.GetByteWidth(pixelWidth))
+            if (stride < pixelFormat.GetByteWidth(pixelWidth))
                 throw new ArgumentOutOfRangeException(nameof(pixelWidth), Res.ImagingWidthTooLarge);
             if (palette == null)
                 return;
@@ -1542,8 +1432,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        private static void ValidateArguments(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Palette? palette = null)
+        private static void ValidateArguments(IntPtr buffer, Size size, int stride, KnownPixelFormat pixelFormat, Palette? palette = null)
         {
             if (buffer == IntPtr.Zero)
                 throw new ArgumentNullException(nameof(buffer), PublicResources.ArgumentNull);
@@ -1561,7 +1450,6 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "That's why it is called ValidateArguments")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static void ValidateArguments(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Palette? palette = null)
         {
             if (buffer == IntPtr.Zero)
@@ -1573,8 +1461,8 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(pixelFormat.BitsPerPixel), 0), nameof(pixelFormat));
             if (pixelFormat.Indexed && bpp > 16)
                 throw new ArgumentException(Res.ImagingIndexedPixelFormatTooLarge, nameof(pixelFormat));
-            if (Math.Abs(stride) < pixelFormat.PixelFormat.GetByteWidth(size.Width))
-                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.PixelFormat.GetByteWidth(size.Width)));
+            if (Math.Abs(stride) < pixelFormat.GetByteWidth(size.Width))
+                throw new ArgumentOutOfRangeException(nameof(stride), Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)));
             if (palette == null)
                 return;
             int maxColors = 1 << bpp;
@@ -1586,9 +1474,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Save
 
-        private static unsafe void DoSaveCustom(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        private static unsafe void DoSaveCustom(IAsyncContext context, IBitmapDataInternal bitmapData, KnownPixelFormat pixelFormat, Rectangle rect, BinaryWriter writer)
         {
-            PixelFormat pixelFormat = bitmapData.GetKnownPixelFormat();
             IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
 
             if (pixelFormat.ToBitsPerPixel() <= 8)
@@ -1600,7 +1487,7 @@ namespace KGySoft.Drawing.Imaging
 
                     switch (pixelFormat)
                     {
-                        case PixelFormat.Format1bppIndexed:
+                        case KnownPixelFormat.Format1bppIndexed:
                             byte bits = 0;
                             int x;
                             for (x = 0; x < rect.Width; x++)
@@ -1620,7 +1507,7 @@ namespace KGySoft.Drawing.Imaging
                                 writer.Write(bits);
                             break;
 
-                        case PixelFormat.Format4bppIndexed:
+                        case KnownPixelFormat.Format4bppIndexed:
                             bits = 0;
                             for (x = 0; x < rect.Width; x++)
                             {
@@ -1636,7 +1523,7 @@ namespace KGySoft.Drawing.Imaging
                                 writer.Write(bits);
                             break;
 
-                        case PixelFormat.Format8bppIndexed:
+                        case KnownPixelFormat.Format8bppIndexed:
                             for (x = rect.Left; x < rect.Right; x++)
                                 writer.Write((byte)row.DoGetColorIndex(x));
                             break;
@@ -1678,9 +1565,8 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static void DoSaveRaw(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
+        private static void DoSaveRaw(IAsyncContext context, IBitmapDataInternal bitmapData, KnownPixelFormat pixelFormat, Rectangle rect, BinaryWriter writer)
         {
-            PixelFormat pixelFormat = bitmapData.PixelFormat;
             int bpp = pixelFormat.ToBitsPerPixel();
             Debug.Assert(pixelFormat.IsAtByteBoundary(rect.Left));
 
@@ -1786,7 +1672,6 @@ namespace KGySoft.Drawing.Imaging
         #region Load
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
         private static IReadWriteBitmapData? DoLoadBitmapData(IAsyncContext context, Stream stream)
         {
             context.Progress?.New(DrawingOperation.Loading, 1000);
@@ -1795,7 +1680,7 @@ namespace KGySoft.Drawing.Imaging
             if (reader.ReadInt32() != magicNumber)
                 throw new ArgumentException(Res.ImagingNotBitmapDataStream, nameof(stream));
             var size = new Size(reader.ReadInt32(), reader.ReadInt32());
-            var pixelFormat = (PixelFormat)reader.ReadInt32();
+            var pixelFormat = (KnownPixelFormat)reader.ReadInt32();
             Color32 backColor = Color32.FromArgb(reader.ReadInt32());
             byte alphaThreshold = reader.ReadByte();
 

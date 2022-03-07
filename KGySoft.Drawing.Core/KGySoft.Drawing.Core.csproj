@@ -30,4 +30,10 @@
     </PackageReference>
   </ItemGroup>
 
+  <ItemGroup>
+    <EmbeddedResource Update="KGySoft.Drawing.Core.Messages.resx">
+      <LogicalName>KGySoft.Drawing.Core.Messages.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>
+
 </Project>

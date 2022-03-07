@@ -38,11 +38,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapDataWrapper2D(T[,] buffer, int pixelWidth, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold,
+        internal ManagedBitmapDataWrapper2D(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
             : base(buffer, new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
-            Debug.Assert(pixelFormat.IsValidFormat(), "Valid format expected");
+            Debug.Assert(pixelFormat.IsKnownFormat, "Known format expected");
         }
 
         #endregion

@@ -1,0 +1,41 @@
+﻿Legend:
+! Breaking change
+* Compatible change
+- Bugfix
++ New feature
+===============================================================================
+
+~~~~~~~~~
+! v7.0.0:
+~~~~~~~~~
+
+NOTE: This is the first version of KGySoft.Drawing.Core but as it was extracted from the KGySoft.Drawing library the
+changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpreted as an upgrade from that library.
+
+! Assembly changes:
+===================
+! System.Drawing.Common package is no longer referenced (.NET Core/Standard 2.0 and above). To use APIs that depend
+  on System.Drawing.Common (eg. Image, Bitmap, Icon, Metafile, etc.) reference the KGySoft.Drawing package.
+
+! KGySoft.Drawing.Imaging namespace
+===================================
+! IBitmapData interface:
+  ! The type of the PixelFormat property from now on returns a PixelFormatInfo struct rather than an enum value of
+    the System.Drawing.Imaging.PixelFormat type. It now supports custom formats better and you still can convert it
+    to a known format if needed.
+! BitmapDataExtensions class:
+  ! The ToBitmap/BeginToBitmap/EndToBitmap/ToBitmapAsync methods are now in the ReadableBitmapDataExtensions class
+    of the KGySoft.Drawing package. When recompiling C# sources, this is not a breaking change if you use the
+    KGySoft.Drawing package and use these methods as extensions (without the class name).
++ New KnownPixelFormat enum. The names of the actual formats are compatible with System.Drawing.Imaging.PixelFormat
+  but some of them have different underlying values. Use the ToPixelFormat extension from KGySoft.Drawing to convert
+  it to a System.Drawing.Imaging.PixelFormat.
++ PixelFormatInfo struct:
+  + New public constructor from KnownPixelFormat
+  + New IsCustomFormat property
+  + Implementing IEquatable<PixelFormatInfo>
+  + Equality and inequality operators are overloaded
+  + New ToKnownPixelFormat method
+
+NOTE: See the history of older versions at the following link:
+https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt

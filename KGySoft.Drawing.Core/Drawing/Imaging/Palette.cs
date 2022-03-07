@@ -74,7 +74,6 @@ namespace KGySoft.Drawing.Imaging
 
         private static Color32[]? system8BppPalette;
         private static Color32[]? system4BppPalette;
-        private static Color32[]? system1BppPalette;
         private static Color32[]? rgb332Palette;
         private static Color32[]? grayscale256Palette;
         private static Color32[]? grayscale16Palette;
@@ -95,10 +94,18 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Properties and Indexers
-        
+
         #region Properties
 
         #region Static Properties
+
+        private static Color32[] System4BppPalette => system4BppPalette ??= new[]
+        {
+            new Color32(0xFF000000), new Color32(0xFF800000), new Color32(0xFF008000), new Color32(0xFF808000),
+            new Color32(0xFF000080), new Color32(0xFF800080), new Color32(0xFF008080), new Color32(0xFF808080),
+            new Color32(0xFFC0C0C0), new Color32(0xFFFF0000), new Color32(0xFF00FF00), new Color32(0xFFFFFF00),
+            new Color32(0xFF0000FF), new Color32(0xFFFF00FF), new Color32(0xFF00FFFF), new Color32(0xFFFFFFFF)
+        };
 
         private static Color32[] System8BppPalette
         {
@@ -107,32 +114,15 @@ namespace KGySoft.Drawing.Imaging
                 if (system8BppPalette != null)
                     return system8BppPalette;
 
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format8bppIndexed))
-                    return system8BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
-            }
-        }
+                var result = new Color32[256];
+                Array.Copy(System4BppPalette, 0, result, 0, 16);
 
-        private static Color32[] System4BppPalette
-        {
-            get
-            {
-                if (system4BppPalette != null)
-                    return system4BppPalette;
+                // web-safe colors: 6x6x6 (216) starting at 40
+                const int unit = 0x33;
+                for (int i = 0; i < 216; i++)
+                    result[i + 40] = new Color32((byte)(i / 36 * unit), (byte)(i / 6 % 6 * unit), (byte)(i % 6 * unit));
 
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format4bppIndexed))
-                    return system4BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
-            }
-        }
-
-        private static Color32[] System1BppPalette
-        {
-            get
-            {
-                if (system1BppPalette != null)
-                    return system1BppPalette;
-
-                using (var bmp = new Bitmap(1, 1, PixelFormat.Format1bppIndexed))
-                    return system1BppPalette = bmp.Palette.Entries.Select(c => new Color32(c)).ToArray();
+                return system8BppPalette = result;
             }
         }
 
@@ -354,7 +344,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
-        internal Palette(PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold)
+        internal Palette(KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold)
             : this(GetColorsByPixelFormat(pixelFormat), backColor, alphaThreshold)
         {
         }
@@ -418,7 +408,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Palette"/> instance that uses the system default 1-bit palette.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette"/>
         public static Palette SystemDefault1BppPalette(Color32 backColor = default)
-            => new Palette(System1BppPalette, backColor);
+            => new Palette(BlackAndWhitePalette, backColor);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
@@ -553,11 +543,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-        private static Color32[] GetColorsByPixelFormat(PixelFormat pixelFormat) => pixelFormat switch
+        private static Color32[] GetColorsByPixelFormat(KnownPixelFormat pixelFormat) => pixelFormat switch
         {
-            PixelFormat.Format8bppIndexed => System8BppPalette,
-            PixelFormat.Format4bppIndexed => System4BppPalette,
-            PixelFormat.Format1bppIndexed => System1BppPalette,
+            KnownPixelFormat.Format8bppIndexed => System8BppPalette,
+            KnownPixelFormat.Format4bppIndexed => System4BppPalette,
+            KnownPixelFormat.Format1bppIndexed => BlackAndWhitePalette,
             _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
         };
 

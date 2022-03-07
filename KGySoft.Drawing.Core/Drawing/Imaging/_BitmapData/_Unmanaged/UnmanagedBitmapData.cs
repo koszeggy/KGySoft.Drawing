@@ -40,11 +40,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal UnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette,
+        internal UnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette,
             Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
             : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
-            Debug.Assert(pixelFormat.IsValidFormat());
+            Debug.Assert(pixelFormat.IsKnownFormat);
         }
 
         #endregion

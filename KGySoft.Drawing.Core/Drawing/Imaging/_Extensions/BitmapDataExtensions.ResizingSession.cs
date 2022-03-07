@@ -154,7 +154,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetLeft = targetRectangle.Left;
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
-                    byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha() ? (byte)0 : target.AlphaThreshold;
+                    byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -618,7 +618,7 @@ namespace KGySoft.Drawing.Imaging
                     int topLine = kernel.StartIndex - currentWindow.Top;
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
-                    byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha() ? (byte)0 : target.AlphaThreshold;
+                    byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components

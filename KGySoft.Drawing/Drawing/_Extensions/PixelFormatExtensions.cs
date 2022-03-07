@@ -15,6 +15,8 @@
 
 #region Usings
 
+#region Used Namespaces
+
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -23,6 +25,8 @@ using System.Drawing.Imaging;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
+
+#endregion
 
 #endregion
 
@@ -108,6 +112,8 @@ namespace KGySoft.Drawing
             }
         }
 
+        public static PixelFormat ToPixelFormat(this KnownPixelFormat pixelFormat) => throw new NotImplementedException();
+
         #endregion
 
         #region Internal Methods
@@ -124,6 +130,7 @@ namespace KGySoft.Drawing
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
+        // TODO: move these in KnownPixelFormatExtensions in Core
         internal static bool HasAlpha(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
@@ -143,26 +150,6 @@ namespace KGySoft.Drawing
                 return pixelFormat != PixelFormat.Format16bppGrayScale;
             return pixelFormat is not PixelFormat.Format16bppRgb555 or PixelFormat.Format16bppRgb565
                 && pixelFormat.IsSupportedNatively();
-        }
-
-        internal static int GetByteWidth(this PixelFormat pixelFormat, int pixelWidth)
-            => (pixelWidth * pixelFormat.ToBitsPerPixel() + 7) >> 3;
-
-        internal static bool IsAtByteBoundary(this PixelFormat pixelFormat, int x)
-        {
-            int bpp = pixelFormat.ToBitsPerPixel();
-            return (bpp & 7) == 0 || ((bpp * x) & 7) == 0;
-        }
-
-        internal static int GetColorsLimit(this PixelFormat pixelFormat)
-        {
-            int bpp = pixelFormat.ToBitsPerPixel();
-            return bpp switch
-            {
-                32 => pixelFormat == PixelFormat.Format32bppRgb ? 1 << 24 : Int32.MaxValue,
-                16 => pixelFormat == PixelFormat.Format16bppRgb555 ? 1 << 15 : pixelFormat == PixelFormat.Format16bppArgb1555 ? (1 << 15) + 1 : 1 << 16,
-                _ => bpp <= 30 ? 1 << bpp : Int32.MaxValue
-            };
         }
 
         internal static bool IsGrayscale(this PixelFormat pixelFormat)
