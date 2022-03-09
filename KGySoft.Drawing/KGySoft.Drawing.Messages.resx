@@ -144,6 +144,9 @@
   <data name="GraphicsExtensions_MetafileGraphicsNotSupported" xml:space="preserve">
     <value>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</value>
   </data>
+  <data name="Imaging_InvalidBitmapDataSize" xml:space="preserve">
+    <value>The bitmap data has an invalid size.</value>
+  </data>
   <data name="User32_InvalidHandle" xml:space="preserve">
     <value>Invalid handle.</value>
   </data>

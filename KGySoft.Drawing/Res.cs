@@ -136,6 +136,13 @@ namespace KGySoft
 
         #endregion
 
+        #region Imaging
+
+        /// <summary>The bitmap data has an invalid size.</summary>
+        internal static string ImagingInvalidBitmapDataSize => Get("Imaging_InvalidBitmapDataSize");
+
+        #endregion
+
         #endregion
 
         #region Methods

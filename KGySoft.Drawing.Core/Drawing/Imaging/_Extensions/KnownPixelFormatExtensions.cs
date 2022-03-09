@@ -25,7 +25,7 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
-        internal static PixelFormatInfo ToInfo(this KnownPixelFormat pixelFormat) => new PixelFormatInfo((int)pixelFormat);
+        internal static PixelFormatInfo ToInfo(this KnownPixelFormat pixelFormat) => new PixelFormatInfo((uint)pixelFormat);
         internal static bool IsValidFormat(this KnownPixelFormat pixelFormat) => pixelFormat != KnownPixelFormat.Undefined && pixelFormat.IsDefined();
         internal static bool HasAlpha(this KnownPixelFormat pixelFormat) => ((int)pixelFormat & PixelFormatInfo.FlagHasAlpha) != 0;
         internal static bool IsIndexed(this KnownPixelFormat pixelFormat) => ((int)pixelFormat & PixelFormatInfo.FlagIndexed) != 0;

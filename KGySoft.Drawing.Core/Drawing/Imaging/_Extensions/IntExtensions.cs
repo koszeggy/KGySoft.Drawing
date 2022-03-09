@@ -37,31 +37,6 @@ namespace KGySoft.Drawing.Imaging
                 : value > Byte.MaxValue ? Byte.MaxValue
                 : (byte)value;
 
-        internal static KnownPixelFormat ToPixelFormat(this int bpp)
-        {
-            switch (bpp)
-            {
-                case 1:
-                    return KnownPixelFormat.Format1bppIndexed;
-                case 4:
-                    return KnownPixelFormat.Format4bppIndexed;
-                case 8:
-                    return KnownPixelFormat.Format8bppIndexed;
-                case 16:
-                    return KnownPixelFormat.Format16bppRgb565;
-                case 24:
-                    return KnownPixelFormat.Format24bppRgb;
-                case 32:
-                    return KnownPixelFormat.Format32bppArgb;
-                case 48:
-                    return KnownPixelFormat.Format48bppRgb;
-                case 64:
-                    return KnownPixelFormat.Format64bppArgb;
-                default:
-                    throw new ArgumentOutOfRangeException(nameof(bpp), PublicResources.ArgumentOutOfRange);
-            }
-        }
-
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static int ToBitsPerPixel(this int colorCount)
         {

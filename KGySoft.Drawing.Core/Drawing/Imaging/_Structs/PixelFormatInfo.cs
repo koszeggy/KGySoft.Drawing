@@ -61,6 +61,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Constants
 
+        // Some more constants that have their corresponding values in System.Drawing.Imaging.PixelFormat.
         // Several flags are used just for compatibility reasons.
         private const int isGdiCompatible = 0x00020000;
         private const int hasPAlpha = 0x00080000;
@@ -297,7 +298,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="pixelFormat">A known pixel format to initialize a <see cref="PixelFormatInfo"/> from.</param>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> must be one of the supported formats.</exception>
-        public PixelFormatInfo(KnownPixelFormat pixelFormat) : this((int)pixelFormat)
+        public PixelFormatInfo(KnownPixelFormat pixelFormat) : this((uint)pixelFormat)
         {
             if (pixelFormat == KnownPixelFormat.Undefined || !pixelFormat.IsDefined())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
@@ -307,7 +308,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
-        internal PixelFormatInfo(int value) => this.value = value;
+        internal PixelFormatInfo(uint value) => this.value = (int)value;
 
         #endregion
 

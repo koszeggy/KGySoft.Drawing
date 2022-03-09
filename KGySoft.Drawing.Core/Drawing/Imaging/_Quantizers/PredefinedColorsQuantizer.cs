@@ -1676,29 +1676,18 @@ namespace KGySoft.Drawing.Imaging
         {
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            switch (pixelFormat)
+            return pixelFormat switch
             {
-                case KnownPixelFormat.Format8bppIndexed:
-                    return SystemDefault8BppPalette(backColor, alphaThreshold);
-                case KnownPixelFormat.Format4bppIndexed:
-                    return SystemDefault4BppPalette(backColor);
-                case KnownPixelFormat.Format1bppIndexed:
-                    return SystemDefault1BppPalette(backColor);
-                case KnownPixelFormat.Format16bppArgb1555:
-                    return Argb1555(backColor, alphaThreshold);
-                case KnownPixelFormat.Format16bppRgb565:
-                    return Rgb565(backColor);
-                case KnownPixelFormat.Format16bppRgb555:
-                    return Rgb555(backColor);
-                case KnownPixelFormat.Format16bppGrayScale:
-                    return Grayscale(backColor);
-                case KnownPixelFormat.Format24bppRgb:
-                case KnownPixelFormat.Format48bppRgb:
-                case KnownPixelFormat.Format32bppRgb:
-                    return Rgb888(backColor);
-                default:
-                    return Argb8888(backColor, alphaThreshold);
-            }
+                KnownPixelFormat.Format8bppIndexed => SystemDefault8BppPalette(backColor, alphaThreshold),
+                KnownPixelFormat.Format4bppIndexed => SystemDefault4BppPalette(backColor),
+                KnownPixelFormat.Format1bppIndexed => SystemDefault1BppPalette(backColor),
+                KnownPixelFormat.Format16bppArgb1555 => Argb1555(backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppRgb565 => Rgb565(backColor),
+                KnownPixelFormat.Format16bppRgb555 => Rgb555(backColor),
+                KnownPixelFormat.Format16bppGrayScale => Grayscale(backColor),
+                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format48bppRgb or KnownPixelFormat.Format32bppRgb => Rgb888(backColor),
+                _ => Argb8888(backColor, alphaThreshold)
+            };
         }
 
         #endregion

@@ -170,7 +170,7 @@ namespace KGySoft.Drawing.Imaging
                     using var bmp64 = new Bitmap(256, 1, PixelFormat.Format64bppArgb);
                     for (int i = 0; i < 256; i++)
                         bmp64.SetPixel(i, 0, Color.FromArgb(i, i, i));
-                    BitmapData data = bmp64.LockBits(new Rectangle(0, 0, 256, 1), ImageLockMode.ReadOnly, KnownPixelFormat.Format64bppArgb);
+                    BitmapData data = bmp64.LockBits(new Rectangle(0, 0, 256, 1), ImageLockMode.ReadOnly, PixelFormat.Format64bppArgb);
                     bool isLinear = true;
                     try
                     {
@@ -231,8 +231,8 @@ namespace KGySoft.Drawing.Imaging
                     Size size = new Size(256, (int)Math.Ceiling(((double)max16BppValue + 1) / 256));
 
                     // Initializing a grayscale 64 bpp image from deep color shades.
-                    using var bmp64 = new Bitmap(size.Width, size.Height, KnownPixelFormat.Format64bppArgb);
-                    BitmapData data = bmp64.LockBits(new Rectangle(Point.Empty, size), ImageLockMode.WriteOnly, KnownPixelFormat.Format64bppArgb);
+                    using var bmp64 = new Bitmap(size.Width, size.Height, PixelFormat.Format64bppArgb);
+                    BitmapData data = bmp64.LockBits(new Rectangle(Point.Empty, size), ImageLockMode.WriteOnly, PixelFormat.Format64bppArgb);
                     try
                     {
                         Color64* row = (Color64*)data.Scan0;

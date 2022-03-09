@@ -58,6 +58,7 @@ namespace KGySoft.Drawing.Imaging
             Size size = bitmap.Size;
             BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
             Action dispose = () => bitmap.UnlockBits(bitmapData);
+            KnownPixelFormat knownPixelFormat = pixelFormat.ToKnownPixelFormatInternal();
 
             switch (pixelFormat)
             {
@@ -67,45 +68,45 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format24bppRgb:
                 case PixelFormat.Format16bppArgb1555:
                 case PixelFormat.Format16bppGrayScale:
-                    return BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose);
+                    return BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, null, null, dispose);
 
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
                     Debug.Assert(palette == null || palette.Equals(bitmap.Palette.Entries), "Non-null palette entries must match actual palette. Expected to be passed to re-use its cache only.");
                     palette ??= new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
-                    return BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, palette, bitmap.TrySetPalette, dispose);
+                    return BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, palette, bitmap.TrySetPalette, dispose);
 
                 case PixelFormat.Format64bppArgb:
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasAlpha = true },
                         (row, x) => row.UnsafeGetRefAs<Color64>(x).ToColor32PlatformDependent(),
                         (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToColor64PlatformDependent(),
                         disposeCallback: dispose);
 
                 case PixelFormat.Format64bppPArgb:
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
                         (row, x) => row.UnsafeGetRefAs<Color64>(x).ToStraight32PlatformDependent(),
                         (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToPremultiplied64PlatformDependent(),
                         disposeCallback: dispose);
 
                 case PixelFormat.Format48bppRgb:
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(pixelFormat),
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48),
                         (row, x) => row.UnsafeGetRefAs<Color48>(x).ToColor32PlatformDependent(),
                         (row, x, c) => row.UnsafeGetRefAs<Color48>(x) = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor48PlatformDependent(),
                         backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb565:
                     return pixelFormat == bitmapDataPixelFormat
-                        ? BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
-                        : BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
+                        ? BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, null, null, dispose)
+                        : BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo((byte)bitmapDataPixelFormat.ToBitsPerPixel()),
                             (row, x) => new Color16Rgb565(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
                             (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
                             backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb555:
                     return pixelFormat == bitmapDataPixelFormat
-                        ? BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, pixelFormat, backColor, alphaThreshold, null, null, dispose)
-                        : BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(bitmapDataPixelFormat),
+                        ? BitmapDataFactory.CreateUnmanagedBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, null, null, dispose)
+                        : BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo((byte)bitmapDataPixelFormat.ToBitsPerPixel()),
                             (row, x) => new Color16Rgb555(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
                             (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
                             backColor, alphaThreshold, dispose);

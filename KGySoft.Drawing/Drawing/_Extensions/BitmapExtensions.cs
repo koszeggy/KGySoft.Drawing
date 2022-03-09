@@ -390,7 +390,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetReadWriteBitmapData"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
+            => NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets an <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.
@@ -411,7 +411,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetReadWriteBitmapData"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+            => NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
@@ -527,7 +527,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetWritableBitmapData"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
+            => NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Quantizes a <paramref name="bitmap"/> using the specified <paramref name="quantizer"/> (reduces the number of colors).
@@ -629,7 +629,7 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            using (IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            using (IBitmapDataInternal accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
                 accessor.Clear(new Color32(color));
         }
 
@@ -659,7 +659,7 @@ namespace KGySoft.Drawing
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            using (IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
+            using (IBitmapDataInternal accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
                 accessor.Clear(new Color32(color), ditherer);
         }
 

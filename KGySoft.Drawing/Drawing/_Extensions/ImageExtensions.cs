@@ -2218,12 +2218,12 @@ namespace KGySoft.Drawing
                     // using the custom colors
                     : palette != null ? new Palette(palette, backColor, alphaThreshold)
                     // using the default palette from target
-                    : new Palette(newPixelFormat, new Color32(backColor), alphaThreshold);
+                    : new Palette(newPixelFormat.ToKnownPixelFormatInternal(), new Color32(backColor), alphaThreshold);
 
                 if (context.IsCancellationRequested)
                     return null;
-                using (IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
+                using (IBitmapDataInternal source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
+                using (IBitmapDataInternal target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
                 {
                     var rect = new Rectangle(Point.Empty, source.GetSize());
                     var session = new CopySession(context, source, target, rect, rect);
@@ -2271,7 +2271,7 @@ namespace KGySoft.Drawing
                         quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
                     else
                     {
-                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat);
+                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat.ToKnownPixelFormatInternal());
                         paletteEntries = null;
                     }
                 }
@@ -2279,7 +2279,7 @@ namespace KGySoft.Drawing
                 if (canceled = context.IsCancellationRequested)
                     return null;
                 result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using IBitmapDataInternal source = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
+                using IBitmapDataInternal source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
                 context.Progress?.New(DrawingOperation.InitializingQuantizer);
                 using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
                 {
@@ -2291,7 +2291,7 @@ namespace KGySoft.Drawing
                     if (newPixelFormat.IsIndexed())
                         InitPalette(newPixelFormat, bmp, result, paletteEntries ?? quantizingSession.Palette?.Entries.Select(c => c.ToColor()).ToArray());
 
-                    using (IBitmapDataInternal target = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
+                    using (IBitmapDataInternal target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, quantizingSession))
                     {
                         var rect = new Rectangle(Point.Empty, source.GetSize());
                         var session = new CopySession(context, source, target, rect, rect);

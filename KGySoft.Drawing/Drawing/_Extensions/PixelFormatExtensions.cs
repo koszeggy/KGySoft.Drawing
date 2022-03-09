@@ -19,6 +19,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -112,7 +113,18 @@ namespace KGySoft.Drawing
             }
         }
 
-        public static PixelFormat ToPixelFormat(this KnownPixelFormat pixelFormat) => throw new NotImplementedException();
+        // TODO: Note: Same enum names do not necessarily mean the same exact pixel layout, eg. 64bpp on Windows
+        public static PixelFormat ToPixelFormat(this KnownPixelFormat pixelFormat)
+        {
+            if (pixelFormat == KnownPixelFormat.Undefined || !pixelFormat.IsDefined())
+                return PixelFormat.Undefined;
+
+            Debug.Assert(((int)pixelFormat & (int)PixelFormat.Max) != 0, "Unexpected known pixel format. Replace return expression to ((int)pixelFormat & (int)PixelFormat.Max) != 0 ? (PixelFormat)((int)pixelFormat & 0xFFFFFF) : pixelFormat switch {...}");
+            return (PixelFormat)((int)pixelFormat & 0xFFFFFF); // direct mapping: just clearing 24..31 bits
+        }
+
+        public static KnownPixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat)
+            => !pixelFormat.IsValidFormat() ? KnownPixelFormat.Undefined : pixelFormat.ToKnownPixelFormatInternal();
 
         #endregion
 
@@ -130,16 +142,13 @@ namespace KGySoft.Drawing
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
-        // TODO: move these in KnownPixelFormatExtensions in Core
-        internal static bool HasAlpha(this PixelFormat pixelFormat)
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
-
-        internal static bool IsPremultiplied(this PixelFormat pixelFormat)
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            => (pixelFormat & PixelFormat.PAlpha) == PixelFormat.PAlpha;
-
-        internal static bool HasMultiLevelAlpha(this PixelFormat pixelFormat) => new PixelFormatInfo(pixelFormat).HasMultiLevelAlpha;
+        internal static KnownPixelFormat ToKnownPixelFormatInternal(this PixelFormat pixelFormat) => pixelFormat switch
+        {
+            // These formats use additional flags
+            PixelFormat.Format16bppArgb1555 => KnownPixelFormat.Format16bppArgb1555,
+            PixelFormat.Format16bppGrayScale => KnownPixelFormat.Format16bppGrayScale,
+            _ => (KnownPixelFormat)pixelFormat
+        };
 
         internal static bool CanBeDithered(this PixelFormat dstFormat)
             => dstFormat.ToBitsPerPixel() < 24 && dstFormat != PixelFormat.Format16bppGrayScale;
@@ -151,9 +160,6 @@ namespace KGySoft.Drawing
             return pixelFormat is not PixelFormat.Format16bppRgb555 or PixelFormat.Format16bppRgb565
                 && pixelFormat.IsSupportedNatively();
         }
-
-        internal static bool IsGrayscale(this PixelFormat pixelFormat)
-            => pixelFormat == PixelFormat.Format16bppGrayScale || new PixelFormatInfo(pixelFormat).Grayscale;
 
         #endregion
 

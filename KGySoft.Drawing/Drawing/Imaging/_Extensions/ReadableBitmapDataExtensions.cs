@@ -123,9 +123,9 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         private static Bitmap? DoConvertToBitmap(IAsyncContext context, IReadableBitmapData source)
         {
-            KnownPixelFormat pixelFormat = source.PixelFormat.IsSupportedNatively() ? source.PixelFormat
-                : source.HasAlpha() ? KnownPixelFormat.Format32bppArgb
-                : KnownPixelFormat.Format24bppRgb;
+            PixelFormat pixelFormat = source.GetKnownPixelFormat().ToPixelFormat();
+            if (!pixelFormat.IsSupportedNatively())
+                pixelFormat = source.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
 
             var result = new Bitmap(source.Width, source.Height, pixelFormat);
             bool canceled = false;
@@ -137,7 +137,7 @@ namespace KGySoft.Drawing.Imaging
                 if (canceled = context.IsCancellationRequested)
                     return null;
                 using (IBitmapDataInternal target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
-                    DoCopy(context, source, target, new Rectangle(Point.Empty, source.GetSize()), Point.Empty, null, null);
+                    source.DoCopyTo(context, target, new Rectangle(Point.Empty, source.GetSize()), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }
             catch (Exception)

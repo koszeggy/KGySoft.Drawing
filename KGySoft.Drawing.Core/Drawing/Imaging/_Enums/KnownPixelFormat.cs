@@ -24,10 +24,21 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents pixel formats with built-in support.
     /// For custom formats you can use the <see cref="PixelFormatInfo"/> type when applicable.
+    /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
+    /// <remarks>
+    /// <note>The <see cref="KnownPixelFormat"/> enumeration contains all formats that
+    /// the <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Imaging.PixelFormat" target="_blank">System.Drawing.Imaging.PixelFormat</a>
+    /// enumeration also has, though some fields have different values and the matching names do not necessarily represent the same pixel layout either.
+    /// For example, in this library wide formats, such as <see cref="Format64bppArgb"/>, use the full 16 bit per color channel range and the same gamma correction as the
+    /// 8-bit per channel formats; however, <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Imaging.PixelFormat" target="_blank">PixelFormat.Format64bppArgb</a>
+    /// might use a different range or gamma correction, depending on the operating system.</note>
+    /// </remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Compatibility")]
     public enum KnownPixelFormat
     {
+        // NOTE: if new fields are introduced update the To[Known]PixelFormat (as extensions, PixelFormatInfo), FromPixelFormat methods and factories as well
+
         /// <summary>
         /// The pixel format is undefined.
         /// </summary>

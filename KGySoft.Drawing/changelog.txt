@@ -14,10 +14,16 @@
 ! APIs that are not dependent on System.Drawing.Common (.NET Core/Standard 2.0 and above) have been extracted into a
   new library, KGySoft.Drawing.Core, which is now referenced by this library.
 
+! KGySoft.Drawing namespace
+===========================
+! Some types have been moved to KGySoft.Drawing.Core package (with unchanged namespace).
++ PixelFormatExtensions:
+  + New ToKnownPixelFormat(PixelFormat) and ToPixelFormat(KnownPixelFormat) methods
+
 ! KGySoft.Drawing.Imaging namespace
 ===================================
-! Most public APIs have been moved into the KGySoft.Drawing.Core package. See the changes in detail in a separate
-  log file here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+! Most public APIs have been moved into the KGySoft.Drawing.Core package (with unchanged namespace). See the actual
+  API changes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 + New ReadableBitmapDataExtensions class: contains the ToBitmap/BeginToBitmap/EndToBitmap/ToBitmapAsync methods of
   the original BitmapDataExtensions class that is now in the KGySoft.Drawing.Core package.
 
