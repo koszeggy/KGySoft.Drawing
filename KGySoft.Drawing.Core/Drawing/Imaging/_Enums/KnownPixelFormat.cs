@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
     /// enumeration also has, though some fields have different values and the matching names do not necessarily represent the same pixel layout either.
     /// For example, in this library wide formats, such as <see cref="Format64bppArgb"/>, use the full 16 bit per color channel range and the same gamma correction as the
     /// 8-bit per channel formats; however, <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Imaging.PixelFormat" target="_blank">PixelFormat.Format64bppArgb</a>
-    /// might use a different range or gamma correction, depending on the operating system.</note>
+    /// might represent a different range or gamma correction, depending on the operating system.</note>
     /// </remarks>
     [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Compatibility")]
     public enum KnownPixelFormat

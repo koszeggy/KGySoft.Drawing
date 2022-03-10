@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             public int Height => wrapped.Height;
             public int Width => wrapped.Width;
-            public PixelFormat PixelFormat => wrapped.PixelFormat;
+            public PixelFormatInfo PixelFormat => wrapped.PixelFormat;
             public Palette Palette => wrapped.Palette;
             public int RowSize => wrapped.RowSize;
             public Color32 BackColor => wrapped.BackColor;
@@ -93,15 +93,15 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void CloneDecreasingPaletteTest()
         {
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(PixelFormat.Format8bppIndexed).GetReadableBitmapData();
-            using var clone = source.Clone(PixelFormat.Format1bppIndexed);
+            using var clone = source.Clone(KnownPixelFormat.Format1bppIndexed);
             SaveImage(null, clone.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CloneLowBppForcedDirectProcessingTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CloneLowBppForcedDirectProcessingTest(KnownPixelFormat pixelFormat)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat);
+            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat.ToPixelFormat());
             using (var bitmapData = bmp.GetReadableBitmapData())
             {
                 var sourceRectangle = new Rectangle(15, 15, 127, 127);
@@ -127,13 +127,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format16bppGrayScale)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CloneWithPredefinedQuantizerTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CloneWithPredefinedQuantizerTest(KnownPixelFormat pixelFormat)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
             using var source = bmp.GetReadableBitmapData();
@@ -141,10 +141,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat}", clone.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CloneWithOptimizedQuantizerTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CloneWithOptimizedQuantizerTest(KnownPixelFormat pixelFormat)
         {
             using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
             using var source = bmp.GetReadableBitmapData();
@@ -152,11 +152,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat}", clone.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CloneWithDithererTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CloneWithDithererTest(KnownPixelFormat pixelFormat)
         {
             var ditherers = new Dictionary<string, IDitherer>
             {
@@ -169,27 +169,27 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (var ditherer in ditherers)
             {
                 using var cloneIndexed = source.Clone(pixelFormat, ditherer.Value);
-                using var cloneTrueColor = source.Clone(PixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat), ditherer.Value);
+                using var cloneTrueColor = source.Clone(KnownPixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat), ditherer.Value);
                 AssertAreEqual(cloneIndexed, cloneTrueColor, true);
                 SaveImage($"{pixelFormat} {ditherer.Key}", cloneIndexed.ToBitmap());
             }
         }
 
-        [TestCase(PixelFormat.Format64bppArgb)]
-        [TestCase(PixelFormat.Format64bppPArgb)]
-        [TestCase(PixelFormat.Format48bppRgb)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format32bppRgb)]
-        [TestCase(PixelFormat.Format24bppRgb)]
-        [TestCase(PixelFormat.Format16bppRgb565)]
-        [TestCase(PixelFormat.Format16bppRgb555)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format16bppGrayScale)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CloneVsClipTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format32bppRgb)]
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format16bppRgb565)]
+        [TestCase(KnownPixelFormat.Format16bppRgb555)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CloneVsClipTest(KnownPixelFormat pixelFormat)
         {
             using var bitmapData = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadableBitmapData().Clone(pixelFormat);
             using (IReadWriteBitmapData clone = bitmapData.Clone())
@@ -240,13 +240,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
 
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CopyToRawTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CopyToRawTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat).GetReadWriteBitmapData();
+            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat.ToPixelFormat()).GetReadWriteBitmapData();
             using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
             source.CopyTo(targetFull);
             AssertAreEqual(source, targetFull);
@@ -258,10 +258,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CopyToDirectTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CopyToDirectTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
@@ -276,10 +276,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CopyToWithQuantizerTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CopyToWithQuantizerTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
@@ -294,10 +294,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void CopyToWithDithererTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void CopyToWithDithererTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
@@ -329,12 +329,12 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
 
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        public void DrawIntoNoResizeDirectTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        public void DrawIntoNoResizeDirectTest(KnownPixelFormat pixelFormat)
         {
             using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat);
             using var icon64 = Icons.Information.ExtractBitmap(new Size(64, 64)).GetReadWriteBitmapData();
@@ -342,11 +342,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
 
             // solid source
-            icon64.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+            icon64.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
                 .DrawInto(target);
 
             // single bit alpha source
-            icon64.Clone(PixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
+            icon64.Clone(KnownPixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
                 .DrawInto(target, new Point(192, 192));
 
             // alpha source
@@ -358,11 +358,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat}", target.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        public void DrawIntoNoResizeWithQuantizingTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        public void DrawIntoNoResizeWithQuantizingTest(KnownPixelFormat pixelFormat)
         {
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
 
@@ -382,11 +382,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
 
                 // solid source
-                icon64.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                icon64.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
                     .DrawInto(target, Point.Empty, quantizer, ditherer.Value);
 
                 // single bit alpha source
-                icon64.Clone(PixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
+                icon64.Clone(KnownPixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
                     .DrawInto(target, new Point(192, 192), quantizer, ditherer.Value);
 
                 // alpha source
@@ -412,23 +412,23 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{scalingMode}", bmp);
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format32bppArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format32bppArgb, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format32bppPArgb, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format64bppArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format64bppArgb, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format64bppPArgb, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format64bppPArgb, ScalingMode.Auto)]
-        public void DrawIntoWithResizeDirectTest(PixelFormat pixelFormat, ScalingMode scalingMode)
+        [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format32bppArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format32bppArgb, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format64bppArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format64bppArgb, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb, ScalingMode.Auto)]
+        public void DrawIntoWithResizeDirectTest(KnownPixelFormat pixelFormat, ScalingMode scalingMode)
         {
             // target and sources
             using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, new Color32(Color.Silver));
@@ -438,7 +438,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // enlarge solid source
             var targetRect = new Rectangle(0, 0, 100, 100);
-            icon16.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+            icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
                 .DrawInto(target, targetRect, scalingMode);
 
             // enlarge alpha source
@@ -448,7 +448,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             // shrink single bit alpha source
             targetRect = new Rectangle(Point.Empty, target.GetSize());
             targetRect.Inflate(-32, -32);
-            icon256.Clone(PixelFormat.Format16bppArgb1555)
+            icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
                 .DrawInto(target, targetRect, scalingMode);
 
             // shrink alpha source (gradient overlay)
@@ -458,15 +458,15 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat} {scalingMode}", target.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format1bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format4bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format8bppIndexed, ScalingMode.Auto)]
-        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
-        [TestCase(PixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
-        public void DrawIntoResizeWithQuantizingTest(PixelFormat pixelFormat, ScalingMode scalingMode)
+        [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+        public void DrawIntoResizeWithQuantizingTest(KnownPixelFormat pixelFormat, ScalingMode scalingMode)
         {
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat, Color.Silver);
 
@@ -488,7 +488,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 // enlarge solid source
                 var targetRect = new Rectangle(-10, -10, 100, 100);
-                icon16.Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
                     .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
                 // enlarge alpha source
@@ -498,7 +498,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 // shrink single bit alpha source
                 targetRect = new Rectangle(Point.Empty, target.GetSize());
                 targetRect.Inflate(-32, -32);
-                icon256.Clone(PixelFormat.Format16bppArgb1555)
+                icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
                     .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
                 // shrink alpha source (gradient overlay)
@@ -509,24 +509,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
-        [TestCase(PixelFormat.Format4bppIndexed, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format8bppIndexed, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format16bppGrayScale, 0xFF888888)]
-        [TestCase(PixelFormat.Format16bppRgb555, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format16bppRgb565, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format16bppArgb1555, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format24bppRgb, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format32bppRgb, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format32bppRgb, 0x800000FF)]
-        [TestCase(PixelFormat.Format32bppArgb, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format32bppArgb, 0x800000FF)]
-        [TestCase(PixelFormat.Format32bppPArgb, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format32bppPArgb, 0x800000FF)]
-        [TestCase(PixelFormat.Format48bppRgb, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format64bppArgb, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format64bppPArgb, 0xFF0000FF)]
-        public void ClearTest(PixelFormat pixelFormat, uint argb)
+        [TestCase(KnownPixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale, 0xFF888888)]
+        [TestCase(KnownPixelFormat.Format16bppRgb555, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format16bppRgb565, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format24bppRgb, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format32bppRgb, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format32bppRgb, 0x800000FF)]
+        [TestCase(KnownPixelFormat.Format32bppArgb, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format32bppArgb, 0x800000FF)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb, 0x800000FF)]
+        [TestCase(KnownPixelFormat.Format48bppRgb, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format64bppArgb, 0xFF0000FF)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb, 0xFF0000FF)]
+        public void ClearTest(KnownPixelFormat pixelFormat, uint argb)
         {
             const int size = 17;
             Color32 color = Color32.FromArgb((int)argb);
@@ -546,7 +546,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 IReadableBitmapDataRow row = source.BitmapData.FirstRow;
                 var expected = color;
-                if (!pixelFormat.HasMultiLevelAlpha())
+                if (!pixelFormat.ToInfo().HasMultiLevelAlpha)
                     expected = expected.BlendWithBackground(default);
                 do
                 {
@@ -558,11 +558,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFF0000FF, 0U)]
-        [TestCase(PixelFormat.Format1bppIndexed, 0U, 0x88888888)]
-        [TestCase(PixelFormat.Format4bppIndexed, 0xFFABCDEF, 0U)]
-        [TestCase(PixelFormat.Format4bppIndexed, 0U, 0x88888888)]
-        public void ClearWithDitheringTest(PixelFormat pixelFormat, uint argb, uint argbBackColor)
+        [TestCase(KnownPixelFormat.Format1bppIndexed, 0xFF0000FF, 0U)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed, 0U, 0x88888888)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, 0xFFABCDEF, 0U)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed, 0U, 0x88888888)]
+        public void ClearWithDitheringTest(KnownPixelFormat pixelFormat, uint argb, uint argbBackColor)
         {
             const int size = 17;
 
@@ -600,7 +600,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void ClippingIndexedTest()
         {
-            using IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(new Size(127, 1), PixelFormat.Format1bppIndexed);
+            using IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(new Size(127, 1), KnownPixelFormat.Format1bppIndexed);
 
             // original
             Assert.AreEqual(16, bitmapData.RowSize);
@@ -623,25 +623,25 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage("32argb", refBmpData.ToBitmap());
 
             // 24 bit
-            using var bmp24bpp = refBmpData.Clone(PixelFormat.Format24bppRgb);
+            using var bmp24bpp = refBmpData.Clone(KnownPixelFormat.Format24bppRgb);
             colorCount = bmp24bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, bmp24bpp.Width * bmp24bpp.Height);
             SaveImage("24rgb", bmp24bpp.ToBitmap());
 
             // 48 bit
-            using var bmp48bpp = refBmpData.Clone(PixelFormat.Format48bppRgb);
+            using var bmp48bpp = refBmpData.Clone(KnownPixelFormat.Format48bppRgb);
             colorCount = bmp48bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, bmp48bpp.Width * bmp48bpp.Height);
             SaveImage("48rgb", bmp48bpp.ToBitmap());
 
             // 64 bit
-            using var bmp64bpp = refBmpData.Clone(PixelFormat.Format64bppArgb);
+            using var bmp64bpp = refBmpData.Clone(KnownPixelFormat.Format64bppArgb);
             colorCount = bmp64bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, bmp64bpp.Width * bmp64bpp.Height);
             SaveImage("64argb", bmp64bpp.ToBitmap());
 
             // 8 bit: returning actual palette
-            using var bmp8bpp = refBmpData.Clone(PixelFormat.Format8bppIndexed);
+            using var bmp8bpp = refBmpData.Clone(KnownPixelFormat.Format8bppIndexed);
             colorCount = bmp8bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, 256);
             SaveImage("8ind", bmp8bpp.ToBitmap());
@@ -652,7 +652,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var refBmpData = Icons.Information.ExtractBitmap(new Size(256, 256))
                 .GetReadableBitmapData()
-                .Clone(PixelFormat.Format24bppRgb, new Color32(Color.Silver));
+                .Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver));
             SaveImage("reference", refBmpData.ToBitmap());
 
             using var transparentAuto = refBmpData.ToTransparent();
@@ -669,7 +669,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             using var bmpData = Icons.Information.ExtractBitmap(new Size(256, 256))
                 .GetReadableBitmapData()
-                .Clone(PixelFormat.Format1bppIndexed);
+                .Clone(KnownPixelFormat.Format1bppIndexed);
             SaveImage("BW", bmpData.ToBitmap());
 
             Assert.IsTrue(bmpData.TrySetPalette(new Palette(new[] { Color.Transparent, Color.Blue })));
@@ -680,24 +680,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Assert.IsFalse(bmpData.TrySetPalette(new Palette(new[] { Color.Transparent, Color.Blue, Color.Red })));
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format16bppGrayScale)]
-        [TestCase(PixelFormat.Format16bppRgb555)]
-        [TestCase(PixelFormat.Format16bppRgb565)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format24bppRgb)]
-        [TestCase(PixelFormat.Format32bppRgb)]
-        [TestCase(PixelFormat.Format32bppRgb)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format48bppRgb)]
-        [TestCase(PixelFormat.Format64bppArgb)]
-        [TestCase(PixelFormat.Format64bppPArgb)]
-        public void SaveReloadManagedTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppRgb555)]
+        [TestCase(KnownPixelFormat.Format16bppRgb565)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        public void SaveReloadManagedTest(KnownPixelFormat pixelFormat)
         {
             var size = new Size(13, 10);
             using IReadWriteBitmapData orig = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
@@ -746,24 +746,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveImage($"{pixelFormat}", clone.ToBitmap());
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format16bppGrayScale)]
-        [TestCase(PixelFormat.Format16bppRgb555)]
-        [TestCase(PixelFormat.Format16bppRgb565)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format24bppRgb)]
-        [TestCase(PixelFormat.Format32bppRgb)]
-        [TestCase(PixelFormat.Format32bppRgb)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format48bppRgb)]
-        [TestCase(PixelFormat.Format64bppArgb)]
-        [TestCase(PixelFormat.Format64bppPArgb)]
-        public void SaveReloadClippedTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppRgb555)]
+        [TestCase(KnownPixelFormat.Format16bppRgb565)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppRgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        public void SaveReloadClippedTest(KnownPixelFormat pixelFormat)
         {
             var size = new Size(16, 16);
             using IReadWriteBitmapData orig = BitmapDataFactory.CreateBitmapData(size, pixelFormat).Clip(new Rectangle(1, 1, 13, 10));

@@ -142,6 +142,10 @@ namespace KGySoft.Drawing
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
+        internal static bool HasAlpha(this PixelFormat pixelFormat)
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => (pixelFormat & PixelFormat.Alpha) == PixelFormat.Alpha;
+
         internal static KnownPixelFormat ToKnownPixelFormatInternal(this PixelFormat pixelFormat) => pixelFormat switch
         {
             // These formats use additional flags

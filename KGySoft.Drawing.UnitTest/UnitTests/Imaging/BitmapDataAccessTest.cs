@@ -36,55 +36,55 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         private static readonly object[][] setGetPixelTestSource =
         {
-            new object[] { "32 bit ARGB Blue", PixelFormat.Format32bppArgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
-            new object[] { "32 bit ARGB Alpha 50%", PixelFormat.Format32bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_FF },
-            new object[] { "32 bit ARGB Transparent", PixelFormat.Format32bppArgb, Color.Transparent, Color.Transparent, 0x00_FF_FF_FF },
-            new object[] { "32 bit PARGB Blue", PixelFormat.Format32bppPArgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
-            new object[] { "32 bit PARGB Alpha 50%", PixelFormat.Format32bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_80 },
-            new object[] { "32 bit PARGB Alpha 1", PixelFormat.Format32bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(1, Color.Blue), 0x01_00_00_01 },
-            new object[] { "32 bit PARGB Alpha 254", PixelFormat.Format32bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0xFE_00_00_FE },
-            new object[] { "32 bit PARGB Transparent", PixelFormat.Format32bppPArgb, Color.Transparent, Color.Empty, 0x00_00_00_00 },
-            new object[] { "32 bit RGB Blue", PixelFormat.Format32bppRgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
-            new object[] { "32 bit RGB Alpha 50%", PixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), 0xFF_00_00_80 },
-            new object[] { "32 bit RGB Transparent", PixelFormat.Format32bppRgb, Color.Transparent, Color.Black, 0xFF_00_00_00 },
-            new object[] { "24 bit RGB Blue", PixelFormat.Format24bppRgb, Color.Blue, Color.Blue, 0x00_00_FF },
-            new object[] { "24 bit RGB Transparent", PixelFormat.Format24bppRgb, Color.Transparent, Color.Black, 0x00_00_00 },
-            new object[] { "64 bit ARGB Blue", PixelFormat.Format64bppArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
-            new object[] { "64 bit ARGB Alpha 50%", PixelFormat.Format64bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x1010_0000_0000_2000 },
-            new object[] { "64 bit ARGB Transparent", PixelFormat.Format64bppArgb, Color.Transparent, Color.Transparent, 0x0000_2000_2000_2000 },
-            new object[] { "64 bit PARGB Blue", PixelFormat.Format64bppPArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
-            new object[] { "64 bit PARGB Alpha Blue 50%", PixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x1010_0000_0000_1010 },
-            new object[] { "64 bit PARGB Alpha Green 50%", PixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Green), Color.FromArgb(128, Color.Green), 0x1010_0000_0377_0000 },
-            new object[] { "64 bit PARGB Alpha 1", PixelFormat.Format64bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(0, Color.Blue), 0x0020_0000_0000_0020 },
-            new object[] { "64 bit PARGB Alpha 254", PixelFormat.Format64bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0x1FDF_0000_0000_1FDF },
-            new object[] { "64 bit PARGB Transparent", PixelFormat.Format64bppPArgb, Color.Transparent, Color.Empty, 0x0000_0000_0000_0000 },
-            new object[] { "48 bit RGB Blue", PixelFormat.Format48bppRgb, Color.Blue, Color.Blue, 0x0000_0000_2000 },
-            new object[] { "48 bit RGB White", PixelFormat.Format48bppRgb, Color.White, Color.White, 0x2000_2000_2000 },
-            new object[] { "48 bit RGB Transparent", PixelFormat.Format48bppRgb, Color.Transparent, Color.Black, 0x0000_0000_0000 },
-            new object[] { "16 bit GrayScale White", PixelFormat.Format16bppGrayScale, Color.White, Color.White, 0xFFFF },
-            new object[] { "16 bit GrayScale Blue", PixelFormat.Format16bppGrayScale, Color.Blue, Color.FromArgb(0x1D, 0x1D, 0x1D), 0x1D2E },
-            new object[] { "16 bit RGB565 Blue", PixelFormat.Format16bppRgb565, Color.Blue, Color.Blue, 0x001F },
-            new object[] { "16 bit RGB565 Green", PixelFormat.Format16bppRgb565, Color.Green, Color.FromArgb(0, 130, 0), 0x0400 },
-            new object[] { "16 bit RGB565 Transparent", PixelFormat.Format16bppRgb565, Color.Transparent, Color.Black, 0x0000 },
-            new object[] { "16 bit RGB565 Empty", PixelFormat.Format16bppRgb565, Color.Empty, Color.Black, 0x0000 },
-            new object[] { "16 bit RGB555 Blue", PixelFormat.Format16bppRgb555, Color.Blue, Color.Blue, 0x001F },
-            new object[] { "16 bit RGB555 Green", PixelFormat.Format16bppRgb555, Color.Green, Color.FromArgb(0, 132, 0), 0x0200 },
-            new object[] { "16 bit RGB555 Transparent", PixelFormat.Format16bppRgb555, Color.Transparent, Color.Black, 0x0000 },
-            new object[] { "16 bit RGB555 Empty", PixelFormat.Format16bppRgb555, Color.Empty, Color.Black, 0x0000 },
-            new object[] { "16 bit ARGB1555 Blue", PixelFormat.Format16bppArgb1555, Color.Blue, Color.Blue, 0x801F },
-            new object[] { "16 bit ARGB1555 Green", PixelFormat.Format16bppArgb1555, Color.Green, Color.FromArgb(0, 132, 0), 0x8200 },
-            new object[] { "16 bit ARGB1555 Transparent", PixelFormat.Format16bppArgb1555, Color.Transparent, Color.Transparent, 0x7FFF },
-            new object[] { "16 bit ARGB1555 Empty", PixelFormat.Format16bppArgb1555, Color.Empty, Color.Empty, 0x0000 },
-            new object[] { "8 bit Indexed Blue", PixelFormat.Format8bppIndexed, Color.Blue, Color.Blue, 12 },
-            new object[] { "8 bit Indexed Blue 254", PixelFormat.Format8bppIndexed, Color.FromArgb(0, 0, 254), Color.Blue, 12 },
-            new object[] { "8 bit Indexed Transparent", PixelFormat.Format8bppIndexed, Color.Transparent, Color.Empty, 16 },
-            new object[] { "4 bit Indexed Blue", PixelFormat.Format4bppIndexed, Color.Blue, Color.Blue, 12 },
-            new object[] { "4 bit Indexed Blue 254", PixelFormat.Format4bppIndexed, Color.FromArgb(0, 0, 254), Color.Blue, 12 },
-            new object[] { "4 bit Indexed Transparent", PixelFormat.Format4bppIndexed, Color.Transparent, Color.Black, 0 },
-            new object[] { "1 bit Indexed Blue", PixelFormat.Format1bppIndexed, Color.Blue, Color.Black, 0 },
-            new object[] { "1 bit Indexed Blue 254", PixelFormat.Format1bppIndexed, Color.FromArgb(0, 0, 254), Color.Black, 0 },
-            new object[] { "1 bit Indexed Lime", PixelFormat.Format1bppIndexed, Color.Lime, Color.White, 1 },
-            new object[] { "1 bit Indexed Transparent", PixelFormat.Format1bppIndexed, Color.Transparent, Color.Black, 0 },
+            new object[] { "32 bit ARGB Blue", KnownPixelFormat.Format32bppArgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
+            new object[] { "32 bit ARGB Alpha 50%", KnownPixelFormat.Format32bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_FF },
+            new object[] { "32 bit ARGB Transparent", KnownPixelFormat.Format32bppArgb, Color.Transparent, Color.Transparent, 0x00_FF_FF_FF },
+            new object[] { "32 bit PARGB Blue", KnownPixelFormat.Format32bppPArgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
+            new object[] { "32 bit PARGB Alpha 50%", KnownPixelFormat.Format32bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x80_00_00_80 },
+            new object[] { "32 bit PARGB Alpha 1", KnownPixelFormat.Format32bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(1, Color.Blue), 0x01_00_00_01 },
+            new object[] { "32 bit PARGB Alpha 254", KnownPixelFormat.Format32bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0xFE_00_00_FE },
+            new object[] { "32 bit PARGB Transparent", KnownPixelFormat.Format32bppPArgb, Color.Transparent, Color.Empty, 0x00_00_00_00 },
+            new object[] { "32 bit RGB Blue", KnownPixelFormat.Format32bppRgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
+            new object[] { "32 bit RGB Alpha 50%", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), 0xFF_00_00_80 },
+            new object[] { "32 bit RGB Transparent", KnownPixelFormat.Format32bppRgb, Color.Transparent, Color.Black, 0xFF_00_00_00 },
+            new object[] { "24 bit RGB Blue", KnownPixelFormat.Format24bppRgb, Color.Blue, Color.Blue, 0x00_00_FF },
+            new object[] { "24 bit RGB Transparent", KnownPixelFormat.Format24bppRgb, Color.Transparent, Color.Black, 0x00_00_00 },
+            new object[] { "64 bit ARGB Blue", KnownPixelFormat.Format64bppArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
+            new object[] { "64 bit ARGB Alpha 50%", KnownPixelFormat.Format64bppArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x1010_0000_0000_2000 },
+            new object[] { "64 bit ARGB Transparent", KnownPixelFormat.Format64bppArgb, Color.Transparent, Color.Transparent, 0x0000_2000_2000_2000 },
+            new object[] { "64 bit PARGB Blue", KnownPixelFormat.Format64bppPArgb, Color.Blue, Color.Blue, 0x2000_0000_0000_2000 },
+            new object[] { "64 bit PARGB Alpha Blue 50%", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(128, Color.Blue), 0x1010_0000_0000_1010 },
+            new object[] { "64 bit PARGB Alpha Green 50%", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(128, Color.Green), Color.FromArgb(128, Color.Green), 0x1010_0000_0377_0000 },
+            new object[] { "64 bit PARGB Alpha 1", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(1, Color.Blue), Color.FromArgb(0, Color.Blue), 0x0020_0000_0000_0020 },
+            new object[] { "64 bit PARGB Alpha 254", KnownPixelFormat.Format64bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0x1FDF_0000_0000_1FDF },
+            new object[] { "64 bit PARGB Transparent", KnownPixelFormat.Format64bppPArgb, Color.Transparent, Color.Empty, 0x0000_0000_0000_0000 },
+            new object[] { "48 bit RGB Blue", KnownPixelFormat.Format48bppRgb, Color.Blue, Color.Blue, 0x0000_0000_2000 },
+            new object[] { "48 bit RGB White", KnownPixelFormat.Format48bppRgb, Color.White, Color.White, 0x2000_2000_2000 },
+            new object[] { "48 bit RGB Transparent", KnownPixelFormat.Format48bppRgb, Color.Transparent, Color.Black, 0x0000_0000_0000 },
+            new object[] { "16 bit GrayScale White", KnownPixelFormat.Format16bppGrayScale, Color.White, Color.White, 0xFFFF },
+            new object[] { "16 bit GrayScale Blue", KnownPixelFormat.Format16bppGrayScale, Color.Blue, Color.FromArgb(0x1D, 0x1D, 0x1D), 0x1D2E },
+            new object[] { "16 bit RGB565 Blue", KnownPixelFormat.Format16bppRgb565, Color.Blue, Color.Blue, 0x001F },
+            new object[] { "16 bit RGB565 Green", KnownPixelFormat.Format16bppRgb565, Color.Green, Color.FromArgb(0, 130, 0), 0x0400 },
+            new object[] { "16 bit RGB565 Transparent", KnownPixelFormat.Format16bppRgb565, Color.Transparent, Color.Black, 0x0000 },
+            new object[] { "16 bit RGB565 Empty", KnownPixelFormat.Format16bppRgb565, Color.Empty, Color.Black, 0x0000 },
+            new object[] { "16 bit RGB555 Blue", KnownPixelFormat.Format16bppRgb555, Color.Blue, Color.Blue, 0x001F },
+            new object[] { "16 bit RGB555 Green", KnownPixelFormat.Format16bppRgb555, Color.Green, Color.FromArgb(0, 132, 0), 0x0200 },
+            new object[] { "16 bit RGB555 Transparent", KnownPixelFormat.Format16bppRgb555, Color.Transparent, Color.Black, 0x0000 },
+            new object[] { "16 bit RGB555 Empty", KnownPixelFormat.Format16bppRgb555, Color.Empty, Color.Black, 0x0000 },
+            new object[] { "16 bit ARGB1555 Blue", KnownPixelFormat.Format16bppArgb1555, Color.Blue, Color.Blue, 0x801F },
+            new object[] { "16 bit ARGB1555 Green", KnownPixelFormat.Format16bppArgb1555, Color.Green, Color.FromArgb(0, 132, 0), 0x8200 },
+            new object[] { "16 bit ARGB1555 Transparent", KnownPixelFormat.Format16bppArgb1555, Color.Transparent, Color.Transparent, 0x7FFF },
+            new object[] { "16 bit ARGB1555 Empty", KnownPixelFormat.Format16bppArgb1555, Color.Empty, Color.Empty, 0x0000 },
+            new object[] { "8 bit Indexed Blue", KnownPixelFormat.Format8bppIndexed, Color.Blue, Color.Blue, 12 },
+            new object[] { "8 bit Indexed Blue 254", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(0, 0, 254), Color.Blue, 12 },
+            new object[] { "8 bit Indexed Transparent", KnownPixelFormat.Format8bppIndexed, Color.Transparent, Color.Empty, 16 },
+            new object[] { "4 bit Indexed Blue", KnownPixelFormat.Format4bppIndexed, Color.Blue, Color.Blue, 12 },
+            new object[] { "4 bit Indexed Blue 254", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(0, 0, 254), Color.Blue, 12 },
+            new object[] { "4 bit Indexed Transparent", KnownPixelFormat.Format4bppIndexed, Color.Transparent, Color.Black, 0 },
+            new object[] { "1 bit Indexed Blue", KnownPixelFormat.Format1bppIndexed, Color.Blue, Color.Black, 0 },
+            new object[] { "1 bit Indexed Blue 254", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(0, 0, 254), Color.Black, 0 },
+            new object[] { "1 bit Indexed Lime", KnownPixelFormat.Format1bppIndexed, Color.Lime, Color.White, 1 },
+            new object[] { "1 bit Indexed Transparent", KnownPixelFormat.Format1bppIndexed, Color.Transparent, Color.Black, 0 },
         };
 
         #endregion
@@ -93,16 +93,16 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         #region Static Methods
 
-        private static unsafe long GetRawValue(PixelFormat pixelFormat, IBitmapDataInternal bitmapData)
+        private static unsafe long GetRawValue(KnownPixelFormat pixelFormat, IBitmapDataInternal bitmapData)
         {
             if (bitmapData is UnmanagedBitmapDataBase unmanagedBitmapData)
-                return GetRawValueNative(pixelFormat, unmanagedBitmapData.Scan0);
+                return GetRawValueNative(pixelFormat.ToPixelFormat(), unmanagedBitmapData.Scan0);
 
             if (bitmapData is not ManagedBitmapDataBase managedBitmapDataBase)
                 throw new InvalidOperationException();
 
             fixed (byte* ptr = managedBitmapDataBase)
-                return GetRawValueNative(pixelFormat, (IntPtr)ptr);
+                return GetRawValueNative(pixelFormat.ToPixelFormat(), (IntPtr)ptr);
         }
 
         private static unsafe long GetRawValueNative(PixelFormat pixelFormat, IntPtr ptr)
@@ -135,16 +135,17 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         #region Instance Methods
 
         [TestCaseSource(nameof(setGetPixelTestSource))]
-        public unsafe void SetGetPixelTest(string testName, PixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValueNative)
+        public unsafe void SetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValueNative)
         {
             Color actualColor;
             long actualRawValue;
 
             Console.WriteLine($"{testName}: {pixelFormat} + {testColor}{Environment.NewLine}");
 
-            if (pixelFormat.IsSupportedNatively())
+            var gdiPixelFormat = pixelFormat.ToPixelFormat();
+            if (gdiPixelFormat.IsSupportedNatively())
             {
-                using Bitmap bmp = new Bitmap(1, 1, pixelFormat);
+                using Bitmap bmp = new Bitmap(1, 1, gdiPixelFormat);
 
                 // Reference test by Set/GetPixel
                 try
@@ -153,10 +154,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     bmp.SetPixel(0, 0, testColor);
                     actualColor = bmp.GetPixel(0, 0);
                     Console.WriteLine($"{expectedResult} vs. {actualColor} ({(expectedResult.ToArgb() == actualColor.ToArgb() ? "OK" : "Fail")})");
-                    BitmapData data = bmp.LockBits(new Rectangle(0, 0, 1, 1), ImageLockMode.ReadOnly, pixelFormat);
+                    BitmapData data = bmp.LockBits(new Rectangle(0, 0, 1, 1), ImageLockMode.ReadOnly, gdiPixelFormat);
                     try
                     {
-                        actualRawValue = GetRawValueNative(pixelFormat, data.Scan0);
+                        actualRawValue = GetRawValueNative(gdiPixelFormat, data.Scan0);
                         Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValueNative:X8} vs. {actualRawValue:X8} ({(expectedRawValueNative == actualRawValue ? "OK" : "Fail")}){Environment.NewLine}");
                     }
                     finally
@@ -169,7 +170,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Console.WriteLine(e.Message);
                 }
 
-                using (IBitmapDataInternal nativeBitmapData = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite))
+                using (IBitmapDataInternal nativeBitmapData = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite))
                 {
                     // by Accessor Set/GetPixel
                     Console.Write("SetPixel/GetPixel native accessor: ");
@@ -180,13 +181,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                     actualRawValue = GetRawValue(pixelFormat, nativeBitmapData);
                     Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValueNative:X8} vs. {actualRawValue:X8} ({(expectedRawValueNative == actualRawValue ? "OK" : "Fail")})");
-                    if (pixelFormat == nativeBitmapData.PixelFormat) // can differ in Linux for 16 bpp formats
+                    if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
                         Assert.AreEqual(expectedRawValueNative, actualRawValue);
 
                     // by indexer
                     nativeBitmapData.DoGetRow(0)[0] = new Color32(testColor);
                     Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData.DoGetRow(0)[0].ToArgb());
-                    if (pixelFormat == nativeBitmapData.PixelFormat) // can differ in Linux for 16 bpp formats
+                    if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
                         Assert.AreEqual(expectedRawValueNative, GetRawValue(pixelFormat, nativeBitmapData));
                 }
             }
@@ -194,14 +195,14 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             long expectedRawValue = expectedRawValueNative;
             if (pixelFormat.ToBitsPerPixel() > 32)
             {
-                expectedRawValue = pixelFormat == PixelFormat.Format64bppArgb ? new Color64(new Color32(testColor)).ToArgb()
-                    : pixelFormat == PixelFormat.Format64bppPArgb ? new Color64(new Color32(testColor)).ToPremultiplied().ToArgb()
-                    : pixelFormat == PixelFormat.Format48bppRgb ? testColor.A == 0 ? default : new Color48(new Color32(testColor)).ToRgb()
+                expectedRawValue = pixelFormat == KnownPixelFormat.Format64bppArgb ? new Color64(new Color32(testColor)).ToArgb()
+                    : pixelFormat == KnownPixelFormat.Format64bppPArgb ? new Color64(new Color32(testColor)).ToPremultiplied().ToArgb()
+                    : pixelFormat == KnownPixelFormat.Format48bppRgb ? testColor.A == 0 ? default : new Color48(new Color32(testColor)).ToRgb()
                     : expectedRawValueNative;
 
-                expectedResult = pixelFormat == PixelFormat.Format64bppArgb ? Color64.FromArgb(expectedRawValue).ToColor32().ToColor()
-                    : pixelFormat == PixelFormat.Format64bppPArgb ? new Color64(new Color32(testColor)).ToPremultiplied().ToStraight().ToColor32().ToColor()
-                    : pixelFormat == PixelFormat.Format48bppRgb ? Color48.FromRgb(expectedRawValue).ToColor32().ToColor()
+                expectedResult = pixelFormat == KnownPixelFormat.Format64bppArgb ? Color64.FromArgb(expectedRawValue).ToColor32().ToColor()
+                    : pixelFormat == KnownPixelFormat.Format64bppPArgb ? new Color64(new Color32(testColor)).ToPremultiplied().ToStraight().ToColor32().ToColor()
+                    : pixelFormat == KnownPixelFormat.Format48bppRgb ? Color48.FromRgb(expectedRawValue).ToColor32().ToColor()
                     : expectedResult;
             }
 

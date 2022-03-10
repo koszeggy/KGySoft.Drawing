@@ -167,7 +167,7 @@ namespace KGySoft.Drawing.UnitTests
                     using IReadableBitmapData actualFrame = actualFrames[i].GetReadableBitmapData();
                     IReadWriteBitmapData expectedFrame;
                     if (sourceFrame.GetSize() == actualFrame.GetSize())
-                        expectedFrame = sourceFrames[i].Clone(PixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
+                        expectedFrame = sourceFrames[i].Clone(KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
                     else
                     {
                         Assert.AreNotEqual(AnimationFramesSizeHandling.ErrorIfDiffers, config.SizeHandling);

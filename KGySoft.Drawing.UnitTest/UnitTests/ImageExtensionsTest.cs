@@ -714,7 +714,7 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(PixelFormat.Format32bppArgb, reloaded.PixelFormat);
 
             // quantizing source to remove partial transparency for the comparison
-            bmp.Quantize(PredefinedColorsQuantizer.FromCustomFunction(c => c, backColor, PixelFormat.Format32bppArgb, alphaThreshold));
+            bmp.Quantize(PredefinedColorsQuantizer.FromCustomFunction(c => c, backColor, KnownPixelFormat.Format32bppArgb, alphaThreshold));
             using IReadableBitmapData dataSrc = bmp.GetReadableBitmapData();
             using IReadableBitmapData dataDst = reloaded.GetReadableBitmapData();
             AssertAreEqual(dataSrc, dataSrc);

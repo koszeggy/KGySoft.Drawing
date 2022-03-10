@@ -41,7 +41,7 @@ namespace KGySoft
 
         #region Fields
 
-        private static readonly DynamicResourceManager resourceManager = new DynamicResourceManager("KGySoft.Drawing.Messages", typeof(Res).Assembly)
+        private static readonly DynamicResourceManager resourceManager = new DynamicResourceManager("KGySoft.Drawing.Core.Messages", typeof(Res).Assembly)
         {
             SafeMode = true,
             UseLanguageSettings = true,

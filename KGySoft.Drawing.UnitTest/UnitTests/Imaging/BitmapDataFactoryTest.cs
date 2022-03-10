@@ -13,7 +13,15 @@
 
 #endregion
 
+#region Extern Aliases
+
+extern alias core;
+
+#endregion
+
 #region Usings
+
+#region Used Namespaces
 
 using System;
 using System.Drawing;
@@ -27,6 +35,14 @@ using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
 using NUnit.Framework;
+
+#endregion
+
+#region Used Aliases
+
+using ResCore = core::KGySoft.Res;
+
+#endregion
 
 #endregion
 
@@ -160,7 +176,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 static void SetColorIndex3Bpp(ICustomBitmapDataRow row, int x, int colorIndex)
                 {
-                    Debug.Assert(colorIndex is >= 0 and < 8);
+                    Assert.IsTrue(colorIndex is >= 0 and < 8);
                     int bitPos = x * 3;
                     int bytePos = bitPos >> 3;
                     int bits = row.UnsafeGetRefAs<byte>(bytePos);
@@ -193,7 +209,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 static void SetColorIndex9Bpp(ICustomBitmapDataRow row, int x, int colorIndex)
                 {
-                    Debug.Assert(colorIndex is >= 0 and < 512);
+                    Assert.IsTrue(colorIndex is >= 0 and < 512);
                     int bitPos = x * 9;
                     int bytePos = bitPos >> 3;
                     int bits = row.UnsafeGetRefAs<byte>(bytePos) | (row.UnsafeGetRefAs<byte>(bytePos + 1) << 8);
@@ -250,7 +266,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             OrderedDitherer contentIndependentDitherer = OrderedDitherer.Bayer8x8;
             ErrorDiffusionDitherer contentDependentDitherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true);
-            PredefinedColorsQuantizer referenceQuantizer = bitmapDataNonDithered.PixelFormat.CanBeDithered() ? PredefinedColorsQuantizer.FromBitmapData(bitmapDataNonDithered) : null;
+            PredefinedColorsQuantizer referenceQuantizer = bitmapDataNonDithered.PixelFormat.CanBeDithered ? PredefinedColorsQuantizer.FromBitmapData(bitmapDataNonDithered) : null;
             Assert.IsTrue(referenceQuantizer == null || referenceQuantizer.PixelFormatHint.IsIndexed() || Reflector.TryGetField(referenceQuantizer, "compatibleBitmapDataFactory", out var _));
 
             // CopyTo
@@ -273,11 +289,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // Clone with original or indexed pixel format
             using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone())
-                AssertAreEqual(bitmapDataNonDithered, clone, bitmapDataNonDithered.PixelFormat.IsIndexed());
+                AssertAreEqual(bitmapDataNonDithered, clone, bitmapDataNonDithered.PixelFormat.Indexed);
             using (IReadWriteBitmapData clone = bitmapDataDitheredContentIndependent.Clone())
-                AssertAreEqual(bitmapDataDitheredContentIndependent, clone, bitmapDataDitheredContentIndependent.PixelFormat.IsIndexed());
+                AssertAreEqual(bitmapDataDitheredContentIndependent, clone, bitmapDataDitheredContentIndependent.PixelFormat.Indexed);
             using (IReadWriteBitmapData clone = bitmapDataDitheredContentDependent.Clone())
-                AssertAreEqual(bitmapDataDitheredContentDependent, clone, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+                AssertAreEqual(bitmapDataDitheredContentDependent, clone, bitmapDataDitheredContentDependent.PixelFormat.Indexed);
 
             // Clone with known pixel format
             using (IReadWriteBitmapData clone = bitmapDataNonDithered.Clone(bitmapDataNonDithered.GetKnownPixelFormat()))
@@ -337,25 +353,25 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using (IReadWriteBitmapData clipped = bitmapDataNonDithered.Clip(clippingRegion))
             {
                 using IReadWriteBitmapData clonedRegion = bitmapDataNonDithered.Clone(clippingRegion);
-                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.Indexed);
             }
 
             using (IReadWriteBitmapData clipped = bitmapDataDitheredContentIndependent.Clip(clippingRegion))
             {
                 using IReadWriteBitmapData clonedRegion = bitmapDataDitheredContentIndependent.Clone(clippingRegion);
-                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.Indexed);
             }
 
             using (IReadWriteBitmapData clipped = bitmapDataDitheredContentDependent.Clip(clippingRegion))
             {
                 using IReadWriteBitmapData clonedRegion = bitmapDataDitheredContentDependent.Clone(clippingRegion);
-                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.IsIndexed());
+                AssertAreEqual(clipped, clonedRegion, bitmapDataDitheredContentDependent.PixelFormat.Indexed);
             }
 
             // TransformColors (Invert)
             bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
             referenceBitmapData.Invert();
-            if (referenceQuantizer != null && !bitmapDataNonDithered.PixelFormat.IsIndexed())
+            if (referenceQuantizer != null && !bitmapDataNonDithered.PixelFormat.Indexed)
                 // not quantizing reference with original indexed palette because without a ditherer the palette entries themselves are inverted
                 referenceBitmapData.Quantize(referenceQuantizer);
             bitmapDataNonDithered.Invert();
@@ -395,34 +411,34 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             short[] buffer = null;
             var size = new Size(10, 10);
-            var pixelFormat = PixelFormat.Format32bppArgb;
+            var pixelFormat = KnownPixelFormat.Format32bppArgb;
             Assert.Throws<ArgumentNullException>(() => BitmapDataFactory.CreateBitmapData(buffer, size, 16));
 
             // stride too small
             buffer = new short[10];
             int stride = 16;
             Exception e = Assert.Throws<ArgumentOutOfRangeException>(() => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)), StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)), StringComparison.Ordinal));
 
             // stride is not multiple of element type
             stride = 45;
             e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(Res.ImagingStrideInvalid(typeof(short), sizeof(short)), StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingStrideInvalid(typeof(short), sizeof(short)), StringComparison.Ordinal));
 
             // buffer is too small
             stride = 42;
             e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(Res.ImagingBufferLengthTooSmall(stride / sizeof(short) * size.Height), StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingBufferLengthTooSmall(stride / sizeof(short) * size.Height), StringComparison.Ordinal));
 
             // pixel width is too large for 2D buffer
             var buffer2D = new short[10, 10];
             e = Assert.Throws<ArgumentOutOfRangeException>(() => BitmapDataFactory.CreateBitmapData(buffer2D, size.Width, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(Res.ImagingWidthTooLarge, StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingWidthTooLarge, StringComparison.Ordinal));
 
             // indexed pixel format is too large
             buffer = new short[2];
             e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, new Size(1, 1), 4, new PixelFormatInfo(32) {Indexed = true}, (row, x) => row.GetRefAs<int>(x), (row, x, c) => row.GetRefAs<int>(x) = c));
-            Assert.IsTrue(e.Message.StartsWith(Res.ImagingIndexedPixelFormatTooLarge, StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingIndexedPixelFormatTooLarge, StringComparison.Ordinal));
         }
 
         [Test]
@@ -444,7 +460,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             static void CreateAndAbandon(StrongBox<bool> isDisposed)
             {
                 IntPtr mem = Marshal.AllocHGlobal(1);
-                BitmapDataFactory.CreateBitmapData(mem, new Size(1, 1), 1, PixelFormat.Format8bppIndexed, disposeCallback: () => Free(mem, isDisposed));
+                BitmapDataFactory.CreateBitmapData(mem, new Size(1, 1), 1, KnownPixelFormat.Format8bppIndexed, disposeCallback: () => Free(mem, isDisposed));
             }
 
             static void Free(IntPtr ptr, StrongBox<bool> isDisposed)
@@ -461,19 +477,19 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Assert.IsTrue(isDisposedTracker.Value);
         }
 
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format16bppGrayScale)]
-        [TestCase(PixelFormat.Format16bppRgb555)]
-        [TestCase(PixelFormat.Format16bppRgb565)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format48bppRgb)]
-        [TestCase(PixelFormat.Format64bppArgb)]
-        [TestCase(PixelFormat.Format64bppPArgb)]
-        public void SupportedFormatsConsistencyTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format16bppGrayScale)]
+        [TestCase(KnownPixelFormat.Format16bppRgb555)]
+        [TestCase(KnownPixelFormat.Format16bppRgb565)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        public void SupportedFormatsConsistencyTest(KnownPixelFormat pixelFormat)
         {
             // 0.) Reference: native to self-allocating managed bitmap data
             IReadWriteBitmapData reference;
@@ -519,7 +535,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
 #if NET35
             // Creating custom bitmap data with 3 different strides (in .NET 3.5 we cannot create managed bitmap data for these delegates because they are invariant)
-            int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+            int stride = pixelFormat.GetByteWidth(size.Width);
             IntPtr buffer1 = Marshal.AllocHGlobal(stride * size.Height);
             using IReadWriteBitmapData bitmapDataNonDithered = BitmapDataFactory.CreateBitmapData(buffer1, size, stride, pixelFormat, getColor, setColor, default, 16, () => Marshal.FreeHGlobal(buffer1));
             stride = (stride + 3) / 4 * 4; // stride with 4 bytes boundary
@@ -530,7 +546,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(buffer3, size, stride, pixelFormat, getColor, setColor, default, 16, () => Marshal.FreeHGlobal(buffer3));
 #else
             // Creating custom bitmap data in 3 different forms (1D/2D arrays and unmanaged memory)
-            int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+            int stride = pixelFormat.GetByteWidth(size.Width);
             stride = (stride + 7) / 8 * 8; // custom stride with 8 bytes boundary
             var buffer1D = new long[size.Height * stride / sizeof(long)];
             using IReadWriteBitmapData bitmapDataNonDithered = BitmapDataFactory.CreateBitmapData(buffer1D, size, stride, pixelFormat, getColor, setColor, default, 16);
@@ -550,7 +566,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
 #if NET35
             // Creating custom bitmap data with 3 different strides (in .NET 3.5 we cannot create managed bitmap data for these delegates because they are invariant)
-            int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+            int stride = pixelFormat.GetByteWidth(size.Width);
             IntPtr buffer1 = Marshal.AllocHGlobal(stride * size.Height);
             using IReadWriteBitmapData bitmapDataNonDithered = BitmapDataFactory.CreateBitmapData(buffer1, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(buffer1));
             stride = (stride + 3) / 4 * 4; // stride with 4 bytes boundary
@@ -561,7 +577,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using IReadWriteBitmapData bitmapDataDitheredContentDependent = BitmapDataFactory.CreateBitmapData(buffer3, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(buffer3));
 #else
             // Creating custom bitmap data in 3 different forms (1D/2D arrays and unmanaged memory)
-            int stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+            int stride = pixelFormat.GetByteWidth(size.Width);
             stride = (stride + 7) / 8 * 8; // custom stride with 8 bytes boundary
             var buffer1D = new long[size.Height * stride / sizeof(long)];
             using IReadWriteBitmapData bitmapDataNonDithered = BitmapDataFactory.CreateBitmapData(buffer1D, size, stride, pixelFormat, getColorIndex, setColorIndex, palette);
@@ -580,9 +596,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (var getQuantizer in new Func<int, Color, byte, OptimizedPaletteQuantizer>[] { OptimizedPaletteQuantizer.Octree, OptimizedPaletteQuantizer.MedianCut, OptimizedPaletteQuantizer.Wu })
             {
                 using IReadableBitmapData optimizedReferenceBitmapData = Icons.Information.ExtractBitmap(new Size(256, 256))!.GetReadableBitmapData()
-                    .Clone(bpp <= 8 ? PixelFormat.Format8bppIndexed : PixelFormat.Format32bppArgb, getQuantizer.Invoke(maxColors, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), OrderedDitherer.Bayer8x8);
+                    .Clone(bpp <= 8 ? KnownPixelFormat.Format8bppIndexed : KnownPixelFormat.Format32bppArgb, getQuantizer.Invoke(maxColors, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), OrderedDitherer.Bayer8x8);
                 size = optimizedReferenceBitmapData.GetSize();
-                stride = pixelFormat.PixelFormat.GetByteWidth(size.Width);
+                stride = pixelFormat.GetByteWidth(size.Width);
 
                 // Creating custom bitmap data with optimized palette
                 palette = optimizedReferenceBitmapData.Palette ?? new Palette(optimizedReferenceBitmapData.GetColors().ToArray());

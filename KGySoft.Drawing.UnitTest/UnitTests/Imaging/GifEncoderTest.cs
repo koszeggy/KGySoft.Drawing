@@ -15,7 +15,15 @@
 
 #nullable  enable
 
+#region Extern Aliases
+
+extern alias core;
+
+#endregion
+
 #region Usings
+
+#region Used Namespaces
 
 using System;
 using System.Collections;
@@ -30,6 +38,14 @@ using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
 using NUnit.Framework;
+
+#endregion
+
+#region Used Aliases
+
+using ResCore = core::KGySoft.Res;
+
+#endregion
 
 #endregion
 
@@ -76,7 +92,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     if (cancelAfter == current)
                         yield break;
                     bitmapData = frames[current].GetReadableBitmapData();
-                    yield return bitmapData.Clone(PixelFormat.Format8bppIndexed);
+                    yield return bitmapData.Clone(KnownPixelFormat.Format8bppIndexed);
                 }
 
                 bitmapData?.Dispose();
@@ -120,7 +136,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var frame = new Bitmap(48, 48);
             using (Graphics g = Graphics.FromImage(frame))
                 g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-            IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
+            IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
                 {
@@ -174,7 +190,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             var frame = new Bitmap(48, 48);
             using (Graphics g = Graphics.FromImage(frame))
                 g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
-            IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
+            IReadWriteBitmapData imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, PredefinedColorsQuantizer.FromCustomPalette(palette));
 
             new GifEncoder(stream, new Size(48, 48))
                 {
@@ -238,7 +254,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
@@ -249,7 +265,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.DrawRectangle(pen, 4, 4, 24, 24);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -276,7 +292,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, palette))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, palette))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
@@ -287,7 +303,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.DrawRectangle(pen, 4, 4, 24, 24);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, palette))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, palette))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -313,7 +329,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
@@ -325,7 +341,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 }
 
                 palette[4] = Color.Transparent;
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -351,7 +367,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
@@ -363,7 +379,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 }
 
                 palette[4] = Color.White;
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -390,7 +406,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
@@ -402,7 +418,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 }
 
                 palette[4] = Color.Transparent;
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -429,7 +445,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     g.FillEllipse(Brushes.Cyan, 0, 0, 48, 48);
                 }
 
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(8, 8), 100, GifGraphicDisposalMethod.RestoreToBackground);
                 frame.Dispose();
 
@@ -441,7 +457,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 }
 
                 palette[4] = Color.White;
-                using (var imageData = frame.GetReadableBitmapData().Clone(PixelFormat.Format4bppIndexed, new Palette(palette)))
+                using (var imageData = frame.GetReadableBitmapData().Clone(KnownPixelFormat.Format4bppIndexed, new Palette(palette)))
                     encoder.AddImage(imageData, new Point(16, 16), 100, GifGraphicDisposalMethod.DoNotDispose);
                 frame.Dispose();
             }
@@ -462,7 +478,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             //int bpp = 8;
             for (int bpp = 1; bpp <= 8; bpp++)
             {
-                using IReadWriteBitmapData quantized = bmpData.Clone(PixelFormat.Format8bppIndexed,
+                using IReadWriteBitmapData quantized = bmpData.Clone(KnownPixelFormat.Format8bppIndexed,
                     OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), ErrorDiffusionDitherer.FloydSteinberg);
                 using var ms = new MemoryStream();
                 new GifEncoder(ms, bmp.Size) { CompressionMode = compressionMode }
@@ -477,10 +493,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [TestCase(PixelFormat.Format8bppIndexed)]
-        [TestCase(PixelFormat.Format4bppIndexed)]
-        [TestCase(PixelFormat.Format1bppIndexed)]
-        public void EncodeImageTest(PixelFormat sourcePixelFormat)
+        [TestCase(KnownPixelFormat.Format8bppIndexed)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        [TestCase(KnownPixelFormat.Format1bppIndexed)]
+        public void EncodeImageTest(KnownPixelFormat sourcePixelFormat)
         {
             using Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256))!;
             using IReadableBitmapData bitmapData = bmp.GetReadableBitmapData().Clone(sourcePixelFormat);
@@ -528,7 +544,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     using (var g = Graphics.FromImage(bitmap))
                         g.DrawString(i.ToString(), SystemFonts.DefaultFont, Brushes.Black, 0, 0);
                     using (var bmpDataNative = bitmap.GetReadableBitmapData())
-                        bitmapData = bmpDataNative.Clone(PixelFormat.Format8bppIndexed);
+                        bitmapData = bmpDataNative.Clone(KnownPixelFormat.Format8bppIndexed);
                     yield return bitmapData;
                 }
 
@@ -539,20 +555,20 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             EncodeAnimatedGif(new AnimatedGifConfiguration(DisposingIterator()));
         }
 
-        [TestCase("32bpp, no delta, center", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Center, 0)]
-        [TestCase("32bpp, delta, resize", PixelFormat.Format32bppArgb, false, true, AnimationFramesSizeHandling.Resize, 0)]
-        [TestCase("32bpp, no delta, resize", PixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Resize, 0)]
-        [TestCase("32bpp, bad quantizer", PixelFormat.Format32bppArgb, true, false, AnimationFramesSizeHandling.Center, 0)]
-        [TestCase("8bpp, delta, center", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center, 0)]
-        [TestCase("8bpp, delta, center, high tolerance", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center, 255)]
-        [TestCase("8bpp, delta, resize", PixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Resize, 0)]
-        [TestCase("4bpp, delta, center", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Center, 0)]
-        [TestCase("4bpp, no delta, center", PixelFormat.Format4bppIndexed, false, false, AnimationFramesSizeHandling.Center, 0)]
-        [TestCase("4bpp, no delta, center, fix palette", PixelFormat.Format4bppIndexed, true, false, AnimationFramesSizeHandling.Center, 0)]
-        [TestCase("4bpp, delta, center, fix palette", PixelFormat.Format4bppIndexed, true, true, AnimationFramesSizeHandling.Center, 0)]
-        [TestCase("4bpp, delta, center, fix palette high tolerance", PixelFormat.Format4bppIndexed, true, true, AnimationFramesSizeHandling.Center, 255)]
-        [TestCase("4bpp, delta, resize", PixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Resize, 0)]
-        public void EncodeAnimationDifferentImageSizes(string name, PixelFormat pixelFormat, bool explicitQuantizer, bool allowDelta, AnimationFramesSizeHandling sizeHandling, byte tolerance)
+        [TestCase("32bpp, no delta, center", KnownPixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("32bpp, delta, resize", KnownPixelFormat.Format32bppArgb, false, true, AnimationFramesSizeHandling.Resize, 0)]
+        [TestCase("32bpp, no delta, resize", KnownPixelFormat.Format32bppArgb, false, false, AnimationFramesSizeHandling.Resize, 0)]
+        [TestCase("32bpp, bad quantizer", KnownPixelFormat.Format32bppArgb, true, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("8bpp, delta, center", KnownPixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("8bpp, delta, center, high tolerance", KnownPixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Center, 255)]
+        [TestCase("8bpp, delta, resize", KnownPixelFormat.Format8bppIndexed, false, true, AnimationFramesSizeHandling.Resize, 0)]
+        [TestCase("4bpp, delta, center", KnownPixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, no delta, center", KnownPixelFormat.Format4bppIndexed, false, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, no delta, center, fix palette", KnownPixelFormat.Format4bppIndexed, true, false, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, delta, center, fix palette", KnownPixelFormat.Format4bppIndexed, true, true, AnimationFramesSizeHandling.Center, 0)]
+        [TestCase("4bpp, delta, center, fix palette high tolerance", KnownPixelFormat.Format4bppIndexed, true, true, AnimationFramesSizeHandling.Center, 255)]
+        [TestCase("4bpp, delta, resize", KnownPixelFormat.Format4bppIndexed, false, true, AnimationFramesSizeHandling.Resize, 0)]
+        public void EncodeAnimationDifferentImageSizes(string name, KnownPixelFormat pixelFormat, bool explicitQuantizer, bool allowDelta, AnimationFramesSizeHandling sizeHandling, byte tolerance)
         {
             Bitmap?[] frames = Icons.Information.ExtractBitmaps();
 
@@ -564,7 +580,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                         continue;
 
                     var bitmapDataNative = bitmap.GetReadableBitmapData();
-                    IReadableBitmapData currentFrame = pixelFormat == bitmapDataNative.PixelFormat ? bitmapDataNative : bitmapDataNative.Clone(pixelFormat);
+                    IReadableBitmapData currentFrame = pixelFormat == bitmapDataNative.PixelFormat.AsKnownPixelFormatInternal ? bitmapDataNative : bitmapDataNative.Clone(pixelFormat);
                     if (!ReferenceEquals(bitmapDataNative, currentFrame))
                         bitmapDataNative.Dispose();
                     yield return currentFrame;
@@ -646,7 +662,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     var bitmapDataNative = bitmap.GetReadableBitmapData();
                     IReadableBitmapData currentFrame = quantizer == null || mixed && (++frameCount & 1) == 0
                         ? bitmapDataNative.Clone()
-                        : bitmapDataNative.Clone(PixelFormat.Format8bppIndexed, GetQuantizer());
+                        : bitmapDataNative.Clone(KnownPixelFormat.Format8bppIndexed, GetQuantizer());
                     if (!ReferenceEquals(bitmapDataNative, currentFrame))
                         bitmapDataNative.Dispose();
                     yield return currentFrame;
@@ -685,7 +701,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 {
                     using Bitmap bmp = new Bitmap(file);
                     using IReadableBitmapData bitmapData = bmp.GetReadableBitmapData();
-                    yield return prequantize ? bitmapData.Clone(PixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.Grayscale(Color.Silver)) : bitmapData;
+                    yield return prequantize ? bitmapData.Clone(KnownPixelFormat.Format8bppIndexed, PredefinedColorsQuantizer.Grayscale(Color.Silver)) : bitmapData;
                 }
             }
 
@@ -873,7 +889,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Quantizer = PredefinedColorsQuantizer.FromCustomPalette(palette)
             }, new MemoryStream()));
 
-            Assert.IsTrue(e!.Message.StartsWith(Res.ImagingPaletteTooLarge(256, 8), StringComparison.Ordinal));
+            Assert.IsTrue(e!.Message.StartsWith(ResCore.ImagingPaletteTooLarge(256, 8), StringComparison.Ordinal));
         }
 
         #endregion

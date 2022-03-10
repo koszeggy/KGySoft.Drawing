@@ -17,7 +17,9 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.PerformanceTest", "KGySoft.Drawing.PerformanceTest\KGySoft.Drawing.PerformanceTest.csproj", "{E6759E07-91EA-4736-A256-268BDC8ABC65}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Core", "KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj", "{F030BCA6-4FE3-481B-BA49-5BB66C305408}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Core", "KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj", "{F030BCA6-4FE3-481B-BA49-5BB66C305408}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Core.UnitTest", "KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj", "{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -41,6 +43,10 @@ Global
 		{F030BCA6-4FE3-481B-BA49-5BB66C305408}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F030BCA6-4FE3-481B-BA49-5BB66C305408}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F030BCA6-4FE3-481B-BA49-5BB66C305408}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
