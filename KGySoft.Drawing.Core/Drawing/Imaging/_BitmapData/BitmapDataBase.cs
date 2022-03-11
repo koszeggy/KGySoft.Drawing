@@ -18,14 +18,13 @@
 using System;
 using System.Diagnostics;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    [DebuggerDisplay("{" + nameof(Width) + "}x{" + nameof(Height) + "} {" + nameof(PixelFormat) + "." + nameof(PixelFormatInfo.BitsPerPixel) + ")}bpp")]
+    [DebuggerDisplay("{" + nameof(Width) + "}x{" + nameof(Height) + "} {" + nameof(PixelFormat) + "." + nameof(PixelFormatInfo.BitsPerPixel) + "}bpp")]
     internal abstract class BitmapDataBase : IBitmapDataInternal
     {
         #region Fields

@@ -17,7 +17,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 #if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
 #endif

@@ -246,7 +246,7 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly string DebuggerValue => !IsCustomFormat
             ? Enum<KnownPixelFormat>.ToString((KnownPixelFormat)value)
-            : $"{BitsPerPixel}bpp"
+            : $"CustomFormat{BitsPerPixel}bpp"
             + $"{(Indexed ? $" | {nameof(Indexed)}" : null)}"
             + $"{(HasAlpha ? $" | {nameof(HasAlpha)}" : null)}"
             + $"{(HasPremultipliedAlpha ? $" | {nameof(HasPremultipliedAlpha)}" : null)}"
@@ -368,6 +368,12 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>A hash code for this instance, suitable for use in hashing algorithms and data structures like a hash table.</returns>
         public override readonly int GetHashCode() => value;
+
+        /// <summary>
+        /// Gets the string representation of this <see cref="PixelFormatInfo"/> instance.
+        /// </summary>
+        /// <returns>A <see cref="string"/> that represents this <see cref="PixelFormatInfo"/> instance.</returns>
+        public override string ToString() => DebuggerValue;
 
         #endregion
 

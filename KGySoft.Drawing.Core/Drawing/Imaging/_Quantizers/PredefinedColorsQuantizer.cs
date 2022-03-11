@@ -21,7 +21,6 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 #endif
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Threading;
 
 #if NET35 || NET40

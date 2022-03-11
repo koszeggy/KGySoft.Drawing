@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Specialized;
-using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 
 #endregion

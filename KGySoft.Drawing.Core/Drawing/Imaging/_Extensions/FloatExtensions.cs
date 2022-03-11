@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 
 #endregion

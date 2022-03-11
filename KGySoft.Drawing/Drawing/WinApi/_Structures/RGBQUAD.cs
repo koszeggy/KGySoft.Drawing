@@ -17,7 +17,6 @@
 
 using System.Drawing;
 using System.Runtime.InteropServices;
-using KGySoft.Drawing.Imaging;
 
 #endregion
 

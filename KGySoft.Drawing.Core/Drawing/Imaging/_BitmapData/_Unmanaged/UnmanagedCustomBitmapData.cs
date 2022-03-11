@@ -17,7 +17,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.Runtime.CompilerServices;
 #if NET35
 using System.Runtime.InteropServices;

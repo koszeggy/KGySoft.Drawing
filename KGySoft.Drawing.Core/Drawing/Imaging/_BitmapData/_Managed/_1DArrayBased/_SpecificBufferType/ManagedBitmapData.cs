@@ -16,7 +16,6 @@
 #region Usings
 
 using System.Drawing;
-using System.Drawing.Imaging;
 
 using KGySoft.Collections;
 

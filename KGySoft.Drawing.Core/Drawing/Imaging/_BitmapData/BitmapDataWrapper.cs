@@ -17,7 +17,6 @@
 
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 #endregion
 
