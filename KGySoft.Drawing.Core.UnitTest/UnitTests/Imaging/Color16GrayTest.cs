@@ -13,27 +13,11 @@
 
 #endregion
 
-#region Extern Aliases
-
-extern alias core;
-
-#endregion
-
 #region Usings
-
-#region Used Namespaces
 
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
-
-#endregion
-
-#region Used Aliases
-
-using ColorExt = core::KGySoft.Drawing.Imaging.ColorExtensions;
-
-#endregion
 
 #endregion
 
@@ -50,7 +34,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Color32 c = Color32.FromArgb(0x11223344);
 
             Color16Gray c16 = new Color16Gray(c);
-            Assert.AreEqual((ushort)(0x2222 * ColorExt.RLum + 0x3333 * ColorExt.GLum + 0x4444 * ColorExt.BLum), c16.Value);
+            Assert.AreEqual((ushort)(0x2222 * ColorExtensions.RLum + 0x3333 * ColorExtensions.GLum + 0x4444 * ColorExtensions.BLum), c16.Value);
         }
 
         [Test]

@@ -29,7 +29,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests
 {
     [TestFixture]
-    public class RawIconTest : TestBase
+    public class RawIconTest : DrawingTestBase
     {
         #region Methods
 

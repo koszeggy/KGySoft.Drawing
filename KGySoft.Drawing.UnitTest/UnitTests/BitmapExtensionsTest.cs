@@ -31,7 +31,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests
 {
     [TestFixture]
-    public class BitmapExtensionsTest : TestBase
+    public class BitmapExtensionsTest : DrawingTestBase
     {
         #region Fields
 
@@ -497,7 +497,7 @@ namespace KGySoft.Drawing.UnitTests
                 IReadableBitmapDataRow row = bitmapData.FirstRow;
                 var c32 = new Color32(color);
                 if (!pixelFormat.HasAlpha())
-                    c32 = c32.BlendWithBackground(default);
+                    c32 = c32.Blend(Color32.FromGray(0));
                 do
                 {
                     for (int x = 0; x < bitmapData.Width; x++)

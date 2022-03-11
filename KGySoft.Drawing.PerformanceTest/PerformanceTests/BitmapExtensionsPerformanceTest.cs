@@ -87,7 +87,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var bmp = new Bitmap(size, size, pixelFormat);
-                    using IBitmapDataInternal acc = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
+                    using IBitmapDataInternal acc = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
                     IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(acc);
                     var c = new Color32(color);
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
@@ -125,7 +125,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmpRef.CloneBitmap();
-                    using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IBitmapDataInternal bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession session = quantizer.Initialize(bitmapData))
                     {
                         var row = bitmapData.DoGetRow(0);
@@ -186,7 +186,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmpRef.CloneBitmap();
-                    using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IBitmapDataInternal bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession))
                     {
@@ -221,7 +221,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmp.CloneBitmap();
-                    using (IBitmapDataInternal bitmapData = BitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IBitmapDataInternal bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     {
                         Color32 from = new Color32(Color.Black);
                         Color32 to = new Color32(Color.Transparent);

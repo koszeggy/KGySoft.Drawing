@@ -15,21 +15,12 @@
 
 #nullable  enable
 
-#region Extern Aliases
-
-extern alias core;
-
-#endregion
-
 #region Usings
-
-#region Used Namespaces
 
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 
@@ -38,14 +29,6 @@ using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
 using NUnit.Framework;
-
-#endregion
-
-#region Used Aliases
-
-using ResCore = core::KGySoft.Res;
-
-#endregion
 
 #endregion
 
@@ -889,7 +872,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Quantizer = PredefinedColorsQuantizer.FromCustomPalette(palette)
             }, new MemoryStream()));
 
-            Assert.IsTrue(e!.Message.StartsWith(ResCore.ImagingPaletteTooLarge(256, 8), StringComparison.Ordinal));
+            Assert.IsTrue(e!.Message.StartsWith(Res.ImagingPaletteTooLarge(256, 8), StringComparison.Ordinal));
         }
 
         #endregion

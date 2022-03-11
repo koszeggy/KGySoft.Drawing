@@ -32,24 +32,25 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
     {
         #region Methods
 
-        [TestCase(PixelFormat.Format32bppArgb)]
-        [TestCase(PixelFormat.Format32bppPArgb)]
-        [TestCase(PixelFormat.Format64bppArgb)]
-        [TestCase(PixelFormat.Format64bppPArgb)]
-        [TestCase(PixelFormat.Format24bppRgb)]
-        [TestCase(PixelFormat.Format48bppRgb)]
-        [TestCase(PixelFormat.Format16bppRgb565)]
-        [TestCase(PixelFormat.Format16bppRgb555)]
-        [TestCase(PixelFormat.Format16bppArgb1555)]
-        public void SetGetPixelTest(PixelFormat pixelFormat)
+        [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format64bppArgb)]
+        [TestCase(KnownPixelFormat.Format64bppPArgb)]
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format48bppRgb)]
+        [TestCase(KnownPixelFormat.Format16bppRgb565)]
+        [TestCase(KnownPixelFormat.Format16bppRgb555)]
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
+        public void SetGetPixelTest(KnownPixelFormat pixelFormat)
         {
             static int Argb(int a, int l) => (a << 24) | (l << 16) | (l << 8) | l;
 
-            if (!pixelFormat.IsSupportedNatively())
-                Assert.Inconclusive($"Pixel format {pixelFormat} is not supported on current platform");
+            var nativePixelFormat = pixelFormat.ToPixelFormat();
+            if (!nativePixelFormat.IsSupportedNatively())
+                Assert.Inconclusive($"Pixel format {nativePixelFormat} is not supported on current platform");
 
             var size = new Size(256, 256);
-            using var bmp = new Bitmap(size.Width, size.Height, pixelFormat);
+            using var bmp = new Bitmap(size.Width, size.Height, nativePixelFormat);
 
             new PerformanceTest<int> { TestName = pixelFormat.ToString(), Iterations = 10 }
                 .AddCase(() =>
@@ -309,7 +310,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 .AddCase(() =>
                 {
                     int diffs = 0;
-                    using IBitmapDataInternal accessor = BitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
+                    using IBitmapDataInternal accessor = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
                     IBitmapDataRowInternal row = accessor.DoGetRow(0);
                     do
                     {

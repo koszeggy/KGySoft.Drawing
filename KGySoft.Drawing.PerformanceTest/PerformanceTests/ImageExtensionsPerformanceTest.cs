@@ -47,9 +47,9 @@ namespace KGySoft.Drawing.PerformanceTests
                         // Grayscale color matrix
                         var colorMatrix = new ColorMatrix(new float[][]
                         {
-                            new float[] { ColorExtensions.RLum, ColorExtensions.RLum, ColorExtensions.RLum, 0, 0 },
-                            new float[] { ColorExtensions.GLum, ColorExtensions.GLum, ColorExtensions.GLum, 0, 0 },
-                            new float[] { ColorExtensions.BLum, ColorExtensions.BLum, ColorExtensions.BLum, 0, 0 },
+                            new float[] { 0.299f, 0.299f, 0.299f, 0, 0 },
+                            new float[] { 0.587f, 0.587f, 0.587f, 0, 0 },
+                            new float[] { 0.114f, 0.114f, 0.114f, 0, 0 },
                             new float[] { 0, 0, 0, 1, 0 },
                             new float[] { 0, 0, 0, 0, 1 }
                         });

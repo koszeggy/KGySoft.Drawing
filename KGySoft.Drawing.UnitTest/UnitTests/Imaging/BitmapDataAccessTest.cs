@@ -19,8 +19,6 @@ using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 
-using KGySoft.Collections;
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using NUnit.Framework;
@@ -93,41 +91,37 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         #region Static Methods
 
-        private static unsafe long GetRawValue(KnownPixelFormat pixelFormat, IBitmapDataInternal bitmapData)
+        private static long GetRawValue(KnownPixelFormat pixelFormat, IReadWriteBitmapData bitmapData)
         {
-            if (bitmapData is UnmanagedBitmapDataBase unmanagedBitmapData)
-                return GetRawValueNative(pixelFormat.ToPixelFormat(), unmanagedBitmapData.Scan0);
-
-            if (bitmapData is not ManagedBitmapDataBase managedBitmapDataBase)
-                throw new InvalidOperationException();
-
-            fixed (byte* ptr = managedBitmapDataBase)
-                return GetRawValueNative(pixelFormat.ToPixelFormat(), (IntPtr)ptr);
+            IReadWriteBitmapDataRow row = bitmapData.FirstRow;
+            return new PixelFormatInfo(pixelFormat).BitsPerPixel switch
+            {
+                64 => row.ReadRaw<long>(0),
+                48 => row.ReadRaw<uint>(0) | ((long)row.ReadRaw<ushort>(2) << 32),
+                32 => row.ReadRaw<uint>(0),
+                24 => row.ReadRaw<ushort>(0) | ((long)row.ReadRaw<byte>(2) << 32),
+                16 => row.ReadRaw<ushort>(0),
+                8 => row.ReadRaw<byte>(0),
+                4 => row.ReadRaw<byte>(0) >> 4,
+                1 => row.ReadRaw<byte>(0) >> 7,
+                _ => throw new InvalidOperationException($"Unexpected pixel format: {pixelFormat}")
+            };
         }
 
         private static unsafe long GetRawValueNative(PixelFormat pixelFormat, IntPtr ptr)
         {
-            switch (pixelFormat.ToBitsPerPixel())
+            return pixelFormat.ToBitsPerPixel() switch
             {
-                case 64:
-                    return *(long*)ptr;
-                case 48:
-                    return *(uint*)ptr | ((long)(((ushort*)ptr)[2]) << 32);
-                case 32:
-                    return *(uint*)ptr;
-                case 24:
-                    return *(ushort*)ptr | (long)(((byte*)ptr)[2] << 16);
-                case 16:
-                    return *(ushort*)ptr;
-                case 8:
-                    return *(byte*)ptr;
-                case 4:
-                    return *(byte*)ptr >> 4;
-                case 1:
-                    return *(byte*)ptr >> 7;
-                default:
-                    throw new InvalidOperationException($"Unexpected pixel format: {pixelFormat}");
-            }
+                64 => *(long*)ptr,
+                48 => *(uint*)ptr | ((long)(((ushort*)ptr)[2]) << 32),
+                32 => *(uint*)ptr,
+                24 => *(ushort*)ptr | (long)(((byte*)ptr)[2] << 16),
+                16 => *(ushort*)ptr,
+                8 => *(byte*)ptr,
+                4 => *(byte*)ptr >> 4,
+                1 => *(byte*)ptr >> 7,
+                _ => throw new InvalidOperationException($"Unexpected pixel format: {pixelFormat}")
+            };
         }
 
         #endregion
@@ -170,7 +164,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     Console.WriteLine(e.Message);
                 }
 
-                using (IBitmapDataInternal nativeBitmapData = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite))
+                using (IReadWriteBitmapData nativeBitmapData = bmp.GetReadWriteBitmapData())
                 {
                     // by Accessor Set/GetPixel
                     Console.Write("SetPixel/GetPixel native accessor: ");
@@ -185,107 +179,11 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                         Assert.AreEqual(expectedRawValueNative, actualRawValue);
 
                     // by indexer
-                    nativeBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                    Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData.DoGetRow(0)[0].ToArgb());
+                    nativeBitmapData[0][0] = new Color32(testColor);
+                    Assert.AreEqual(expectedResult.ToArgb(), nativeBitmapData[0][0].ToArgb());
                     if (pixelFormat == nativeBitmapData.PixelFormat.ToKnownPixelFormat()) // can differ in Linux for 16 bpp formats
                         Assert.AreEqual(expectedRawValueNative, GetRawValue(pixelFormat, nativeBitmapData));
                 }
-            }
-
-            long expectedRawValue = expectedRawValueNative;
-            if (pixelFormat.ToBitsPerPixel() > 32)
-            {
-                expectedRawValue = pixelFormat == KnownPixelFormat.Format64bppArgb ? new Color64(new Color32(testColor)).ToArgb()
-                    : pixelFormat == KnownPixelFormat.Format64bppPArgb ? new Color64(new Color32(testColor)).ToPremultiplied().ToArgb()
-                    : pixelFormat == KnownPixelFormat.Format48bppRgb ? testColor.A == 0 ? default : new Color48(new Color32(testColor)).ToRgb()
-                    : expectedRawValueNative;
-
-                expectedResult = pixelFormat == KnownPixelFormat.Format64bppArgb ? Color64.FromArgb(expectedRawValue).ToColor32().ToColor()
-                    : pixelFormat == KnownPixelFormat.Format64bppPArgb ? new Color64(new Color32(testColor)).ToPremultiplied().ToStraight().ToColor32().ToColor()
-                    : pixelFormat == KnownPixelFormat.Format48bppRgb ? Color48.FromRgb(expectedRawValue).ToColor32().ToColor()
-                    : expectedResult;
-            }
-
-            bool AreEqual(Color c1, Color c2) => c1.ToArgb() == c2.ToArgb()
-                || pixelFormat.HasFlag(PixelFormat.PAlpha) && c1.A == 0 && c2.A == 0;
-
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(new Size(1, 1), pixelFormat))
-            {
-                // by Accessor Set/GetPixel
-                Console.Write("SetPixel/GetPixel allocating managed accessor: ");
-                managedBitmapData.SetPixel(0, 0, testColor);
-                actualColor = managedBitmapData.GetPixel(0, 0);
-                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
-                Assert.IsTrue(AreEqual(expectedResult, actualColor));
-
-                actualRawValue = GetRawValue(pixelFormat, managedBitmapData);
-                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
-                Assert.AreEqual(expectedRawValue, actualRawValue);
-
-                // by indexer
-                managedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.DoGetRow(0)[0].ToColor()));
-                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
-            }
-
-            long[] bufManaged = new long[1];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(new Array2D<long>(bufManaged, 1, 1), 1, pixelFormat))
-            {
-                // by Accessor Set/GetPixel
-                Console.Write("SetPixel/GetPixel wrapping managed accessor: ");
-                managedBitmapData.SetPixel(0, 0, testColor);
-                actualColor = managedBitmapData.GetPixel(0, 0);
-                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
-                Assert.IsTrue(AreEqual(expectedResult, actualColor));
-
-                actualRawValue = GetRawValue(pixelFormat, managedBitmapData);
-                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
-                Assert.AreEqual(expectedRawValue, actualRawValue);
-
-                // by indexer
-                managedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.DoGetRow(0)[0].ToColor()));
-                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
-            }
-
-            long[,] bufManaged2D = new long[1, 1];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, 1, pixelFormat))
-            {
-                // by Accessor Set/GetPixel
-                Console.Write("SetPixel/GetPixel wrapping managed accessor 2D: ");
-                managedBitmapData.SetPixel(0, 0, testColor);
-                actualColor = managedBitmapData.GetPixel(0, 0);
-                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
-                Assert.IsTrue(AreEqual(expectedResult, actualColor));
-
-                actualRawValue = GetRawValue(pixelFormat, managedBitmapData);
-                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
-                Assert.AreEqual(expectedRawValue, actualRawValue);
-
-                // by indexer
-                managedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.DoGetRow(0)[0].ToColor()));
-                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
-            }
-
-            long bufUnmanaged = 0L;
-            using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData((IntPtr)(&bufUnmanaged), new Size(1, 1), sizeof(long), pixelFormat))
-            {
-                // by Accessor Set/GetPixel
-                Console.Write("SetPixel/GetPixel unmanaged accessor: ");
-                unmanagedBitmapData.SetPixel(0, 0, testColor);
-                actualColor = unmanagedBitmapData.GetPixel(0, 0);
-                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
-                Assert.IsTrue(AreEqual(expectedResult, actualColor));
-
-                actualRawValue = GetRawValue(pixelFormat, unmanagedBitmapData);
-                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
-                Assert.AreEqual(expectedRawValue, actualRawValue);
-
-                // by indexer
-                unmanagedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, unmanagedBitmapData.DoGetRow(0)[0].ToColor()));
-                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, unmanagedBitmapData));
             }
         }
 

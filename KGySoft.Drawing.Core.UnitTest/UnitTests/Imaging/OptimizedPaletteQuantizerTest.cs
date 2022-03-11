@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 OptimizedPaletteQuantizer quantizer = getQuantizer.Invoke(colorCount, Color.Silver, 0);
                 using IReadWriteBitmapData clone = source.Clone(quantizer.PixelFormatHint, quantizer);
-                Assert.AreEqual(quantizer.PixelFormatHint, clone.PixelFormat);
+                Assert.AreEqual(quantizer.PixelFormatHint, clone.PixelFormat.ToKnownPixelFormat());
                 SaveBitmapData($"{getQuantizer.Method.Name} {colorCount}", clone);
                 clone.Dispose();
             }

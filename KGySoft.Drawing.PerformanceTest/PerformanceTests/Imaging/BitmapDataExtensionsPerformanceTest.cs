@@ -68,7 +68,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 }, "ImageExtensions.CopyTo (native to native)")
                 .AddCase(() =>
                 {
-                    using var bitmapDataDst = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+                    using var bitmapDataDst = BitmapDataFactory.CreateBitmapData(size, pixelFormat.ToKnownPixelFormatInternal());
                     using (var dataSrc = bmpSrc.GetReadableBitmapData())
                     {
                         dataSrc.CopyTo(bitmapDataDst, Point.Empty);
@@ -83,7 +83,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
         {
             using IReadableBitmapData src = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat).GetReadableBitmapData();
             Size targetSize = new Size(128, 128);
-            using IReadWriteBitmapData dst = BitmapDataFactory.CreateBitmapData(targetSize, pixelFormat);
+            using IReadWriteBitmapData dst = BitmapDataFactory.CreateBitmapData(targetSize, pixelFormat.ToKnownPixelFormatInternal());
 
             new PerformanceTest { CpuAffinity = null, Iterations = 10_000 }
                 .AddCase(() => src.CopyTo(dst, new Rectangle(default, targetSize), Point.Empty), "CopyTo")
@@ -127,7 +127,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 }, "BitmapDataExtensions.DrawInto (native to native)")
                 .AddCase(() =>
                 {
-                    using var bitmapDataDst = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+                    using var bitmapDataDst = BitmapDataFactory.CreateBitmapData(size, pixelFormat.ToKnownPixelFormatInternal());
                     using (var dataSrc = bmpSrc.GetReadableBitmapData())
                     {
                         dataSrc.DrawInto(bitmapDataDst, Point.Empty);

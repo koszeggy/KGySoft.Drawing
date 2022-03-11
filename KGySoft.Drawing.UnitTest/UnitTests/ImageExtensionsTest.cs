@@ -37,7 +37,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests
 {
     [TestFixture]
-    public class ImageExtensionsTest : TestBase
+    public class ImageExtensionsTest : DrawingTestBase
     {
         #region Fields
 

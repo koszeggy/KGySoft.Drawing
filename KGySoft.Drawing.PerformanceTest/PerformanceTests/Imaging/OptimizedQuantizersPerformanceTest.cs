@@ -17,7 +17,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 using KGySoft.Drawing.Imaging;
 
@@ -46,15 +45,15 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
             new PerformanceTest { TestName = $"Colors: {maxColors}, BitLevel:{bitLevel?.ToString() ?? "Default"}" }
                 .AddCase(() =>
                 {
-                    using var _ = source.Clone(PixelFormat.Format32bppArgb, OptimizedPaletteQuantizer.Octree(maxColors).ConfigureBitLevel(bitLevel));
+                    using var _ = source.Clone(KnownPixelFormat.Format32bppArgb, OptimizedPaletteQuantizer.Octree(maxColors).ConfigureBitLevel(bitLevel));
                 }, nameof(OptimizedPaletteQuantizer.Octree))
                 .AddCase(() =>
                 {
-                    using var _ = source.Clone(PixelFormat.Format32bppArgb, OptimizedPaletteQuantizer.MedianCut(maxColors).ConfigureBitLevel(bitLevel));
+                    using var _ = source.Clone(KnownPixelFormat.Format32bppArgb, OptimizedPaletteQuantizer.MedianCut(maxColors).ConfigureBitLevel(bitLevel));
                 }, nameof(OptimizedPaletteQuantizer.MedianCut))
                 .AddCase(() =>
                 {
-                    using var _ = source.Clone(PixelFormat.Format32bppArgb, OptimizedPaletteQuantizer.Wu(maxColors).ConfigureBitLevel(bitLevel));
+                    using var _ = source.Clone(KnownPixelFormat.Format32bppArgb, OptimizedPaletteQuantizer.Wu(maxColors).ConfigureBitLevel(bitLevel));
                 }, nameof(OptimizedPaletteQuantizer.Wu))
                 .DoTest()
                 .DumpResults(Console.Out);

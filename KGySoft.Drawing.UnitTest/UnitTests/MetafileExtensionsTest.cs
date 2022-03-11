@@ -26,7 +26,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests
 {
     [TestFixture]
-    public class MetafileExtensionsTest : TestBase
+    public class MetafileExtensionsTest : DrawingTestBase
     {
         #region Methods
 

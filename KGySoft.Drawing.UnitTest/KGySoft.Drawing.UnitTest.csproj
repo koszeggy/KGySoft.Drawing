@@ -42,6 +42,7 @@
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\KGySoft.Drawing\KGySoft.Drawing.csproj" />
+    <ProjectReference Include="..\KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj" />
   </ItemGroup>
 
 </Project>

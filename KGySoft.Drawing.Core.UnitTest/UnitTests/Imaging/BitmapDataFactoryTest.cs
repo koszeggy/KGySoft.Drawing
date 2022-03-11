@@ -13,19 +13,10 @@
 
 #endregion
 
-#region Extern Aliases
-
-extern alias core;
-
-#endregion
-
 #region Usings
-
-#region Used Namespaces
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -35,14 +26,6 @@ using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
 using NUnit.Framework;
-
-#endregion
-
-#region Used Aliases
-
-using ResCore = core::KGySoft.Res;
-
-#endregion
 
 #endregion
 
@@ -266,7 +249,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             OrderedDitherer contentIndependentDitherer = OrderedDitherer.Bayer8x8;
             ErrorDiffusionDitherer contentDependentDitherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true);
-            PredefinedColorsQuantizer referenceQuantizer = bitmapDataNonDithered.PixelFormat.CanBeDithered ? PredefinedColorsQuantizer.FromBitmapData(bitmapDataNonDithered) : null;
+            PredefinedColorsQuantizer referenceQuantizer = bitmapDataNonDithered.PixelFormat.CanBeDithered || bitmapDataNonDithered.PixelFormat.Grayscale ? PredefinedColorsQuantizer.FromBitmapData(bitmapDataNonDithered) : null;
             Assert.IsTrue(referenceQuantizer == null || referenceQuantizer.PixelFormatHint.IsIndexed() || Reflector.TryGetField(referenceQuantizer, "compatibleBitmapDataFactory", out var _));
 
             // CopyTo
@@ -418,27 +401,27 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             buffer = new short[10];
             int stride = 16;
             Exception e = Assert.Throws<ArgumentOutOfRangeException>(() => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)), StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(Res.ImagingStrideTooSmall(pixelFormat.GetByteWidth(size.Width)), StringComparison.Ordinal));
 
             // stride is not multiple of element type
             stride = 45;
             e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingStrideInvalid(typeof(short), sizeof(short)), StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(Res.ImagingStrideInvalid(typeof(short), sizeof(short)), StringComparison.Ordinal));
 
             // buffer is too small
             stride = 42;
             e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingBufferLengthTooSmall(stride / sizeof(short) * size.Height), StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(Res.ImagingBufferLengthTooSmall(stride / sizeof(short) * size.Height), StringComparison.Ordinal));
 
             // pixel width is too large for 2D buffer
             var buffer2D = new short[10, 10];
             e = Assert.Throws<ArgumentOutOfRangeException>(() => BitmapDataFactory.CreateBitmapData(buffer2D, size.Width, pixelFormat));
-            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingWidthTooLarge, StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(Res.ImagingWidthTooLarge, StringComparison.Ordinal));
 
             // indexed pixel format is too large
             buffer = new short[2];
             e = Assert.Throws<ArgumentException>(() => BitmapDataFactory.CreateBitmapData(buffer, new Size(1, 1), 4, new PixelFormatInfo(32) {Indexed = true}, (row, x) => row.GetRefAs<int>(x), (row, x, c) => row.GetRefAs<int>(x) = c));
-            Assert.IsTrue(e.Message.StartsWith(ResCore.ImagingIndexedPixelFormatTooLarge, StringComparison.Ordinal));
+            Assert.IsTrue(e.Message.StartsWith(Res.ImagingIndexedPixelFormatTooLarge, StringComparison.Ordinal));
         }
 
         [Test]
