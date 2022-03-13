@@ -81,13 +81,13 @@ namespace KGySoft.Drawing.Imaging
                     return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasAlpha = true },
                         (row, x) => row.UnsafeGetRefAs<Color64>(x).ToColor32PlatformDependent(),
                         (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToColor64PlatformDependent(),
-                        disposeCallback: dispose);
+                        backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format64bppPArgb:
                     return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
                         (row, x) => row.UnsafeGetRefAs<Color64>(x).ToStraight32PlatformDependent(),
                         (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToPremultiplied64PlatformDependent(),
-                        disposeCallback: dispose);
+                        backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format48bppRgb:
                     return BitmapDataFactory.CreateUnmanagedCustomBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48),

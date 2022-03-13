@@ -114,7 +114,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     IntPtr newBuffer = Marshal.AllocHGlobal(stride * size.Height);
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, new PixelFormatInfo(pixelFormat), getter, setter, backColor, alphaThreshold, () => Marshal.FreeHGlobal(newBuffer));
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, () => Marshal.FreeHGlobal(newBuffer));
 #else
                     Array2D<byte> newBuffer;
 

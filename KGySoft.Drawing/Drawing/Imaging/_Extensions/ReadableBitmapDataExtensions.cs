@@ -19,7 +19,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+#if !NET35
 using System.Threading.Tasks;
+#endif
 
 #endregion
 
@@ -30,9 +32,9 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     public static class ReadableBitmapDataExtensions
     {
-        #region Methods
+#region Methods
         
-        #region Public Methods
+#region Public Methods
 
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/>.
@@ -108,9 +110,9 @@ namespace KGySoft.Drawing.Imaging
         }
 #endif
 
-        #endregion
+#endregion
 
-        #region Private Methods
+#region Private Methods
 
         private static void ValidateArguments(IReadableBitmapData source)
         {
@@ -153,8 +155,8 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        #endregion
+#endregion
 
-        #endregion
+#endregion
     }
 }
