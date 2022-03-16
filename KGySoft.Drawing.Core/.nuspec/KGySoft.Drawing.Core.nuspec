@@ -1,0 +1,84 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>KGySoft.Drawing.Core</id>
+    <version>7.0.0-alpha.1</version>
+    <title>KGy SOFT Drawing Core Libraries</title>
+    <authors>György Kőszeg</authors>
+    <owners>György Kőszeg</owners>
+    <license type="file">LICENSE</license>
+    <projectUrl>https://kgysoft.net/drawing</projectUrl>
+    <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
+    <icon>Icon64.png</icon>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Advanced drawing features both for completely managed and technology-agnostic bitmap data on multiple platforms. Among others: fast bitmap manipulation, quantizing and dithering, creating animated GIFs in high color, etc.</summary>
+    <description xml:space="preserve">KGy SOFT Drawing Core Libraries offer advanced features in a technology-agnostic way.
+
+Among others:
+- Creating managed bitmap data of any PixelFormat on every platform, including Linux and MacOS
+- Supporting custom pixel formats
+- Quantizing and dithering
+- Creating GIF animations
+
+Demo App and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Find Documentation: https://docs.kgysoft.net/drawing</description>
+    <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt</releaseNotes>
+    <copyright>Copyright © KGy SOFT</copyright>
+    <tags>KGySoft Drawing extension icon bitmap image metafile graphics gif animgif tiff emf wmf quantizing quantization dithering bitmapdata pixelformat</tags>
+    <language>en-US</language>
+    <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
+    <dependencies>
+      <group targetFramework=".NETFramework3.5">
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework=".NETFramework4.0">
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework=".NETFramework4.5">
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework=".NETFramework4.6">
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework="netcoreapp2.0" >
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework="netcoreapp3.0" >
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework="netstandard2.0" >
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework="netstandard2.1" >
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+      <group targetFramework="net5.0" >
+        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\LICENSE" />
+    <file src="..\Help\KGySoft.Drawing.chm" target="Help" />
+    <file src="readme.txt"/>
+    <file src="Icon64.png" target="" />
+    <file src="..\bin\Release\net35\KGySoft.Drawing.dll" target="lib\net35" />
+    <file src="..\bin\Release\net35\KGySoft.Drawing.xml" target="lib\net35" />
+    <file src="..\bin\Release\net40\KGySoft.Drawing.dll" target="lib\net40" />
+    <file src="..\bin\Release\net40\KGySoft.Drawing.xml" target="lib\net40" />
+    <file src="..\bin\Release\net45\KGySoft.Drawing.dll" target="lib\net45" />
+    <file src="..\bin\Release\net45\KGySoft.Drawing.xml" target="lib\net45" />
+    <file src="..\bin\Release\net46\KGySoft.Drawing.dll" target="lib\net46" />
+    <file src="..\bin\Release\net46\KGySoft.Drawing.xml" target="lib\net46" />
+    <file src="..\bin\Release\netcoreapp2.0\KGySoft.Drawing.dll" target="lib\netcoreapp2.0" />
+    <file src="..\bin\Release\netcoreapp2.0\KGySoft.Drawing.xml" target="lib\netcoreapp2.0" />
+    <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.dll" target="lib\netcoreapp3.0" />
+    <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.xml" target="lib\netcoreapp3.0" />
+    <file src="..\bin\Release\netstandard2.0\KGySoft.Drawing.dll" target="lib\netstandard2.0" />
+    <file src="..\bin\Release\netstandard2.0\KGySoft.Drawing.xml" target="lib\netstandard2.0" />
+    <file src="..\bin\Release\netstandard2.1\KGySoft.Drawing.dll" target="lib\netstandard2.1" />
+    <file src="..\bin\Release\netstandard2.1\KGySoft.Drawing.xml" target="lib\netstandard2.1" />
+    <file src="..\bin\Release\net5.0\KGySoft.Drawing.dll" target="lib\net5.0" />
+    <file src="..\bin\Release\net5.0\KGySoft.Drawing.xml" target="lib\net5.0" />
+  </files>
+</package>
