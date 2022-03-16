@@ -1,0 +1,15 @@
+﻿Legend:
+! Breaking change
+* Compatible change
+- Bugfix
++ New feature
+===============================================================================
+
+~~~~~~~~~
++ v1.0.0:
+~~~~~~~~~
+
++ KGySoft.Drawing.Wpf namespace
+===============================
++ New WriteableBitmapExtensions class:
+  + New GetReadWriteBitmapData method: to get an IReadWriteBitmap data for all pixel formats.

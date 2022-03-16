@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing", "KGySoft.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.UnitTest", "KGySoft.Drawing.UnitTest\KGySoft.Drawing.UnitTest.csproj", "{7E74E3BC-2D32-458D-AF8F-E4171536A611}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{A0FE0FF5-C320-44F4-AA26-B0600C69CD38}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{A0FE0FF5-C320-44F4-AA26-B0600C69CD38}"
 	ProjectSection(SolutionItems) = preProject
 		KGySoft.Drawing.ruleset = KGySoft.Drawing.ruleset
 		KGySoft.snk = KGySoft.snk
@@ -20,6 +20,16 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Core", "KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj", "{F030BCA6-4FE3-481B-BA49-5BB66C305408}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Core.UnitTest", "KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj", "{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frameworks", "Frameworks", "{1F64BBA7-A172-4356-8ED7-B4765F03C08E}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GDI", "GDI", "{80A90153-5324-4928-A695-C09D2CE77F3B}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPF", "WPF", "{C1DC58E1-7584-4447-A974-D3685E3AD272}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf", "KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj", "{45C73BF1-2C6F-433F-81D7-A292D573FB69}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf.UnitTest", "KGySoft.Drawing.Wpf.UnitTest\KGySoft.Drawing.Wpf.UnitTest.csproj", "{88D10E91-1586-4E1A-B8E0-0502A911D5A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -47,9 +57,25 @@ Global
 		{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{45C73BF1-2C6F-433F-81D7-A292D573FB69}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{45C73BF1-2C6F-433F-81D7-A292D573FB69}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{45C73BF1-2C6F-433F-81D7-A292D573FB69}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{45C73BF1-2C6F-433F-81D7-A292D573FB69}.Release|Any CPU.Build.0 = Release|Any CPU
+		{88D10E91-1586-4E1A-B8E0-0502A911D5A4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{88D10E91-1586-4E1A-B8E0-0502A911D5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{88D10E91-1586-4E1A-B8E0-0502A911D5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{88D10E91-1586-4E1A-B8E0-0502A911D5A4}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{06AEC656-8AE3-409C-AB2E-64C6A3712F8B} = {80A90153-5324-4928-A695-C09D2CE77F3B}
+		{7E74E3BC-2D32-458D-AF8F-E4171536A611} = {80A90153-5324-4928-A695-C09D2CE77F3B}
+		{80A90153-5324-4928-A695-C09D2CE77F3B} = {1F64BBA7-A172-4356-8ED7-B4765F03C08E}
+		{C1DC58E1-7584-4447-A974-D3685E3AD272} = {1F64BBA7-A172-4356-8ED7-B4765F03C08E}
+		{45C73BF1-2C6F-433F-81D7-A292D573FB69} = {C1DC58E1-7584-4447-A974-D3685E3AD272}
+		{88D10E91-1586-4E1A-B8E0-0502A911D5A4} = {C1DC58E1-7584-4447-A974-D3685E3AD272}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0FAD51C6-1E18-4C33-A1E4-1E9C7DDB9570}
