@@ -43,8 +43,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public override void DoSetColorIndex(int x, int colorIndex)
         {
-            int pos = x >> 1;
-            ref byte nibbles = ref Row.GetElementReference(pos);
+            ref byte nibbles = ref Row.GetElementReference(x >> 1);
             if ((x & 1) == 0)
             {
                 nibbles &= 0b00001111;

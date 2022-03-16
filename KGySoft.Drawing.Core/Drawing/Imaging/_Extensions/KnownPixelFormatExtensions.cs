@@ -21,18 +21,20 @@ using KGySoft.CoreLibraries;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal static class KnownPixelFormatExtensions
+    public static class KnownPixelFormatExtensions
     {
         #region Methods
 
-        internal static PixelFormatInfo ToInfo(this KnownPixelFormat pixelFormat) => new PixelFormatInfo((uint)pixelFormat);
-        internal static bool IsValidFormat(this KnownPixelFormat pixelFormat) => pixelFormat != KnownPixelFormat.Undefined && pixelFormat.IsDefined();
-        internal static bool HasAlpha(this KnownPixelFormat pixelFormat) => ((int)pixelFormat & PixelFormatInfo.FlagHasAlpha) != 0;
-        internal static bool IsIndexed(this KnownPixelFormat pixelFormat) => ((int)pixelFormat & PixelFormatInfo.FlagIndexed) != 0;
-        internal static int ToBitsPerPixel(this KnownPixelFormat pixelFormat) => ((int)pixelFormat >> 8) & 0xFF;
+        public static int ToBitsPerPixel(this KnownPixelFormat pixelFormat) => ((int)pixelFormat >> 8) & 0xFF;
+        public static bool IsValidFormat(this KnownPixelFormat pixelFormat) => pixelFormat != KnownPixelFormat.Undefined && pixelFormat.IsDefined();
+        // TODO Docs: does not check validity. Use GetInfo().Indexed if needed
+        public static bool IsIndexed(this KnownPixelFormat pixelFormat) => ((int)pixelFormat & PixelFormatInfo.FlagIndexed) != 0;
+        public static bool HasAlpha(this KnownPixelFormat pixelFormat) => ((int)pixelFormat & PixelFormatInfo.FlagHasAlpha) != 0;
+        public static PixelFormatInfo GetInfo(this KnownPixelFormat pixelFormat) => new PixelFormatInfo(pixelFormat);
+        internal static PixelFormatInfo ToInfoInternal(this KnownPixelFormat pixelFormat) => new PixelFormatInfo((uint)pixelFormat);
         internal static int GetByteWidth(this KnownPixelFormat pixelFormat, int pixelWidth) =>  (pixelWidth * pixelFormat.ToBitsPerPixel() + 7) >> 3;
-        internal static bool CanBeDithered(this KnownPixelFormat pixelFormat) => pixelFormat.ToInfo().CanBeDithered;
-        internal static bool IsAtByteBoundary(this KnownPixelFormat pixelFormat, int x) => pixelFormat.ToInfo().IsAtByteBoundary(x);
+        internal static bool CanBeDithered(this KnownPixelFormat pixelFormat) => pixelFormat.ToInfoInternal().CanBeDithered;
+        internal static bool IsAtByteBoundary(this KnownPixelFormat pixelFormat, int x) => pixelFormat.ToInfoInternal().IsAtByteBoundary(x);
 
         #endregion
     }

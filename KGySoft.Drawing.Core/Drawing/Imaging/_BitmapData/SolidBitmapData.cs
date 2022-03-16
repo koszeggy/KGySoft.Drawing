@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal SolidBitmapData(Size size, Color32 color)
-            : base(size, KnownPixelFormat.Format32bppArgb.ToInfo())
+            : base(size, KnownPixelFormat.Format32bppArgb.ToInfoInternal())
         {
             this.color = color;
         }

@@ -545,7 +545,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 IReadableBitmapDataRow row = source.BitmapData.FirstRow;
                 var expected = color;
-                if (!pixelFormat.ToInfo().HasMultiLevelAlpha)
+                if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha)
                     expected = expected.BlendWithBackground(default);
                 do
                 {

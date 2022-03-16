@@ -99,7 +99,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 64 => row.ReadRaw<long>(0),
                 48 => row.ReadRaw<uint>(0) | ((long)row.ReadRaw<ushort>(2) << 32),
                 32 => row.ReadRaw<uint>(0),
-                24 => row.ReadRaw<ushort>(0) | ((long)row.ReadRaw<byte>(2) << 32),
+                24 => row.ReadRaw<ushort>(0) | ((long)row.ReadRaw<byte>(2) << 16),
                 16 => row.ReadRaw<ushort>(0),
                 8 => row.ReadRaw<byte>(0),
                 4 => row.ReadRaw<byte>(0) >> 4,
@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         #region Instance Methods
 
         [TestCaseSource(nameof(setGetPixelTestSource))]
-        public unsafe void SetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValueNative)
+        public void SetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValueNative)
         {
             Color actualColor;
             long actualRawValue;

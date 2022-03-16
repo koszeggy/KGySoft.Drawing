@@ -141,7 +141,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Console.WriteLine($"{testName}: {pixelFormat} + {testColor}{Environment.NewLine}");
 
             bool AreEqual(Color c1, Color c2) => c1.ToArgb() == c2.ToArgb()
-                || pixelFormat.ToInfo().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
+                || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
 
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(new Size(1, 1), pixelFormat))
             {

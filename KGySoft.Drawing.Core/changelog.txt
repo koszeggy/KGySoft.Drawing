@@ -30,6 +30,7 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
 + New KnownPixelFormat enum. The names of the actual formats are compatible with System.Drawing.Imaging.PixelFormat
   but some of them have different underlying values. Use the ToPixelFormat extension from KGySoft.Drawing to convert
   it to a System.Drawing.Imaging.PixelFormat.
++ New KnownPixelFormatExtensions class
 ! All System.Drawing.Imaging.PixelFormat parameters have been replaced to KGySoft.Drawing.Imaging.KnownPixelFormat.
 + PixelFormatInfo struct:
   + New public constructor from KnownPixelFormat
