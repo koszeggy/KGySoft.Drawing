@@ -390,7 +390,11 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetReadWriteBitmapData"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
+        }
 
         /// <summary>
         /// Gets an <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.
@@ -411,7 +415,11 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetReadWriteBitmapData"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+        }
 
         /// <summary>
         /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
@@ -527,7 +535,11 @@ namespace KGySoft.Drawing
         /// <seealso cref="GetWritableBitmapData"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
+        }
 
         /// <summary>
         /// Quantizes a <paramref name="bitmap"/> using the specified <paramref name="quantizer"/> (reduces the number of colors).
@@ -629,8 +641,8 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            using (IBitmapDataInternal accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
-                accessor.Clear(new Color32(color));
+            using IWritableBitmapData accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+            accessor.Clear(new Color32(color));
         }
 
         /// <summary>
@@ -659,8 +671,8 @@ namespace KGySoft.Drawing
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            using (IBitmapDataInternal accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold))
-                accessor.Clear(new Color32(color), ditherer);
+            using IWritableBitmapData accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+            accessor.Clear(new Color32(color), ditherer);
         }
 
         /// <summary>
@@ -1146,11 +1158,12 @@ namespace KGySoft.Drawing
             if (palette.Count > 1 << target.GetBitsPerPixel())
                 return false;
             ColorPalette targetPalette = target.Palette;
-            Color32[] sourceColors = palette.Entries;
-            bool setEntries = sourceColors.Length != targetPalette.Entries.Length;
-            Color[] targetColors = setEntries ? new Color[sourceColors.Length] : targetPalette.Entries;
+            IList<Color32> sourceColors = palette.GetEntries();
+            int sourceCount = sourceColors.Count;
+            bool setEntries = sourceCount != targetPalette.Entries.Length;
+            Color[] targetColors = setEntries ? new Color[sourceCount] : targetPalette.Entries;
 
-            for (int i = 0; i < sourceColors.Length; i++)
+            for (int i = 0; i < sourceCount; i++)
                 targetColors[i] = sourceColors[i].ToColor();
 
             if (setEntries && !targetPalette.TrySetEntries(targetColors))

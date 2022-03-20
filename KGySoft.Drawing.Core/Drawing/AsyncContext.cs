@@ -28,7 +28,11 @@ using System.Threading.Tasks;
 
 namespace KGySoft.Drawing
 {
-    internal static class AsyncContext
+    /// <summary>
+    /// A helper class to implement CPU-bound drawing operations returning <see cref="IAsyncResult"/> (.NET Framework 4.0 and above: or <see cref="Task"/>)
+    /// that can be configured by an <see cref="AsyncConfig"/> (.NET Framework 4.0 and above: or <see cref="TaskConfig"/>) parameter.
+    /// </summary>
+    public static class AsyncContext
     {
         #region Nested classes
 
@@ -476,7 +480,7 @@ namespace KGySoft.Drawing
 
         #region Properties
 
-        internal static IAsyncContext Null => nullContext ??= new NullContext();
+        public static IAsyncContext Null => nullContext ??= new NullContext();
 
         #endregion
 
@@ -484,7 +488,7 @@ namespace KGySoft.Drawing
 
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Pool thread exceptions are not suppressed, they will be thrown when calling the EndOperation method.")]
-        internal static IAsyncResult BeginOperation(Action<IAsyncContext> operation, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
+        public static IAsyncResult BeginOperation(Action<IAsyncContext> operation, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
         {
             #region Local Methods
 
@@ -531,7 +535,7 @@ namespace KGySoft.Drawing
 
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
                 Justification = "Pool thread exceptions are not suppressed, they will be thrown when calling the EndOperation method.")]
-        internal static IAsyncResult BeginOperation<TResult>(Func<IAsyncContext, TResult> operation, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
+        public static IAsyncResult BeginOperation<TResult>(Func<IAsyncContext, TResult> operation, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
             where TResult : class?
         {
             #region Local Methods
@@ -578,7 +582,7 @@ namespace KGySoft.Drawing
             return asyncResult;
         }
 
-        internal static IAsyncResult FromCompleted(AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
+        public static IAsyncResult FromCompleted(AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
         {
             var asyncResult = new AsyncResultContext(beginMethod, null, asyncConfig);
             asyncResult.SetCompleted();
@@ -586,7 +590,7 @@ namespace KGySoft.Drawing
             return asyncResult;
         }
 
-        internal static IAsyncResult FromResult<TResult>(TResult result, TResult canceledValue, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
+        public static IAsyncResult FromResult<TResult>(TResult result, TResult canceledValue, AsyncConfig? asyncConfig, [CallerMemberName]string beginMethod = null!)
             where TResult : class
         {
             var asyncResult = new AsyncResultContext<TResult>(beginMethod, null, asyncConfig);
@@ -604,7 +608,7 @@ namespace KGySoft.Drawing
             return asyncResult;
         }
 
-        internal static void EndOperation(IAsyncResult asyncResult, string beginMethodName)
+        public static void EndOperation(IAsyncResult asyncResult, string beginMethodName)
         {
             if (asyncResult == null)
                 throw new ArgumentNullException(nameof(asyncResult), PublicResources.ArgumentNull);
@@ -620,7 +624,7 @@ namespace KGySoft.Drawing
             }
         }
 
-        internal static TResult? EndOperation<TResult>(IAsyncResult asyncResult, string beginMethodName)
+        public static TResult? EndOperation<TResult>(IAsyncResult asyncResult, string beginMethodName)
             where TResult : class
         {
             if (asyncResult == null)
@@ -640,7 +644,7 @@ namespace KGySoft.Drawing
 #if !NET35
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Pool thread exceptions are not suppressed, they will be thrown when task is awaited or Result is accessed.")]
-        internal static Task<TResult?> DoOperationAsync<TResult>(Func<IAsyncContext, TResult?> operation, TaskConfig? asyncConfig)
+        public static Task<TResult?> DoOperationAsync<TResult>(Func<IAsyncContext, TResult?> operation, TaskConfig? asyncConfig)
         {
             #region Local Methods
 
@@ -693,7 +697,7 @@ namespace KGySoft.Drawing
 
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Pool thread exceptions are not suppressed, they will be thrown when task is awaited or Result is accessed.")]
-        internal static Task DoOperationAsync(Action<IAsyncContext> operation, TaskConfig? asyncConfig)
+        public static Task DoOperationAsync(Action<IAsyncContext> operation, TaskConfig? asyncConfig)
         {
             #region Local Methods
 
@@ -739,7 +743,7 @@ namespace KGySoft.Drawing
             return completionSource.Task;
         }
 
-        internal static Task FromCompleted(TaskConfig? asyncConfig)
+        public static Task FromCompleted(TaskConfig? asyncConfig)
         {
             var taskContext = new TaskContext(asyncConfig);
             var completionSource = new TaskCompletionSource<object?>(taskContext.State);
@@ -751,7 +755,7 @@ namespace KGySoft.Drawing
             return completionSource.Task;
         }
 
-        internal static Task<TResult> FromResult<TResult>(TResult result, TResult canceledValue, TaskConfig? asyncConfig)
+        public static Task<TResult> FromResult<TResult>(TResult result, TResult canceledValue, TaskConfig? asyncConfig)
         {
             var taskContext = new TaskContext(asyncConfig);
             var completionSource = new TaskCompletionSource<TResult>(taskContext.State);

@@ -138,7 +138,7 @@ namespace KGySoft.Drawing.Imaging
 
                 if (canceled = context.IsCancellationRequested)
                     return null;
-                using (IBitmapDataInternal target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
+                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
                     source.DoCopyTo(context, target, new Rectangle(Point.Empty, source.GetSize()), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }

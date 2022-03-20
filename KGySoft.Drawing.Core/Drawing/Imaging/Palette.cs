@@ -222,14 +222,15 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         public byte AlphaThreshold { get; }
 
+        public bool IsGrayscale { get; }
+        public bool HasAlpha { get; }
+
         #endregion
 
         #region Internal Properties
 
-        internal Color32[] Entries { get; }
-        internal bool IsGrayscale { get; }
-        internal bool HasAlpha { get; }
         internal bool HasMultiLevelAlpha { get; }
+        internal Color32[] Entries { get; }
         internal int TransparentIndex { get; }
         internal bool HasTransparent => TransparentIndex >= 0;
 
@@ -252,8 +253,6 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
-
-        #region Public Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="Palette"/> class.
@@ -339,29 +338,34 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
-        #endregion
-
-        #region Internal Constructors
-
-        internal Palette(KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold)
-            : this(GetColorsByPixelFormat(pixelFormat), backColor, alphaThreshold)
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Palette"/> class from another <paramref name="palette"/> using
+        /// new <paramref name="backColor"/> and <paramref name="alphaThreshold"/> values.
+        /// </summary>
+        /// <param name="palette">The original <see cref="Palette"/> to get the colors from.</param>
+        /// <param name="backColor">The desired <see cref="BackColor"/> of the new <see cref="Palette"/>. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored.</param>
+        /// <param name="alphaThreshold">The desired <see cref="AlphaThreshold"/> of the new <see cref="Palette"/>.</param>
+        /// <exception cref="ArgumentNullException"></exception>
+        public Palette(Palette palette, Color32 backColor, byte alphaThreshold)
         {
+            if (palette == null)
+                throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
+            Entries = palette.Entries;
+            TransparentIndex = palette.TransparentIndex;
+            BackColor = backColor.ToOpaque();
+            AlphaThreshold = alphaThreshold;
+            color32ToIndex = palette.color32ToIndex;
+            IsGrayscale = palette.IsGrayscale;
+            HasAlpha = palette.HasAlpha;
+            HasMultiLevelAlpha = palette.HasMultiLevelAlpha;
+            customGetNearestColorIndex = palette.customGetNearestColorIndex;
         }
-
-        internal Palette(Palette palette, Color32 backColor, byte alphaThreshold)
-            : this(palette.Entries, backColor, alphaThreshold, palette.customGetNearestColorIndex)
-        {
-        }
-
-        #endregion
 
         #endregion
 
         #region Methods
 
         #region Static Methods
-
-        #region Public Methods
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 8-bit palette.
@@ -540,20 +544,6 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Private Methods
-
-        private static Color32[] GetColorsByPixelFormat(KnownPixelFormat pixelFormat) => pixelFormat switch
-        {
-            KnownPixelFormat.Format8bppIndexed => System8BppPalette,
-            KnownPixelFormat.Format4bppIndexed => System4BppPalette,
-            KnownPixelFormat.Format1bppIndexed => BlackAndWhitePalette,
-            _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
-        };
-
-        #endregion
-
-        #endregion
-
         #region Instance Methods
 
         #region Public Methods
@@ -626,40 +616,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal bool Equals(Color[] colors)
-        {
-            if (customGetNearestColorIndex != null || Entries.Length != colors.Length)
-                return false;
-            for (int i = 0; i < colors.Length; i++)
-            {
-                if (colors[i].ToArgb() != Entries[i].ToArgb())
-                    return false;
-            }
-
-            return true;
-        }
-
         internal bool Equals(Palette? other)
         {
             // not a public method because we don't want to adjust GetHashCode to these comparisons
             if (other == null || customGetNearestColorIndex != other.customGetNearestColorIndex || !BackColor.Equals(other.BackColor) || AlphaThreshold != other.AlphaThreshold)
                 return false;
 
-            if (ReferenceEquals(other.Entries, Entries))
-                return true;
-
-            Color32[] colors = other.Entries;
-            if (colors.Length != Entries.Length)
-                return false;
-
-            // ReSharper disable once LoopCanBeConvertedToQuery - performance
-            for (int i = 0; i < colors.Length; i++)
-            {
-                if (!colors[i].Equals(Entries[i]))
-                    return false;
-            }
-
-            return true;
+            return EntriesEqual(other);
         }
 
         internal bool EntriesEqual(Palette? other)

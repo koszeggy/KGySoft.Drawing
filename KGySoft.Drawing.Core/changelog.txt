@@ -17,6 +17,11 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
 ! System.Drawing.Common package is no longer referenced (.NET Core/Standard 2.0 and above). To use APIs that depend
   on System.Drawing.Common (eg. Image, Bitmap, Icon, Metafile, etc.) reference the KGySoft.Drawing package.
 
++ KGySoft.Drawing namespace
+===========================
++ The static AsyncContext class has been made public so consumer libraries can easily implement IAsyncResult or Task
+  returning methods that can be configured by an AsyncConfig or TaskConfig parameter.
+
 ! KGySoft.Drawing.Imaging namespace
 ===================================
 ! IBitmapData interface:
@@ -32,6 +37,10 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   it to a System.Drawing.Imaging.PixelFormat.
 + New KnownPixelFormatExtensions class
 ! All System.Drawing.Imaging.PixelFormat parameters have been replaced to KGySoft.Drawing.Imaging.KnownPixelFormat.
++ Palette class:
+  + New public constructor to create a new Palette from an existing one with different back color and alpha
+    threshold values.
+  + The IsGrayscale and HasAlpha properties have been made public.
 + PixelFormatInfo struct:
   + New public constructor from KnownPixelFormat
   + New IsCustomFormat property
