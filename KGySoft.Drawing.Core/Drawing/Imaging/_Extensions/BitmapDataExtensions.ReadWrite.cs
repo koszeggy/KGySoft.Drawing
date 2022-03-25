@@ -136,14 +136,16 @@ namespace KGySoft.Drawing.Imaging
         /// </list></note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Quantize"/>
-        public static void Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer)
+        public static void Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer) => bitmapData.Quantize(AsyncContext.Null, quantizer);
+
+        public static void Quantize(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            DoQuantize(AsyncContext.Null, bitmapData, quantizer);
+            DoQuantize(context ?? AsyncContext.Null, bitmapData, quantizer);
         }
 
         /// <summary>
@@ -175,7 +177,9 @@ namespace KGySoft.Drawing.Imaging
         /// </list></note>
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Dither"/>
-        public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer)
+        public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer) => bitmapData.Dither(AsyncContext.Null, quantizer, ditherer);
+
+        public static void Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -184,7 +188,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
-            DoDither(AsyncContext.Null, bitmapData, quantizer, ditherer);
+            DoDither(context ?? AsyncContext.Null, bitmapData, quantizer, ditherer);
         }
 
         /// <summary>
@@ -338,11 +342,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, Color, byte)"/>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (transformFunction == null)
-                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, transformFunction);
             DoTransformColors(AsyncContext.Null, bitmapData, transformFunction);
         }
 
@@ -371,13 +371,15 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)"/>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
-        {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (transformFunction == null)
-                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
+            => bitmapData.TransformColors(AsyncContext.Null, transformFunction, ditherer);
 
-            DoTransformColors(AsyncContext.Null, bitmapData, transformFunction, ditherer);
+        // TODO docs: The call is blocking on the caller thread but as it has a context parameter it makes possible to pass around an already created context from an async call.
+        // Alternatively, it allows cancellation, configuring degree of parallelization and reporting progress even for a sync caller.
+        // See the AsyncContext example for more details
+        public static void TransformColors(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
+        {
+            ValidateArguments(bitmapData, transformFunction);
+            DoTransformColors(context ?? AsyncContext.Null, bitmapData, transformFunction, ditherer);
         }
 
         /// <summary>
@@ -401,11 +403,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (transformFunction == null)
-                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, transformFunction);
             return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
 
@@ -436,11 +434,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            if (transformFunction == null)
-                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
-
+            ValidateArguments(bitmapData, transformFunction);
             return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
 #endif
@@ -1458,6 +1452,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
+        #region Validation
+
+        private static void ValidateArguments(IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            if (transformFunction == null)
+                throw new ArgumentNullException(nameof(transformFunction), PublicResources.ArgumentNull);
+        }
+
+        #endregion
+
         #region Quantizing/Dithering
 
         [SuppressMessage("ReSharper", "AccessToDisposedClosure", Justification = "ParallelHelper.For invokes delegates before returning")]
@@ -1646,7 +1652,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer.InitializeReliesOnContent)
             {
                 // not using premultiplied format because transformation is faster on simple ARGB32
-                using IReadWriteBitmapData? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb);
+                using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb);
                 if (context.IsCancellationRequested)
                     return;
 

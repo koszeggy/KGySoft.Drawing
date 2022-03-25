@@ -31,7 +31,13 @@ namespace KGySoft.Drawing
     /// <summary>
     /// A helper class to implement CPU-bound drawing operations returning <see cref="IAsyncResult"/> (.NET Framework 4.0 and above: or <see cref="Task"/>)
     /// that can be configured by an <see cref="AsyncConfig"/> (.NET Framework 4.0 and above: or <see cref="TaskConfig"/>) parameter.
+    /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
+    /// <remarks>TODO: example for Sync, Begin/End, Async, Do methods.
+    /// The Do method:
+    /// - can call extensions with IAsyncContext param without creating new contexts.
+    /// - Should not throw exception explicitly if canceled. It is handled by the parent context configured by AsyncConfig/TaskConfig
+    /// </remarks>
     public static class AsyncContext
     {
         #region Nested classes

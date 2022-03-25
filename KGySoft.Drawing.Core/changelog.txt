@@ -32,6 +32,7 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   ! The ToBitmap/BeginToBitmap/EndToBitmap/ToBitmapAsync methods are now in the ReadableBitmapDataExtensions class
     of the KGySoft.Drawing package. When recompiling C# sources, this is not a breaking change if you use the
     KGySoft.Drawing package and use these methods as extensions (without the class name).
+  + New Clone/CopyTo/DrawInto/Clear/TransformColors/Quantize/Dither overloads with IAsyncContext parameter.
 + New KnownPixelFormat enum. The names of the actual formats are compatible with System.Drawing.Imaging.PixelFormat
   but some of them have different underlying values. Use the ToPixelFormat extension from KGySoft.Drawing to convert
   it to a System.Drawing.Imaging.PixelFormat.

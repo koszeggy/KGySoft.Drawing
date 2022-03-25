@@ -101,10 +101,15 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <seealso cref="BitmapExtensions.Clear(Bitmap, Color, IDitherer, Color, byte)"/>
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null)
+            => bitmapData.Clear(AsyncContext.Null, color, ditherer);
+
+        // TODO docs: The call is blocking on the caller thread but as it has a context parameter it makes possible to pass around an already created context from an async call.
+        // Alternatively, it allows cancellation, configuring degree of parallelization and reporting progress even for a sync caller.
+        // See the AsyncContext example for more details
+        public static void Clear(this IWritableBitmapData bitmapData, IAsyncContext? context, Color32 color, IDitherer? ditherer = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            DoClear(AsyncContext.Null, bitmapData, color, ditherer);
+            ValidateArguments(bitmapData);
+            DoClear(context ?? AsyncContext.Null, bitmapData, color, ditherer);
         }
 
         /// <summary>
@@ -129,8 +134,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static IAsyncResult BeginClear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             return AsyncContext.BeginOperation(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
         }
 
@@ -161,8 +165,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData);
             return AsyncContext.DoOperationAsync(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
         }
 #endif
@@ -208,6 +211,12 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Private Methods
+
+        private static void ValidateArguments(IWritableBitmapData bitmapData)
+        {
+            if (bitmapData == null)
+                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+        }
 
         private static void DoClear(IAsyncContext context, IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer)
         {
