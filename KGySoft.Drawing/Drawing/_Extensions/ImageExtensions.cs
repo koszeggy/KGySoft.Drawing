@@ -231,7 +231,7 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return DoConvertPixelFormat(AsyncContext.Null, null, image, newPixelFormat, palette, backColor, alphaThreshold)!;
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, palette, backColor, alphaThreshold)!;
         }
 
         /// <summary>
@@ -600,78 +600,8 @@ namespace KGySoft.Drawing
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)"/>
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
-            if (quantizer == null)
-            {
-                // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                if (ditherer == null || !newPixelFormat.CanBeDithered())
-                    return ConvertPixelFormat(image, newPixelFormat, null, Color.Empty, 128);
-            }
-
             ValidateConvertPixelFormat(image, newPixelFormat);
-            Bitmap bmp = image.AsBitmap();
-            Bitmap? result = null;
-            bool canceled = false;
-
-            try
-            {
-                Color[]? paletteEntries = null;
-                if (quantizer == null)
-                {
-                    // here we need to pick a quantizer for the dithering
-                    int bpp = newPixelFormat.ToBitsPerPixel();
-
-                    paletteEntries = bmp.Palette.Entries;
-                    if (bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp))
-                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
-                    else
-                    {
-                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat.ToKnownPixelFormatInternal());
-                        paletteEntries = null;
-                    }
-                }
-
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using IReadableBitmapData source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
-
-                // We explicitly initialize the quantizer just to determine the palette colors for the result Bitmap.
-                Palette? palette = null;
-                Color32 backColor;
-                byte alphaThreshold;
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(source))
-                {
-                    if (quantizingSession == null)
-                        throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
-
-                    // validating and initializing palette
-                    if (newPixelFormat.IsIndexed())
-                        InitPalette(newPixelFormat, bmp, result, paletteEntries ?? (palette = quantizingSession.Palette)?.GetEntries().Select(c => c.ToColor()).ToArray());
-                    backColor = quantizingSession.BackColor;
-                    alphaThreshold = quantizingSession.AlphaThreshold;
-                }
-
-                // We have a palette from a potentially expensive quantizer: creating a predefined quantizer from the already generated palette to avoid generating it again.
-                if (palette != null && quantizer is not PredefinedColorsQuantizer)
-                    quantizer = PredefinedColorsQuantizer.FromCustomPalette(palette);
-
-                // Note: palette is purposely not passed here so a new instance will be created from the colors, without any possible delegate (which is still used by the quantizer).
-                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
-                    source.CopyTo(target, Point.Empty, quantizer, ditherer);
-
-                return result;
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                result = null;
-                throw;
-            }
-            finally
-            {
-                if (!ReferenceEquals(bmp, image))
-                    bmp.Dispose();
-                if (canceled)
-                    result?.Dispose();
-            }
+            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, quantizer, ditherer)!;
         }
 
         #endregion
@@ -707,7 +637,7 @@ namespace KGySoft.Drawing
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, asyncConfig, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
         /// <summary>
@@ -759,7 +689,7 @@ namespace KGySoft.Drawing
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, asyncConfig, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -805,7 +735,7 @@ namespace KGySoft.Drawing
         public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, asyncConfig, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
         /// <summary>
@@ -857,7 +787,7 @@ namespace KGySoft.Drawing
         public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, asyncConfig, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
         }
 
 #endif
@@ -2268,7 +2198,7 @@ namespace KGySoft.Drawing
                 throw new PlatformNotSupportedException(Res.ImageExtensionsPixelFormatNotSupported(newPixelFormat));
         }
 
-        private static Bitmap? DoConvertPixelFormat(IAsyncContext context, AsyncConfigBase? asyncCfg, Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
+        private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
         {
             #region Local Methods
 
@@ -2306,25 +2236,7 @@ namespace KGySoft.Drawing
                     return null;
                 using (IReadableBitmapData source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
-                {
-                    switch (asyncCfg)
-                    {
-                        case AsyncConfig asyncConfig:
-                            // If we have an asyncConfig here, then we are already on a worker thread so blocking await is alright here.
-                            // Actually we could use simply CopyTo without blocking the caller but asyncConfig may have cancellation or progress reporting configured
-                            source.BeginCopyTo(target, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, null, null, asyncConfig).EndCopyTo();
-                            break;
-                        case TaskConfig taskConfig:
-                            // If we have a taskConfig here, then we are already on a worker thread so blocking await is alright here.
-                            // Actually we could use simply CopyTo without blocking the caller but taskConfig may have cancellation or progress reporting configured
-                            source.CopyToAsync(target, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, null, null, taskConfig).GetAwaiter().GetResult();
-                            break;
-                        default:
-                            source.CopyTo(target);
-                            break;
-                    }
-
-                }
+                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty);
 
                 return context.IsCancellationRequested ? null : result;
             }
@@ -2343,8 +2255,7 @@ namespace KGySoft.Drawing
             }
         }
 
-        [SuppressMessage("CodeQuality", "IDE0079:Remove unnecessary suppression", Justification = "ReSharper issue")]
-        private static Bitmap? DoConvertPixelFormat(IAsyncContext context, AsyncConfigBase? asyncCfg, Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+        private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
         {
             Bitmap bmp = image.AsBitmap();
             Bitmap? result = null;
@@ -2357,7 +2268,7 @@ namespace KGySoft.Drawing
                 {
                     // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
                     if (ditherer == null || !newPixelFormat.CanBeDithered())
-                        return DoConvertPixelFormat(context, asyncCfg, image, newPixelFormat, null, Color.Empty, 128);
+                        return DoConvertPixelFormat(context, image, newPixelFormat, null, Color.Empty, 128);
 
                     // here we need to pick a quantizer for the dithering
                     int bpp = newPixelFormat.ToBitsPerPixel();
@@ -2405,24 +2316,7 @@ namespace KGySoft.Drawing
 
                 // Note: palette is purposely not passed here so a new instance will be created from the colors, without any possible delegate (which is still used by the quantizer).
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
-                {
-                    switch (asyncCfg)
-                    {
-                        case AsyncConfig asyncConfig:
-                            // If we have an asyncConfig here, then we are already on a worker thread so blocking await is alright here.
-                            // Actually we could use simply CopyTo without blocking the caller but asyncConfig may have cancellation or progress reporting configured
-                            source.BeginCopyTo(target, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, ditherer, asyncConfig).EndCopyTo();
-                            break;
-                        case TaskConfig taskConfig:
-                            // If we have a taskConfig here, then we are already on a worker thread so blocking await is alright here.
-                            // Actually we could use simply CopyTo without blocking the caller but taskConfig may have cancellation or progress reporting configured
-                            source.CopyToAsync(target, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, ditherer, taskConfig).GetAwaiter().GetResult();
-                            break;
-                        default:
-                            source.CopyTo(target, Point.Empty, quantizer, ditherer);
-                            break;
-                    }
-                }
+                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, ditherer);
 
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }

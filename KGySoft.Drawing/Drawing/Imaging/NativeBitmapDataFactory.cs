@@ -73,36 +73,36 @@ namespace KGySoft.Drawing.Imaging
 
                 case PixelFormat.Format64bppArgb:
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasAlpha = true },
-                        (row, x) => row.UnsafeGetRefAs<Color64>(x).ToColor32PlatformDependent(),
-                        (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToColor64PlatformDependent(),
+                        (row, x) => row.UnsafeGetRefAs<GdiPColor64>(x).ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPColor64>(x) = new GdiPColor64(c),
                         backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format64bppPArgb:
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
-                        (row, x) => row.UnsafeGetRefAs<Color64>(x).ToStraight32PlatformDependent(),
-                        (row, x, c) => row.UnsafeGetRefAs<Color64>(x) = c.ToPremultiplied64PlatformDependent(),
+                        (row, x) => row.UnsafeGetRefAs<GdiPColor64>(x).ToStraight().ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPColor64>(x) = new GdiPColor64(c).ToPremultiplied(),
                         backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format48bppRgb:
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48),
-                        (row, x) => row.UnsafeGetRefAs<Color48>(x).ToColor32PlatformDependent(),
-                        (row, x, c) => row.UnsafeGetRefAs<Color48>(x) = (c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor48PlatformDependent(),
+                        (row, x) => row.UnsafeGetRefAs<GdiPColor48>(x).ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPColor48>(x) = new GdiPColor48(c.Blend(row.BitmapData.BackColor)),
                         backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb565:
                     return pixelFormat == bitmapDataPixelFormat
                         ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
                         : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo((byte)bitmapDataPixelFormat.ToBitsPerPixel()),
-                            (row, x) => new Color16Rgb565(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
-                            (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
+                            (row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
+                            (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) = new Color16As24(c.Blend(row.BitmapData.BackColor), true),
                             backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb555:
                     return pixelFormat == bitmapDataPixelFormat
                         ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
                         : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo((byte)bitmapDataPixelFormat.ToBitsPerPixel()),
-                            (row, x) => new Color16Rgb555(row.UnsafeGetRefAs<Color24>(x).ToColor32()).ToColor32(),
-                            (row, x, c) => row.UnsafeGetRefAs<Color24>(x) = new Color24(new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(row.BitmapData.BackColor)).ToColor32()),
+                            (row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
+                            (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) = new Color16As24(c.Blend(row.BitmapData.BackColor), false),
                             backColor, alphaThreshold, dispose);
 
                 default:

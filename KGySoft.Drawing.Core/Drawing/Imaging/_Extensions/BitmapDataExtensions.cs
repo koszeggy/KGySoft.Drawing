@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.Imaging
             if (bpp > 8 || !info.Indexed)
                 return info.HasPremultipliedAlpha ? KnownPixelFormat.Format32bppPArgb
                     : bitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb
-                    : info.Grayscale ? KnownPixelFormat.Format16bppGrayScale
+                    : bitmapData.IsGrayscale() ? KnownPixelFormat.Format16bppGrayScale
                     : KnownPixelFormat.Format24bppRgb;
             return bpp switch
             {

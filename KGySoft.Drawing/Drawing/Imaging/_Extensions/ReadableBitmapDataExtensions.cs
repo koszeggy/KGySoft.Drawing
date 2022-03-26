@@ -125,21 +125,30 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         private static Bitmap? DoConvertToBitmap(IAsyncContext context, IReadableBitmapData source)
         {
-            PixelFormat pixelFormat = source.GetKnownPixelFormat().ToPixelFormat();
+            PixelFormatInfo sourceFormat = source.PixelFormat;
+            PixelFormat pixelFormat = sourceFormat.ToKnownPixelFormat().ToPixelFormat();
+            Palette? palette = source.Palette;
+
+            // indexed custom formats with >8 bpp: ToKnownPixelFormat returns 32bpp but it can be fine-tuned
+            if (sourceFormat.IsCustomFormat && sourceFormat.Indexed && sourceFormat.BitsPerPixel > 8 && palette != null)
+                pixelFormat = palette.HasAlpha ? PixelFormat.Format32bppArgb
+                    : palette.IsGrayscale ? PixelFormat.Format16bppGrayScale
+                    : PixelFormat.Format24bppRgb;
+
             if (!pixelFormat.IsSupportedNatively())
-                pixelFormat = source.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+                pixelFormat = pixelFormat.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
 
             var result = new Bitmap(source.Width, source.Height, pixelFormat);
             bool canceled = false;
             try
             {
-                if (pixelFormat.IsIndexed() && source.Palette != null)
-                    result.TrySetPalette(source.Palette);
+                if (pixelFormat.IsIndexed() && palette != null)
+                    result.TrySetPalette(palette);
 
                 if (canceled = context.IsCancellationRequested)
                     return null;
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
-                    source.DoCopyTo(context, target, new Rectangle(Point.Empty, source.GetSize()), Point.Empty);
+                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }
             catch (Exception)
