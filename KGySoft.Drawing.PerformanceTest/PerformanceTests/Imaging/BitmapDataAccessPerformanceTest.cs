@@ -17,7 +17,6 @@
 
 using System;
 using System.Drawing;
-using System.Drawing.Imaging;
 
 using KGySoft.Drawing.Imaging;
 
@@ -139,138 +138,138 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
 
                     return diffs;
                 }, "IReadWriteBitmapDataRow.this (managed)")
-                .AddCase(() =>
-                {
-                    int diffs = 0;
-                    using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
-                    IReadWriteBitmapDataRow row = accessor.FirstRow;
-                    do
-                    {
-                        switch (pixelFormat.ToBitsPerPixel())
-                        {
-                            case 16:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, new Color16Rgb565(Color32.FromArgb(argb)));
-                                    if (row.ReadRaw<Color16Rgb565>(x).ToColor32().ToArgb() != argb)
-                                        diffs++;
-                                }
+                //.AddCase(() =>
+                //{
+                //    int diffs = 0;
+                //    using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
+                //    IReadWriteBitmapDataRow row = accessor.FirstRow;
+                //    do
+                //    {
+                //        switch (pixelFormat.ToBitsPerPixel())
+                //        {
+                //            case 16:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, new Color16Rgb565(Color32.FromArgb(argb)));
+                //                    if (row.ReadRaw<Color16Rgb565>(x).ToColor32().ToArgb() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 24:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, new Color24(Color32.FromArgb(argb)));
-                                    if (row.ReadRaw<Color24>(x).ToColor32().ToArgb() != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 24:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, new Color24(Color32.FromArgb(argb)));
+                //                    if (row.ReadRaw<Color24>(x).ToColor32().ToArgb() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 32:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, argb);
-                                    if (row.ReadRaw<int>(x) != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 32:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, argb);
+                //                    if (row.ReadRaw<int>(x) != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 48:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, new Color48(Color32.FromArgb(argb)));
-                                    if (row.ReadRaw<Color48>(x).ToColor32().ToArgb() != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 48:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, new Color48(Color32.FromArgb(argb)));
+                //                    if (row.ReadRaw<Color48>(x).ToColor32().ToArgb() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 64:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, Color64.FromArgb32(argb));
-                                    if (row.ReadRaw<Color64>(x).ToArgb32() != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 64:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, Color64.FromArgb32(argb));
+                //                    if (row.ReadRaw<Color64>(x).ToArgb32() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            default:
-                                throw new NotImplementedException(pixelFormat.ToString());
-                        }
-                    } while (row.MoveNextRow());
+                //                break;
+                //            default:
+                //                throw new NotImplementedException(pixelFormat.ToString());
+                //        }
+                //    } while (row.MoveNextRow());
 
-                    return diffs;
-                }, "IReadWriteBitmapDataRow.WriteRaw/ReadRaw (native)")
-                .AddCase(() =>
-                {
-                    int diffs = 0;
-                    using IReadWriteBitmapData accessor = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
-                    IReadWriteBitmapDataRow row = accessor.FirstRow;
-                    do
-                    {
-                        switch (pixelFormat.ToBitsPerPixel())
-                        {
-                            case 16:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, new Color16Rgb565(Color32.FromArgb(argb)));
-                                    if (row.ReadRaw<Color16Rgb565>(x).ToColor32().ToArgb() != argb)
-                                        diffs++;
-                                }
+                //    return diffs;
+                //}, "IReadWriteBitmapDataRow.WriteRaw/ReadRaw (native)")
+                //.AddCase(() =>
+                //{
+                //    int diffs = 0;
+                //    using IReadWriteBitmapData accessor = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
+                //    IReadWriteBitmapDataRow row = accessor.FirstRow;
+                //    do
+                //    {
+                //        switch (pixelFormat.ToBitsPerPixel())
+                //        {
+                //            case 16:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, new Color16Rgb565(Color32.FromArgb(argb)));
+                //                    if (row.ReadRaw<Color16Rgb565>(x).ToColor32().ToArgb() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 24:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, new Color24(Color32.FromArgb(argb)));
-                                    if (row.ReadRaw<Color24>(x).ToColor32().ToArgb() != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 24:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, new Color24(Color32.FromArgb(argb)));
+                //                    if (row.ReadRaw<Color24>(x).ToColor32().ToArgb() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 32:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, argb);
-                                    if (row.ReadRaw<int>(x) != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 32:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, argb);
+                //                    if (row.ReadRaw<int>(x) != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 48:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, new Color48(Color32.FromArgb(argb)));
-                                    if (row.ReadRaw<Color48>(x).ToColor32().ToArgb() != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 48:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, new Color48(Color32.FromArgb(argb)));
+                //                    if (row.ReadRaw<Color48>(x).ToColor32().ToArgb() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            case 64:
-                                for (int x = 0; x < size.Width; x++)
-                                {
-                                    int argb = Argb(row.Index, x);
-                                    row.WriteRaw(x, Color64.FromArgb32(argb));
-                                    if (row.ReadRaw<Color64>(x).ToArgb32() != argb)
-                                        diffs++;
-                                }
+                //                break;
+                //            case 64:
+                //                for (int x = 0; x < size.Width; x++)
+                //                {
+                //                    int argb = Argb(row.Index, x);
+                //                    row.WriteRaw(x, Color64.FromArgb32(argb));
+                //                    if (row.ReadRaw<Color64>(x).ToArgb32() != argb)
+                //                        diffs++;
+                //                }
 
-                                break;
-                            default:
-                                throw new NotImplementedException(pixelFormat.ToString());
-                        }
-                    } while (row.MoveNextRow());
+                //                break;
+                //            default:
+                //                throw new NotImplementedException(pixelFormat.ToString());
+                //        }
+                //    } while (row.MoveNextRow());
 
-                    return diffs;
-                }, "IReadWriteBitmapDataRow.WriteRaw/ReadRaw (managed)")
+                //    return diffs;
+                //}, "IReadWriteBitmapDataRow.WriteRaw/ReadRaw (managed)")
                 .AddCase(() =>
                 {
                     int diffs = 0;
@@ -307,42 +306,42 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
 
                     return diffs;
                 }, "IReadWriteBitmapDataRow.SetColor/GetColor (managed)")
-                .AddCase(() =>
-                {
-                    int diffs = 0;
-                    using IBitmapDataInternal accessor = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
-                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
-                    do
-                    {
-                        for (int x = 0; x < size.Width; x++)
-                        {
-                            int argb = Argb(row.Index, x);
-                            row.DoSetColor32(x, Color32.FromArgb(argb));
-                            if (row.DoGetColor32(x).ToArgb() != argb)
-                                diffs++;
-                        }
-                    } while (row.MoveNextRow());
+                //.AddCase(() =>
+                //{
+                //    int diffs = 0;
+                //    using var accessor = (IBitmapDataInternal)NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
+                //    IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                //    do
+                //    {
+                //        for (int x = 0; x < size.Width; x++)
+                //        {
+                //            int argb = Argb(row.Index, x);
+                //            row.DoSetColor32(x, Color32.FromArgb(argb));
+                //            if (row.DoGetColor32(x).ToArgb() != argb)
+                //                diffs++;
+                //        }
+                //    } while (row.MoveNextRow());
 
-                    return diffs;
-                }, "IBitmapDataInternal.DoSetColor32/DoGetColor32 (native)")
-                .AddCase(() =>
-                {
-                    int diffs = 0;
-                    using IBitmapDataInternal accessor = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat);
-                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
-                    do
-                    {
-                        for (int x = 0; x < size.Width; x++)
-                        {
-                            int argb = Argb(row.Index, x);
-                            row.DoSetColor32(x, Color32.FromArgb(argb));
-                            if (row.DoGetColor32(x).ToArgb() != argb)
-                                diffs++;
-                        }
-                    } while (row.MoveNextRow());
+                //    return diffs;
+                //}, "IBitmapDataInternal.DoSetColor32/DoGetColor32 (native)")
+                //.AddCase(() =>
+                //{
+                //    int diffs = 0;
+                //    using IBitmapDataInternal accessor = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat);
+                //    IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                //    do
+                //    {
+                //        for (int x = 0; x < size.Width; x++)
+                //        {
+                //            int argb = Argb(row.Index, x);
+                //            row.DoSetColor32(x, Color32.FromArgb(argb));
+                //            if (row.DoGetColor32(x).ToArgb() != argb)
+                //                diffs++;
+                //        }
+                //    } while (row.MoveNextRow());
 
-                    return diffs;
-                }, "IBitmapDataInternal.DoSetColor32/DoGetColor32 (managed)")
+                //    return diffs;
+                //}, "IBitmapDataInternal.DoSetColor32/DoGetColor32 (managed)")
                 .DoTest()
                 .DumpResults(Console.Out /*, dumpReturnValue: true*/);
         }

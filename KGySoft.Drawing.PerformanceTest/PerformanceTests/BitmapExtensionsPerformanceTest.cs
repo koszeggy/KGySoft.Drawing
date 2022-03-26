@@ -87,13 +87,13 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var bmp = new Bitmap(size, size, pixelFormat);
-                    using IBitmapDataInternal acc = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
+                    using IReadWriteBitmapData acc = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
                     IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(acc);
                     var c = new Color32(color);
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(acc, quantizingSession))
                     {
-                        IReadWriteBitmapDataRow row = acc.DoGetRow(0);
+                        IReadWriteBitmapDataRow row = acc.FirstRow;
                         do
                         {
                             for (int x = 0; x < acc.Width; x++)
@@ -125,15 +125,15 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmpRef.CloneBitmap();
-                    using (IBitmapDataInternal bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IReadWriteBitmapData bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession session = quantizer.Initialize(bitmapData))
                     {
-                        var row = bitmapData.DoGetRow(0);
+                        var row = bitmapData.FirstRow;
                         int width = bitmapData.Width;
                         do
                         {
                             for (int x = 0; x < width; x++)
-                                row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
+                                row[x] = session.GetQuantizedColor(row[x]);
                         } while (row.MoveNextRow());
                     }
                 }, "Sequential quantization")
@@ -186,16 +186,16 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmpRef.CloneBitmap();
-                    using (IBitmapDataInternal bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IReadWriteBitmapData bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession))
                     {
-                        var row = bitmapData.DoGetRow(0);
+                        var row = bitmapData.FirstRow;
                         int width = bitmapData.Width;
                         do
                         {
                             for (int x = 0; x < width; x++)
-                                row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, row.Index));
+                                row[x] = ditheringSession.GetDitheredColor(row[x], x, row.Index);
                         } while (row.MoveNextRow());
                     }
                 }, "Sequential dithering")
@@ -221,11 +221,11 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmp.CloneBitmap();
-                    using (IBitmapDataInternal bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IReadWriteBitmapData bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
                     {
                         Color32 from = new Color32(Color.Black);
                         Color32 to = new Color32(Color.Transparent);
-                        IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                        IReadWriteBitmapDataRow row = bitmapData.FirstRow;
                         do
                         {
                             for (int x = 0; x < bitmapData.Width; x++)
