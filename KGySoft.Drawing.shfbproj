@@ -30,7 +30,9 @@
     </FeedbackEMailAddress>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <DocumentationSources>
-      <DocumentationSource sourceFile="KGySoft.Drawing.csproj" />
+      <DocumentationSource sourceFile="KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
+      <DocumentationSource sourceFile="Specific\GdiPlus\KGySoft.Drawing\KGySoft.Drawing.csproj" />
+      <DocumentationSource sourceFile="Specific\Wpf\KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj" />
     </DocumentationSources>
     <NamespaceSummaries>
     </NamespaceSummaries>
@@ -75,7 +77,7 @@
       <PlugInConfig id="Additional Reference Links" enabled="True">
         <configuration>
           <targets>
-            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.shfbproj" />
+            <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.shfbproj" />
           </targets>
         </configuration>
       </PlugInConfig>
