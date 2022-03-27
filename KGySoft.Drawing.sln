@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.1.32210.238
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing", "KGySoft.Drawing\KGySoft.Drawing.csproj", "{06AEC656-8AE3-409C-AB2E-64C6A3712F8B}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing", "Specific\GdiPlus\KGySoft.Drawing\KGySoft.Drawing.csproj", "{06AEC656-8AE3-409C-AB2E-64C6A3712F8B}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.UnitTest", "KGySoft.Drawing.UnitTest\KGySoft.Drawing.UnitTest.csproj", "{7E74E3BC-2D32-458D-AF8F-E4171536A611}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.UnitTest", "Specific\GdiPlus\KGySoft.Drawing.UnitTest\KGySoft.Drawing.UnitTest.csproj", "{7E74E3BC-2D32-458D-AF8F-E4171536A611}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{A0FE0FF5-C320-44F4-AA26-B0600C69CD38}"
 	ProjectSection(SolutionItems) = preProject
@@ -15,21 +15,21 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solutio
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.PerformanceTest", "KGySoft.Drawing.PerformanceTest\KGySoft.Drawing.PerformanceTest.csproj", "{E6759E07-91EA-4736-A256-268BDC8ABC65}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.PerformanceTest", "Specific\GdiPlus\KGySoft.Drawing.PerformanceTest\KGySoft.Drawing.PerformanceTest.csproj", "{E6759E07-91EA-4736-A256-268BDC8ABC65}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Core", "KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj", "{F030BCA6-4FE3-481B-BA49-5BB66C305408}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Core.UnitTest", "KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj", "{4E2D19FB-705E-4F9B-A7A3-D185B5D7CBDF}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Frameworks", "Frameworks", "{1F64BBA7-A172-4356-8ED7-B4765F03C08E}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Specific", "Specific", "{1F64BBA7-A172-4356-8ED7-B4765F03C08E}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GDI", "GDI", "{80A90153-5324-4928-A695-C09D2CE77F3B}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "GdiPlus", "GdiPlus", "{80A90153-5324-4928-A695-C09D2CE77F3B}"
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "WPF", "WPF", "{C1DC58E1-7584-4447-A974-D3685E3AD272}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Wpf", "Wpf", "{C1DC58E1-7584-4447-A974-D3685E3AD272}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf", "KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj", "{45C73BF1-2C6F-433F-81D7-A292D573FB69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf", "Specific\Wpf\KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj", "{45C73BF1-2C6F-433F-81D7-A292D573FB69}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf.UnitTest", "KGySoft.Drawing.Wpf.UnitTest\KGySoft.Drawing.Wpf.UnitTest.csproj", "{88D10E91-1586-4E1A-B8E0-0502A911D5A4}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf.UnitTest", "Specific\Wpf\KGySoft.Drawing.Wpf.UnitTest\KGySoft.Drawing.Wpf.UnitTest.csproj", "{88D10E91-1586-4E1A-B8E0-0502A911D5A4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

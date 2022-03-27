@@ -12,9 +12,9 @@
     <RootNamespace>KGySoft.Drawing.Wpf</RootNamespace>
     <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
-    <CodeAnalysisRuleSet>..\KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\..\..\KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
     <LangVersion>latest</LangVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
     <PackageLicenseFile>LICENSE</PackageLicenseFile>
@@ -53,13 +53,7 @@
 
   <!-- Project references -->
   <ItemGroup>
-    <ProjectReference Include="..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
-  </ItemGroup>
-  <ItemGroup>
-    <EmbeddedResource Update="KGySoft.Drawing.Wpf.Messages.resx">
-      <SubType>Designer</SubType>
-      <LogicalName>KGySoft.Drawing.Core.Messages.resources</LogicalName>
-    </EmbeddedResource>
+    <ProjectReference Include="..\..\..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
   </ItemGroup>
 
   <ItemGroup>

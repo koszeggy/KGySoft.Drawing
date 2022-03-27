@@ -42,7 +42,7 @@
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
-    <ProjectReference Include="..\KGySoft.Drawing\KGySoft.Drawing.csproj" />
+    <ProjectReference Include="..\Specific\GdiPlus\KGySoft.Drawing\KGySoft.Drawing.csproj" />
   </ItemGroup>
 
 </Project>

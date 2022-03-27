@@ -13,7 +13,7 @@
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <RootNamespace>KGySoft.Drawing</RootNamespace>
     <SignAssembly>true</SignAssembly>
-    <AssemblyOriginatorKeyFile>..\KGySoft.snk</AssemblyOriginatorKeyFile>
+    <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <LangVersion>latest</LangVersion>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
 
@@ -42,7 +42,7 @@
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\KGySoft.Drawing\KGySoft.Drawing.csproj" />
-    <ProjectReference Include="..\KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj" />
+    <ProjectReference Include="..\..\..\KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj" />
   </ItemGroup>
 
 </Project>
