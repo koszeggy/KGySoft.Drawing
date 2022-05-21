@@ -22,6 +22,9 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
 using System.IO;
+#if NET7_0_OR_GREATER
+using System.Runtime.Versioning;
+#endif
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing;
@@ -36,7 +39,11 @@ namespace KGySoft.ComponentModel
     /// </summary>
     /// <remarks>
     /// <note>This class is available in the .NET Framework and .NET Core 3.0 or later versions.</note>
+    /// <note>When targeting .NET 7.0 or later versions this class is supported on Windows only.</note>
     /// </remarks>
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")] 
+#endif
     public class AdvancedImageConverter : ImageConverter
     {
         #region Methods

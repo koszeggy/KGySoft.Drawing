@@ -21,7 +21,7 @@ using System.Reflection;
 using System.Threading;
 
 using KGySoft.Collections;
-#if !NETCOREAPP3_0_OR_GREATER
+#if !(NETCOREAPP2_1_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
 using KGySoft.CoreLibraries; 
 #endif
 using KGySoft.Reflection;

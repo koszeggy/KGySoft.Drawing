@@ -15,10 +15,11 @@
 
 #region Usings
 
-#region Used Namespaces
-
 using System;
 using System.Collections.Generic;
+#if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Drawing;
 using System.Drawing.Imaging;
 
@@ -28,13 +29,14 @@ using KGySoft.Drawing.WinApi;
 
 #endregion
 
-#endregion
-
 namespace KGySoft.Drawing
 {
     /// <summary>
     /// Contains extension methods for the <see cref="PixelFormat"/> type.
     /// </summary>
+#if NET7_0_OR_GREATER
+    [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "These methods are supported on every platform.")]
+#endif
     public static class PixelFormatExtensions
     {
         #region Fields

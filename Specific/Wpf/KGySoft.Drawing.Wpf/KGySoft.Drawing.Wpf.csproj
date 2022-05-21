@@ -1,11 +1,8 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.WindowsDesktop">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp3.0;net5.0-windows</TargetFrameworks>-->
-    <TargetFrameworks>net6.0-windows</TargetFrameworks>
-
-    <!--For UnitTesting the .NET Standard versions-->
-    <!--<TargetFrameworks>netstandard2.0;netstandard2.1</TargetFrameworks>-->
+    <TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>
+    <!--<TargetFrameworks>net6.0-windows</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -22,13 +19,13 @@
     <Nullable>enable</Nullable>
     <UseWpf>true</UseWpf>
 
-    <!--Suppression NETSDK1138: The target framework 'netcoreapp2.0'/'netcoreapp2.1'/'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
+    <!--Suppression NETSDK1138: The target framework 'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended
         MSB3243: No way to resolve conflict between PresentationFramework and PresentationFramework [targeted .NET version] - false alarm, non-versioned references are intended because of multiple targets -->
     <NoWarn>$(NoWarn);NETSDK1138;MSB3243</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
-    <None Include="..\LICENSE" />
+    <None Include="..\..\..\LICENSE" />
   </ItemGroup>
 
   <ItemGroup>
@@ -44,7 +41,6 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="KGySoft.CoreLibraries" Version="6.0.2" />
     <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>

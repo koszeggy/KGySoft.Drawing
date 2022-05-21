@@ -9,6 +9,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.UnitTest", 
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "_Solution Items", "_Solution Items", "{A0FE0FF5-C320-44F4-AA26-B0600C69CD38}"
 	ProjectSection(SolutionItems) = preProject
+		.editorconfig = .editorconfig
 		KGySoft.Drawing.ruleset = KGySoft.Drawing.ruleset
 		KGySoft.snk = KGySoft.snk
 		LICENSE = LICENSE

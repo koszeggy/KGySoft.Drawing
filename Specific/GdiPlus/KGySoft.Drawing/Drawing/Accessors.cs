@@ -20,16 +20,24 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.Linq;
 using System.Reflection;
+#if NET7_0_OR_GREATER
+using System.Runtime.Versioning;
+#endif
 using System.Threading;
 
 using KGySoft.Collections;
+#if !NETCOREAPP3_0_OR_GREATER
+using KGySoft.CoreLibraries;
+#endif
 using KGySoft.Reflection;
 
 #endregion
 
 namespace KGySoft.Drawing
 {
-    // ReSharper disable InconsistentNaming
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
     internal static class Accessors
     {
         #region Fields

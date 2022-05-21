@@ -17,6 +17,9 @@
 
 using System;
 using System.Runtime.InteropServices;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.Reflection;
@@ -26,6 +29,9 @@ using KGySoft.Reflection;
 namespace KGySoft.Drawing.WinApi
 {
     [SecurityCritical]
+#if NET
+    [SupportedOSPlatform("windows")]
+#endif
     internal static class Shell32
     {
         #region NativeMethods class

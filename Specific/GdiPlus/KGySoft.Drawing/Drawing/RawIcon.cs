@@ -23,6 +23,9 @@ using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices;
+#if NET7_0_OR_GREATER
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.CoreLibraries;
@@ -39,6 +42,9 @@ namespace KGySoft.Drawing
     /// instances and every functionality is accessible via extensions for those classes.
     /// </summary>
     [SecuritySafeCritical]
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
     internal sealed class RawIcon : IDisposable
     {
         #region Nested classes

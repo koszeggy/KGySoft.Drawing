@@ -39,8 +39,15 @@ using KGySoft.Reflection;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// Provides some icon-related methods as well as properties returning general icons in multi resolution. Unlike <see cref="SystemIcons"/>, these icons should be disposed when not used any more.
+    /// Provides some icon-related methods as well as properties returning general icons in multi resolution.
+    /// Unlike <see cref="SystemIcons"/>, these icons should be disposed when not used any more.
     /// </summary>
+    /// <remarks>
+    /// <note>When targeting .NET 7.0 or later versions this class is supported on Windows only.</note>
+    /// </remarks>
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
     public static class Icons
     {
         #region Fields

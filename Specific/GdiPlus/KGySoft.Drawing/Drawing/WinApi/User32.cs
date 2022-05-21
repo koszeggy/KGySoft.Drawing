@@ -20,6 +20,9 @@ using System.ComponentModel;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.InteropServices;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 #endregion
@@ -33,6 +36,9 @@ using System.Security;
 namespace KGySoft.Drawing.WinApi
 {
     [SecurityCritical]
+#if NET
+    [SupportedOSPlatform("windows")]
+#endif
     internal static class User32
     {
         #region NativeMethods class

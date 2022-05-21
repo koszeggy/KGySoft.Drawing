@@ -22,9 +22,12 @@ using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
 using System.Linq;
+#if NET7_0_OR_GREATER
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 #if !NET35
-using System.Threading.Tasks; 
+using System.Threading.Tasks;
 #endif
 
 using KGySoft.CoreLibraries;
@@ -47,6 +50,9 @@ namespace KGySoft.Drawing
     /// Provides extension methods for the <see cref="Image"/> type.
     /// </summary>
     [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
     public static class ImageExtensions
     {
         #region Fields

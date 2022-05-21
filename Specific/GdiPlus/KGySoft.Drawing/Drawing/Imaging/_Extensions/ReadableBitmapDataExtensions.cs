@@ -19,6 +19,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+#if NET7_0_OR_GREATER
+using System.Runtime.Versioning;
+#endif
 #if !NET35
 using System.Threading.Tasks;
 #endif
@@ -30,11 +33,17 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides extension methods for the <see cref="IReadableBitmapData"/> type.
     /// </summary>
+    /// <remarks>
+    /// <note>When targeting .NET 7.0 or later versions this class is supported on Windows only.</note>
+    /// </remarks>
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
     public static class ReadableBitmapDataExtensions
     {
-#region Methods
-        
-#region Public Methods
+        #region Methods
+
+        #region Public Methods
 
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/>.
@@ -110,9 +119,9 @@ namespace KGySoft.Drawing.Imaging
         }
 #endif
 
-#endregion
+        #endregion
 
-#region Private Methods
+        #region Private Methods
 
         private static void ValidateArguments(IReadableBitmapData source)
         {
@@ -164,8 +173,8 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-#endregion
+        #endregion
 
-#endregion
+        #endregion
     }
 }

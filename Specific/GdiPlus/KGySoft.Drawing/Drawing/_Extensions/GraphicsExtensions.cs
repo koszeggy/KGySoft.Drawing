@@ -34,6 +34,12 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Contains extension methods for the <see cref="Graphics"/> type.
     /// </summary>
+    /// <remarks>
+    /// <note>When targeting .NET 7.0 or later versions this class is supported on Windows only.</note>
+    /// </remarks>
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
     public static class GraphicsExtensions
     {
         #region Methods

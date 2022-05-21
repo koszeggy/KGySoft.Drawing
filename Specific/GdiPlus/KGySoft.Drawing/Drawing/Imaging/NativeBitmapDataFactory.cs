@@ -19,6 +19,9 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+#if NET7_0_OR_GREATER
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 using KGySoft.Drawing.WinApi;
@@ -27,6 +30,9 @@ using KGySoft.Drawing.WinApi;
 
 namespace KGySoft.Drawing.Imaging
 {
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")]
+#endif
     internal static class NativeBitmapDataFactory
     {
         #region Methods

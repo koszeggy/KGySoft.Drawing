@@ -19,6 +19,9 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
+#if NET
+using System.Runtime.Versioning;
+#endif
 using System.Security;
 
 #endregion
@@ -35,6 +38,9 @@ namespace KGySoft.Drawing.WinApi
     /// Contains external methods for Gdi32.dll
     /// </summary>
     [SecurityCritical]
+#if NET
+    [SupportedOSPlatform("windows")]
+#endif
     internal static class Gdi32
     {
         #region NativeMethods class

@@ -16,9 +16,11 @@
 #region Usings
 
 using System;
+#if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Runtime.CompilerServices;
 using System.Security;
 
 #endregion
@@ -80,6 +82,9 @@ namespace KGySoft.Drawing.Imaging
         #region Private Methods
 
         [SecurityCritical]
+#if NET7_0_OR_GREATER
+        [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "If Bitmap is not supported there will be linear transform")]
+#endif
         private static unsafe void InitializeLookupTable8To16Bpp()
         {
             // Shared sync root is not a problem, lock will be acquired only once per table
@@ -131,6 +136,9 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SecurityCritical]
+#if NET7_0_OR_GREATER
+        [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "If Bitmap is not supported there will be linear transform")]
+#endif
         private static unsafe void InitializeLookupTable16To8Bpp()
         {
             // Shared sync root is not a problem, lock will be acquired only once per table

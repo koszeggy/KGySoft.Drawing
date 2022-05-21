@@ -70,10 +70,8 @@ namespace KGySoft.Drawing
         ///     }
         /// }]]></code>
         /// </example>
-#if !NET5_0
         [SuppressMessage("Usage", "CA2255:The 'ModuleInitializer' attribute should not be used in libraries",
             Justification = "See the comment, it is intended and is important to work properly.")] 
-#endif
         [ModuleInitializer]
         public static void Initialize()
         {

@@ -46,6 +46,9 @@ namespace KGySoft.Drawing
     /// Provides extension methods for the <see cref="Bitmap"/> type.
     /// </summary>
     [SecuritySafeCritical] // for the SecuritySafeCritical methods containing lambdas
+#if NET7_0_OR_GREATER
+    [SupportedOSPlatform("windows")] 
+#endif
     public static class BitmapExtensions
     {
         #region Fields

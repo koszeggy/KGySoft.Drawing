@@ -13,6 +13,10 @@
 ===================
 ! APIs that are not dependent on System.Drawing.Common (.NET Core/Standard 2.0 and above) have been extracted into a
   new library, KGySoft.Drawing.Core, which is now referenced by this library.
+  See also https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+! Targeting also .NET 7. Indicated as a breaking change because if a consumer project also targets .NET 7 or newer,
+  then this library can be used only on Windows. When targeting .NET 6 or earlier platforms, Unix/Linux is still
+  supported if libgdiplus is installed. Platform-independent API is now in the KGySoft.Drawing.Core library.
 
 ! KGySoft.Drawing namespace
 ===========================
