@@ -1,39 +1,27 @@
-Thank you for installing KGy SOFT Drawing Libraries 6.3.2
-KGy SOFT Drawing Libraries offer advanced drawing features both for completely managed bitmap data
-as well as native System.Drawing types on multiple platforms.
+﻿Thank you for installing KGy SOFT Drawing Libraries 7.0.0-preview.1
+KGy SOFT Drawing CoreLibraries offer advanced drawing features for completely managed bitmap data on multiple platforms.
 
-Main new features in 6.x:
-- Supporting creating GIF animations on every platform.
-- Supporting bitmap data creation for preallocated buffers and custom pixel formats
-
-Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
-
-                                                 ~~*~~
-
-+----------------------------------------------------------------------------------------------------------------+
-| Debugger Visualizers for System.Drawing types built on KGy SOFT Drawing Libraries along with demo application: |
-|                            https://github.com/koszeggy/KGySoft.Drawing.Tools                                   |
-+----------------------------------------------------------------------------------------------------------------+
+Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 
                                                  ~~*~~
 
 Project Home Page: https://kgysoft.net/drawing
 Online documentation: https://docs.kgysoft.net/drawing
-Offline documentation: <packages folder>\KGySoft.Drawing.<version>\Help\KGySoft.Drawing.chm
+Offline documentation: <packages folder>\KGySoft.Drawing.Core.<version>\Help\KGySoft.Drawing.chm
 GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
                                                  ~~*~~
 
-Some Highlights of KGy SOFT Drawing Libraries:
+Some Highlights of KGy SOFT Drawing Core Libraries:
 
-- Fast direct native Bitmap data access for every PixelFormat
-- Creating managed bitmap data of any PixelFormat on every platform, including Linux and MacOS
-- Quantizing and dithering
-- Several built-in icons as well as simple access to Windows associated and stock icons.
-- Extracting bitmaps from multi-frame bitmaps and icons.
-- Creating combined icons and multi-resolution bitmaps.
-- Saving metafiles in EMF/WMF formats.
-- Advanced support for saving images as Icon, BMP, JPEG, PNG, GIF and TIFF formats.
+- Creating managed bitmap data of any pixel format on every platform, including Linux and MacOS
+- Quantizing using predefined or optimized colors
+- Dithering using ordered, error diffusion, random noise or interleaved gradient noise dithering techniques
 - Creating GIF animations even in high color.
-- Converting between various pixel formats preserving transparency if possible.
-- Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.
+
+💡 Tip:
+- For GDI+ specific solutions see the KGySoft.Drawing package. It makes possible to create managed, fast accessible
+  bitmap data for the Bitmap class, supporting all pixel formats. It also contains many extensions for the Icon,
+  Bitmap, Image, Metafile and Graphics types.
+- For WPF specific solutions see the KGySoft.Drawing.Wpf package. It makes possible to create managed, fast
+  accessible bitmap data for the WriteableBitmap class, supporting all pixel formats.
