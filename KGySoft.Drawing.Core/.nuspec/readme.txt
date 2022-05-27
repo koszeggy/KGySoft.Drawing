@@ -1,5 +1,5 @@
-﻿Thank you for installing KGy SOFT Drawing Libraries 7.0.0-preview.1
-KGy SOFT Drawing CoreLibraries offer advanced drawing features for completely managed bitmap data on multiple platforms.
+﻿Thank you for installing KGy SOFT Drawing Core Libraries 7.0.0-preview.1
+KGy SOFT Drawing Core Libraries offer advanced drawing features for completely managed bitmap data on multiple platforms.
 
 Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 

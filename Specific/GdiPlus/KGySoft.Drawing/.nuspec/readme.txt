@@ -1,12 +1,12 @@
-Thank you for installing KGy SOFT Drawing Libraries 6.3.2
-KGy SOFT Drawing Libraries offer advanced drawing features both for completely managed bitmap data
-as well as native System.Drawing types on multiple platforms.
+﻿Thank you for installing KGy SOFT Drawing Libraries 7.0.0-preview.1
+KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types on multiple platforms.
 
-Main new features in 6.x:
-- Supporting creating GIF animations on every platform.
-- Supporting bitmap data creation for preallocated buffers and custom pixel formats
+📝 Note: In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux
+         based systems are also supported (the libgdiplus package is required). Starting with version 7.0.0 the
+         technology-agnostic managed bitmap data access and image processing libraries are in a separate package.
+         Please find the KGySoft.Drawing.Core package at https://www.nuget.org/packages/KGySoft.Drawing.Core/.
 
-Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
+Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt
 
                                                  ~~*~~
 
@@ -26,8 +26,7 @@ GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
 Some Highlights of KGy SOFT Drawing Libraries:
 
-- Fast direct native Bitmap data access for every PixelFormat
-- Creating managed bitmap data of any PixelFormat on every platform, including Linux and MacOS
+- Fast direct Bitmap data access for every PixelFormat
 - Quantizing and dithering
 - Several built-in icons as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.
@@ -37,3 +36,8 @@ Some Highlights of KGy SOFT Drawing Libraries:
 - Creating GIF animations even in high color.
 - Converting between various pixel formats preserving transparency if possible.
 - Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.
+
+💡 Tip:
+- For technology-agnostic solutions that can be used on any platform see the KGySoft.Drawing.Core package.
+- For WPF specific solutions see the KGySoft.Drawing.Wpf package. It makes possible to create managed, fast
+  accessible bitmap data for the WriteableBitmap class, supporting all pixel formats.

@@ -1,0 +1,6 @@
+﻿This used to be the link to the change log of the original KGySoft.Drawing package that has been split to multiple packages.
+
+New locations:
+KGySoft.Drawing.Core: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
+KGySoft.Drawing: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt
+KGySoft.Drawing.Wpf: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt

@@ -29,9 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <None Include=".nuspec\readme.txt" />
     <None Include=".nuspec\KGySoft.Drawing.Wpf.nuspec" />
-    <None Include=".nuspec\readme.md" />
   </ItemGroup>
 
   <ItemGroup>
@@ -47,9 +45,14 @@
     </PackageReference>
   </ItemGroup>
 
-  <!-- Project references -->
-  <ItemGroup>
+  <!-- Debug only project references -->
+  <ItemGroup Condition="'$(Configuration)' == 'DEBUG'">
     <ProjectReference Include="..\..\..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Release only package references -->
+  <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
+    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0-preview.1" />
   </ItemGroup>
 
   <ItemGroup>
