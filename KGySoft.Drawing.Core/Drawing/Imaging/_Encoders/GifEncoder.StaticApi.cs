@@ -69,7 +69,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginEncodeImage">BeginEncodeImage</see>
         /// or <see cref="EncodeImageAsync">EncodeImageAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
-        /// <para>To encode an <see cref="Image"/> you can use also the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsGif">ImageExtensions.SaveAsGif</see>
+        /// <para>To encode an <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a> you can use also the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsGif">ImageExtensions.SaveAsGif</see>
         /// methods that provide a higher level access.</para>
         /// <para>To create a GIF completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
         /// <para>If <paramref name="quantizer"/> is specified, then it will be used even for already indexed images.</para>
@@ -165,7 +165,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginEncodeAnimation">BeginEncodeAnimation</see>
         /// or <see cref="EncodeAnimationAsync">EncodeAnimationAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
-        /// <para>To encode <see cref="Image"/> instances with default configuration you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsAnimatedGif">ImageExtensions.SaveAsAnimatedGif</see>
+        /// <para>To encode <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a> instances with default configuration you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsAnimatedGif">ImageExtensions.SaveAsAnimatedGif</see>
         /// methods that provide a higher level access.</para>
         /// <para>To create an animation completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
         /// </remarks>
@@ -252,7 +252,8 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginEncodeHighColorImage">BeginEncodeHighColorImage</see>
         /// or <see cref="EncodeHighColorImageAsync">EncodeHighColorImageAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
-        /// <note type="caution">This method produces a GIF image that may have compatibility issues. Though the <see cref="Image"/> and <see cref="Bitmap"/> types (at least in Windows)
+        /// <note type="caution">This method produces a GIF image that may have compatibility issues. Though the <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>
+        /// and <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Bitmap" target="_blank">Bitmap</a> types (at least on Windows)
         /// support them as expected as well as applications built on GDI+ (such as Windows Paint), many decoders may treat the result as an animation (including browsers).</note>
         /// <para>If <paramref name="allowFullScan"/> is <see langword="true"/>, then both the processing time and memory usage is higher.
         /// It helps to minimize the number of layers of the final image; however, the final image size will not be necessarily smaller, especially for true color images.</para>
@@ -262,7 +263,7 @@ namespace KGySoft.Drawing.Imaging
         /// For such images the <paramref name="allowFullScan"/> parameter with <see langword="true"/>&#160;value typically produces more compact results.
         /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer for images with transparency,
         /// or the <see cref="PredefinedColorsQuantizer.Rgb565">Rgb565</see> quantizer for non-transparent images.</note>
-        /// <para>To encode an <see cref="Image"/> you can use also the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsHighColorGif">ImageExtensions.SaveAsHighColorGif</see> methods.</para>
+        /// <para>To encode an <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a> you can use also the <see cref="O:KGySoft.Drawing.ImageExtensions.SaveAsHighColorGif">ImageExtensions.SaveAsHighColorGif</see> methods.</para>
         /// <para>To create a multi-layered image completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
         /// </remarks>
         public static void EncodeHighColorImage(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128)

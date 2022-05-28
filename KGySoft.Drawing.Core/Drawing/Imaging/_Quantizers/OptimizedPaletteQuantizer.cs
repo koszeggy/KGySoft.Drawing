@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 #endregion
@@ -28,7 +29,7 @@ namespace KGySoft.Drawing.Imaging
     /// <br/>See the <strong>Remarks</strong> section for details and results comparison.
     /// </summary>
     /// <remarks>
-    /// <para>The <see cref="OptimizedPaletteQuantizer"/> class can be used to reduce colors of a <see cref="Bitmap"/> using a
+    /// <para>The <see cref="OptimizedPaletteQuantizer"/> class can be used to reduce colors of an <see cref="IReadableBitmapData"/> using a
     /// palette of up to 65536 colors where the palette entries are optimized for the quantized image.
     /// <note>Though more than 256 colors are supported, the typical goal of palette optimization is to adjust the colors for an indexed pixel format.
     /// Natively supported indexed formats cannot have more than 256 colors, though you are allowed to create images with custom pixel format
@@ -140,9 +141,9 @@ namespace KGySoft.Drawing.Imaging
     /// </remarks>
     /// <seealso cref="IQuantizer"/>
     /// <seealso cref="PredefinedColorsQuantizer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
-    /// <seealso cref="BitmapExtensions.Quantize"/>
-    /// <seealso cref="BitmapExtensions.Dither"/>
+    /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
+    /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
+    /// <seealso cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/>
     public sealed partial class OptimizedPaletteQuantizer : IQuantizer
     {
         #region Nested types
@@ -460,6 +461,7 @@ namespace KGySoft.Drawing.Imaging
         /// which dramatically increases also the memory requirement: 7 bits requires about 80 MB memory, whereas 8 bits demands about 650 MB, regardless of
         /// the actual number of colors in the source image.</para>
         /// </remarks>
+        [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = "Intended, the method assigns exactly that field.")]
         public OptimizedPaletteQuantizer ConfigureBitLevel(int? bitLevel)
         {
             if (this.bitLevel == bitLevel)

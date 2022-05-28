@@ -391,7 +391,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <seealso cref="GetWritableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
         public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
@@ -416,7 +416,7 @@ namespace KGySoft.Drawing
         /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetReadWriteBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
         public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
@@ -453,7 +453,7 @@ namespace KGySoft.Drawing
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
         /// <note type="tip">To create a managed <see cref="IReadWriteBitmapData"/> instance that supports every <see cref="PixelFormat"/>s on any platform
-        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)">BitmapDataFactory.CreateBitmapData</see> method.</note>
+        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)">BitmapDataFactory.CreateBitmapData</see> method.</note>
         /// </remarks>
         /// <example>
         /// <para>The following example demonstrates how easily you can copy the content of a 32-bit ARGB image into an 8-bit indexed one by
@@ -536,7 +536,7 @@ namespace KGySoft.Drawing
         /// </example>
         /// <seealso cref="GetReadableBitmapData"/>
         /// <seealso cref="GetWritableBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, PixelFormat, Color32, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
@@ -567,7 +567,7 @@ namespace KGySoft.Drawing
         /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
-        /// <seealso cref="BitmapDataExtensions.Quantize"/>
+        /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
         public static void Quantize(this Bitmap bitmap, IQuantizer quantizer)
         {
             if (bitmap == null)
@@ -607,7 +607,7 @@ namespace KGySoft.Drawing
         /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
         /// </list></note>
         /// </remarks>
-        /// <seealso cref="BitmapDataExtensions.Dither"/>
+        /// <seealso cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/>
         public static void Dither(this Bitmap bitmap, IQuantizer quantizer, IDitherer ditherer)
         {
             if (bitmap == null)
@@ -698,7 +698,7 @@ namespace KGySoft.Drawing
         /// or <see cref="BitmapDataExtensions.TransformColorsAsync">BitmapDataExtensions.TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmap"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)">ConvertPixelFormat</see> extension method
-        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
+        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/>, then its palette entries will be transformed instead of the actual pixels.</para>
         /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmap"/>, or you want to transform the actual
@@ -739,7 +739,7 @@ namespace KGySoft.Drawing
         /// or <see cref="BitmapDataExtensions.TransformColorsAsync">BitmapDataExtensions.TransformColorsAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method transforms the <paramref name="bitmap"/> in place (its original content will be overwritten). To return a new instance
         /// use the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)">ConvertPixelFormat</see> extension method
-        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},PixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
+        /// with an <see cref="IQuantizer"/> instance created by the <see cref="PredefinedColorsQuantizer.FromCustomFunction(Func{Color32,Color32},KnownPixelFormat)">PredefinedColorsQuantizer.FromCustomFunction</see> method.</para>
         /// <para>If <paramref name="bitmap"/> has an indexed <see cref="PixelFormat"/> and <paramref name="ditherer"/> is <see langword="null"/>,
         /// then its palette entries will be transformed instead of the actual pixels. To transform the colors of an indexed <see cref="Bitmap"/> without changing the palette
         /// specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>. Transforming the palette is both faster and provides a better result.</para>

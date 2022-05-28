@@ -230,6 +230,7 @@ namespace KGySoft.Drawing.Imaging
         internal readonly bool HasMultiLevelAlpha => HasAlpha && !HasSingleBitAlpha;
         internal readonly KnownPixelFormat AsKnownPixelFormatInternal => (KnownPixelFormat)value;
         internal readonly bool IsKnownFormat => value != 0 && (value & isCustomFormat) == 0;
+        internal readonly bool IsWide => (value & prefersColor64) != 0;
 
         internal readonly bool CanBeDithered
         {

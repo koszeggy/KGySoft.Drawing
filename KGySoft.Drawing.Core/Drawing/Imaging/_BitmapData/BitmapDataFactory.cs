@@ -76,7 +76,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>This method supports predefined pixel formats. To create a bitmap data with some custom pixel format use the overloads that have <see cref="PixelFormatInfo"/> parameters.</para>
         /// <para>The <paramref name="backColor"/> parameter has no effect if <paramref name="pixelFormat"/> has alpha gradient support and it does not affect the actual content of the returned instance.
-        /// To set all pixels to a color use the <see cref="BitmapDataExtensions.Clear">Clear</see> extension method.</para>
+        /// To set all pixels to a color use the <see cref="BitmapDataExtensions.Clear(IWritableBitmapData, Color32, IDitherer?)">Clear</see> extension method.</para>
         /// <para>If <paramref name="alphaThreshold"/> is zero, then setting a fully transparent pixel in a bitmap data with indexed or single-bit-alpha pixel format
         /// will blend the pixel to set with <paramref name="backColor"/> even if the bitmap data can handle transparent pixels.</para>
         /// <para>If <paramref name="alphaThreshold"/> is <c>1</c>, then the result color of setting a pixel of a bitmap data with indexed or single-bit-alpha pixel format
@@ -91,18 +91,14 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">
         /// <list type="bullet">
         /// <item>If <paramref name="pixelFormat"/> represents an indexed format you can use the <see cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/> overload to specify the desired palette of the result.</item>
-        /// <item>You can use the <see cref="BitmapDataExtensions.ToBitmap">ToBitmap</see> extension method to convert the created <see cref="IReadWriteBitmapData"/> to a <see cref="Bitmap"/> instance.</item>
-        /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a native <see cref="Bitmap"/> use the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method.</item>
+        /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a native <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Bitmap" target="_blank">Bitmap</a>
+        /// use the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> extension method.</item>
         /// </list></note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/>
-        /// <seealso cref="BitmapDataExtensions.ToBitmap"/>
-        /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
-        /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
-        /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
         public static IReadWriteBitmapData CreateBitmapData(Size size, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(size, pixelFormat);
@@ -122,10 +118,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> is too large for the specified <paramref name="pixelFormat"/>.</exception>
         /// <seealso cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
-        /// <seealso cref="BitmapDataExtensions.ToBitmap"/>
-        /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
-        /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
-        /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
         public static IReadWriteBitmapData CreateBitmapData(Size size, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(size, pixelFormat, palette);

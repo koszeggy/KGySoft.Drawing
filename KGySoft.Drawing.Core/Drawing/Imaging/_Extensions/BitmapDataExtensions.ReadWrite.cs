@@ -135,7 +135,6 @@ namespace KGySoft.Drawing.Imaging
         /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmapData"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.Quantize"/>
         public static void Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer) => bitmapData.Quantize(AsyncContext.Null, quantizer);
 
         public static void Quantize(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer)
@@ -176,7 +175,6 @@ namespace KGySoft.Drawing.Imaging
         /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
         /// </list></note>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.Dither"/>
         public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer) => bitmapData.Dither(AsyncContext.Null, quantizer, ditherer);
 
         public static void Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
@@ -205,7 +203,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="QuantizeAsync">QuantizeAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndQuantize">EndQuantize</see> method.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize">Quantize</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize(IReadWriteBitmapData, IQuantizer)">Quantize</see> method for more details.</note>
         /// </remarks>
         public static IAsyncResult BeginQuantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, AsyncConfig? asyncConfig = null)
         {
@@ -241,7 +239,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="DitherAsync">DitherAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndQuantize">EndQuantize</see> method.</para>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither">Dither</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither(IReadWriteBitmapData, IQuantizer, IDitherer)">Dither</see> method for more details.</note>
         /// </remarks>
         public static IAsyncResult BeginDither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, AsyncConfig? asyncConfig = null)
         {
@@ -276,7 +274,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize">Quantize</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Quantize(IReadWriteBitmapData, IQuantizer)">Quantize</see> method for more details.</note>
         /// </remarks>
         public static Task QuantizeAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, TaskConfig? asyncConfig = null)
         {
@@ -304,7 +302,7 @@ namespace KGySoft.Drawing.Imaging
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither">Dither</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Dither(IReadWriteBitmapData, IQuantizer, IDitherer)">Dither</see> method for more details.</note>
         /// </remarks>
         public static Task DitherAsync(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer, TaskConfig? asyncConfig = null)
         {
@@ -339,7 +337,6 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">If <paramref name="transformFunction"/> can return colors incompatible with the pixel format of the specified <paramref name="bitmapData"/>, or you want to transform the actual
         /// pixels of an indexed <paramref name="bitmapData"/> instead of modifying the palette, then use the <see cref="TransformColors(IReadWriteBitmapData,Func{Color32,Color32},IDitherer)"/> overload and specify an <see cref="IDitherer"/> instance.</note>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, Color, byte)"/>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             ValidateArguments(bitmapData, transformFunction);
@@ -367,9 +364,8 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>On multi-core systems <paramref name="transformFunction"/> might be called concurrently so it must be thread-safe.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
-        /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)">BitmapExtensions.TransformColors</see> method for an example.</note>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm" target="_blank">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.TransformColors(Bitmap, Func{Color32, Color32}, IDitherer, Color, byte)"/>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
             => bitmapData.TransformColors(AsyncContext.Null, transformFunction, ditherer);
 
@@ -465,7 +461,6 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.ReplaceColor"/>
         public static void ReplaceColor(this IReadWriteBitmapData bitmapData, Color32 oldColor, Color32 newColor, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
@@ -564,7 +559,6 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.Invert"/>
         public static void Invert(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
@@ -642,11 +636,11 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeTransparent(IReadWriteBitmapData, AsyncConfig)"/>
         /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="ReplaceColor">ReplaceColor</see> method internally.</para>
-        /// <para>Similarly to the <see cref="Bitmap.MakeTransparent()">Bitmap.MakeTransparent</see> method, this one uses the bottom-left pixel to determine
-        /// the background color, which must be completely opaque; otherwise, <paramref name="bitmapData"/> will not be changed.</para>
-        /// <para>Unlike the <see cref="Bitmap.MakeTransparent()">Bitmap.MakeTransparent</see> method, this one preserves the original <see cref="IBitmapData.PixelFormat"/>.
-        /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
-        /// color of the bottom-left pixel will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
+        /// <para>Similarly to the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap.maketransparent" target="_blank">Bitmap.MakeTransparent</a> method,
+        /// this one uses the bottom-left pixel to determine the background color, which must be completely opaque; otherwise, <paramref name="bitmapData"/> will not be changed.</para>
+        /// <para>Unlike the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap.maketransparent" target="_blank">Bitmap.MakeTransparent</a> method,
+        /// this one preserves the original <see cref="IBitmapData.PixelFormat"/>. If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/>
+        /// either, then every occurrence of the color of the bottom-left pixel will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData)">ToTransparent</see> method instead,
         /// which returns a new instance with <see cref="KnownPixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="MakeTransparent(IReadWriteBitmapData, Color32)"/> overload instead.</para>
@@ -679,9 +673,9 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginMakeTransparent(IReadWriteBitmapData, Color32, AsyncConfig)"/>
         /// or <see cref="MakeTransparentAsync(IReadWriteBitmapData, Color32, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method calls the <see cref="ReplaceColor">ReplaceColor</see> method internally.</para>
-        /// <para>Unlike the <see cref="Bitmap.MakeTransparent(Color)">Bitmap.MakeTransparent(Color)</see> method, this one preserves the original <see cref="IBitmapData.PixelFormat"/>.
-        /// If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either, then every occurrence of the
-        /// <paramref name="transparentColor"/> will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
+        /// <para>Unlike the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap.maketransparent" target="_blank">Bitmap.MakeTransparent(Color)</a> method,
+        /// this one preserves the original <see cref="IBitmapData.PixelFormat"/>. If <paramref name="bitmapData"/> does not support transparency and cannot set <see cref="IBitmapData.Palette"/> either,
+        /// then every occurrence of the <paramref name="transparentColor"/> will be changed to the <see cref="IBitmapData.BackColor"/> of <paramref name="bitmapData"/>.
         /// To make such bitmaps transparent use the <see cref="ToTransparent(IReadableBitmapData,Color32)">ToTransparent</see> method instead,
         /// which returns a new instance with <see cref="KnownPixelFormat.Format32bppArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>.</para>
         /// <para>To auto-detect the background color to be made transparent use the <see cref="MakeTransparent(IReadWriteBitmapData)"/> overload instead.</para>
@@ -845,7 +839,6 @@ namespace KGySoft.Drawing.Imaging
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.MakeOpaque"/>
         public static void MakeOpaque(this IReadWriteBitmapData bitmapData, Color32 backColor, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
@@ -942,8 +935,6 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
         /// </remarks>
         /// <seealso cref="ToGrayscale"/>
-        /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
-        /// <seealso cref="ImageExtensions.ToGrayscale"/>
         public static void MakeGrayscale(this IReadWriteBitmapData bitmapData, IDitherer? ditherer = null)
         {
             if (bitmapData == null)
@@ -1034,13 +1025,12 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustBrightness">BitmapExtensions.AdjustBrightness</see> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_AdjustBrightness.htm" target="_blank">BitmapExtensions.AdjustBrightness</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="brightness"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        /// <seealso cref="BitmapExtensions.AdjustBrightness"/>
         public static void AdjustBrightness(this IReadWriteBitmapData bitmapData, float brightness, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmapData == null)
@@ -1186,13 +1176,12 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustContrast">BitmapExtensions.AdjustContrast</see> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_AdjustContrast.htm" target="_blank">BitmapExtensions.AdjustContrast</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="contrast"/> is not between -1 and 1
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        /// <seealso cref="BitmapExtensions.AdjustContrast"/>
         public static void AdjustContrast(this IReadWriteBitmapData bitmapData, float contrast, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmapData == null)
@@ -1333,13 +1322,12 @@ namespace KGySoft.Drawing.Imaging
         /// To transform the colors of an indexed <see cref="IBitmapData"/> without changing the palette specify a non-<see langword="null"/>&#160;<paramref name="ditherer"/>.
         /// Transforming the palette is both faster and provides a better result.</para>
         /// <para>The <paramref name="ditherer"/> is ignored for <see cref="KnownPixelFormat"/>s with more than 16 bits-per-pixel and for the <see cref="KnownPixelFormat.Format16bppGrayScale"/> format.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.AdjustGamma">BitmapExtensions.AdjustGamma</see> method for an example.</note>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_AdjustGamma.htm" target="_blank">BitmapExtensions.AdjustGamma</a> method for an example.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="gamma"/> is not between 0 and 10
         /// <br/>-or-
         /// <br/><paramref name="channels"/> is out of the defined flags.</exception>
-        /// <seealso cref="BitmapExtensions.AdjustGamma"/>
         public static void AdjustGamma(this IReadWriteBitmapData bitmapData, float gamma, IDitherer? ditherer = null, ColorChannels channels = ColorChannels.Rgb)
         {
             if (bitmapData == null)

@@ -28,8 +28,8 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="ErrorDiffusionDitherer"/>
     /// <seealso cref="RandomNoiseDitherer"/>
     /// <seealso cref="InterleavedGradientNoiseDitherer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
-    /// <seealso cref="BitmapExtensions.Dither"/>
+    /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
+    /// <seealso cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/>
     public interface IDitherer
     {
         #region Properties

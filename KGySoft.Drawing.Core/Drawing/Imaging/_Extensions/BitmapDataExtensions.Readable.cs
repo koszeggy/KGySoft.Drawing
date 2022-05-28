@@ -82,8 +82,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and color settings.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -103,17 +101,16 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
-        /// ones during the operation.</para>
+        /// can be preserved only between the same pixel formats. If they are different, then colors might be quantized to 32bpp ones during the operation.</para>
         /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
         /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, Palette)"/> overload.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color, byte)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_1.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, Color, byte)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
@@ -122,8 +119,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -139,16 +134,15 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
-        /// ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// can be preserved only between the same pixel formats. If they are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_2.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(source, pixelFormat);
@@ -157,8 +151,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -179,19 +171,18 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
-        /// ones during the operation.</para>
+        /// can be preserved only between the same pixel formats. If they are different, then colors might be quantized to 32bpp ones during the operation.</para>
         /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
         /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Palette)"/> overload.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color, byte)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_2.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
@@ -200,8 +191,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -218,10 +207,10 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
         /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats. If they are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows, which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp
-        /// ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// can be preserved only between the same pixel formats. If they are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_2.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
@@ -229,7 +218,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(source, pixelFormat);
@@ -238,8 +226,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -258,16 +244,15 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually quantized, though the result may have a poorer quality than expected.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats if there is no <paramref name="quantizer"/> specified. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
-        /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// can be preserved only between the same pixel formats if there is no <paramref name="quantizer"/> specified. If pixel formats are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -276,8 +261,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -290,15 +273,14 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
-        /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// can be preserved only between the same pixel formats. If pixel formats are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a>extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IDitherer? ditherer)
         {
             ValidateArguments(source, pixelFormat);
@@ -307,8 +289,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -322,17 +302,16 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="pixelFormat"/> can represent a narrower set of colors, then the result will be automatically quantized to its color space.
         /// To use dithering a <paramref name="ditherer"/> must be explicitly specified.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
-        /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// can be preserved only between the same pixel formats. If pixel formats are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IDitherer? ditherer)
         {
             ValidateArguments(source, pixelFormat);
@@ -341,8 +320,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/>.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -362,10 +339,10 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="quantizer"/> is specified but it uses more/different colors than <paramref name="pixelFormat"/> can represent,
         /// then the result will eventually quantized, though the result may have a poorer quality than expected.</para>
         /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
-        /// can be preserved only between the same pixel formats if there is no <paramref name="quantizer"/> specified. If pixel formats are different, or <paramref name="source"/> is from a <see cref="Bitmap"/> on Windows,
-        /// which uses 13 bits-per-pixel channels, then colors might be quantized to 32bpp ones during the operation.</para>
-        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/> extension method
-        /// for some examples. The <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see> extensions work the same way for <see cref="Image"/>s
+        /// can be preserved only between the same pixel formats if there is no <paramref name="quantizer"/> specified. If pixel formats are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat(Image, PixelFormat, IQuantizer?, IDitherer?)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm" target="_blank">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
         /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
@@ -373,7 +350,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -467,8 +443,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color, byte, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -496,7 +470,6 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color, byte, AsyncConfig)"/>
         public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -505,8 +478,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -531,7 +502,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, Color[], Color, byte, AsyncConfig)"/>
         public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -540,8 +510,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer, AsyncConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -567,7 +535,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.BeginConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
         public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -632,8 +599,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color, byte, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -660,7 +625,6 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color, byte, TaskConfig)"/>
         public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -669,8 +633,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and <paramref name="palette"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color[], Color, byte, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -694,7 +656,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, Color[], Color, byte, TaskConfig)"/>
         public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -703,8 +664,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/>, using an optional <paramref name="quantizer"/> and <paramref name="ditherer"/> asynchronously.
-        /// This method is similar to <see cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, IQuantizer, IDitherer, TaskConfig)"/> but as the result is a managed <see cref="IReadWriteBitmapData"/> instance
-        /// every <see cref="KnownPixelFormat"/> is supported on any platform.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
@@ -729,7 +688,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        /// <seealso cref="ImageExtensions.ConvertPixelFormatAsync(Image, KnownPixelFormat, IQuantizer, IDitherer, TaskConfig)"/>
         public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -772,7 +730,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => CopyTo(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer);
 
         /// <summary>
@@ -794,7 +752,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void CopyTo(this IReadableBitmapData source, IWritableBitmapData target, Point targetLocation, IDitherer? ditherer)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => CopyTo(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer);
 
         /// <summary>
@@ -952,8 +910,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -981,13 +938,12 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, quantizer, ditherer);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1007,13 +963,12 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Point targetLocation, IDitherer? ditherer)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetLocation, null, ditherer);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1038,8 +993,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1084,8 +1038,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to draw the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
-        /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the <see cref="BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)"/> overload.
         /// To copy a bitmap data into another one without blending use the <see cref="BeginCopyTo">BeginCopyTo</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1132,8 +1085,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
-        /// without scaling, using blending. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
-        /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// without scaling, using blending. This method always preserves the source size in pixels, works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the <see cref="DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)"/> overload.
         /// To copy a bitmap data into another one without blending use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
@@ -1179,8 +1131,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1211,13 +1162,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, quantizer, ditherer, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1241,13 +1191,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, IDitherer? ditherer, ScalingMode scalingMode = ScalingMode.Auto)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, ditherer, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1268,13 +1217,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this IReadableBitmapData source, IReadWriteBitmapData target, Rectangle targetRectangle, ScalingMode scalingMode)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException if source is null so ArgumentNullException is thrown from ValidateArguments
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.GetSize() ?? default), targetRectangle, null, null, scalingMode);
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1300,8 +1248,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1331,8 +1278,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/>
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.CopyTo">CopyTo</see> methods instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1381,8 +1327,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to draw the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="BeginCopyTo">BeginCopyTo</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1431,8 +1376,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Draws the <paramref name="source"/>&#160;<see cref="IReadableBitmapData"/> into the <paramref name="target"/>&#160;<see cref="IReadWriteBitmapData"/> asynchronously,
-        /// using scaling and blending. This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
-        /// methods, except that this one works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
+        /// using scaling and blending. This method works between any pair of source and target <see cref="KnownPixelFormat"/>s and supports quantizing and dithering.
         /// To copy a bitmap data into another one without blending use the <see cref="CopyToAsync">CopyToAsync</see> method instead.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -1727,9 +1671,7 @@ namespace KGySoft.Drawing.Imaging
         /// quantizer (eg. <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see>) or pixel format (<see cref="KnownPixelFormat.Format16bppGrayScale"/>).</para>
         /// <para>To make an <see cref="IReadWriteBitmapData"/> grayscale without creating a new instance use the <see cref="MakeGrayscale">MakeGrayscale</see> method.</para>
         /// </remarks>
-        /// <seealso cref="ImageExtensions.ToGrayscale"/>
         /// <seealso cref="MakeGrayscale"/>
-        /// <seealso cref="BitmapExtensions.MakeGrayscale"/>
         public static IReadWriteBitmapData ToGrayscale(this IReadableBitmapData bitmapData)
         {
             if (bitmapData == null)
@@ -1807,8 +1749,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToTransparent(IReadableBitmapData, AsyncConfig)"/>
         /// or <see cref="ToTransparentAsync(IReadableBitmapData, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>Similarly to the <see cref="Bitmap.MakeTransparent()">Bitmap.MakeTransparent</see> method, this one uses the bottom-left pixel to determine
-        /// the background color, which must be completely opaque; otherwise, just an exact clone of <paramref name="bitmapData"/> will be returned.</para>
+        /// <para>This method uses the bottom-left pixel to determine the background color, which must be completely opaque; otherwise, just an exact clone of <paramref name="bitmapData"/> will be returned.</para>
         /// <para>This method always returns a new <see cref="IReadWriteBitmapData"/> with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// <para>To attempt to make an <see cref="IReadWriteBitmapData"/> transparent without creating a new instance use the <see cref="MakeTransparent(IReadWriteBitmapData)">MakeTransparent</see> method.</para>
         /// <para>To force replacing even non-completely opaque pixels use the <see cref="ToTransparent(IReadableBitmapData, Color32)"/> overload instead.</para>
@@ -1970,9 +1911,6 @@ namespace KGySoft.Drawing.Imaging
         /// <para>To reload the content use the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see> method.</para>
         /// <para>The saved content always preserves known <see cref="KnownPixelFormat"/>s so the <see cref="BitmapDataFactory.Load">BitmapDataFactory.Load</see>
         /// method can restore it the same way on any platform. Custom pixel formats are saved by a compatible known pixel format.</para>
-        /// <note>If <paramref name="bitmapData"/> represents the bitmap data of a native <see cref="Bitmap"/> with <see cref="KnownPixelFormat.Format48bppRgb"/>,
-        /// <see cref="KnownPixelFormat.Format64bppArgb"/> or <see cref="KnownPixelFormat.Format64bppPArgb"/>&#160;<see cref="KnownPixelFormat"/>, then on Windows the actual
-        /// color depth is quantized to 32bpp because these formats have a different raw interpretation than managed bitmaps used by <c>KGySoft Drawing Libraries</c>.</note>
         /// </remarks>
         public static void Save(this IReadableBitmapData bitmapData, Stream stream)
         {

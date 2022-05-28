@@ -551,6 +551,8 @@ namespace KGySoft.Drawing.Imaging
                 throw new InvalidOperationException(Res.InternalError("Empty region is not expected at this point"));
             }
 
+            private static bool IsKnownNonWideFormat(PixelFormatInfo pixelFormat, int maxBpp) => pixelFormat.BitsPerPixel <= maxBpp && pixelFormat.IsKnownFormat && !pixelFormat.IsWide;
+
             #endregion
 
             #region Instance Methods
@@ -1023,7 +1025,7 @@ namespace KGySoft.Drawing.Imaging
                 if (CanUseDeltaByTransparentMask(inputFrame))
                 {
                     canUseDelta = true;
-                    preparedPixelFormat = inputFrame.SupportsTransparency() && inputFrame.PixelFormat.BitsPerPixel <= 32 && inputFrame.PixelFormat.IsKnownFormat
+                    preparedPixelFormat = inputFrame.SupportsTransparency() && IsKnownNonWideFormat(inputFrame.PixelFormat, 32)
                         ? inputFrame.PixelFormat.AsKnownPixelFormatInternal // we have transparency: we can use the original format
                         : KnownPixelFormat.Format32bppArgb; // we have to add transparency, reduce bpp or use a known pixel format
                 }
@@ -1031,7 +1033,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     // Note: not using 24bpp fallback format here because possible input transparency would be blended with black instead of the back color of the quantizer
                     canUseDelta = true;
-                    preparedPixelFormat = inputFrame.PixelFormat.BitsPerPixel <= 32 && inputFrame.PixelFormat.IsKnownFormat
+                    preparedPixelFormat = IsKnownNonWideFormat(inputFrame.PixelFormat, 32)
                         ? inputFrame.PixelFormat.AsKnownPixelFormatInternal
                         : KnownPixelFormat.Format32bppArgb;
                 }

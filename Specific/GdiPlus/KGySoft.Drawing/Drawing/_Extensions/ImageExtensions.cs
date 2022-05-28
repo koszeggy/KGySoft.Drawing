@@ -477,7 +477,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> is out of the defined values.</exception>
         /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/>
-        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, Color32, byte)"/>
+        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, Color32, byte)"/>
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
             => ConvertPixelFormat(image, newPixelFormat, null, backColor, alphaThreshold);
 
@@ -603,7 +603,7 @@ namespace KGySoft.Drawing
         /// <seealso cref="IDitherer"/>
         /// <seealso cref="BitmapExtensions.Quantize"/>
         /// <seealso cref="BitmapExtensions.Dither"/>
-        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)"/>
+        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)"/>
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);

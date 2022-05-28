@@ -50,4 +50,4 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   + New ToKnownPixelFormat method
 
 NOTE: See the history of older versions at the following link:
-https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt
+https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt

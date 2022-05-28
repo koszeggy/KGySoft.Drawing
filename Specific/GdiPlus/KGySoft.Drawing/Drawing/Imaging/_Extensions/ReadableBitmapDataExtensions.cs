@@ -55,10 +55,10 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToBitmap">BeginToBitmap</see>
         /// or <see cref="ToBitmapAsync">ToBitmapAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>If supported on the current platform, the result <see cref="Bitmap"/> will have the same <see cref="KnownPixelFormat"/> as <paramref name="source"/>.
-        /// Otherwise, the result will have either <see cref="KnownPixelFormat.Format24bppRgb"/> or <see cref="KnownPixelFormat.Format32bppArgb"/> format, depending whether source has transparency.
+        /// <para>The result <see cref="Bitmap"/> will have the closest possible <see cref="PixelFormat"/> to <paramref name="source"/>. If the source pixel format is not supported on the current platform,
+        /// then the result will have either <see cref="PixelFormat.Format24bppRgb"/> or <see cref="KnownPixelFormat.Format32bppArgb"/> format, depending whether source has transparency.
         /// <note>On Windows every format is supported with more or less limitations. For details and further information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms
-        /// see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> method.
+        /// see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.
         /// </note></para>
         /// </remarks>
         public static Bitmap ToBitmap(this IReadableBitmapData source)

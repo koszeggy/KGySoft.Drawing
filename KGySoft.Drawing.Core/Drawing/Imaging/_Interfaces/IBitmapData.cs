@@ -23,16 +23,15 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents the raw data of a bitmap. To create a managed instance use the <see cref="BitmapDataFactory"/> class.
-    /// To obtain a readable or writable instance for a native <see cref="Bitmap"/> instance call the <see cref="BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>,
-    /// <see cref="BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> or <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension methods.
-    /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+    /// To obtain a readable or writable instance for a native <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Bitmap" target="_blank">Bitmap</a> instance call
+    /// the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadableBitmapData.htm" target="_blank">GetReadableBitmapData</a>,
+    /// <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetWritableBitmapData.htm" target="_blank">GetWritableBitmapData</a>
+    /// or <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> extension methods.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapData"/>
     /// <seealso cref="IWritableBitmapData"/>
     /// <seealso cref="IReadWriteBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
     public interface IBitmapData : IDisposable
     {
         #region Properties
@@ -62,20 +61,18 @@ namespace KGySoft.Drawing.Imaging
         PixelFormatInfo PixelFormat { get; }
 
         /// <summary>
-        /// Gets a <see cref="Imaging.Palette"/> instance representing the colors of the owner <see cref="Bitmap"/> if it has an indexed <see cref="System.Drawing.Imaging.PixelFormat"/>,
-        /// or <see langword="null"/>&#160;if the owner <see cref="Bitmap"/> is not an indexed one. For indexed bitmaps the <see cref="PixelFormat"/>
-        /// property returns <see cref="System.Drawing.Imaging.PixelFormat.Format8bppIndexed"/>, <see cref="System.Drawing.Imaging.PixelFormat.Format4bppIndexed"/> or <see cref="System.Drawing.Imaging.PixelFormat.Format1bppIndexed"/>.
+        /// Gets a <see cref="Imaging.Palette"/> instance representing the colors used in this <see cref="IBitmapData"/> if <see cref="PixelFormat"/> represents an indexed format.
+        /// For indexed bitmaps <see cref="PixelFormatInfo.Indexed"/> property of <see cref="PixelFormat"/> returns <see langword="true"/>.
         /// </summary>
         Palette? Palette { get; }
 
         /// <summary>
         /// Gets the size of a row in bytes, or zero, if this <see cref="IBitmapData"/> instance does not have an actual raw buffer to access.
-        /// Otherwise, <see cref="RowSize"/> is similar to <see cref="BitmapData.Stride">BitmapData.Stride</see> but this property never returns a negative value.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <remarks>
         /// <para>This property can be useful when accessing the bitmap data by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</para>
-        /// <para>As <see cref="IBitmapData"/> can represent also a managed bitmap data, row size is not guaranteed to be a multiple of 4.</para>
+        /// <para>As <see cref="IBitmapData"/> can represent any custom bitmap data, row size is not guaranteed to be a multiple of 4.</para>
         /// <note>
         /// <para>This property can return 0 if the current <see cref="IBitmapData"/> instance represents a bitmap data without actual raw data or represents a clipped
         /// region where the left edge of the clipping has an offset compared to the original bitmap data.</para>
@@ -88,7 +85,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, gets the color of the background.
         /// For example, when setting color values with alpha, which are considered opaque, they will be blended with this color before setting the pixel.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method for details and examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> extension method for details and examples.
         /// </summary>
         Color32 BackColor { get; }
 

@@ -23,13 +23,12 @@ using System.Drawing;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides a fast read-only access to a single row of the actual data of a <see cref="Bitmap"/>. The owner <see cref="Bitmap"/> can have any <see cref="KnownPixelFormat"/>.
-    /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+    /// Provides a fast read-only access to a single row of an <see cref="IReadableBitmapData"/>.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IWritableBitmapDataRow"/>
     /// <seealso cref="IReadWriteBitmapDataRow"/>
     /// <seealso cref="IReadableBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
     public interface IReadableBitmapDataRow : IBitmapDataRow
     {
         #region Indexers
@@ -45,8 +44,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
         /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw value
         /// use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
-        /// <note>For information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
-        /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.</note>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
         /// <seealso cref="GetColor"/>
@@ -70,7 +68,6 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
         /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw value
         /// use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
-        /// <note>For information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
         /// <seealso cref="this"/>
@@ -79,7 +76,7 @@ namespace KGySoft.Drawing.Imaging
         Color GetColor(int x);
 
         /// <summary>
-        /// If the owner <see cref="Bitmap"/> is an indexed one, then gets the color index of the pixel in the current row at the specified <paramref name="x"/> coordinate.
+        /// If the owner <see cref="IReadableBitmapData"/> is an indexed one, then gets the color index of the pixel in the current row at the specified <paramref name="x"/> coordinate.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the color index to retrieve.</param>
@@ -91,10 +88,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para>To get the actual color of the pixel at the <paramref name="x"/> coordinate you can use the <see cref="GetColor">GetColor</see> method,
         /// the <see cref="this">indexer</see>, or you can call the <see cref="Palette.GetColor">Palette.GetColor</see> method with the return value of this method
         /// on the <see cref="Palette"/> instance returned by the <see cref="IBitmapData.Palette"/> property of the parent <see cref="IReadableBitmapData"/>.</para>
-        /// <note>For information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
-        /// <exception cref="InvalidOperationException">This <see cref="IReadableBitmapDataRow"/> does not belong to a row of an indexed <see cref="Bitmap"/>.</exception>
+        /// <exception cref="InvalidOperationException">This <see cref="IReadableBitmapDataRow"/> does not belong to a row of an indexed <see cref="IReadableBitmapData"/>.</exception>
         /// <seealso cref="this"/>
         /// <seealso cref="GetColor"/>
         /// <seealso cref="ReadRaw{T}"/>
@@ -112,15 +108,12 @@ namespace KGySoft.Drawing.Imaging
         /// <typeparamref name="T"/> can have any size so you using this method can access multiple pixels or individual color channels.</para>
         /// <para>To determine the row width in bytes use the <see cref="IBitmapData.RowSize"/> property of the parent <see cref="IReadableBitmapData"/> instance.</para>
         /// <para>To determine the actual pixel size use the <see cref="IBitmapData.PixelFormat"/> property of the parent <see cref="IReadableBitmapData"/> instance.</para>
-        /// <note>Please note that on some non-Windows platforms the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property may return a different format than
-        /// the <see cref="Image.PixelFormat">Image.PixelFormat</see> property of the original <see cref="Bitmap"/>.
-        /// <br/>For details and further information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
         /// </remarks>
         /// <example>
-        /// The following example demonstrates how to access the premultiplied color values of a <see cref="Bitmap"/> with premultiplied pixel format:
+        /// The following example demonstrates how to access the premultiplied color values of a bitmap data with premultiplied pixel format:
         /// <code lang="C#"><![CDATA[
-        /// using (Bitmap bmpPremultiplied = new Bitmap(1, 1, PixelFormat.Format32bppPArgb))
-        /// using (IReadWriteBitmapData bitmapData = bmpPremultiplied.GetReadWriteBitmapData())
+        /// using (IReadWriteBitmapData bitmapData = BitmapDataFactory.CreateBitmapData(
+        ///     new Size(1, 1), KnownPixelFormat.Format32bppPArgb))
         /// {
         ///     // setting a white pixel with 50% alpha:
         ///     bitmapData.SetPixel(0, 0, Color.FromArgb(128, 255, 255, 255));

@@ -86,7 +86,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>.
-        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="KnownPixelFormat"/> and also dithering.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
         /// <param name="color">A <see cref="Color32"/> that represents the desired result color of the <paramref name="bitmapData"/>.
@@ -99,7 +98,6 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClear">BeginClear</see>
         /// or <see cref="ClearAsync">ClearAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
-        /// <seealso cref="BitmapExtensions.Clear(Bitmap, Color, IDitherer, Color, byte)"/>
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null)
             => bitmapData.Clear(AsyncContext.Null, color, ditherer);
 
@@ -114,7 +112,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Begins to clear the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/> asynchronously.
-        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="KnownPixelFormat"/> and also dithering.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
@@ -148,7 +145,6 @@ namespace KGySoft.Drawing.Imaging
 #if !NET35
         /// <summary>
         /// Begins to clear the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/> asynchronously.
-        /// <br/>This method is similar to <see cref="Graphics.Clear">Graphics.Clear</see> except that this one supports any <see cref="KnownPixelFormat"/> and also dithering.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
         /// <param name="color">A <see cref="Color32"/> that represents the desired result color of the <paramref name="bitmapData"/>.

@@ -23,12 +23,12 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents an <see cref="IBitmapData"/> instance with read/write access.
-    /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <see cref="BitmapExtensions.GetReadWriteBitmapData">BitmapExtensions.GetReadWriteBitmapData</see> extension method.
-    /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+    /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a> extension method.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapData"/>
     /// <seealso cref="IWritableBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
+    /// <seealso cref="BitmapDataFactory"/>
     // ReSharper disable once PossibleInterfaceMemberAmbiguity - intended, see new
     public interface IReadWriteBitmapData : IReadableBitmapData, IWritableBitmapData
     {
@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets an <see cref="IReadWriteBitmapDataRow"/> instance representing the first row of the current <see cref="IReadWriteBitmapData"/>.
         /// Subsequent rows can be accessed by calling the <see cref="IBitmapDataRow.MoveNextRow">MoveNextRow</see> method on the returned instance
         /// while it returns <see langword="true"/>. Alternatively, you can use the <see cref="this">indexer</see> to obtain any row.
-        /// <br/>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.
+        /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
         /// </summary>
         /// <exception cref="ObjectDisposedException">This <see cref="IReadWriteBitmapData"/> has already been disposed.</exception>
         new IReadWriteBitmapDataRow FirstRow { get; }
@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="IReadWriteBitmapDataRow"/> representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IReadWriteBitmapData"/>.
-        /// <br/>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.
+        /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
         /// </summary>
         /// <param name="y">The y.</param>
         /// <returns>An <see cref="IReadWriteBitmapDataRow"/> representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IReadWriteBitmapData"/>.</returns>

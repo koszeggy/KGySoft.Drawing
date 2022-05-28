@@ -23,13 +23,12 @@ using System.Drawing;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Provides a fast read-write access to a single row of the actual data of a <see cref="Bitmap"/>. The owner <see cref="Bitmap"/> can have any <see cref="KnownPixelFormat"/>.
-    /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+    /// Provides a fast read-write access to a single row of an <see cref="IReadWriteBitmapData"/>.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapDataRow"/>
     /// <seealso cref="IWritableBitmapDataRow"/>
     /// <seealso cref="IReadWriteBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
     public interface IReadWriteBitmapDataRow : IReadableBitmapDataRow, IWritableBitmapDataRow
     {
         #region Indexers
@@ -46,9 +45,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The color value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
         /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw data
         /// use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> and <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</para>
-        /// <para>If the color to be set is not supported by owner <see cref="Bitmap"/>, then it will be quantized to a supported color value.</para>
-        /// <note>For information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
-        /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.</note>
+        /// <para>If the color to be set is not supported by owner <see cref="IReadWriteBitmapData"/>, then it will be quantized to a supported color value.</para>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadWriteBitmapData"/>.</exception>
         /// <seealso cref="IReadableBitmapDataRow.GetColor"/>

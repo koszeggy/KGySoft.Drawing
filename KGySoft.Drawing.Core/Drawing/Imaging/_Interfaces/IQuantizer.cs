@@ -25,8 +25,8 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     /// <seealso cref="PredefinedColorsQuantizer"/>
     /// <seealso cref="OptimizedPaletteQuantizer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
-    /// <seealso cref="BitmapExtensions.Quantize"/>
+    /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
+    /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
     public interface IQuantizer
     {
         #region Properties

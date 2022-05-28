@@ -20,8 +20,8 @@
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a single row of the raw data of a <see cref="Bitmap"/>. Reading or writing actual pixels is available via the derived interfaces of this type.
-    /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+    /// Represents a single row of an <see cref="IBitmapData"/> instance. Reading or writing actual pixels is available via the derived interfaces of this type.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapDataRow"/>
     /// <seealso cref="IWritableBitmapDataRow"/>
@@ -29,9 +29,6 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="IReadableBitmapData"/>
     /// <seealso cref="IWritableBitmapData"/>
     /// <seealso cref="IReadWriteBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetWritableBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadWriteBitmapData"/>
     public interface IBitmapDataRow
     {
         #region Properties
@@ -59,7 +56,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// If not already in the last row (<see cref="Index"/> is less than <see cref="IBitmapData.Height">Height</see> of the owner <see cref="IBitmapData"/>),
         /// then advances the position of the current <see cref="IBitmapDataRow"/> instance so it points to the next row.
-        /// <br/>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.
+        /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
         /// </summary>
         /// <returns><see langword="true"/>, if this <see cref="IBitmapDataRow"/> has been advanced to another row;
         /// <see langword="false"/>, if this <see cref="IBitmapDataRow"/> had already pointed to the last row before this method was called.</returns>

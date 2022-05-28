@@ -24,12 +24,12 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a readable <see cref="IBitmapData"/> instance.
-    /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <see cref="BitmapExtensions.GetReadableBitmapData">BitmapExtensions.GetReadableBitmapData</see> extension method.
-    /// <br/>See the <strong>Remarks</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+    /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadableBitmapData.htm" target="_blank">BitmapExtensions.GetReadableBitmapData</a> extension method.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IWritableBitmapData"/>
     /// <seealso cref="IReadWriteBitmapData"/>
-    /// <seealso cref="BitmapExtensions.GetReadableBitmapData"/>
+    /// <seealso cref="BitmapDataFactory"/>
     public interface IReadableBitmapData : IBitmapData
     {
         #region Properties and Indexers
@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets an <see cref="IReadableBitmapDataRow"/> instance representing the first row of the current <see cref="IReadableBitmapData"/>.
         /// Subsequent rows can be accessed by calling the <see cref="IBitmapDataRow.MoveNextRow">MoveNextRow</see> method on the returned instance
         /// while it returns <see langword="true"/>. Alternatively, you can use the <see cref="this">indexer</see> to obtain any row.
-        /// <br/>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.
+        /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
         /// </summary>
         /// <exception cref="ObjectDisposedException">This <see cref="IReadWriteBitmapData"/> has already been disposed.</exception>
         IReadableBitmapDataRow FirstRow { get; }
@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="IReadableBitmapDataRow"/> representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IReadableBitmapData"/>.
-        /// <br/>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.
+        /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
         /// </summary>
         /// <param name="y">The y-coordinate of the row to obtain.</param>
         /// <returns>An <see cref="IReadableBitmapDataRow"/> representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IReadableBitmapData"/>.</returns>
@@ -79,8 +79,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
         /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw value
         /// obtain a row and use the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> method.</para>
-        /// <note>For information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
-        /// <note>See the <strong>Examples</strong> section of the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for examples.</note>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
         /// <exception cref="ObjectDisposedException">This <see cref="IReadWriteBitmapData"/> has already been disposed.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Width"/>.

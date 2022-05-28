@@ -38,8 +38,8 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     /// <seealso cref="IQuantizer" />
     /// <seealso cref="OptimizedPaletteQuantizer"/>
-    /// <seealso cref="ImageExtensions.ConvertPixelFormat(Image, KnownPixelFormat, IQuantizer, IDitherer)"/>
-    /// <seealso cref="BitmapExtensions.Quantize"/>
+    /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer?, IDitherer?)"/>
+    /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
     public sealed class PredefinedColorsQuantizer : IQuantizer
     {
         #region Nested classes
@@ -330,7 +330,7 @@ namespace KGySoft.Drawing.Imaging
         /// and it is effective only for some bitmap data operations (eg. <see cref="BitmapDataExtensions.Clone(IReadableBitmapData,Rectangle,KnownPixelFormat,IQuantizer,IDitherer)">Clone</see>),
         /// which could possibly preserve wide color information (<see cref="KnownPixelFormat"/>s with 48/64 bpp) without specifying a quantizer.</para>
         /// <para>If <paramref name="alphaThreshold"/> is not zero, then every partially transparent pixel with lower <see cref="Color.A">Color.A</see> value than the threshold will turn completely transparent.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format32bppArgb"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -409,8 +409,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256<sup>3</sup> (16,777,216) colors.
         /// It practically just removes transparency and does not change colors without alpha.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format24bppRgb"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format24bppRgb"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -475,8 +474,7 @@ namespace KGySoft.Drawing.Imaging
         /// green and blue components are encoded in 5, 6 and 5 bits, respectively.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 65,536 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format16bppRgb565"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format16bppRgb565"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -546,8 +544,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where each color component is encoded in 5 bits.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 32,768 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format16bppRgb555"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format16bppRgb555"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -622,8 +619,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where each color component is encoded in 5 bits.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 32,768 colors, and a transparent color.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format16bppArgb1555"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format16bppArgb1555"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -702,9 +698,8 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="directMapping"/> is <see langword="true"/>, then the result of the quantization may have a higher contrast than without direct color mapping,
         /// though this can be compensated if the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>. Other ditherers preserve the effect of the <paramref name="directMapping"/> parameter.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
         /// <para>The palette of this quantizer does not contain the transparent color.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -800,10 +795,9 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>The returned quantizer uses direct mapping to grayscale colors based on human perception, which makes quantization very fast while it is very accurate at the same time.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256 possible shades of gray.</para>
-        /// <para>The palette of this quantizer does not contain the transparent color. To make an image grayscale with transparency you can use the
-        /// <see cref="ImageExtensions.ToGrayscale">ToGrayscale</see> and <see cref="BitmapExtensions.MakeGrayscale">MakeGrayscale</see> extension methods.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>The palette of this quantizer does not contain the transparent color. To make a bitmap data grayscale with transparency you can use the
+        /// <see cref="BitmapDataExtensions.ToGrayscale">ToGrayscale</see> and <see cref="BitmapDataExtensions.MakeGrayscale">MakeGrayscale</see> extension methods.</para>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -864,8 +858,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="directMapping"/> is <see langword="true"/>, then the result of the quantization may have a higher contrast than without direct color mapping,
         /// though this can be compensated if the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>. Other ditherers preserve the effect of the <paramref name="directMapping"/> parameter.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 16 possible shades of gray.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -951,8 +944,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <paramref name="directMapping"/> is <see langword="true"/>, then the result of the quantization may have a higher contrast than without direct color mapping,
         /// though this can be compensated if the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>. Other ditherers preserve the effect of the <paramref name="directMapping"/> parameter.</para>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 4 possible shades of gray.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format, though only 4 palette entries are used instead of the possible maximum of 16.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format, though only 4 palette entries are used instead of the possible maximum of 16.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1049,8 +1041,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>If the returned quantizer is combined with an <see cref="ErrorDiffusionDitherer"/>, then the effect of the <paramref name="whiteThreshold"/> parameter is
         /// mostly compensated. Other ditherers preserve the effect of the <paramref name="whiteThreshold"/> parameter.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1136,7 +1127,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 8-bit palette.
-        /// On Windows this palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
+        /// This palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
         /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
         /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
@@ -1150,10 +1141,9 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 8-bit palette.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 256 colors.
-        /// On Windows this amount is somewhat smaller because of redundant entries in the palette.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
-        /// <para>On Windows the palette of this quantizer contains transparent entries.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// Actually this amount is somewhat smaller because of some redundant entries in the palette.</para>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format8bppIndexed"/> pixel format.</para>
+        /// <para>The palette of this quantizer contains transparent entries.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1237,7 +1227,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 4-bit palette.
-        /// On Windows this palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
+        /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
         /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
@@ -1246,10 +1236,9 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 4-bit palette.</returns>
         /// <remarks>
         /// <para>The returned <see cref="PredefinedColorsQuantizer"/> instance can return up to 16 colors.</para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format.</para>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format4bppIndexed"/> pixel format.</para>
         /// <para>The palette of this quantizer is not expected to contain transparent entries.
-        /// On Windows the palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a></para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// The palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a></para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1321,7 +1310,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 1-bit palette.
-        /// On Windows this palette consists of the black and white colors.
+        /// This palette consists of the black and white colors.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
@@ -1333,8 +1322,7 @@ namespace KGySoft.Drawing.Imaging
         /// The system 1-bit palette expected to have the black and white colors on most operating systems.
         /// <note type="tip">To make sure that you use a black and white palette use the <see cref="BlackAndWhite">BlackAndWhite</see> method instead, which provides white threshold adjustment as well.
         /// <br/>For more details and examples see the <strong>Examples</strong> section of the <see cref="BlackAndWhite">BlackAndWhite</see> method.</note></para>
-        /// <para>This quantizer fits well for <see cref="Bitmap"/>s with <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
-        /// <note>For more information about the possible usable <see cref="KnownPixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,KnownPixelFormat,Color,byte)">ConvertPixelFormat</see> extension method.</note>
+        /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
         /// </remarks>
         /// <seealso cref="Palette.SystemDefault1BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault1BppPalette(Color backColor = default)
