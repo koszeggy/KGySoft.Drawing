@@ -1619,7 +1619,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.BeginOperation<object>(ctx => DoGetColorCount(ctx, bitmapData), asyncConfig);
+            return AsyncContext.BeginOperation<int>(ctx => DoGetColorCount(ctx, bitmapData), asyncConfig);
         }
 
         /// <summary>
