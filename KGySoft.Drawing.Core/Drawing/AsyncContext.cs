@@ -876,16 +876,19 @@ namespace KGySoft.Drawing
         }
 
 #if !NET35
+        public static Task<TResult?> DoOperationAsync<TResult>(Func<IAsyncContext, TResult?> operation, TaskConfig? asyncConfig)
+            => DoOperationAsync(operation, default, asyncConfig);
+
         [SuppressMessage("Design", "CA1031:Do not catch general exception types",
             Justification = "Pool thread exceptions are not suppressed, they will be thrown when task is awaited or Result is accessed.")]
-        public static Task<TResult?> DoOperationAsync<TResult>(Func<IAsyncContext, TResult?> operation, TaskConfig? asyncConfig)
+        public static Task<TResult?> DoOperationAsync<TResult>(Func<IAsyncContext, TResult?> operation, TResult canceledResult, TaskConfig? asyncConfig)
         {
             #region Local Methods
 
             // this method is executed on a pool thread
             static void DoWork(object state)
             {
-                var (context, completion, func) = ((TaskContext, TaskCompletionSource<TResult?>, Func<IAsyncContext, TResult>))state;
+                var (context, completion, func, canceledResult) = ((TaskContext, TaskCompletionSource<TResult?>, Func<IAsyncContext, TResult>, TResult))state;
                 try
                 {
                     TResult result = func.Invoke(context);
@@ -894,7 +897,7 @@ namespace KGySoft.Drawing
                         if (context.ThrowIfCanceled)
                             completion.SetCanceled();
                         else
-                            completion.SetResult(default);
+                            completion.SetResult(canceledResult);
                     }
                     else
                         completion.SetResult(result);
@@ -904,7 +907,7 @@ namespace KGySoft.Drawing
                     if (context.ThrowIfCanceled)
                         completion.SetCanceled();
                     else
-                        completion.SetResult(default);
+                        completion.SetResult(canceledResult);
                 }
                 catch (Exception e)
                 {
@@ -924,7 +927,7 @@ namespace KGySoft.Drawing
                     completionSource.SetResult(default);
             }
             else
-                ThreadPool.QueueUserWorkItem(DoWork!, (taskContext, completionSource, operation));
+                ThreadPool.QueueUserWorkItem(DoWork!, (taskContext, completionSource, operation, canceledResult));
 
             return completionSource.Task;
         }
@@ -988,6 +991,9 @@ namespace KGySoft.Drawing
 
             return completionSource.Task;
         }
+
+        public static Task<TResult> FromResult<TResult>(TResult result, TaskConfig? asyncConfig)
+            => FromResult(result, default!, asyncConfig);
 
         public static Task<TResult> FromResult<TResult>(TResult result, TResult canceledValue, TaskConfig? asyncConfig)
         {
