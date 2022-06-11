@@ -22,6 +22,8 @@ using System.Drawing;
 using System.Threading.Tasks;
 #endif
 
+using KGySoft.Threading;
+
 #endregion
 
 #if NET35
@@ -99,15 +101,15 @@ namespace KGySoft.Drawing.Imaging
         /// or <see cref="ClearAsync">ClearAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null)
-            => bitmapData.Clear(AsyncContext.Null, color, ditherer);
+            => bitmapData.Clear(AsyncHelper.DefaultContext, color, ditherer);
 
         // TODO docs: The call is blocking on the caller thread but as it has a context parameter it makes possible to pass around an already created context from an async call.
         // Alternatively, it allows cancellation, configuring degree of parallelization and reporting progress even for a sync caller.
-        // See the AsyncContext example for more details
+        // See the AsyncHelper example for more details
         public static void Clear(this IWritableBitmapData bitmapData, IAsyncContext? context, Color32 color, IDitherer? ditherer = null)
         {
             ValidateArguments(bitmapData);
-            DoClear(context ?? AsyncContext.Null, bitmapData, color, ditherer);
+            DoClear(context ?? AsyncHelper.DefaultContext, bitmapData, color, ditherer);
         }
 
         /// <summary>
@@ -132,7 +134,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginClear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData);
-            return AsyncContext.BeginOperation(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -140,7 +142,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="ClearAsync">ClearAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndClear(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginClear));
+        public static void EndClear(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginClear));
 
 #if !NET35
         /// <summary>
@@ -162,7 +164,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData);
-            return AsyncContext.DoOperationAsync(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoClear(ctx, bitmapData, color, ditherer), asyncConfig);
         }
 #endif
 

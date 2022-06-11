@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.UnitTests
         #region Constants
 #pragma warning disable CS0162 // to suppress "unreachable code" warning controlled by the constant
 
-        protected const bool SaveToFile = false;
+        protected const bool SaveToFile = true;
 
         #endregion
 

@@ -26,6 +26,8 @@ using System.Runtime.Versioning;
 using System.Threading.Tasks;
 #endif
 
+using KGySoft.Threading;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -64,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
         public static Bitmap ToBitmap(this IReadableBitmapData source)
         {
             ValidateArguments(source);
-            return DoConvertToBitmap(AsyncContext.Null, source)!;
+            return DoConvertToBitmap(AsyncHelper.DefaultContext, source)!;
         }
 
         /// <summary>
@@ -85,7 +87,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncContext.BeginOperation(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
         }
 
         /// <summary>
@@ -95,7 +97,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
         /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
-        public static Bitmap? EndToBitmap(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
+        public static Bitmap? EndToBitmap(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
 
 #if !NET35
         /// <summary>
@@ -115,7 +117,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task<Bitmap?> ToBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncContext.DoOperationAsync(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
         }
 #endif
 

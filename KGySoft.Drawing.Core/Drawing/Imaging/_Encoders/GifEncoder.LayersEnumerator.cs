@@ -21,6 +21,7 @@ using System.Drawing;
 using System.Linq;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Threading;
 
 #endregion
 
@@ -39,7 +40,8 @@ namespace KGySoft.Drawing.Imaging
                 public int MaxDegreeOfParallelism => asyncContext.MaxDegreeOfParallelism;
                 public bool IsCancellationRequested => asyncContext.IsCancellationRequested;
                 public bool CanBeCanceled => asyncContext.CanBeCanceled;
-                public IDrawingProgress? Progress => null;
+                public IAsyncProgress? Progress => null;
+                public object? State => asyncContext.State;
 
                 #endregion
 

@@ -18,6 +18,8 @@
 using System;
 using System.Drawing;
 
+using KGySoft.Threading;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging

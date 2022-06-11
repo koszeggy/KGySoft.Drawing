@@ -17,10 +17,14 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
 ! System.Drawing.Common package is no longer referenced (.NET Core/Standard 2.0 and above). To use APIs that depend
   on System.Drawing.Common (eg. Image, Bitmap, Icon, Metafile, etc.) reference the KGySoft.Drawing package.
 
-+ KGySoft.Drawing namespace
+! KGySoft.Drawing namespace
 ===========================
-+ The static AsyncContext class has been made public so consumer libraries can easily implement IAsyncResult or Task
-  returning methods that can be configured by an AsyncConfig or TaskConfig parameter.
+! The IDrawingProgress interface has been removed. It is replaced by KGySoft.Threading.IAsyncProgress from the
+  KGySoft.CoreLibraries assembly.
+! The DrawingProgress struct has been removed. It is replaced by KGySoft.Threading.AsyncProgress<T> from the
+  KGySoft.CoreLibraries assembly.
+! The AsyncConfigBase, AsyncConfig and TaskConfig classes and the IAsyncContext interface have been replaced by the
+  identically named types ones from the KGySoft.Threading namespace in the KGySoft.CoreLibraries assembly.
 
 ! KGySoft.Drawing.Imaging namespace
 ===================================

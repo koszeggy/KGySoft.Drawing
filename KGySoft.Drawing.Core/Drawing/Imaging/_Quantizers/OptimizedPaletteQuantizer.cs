@@ -19,6 +19,8 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
+using KGySoft.Threading;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -477,7 +479,7 @@ namespace KGySoft.Drawing.Imaging
 
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext? context)
         {
-            context ??= AsyncContext.Null;
+            context ??= AsyncHelper.DefaultContext;
             return algorithm switch
             {
                 Algorithm.Octree => new OptimizedPaletteQuantizerSession<OctreeQuantizer>(this, source, context),

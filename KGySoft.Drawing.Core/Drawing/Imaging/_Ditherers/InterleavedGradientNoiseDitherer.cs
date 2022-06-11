@@ -17,6 +17,8 @@
 
 using System;
 
+using KGySoft.Threading;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging

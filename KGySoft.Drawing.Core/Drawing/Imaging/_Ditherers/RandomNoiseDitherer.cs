@@ -18,6 +18,7 @@
 using System;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Threading;
 
 #endregion
 

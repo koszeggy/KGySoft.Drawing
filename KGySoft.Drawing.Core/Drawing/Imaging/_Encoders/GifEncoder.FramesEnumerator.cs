@@ -22,6 +22,7 @@ using System.Drawing;
 using System.IO;
 
 using KGySoft.CoreLibraries;
+using KGySoft.Threading;
 
 #endregion
 
@@ -37,49 +38,37 @@ namespace KGySoft.Drawing.Imaging
             {
                 #region Nested Classes
 
-                private sealed class SavingProgress : IDrawingProgress
+                private sealed class SavingProgress : IAsyncProgress
                 {
                     #region Fields
 
-                    private readonly IDrawingProgress progress;
+                    private readonly IAsyncProgress progress;
 
                     #endregion
 
                     #region Constructors
 
-                    public SavingProgress(IDrawingProgress progress) => this.progress = progress;
+                    public SavingProgress(IAsyncProgress progress) => this.progress = progress;
 
                     #endregion
 
                     #region Methods
 
-                    #region Public Methods
-
-                    public void Report(DrawingProgress value)
+                    public void Report<T>(AsyncProgress<T> value)
                     {
-                        if (value.OperationType == DrawingOperation.Saving)
+                        if (value.OperationType is DrawingOperation.Saving)
                             progress.Report(value);
                     }
 
-                    public void New(DrawingOperation operationType, int maximumValue = 0, int currentValue = 0)
+                    public void New<T>(T operationType, int maximumValue = 0, int currentValue = 0)
                     {
-                        if (operationType == DrawingOperation.Saving)
+                        if (operationType is DrawingOperation.Saving)
                             progress.New(operationType, maximumValue, currentValue);
                     }
 
                     public void Increment() { }
                     public void SetProgressValue(int value) { }
                     public void Complete() { }
-
-                    #endregion
-
-                    #region Explicitly Implemented Interface Methods
-
-#if !(NET35 || NET40)
-                    void IProgress<DrawingProgress>.Report(DrawingProgress value) => Report(value);
-#endif
-
-                    #endregion
 
                     #endregion
                 }
@@ -91,7 +80,8 @@ namespace KGySoft.Drawing.Imaging
                 public int MaxDegreeOfParallelism => asyncContext.MaxDegreeOfParallelism;
                 public bool IsCancellationRequested => asyncContext.IsCancellationRequested;
                 public bool CanBeCanceled => asyncContext.CanBeCanceled;
-                public IDrawingProgress? Progress { get; }
+                public IAsyncProgress? Progress { get; }
+                public object? State => asyncContext.State;
 
                 #endregion
 
@@ -676,7 +666,7 @@ namespace KGySoft.Drawing.Imaging
                 }
 
                 Debug.Assert(max >= currentIndex);
-                asyncContext.Progress!.Report(new DrawingProgress(DrawingOperation.Saving, max, currentIndex));
+                asyncContext.Progress!.Report(new AsyncProgress<DrawingOperation>(DrawingOperation.Saving, max, currentIndex));
             }
 
             #endregion

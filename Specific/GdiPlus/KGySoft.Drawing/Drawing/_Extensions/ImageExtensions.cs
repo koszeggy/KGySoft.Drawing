@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -33,6 +32,7 @@ using System.Threading.Tasks;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
+using KGySoft.Threading;
 
 #endregion
 
@@ -237,7 +237,7 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, palette, backColor, alphaThreshold)!;
+            return DoConvertPixelFormat(AsyncHelper.DefaultContext, image, newPixelFormat, palette, backColor, alphaThreshold)!;
         }
 
         /// <summary>
@@ -607,7 +607,7 @@ namespace KGySoft.Drawing
         public static Bitmap ConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return DoConvertPixelFormat(AsyncContext.Null, image, newPixelFormat, quantizer, ditherer)!;
+            return DoConvertPixelFormat(AsyncHelper.DefaultContext, image, newPixelFormat, quantizer, ditherer)!;
         }
 
         #endregion
@@ -643,7 +643,7 @@ namespace KGySoft.Drawing
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
         /// <summary>
@@ -695,7 +695,7 @@ namespace KGySoft.Drawing
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -705,7 +705,7 @@ namespace KGySoft.Drawing
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
         /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
-        public static Bitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncContext.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
+        public static Bitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
 
@@ -741,7 +741,7 @@ namespace KGySoft.Drawing
         public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, palette, backColor, alphaThreshold), asyncConfig);
         }
 
         /// <summary>
@@ -793,7 +793,7 @@ namespace KGySoft.Drawing
         public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(image, newPixelFormat);
-            return AsyncContext.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, image, newPixelFormat, quantizer, ditherer), asyncConfig);
         }
 
 #endif

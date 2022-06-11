@@ -27,6 +27,7 @@ using System.Linq;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
+using KGySoft.Threading;
 
 using NUnit.Framework;
 
@@ -89,18 +90,15 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         #region TestProgress class
 
-        private class TestProgress : IDrawingProgress
+        private class TestProgress : IAsyncProgress
         {
             #region Methods
             
-            void IDrawingProgress.Report(DrawingProgress progress) => Console.WriteLine($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.Report)}: {progress.OperationType} {progress.CurrentValue}/{progress.MaximumValue}");
-            void IDrawingProgress.New(DrawingOperation operationType, int maximumValue, int currentValue) => Console.Write($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.New)}: {operationType} {currentValue}/{maximumValue}");
-            void IDrawingProgress.Increment() => Console.Write('.');
-            void IDrawingProgress.SetProgressValue(int value) => Console.Write($"({value})");
-            void IDrawingProgress.Complete() => Console.WriteLine($"{nameof(IDrawingProgress)}.{nameof(IDrawingProgress.Complete)}");
-#if !(NET35 || NET40)
-            void IProgress<DrawingProgress>.Report(DrawingProgress value) => ((IDrawingProgress)this).Report(value); 
-#endif
+            void IAsyncProgress.Report<T>(AsyncProgress<T> progress) => Console.WriteLine($"{nameof(IAsyncProgress)}.{nameof(IAsyncProgress.Report)}: {progress.OperationType} {progress.CurrentValue}/{progress.MaximumValue}");
+            void IAsyncProgress.New<T>(T operationType, int maximumValue, int currentValue) => Console.Write($"{nameof(IAsyncProgress)}.{nameof(IAsyncProgress.New)}: {operationType} {currentValue}/{maximumValue}");
+            void IAsyncProgress.Increment() => Console.Write('.');
+            void IAsyncProgress.SetProgressValue(int value) => Console.Write($"({value})");
+            void IAsyncProgress.Complete() => Console.WriteLine($"{nameof(IAsyncProgress)}.{nameof(IAsyncProgress.Complete)}");
 
             #endregion
         }

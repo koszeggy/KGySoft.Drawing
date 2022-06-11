@@ -20,7 +20,14 @@
 
 ! KGySoft.Drawing namespace
 ===========================
-! Some types have been moved to KGySoft.Drawing.Core package (with unchanged namespace).
+! Some types have been moved to the KGySoft.Drawing.Core package (with unchanged namespace).
+! The IDrawingProgress interface has been removed. It is replaced by KGySoft.Threading.IAsyncProgress from the
+  KGySoft.CoreLibraries assembly.
+! The DrawingProgress struct has been removed. It is replaced by KGySoft.Threading.AsyncProgress<T> from the
+  KGySoft.CoreLibraries assembly.
+! The AsyncConfigBase, AsyncConfig and TaskConfig classes and the IAsyncContext interface have been replaced by the
+  identically named types ones from the KGySoft.Threading namespace in the KGySoft.CoreLibraries assembly.
+
 + PixelFormatExtensions:
   + New ToKnownPixelFormat(PixelFormat) and ToPixelFormat(KnownPixelFormat) methods
 

@@ -27,6 +27,7 @@ using System.Threading.Tasks;
 #endif
 
 using KGySoft.CoreLibraries;
+using KGySoft.Threading;
 
 #endregion
 
@@ -964,7 +965,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return DoLoadBitmapData(AsyncContext.Null, stream)!;
+            return DoLoadBitmapData(AsyncHelper.DefaultContext, stream)!;
         }
 
         /// <summary>
@@ -985,7 +986,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return AsyncContext.BeginOperation(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
         }
 
         /// <summary>
@@ -996,7 +997,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
         /// or <see langword="null"/>, if the operation was canceled and <see cref="AsyncConfigBase.ThrowIfCanceled"/> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static IReadWriteBitmapData? EndLoad(IAsyncResult asyncResult)
-            => AsyncContext.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginLoad));
+            => AsyncHelper.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginLoad));
 
 #if !NET35
         /// <summary>
@@ -1015,7 +1016,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (stream == null)
                 throw new ArgumentNullException(nameof(stream), PublicResources.ArgumentNull);
-            return AsyncContext.DoOperationAsync(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoLoadBitmapData(ctx, stream), asyncConfig);
         }
 #endif
 

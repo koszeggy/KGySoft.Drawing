@@ -29,6 +29,7 @@ using System.Threading.Tasks;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
+using KGySoft.Threading;
 
 using NUnit.Framework;
 

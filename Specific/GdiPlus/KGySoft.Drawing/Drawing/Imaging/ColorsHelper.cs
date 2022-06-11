@@ -110,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
                         lookupTable8To16Bpp = new ushort[256];
                         for (int i = 0; i < 256; i++)
                         {
-                            lookupTable8To16Bpp[i] = (ushort)&row[i]; // row[i].B
+                            lookupTable8To16Bpp[i] = *(ushort*)&row[i]; // row[i].B
                             isLinear = isLinear && lookupTable8To16Bpp[i] == ((i << 8) | i);
                         }
 

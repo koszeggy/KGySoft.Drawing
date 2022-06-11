@@ -26,6 +26,7 @@ using System.Threading;
 #if NET35 || NET40
 using KGySoft.Collections; 
 #endif
+using KGySoft.Threading;
 
 #endregion
 

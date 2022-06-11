@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.Collections;
+using KGySoft.Threading;
 
 #endregion
 

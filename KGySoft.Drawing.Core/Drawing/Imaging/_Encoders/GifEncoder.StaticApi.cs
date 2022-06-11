@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 #endif
 
 using KGySoft.CoreLibraries;
+using KGySoft.Threading;
 
 #endregion
 
@@ -78,7 +79,7 @@ namespace KGySoft.Drawing.Imaging
         public static void EncodeImage(IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             ValidateArguments(imageData, stream);
-            DoEncodeImage(AsyncContext.Null, imageData, stream, quantizer, ditherer);
+            DoEncodeImage(AsyncHelper.DefaultContext, imageData, stream, quantizer, ditherer);
         }
 
         /// <summary>
@@ -109,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginEncodeImage(IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.BeginOperation(ctx => DoEncodeImage(ctx, imageData, stream, quantizer, ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoEncodeImage(ctx, imageData, stream, quantizer, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -117,7 +118,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="EncodeImageAsync">EncodeImageAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndEncodeImage(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeImage));
+        public static void EndEncodeImage(IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginEncodeImage));
 
 #if !NET35
         /// <summary>
@@ -146,7 +147,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task EncodeImageAsync(IReadableBitmapData imageData, Stream stream, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.DoOperationAsync(ctx => DoEncodeImage(ctx, imageData, stream, quantizer, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoEncodeImage(ctx, imageData, stream, quantizer, ditherer), asyncConfig);
         }
 #endif
 
@@ -172,7 +173,7 @@ namespace KGySoft.Drawing.Imaging
         public static void EncodeAnimation(AnimatedGifConfiguration configuration, Stream stream)
         {
             ValidateArguments(configuration, stream);
-            DoEncodeAnimation(AsyncContext.Null, configuration, stream);
+            DoEncodeAnimation(AsyncHelper.DefaultContext, configuration, stream);
         }
 
         /// <summary>
@@ -195,7 +196,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginEncodeAnimation(AnimatedGifConfiguration configuration, Stream stream, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(configuration, stream);
-            return AsyncContext.BeginOperation(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
         }
 
         /// <summary>
@@ -203,7 +204,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="EncodeAnimationAsync">EncodeAnimationAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndEncodeAnimation(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeAnimation));
+        public static void EndEncodeAnimation(IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginEncodeAnimation));
 
 #if !NET35
         /// <summary>
@@ -224,7 +225,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task EncodeAnimationAsync(AnimatedGifConfiguration configuration, Stream stream, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(configuration, stream);
-            return AsyncContext.DoOperationAsync(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoEncodeAnimation(ctx, configuration, stream), asyncConfig);
         }
 #endif
 
@@ -269,7 +270,7 @@ namespace KGySoft.Drawing.Imaging
         public static void EncodeHighColorImage(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(imageData, stream);
-            DoEncodeHighColorImage(AsyncContext.Null, imageData, stream, backColor, alphaThreshold, allowFullScan);
+            DoEncodeHighColorImage(AsyncHelper.DefaultContext, imageData, stream, backColor, alphaThreshold, allowFullScan);
         }
 
         /// <summary>
@@ -302,7 +303,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginEncodeHighColorImage(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.BeginOperation(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
         }
 
         /// <summary>
@@ -310,7 +311,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="EncodeHighColorImageAsync">EncodeHighColorImageAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndEncodeHighColorImage(IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginEncodeHighColorImage));
+        public static void EndEncodeHighColorImage(IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginEncodeHighColorImage));
 
 #if !NET35
         /// <summary>
@@ -341,7 +342,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task EncodeHighColorImageAsync(IReadableBitmapData imageData, Stream stream, bool allowFullScan = false, Color32 backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(imageData, stream);
-            return AsyncContext.DoOperationAsync(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoEncodeHighColorImage(ctx, imageData, stream, backColor, alphaThreshold, allowFullScan), asyncConfig);
         }
 #endif
 

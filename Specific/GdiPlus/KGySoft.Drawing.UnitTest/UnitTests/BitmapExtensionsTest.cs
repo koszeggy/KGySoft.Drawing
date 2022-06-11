@@ -473,17 +473,21 @@ namespace KGySoft.Drawing.UnitTests
             Console.WriteLine("};");
         }
 
+        [TestCase(PixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format4bppIndexed, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format8bppIndexed, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format16bppRgb555, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format16bppRgb565, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format24bppRgb, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format32bppRgb, 0xFF0000FF)]
         [TestCase(PixelFormat.Format32bppArgb, 0xFF0000FF)]
         [TestCase(PixelFormat.Format32bppArgb, 0x800000FF)]
-        [TestCase(PixelFormat.Format32bppRgb, 0xFF0000FF)]
         [TestCase(PixelFormat.Format32bppRgb, 0x800000FF)]
         [TestCase(PixelFormat.Format32bppPArgb, 0xFF0000FF)]
         [TestCase(PixelFormat.Format32bppPArgb, 0x800000FF)]
-        [TestCase(PixelFormat.Format16bppRgb555, 0xFF0000FF)]
+        [TestCase(PixelFormat.Format48bppRgb, 0xFF0000FF)]
         [TestCase(PixelFormat.Format64bppArgb, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format8bppIndexed, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format4bppIndexed, 0xFF0000FF)]
-        [TestCase(PixelFormat.Format1bppIndexed, 0xFFFFFFFF)]
+        [TestCase(PixelFormat.Format64bppPArgb, 0xFF0000FF)]
         public void ClearTestNative(PixelFormat pixelFormat, uint argb)
         {
             // note: managed is tested by BitmapDataExtensionsTest

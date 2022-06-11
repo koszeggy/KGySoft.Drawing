@@ -25,6 +25,7 @@ using System.Threading.Tasks;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
+using KGySoft.Threading;
 
 #endregion
 
@@ -135,7 +136,7 @@ namespace KGySoft.Drawing.Imaging
         /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmapData"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
-        public static void Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer) => bitmapData.Quantize(AsyncContext.Null, quantizer);
+        public static void Quantize(this IReadWriteBitmapData bitmapData, IQuantizer quantizer) => bitmapData.Quantize(AsyncHelper.DefaultContext, quantizer);
 
         public static void Quantize(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer)
         {
@@ -144,7 +145,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            DoQuantize(context ?? AsyncContext.Null, bitmapData, quantizer);
+            DoQuantize(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer);
         }
 
         /// <summary>
@@ -175,7 +176,7 @@ namespace KGySoft.Drawing.Imaging
         /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
         /// </list></note>
         /// </remarks>
-        public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer) => bitmapData.Dither(AsyncContext.Null, quantizer, ditherer);
+        public static void Dither(this IReadWriteBitmapData bitmapData, IQuantizer quantizer, IDitherer ditherer) => bitmapData.Dither(AsyncHelper.DefaultContext, quantizer, ditherer);
 
         public static void Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
         {
@@ -186,7 +187,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer == null)
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
-            DoDither(context ?? AsyncContext.Null, bitmapData, quantizer, ditherer);
+            DoDither(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer, ditherer);
         }
 
         /// <summary>
@@ -212,7 +213,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            return AsyncContext.BeginOperation(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
 
         /// <summary>
@@ -221,7 +222,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <exception cref="InvalidOperationException">The quantizer's <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
-        public static void EndQuantize(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginQuantize));
+        public static void EndQuantize(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginQuantize));
 
         /// <summary>
         /// Begins to quantize an <see cref="IReadWriteBitmapData"/> with dithering asynchronously (reduces the number of colors while trying to preserve details)
@@ -248,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            return AsyncContext.BeginOperation(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -258,7 +259,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
-        public static void EndDither(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginDither));
+        public static void EndDither(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginDither));
 
 #if !NET35
         /// <summary>
@@ -283,7 +284,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            return AsyncContext.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoQuantize(ctx, bitmapData, quantizer), asyncConfig);
         }
 
         /// <summary>
@@ -311,7 +312,7 @@ namespace KGySoft.Drawing.Imaging
             if (quantizer == null)
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
-            return AsyncContext.DoOperationAsync(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoDither(ctx, bitmapData, quantizer, ditherer), asyncConfig);
         }
 #endif
 
@@ -340,7 +341,7 @@ namespace KGySoft.Drawing.Imaging
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction)
         {
             ValidateArguments(bitmapData, transformFunction);
-            DoTransformColors(AsyncContext.Null, bitmapData, transformFunction);
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, transformFunction);
         }
 
         /// <summary>
@@ -367,15 +368,15 @@ namespace KGySoft.Drawing.Imaging
         /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_TransformColors.htm" target="_blank">BitmapExtensions.TransformColors</a> method for an example.</note>
         /// </remarks>
         public static void TransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
-            => bitmapData.TransformColors(AsyncContext.Null, transformFunction, ditherer);
+            => bitmapData.TransformColors(AsyncHelper.DefaultContext, transformFunction, ditherer);
 
         // TODO docs: The call is blocking on the caller thread but as it has a context parameter it makes possible to pass around an already created context from an async call.
         // Alternatively, it allows cancellation, configuring degree of parallelization and reporting progress even for a sync caller.
-        // See the AsyncContext example for more details
+        // See the AsyncHelper example for more details
         public static void TransformColors(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
             ValidateArguments(bitmapData, transformFunction);
-            DoTransformColors(context ?? AsyncContext.Null, bitmapData, transformFunction, ditherer);
+            DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, transformFunction, ditherer);
         }
 
         /// <summary>
@@ -400,7 +401,7 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginTransformColors(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, transformFunction);
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -408,7 +409,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="TransformColorsAsync">TransformColorsAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndTransformColors(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginTransformColors));
+        public static void EndTransformColors(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginTransformColors));
 
 #if !NET35
         /// <summary>
@@ -431,7 +432,7 @@ namespace KGySoft.Drawing.Imaging
         public static Task TransformColorsAsync(this IReadWriteBitmapData bitmapData, Func<Color32, Color32> transformFunction, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmapData, transformFunction);
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, transformFunction, ditherer), asyncConfig);
         }
 #endif
 
@@ -468,7 +469,7 @@ namespace KGySoft.Drawing.Imaging
             if (oldColor == newColor)
                 return;
 
-            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer);
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer);
         }
 
         /// <summary>
@@ -495,9 +496,9 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (oldColor == newColor)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -505,7 +506,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="ReplaceColorAsync">ReplaceColorAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndReplaceColor(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginReplaceColor));
+        public static void EndReplaceColor(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginReplaceColor));
 
 #if !NET35
         /// <summary>
@@ -530,9 +531,9 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (oldColor == newColor)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, oldColor, newColor), ditherer), asyncConfig);
         }
 #endif
 
@@ -563,7 +564,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            DoTransformColors(AsyncContext.Null, bitmapData, TransformInvert, ditherer);
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, TransformInvert, ditherer);
         }
 
         /// <summary>
@@ -587,7 +588,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -595,7 +596,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="InvertAsync">InvertAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndInvert(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginInvert));
+        public static void EndInvert(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginInvert));
 
 #if !NET35
         /// <summary>
@@ -617,7 +618,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, TransformInvert, ditherer), asyncConfig);
         }
 #endif
 
@@ -658,7 +659,7 @@ namespace KGySoft.Drawing.Imaging
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
                 return;
-            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, transparentColor, default));
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformReplaceColor(c, transparentColor, default));
         }
 
         /// <summary>
@@ -690,7 +691,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (transparentColor.A == 0)
                 return;
-            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformReplaceColor(c, transparentColor, default));
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformReplaceColor(c, transparentColor, default));
         }
 
         /// <summary>
@@ -716,11 +717,11 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
-                return AsyncContext.FromCompleted(asyncConfig);
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
         /// <summary>
@@ -747,8 +748,8 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (transparentColor.A == 0)
-                return AsyncContext.FromCompleted(asyncConfig);
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
         /// <summary>
@@ -756,7 +757,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.MakeTransparentAsync">MakeTransparentAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeTransparent(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeTransparent));
+        public static void EndMakeTransparent(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginMakeTransparent));
 
 #if !NET35
         /// <summary>
@@ -780,11 +781,11 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (bitmapData.Width < 1 || bitmapData.Height < 1)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
-                return AsyncContext.FromCompleted(asyncConfig);
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 
         /// <summary>
@@ -809,8 +810,8 @@ namespace KGySoft.Drawing.Imaging
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (transparentColor.A == 0)
-                return AsyncContext.FromCompleted(asyncConfig);
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformReplaceColor(c, transparentColor, default)), asyncConfig);
         }
 #endif
 
@@ -845,7 +846,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
             if (!bitmapData.HasAlpha())
                 return;
-            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer);
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer);
         }
 
         /// <summary>
@@ -871,7 +872,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -879,7 +880,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="MakeOpaqueAsync">MakeOpaqueAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeOpaque(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeOpaque));
+        public static void EndMakeOpaque(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginMakeOpaque));
 
 #if !NET35
         /// <summary>
@@ -903,7 +904,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformMakeOpaque(c, backColor), ditherer), asyncConfig);
         }
 #endif
 
@@ -939,7 +940,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            DoTransformColors(AsyncContext.Null, bitmapData, TransformMakeGrayscale, ditherer);
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, TransformMakeGrayscale, ditherer);
         }
 
         /// <summary>
@@ -964,7 +965,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -972,7 +973,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="MakeGrayscaleAsync">MakeGrayscaleAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndMakeGrayscale(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
+        public static void EndMakeGrayscale(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginMakeGrayscale));
 
 #if !NET35
         /// <summary>
@@ -995,7 +996,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, TransformMakeGrayscale, ditherer), asyncConfig);
         }
 #endif
 
@@ -1047,10 +1048,10 @@ namespace KGySoft.Drawing.Imaging
             if (brightness < 0f)
             {
                 brightness += 1f;
-                DoTransformColors(AsyncContext.Null, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer);
+                DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer);
             }
             else
-                DoTransformColors(AsyncContext.Null, bitmapData, c => TransformLighten(c, brightness, channels), ditherer);
+                DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformLighten(c, brightness, channels), ditherer);
         }
 
         /// <summary>
@@ -1089,13 +1090,13 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
             if (brightness >= 0f)
-                return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
+                return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
             
             brightness += 1f;
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -1103,7 +1104,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustBrightnessAsync">AdjustBrightnessAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustBrightness(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
+        public static void EndAdjustBrightness(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginAdjustBrightness));
 
 #if !NET35
         /// <summary>
@@ -1140,13 +1141,13 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || brightness == 0f)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
             if (brightness >= 0f)
-                return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
+                return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c => TransformLighten(c, brightness, channels), ditherer), asyncConfig);
 
             brightness += 1f;
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformDarken(c1, brightness, channels), ditherer), asyncConfig);
         }
 #endif
 
@@ -1198,7 +1199,7 @@ namespace KGySoft.Drawing.Imaging
             contrast += 1f;
             contrast *= contrast;
 
-            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformContrast(c, contrast, channels), ditherer);
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformContrast(c, contrast, channels), ditherer);
         }
 
         /// <summary>
@@ -1237,12 +1238,12 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
             contrast += 1f;
             contrast *= contrast;
 
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -1250,7 +1251,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustContrastAsync">AdjustContrastAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustContrast(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustContrast));
+        public static void EndAdjustContrast(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginAdjustContrast));
 
 #if !NET35
         /// <summary>
@@ -1287,12 +1288,12 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || contrast == 0f)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
             contrast += 1f;
             contrast *= contrast;
 
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformContrast(c1, contrast, channels), ditherer), asyncConfig);
         }
 #endif
 
@@ -1342,7 +1343,7 @@ namespace KGySoft.Drawing.Imaging
                 return;
 
             byte[] table = GammaLookupTableCache[gamma];
-            DoTransformColors(AsyncContext.Null, bitmapData, c => TransformGamma(c, channels, table), ditherer);
+            DoTransformColors(AsyncHelper.DefaultContext, bitmapData, c => TransformGamma(c, channels, table), ditherer);
         }
 
         /// <summary>
@@ -1381,9 +1382,9 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
-            return AsyncContext.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -1391,7 +1392,7 @@ namespace KGySoft.Drawing.Imaging
         /// In .NET Framework 4.0 and above you can use the <see cref="AdjustGammaAsync">AdjustGammaAsync</see> method instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
-        public static void EndAdjustGamma(this IAsyncResult asyncResult) => AsyncContext.EndOperation(asyncResult, nameof(BeginAdjustGamma));
+        public static void EndAdjustGamma(this IAsyncResult asyncResult) => AsyncHelper.EndOperation(asyncResult, nameof(BeginAdjustGamma));
 
 #if !NET35
         /// <summary>
@@ -1428,9 +1429,9 @@ namespace KGySoft.Drawing.Imaging
 
             // ReSharper disable once CompareOfFloatsByEqualityOperator - zero has a precise float representation
             if (channels == ColorChannels.None || gamma == 1f)
-                return AsyncContext.FromCompleted(asyncConfig);
+                return AsyncHelper.FromCompleted(asyncConfig);
 
-            return AsyncContext.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoTransformColors(ctx, bitmapData, c1 => TransformGamma(c1, channels, GammaLookupTableCache[gamma]), ditherer), asyncConfig);
         }
 #endif
 

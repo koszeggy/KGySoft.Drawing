@@ -15,6 +15,8 @@
 
 #region Usings
 
+using KGySoft.Threading;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging

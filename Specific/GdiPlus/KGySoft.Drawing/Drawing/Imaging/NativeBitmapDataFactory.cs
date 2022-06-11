@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 #if NET7_0_OR_GREATER
 using System.Runtime.Versioning;
 #endif
@@ -73,7 +74,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
-                    Debug.Assert(palette == null || palette.Equals(bitmap.Palette.Entries), "Non-null palette entries must match actual palette. Expected to be passed to re-use its cache only.");
+                    Debug.Assert(palette == null || palette.GetEntries().SequenceEqual(bitmap.Palette.Entries.Select(c => new Color32(c))), "Non-null palette entries must match actual palette. Expected to be passed to re-use its cache only.");
                     palette ??= new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, palette, bitmap.TrySetPalette, dispose);
 
