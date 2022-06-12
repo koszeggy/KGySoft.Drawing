@@ -298,7 +298,7 @@ namespace KGySoft.Drawing.Imaging
         /// Initializes a new instance of the <see cref="PixelFormatInfo"/> struct.
         /// </summary>
         /// <param name="pixelFormat">A known pixel format to initialize a <see cref="PixelFormatInfo"/> from.</param>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> must be one of the supported formats.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> must be a valid format.</exception>
         public PixelFormatInfo(KnownPixelFormat pixelFormat) : this((uint)pixelFormat)
         {
             if (pixelFormat == KnownPixelFormat.Undefined || !pixelFormat.IsDefined())

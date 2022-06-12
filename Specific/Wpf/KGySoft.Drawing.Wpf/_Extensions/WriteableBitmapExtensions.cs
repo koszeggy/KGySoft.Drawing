@@ -18,6 +18,7 @@
 #region Used Namespaces
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Windows;
 using System.Windows.Media;
@@ -44,8 +45,8 @@ namespace KGySoft.Drawing.Wpf
     {
         #region Fields
 
-        private static Color32 black = Color32.FromGray(Byte.MinValue);
-        private static Color32 white = Color32.FromGray(Byte.MaxValue);
+        private static readonly Color32 black = Color32.FromGray(Byte.MinValue);
+        private static readonly Color32 white = Color32.FromGray(Byte.MaxValue);
 
         #endregion
 
@@ -54,8 +55,19 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Gets a managed read-write accessor for a <see cref="WriteableBitmap"/> instance.
         /// </summary>
-        /// <param name="bitmap">The bitmap to get the managed accessor.</param>
-        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that provides managed access to the specified <see cref="bitmap"/>.</returns>
+        /// <param name="bitmap">A <see cref="WriteableBitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
+        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="Color"/>, which has the same RGB values as <see cref="Colors.Black"/>.</param>
+        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the pixels to be set will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "Long but very straightforward cases for the possible pixel formats.")]
+        [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
         public static IReadWriteBitmapData GetReadWriteBitmapData(this WriteableBitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
             #region Local Methods

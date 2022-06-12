@@ -29,6 +29,7 @@ using System.Security;
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.WinApi;
+using KGySoft.Threading;
 
 #endregion
 

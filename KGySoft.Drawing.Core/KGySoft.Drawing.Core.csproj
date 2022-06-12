@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--<TargetFrameworks>net35;net40;net45;net46;netcoreapp2.0;netcoreapp3.0;netstandard2.0;netstandard2.1</TargetFrameworks>-->
-    <TargetFrameworks>net45;net6.0</TargetFrameworks>
+    <TargetFrameworks>net40;net45;net6.0</TargetFrameworks>
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -35,10 +35,10 @@
 
   <ItemGroup>
     <PackageReference Include="KGySoft.CoreLibraries" Version="7.0.0-preview.2" />
-    <!--<PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
-    </PackageReference>-->
+    </PackageReference>
   </ItemGroup>
 
   <ItemGroup>

@@ -50,13 +50,11 @@ namespace KGySoft.Drawing
         #region Public Methods
 
         /// <summary>
-        /// Gets the bits per pixel (BPP) value of a <see cref="PixelFormat"/> value.
+        /// Gets the bits per pixel (BPP) value of a <see cref="PixelFormat"/> value without checking
+        /// whether <paramref name="pixelFormat"/> represents a valid value.
         /// </summary>
         /// <param name="pixelFormat">The pixel format to convert.</param>
         /// <returns>The bits per pixel (BPP) value of a <see cref="PixelFormat"/> value.</returns>
-        /// <remarks>
-        /// <note>This method does not check whether the specified <paramref name="pixelFormat"/> represents a valid value.</note>
-        /// </remarks>
         public static int ToBitsPerPixel(this PixelFormat pixelFormat) => ((int)pixelFormat >> 8) & 0xFF;
 
         /// <summary>
@@ -114,7 +112,13 @@ namespace KGySoft.Drawing
             }
         }
 
-        // TODO: Note: Same enum names do not necessarily mean the same exact pixel layout, eg. 64bpp on Windows
+        /// <summary>
+        /// Converts a <see cref="KnownPixelFormat"/> to the closest <see cref="PixelFormat"/>. Please note that some formats with identical names may represent different actual pixel layout.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ImageExtensions.ConvertPixelFormat</see>
+        /// method for details about the differences on Windows and Unix platforms.
+        /// </summary>
+        /// <param name="pixelFormat">The source <see cref="KnownPixelFormat"/> to convert to a <see cref="PixelFormat"/>.</param>
+        /// <returns>A <see cref="PixelFormat"/> instance. It will be <see cref="PixelFormat.Undefined"/> if the source <paramref name="pixelFormat"/> cannot be mapped.</returns>
         public static PixelFormat ToPixelFormat(this KnownPixelFormat pixelFormat)
         {
             if (pixelFormat == KnownPixelFormat.Undefined || !pixelFormat.IsDefined())
@@ -124,6 +128,13 @@ namespace KGySoft.Drawing
             return (PixelFormat)((int)pixelFormat & 0xFFFFFF); // direct mapping: just clearing 24..31 bits
         }
 
+        /// <summary>
+        /// Converts a <see cref="PixelFormat"/> to the closest <see cref="KnownPixelFormat"/>. Please note that some formats with identical names may represent different actual pixel layout.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ImageExtensions.ConvertPixelFormat</see>
+        /// method for details about the differences on Windows and Unix platforms.
+        /// </summary>
+        /// <param name="pixelFormat">The source <see cref="PixelFormat"/> to convert to a <see cref="KnownPixelFormat"/>.</param>
+        /// <returns>A <see cref="KnownPixelFormat"/> instance. It will be <see cref="KnownPixelFormat.Undefined"/> if the source <paramref name="pixelFormat"/> cannot be mapped.</returns>
         public static KnownPixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat)
             => !pixelFormat.IsValidFormat() ? KnownPixelFormat.Undefined : pixelFormat.ToKnownPixelFormatInternal();
 
@@ -131,14 +142,6 @@ namespace KGySoft.Drawing
 
         #region Internal Methods
 
-        /// <summary>
-        /// Gets whether this <see cref="PixelFormat"/> instance represents an indexed format.
-        /// </summary>
-        /// <param name="pixelFormat">The pixel format to be checked.</param>
-        /// <returns><see langword="true"/>, if this <see cref="PixelFormat"/> instance represents an indexed format; otherwise, <see langword="false"/>.</returns>
-        /// <remarks>
-        /// <note>This method does not check whether the specified <paramref name="pixelFormat"/> represents a valid value.</note>
-        /// </remarks>
         internal static bool IsIndexed(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
             => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;

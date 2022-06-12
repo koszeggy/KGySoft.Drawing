@@ -103,9 +103,28 @@ namespace KGySoft.Drawing.Imaging
         public static void Clear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null)
             => bitmapData.Clear(AsyncHelper.DefaultContext, color, ditherer);
 
-        // TODO docs: The call is blocking on the caller thread but as it has a context parameter it makes possible to pass around an already created context from an async call.
-        // Alternatively, it allows cancellation, configuring degree of parallelization and reporting progress even for a sync caller.
-        // See the AsyncHelper example for more details
+        /// <summary>
+        /// Clears the content of the specified <paramref name="bitmapData"/> and fills it with the specified <paramref name="color"/>
+        /// inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="bitmapData">The <see cref="IWritableBitmapData"/> to be cleared.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncContext.htm" target="_blank">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="color">A <see cref="Color32"/> that represents the desired result color of the <paramref name="bitmapData"/>.
+        /// If it has transparency, which is not supported by <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/>, then the result might be either
+        /// completely transparent (depends also on <see cref="IBitmapData.AlphaThreshold"/>), or the color will be blended with <see cref="IBitmapData.BackColor"/>.
+        /// </param>
+        /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_AsyncHelper.htm" target="_blank">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// </remarks>
         public static void Clear(this IWritableBitmapData bitmapData, IAsyncContext? context, Color32 color, IDitherer? ditherer = null)
         {
             ValidateArguments(bitmapData);
@@ -123,13 +142,16 @@ namespace KGySoft.Drawing.Imaging
         /// </param>
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ClearAsync">ClearAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndClear">EndClear</see> method.</para>
-        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         public static IAsyncResult BeginClear(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
@@ -155,11 +177,14 @@ namespace KGySoft.Drawing.Imaging
         /// </param>
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
-        /// <para>This method is not a blocking call even if the <see cref="AsyncConfigBase.MaxDegreeOfParallelism"/> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         public static Task ClearAsync(this IWritableBitmapData bitmapData, Color32 color, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
@@ -234,7 +259,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
-            Justification = "False alarm, the new analyzer includes the complexity of local methods")]
+            Justification = "False alarm, the new analyzer includes the complexity of local methods")] 
         private static void ClearDirect(IAsyncContext context, IBitmapDataInternal bitmapData, Color32 color)
         {
             #region Local Methods to Reduce Complexity

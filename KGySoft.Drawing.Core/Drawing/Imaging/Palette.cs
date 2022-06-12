@@ -222,7 +222,14 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         public byte AlphaThreshold { get; }
 
+        /// <summary>
+        /// Gets whether the palette consists only of grayscale entries.
+        /// </summary>
         public bool IsGrayscale { get; }
+
+        /// <summary>
+        /// Gets whether the palette contains at least one entry that is not fully opaque.
+        /// </summary>
         public bool HasAlpha { get; }
 
         #endregion

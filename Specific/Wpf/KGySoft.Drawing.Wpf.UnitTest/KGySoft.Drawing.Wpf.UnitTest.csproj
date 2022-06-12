@@ -4,8 +4,6 @@
     <!--<TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>-->
     <TargetFrameworks>net6.0-windows</TargetFrameworks>
 
-    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows> 
-
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <RootNamespace>KGySoft.Drawing</RootNamespace>
@@ -21,15 +19,6 @@
     <!--Suppression NETSDK1138: The target framework 'netcoreapp3.0' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
     <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
   </PropertyGroup>
-
-  <PropertyGroup Condition="'$(IsWindows)'=='true'">
-    <DefineConstants>WINDOWS</DefineConstants>
-  </PropertyGroup>
-
-  <ItemGroup>
-    <Reference Include="WindowsBase" />
-    <Reference Include="PresentationCore" />
-  </ItemGroup>
 
   <!-- Common NuGet references -->
   <ItemGroup>

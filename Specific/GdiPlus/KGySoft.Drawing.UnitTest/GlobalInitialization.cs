@@ -30,6 +30,10 @@ namespace KGySoft.Drawing
         [OneTimeSetUp]
         public void Initialize()
         {
+#if NET7_0_OR_GREATER && !WINDOWS
+            Assert.Inconclusive("When targeting .NET 7 or later, executing the tests require Windows. For Unix systems target .NET 6 or earlier.");
+#endif
+
             // To make sure that System.Drawing types can be used also on Unix systems
             DrawingModule.Initialize();
         }

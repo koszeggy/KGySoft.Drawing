@@ -28,6 +28,8 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
 
 ! KGySoft.Drawing.Imaging namespace
 ===================================
+! Every method with a System.Drawing.Imaging.PixelFormat enum parameter have been changed to use the
+  KGySoft.Drawing.Imaging.KnownPixelFormat enum type instead. The field names of both enums are the same.
 ! IBitmapData interface:
   ! The type of the PixelFormat property from now on returns a PixelFormatInfo struct rather than an enum value of
     the System.Drawing.Imaging.PixelFormat type. It now supports custom formats better and you still can convert it
@@ -41,7 +43,6 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   but some of them have different underlying values. Use the ToPixelFormat extension from KGySoft.Drawing to convert
   it to a System.Drawing.Imaging.PixelFormat.
 + New KnownPixelFormatExtensions class
-! All System.Drawing.Imaging.PixelFormat parameters have been replaced to KGySoft.Drawing.Imaging.KnownPixelFormat.
 + Palette class:
   + New public constructor to create a new Palette from an existing one with different back color and alpha
     threshold values.

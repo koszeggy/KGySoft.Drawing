@@ -41,7 +41,7 @@ namespace KGySoft.Drawing.UnitTests
         private static Color testColorAlpha = Color.FromArgb(0x80, 0x80, 0xFF, 0x40);
         private static Color testColorBlended = Color.FromArgb(0xFF, 0x40, 0x80, 0x20);
 
-        private static object[][] setGetPixelTestSource =
+        private static readonly object[][] setGetPixelTestSource =
         {
             new object[] { "BGRA32", PixelFormats.Bgra32, testColor, testColor, 0xFF_80_FF_40 },
             new object[] { "BGRA32 Alpha", PixelFormats.Bgra32, testColorAlpha, testColorAlpha, 0x80_80_FF_40 },
@@ -146,7 +146,7 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "CMYK32 Transparent", PixelFormats.Cmyk32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
         };
 
-        private static object[] wpfBehaviorTestSource =
+        private static readonly object[] wpfBehaviorTestSource =
         {
             PixelFormats.Default,
             PixelFormats.Indexed1,
@@ -279,7 +279,8 @@ namespace KGySoft.Drawing.UnitTests
                 Console.WriteLine();
             }
 
-            return;
+            if (!SaveToFile)
+                return;
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(converted));
             var stream = new MemoryStream();

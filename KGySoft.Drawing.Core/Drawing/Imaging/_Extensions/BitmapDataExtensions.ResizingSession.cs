@@ -38,6 +38,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region ResizingSessionNearestNeighbor class
 
+        [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
+            Justification = "False alarm, Rectangle fields should not be read-only to prevent creating defensive copies.")]
         private sealed class ResizingSessionNearestNeighbor
         {
             #region Fields

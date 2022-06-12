@@ -103,30 +103,18 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 return GetRawValueNative(pixelFormat.ToBitsPerPixel(), (IntPtr)ptr);
         }
 
-        private static unsafe long GetRawValueNative(int bpp, IntPtr ptr)
+        private static unsafe long GetRawValueNative(int bpp, IntPtr ptr) => bpp switch
         {
-            switch (bpp)
-            {
-                case 64:
-                    return *(long*)ptr;
-                case 48:
-                    return *(uint*)ptr | ((long)(((ushort*)ptr)[2]) << 32);
-                case 32:
-                    return *(uint*)ptr;
-                case 24:
-                    return *(ushort*)ptr | (long)(((byte*)ptr)[2] << 16);
-                case 16:
-                    return *(ushort*)ptr;
-                case 8:
-                    return *(byte*)ptr;
-                case 4:
-                    return *(byte*)ptr >> 4;
-                case 1:
-                    return *(byte*)ptr >> 7;
-                default:
-                    throw new InvalidOperationException($"Unexpected pixel size: {bpp}bpp");
-            }
-        }
+            64 => *(long*)ptr,
+            48 => *(uint*)ptr | ((long)(((ushort*)ptr)[2]) << 32),
+            32 => *(uint*)ptr,
+            24 => *(ushort*)ptr | (long)(((byte*)ptr)[2] << 16),
+            16 => *(ushort*)ptr,
+            8 => *(byte*)ptr,
+            4 => *(byte*)ptr >> 4,
+            1 => *(byte*)ptr >> 7,
+            _ => throw new InvalidOperationException($"Unexpected pixel size: {bpp}bpp")
+        };
 
         #endregion
 
