@@ -267,6 +267,9 @@ namespace KGySoft.Drawing
         /// <para>The support of <see cref="Bitmap"/>s with different <see cref="PixelFormat"/>s may vary from platform to platform.
         /// Though the types in KGySoft Drawing Libraries support every <see cref="PixelFormat"/> the standard <c>System.Drawing</c> libraries has some restrictions.
         /// The following table summarizes the levels of support for Windows and Linux/Unix systems (applicable both for Mono and .NET Core if <a href="https://www.mono-project.com/docs/gui/libgdiplus/" target="_blank">libgdiplus</a> is installed).</para>
+        /// <note>When targeting .NET 7 or later <c>System.Drawing</c> types backed by GDI+ components (types defined in the <a href="https://www.nuget.org/packages/System.Drawing.Common" target="_blank">System.Drawing.Common</a> package)
+        /// are no longer supported on Linux/Unix systems.
+        /// <br/>When targeting .NET 5 or 6 see also the <strong>Remarks</strong> section of the <see cref="DrawingModule.Initialize">DrawingModule.Initialize</see> method.</note>
         /// <list type="table">
         /// <listheader><term>Pixel Format</term><term>Windows Support</term><term>Linux Support</term></listheader>
         /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term>

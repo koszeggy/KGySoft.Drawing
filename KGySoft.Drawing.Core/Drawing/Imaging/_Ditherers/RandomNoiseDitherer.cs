@@ -150,14 +150,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the <see cref="RandomNoiseDitherer"/> class.
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredRandomNoise(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredRandomNoise(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = new RandomNoiseDitherer();
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>

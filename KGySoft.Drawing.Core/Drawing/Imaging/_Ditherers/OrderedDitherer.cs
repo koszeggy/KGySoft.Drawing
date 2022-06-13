@@ -189,14 +189,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredBayer2x2(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredBayer2x2(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = OrderedDitherer.Bayer2x2;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -238,14 +238,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredBayer3x3(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredBayer3x3(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = OrderedDitherer.Bayer3x3;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -288,14 +288,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredBayer4x4(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredBayer4x4(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = OrderedDitherer.Bayer4x4;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -339,14 +339,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredBayer8x8(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredBayer8x8(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = OrderedDitherer.Bayer8x8;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -416,14 +416,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredDottedHalftone(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredDottedHalftone(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = OrderedDitherer.DottedHalftone;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -476,14 +476,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredBlueNoise(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredBlueNoise(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = OrderedDitherer.BlueNoise;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -615,7 +615,7 @@ namespace KGySoft.Drawing.Imaging
         /// It produces a similar dotted halftone pattern to the result of the <see cref="DottedHalftone"/> property but in a rectangular
         /// arrangement and with less different patterns:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToCustomDithered(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToCustomDithered(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     // Using a dotted halftone pattern. As it uses only 11 values in a 7x7 matrix it is much less optimal
         ///     // than the DottedHalftone property but demonstrates the behavior of the ordered dithering quite well.
@@ -632,10 +632,10 @@ namespace KGySoft.Drawing.Imaging
         ///
         ///     IDitherer ditherer = new OrderedDitherer(matrix);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>

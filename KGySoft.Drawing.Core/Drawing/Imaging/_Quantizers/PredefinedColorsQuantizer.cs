@@ -336,19 +336,19 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToArgb8888(Bitmap source, Color backColor = default,
+        /// public static IReadWriteBitmapData ToArgb8888(IReadWriteBitmapData source, Color backColor = default,
         ///     byte alphaThreshold = 128, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Argb8888(backColor, alphaThreshold);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format32bppArgb, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format32bppArgb, quantizer, ditherer);
         ///
         ///     // b.) when converting to Format32bppArgb format without dithering, this produces the same result:
         ///     if (ditherer == null && alphaThreshold == 0)
-        ///         return source.ConvertPixelFormat(PixelFormat.Format32bppArgb);
+        ///         return source.Clone(KnownPixelFormat.Format32bppArgb);
         ///
-        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -415,17 +415,17 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToRgb888(Bitmap source, Color backColor = default)
+        /// public static IReadWriteBitmapData ToRgb888(IReadWriteBitmapData source, Color backColor = default)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(backColor);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format24bppRgb, quantizer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format24bppRgb, quantizer);
         ///
         ///     // b.) when converting to Format24bppRgb format, this produces the same result:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format24bppRgb, backColor);
+        ///     return source.Clone(KnownPixelFormat.Format24bppRgb, backColor);
         ///
-        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     source.Quantize(quantizer);
         ///     return source;
         /// }]]></code>
@@ -480,18 +480,18 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToRgb565(Bitmap source, Color backColor = default, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToRgb565(IReadWriteBitmapData source, Color backColor = default, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Rgb565(backColor);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format16bppRgb565, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format16bppRgb565, quantizer, ditherer);
         ///
         ///     // b.) when converting to Format16bppRgb565 format without dithering, this produces the same result:
         ///     if (ditherer == null)
-        ///         return source.ConvertPixelFormat(PixelFormat.Format16bppRgb565, backColor);
+        ///         return source.Clone(KnownPixelFormat.Format16bppRgb565, backColor);
         ///
-        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -550,18 +550,18 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToRgb555(Bitmap source, Color backColor = default, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToRgb555(IReadWriteBitmapData source, Color backColor = default, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Rgb555(backColor);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format16bppRgb555, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format16bppRgb555, quantizer, ditherer);
         ///
         ///     // b.) when converting to Format16bppRgb555 format without dithering, this produces the same result:
         ///     if (ditherer == null)
-        ///         return source.ConvertPixelFormat(PixelFormat.Format16bppRgb555, backColor);
+        ///         return source.Clone(KnownPixelFormat.Format16bppRgb555, backColor);
         ///
-        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -625,19 +625,19 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToArgb1555(Bitmap source, Color backColor = default,
+        /// public static IReadWriteBitmapData ToArgb1555(IReadWriteBitmapData source, Color backColor = default,
         ///     byte alphaThreshold = 128, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Argb1555(backColor, alphaThreshold);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format16bppArgb1555, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format16bppArgb1555, quantizer, ditherer);
         ///
         ///     // b.) when converting to Format16bppArgb1555 format without dithering, this produces the same result:
         ///     if (ditherer == null)
-        ///         return source.ConvertPixelFormat(PixelFormat.Format16bppArgb1555, backColor, alphaThreshold);
+        ///         return source.Clone(KnownPixelFormat.Format16bppArgb1555, backColor, alphaThreshold);
         ///
-        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -705,14 +705,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToRgb332(Bitmap source, Color backColor = default, bool directMapping = false, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToRgb332(IReadWriteBitmapData source, Color backColor = default, bool directMapping = false, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Rgb332(backColor, directMapping);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format8bppIndexed, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format8bppIndexed, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -803,14 +803,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToGrayscale(Bitmap source, Color backColor = default)
+        /// public static IReadWriteBitmapData ToGrayscale(IReadWriteBitmapData source, Color backColor = default)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Grayscale(backColor);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format8bppIndexed, quantizer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format8bppIndexed, quantizer);
         ///     
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     source.Quantize(quantizer);
         ///     return source;
         /// }]]></code>
@@ -864,14 +864,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToGrayscale16(Bitmap source, Color backColor = default, bool directMapping = false, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToGrayscale16(IReadWriteBitmapData source, Color backColor = default, bool directMapping = false, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Grayscale16(backColor, directMapping);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format4bppIndexed, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format4bppIndexed, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -950,14 +950,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToGrayscale4(Bitmap source, Color backColor = default, bool directMapping = false, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToGrayscale4(IReadWriteBitmapData source, Color backColor = default, bool directMapping = false, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.Grayscale4(backColor, directMapping);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format4bppIndexed, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format4bppIndexed, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -1047,15 +1047,15 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToBlackAndWhite(Bitmap source, Color backColor = default,
+        /// public static IReadWriteBitmapData ToBlackAndWhite(IReadWriteBitmapData source, Color backColor = default,
         ///     byte whiteThreshold = 128, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.BlackAndWhite(backColor, whiteThreshold);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format1bppIndexed, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format1bppIndexed, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -1149,19 +1149,19 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDefault8Bpp(Bitmap source, Color backColor = default,
+        /// public static IReadWriteBitmapData ToDefault8Bpp(IReadWriteBitmapData source, Color backColor = default,
         ///     byte alphaThreshold = 128, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.SystemDefault8BppPalette(backColor, alphaThreshold);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format8bppIndexed, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format8bppIndexed, quantizer, ditherer);
         ///
         ///     // b.) when converting to Format8bppIndexed format without dithering, this produces the same result:
         ///     if (ditherer == null)
-        ///         return source.ConvertPixelFormat(PixelFormat.Format8bppIndexed, backColor, alphaThreshold);
+        ///         return source.Clone(KnownPixelFormat.Format8bppIndexed, backColor, alphaThreshold);
         ///
-        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -1244,18 +1244,18 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDefault4Bpp(Bitmap source, Color backColor = default, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToDefault4Bpp(IReadWriteBitmapData source, Color backColor = default, IDitherer ditherer = null)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.SystemDefault4BppPalette(backColor);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format8bppIndexed, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format8bppIndexed, quantizer, ditherer);
         ///
         ///     // b.) when converting to Format4bppIndexed format without dithering, this produces the same result:
         ///     if (ditherer == null)
-        ///         return source.ConvertPixelFormat(PixelFormat.Format4bppIndexed, backColor);
+        ///         return source.Clone(KnownPixelFormat.Format4bppIndexed, backColor);
         ///
-        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // c.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -1354,7 +1354,7 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToRgb111(Bitmap source, Color backColor = default, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToRgb111(IReadWriteBitmapData source, Color backColor = default, IDitherer ditherer = null)
         /// {
         ///     Color[] colors =
         ///     {
@@ -1365,10 +1365,10 @@ namespace KGySoft.Drawing.Imaging
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.FromCustomPalette(colors, backColor);
         ///     // or: quantizer = PredefinedColorsQuantizer.FromCustomPalette(new Palette(colors, backColor));
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format4bppIndexed, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format4bppIndexed, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     if (ditherer == null)
         ///         source.Quantize(quantizer);
         ///     else
@@ -1468,14 +1468,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToGrayscaleOpaque(Bitmap source, Color backColor = default)
+        /// public static IReadWriteBitmapData ToGrayscaleOpaque(IReadWriteBitmapData source, Color backColor = default)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray(), backColor, 0);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format24bppRgb, quantizer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format24bppRgb, quantizer);
         ///
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     source.Quantize(quantizer);
         ///     return source;
         /// }]]></code>
@@ -1527,14 +1527,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToGrayscalePreserveAlpha(Bitmap source)
+        /// public static IReadWriteBitmapData ToGrayscalePreserveAlpha(IReadWriteBitmapData source)
         /// {
         ///     IQuantizer quantizer = PredefinedColorsQuantizer.FromCustomFunction(c => c.ToGray());
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(PixelFormat.Format32bppArgb, quantizer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(KnownPixelFormat.Format32bppArgb, quantizer);
         ///
-        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the quantization directly on the source bitmap data:
         ///     source.Quantize(quantizer);
         ///     return source;
         /// }]]></code>

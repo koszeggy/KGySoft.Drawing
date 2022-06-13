@@ -138,14 +138,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the <see cref="InterleavedGradientNoiseDitherer"/> class.
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredInterleavedGradientNoise(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredInterleavedGradientNoise(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = new InterleavedGradientNoiseDitherer();
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>

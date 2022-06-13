@@ -175,14 +175,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredFloydSteinberg(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredFloydSteinberg(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.FloydSteinberg;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -257,14 +257,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredJarvisJudiceNinke(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredJarvisJudiceNinke(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.JarvisJudiceNinke;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -308,14 +308,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredStucki(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredStucki(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.Stucki;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -359,14 +359,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredBurkes(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredBurkes(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.Burkes;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -409,14 +409,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredSierra3(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredSierra3(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.Sierra3;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -460,14 +460,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredSierra2(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredSierra2(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.Sierra2;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -510,14 +510,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredSierraLite(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredSierraLite(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.SierraLite;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -560,14 +560,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredStevensonArce(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredStevensonArce(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.StevensonArce;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -614,14 +614,14 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToDitheredAtkinson(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToDitheredAtkinson(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     IDitherer ditherer = ErrorDiffusionDitherer.Atkinson;
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>
@@ -692,7 +692,7 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use a custom ditherer using the <see cref="ErrorDiffusionDitherer"/> constructor:
         /// <code lang="C#"><![CDATA[
-        /// public static Bitmap ToCustomDithered(Bitmap source, IQuantizer quantizer)
+        /// public static IReadWriteBitmapData ToCustomDithered(IReadWriteBitmapData source, IQuantizer quantizer)
         /// {
         ///     // This is actually the Fan dithering (by Zhihang Fan), and uses the same coefficients
         ///     // as the Floyd-Steinberg dithering in a slightly different arrangement:
@@ -715,10 +715,10 @@ namespace KGySoft.Drawing.Imaging
         ///
         ///     IDitherer ditherer = new ErrorDiffusionDitherer(matrix, divisor, firstPixelIndex);
         ///
-        ///     // a.) this solution returns a new bitmap and does not change the original one:
-        ///     return source.ConvertPixelFormat(quantizer.PixelFormatHint, quantizer, ditherer);
+        ///     // a.) this solution returns a new bitmap data and does not change the original one:
+        ///     return source.Clone(quantizer.PixelFormatHint, quantizer, ditherer);
         ///
-        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap:
+        ///     // b.) alternatively, you can perform the dithering directly on the source bitmap data:
         ///     source.Dither(quantizer, ditherer);
         ///     return source;
         /// }]]></code>

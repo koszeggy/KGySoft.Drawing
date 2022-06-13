@@ -338,6 +338,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
         /// Bitmap bmpOriginal = Icons.Shield.ExtractBitmap(new Size(256, 256));
         /// bmpOriginal.SaveAsPng(@"c:\temp\original.png");
@@ -375,6 +376,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
         /// Bitmap bmpOriginal = Icons.Shield.ExtractBitmap(new Size(256, 256));
         /// bmpOriginal.SaveAsPng(@"c:\temp\original.png");
@@ -412,6 +414,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="maxColors"/> must be between 2 and 65536, inclusive bounds.</exception>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
         /// Bitmap bmpOriginal = Icons.Shield.ExtractBitmap(new Size(256, 256));
         /// bmpOriginal.SaveAsPng(@"c:\temp\original.png");

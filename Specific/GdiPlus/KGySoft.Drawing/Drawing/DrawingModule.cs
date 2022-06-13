@@ -50,7 +50,8 @@ namespace KGySoft.Drawing
         /// the <c>KGySoft.Drawing.dll</c> are also affected by the settings.</note>
         /// <note type="important">If you target .NET 5 or 6 and use KGy SOFT Drawing Libraries from a non-Windows application, then make sure you call this method
         /// before using any <c>System.Drawing</c> type to prevent a <see cref="TypeInitializationException"/> without editing the <c>runtimeconfig.json</c> file.
-        /// It is not necessary if you reference the .NET Framework build under Mono.</note>
+        /// It is not necessary if you reference the .NET Framework build under Mono. When targeting .NET 7 or later, this package can be used only on Windows.
+        /// You can use the <a href="https://www.nuget.org/packages/KGySoft.Drawing.Common/" target="_blank">KGySoft.Drawing.Common</a> package on all platforms though.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to initialize the <c>KGySoft.Drawing</c> module in an application (you don't really need to do this
