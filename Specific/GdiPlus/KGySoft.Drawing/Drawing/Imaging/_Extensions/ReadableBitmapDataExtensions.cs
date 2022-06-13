@@ -30,6 +30,14 @@ using KGySoft.Threading;
 
 #endregion
 
+#region Suppressions
+
+#if NET35
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
+#endif
+
+#endregion
+
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
@@ -100,7 +108,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
-        public static Bitmap? EndToBitmap(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginToBitmap));
+        public static Bitmap? EndToBitmap(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap?>(asyncResult, nameof(BeginToBitmap));
 
 #if !NET35
         /// <summary>

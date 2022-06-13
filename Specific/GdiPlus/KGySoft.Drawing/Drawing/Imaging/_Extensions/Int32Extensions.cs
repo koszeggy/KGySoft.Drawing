@@ -16,6 +16,9 @@
 #region Usings
 
 using System;
+#if NET7_0_OR_GREATER
+using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Drawing.Imaging;
 
 #endregion
@@ -26,6 +29,9 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Methods
 
+#if NET7_0_OR_GREATER
+        [SuppressMessage("Interoperability", "CA1416:Validate platform compatibility", Justification = "PixelFormat is an enum so it is supported on every platform.")]
+#endif
         internal static PixelFormat ToPixelFormat(this int bpp) => bpp switch
         {
             1 => PixelFormat.Format1bppIndexed,
