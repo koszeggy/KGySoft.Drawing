@@ -111,6 +111,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to write multiple pixels by a single <see cref="WriteRaw{T}">WriteRaw</see> call:
+        /// <note>This example requires to reference the <a href="https://www.nuget.org/packages/KGySoft.Drawing/" target="_blank">KGySoft.Drawing</a> package. When targeting .NET 7 or later it can be executed on Windows only.</note>
         /// <code lang="C#"><![CDATA[
         /// using (Bitmap bmp4bppIndexed = new Bitmap(8, 1, PixelFormat.Format4bppIndexed))
         /// using (IReadWriteBitmapData bitmapData = bmp4bppIndexed.GetReadWriteBitmapData())

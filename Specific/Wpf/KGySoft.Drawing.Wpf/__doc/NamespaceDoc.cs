@@ -15,16 +15,16 @@
 
 #region Usings
 
-using System.ComponentModel;
 using System.Runtime.CompilerServices;
+using System.Windows.Media.Imaging;
 
 #endregion
 
-namespace KGySoft.ComponentModel
+namespace KGySoft.Drawing.Wpf
 {
     /// <summary>
-    /// In KGy SOFT Drawing Libraries the <c>KGySoft.ComponentModel</c> namespace contains a single <see cref="TypeConverter"/> implementation.
-    /// <br/>For more <c>KGySoft.ComponentModel</c> types see the <a href="http://docs.kgysoft.net/corelibraries/?topic=html/N_KGySoft_ComponentModel.htm" target="_blank">KGySoft.ComponentModel</a> namespace of the KGy SOFT Core Libraries.
+    /// The <c>KGySoft.Drawing.Wpf</c> namespace offers direct support to the <see cref="WriteableBitmap"/> type and is available as a separate
+    /// NuGet package <a href="https://www.nuget.org/packages/KGySoft.Drawing.Wpf/" target="_blank">KGySoft.Drawing.Wpf</a>.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>
     [CompilerGenerated]
