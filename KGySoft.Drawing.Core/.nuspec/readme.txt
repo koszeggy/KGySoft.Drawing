@@ -15,6 +15,8 @@ GitHub: https://github.com/koszeggy/KGySoft.Drawing
 Some Highlights of KGy SOFT Drawing Core Libraries:
 
 - Creating managed bitmap data of any pixel format on every platform, including Linux and MacOS
+- Creating bitmap data for any preallocated buffer using any pixel format. This allows accessing the pixels
+  of bitmaps of any technology if the bitmap data is exposed as a pointer or array.
 - Quantizing using predefined or optimized colors
 - Dithering using ordered, error diffusion, random noise or interleaved gradient noise dithering techniques
 - Creating GIF animations even in high color.

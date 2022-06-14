@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Wpf</id>
-    <version>1.0.0-preview.1</version>
+    <version>7.0.0-alpha.1</version>
     <title>KGy SOFT Drawing Libraries for WPF</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -15,13 +15,13 @@
     <description xml:space="preserve">KGy SOFT Drawing Libraries for WPF offer KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap.
 
 Among others:
-- Fast direct data access for every PixelFormat
-- Quantizing and dithering
+- Fast direct native WriteableBitmap data access
+- Supporting every every PixelFormat
 
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
 GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
 Find Documentation: https://docs.kgysoft.net/drawing</description>
-    <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt</releaseNotes>
+    <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
     <tags>KGySoft Drawing wpf extension writeable-bitmap writeablebitmap bitmapdata pixelformat</tags>
     <language>en-US</language>
@@ -39,15 +39,15 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     </dependencies>
   </metadata>
   <files>
-    <file src="..\..\LICENSE" />
-    <file src="..\Help\KGySoft.Drawing.chm" target="Help" />
-    <file src="readme.txt"/>
+    <file src="..\..\..\..\LICENSE" />
+    <!--<file src="..\..\..\..\Help\KGySoft.Drawing.chm" target="Help" />-->
+    <!--<file src="readme.txt"/>-->
     <file src="Icon64.png" target="" />
-    <file src="..\bin\Release\net35\KGySoft.Drawing.dll" target="lib\net35" />
-    <file src="..\bin\Release\net35\KGySoft.Drawing.xml" target="lib\net35" />
-    <file src="..\bin\Release\net40\KGySoft.Drawing.dll" target="lib\net40" />
-    <file src="..\bin\Release\net40\KGySoft.Drawing.xml" target="lib\net40" />
-    <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.dll" target="lib\netcoreapp3.0" />
-    <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.xml" target="lib\netcoreapp3.0" />
+    <file src="..\bin\Release\net35\KGySoft.Drawing.Wpf.dll" target="lib\net35" />
+    <file src="..\bin\Release\net35\KGySoft.Drawing.Wpf.xml" target="lib\net35" />
+    <file src="..\bin\Release\net40\KGySoft.Drawing.Wpf.dll" target="lib\net40" />
+    <file src="..\bin\Release\net40\KGySoft.Drawing.Wpf.xml" target="lib\net40" />
+    <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.Wpf.dll" target="lib\netcoreapp3.0" />
+    <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.Wpf.xml" target="lib\netcoreapp3.0" />
   </files>
 </package>

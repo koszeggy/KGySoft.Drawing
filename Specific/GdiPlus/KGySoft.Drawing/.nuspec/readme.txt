@@ -1,12 +1,14 @@
 ﻿Thank you for installing KGy SOFT Drawing Libraries 7.0.0-preview.1
-KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types on multiple platforms.
+KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types.
 
-📝 Note: In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux
-         based systems are also supported (the libgdiplus package is required). Starting with version 7.0.0 the
-         technology-agnostic managed bitmap data access and image processing libraries are in a separate package.
-         Please find the KGySoft.Drawing.Core package at https://www.nuget.org/packages/KGySoft.Drawing.Core/.
+⚠️ Warning: Version 7.0.0 introduces several breaking changes. Most importantly, the technology-agnostic and
+   platform independent APIs have been extracted into a separated package: KGySoft.Drawing.Core.
+   Please find the KGySoft.Drawing.Core package at https://www.nuget.org/packages/KGySoft.Drawing.Core/.
 
 Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt
+
+📝 Note: In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux
+         based systems are also supported (if the libgdiplus library is installed).
 
                                                  ~~*~~
 

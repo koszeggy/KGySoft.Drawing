@@ -1,9 +1,8 @@
-﻿[![KGy SOFT .net](https://docs.kgysoft.net/drawing/icons/logo.png)](https://kgysoft.net)
+﻿[![KGy SOFT .net](https://user-images.githubusercontent.com/27336165/124292367-c93f3d00-db55-11eb-8003-6d943ee7d7fa.png)](https://kgysoft.net)
 
 # KGy SOFT Drawing Libraries
 
-KGy SOFT Drawing Libraries offer advanced drawing features both for completely managed bitmap data as well as native System.Drawing types on multiple platforms.
-Multiple versions of .NET Framework and .NET Core are supported. Tested on Windows and Linux (both in Mono and .NET Core environments).
+KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image processing features such as quantizing and dithering. The libraries consist of multiple packages. A core library contains the technology-agnostic and platform independent functionality and there are specialized libraries built upon the core package.
 
 [![Website](https://img.shields.io/website/https/kgysoft.net/corelibraries.svg)](https://kgysoft.net/drawing)
 [![Online Help](https://img.shields.io/website/https/docs.kgysoft.net/drawing.svg?label=online%20help&up_message=available)](https://docs.kgysoft.net/drawing)
@@ -13,8 +12,8 @@ Multiple versions of .NET Framework and .NET Core are supported. Tested on Windo
 
 ## Table of Contents:
 1. [Download](#download)
-   - [Download Binaries](#download-binaries)
-   - [Demo Application and Debugger Visualizers](#demo-application-and-debugger-visualizers)
+   - [Available Packages](#available-packages)
+   - [Application Examples](#application-examples)
 2. [Project Site](#project-site)
 3. [Documentation](#documentation)
 4. [Release Notes](#release-notes)
@@ -30,15 +29,58 @@ Multiple versions of .NET Framework and .NET Core are supported. Tested on Windo
 
 ## Download:
 
-### Download Binaries:
+### Available Packages:
 
-The binaries can be downloaded as a NuGet package directly from [nuget.org](https://www.nuget.org/packages/KGySoft.Drawing)
+Starting with version 7.0.0 KGy SOFT Drawing Libraries are available in multiple packages:
 
-However, the preferred way is to install the package in VisualStudio either by looking for the `KGySoft.Drawing` package in the Nuget Package Manager GUI, or by sending the following command at the Package Manager Console prompt:
+> ⚠️ _Note_: Version 7.0.0 is currently in preview. As a stable release, you can only download the combined `KGySoft.Drawing` package so far. Version 7.0.0 intruduces several major breaking changes due to the assembly split. Feel free to refer to the [release notes](#release-notes).
+
+#### [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core)
+
+This package contains the platform-independent core functionality that mainly resides in the [KGySoft.Drawing.Imaging](https://docs.kgysoft.net/drawing/?topic=html/N_KGySoft_Drawing_Imaging.htm) namespace.
+
+Main highlights:
+- Creating [managed bitmap data](http://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) of any pixel format.
+- Creating bitmap data for any preallocated buffer using any pixel format. This allows accessing the pixels of bitmaps of any technology if the bitmap data is exposed as a pointer or array.
+- Quantizing using [predefined](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer.htm) or [optimized](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_OptimizedPaletteQuantizer.htm) colors
+- Dithering using [ordered](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_OrderedDitherer.htm), [error diffusion](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer.htm), [random noise](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_RandomNoiseDitherer.htm) or [interleaved gradient noise](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_InterleavedGradientNoiseDitherer.htm) dithering techniques
+- Creating [GIF animations](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_GifEncoder.htm) even in high color
+
+The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Core) or by using the Package Manager Console:
+
+    PM> Install-Package KGySoft.Drawing.Core
+
+#### [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing)
+
+This package provides special support for `System.Drawing` types such as `Bitmap`, `Metafile`, `Image`, `Icon`, `Graphics`. In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux based systems are also supported (if the libgdiplus library is installed).
+
+Main highlights:
+- Fast [direct native Bitmap data access](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) for every PixelFormat
+- [Quantizing](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_Quantize.htm) and [dithering](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_Dither.htm)
+- Creating [GIF animations](https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_SaveAsAnimatedGif.htm) even in high color
+- Several [built-in icons](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Icons.htm) as well as simple access to Windows associated and stock icons.
+- Extracting bitmaps from multi-frame bitmaps and icons.
+- Creating combined icons and multi-resolution bitmaps.
+- Saving metafiles in EMF/WMF formats.
+- Advanced support for saving images as Icon, BMP, JPEG, PNG, GIF and TIFF formats.
+- [Converting between various pixel formats](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm) preserving transparency if possible.
+- Useful extensions for the [Icon](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_IconExtensions.htm), [Bitmap](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_BitmapExtensions.htm), [Image](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_ImageExtensions.htm), [Metafile](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_MetafileExtensions.htm) and [Graphics](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_GraphicsExtensions.htm) types.
+
+The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing
 
-### Demo Application and Debugger Visualizers:
+#### [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf)
+
+This package helps accessing the bitmap data of the `WriteableBitmap` type in WPF supporting all of its possible pixel formats.
+
+The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) or by using the Package Manager Console:
+
+    PM> Install-Package KGySoft.Drawing.Wpf
+
+### Application Examples
+
+#### Demo Application and Debugger Visualizers:
 
 [KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools) is a desktop application in the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which nicely demonstrates a sort of features of Drawing Libraries, such as quantizing and dithering, resizing, adjusting brightness, contrast and gamma, etc. The tool is packed also with some debugger visualizers for several `System.Drawing` types including `Bitmap`, `Metafile`, `Icon`, `Graphics` and more.
 
@@ -47,18 +89,32 @@ However, the preferred way is to install the package in VisualStudio either by l
   <br/><em>KGy SOFT Imaging Tools</em>
 </p>
 
+#### ScreenToGif
+
+[ScreenToGif](https://github.com/NickeManarin/ScreenToGif) is a WPF desktop application that can be used to create and save animations. Among others, it can use KGy SOFT Drawing Libraries to save GIF animations using various quantizers and ditherers.
+
+<p align="center">
+  <img alt="KGy SOFT GIF encoder options in ScreenToGif" src="https://user-images.githubusercontent.com/27336165/152844903-b60c82c0-9fab-4ae8-93f7-b168308c2117.gif"/>
+  <br/><em>KGy SOFT GIF encoder options in ScreenToGif</em>
+</p>
+
 ## Project Site
 
 Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 
 ## Documentation
 
+The following links refer to the combined documentation of the available [packages](#available-packages). Check the indicated **Assembly** at the help pages that also designates the corresponding package.
+
 * [Online documentation](https://docs.kgysoft.net/drawing)
-* [Offline .chm documentation](https://github.com/koszeggy/KGySoft.Drawing/raw/master/KGySoft.Drawing/Help/KGySoft.Drawing.chm)
+* [Offline .chm documentation](https://github.com/koszeggy/KGySoft.Drawing/raw/master/Help/KGySoft.Drawing.chm)
 
 ## Release Notes
 
-See the [change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing/changelog.txt).
+Starting with version 7.0.0 each packages have their own change logs:
+* [KGySoft.Drawing.Core change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt)
+* [KGySoft.Drawing change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlis/KGySoft.Drawing/changelog.txt)
+* [KGySoft.Drawing.Wpf change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt)
 
 ## Examples
 
@@ -123,8 +179,10 @@ The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft
 
 For example, this is how you can create a managed accessor for a `WriteableBitmap` instance commonly used in WPF/WinRT/UWP and other XAML-based environments, which exposes such a pointer:
 
+> 💡 _Tip:_ In fact, if you use the `WriteableBitmap` for WPF, then you can simply use the [`GetReadWriteBitmapData`](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) extension from the `KGySoft.Drawing.Wpf` package. But this is how you can access a `WriteableBitmap` of other XAML-based environments that do not have direct support yet.
+
 ```cs
-// Though naming is different, PixelFormats.Pbgra32 is the same as PixelFormat.Format32bppPArgb.
+// Though naming is different, PixelFormats.Pbgra32 is the same as KnownPixelFormat.Format32bppPArgb.
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Pbgra32, null);
 
 // creating the managed bitmap data for WriteableBitmap:
@@ -132,7 +190,7 @@ using (var bitmapData = BitmapDataFactory.CreateBitmapData(
     bitmap.BackBuffer,
     new Size(bitmap.PixelWidth, bitmap.PixelHeight),
     bitmap.BackBufferStride,
-    PixelFormat.Format32bppPArgb)
+    KnownPixelFormat.Format32bppPArgb)
 {
     // Do whatever with bitmapData
 }
@@ -187,19 +245,19 @@ See the following table for the possible results (click the images for displayin
 
 |Description|Image Example|
 |--|--|
-| Original image: Color hues with alpha gradient | ![Color hues with alpha gradient](KGySoft.Drawing/Help/Images/AlphaGradient.png) |
-| Color hues quantized with [custom 8 color palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomPalette_1.htm) and silver background, no dithering. The bottom part turns white because white is the nearest color to silver. | ![Color hues with RGB111 palette and silver background](KGySoft.Drawing/Help/Images/AlphaGradientRgb111Silver.gif) |
-| Color hues quantized with [custom 8 color palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomPalette_1.htm) and silver background, using [Bayer 8x8 dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm) | ![Color hues with RGB111 palette and silver background, using Bayer 8x8 ordered dithering](KGySoft.Drawing/Help/Images/AlphaGradientRgb111SilverDitheredB8.gif) |
-| Original image: Grayscale color shades | ![Grayscale color shades with different bit depths](KGySoft.Drawing/Help/Images/GrayShades.gif) |
-| Grayscale color shades quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), no dithering | ![Grayscale color shades quantized with black and white palette](KGySoft.Drawing/Help/Images/GrayShadesBW.gif) |
-| Grayscale color shades quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), using [blue noise dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_OrderedDitherer_BlueNoise.htm) | ![Grayscale color shades quantized with black and white palette using blue noise dithering](KGySoft.Drawing/Help/Images/GrayShadesBWDitheredBN.gif) |
-| Original test image "Lena" | ![Test image "Lena"](KGySoft.Drawing/Help/Images/Lena.png) |
-| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm), no dithering | ![Test image "Lena" quantized with system default 8 BPP palette](KGySoft.Drawing/Help/Images/LenaDefault8bpp.gif) |
-| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Bayer 8x8 dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm) | ![Test image "Lena" quantized with system default 8 BPP palette using Bayer 8x8 dithering](KGySoft.Drawing/Help/Images/LenaDefault8bppDitheredB8.gif) |
-| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Lena" quantized with system default 8 BPP palette using Floyd-Steinberg dithering](KGySoft.Drawing/Help/Images/LenaDefault8bppDitheredFS.gif) |
-| Original test image "Cameraman" | ![Test image "Cameraman"](KGySoft.Drawing/Help/Images/Cameraman.png) |
-| Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), no dithering | ![Test image "Cameraman" quantized with black and white palette](KGySoft.Drawing/Help/Images/CameramanBW.gif) |
-| Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Cameraman" quantized with black and white palette using Floyd-Steinberg dithering](KGySoft.Drawing/Help/Images/CameramanBWDitheredFS.gif) |
+| Original image: Color hues with alpha gradient | ![Color hues with alpha gradient](Help/Images/AlphaGradient.png) |
+| Color hues quantized with [custom 8 color palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomPalette_1.htm) and silver background, no dithering. The bottom part turns white because white is the nearest color to silver. | ![Color hues with RGB111 palette and silver background](Help/Images/AlphaGradientRgb111Silver.gif) |
+| Color hues quantized with [custom 8 color palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_FromCustomPalette_1.htm) and silver background, using [Bayer 8x8 dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm) | ![Color hues with RGB111 palette and silver background, using Bayer 8x8 ordered dithering](Help/Images/AlphaGradientRgb111SilverDitheredB8.gif) |
+| Original image: Grayscale color shades | ![Grayscale color shades with different bit depths](Help/Images/GrayShades.gif) |
+| Grayscale color shades quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), no dithering | ![Grayscale color shades quantized with black and white palette](Help/Images/GrayShadesBW.gif) |
+| Grayscale color shades quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), using [blue noise dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_OrderedDitherer_BlueNoise.htm) | ![Grayscale color shades quantized with black and white palette using blue noise dithering](Help/Images/GrayShadesBWDitheredBN.gif) |
+| Original test image "Lena" | ![Test image "Lena"](Help/Images/Lena.png) |
+| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm), no dithering | ![Test image "Lena" quantized with system default 8 BPP palette](Help/Images/LenaDefault8bpp.gif) |
+| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Bayer 8x8 dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm) | ![Test image "Lena" quantized with system default 8 BPP palette using Bayer 8x8 dithering](Help/Images/LenaDefault8bppDitheredB8.gif) |
+| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Lena" quantized with system default 8 BPP palette using Floyd-Steinberg dithering](Help/Images/LenaDefault8bppDitheredFS.gif) |
+| Original test image "Cameraman" | ![Test image "Cameraman"](Help/Images/Cameraman.png) |
+| Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), no dithering | ![Test image "Cameraman" quantized with black and white palette](Help/Images/CameramanBW.gif) |
+| Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Cameraman" quantized with black and white palette using Floyd-Steinberg dithering](Help/Images/CameramanBWDitheredFS.gif) |
 
 > 💡 _Tip:_
 > Use  `KGy SOFT Imaging Tools` from the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository to try image quantization and dithering in an application.
@@ -220,10 +278,9 @@ The KGy SOFT Drawing Libraries make possible creating high quality GIF images an
 
 |Description|Image Example|
 |--|--|
-| True color GIF animation. The last frame has 29,731 colors. The Granger Rainbow has been generated from an alpha gradient bitmap by [this code](https://github.com/koszeggy/KGySoft.Drawing/blob/9157c58a24f29174e3475f89d0990a28f81691aa/KGySoft.Drawing.UnitTest/UnitTests/Imaging/GifEncoderTest.cs#L693). | ![True color GIF animation (29,731 colors)](KGySoft.Drawing/Help/Images/GifAnimationTrueColor.gif) |
-| Warning icon encoded as a high color GIF. It has only single bit transparency but otherwise its colors have been preserved. It consists of 18 layers and has 4,363 colors. | ![Warning icon as a high color GIF image](KGySoft.Drawing/Help/Images/WarningHighColor.gif) |
-| Test image "Lena" encoded as a true color GIF. It consists of 983 layers and has 148,702 colors. The file size is about twice as large as the [PNG encoded version](KGySoft.Drawing/Help/Images/Lena.png) (by allowing full scanning the number of layers could be decreased to 584 but the file size would be even larger). | ![Test image "Lena" encoded as a true color GIF](KGySoft.Drawing/Help/Images/LenaTrueColor.gif) |
-| Test image "Lena" encoded as a high color GIF. Before encoding it was prequantized with [RGB565 16-bit quantizer](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb565.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm). It consists of 18 layers and has 4,451 colors. The file size is about 80% of the original [PNG encoded version](KGySoft.Drawing/Help/Images/Lena.png) but could be even smaller without the dithering. | ![Test image "Lena" encoded as a high color GIF. Prequantized to the 16-bit RGB565 color space using Floyd-Steinberg dithering](KGySoft.Drawing/Help/Images/LenaRgb565DitheredFS.gif) |
+| True color GIF animation. The last frame has 29,731 colors. The Granger Rainbow has been generated from an alpha gradient bitmap by [this code](https://github.com/koszeggy/KGySoft.Drawing/blob/9157c58a24f29174e3475f89d0990a28f81691aa/KGySoft.Drawing.UnitTest/UnitTests/Imaging/GifEncoderTest.cs#L693). | ![True color GIF animation (29,731 colors)](Help/Images/GifAnimationTrueColor.gif) |
+| Warning icon encoded as a high color GIF. It has only single bit transparency but otherwise its colors have been preserved. It consists of 18 layers and has 4,363 colors. | ![Warning icon as a high color GIF image](Help/Images/WarningHighColor.gif) |
+| Test image "Lena" encoded as a high color GIF. Before encoding it was prequantized with [RGB565 16-bit quantizer](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_Rgb565.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/?topic=html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm). It consists of 18 layers and has 4,451 colors. The file size is about 80% of the original [PNG encoded version](Help/Images/Lena.png) but could be even smaller without the dithering. | ![Test image "Lena" encoded as a high color GIF. Prequantized to the 16-bit RGB565 color space using Floyd-Steinberg dithering](Help/Images/LenaRgb565DitheredFS.gif) |
 
 > ⚠️ _Note:_ Please note that multi layered high color GIF images might be mistakenly rendered as animations by some decoders, including browsers. Still images do not contain the Netscape application extension and do not have any delays. Such images are processed properly by GDI+ on Windows, by the `System.Drawing.Bitmap` and `Image` classes and applications relying on GDI+ decoders such as Windows Paint or [KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools).
 

@@ -65,14 +65,17 @@
       <Argument Key="baseSourceCodeUrl" Value="" />
       <Argument Key="requestExampleUrl" Value="" />
     </TransformComponentArguments>
-    <HelpFileVersion>6.3.2</HelpFileVersion>
+    <HelpFileVersion>7.0.0-preview.1</HelpFileVersion>
     <SaveComponentCacheCapacity>100</SaveComponentCacheCapacity>
     <HeaderText>
     </HeaderText>
     <FooterText>Find the complete KGy SOFT Libraries documentation at the &amp;lt%3ba href=&amp;quot%3bhttps://docs.kgysoft.net&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGy SOFT Docs&amp;lt%3b/a&amp;gt%3b page.
 &amp;lt%3bbr/&amp;gt%3bProject Site: &amp;lt%3ba href=&amp;quot%3bhttps://kgysoft.net/drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://kgysoft.net/drawing&amp;lt%3b/a&amp;gt%3b
 &amp;lt%3bbr/&amp;gt%3bGitHub Repository: &amp;lt%3ba href=&amp;quot%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b
-&amp;lt%3bbr/&amp;gt%3bNuGet: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b</FooterText>
+&amp;lt%3bbr/&amp;gt%3bNuGet packages:
+&amp;lt%3bli&amp;gt%3b&amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Core&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Core&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
+&amp;lt%3bli&amp;gt%3b&amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
+&amp;lt%3bli&amp;gt%3b&amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Wpf&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Wpf&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b</FooterText>
     <PlugInConfigurations>
       <PlugInConfig id="Additional Reference Links" enabled="True">
         <configuration>

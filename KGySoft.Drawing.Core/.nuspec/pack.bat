@@ -1,1 +1,1 @@
-@nuget pack -properties Configuration=Release KGySoft.Core.Drawing.nuspec
+@nuget pack -properties Configuration=Release KGySoft.Drawing.Core.nuspec

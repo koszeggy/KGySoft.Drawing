@@ -15,7 +15,8 @@
     <description xml:space="preserve">KGy SOFT Drawing Core Libraries offer advanced features in a technology-agnostic way.
 
 Among others:
-- Creating managed bitmap data of any PixelFormat on every platform, including Linux and MacOS
+- Creating managed bitmap data of any pixel format on every platform
+- Creating bitmap data for any managed or unmanaged buffer
 - Supporting custom pixel formats
 - Quantizing and dithering
 - Creating GIF animations
@@ -31,34 +32,34 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
       <group targetFramework=".NETFramework4.6">
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
       <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="6.0.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
     </dependencies>
   </metadata>
   <files>
     <file src="..\..\LICENSE" />
-    <file src="..\Help\KGySoft.Drawing.chm" target="Help" />
+    <file src="..\..\Help\KGySoft.Drawing.chm" target="Help" />
     <file src="readme.txt"/>
     <file src="Icon64.png" target="" />
     <file src="..\bin\Release\net35\KGySoft.Drawing.Core.dll" target="lib\net35" />

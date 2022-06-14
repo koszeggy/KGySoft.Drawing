@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>-->
-    <TargetFrameworks>net40;net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>
+    <!--<TargetFrameworks>net6.0-windows</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -33,7 +33,7 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="6.0.0">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22217.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
