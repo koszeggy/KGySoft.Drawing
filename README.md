@@ -94,7 +94,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 [ScreenToGif](https://github.com/NickeManarin/ScreenToGif) is a WPF desktop application that can be used to create and save animations. Among others, it can use KGy SOFT Drawing Libraries to save GIF animations using various quantizers and ditherers.
 
 <p align="center">
-  <img alt="KGy SOFT GIF encoder options in ScreenToGif" src="https://user-images.githubusercontent.com/27336165/152844903-b60c82c0-9fab-4ae8-93f7-b168308c2117.gif"/>
+  <img alt="KGy SOFT GIF encoder options in ScreenToGif" src="https://user-images.githubusercontent.com/27336165/173610775-360e10eb-5e18-4aae-ad01-a4a176d6efc6.png"/>
   <br/><em>KGy SOFT GIF encoder options in ScreenToGif</em>
 </p>
 
@@ -113,7 +113,7 @@ The following links refer to the combined documentation of the available [packag
 
 Starting with version 7.0.0 each packages have their own change logs:
 * [KGySoft.Drawing.Core change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt)
-* [KGySoft.Drawing change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlis/KGySoft.Drawing/changelog.txt)
+* [KGySoft.Drawing change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt)
 * [KGySoft.Drawing.Wpf change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt)
 
 ## Examples
