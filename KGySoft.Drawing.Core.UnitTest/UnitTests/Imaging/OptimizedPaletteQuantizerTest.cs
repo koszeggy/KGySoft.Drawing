@@ -49,8 +49,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void FullyTransparentImageTest(string testName, IQuantizer quantizer)
         {
             Console.WriteLine(testName);
-            using var bmp = new Bitmap(1, 1);
-            Assert.DoesNotThrow(() => bmp.Quantize(quantizer));
+            using var bitmapData = BitmapDataFactory.CreateBitmapData(new Size(1, 1));
+            Assert.DoesNotThrow(() => bitmapData.Quantize(quantizer));
         }
 
         [TestCase(2)]

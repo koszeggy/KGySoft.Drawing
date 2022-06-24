@@ -31,7 +31,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests
 {
     [TestFixture]
-    public class BitmapExtensionsTest : DrawingTestBase
+    public class BitmapExtensionsTest : TestBase
     {
         #region Fields
 
@@ -374,11 +374,11 @@ namespace KGySoft.Drawing.UnitTests
         {
             var files = new string[]
             {
-                @"..\..\..\..\KGySoft.Drawing\Help\Images\Shield256.png",
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png",
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Cameraman.png",
-                @"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\GrayShades.gif",
+                @"..\..\..\..\..\..\Help\Images\Shield256.png",
+                //@"..\..\..\..\..\..\Help\Images\Lena.png",
+                //@"..\..\..\..\..\..\Help\Images\Cameraman.png",
+                @"..\..\..\..\..\..\Help\Images\AlphaGradient.png",
+                //@"..\..\..\..\..\..\Help\Images\GrayShades.gif",
             };
 
             var stopwatch = new Stopwatch();
@@ -402,12 +402,12 @@ namespace KGySoft.Drawing.UnitTests
         {
             string[] files =
             {
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Information256.png",
-                @"..\..\..\..\KGySoft.Drawing\Help\Images\Shield256.png",
-                @"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png",
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Lena.png",
-                //@"..\..\..\..\KGySoft.Drawing\Help\Images\Cameraman.png",
-                @"..\..\..\..\KGySoft.Drawing\Help\Images\GrayShades.gif",
+                //@"..\..\..\..\..\..\Help\Images\Information256.png",
+                @"..\..\..\..\..\..\Help\Images\Shield256.png",
+                @"..\..\..\..\..\..\Help\Images\AlphaGradient.png",
+                @"..\..\..\..\..\..\Help\Images\Lena.png",
+                //@"..\..\..\..\..\..\Help\Images\Cameraman.png",
+                //@"..\..\..\..\..\..\Help\Images\GrayShades.gif",
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
@@ -447,30 +447,6 @@ namespace KGySoft.Drawing.UnitTests
                     SaveImage($"{Path.GetFileNameWithoutExtension(file)} {maxColors} {testName} {ditherer.Name}", bmp);
                 }
             }
-        }
-
-        [Test, Explicit]
-        public void GenerateBlueNoiseMatrix()
-        {
-            using Bitmap texture = new Bitmap(@"D:\Dokumentumok\Képek\Formats\BlueNoiseTextures\64\LDR_LLL1_13.png");
-            using IReadableBitmapData accessor = texture.GetReadableBitmapData();
-
-            IReadableBitmapDataRow row = accessor.FirstRow;
-            Console.WriteLine($"private static readonly byte[,] blueNoise{accessor.Width} =");
-            Console.WriteLine("{");
-            do
-            {
-                Console.Write("    { ");
-                for (int x = 0; x < accessor.Width; x++)
-                {
-                    Console.Write(row[x].R);
-                    if (x < accessor.Width - 1)
-                        Console.Write(", ");
-                }
-                Console.WriteLine(" }, ");
-            } while (row.MoveNextRow());
-
-            Console.WriteLine("};");
         }
 
         [TestCase(PixelFormat.Format1bppIndexed, 0xFFFFFFFF)]

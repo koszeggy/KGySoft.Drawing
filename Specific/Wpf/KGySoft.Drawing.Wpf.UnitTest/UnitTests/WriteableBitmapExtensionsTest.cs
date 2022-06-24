@@ -243,8 +243,7 @@ namespace KGySoft.Drawing.UnitTests
         [TestCaseSource(nameof(wpfBehaviorTestSource))]
         public void WpfBehaviorTest(PixelFormat pixelFormat)
         {
-            var source = new BitmapImage(new Uri(@"D:\Dokumentumok\Képek\Formats\System4BitColors.png"));
-            //var source = new BitmapImage(new Uri(@"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png", UriKind.Relative));
+            var source = new BitmapImage(new Uri(@"..\..\..\..\..\..\Help\Images\AlphaGradient.png", UriKind.Relative));
             var bmp = new WriteableBitmap(source);
             //var bmp = new WriteableBitmap(1, 1, 96, 96, pixelFormat, GetDefaultPalette(pixelFormat));
             //using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())

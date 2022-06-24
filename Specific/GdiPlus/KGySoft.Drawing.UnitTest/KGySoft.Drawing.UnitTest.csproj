@@ -41,7 +41,21 @@
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\KGySoft.Drawing\KGySoft.Drawing.csproj" />
-    <ProjectReference Include="..\..\..\KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj" />
+  </ItemGroup>
+
+  <!-- .NET 7.0 or newer references: Unix is no nonger supported -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.4.22229.4" />
+  </ItemGroup>
+
+  <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'net5.0' OR '$(TargetFramework)' == 'net6.0'">
+    <PackageReference Include="System.Drawing.Common" Version="6.0.0" />
+  </ItemGroup>
+
+  <!-- Legacy .NET Standard / .NET Core references (they cannot be upgraded, see https://github.com/dotnet/runtime/issues/59032) -->
+  <ItemGroup Condition="'$(TargetFramework)' == 'netcoreapp2.0' OR '$(TargetFramework)' == 'netcoreapp3.0'">
+    <PackageReference Include="System.Drawing.Common" Version="5.0.3" />
   </ItemGroup>
 
 </Project>

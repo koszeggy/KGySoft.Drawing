@@ -32,7 +32,6 @@
   <!-- Project references -->
   <ItemGroup>
     <ProjectReference Include="..\KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj" />
-    <ProjectReference Include="..\..\..\KGySoft.Drawing.Core.UnitTest\KGySoft.Drawing.Core.UnitTest.csproj" />
   </ItemGroup>
 
 </Project>

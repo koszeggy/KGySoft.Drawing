@@ -35,59 +35,13 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Properties
 
-        protected static bool SaveToFile => false;
+        private static bool SaveToFile => false;
 
         #endregion
 
         #region Methods
 
         #region Protected Methods
-
-        protected static void SaveImage(string imageName, Image image, bool origFormat = false, [CallerMemberName]string testName = null)
-        {
-            if (!SaveToFile)
-                return;
-
-            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
-            if (!Directory.Exists(dir))
-                Directory.CreateDirectory(dir);
-
-            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
-            ImageCodecInfo encoder = null;
-            if (origFormat)
-                encoder = ImageCodecInfo.GetImageEncoders().FirstOrDefault(e => e.FormatID == image.RawFormat.Guid);
-
-            bool toIcon = image.RawFormat.Guid == ImageFormat.Icon.Guid;
-            bool toGif = !toIcon && encoder == null && image.GetBitsPerPixel() <= 8;
-
-            if (encoder != null)
-            {
-                if (encoder.FormatID == ImageFormat.Bmp.Guid)
-                    image.SaveAsBmp($"{fileName}.bmp");
-                else if (encoder.FormatID == ImageFormat.Jpeg.Guid)
-                    image.SaveAsJpeg($"{fileName}.jpeg");
-                else if (encoder.FormatID == ImageFormat.Png.Guid)
-                    image.SaveAsPng($"{fileName}.png");
-                else if (encoder.FormatID == ImageFormat.Gif.Guid)
-                    image.SaveAsGif($"{fileName}.gif");
-                else if (encoder.FormatID == ImageFormat.Tiff.Guid)
-                    image.SaveAsTiff($"{fileName}.tiff", false);
-                return;
-            }
-
-            if (image is Metafile metafile)
-            {
-                metafile.SaveAsWmf($"{fileName}.wmf");
-                return;
-            }
-
-            if (toIcon)
-                image.SaveAsIcon($"{fileName}.ico");
-            else if (toGif)
-                image.SaveAsGif($"{fileName}.gif");
-            else
-                image.SaveAsPng($"{fileName}.png");
-        }
 
         protected static void SaveStream(string streamName, MemoryStream ms, string extension = "gif", [CallerMemberName]string testName = null)
         {
@@ -102,13 +56,36 @@ namespace KGySoft.Drawing.UnitTests
                 ms.WriteTo(fs);
         }
 
-        protected static void SaveBitmapData(string imageName, IReadWriteBitmapData bitmapData, [CallerMemberName]string testName = null)
+        protected static void SaveBitmapData(string imageName, IReadWriteBitmapData source, [CallerMemberName]string testName = null)
         {
             if (!SaveToFile)
                 return;
 
-            using var bmp = bitmapData.ToBitmap();
-            SaveImage(imageName, bmp, false, testName);
+            using var bmp = new Bitmap(source.Width, source.Height,
+                source.PixelFormat.BitsPerPixel <= 8 && source.PixelFormat.Indexed ? PixelFormat.Format8bppIndexed
+                : source.PixelFormat.HasAlpha ? PixelFormat.Format32bppArgb
+                : PixelFormat.Format24bppRgb);
+
+            // setting palette
+            if (source.PixelFormat.Indexed && source.PixelFormat.BitsPerPixel <= 8)
+            {
+                ColorPalette palette = bmp.Palette;
+                Color32[] src = source.Palette!.Entries;
+                Color[] dst = palette.Entries;
+                for (int i = 0; i < source.Palette!.Count; i++)
+                    dst[i] = src[i].ToColor();
+                bmp.Palette = palette;
+            }
+
+            // copying content
+            BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.WriteOnly, bmp.PixelFormat);
+            using (var target = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat,
+                source.Palette, disposeCallback: () => bmp.UnlockBits(bitmapData)))
+            {
+                source.CopyTo(target);
+            }
+
+            SaveBitmap(imageName, bmp, testName);
         }
 
         protected static void EncodeAnimatedGif(AnimatedGifConfiguration config, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
@@ -120,7 +97,7 @@ namespace KGySoft.Drawing.UnitTests
             ms.Position = 0;
 
             using Bitmap restored = new Bitmap(ms);
-            Bitmap[] actualFrames = restored.ExtractBitmaps();
+            Bitmap[] actualFrames = ExtractBitmaps(restored);
             try
             {
                 int expectedLength = sourceFrames.Length + (config.AnimationMode == AnimationMode.PingPong ? Math.Max(0, sourceFrames.Length - 2) : 0);
@@ -128,6 +105,7 @@ namespace KGySoft.Drawing.UnitTests
                 if (!performCompare)
                     return;
 
+                var size = restored.Size;
                 var quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();
                 for (int i = 0; i < actualFrames.Length; i++)
                 {
@@ -135,7 +113,8 @@ namespace KGySoft.Drawing.UnitTests
                     if (sourceFrame.IsDisposed)
                         continue;
                     Console.Write($"Frame #{i}: ");
-                    using IReadableBitmapData actualFrame = actualFrames[i].GetReadableBitmapData();
+                    BitmapData bitmapData = actualFrames[i].LockBits(new Rectangle(Point.Empty, size), ImageLockMode.ReadOnly, actualFrames[i].PixelFormat);
+                    using IReadableBitmapData actualFrame = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, KnownPixelFormat.Format32bppArgb, disposeCallback: () => actualFrames[i].UnlockBits(bitmapData));
                     IReadWriteBitmapData expectedFrame;
                     if (sourceFrame.GetSize() == actualFrame.GetSize())
                         expectedFrame = sourceFrames[i].Clone(KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
@@ -165,6 +144,31 @@ namespace KGySoft.Drawing.UnitTests
             {
                 actualFrames.ForEach(f => f.Dispose());
             }
+        }
+
+        protected static Bitmap[] ExtractBitmaps(Bitmap image)
+        {
+            if (image == null)
+                throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+
+            var dimension = FrameDimension.Time;
+            int frameCount = image.FrameDimensionsList.Length == 0 ? 1 : image.GetFrameCount(dimension);
+
+            if (frameCount <= 1)
+                return new Bitmap[] { image.Clone(new Rectangle(Point.Empty, image.Size), image.PixelFormat) };
+
+            // extracting frames
+            Bitmap[] result = new Bitmap[frameCount];
+            for (int frame = 0; frame < frameCount; frame++)
+            {
+                image.SelectActiveFrame(dimension, frame);
+                result[frame] = image.Clone(new Rectangle(Point.Empty, image.Size), image.PixelFormat);
+            }
+
+            // selecting first frame again
+            image.SelectActiveFrame(dimension, 0);
+
+            return result;
         }
 
         protected static IReadWriteBitmapData GenerateAlphaGradientBitmapData(Size size)
@@ -216,6 +220,41 @@ namespace KGySoft.Drawing.UnitTests
             } while (row.MoveNextRow());
         }
 
+        protected static IReadWriteBitmapData GetInfoIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Information256.png");
+        protected static IReadWriteBitmapData GetInfoIcon64() => GetBitmapData(@"..\..\..\..\Help\Images\Information64.png");
+        protected static IReadWriteBitmapData GetInfoIcon48() => GetBitmapData(@"..\..\..\..\Help\Images\Information48.png");
+        protected static IReadWriteBitmapData GetInfoIcon16() => GetBitmapData(@"..\..\..\..\Help\Images\Information16.png");
+        protected static IReadWriteBitmapData[] GetInfoIconImages() => new[]
+        {
+            GetInfoIcon256(),
+            GetInfoIcon64(),
+            GetInfoIcon48(),
+            GetBitmapData(@"..\..\..\..\Help\Images\Information32.png"),
+            GetBitmapData(@"..\..\..\..\Help\Images\Information24.png"),
+            GetBitmapData(@"..\..\..\..\Help\Images\Information20.png"),
+            GetInfoIcon16()
+        };
+
+        protected static IReadWriteBitmapData GetShieldIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Shield256.png");
+
+        protected static IReadWriteBitmapData ToBitmapData(Bitmap bmp)
+        {
+            Assert.IsTrue(bmp.PixelFormat.In(PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed, PixelFormat.Format24bppRgb));
+            Palette palette = ((int)bmp.PixelFormat & (int)PixelFormat.Indexed) != 0
+                ? new Palette(bmp.Palette.Entries)
+                : null;
+            BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.ReadOnly, bmp.PixelFormat);
+            using var src = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat,
+                palette, disposeCallback: () => bmp.UnlockBits(bitmapData));
+            return src.Clone();
+        }
+
+        protected static IReadWriteBitmapData GetBitmapData(string fileName)
+        {
+            using var bmp = new Bitmap(fileName);
+            return ToBitmapData(bmp);
+        }
+
         protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default, int tolerance = 0)
         {
             if (sourceRectangle == default)
@@ -263,6 +302,48 @@ namespace KGySoft.Drawing.UnitTests
                     //Assert.AreEqual(rowSrc[x + sourceRectangle.X], rowDst[x + targetLocation.X], $"Diff at {x}; {rowSrc.Index}");
                 }
             } while (rowSrc.MoveNextRow() && rowDst.MoveNextRow());
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static void SaveBitmap(string imageName, Bitmap bitmap, string testName)
+        {
+            if (!SaveToFile)
+                return;
+
+            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
+
+            int bpp = Image.GetPixelFormatSize(bitmap.PixelFormat);
+            if (bpp > 8)
+            {
+                bitmap.Save($"{fileName}.png", ImageFormat.Png);
+                return;
+            }
+
+            // to prevent GIF encoder from re-quantizing the image
+            Bitmap toSave = bitmap;
+            if (bpp < 8)
+            {
+                toSave = new Bitmap(bitmap.Width, bitmap.Height, PixelFormat.Format8bppIndexed);
+                toSave.Palette = bitmap.Palette;
+                BitmapData srcBitmapData = bitmap.LockBits(new Rectangle(0, 0, bitmap.Width, bitmap.Height), ImageLockMode.ReadOnly, bitmap.PixelFormat);
+                BitmapData dstBitmapData = toSave.LockBits(new Rectangle(0, 0, toSave.Width, toSave.Height), ImageLockMode.WriteOnly, toSave.PixelFormat);
+                using (IReadWriteBitmapData src = BitmapDataFactory.CreateBitmapData(srcBitmapData.Scan0, bitmap.Size, srcBitmapData.Stride, (KnownPixelFormat)bitmap.PixelFormat))
+                using (IReadWriteBitmapData dst = BitmapDataFactory.CreateBitmapData(dstBitmapData.Scan0, toSave.Size, dstBitmapData.Stride, KnownPixelFormat.Format8bppIndexed))
+                    src.CopyTo(dst);
+                bitmap.UnlockBits(srcBitmapData);
+                toSave.UnlockBits(dstBitmapData);
+            }
+
+            bitmap.Save($"{fileName}.gif", ImageFormat.Gif);
+            if (!ReferenceEquals(bitmap, toSave))
+                toSave.Dispose();
         }
 
         #endregion

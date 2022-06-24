@@ -1,8 +1,7 @@
-﻿#if !NETFRAMEWORK
-#region Copyright
+﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: GlobalInitialization.cs
+//  File: FloatExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
 //
@@ -16,34 +15,23 @@
 
 #region Usings
 
-#if !WINDOWS && (NET5_0 || NET6_0)
 using System;
-#endif
-
-using NUnit.Framework;
+using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace KGySoft.Drawing
 {
-    [SetUpFixture]
-    public class GlobalInitialization
+    internal static class FloatExtensions
     {
         #region Methods
 
-        [OneTimeSetUp]
-        public void Initialize()
-        {
-#if !WINDOWS && (NET5_0 || NET6_0)
-            AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true);
-#endif
-
-#if NET7_0_OR_GREATER && !WINDOWS
-            Assert.Inconclusive("When targeting .NET 7 or later, executing the tests require Windows. For Unix systems target .NET 6 or earlier.");
-#endif
-        }
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static byte ClipToByte(this float value)
+            => value < Byte.MinValue ? Byte.MinValue
+                : value > Byte.MaxValue ? Byte.MaxValue
+                : (byte)value;
 
         #endregion
     }
 }
-#endif
