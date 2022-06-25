@@ -23,7 +23,7 @@ using KGySoft.CoreLibraries;
 
 #endregion
 
-namespace KGySoft.Drawing.UnitTests
+namespace KGySoft.Drawing.Wpf.UnitTests
 {
     public abstract class TestBase
     {

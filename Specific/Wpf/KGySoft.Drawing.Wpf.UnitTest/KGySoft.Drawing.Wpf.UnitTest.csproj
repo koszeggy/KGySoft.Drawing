@@ -6,7 +6,7 @@
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
-    <RootNamespace>KGySoft.Drawing</RootNamespace>
+    <RootNamespace>KGySoft.Drawing.Wpf</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <LangVersion>latest</LangVersion>

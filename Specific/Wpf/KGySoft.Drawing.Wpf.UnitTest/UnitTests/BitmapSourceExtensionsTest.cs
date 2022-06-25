@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: WriteableBitmapExtensionsTest.cs
+//  File: BitmapSourceExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -32,7 +32,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.Wpf.UnitTests
 {
     [TestFixture]
-    public class WriteableBitmapExtensionsTest : TestBase
+    public class BitmapSourceExtensionsTest : TestBase
     {
         #region Fields
 
@@ -145,36 +145,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "CMYK32 Transparent", PixelFormats.Cmyk32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
         };
 
-        private static readonly object[] wpfBehaviorTestSource =
-        {
-            PixelFormats.Default,
-            PixelFormats.Indexed1,
-            PixelFormats.Indexed2,
-            PixelFormats.Indexed4,
-            PixelFormats.Indexed8,
-            PixelFormats.BlackWhite,
-            PixelFormats.Gray2,
-            PixelFormats.Gray4,
-            PixelFormats.Gray8,
-            PixelFormats.Bgr555,
-            PixelFormats.Bgr565,
-            PixelFormats.Gray16,
-            PixelFormats.Bgr24,
-            PixelFormats.Rgb24,
-            PixelFormats.Bgr32,
-            PixelFormats.Bgra32,
-            PixelFormats.Pbgra32,
-            PixelFormats.Gray32Float,
-            PixelFormats.Bgr101010,
-            PixelFormats.Rgb48,
-            PixelFormats.Rgba64,
-            PixelFormats.Prgba64,
-            PixelFormats.Rgba128Float,
-            PixelFormats.Prgba128Float,
-            PixelFormats.Rgb128Float,
-            PixelFormats.Cmyk32,
-        };
-
         #endregion
 
         #region Methods
@@ -183,7 +153,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private static BitmapPalette GetDefaultPalette(PixelFormat pixelFormat)
         {
-            //return null;
             var result = pixelFormat == PixelFormats.Indexed1 ? Palette.BlackAndWhite()
                 : pixelFormat == PixelFormats.Indexed2 ? new Palette(new[] { Color32.FromGray(0), Color32.FromGray(0x80), Color32.FromGray(0xC0), Color32.FromGray(0xFF) })
                 : pixelFormat == PixelFormats.Indexed4 ? Palette.SystemDefault4BppPalette()
@@ -192,7 +161,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             return result == null ? null : new BitmapPalette(result.GetEntries().Select(c => Color.FromArgb(c.A, c.R, c.G, c.B)).ToArray());
         }
 
-        private static long GetRawValue(PixelFormat pixelFormat, IReadWriteBitmapDataRow row)
+        private static long GetRawValue(PixelFormat pixelFormat, IReadableBitmapDataRow row)
         {
             return pixelFormat.BitsPerPixel switch
             {
@@ -220,13 +189,14 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             var bmp = new WriteableBitmap(1, 1, 96, 96, pixelFormat, GetDefaultPalette(pixelFormat));
             Color32 expectedColor = expectedResult.ToColor32();
-            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
+            using (var writableBitmapData = bmp.GetWritableBitmapData())
+                writableBitmapData.FirstRow[0] = testColor.ToColor32();
+
+            using (var readableBitmapData = bmp.GetReadableBitmapData())
             {
-                IReadWriteBitmapDataRow row = bitmapData.FirstRow;
-                row[0] = testColor.ToColor32();
-                Color32 actualColor = row[0];
+                Color32 actualColor = readableBitmapData.FirstRow[0];
                 Assert.IsTrue(expectedColor.TolerantEquals(actualColor, 1), $"Expected vs. read color: {expectedColor} <=> {actualColor}");
-                long actualRawValue = GetRawValue(pixelFormat, row);
+                long actualRawValue = GetRawValue(pixelFormat, readableBitmapData[0]);
                 Assert.AreEqual(expectedRawValue, actualRawValue, $"Raw value {expectedRawValue:X8} was expected but it was {actualRawValue:X8}");
             }
 
@@ -236,53 +206,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             using IReadWriteBitmapData convertedBitmapData = converted.GetReadWriteBitmapData();
             Color32 convertedColor = convertedBitmapData[0][0];
             Assert.IsTrue(pixelFormat == PixelFormats.Cmyk32 || expectedColor.TolerantEquals(convertedColor, 1), $"Expected vs. converted color: {expectedColor} <=> {convertedColor}");
-        }
-
-        [Explicit]
-        [TestCaseSource(nameof(wpfBehaviorTestSource))]
-        public void WpfBehaviorTest(PixelFormat pixelFormat)
-        {
-            var source = new BitmapImage(new Uri(@"..\..\..\..\..\..\Help\Images\AlphaGradient.png", UriKind.Relative));
-            var bmp = new WriteableBitmap(source);
-            //var bmp = new WriteableBitmap(1, 1, 96, 96, pixelFormat, GetDefaultPalette(pixelFormat));
-            //using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
-            //    bitmapData[0][0] = Color32.FromGray(128);
-
-            var converted = new WriteableBitmap(new FormatConvertedBitmap(bmp, pixelFormat, GetDefaultPalette(pixelFormat), 0.5));
-            //var converted = new WriteableBitmap(16, 1, 100, 100, pixelFormat, null);
-            Console.WriteLine($"{converted.Format}: {converted.Format.BitsPerPixel}bpp {Reflector.GetProperty(converted.Format, "FormatFlags")}");
-            Console.WriteLine("Masks:");
-            var masks = converted.Format.Masks;
-            foreach (PixelFormatChannelMask mask in masks)
-                Console.WriteLine($"    {mask.Mask.Reverse().Select(b => b.ToString("X2")).Join("")}");
-            var palette = converted.Palette?.Colors;
-            if (palette != null)
-            {
-                Console.WriteLine($"Palette: {palette.Count} colors");
-                for (int i = 0; i < palette.Count; i++)
-                {
-                    if (i % 16 == 0)
-                    {
-                        if (i > 0)
-                            Console.WriteLine();
-                        Console.Write("    ");
-                    }
-
-                    Console.Write(palette[i]);
-                    if (i < palette.Count - 1)
-                        Console.Write("; ");
-                }
-
-                Console.WriteLine();
-            }
-
-            if (!SaveToFile)
-                return;
-            var encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(converted));
-            var stream = new MemoryStream();
-            encoder.Save(stream);
-            SaveStream($"{pixelFormat}", stream, "png");
         }
 
         #endregion

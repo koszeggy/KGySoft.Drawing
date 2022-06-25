@@ -24,7 +24,6 @@ using System.Reflection;
 using System.Resources;
 
 using KGySoft.CoreLibraries;
-using KGySoft.Drawing.Wpf;
 using KGySoft.Reflection;
 using KGySoft.Resources;
 
@@ -32,7 +31,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace KGySoft.Drawing.UnitTests
+namespace KGySoft.Drawing.Wpf.UnitTests
 {
     [TestFixture]
     public class ResTests
