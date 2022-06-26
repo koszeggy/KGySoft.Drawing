@@ -242,7 +242,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         [TestCaseSource(nameof(wpfBehaviorTestSource))]
         public void WpfBehaviorTest(PixelFormat pixelFormat)
         {
-            var source = new BitmapImage(new Uri(@"..\..\..\..\..\..\Help\Images\AlphaGradient.png", UriKind.Relative));
+            var source = GetBitmap(@"..\..\..\..\..\..\Help\Images\AlphaGradient.png");
             var bmp = new WriteableBitmap(source);
             //var bmp = new WriteableBitmap(1, 1, 96, 96, pixelFormat, GetDefaultPalette(pixelFormat));
             //using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
@@ -276,13 +276,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 Console.WriteLine();
             }
 
-            if (!SaveToFile)
-                return;
-            var encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(converted));
-            var stream = new MemoryStream();
-            encoder.Save(stream);
-            SaveStream($"{pixelFormat}", stream, "png");
+            SaveBitmap($"{pixelFormat}", converted);
         }
 
         #endregion

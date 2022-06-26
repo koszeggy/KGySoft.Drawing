@@ -16,14 +16,11 @@
 #region Usings
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
-using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
-using KGySoft.Reflection;
 
 using NUnit.Framework;
 
@@ -145,6 +142,37 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "CMYK32 Transparent", PixelFormats.Cmyk32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
         };
 
+        private static readonly object[][] sourceConvertPixelFormatDirectTest =
+        {
+            new object[] { PixelFormats.Indexed8, Colors.Black, (byte)0 },
+            new object[] { PixelFormats.Indexed8, Colors.Black, (byte)1 },
+            new object[] { PixelFormats.Indexed8, Colors.Black, (byte)128 },
+            new object[] { PixelFormats.Indexed8, Colors.Black, (byte)255 },
+            new object[] { PixelFormats.Indexed8, Colors.White, (byte)1 },
+            new object[] { PixelFormats.Indexed8, Color.FromRgb(0x88, 0x88, 0x88), (byte)1 },
+            new object[] { PixelFormats.Indexed4, Colors.Black, (byte)0 },
+            new object[] { PixelFormats.Indexed4, Colors.White, (byte)0 },
+            new object[] { PixelFormats.Bgr565, Colors.Black, (byte)0 },
+            new object[] { PixelFormats.Bgr565, Colors.White, (byte)0 },
+            new object[] { PixelFormats.Gray16, Colors.Black, (byte)0 },
+            new object[] { PixelFormats.Gray16, Colors.White, (byte)0 },
+            new object[] { PixelFormats.Rgb48, Colors.Black, (byte)0 },
+            new object[] { PixelFormats.Rgb48, Colors.White, (byte)0 },
+            new object[] { PixelFormats.Cmyk32, Colors.Black, (byte)128 },
+        };
+
+        private static readonly object[][] convertPixelFormatCustomTestSource =
+        {
+            new object[] { "To 8bpp 256 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), null },
+            new object[] { "To 8bpp 256 color dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer2x2 },
+            new object[] { "To 8bpp 16 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault4BppPalette(), null },
+            new object[] { "To 4bpp 2 color dithering", PixelFormats.Indexed4, PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.DottedHalftone },
+            new object[] { "To BGR555 256 color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.SystemDefault8BppPalette(), new RandomNoiseDitherer(), },
+            new object[] { "To BGR555 32K color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.Argb1555(), new RandomNoiseDitherer(), },
+            new object[] { "To BGR555 16.7M color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.Rgb888(), new RandomNoiseDitherer(), },
+            new object[] { "To 1bpp 2 color dithering auto select quantizer", PixelFormats.Indexed1, null, OrderedDitherer.Bayer8x8 },
+        };
+
         #endregion
 
         #region Methods
@@ -206,6 +234,36 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             using IReadWriteBitmapData convertedBitmapData = converted.GetReadWriteBitmapData();
             Color32 convertedColor = convertedBitmapData[0][0];
             Assert.IsTrue(pixelFormat == PixelFormats.Cmyk32 || expectedColor.TolerantEquals(convertedColor, 1), $"Expected vs. converted color: {expectedColor} <=> {convertedColor}");
+        }
+
+        [TestCaseSource(nameof(sourceConvertPixelFormatDirectTest))]
+        public void ConvertPixelFormatDirectTest(PixelFormat pixelFormat, Color backColor, byte alphaThreshold)
+        {
+            BitmapSource ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            WriteableBitmap converted = ref32bpp.ConvertPixelFormat(pixelFormat, backColor, alphaThreshold);
+            Assert.AreEqual(pixelFormat, converted.Format);
+            SaveBitmap($"{pixelFormat} - {backColor} (A={alphaThreshold})", converted);
+        }
+
+        [TestCaseSource(nameof(convertPixelFormatCustomTestSource))]
+        public void ConvertPixelFormatCustomTest(string testName, PixelFormat pixelFormat, IQuantizer quantizer, IDitherer ditherer)
+        {
+            BitmapSource source = GetInfoIcon256();
+            WriteableBitmap converted = source.ConvertPixelFormat(pixelFormat, quantizer, ditherer);
+            Assert.AreEqual(pixelFormat, converted.Format);
+            SaveBitmap(testName, converted);
+        }
+
+        [Test]
+        public void ConvertPixelFormatIndexedSourceTest()
+        {
+            WriteableBitmap source = GetInfoIcon256().ConvertPixelFormat(PixelFormats.Indexed4, OptimizedPaletteQuantizer.Wu(16));
+            var converted = source.ConvertPixelFormat(PixelFormats.Indexed8);
+            Assert.AreEqual(PixelFormats.Indexed8, converted.Format);
+            AssertAreEqual(source, converted, true);
+            SaveBitmap(null, converted);
         }
 
         #endregion
