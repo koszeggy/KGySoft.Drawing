@@ -18,19 +18,23 @@
 #region Used Namespaces
 
 using System;
+using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
+using KGySoft.Reflection;
+using KGySoft.Threading;
 
 #endregion
 
 #region Used Aliases
 
-using Size = System.Drawing.Size;
+using Color = System.Windows.Media.Color;
 
 #endregion
 
@@ -184,6 +188,21 @@ namespace KGySoft.Drawing.Wpf
             throw new InvalidOperationException(Res.InternalError($"Unexpected PixelFormat {sourceFormat}"));
         }
 
+        public static WriteableBitmap ConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
+            => ConvertPixelFormat(bitmap, newPixelFormat, null, backColor, alphaThreshold);
+
+        public static WriteableBitmap ConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128)
+        {
+            ValidateConvertPixelFormat(bitmap, newPixelFormat);
+            return DoConvertPixelFormat(AsyncHelper.DefaultContext, bitmap, newPixelFormat, palette, backColor, alphaThreshold)!;
+        }
+
+        public static WriteableBitmap ConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
+        {
+            ValidateConvertPixelFormat(bitmap, newPixelFormat);
+            return DoConvertPixelFormat(AsyncHelper.DefaultContext, bitmap, newPixelFormat, quantizer, ditherer)!;
+        }
+
         #endregion
 
         #region Internal Methods
@@ -192,6 +211,119 @@ namespace KGySoft.Drawing.Wpf
         {
             BitmapPalette? palette = bitmap.Palette;
             return palette == null ? null : new Palette(palette.Colors.Select(c => c.ToColor32()).ToArray(), backColor.ToColor32(), alphaThreshold);
+        }
+
+        #endregion
+
+        #region Private Methods
+
+        private static void ValidateConvertPixelFormat(BitmapSource bitmap, PixelFormat newPixelFormat)
+        {
+            if (bitmap == null)
+                throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (newPixelFormat == default)
+                throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.ArgumentOutOfRange);
+        }
+
+        private static WriteableBitmap? DoConvertPixelFormat(IAsyncContext context, BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
+        {
+            if (context.IsCancellationRequested)
+                return null;
+
+            var result = new WriteableBitmap(bitmap.PixelWidth, bitmap.PixelHeight, bitmap.DpiX, bitmap.DpiY, newPixelFormat,
+                GetTargetPalette(newPixelFormat, bitmap, palette));
+
+            using (IReadableBitmapData source = bitmap.GetReadableBitmapData())
+            using (IWritableBitmapData target = result.GetWritableBitmapData(backColor, alphaThreshold))
+                source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty);
+
+            return context.IsCancellationRequested ? null : result;
+        }
+
+        private static WriteableBitmap? DoConvertPixelFormat(IAsyncContext context, BitmapSource bitmap, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+        {
+            if (context.IsCancellationRequested)
+                return null;
+
+            IList<Color>? paletteEntries = null;
+            if (quantizer == null)
+            {
+                // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
+                if (ditherer == null || !newPixelFormat.CanBeDithered())
+                    return DoConvertPixelFormat(context, bitmap, newPixelFormat, null, default, 128);
+
+                // here we need to pick a quantizer for the dithering
+                int bpp = newPixelFormat.BitsPerPixel;
+
+                paletteEntries = bitmap.Palette?.Colors ?? Reflector.EmptyArray<Color>();
+                if (bpp <= 8 && paletteEntries.Count > 0 && paletteEntries.Count <= (1 << bpp))
+                    quantizer = PredefinedColorsQuantizer.FromCustomPalette(new Palette(paletteEntries.Select(c => c.ToColor32()).ToArray()));
+                else
+                {
+                    quantizer = newPixelFormat.GetDefaultQuantizer();
+                    paletteEntries = null;
+                }
+            }
+
+            if (context.IsCancellationRequested)
+                return null;
+
+            using IReadableBitmapData source = bitmap.GetReadableBitmapData();
+
+            // We explicitly initialize the quantizer just to determine the palette colors for the result Bitmap.
+            context.Progress?.New(DrawingOperation.InitializingQuantizer);
+            Palette? palette = null;
+            Color32 backColor;
+            byte alphaThreshold;
+            WriteableBitmap result;
+            using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
+            {
+                if (context.IsCancellationRequested)
+                    return null;
+                if (quantizingSession == null)
+                    throw new InvalidOperationException(Res.BitmapSourceExtensionsQuantizerInitializeNull);
+
+                result = new WriteableBitmap(bitmap.PixelWidth, bitmap.PixelHeight, bitmap.DpiX, bitmap.DpiY, newPixelFormat,
+                    GetTargetPalette(newPixelFormat, bitmap, paletteEntries ?? (palette = quantizingSession.Palette)?.GetEntries().Select(c => c.ToMediaColor()).ToArray()));
+
+                backColor = quantizingSession.BackColor;
+                alphaThreshold = quantizingSession.AlphaThreshold;
+            }
+
+            if (context.IsCancellationRequested)
+                return null;
+
+            // We have a palette from a potentially expensive quantizer: creating a predefined quantizer from the already generated palette to avoid generating it again.
+            if (palette != null && quantizer is not PredefinedColorsQuantizer)
+                quantizer = PredefinedColorsQuantizer.FromCustomPalette(palette);
+
+            // Note: palette is purposely not passed here so a new instance will be created from the colors, without any possible delegate (which is still used by the quantizer).
+            using (IWritableBitmapData target = result.GetWritableBitmapData(backColor.ToMediaColor(), alphaThreshold))
+                source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, ditherer);
+
+            return context.IsCancellationRequested ? null : result;
+        }
+
+        private static BitmapPalette? GetTargetPalette(PixelFormat newPixelFormat, BitmapSource source, IList<Color>? palette)
+        {
+            if (!newPixelFormat.IsIndexed())
+                return null;
+
+            int bpp = newPixelFormat.BitsPerPixel;
+
+            // if no desired colors are specified but converting to a higher bpp indexed image, then taking the source palette
+            if (palette == null && source.Format.BitsPerPixel <= bpp)
+                return source.Palette;
+
+            if (palette == null || palette.Count == 0)
+                return newPixelFormat.GetDefaultPalette();
+
+            // there is a desired palette to apply
+            int maxColors = 1 << bpp;
+            if (palette.Count > maxColors)
+                throw new ArgumentException(Res.BitmapSourceExtensionsPaletteTooLarge(maxColors, bpp), nameof(palette));
+
+            return new BitmapPalette(palette);
         }
 
         #endregion

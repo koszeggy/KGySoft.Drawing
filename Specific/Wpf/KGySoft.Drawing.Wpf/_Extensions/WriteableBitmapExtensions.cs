@@ -67,7 +67,7 @@ namespace KGySoft.Drawing.Wpf
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (bitmap.IsFrozen)
-                throw new ArgumentException(Res.WriteableBitmapFrozen, nameof(bitmap));
+                throw new ArgumentException(Res.WriteableBitmapExtensionsBitmapFrozen, nameof(bitmap));
 
             PixelFormat sourceFormat = bitmap.Format;
             KnownPixelFormat knownFormat = sourceFormat.AsKnownPixelFormat();

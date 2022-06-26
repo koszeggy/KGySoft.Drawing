@@ -49,7 +49,10 @@ namespace KGySoft.Drawing.Wpf
         #region Properties
 
         /// <summary>The bitmap must not be frozen.</summary>
-        internal static string WriteableBitmapFrozen => Get("WriteableBitmap_Frozen");
+        internal static string WriteableBitmapExtensionsBitmapFrozen => Get("WriteableBitmapExtensions_BitmapFrozen");
+
+        /// <summary>The IQuantizer.Initialize method returned a null reference.</summary>
+        internal static string BitmapSourceExtensionsQuantizerInitializeNull => Get("BitmapSourceExtensions_QuantizerInitializeNull");
 
         #endregion
 
@@ -60,6 +63,9 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>Internal Error: {0}</summary>
         /// <remarks>Use this method to avoid CA1303 for using string literals in internal errors that never supposed to occur.</remarks>
         internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
+
+        /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
+        internal static string BitmapSourceExtensionsPaletteTooLarge(int max, int bpp) => Get("BitmapSource_ExtensionsPaletteTooLargeFormat", max, bpp);
 
         #endregion
 
