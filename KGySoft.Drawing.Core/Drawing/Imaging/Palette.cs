@@ -46,7 +46,7 @@ namespace KGySoft.Drawing.Imaging
     /// <para>In order to prevent caching you can pass a custom lookup logic to the constructors. It is expected to be fast (applying some direct mapping to a palette index,
     /// for example), or that it uses some custom caching (which should perform well also when queried concurrently).</para>
     /// <para>The palette can have any number of colors but as the typical usage is quantizing colors for indexed bitmaps the typical maximum palette size
-    /// is 256. Generally, the more color the palette has the slower are the lookups for non-palette colors that are not cached yet.</para>
+    /// is 256. Generally, the more colors the palette has the slower are the lookups for non-palette colors that are not cached yet.</para>
     /// </remarks>
     /// <threadsafety instance="false">If there is no custom lookup logic passed to the constructors, then members of this type are guaranteed to be safe for multi-threaded operations.
     /// If this type is initialized with a custom lookup logic, then thread-safety depends on the custom lookup implementation.</threadsafety>
@@ -201,6 +201,8 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Instance Properties
+        
         #region Public Properties
 
         /// <summary>
@@ -240,6 +242,8 @@ namespace KGySoft.Drawing.Imaging
         internal Color32[] Entries { get; }
         internal int TransparentIndex { get; }
         internal bool HasTransparent => TransparentIndex >= 0;
+
+        #endregion
 
         #endregion
 

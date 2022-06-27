@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -2282,6 +2283,7 @@ namespace KGySoft.Drawing
             }
         }
 
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
         {
             Bitmap bmp = image.AsBitmap();
@@ -2369,7 +2371,7 @@ namespace KGySoft.Drawing
         {
             int bpp = newPixelFormat.ToBitsPerPixel();
 
-            // if the quantized does not have a palette but converting to a higher bpp indexed image, then taking the source palette
+            // if the quantized target does not have a palette but converting to a higher bpp indexed image, then taking the source palette
             if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
                 // ReSharper disable once ConstantConditionalAccessQualifier
                 palette = source.Palette?.Entries;
