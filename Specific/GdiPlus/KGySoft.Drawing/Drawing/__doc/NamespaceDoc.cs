@@ -48,8 +48,15 @@ namespace KGySoft.Drawing
     /// namespace, <see cref="ReadableBitmapDataExtensions"/>, which contains the extension methods that had to be removed from the <see cref="BitmapDataExtensions"/>
     /// class because they use the <see cref="Bitmap"/> type. Additionally, it defines also a single type converter in the <see cref="N:KGySoft.ComponentModel"/> namespace.</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Wpf/" target="_blank">KGySoft.Drawing.Wpf</a></term>
-    /// <description>This package provides direct support for the <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.WriteableBitmap" target="_blank">System.Windows.Media.Imaging.WriteableBitmap</a>
-    /// type and covers the <see cref="N:KGySoft.Drawing.Wpf"/> namespace.</description></item>
+    /// <description>This package provides dedicated support for the <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.WriteableBitmap" target="_blank">System.Windows.Media.Imaging.WriteableBitmap</a>
+    /// type. Use the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">WriteableBitmapExtensions.GetReadWriteBitmapData</a>
+    /// extension method to expose its underlying buffer (of any pixel format) as an <see cref="IReadWriteBitmapData"/> to be able to use all of the core operations and transformations for a bitmap data.</description></item>
+    /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Uwp/" target="_blank">KGySoft.Drawing.Uwp</a></term>
+    /// <description>Similarly to the WPF package, this one provides support for the <a href="https://docs.microsoft.com/en-us/uwp/api/windows.ui.xaml.media.imaging.writeablebitmap" target="_blank">Windows.UI.Xaml.Media.Imaging.WriteableBitmap</a>
+    /// used by the Universal Windows Platform (UWP) platform. Its documentation is not compiled to this combined documentation due to technical reasons
+    /// but just like in case of the WPF package you can use the <c>GetReadWriteBitmapData</c> extension method to obtain an <see cref="IReadWriteBitmapData"/> instance
+    /// for the bitmap. This package requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version
+    /// of the <a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a> library.</description></item>
     /// </list></note>
     /// </remarks>
     [CompilerGenerated]

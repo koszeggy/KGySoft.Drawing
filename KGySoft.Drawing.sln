@@ -32,6 +32,10 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf", "Spec
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Wpf.UnitTest", "Specific\Wpf\KGySoft.Drawing.Wpf.UnitTest\KGySoft.Drawing.Wpf.UnitTest.csproj", "{88D10E91-1586-4E1A-B8E0-0502A911D5A4}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Uwp", "Uwp", "{C022057E-A852-4E98-B058-159C5A66AC76}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Uwp", "Specific\Uwp\KGySoft.Drawing.Uwp\KGySoft.Drawing.Uwp.csproj", "{B268A78C-730A-4CB0-8CAB-2831C9C935FC}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -66,6 +70,10 @@ Global
 		{88D10E91-1586-4E1A-B8E0-0502A911D5A4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{88D10E91-1586-4E1A-B8E0-0502A911D5A4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{88D10E91-1586-4E1A-B8E0-0502A911D5A4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B268A78C-730A-4CB0-8CAB-2831C9C935FC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B268A78C-730A-4CB0-8CAB-2831C9C935FC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B268A78C-730A-4CB0-8CAB-2831C9C935FC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B268A78C-730A-4CB0-8CAB-2831C9C935FC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -78,6 +86,8 @@ Global
 		{C1DC58E1-7584-4447-A974-D3685E3AD272} = {1F64BBA7-A172-4356-8ED7-B4765F03C08E}
 		{45C73BF1-2C6F-433F-81D7-A292D573FB69} = {C1DC58E1-7584-4447-A974-D3685E3AD272}
 		{88D10E91-1586-4E1A-B8E0-0502A911D5A4} = {C1DC58E1-7584-4447-A974-D3685E3AD272}
+		{C022057E-A852-4E98-B058-159C5A66AC76} = {1F64BBA7-A172-4356-8ED7-B4765F03C08E}
+		{B268A78C-730A-4CB0-8CAB-2831C9C935FC} = {C022057E-A852-4E98-B058-159C5A66AC76}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0FAD51C6-1E18-4C33-A1E4-1E9C7DDB9570}

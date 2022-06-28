@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Wpf</id>
-    <version>7.0.0-alpha.1</version>
+    <version>7.0.0-preview.1</version>
     <title>KGy SOFT Drawing Libraries for WPF</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -11,12 +11,13 @@
     <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
-    <summary>Providing KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap such as fast and direct bitmap manipulation, quantizing and dithering for any pixel format.</summary>
+    <summary>Provides KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap such as fast and direct bitmap manipulation, quantizing and dithering for any pixel format.</summary>
     <description xml:space="preserve">KGy SOFT Drawing Libraries for WPF offer KGySoft.Drawing.Core features for System.Windows.Media.WriteableBitmap.
 
 Among others:
 - Fast direct native WriteableBitmap data access
-- Supporting every every PixelFormat
+- Fast read-only access to any BitmapSource of any pixel format
+- Supporting every PixelFormat
 
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
 GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
