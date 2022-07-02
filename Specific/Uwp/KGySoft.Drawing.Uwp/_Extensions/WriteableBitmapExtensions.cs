@@ -15,8 +15,6 @@
 
 #region Usings
 
-#region Used Namespaces
-
 using System;
 using System.Drawing;
 using System.Runtime.InteropServices.WindowsRuntime;
@@ -26,9 +24,6 @@ using KGySoft.Drawing.Imaging;
 
 using Windows.Storage.Streams;
 using Windows.UI.Xaml.Media.Imaging;
-
-#endregion
-
 
 #endregion
 
