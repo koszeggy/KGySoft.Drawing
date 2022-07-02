@@ -1,0 +1,43 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<package >
+  <metadata>
+    <id>KGySoft.Drawing.WinUI</id>
+    <version>7.0.0-alpha.1</version>
+    <title>KGy SOFT Drawing Libraries for WinUI</title>
+    <authors>György Kőszeg</authors>
+    <owners>György Kőszeg</owners>
+    <license type="file">LICENSE</license>
+    <projectUrl>https://kgysoft.net/drawing</projectUrl>
+    <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
+    <icon>Icon64.png</icon>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <summary>Provides KGySoft.Drawing.Core features for Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap such as fast and direct bitmap manipulation, quantizing and dithering, etc.</summary>
+    <description xml:space="preserve">KGy SOFT Drawing Libraries for WinUI offer KGySoft.Drawing.Core features for Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap.
+
+This library requires targeting at least Windows 10.0.17763.0 (October 2018 release, version 1809).
+
+Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
+GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
+WPF specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+Find Documentation: https://docs.kgysoft.net/drawing</description>
+    <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.Uwp/changelog.txt</releaseNotes>
+    <copyright>Copyright © KGy SOFT</copyright>
+    <tags>KGySoft Drawing winui winrt extension writeable-bitmap writeablebitmap bitmapdata</tags>
+    <language>en-US</language>
+    <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
+    <dependencies>
+      <group targetFramework="net5.0-windows10.0.17763" >
+        <dependency id="KGySoft.Drawing.Core" version="7.0.0-preview.1" />
+      </group>
+    </dependencies>
+  </metadata>
+  <files>
+    <file src="..\..\..\..\LICENSE" />
+    <!--<file src="..\..\..\..\Help\KGySoft.Drawing.chm" target="Help" />-->
+    <!--<file src="readme.txt"/>-->
+    <file src="Icon64.png" target="" />
+    <file src="..\bin\Release\net5.0-windows10.0.17763\KGySoft.Drawing.WinUI.dll" target="lib\net5.0-windows10.0.17763" />
+    <file src="..\bin\Release\net5.0-windows10.0.17763\KGySoft.Drawing.WinUI.xml" target="lib\net5.0-windows10.0.17763" />
+    <file src="..\bin\Release\net5.0-windows10.0.17763\KGySoft.Drawing.WinUI.pri" target="lib\net5.0-windows10.0.17763" />
+  </files>
+</package>

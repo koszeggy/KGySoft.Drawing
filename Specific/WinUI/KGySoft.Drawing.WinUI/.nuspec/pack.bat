@@ -1,0 +1,1 @@
+@nuget pack -properties Configuration=Release KGySoft.Drawing.WinUI.nuspec
