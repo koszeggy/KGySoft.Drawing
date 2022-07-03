@@ -24,5 +24,7 @@ See the [online help](https://docs.kgysoft.net/drawing) for the complete documen
 
 > 💡 _Tip_:
 > * For technology-agnostic solutions that can be used on any platform see the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core/) package.
-> * For WPF specific solutions see the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf/) package. It makes possible to create managed, fast accessible bitmap data for the WriteableBitmap class, supporting all pixel formats.
+> * For WPF specific solutions see the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf/) package. It makes possible to obtain a managed, fast accessible bitmap data for a `WriteableBitmap` instance of any pixel format, offering all features of an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a `WriteableBitmap`.
+> * For dedicated UWP support see the [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp/) package.
+> * For dedicated WinUI support see the [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI/) package.
 > * See also the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which contains debugger visualizers built on the KGy SOFT Drawing Libraries as well as a test project, which demonstrates its features.

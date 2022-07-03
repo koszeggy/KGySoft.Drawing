@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: NamespaceDoc.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -51,11 +51,17 @@ namespace KGySoft.Drawing
     /// <description>This package provides dedicated support for the <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.WriteableBitmap" target="_blank">System.Windows.Media.Imaging.WriteableBitmap</a>
     /// type. Use the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">WriteableBitmapExtensions.GetReadWriteBitmapData</a>
     /// extension method to expose its underlying buffer (of any pixel format) as an <see cref="IReadWriteBitmapData"/> to be able to use all of the core operations and transformations for a bitmap data.</description></item>
+    /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.WinUI/" target="_blank">KGySoft.Drawing.WinUI</a></term>
+    /// <description>Similarly to the WPF package, this one provides support for the <a href="https://docs.microsoft.com/en-us/uwp/api/microsoft.ui.xaml.media.imaging.writeablebitmap" target="_blank">Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap</a>,
+    /// which is used by <a href="https://docs.microsoft.com/en-us/windows/apps/windows-app-sdk/" target="_blank">Windows App SDK</a> in WinUI applications.
+    /// It also has a <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_WinUI_WriteableBitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">WriteableBitmapExtensions.GetReadWriteBitmapData</a> <c>GetReadWriteBitmapData</c>
+    /// extension method to obtain an <see cref="IReadWriteBitmapData"/> instance for the bitmap.
+    /// This package requires targeting at least .NET 5 and Windows 10.0.17763.0 (October 2018 release, version 1809).</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Uwp/" target="_blank">KGySoft.Drawing.Uwp</a></term>
-    /// <description>Similarly to the WPF package, this one provides support for the <a href="https://docs.microsoft.com/en-us/uwp/api/windows.ui.xaml.media.imaging.writeablebitmap" target="_blank">Windows.UI.Xaml.Media.Imaging.WriteableBitmap</a>
+    /// <description>Just like the WinUI package, this one provides support for the <a href="https://docs.microsoft.com/en-us/uwp/api/windows.ui.xaml.media.imaging.writeablebitmap" target="_blank">Windows.UI.Xaml.Media.Imaging.WriteableBitmap</a>
     /// used by the Universal Windows Platform (UWP) platform. Its documentation is not compiled to this combined documentation due to technical reasons
-    /// but just like in case of the WPF package you can use the <c>GetReadWriteBitmapData</c> extension method to obtain an <see cref="IReadWriteBitmapData"/> instance
-    /// for the bitmap. This package requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version
+    /// but it provides exactly the same functionality as the WinUI package.
+    /// This package requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version
     /// of the <a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a> library.</description></item>
     /// </list></note>
     /// </remarks>

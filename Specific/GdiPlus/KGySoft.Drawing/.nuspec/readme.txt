@@ -41,5 +41,11 @@ Some Highlights of KGy SOFT Drawing Libraries:
 
 💡 Tip:
 - For technology-agnostic solutions that can be used on any platform see the KGySoft.Drawing.Core package.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.Core
 - For WPF specific solutions see the KGySoft.Drawing.Wpf package. It makes possible to create managed, fast
-  accessible bitmap data for the WriteableBitmap class, supporting all pixel formats.
+  accessible bitmap data for a WriteableBitmap instance of any pixel format.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.Wpf
+- For dedicated UWP support see the KGySoft.Drawing.Uwp package.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.Uwp
+- For dedicated WinUI support see the KGySoft.Drawing.WinUI package.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.WinUI

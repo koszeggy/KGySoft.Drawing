@@ -20,7 +20,9 @@ Among others:
 - Supporting every PixelFormat
 
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
-GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
+GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
+UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
+WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>

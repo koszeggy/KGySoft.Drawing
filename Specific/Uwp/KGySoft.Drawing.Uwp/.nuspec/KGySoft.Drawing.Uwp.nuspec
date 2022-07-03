@@ -14,11 +14,12 @@
     <summary>Provides KGySoft.Drawing.Core features for Windows.UI.Xaml.Media.Imaging.WriteableBitmap such as fast and direct bitmap manipulation, quantizing and dithering, etc.</summary>
     <description xml:space="preserve">KGy SOFT Drawing Libraries for UWP offer KGySoft.Drawing.Core features for Windows.UI.Xaml.Media.Imaging.WriteableBitmap.
 
-This library requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version of the dependent libraries.
+This library requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version of the dependent core libraries.
 
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
-GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
-WPF specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
+WPF specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Uwp/KGySoft.Drawing.Uwp/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>

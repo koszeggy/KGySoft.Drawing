@@ -72,17 +72,33 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
 #### [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf)
 
-This package helps accessing the bitmap data of the `WriteableBitmap` type in WPF supporting all of its possible pixel formats.
+This package helps accessing the bitmap data of the `WriteableBitmap` type in WPF supporting all of its possible pixel formats. It also allows direct read-only access to the bitmap data of any `BitmapSource`.
 
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) or by using the Package Manager Console:
 
     PM> Install-Package KGySoft.Drawing.Wpf
 
+#### [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp)
+
+This package helps accessing the bitmap data of the `WriteableBitmap` type in UWP (Universal Windows Platform). This library requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version of the dependent core libraries.
+
+The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Uwp) or by using the Package Manager Console:
+
+    PM> Install-Package KGySoft.Drawing.Uwp
+
+#### [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI)
+
+This package helps accessing the bitmap data of the `WriteableBitmap` type of the Windows App SDK used in WinUI applications. This library requires targeting at least .NET 5 and Windows 10.0.17763.0 (October 2018 release, version 1809).
+
+The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.WinUI) or by using the Package Manager Console:
+
+    PM> Install-Package KGySoft.Drawing.WinUI
+
 ### Application Examples
 
-#### Demo Application and Debugger Visualizers:
+#### KGy SOFT Imaging Tools and Debugger Visualizers:
 
-[KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools) is a desktop application in the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which nicely demonstrates a sort of features of Drawing Libraries, such as quantizing and dithering, resizing, adjusting brightness, contrast and gamma, etc. The tool is packed also with some debugger visualizers for several `System.Drawing` types including `Bitmap`, `Metafile`, `Icon`, `Graphics` and more.
+[KGy SOFT Imaging Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools/#kgy-soft-imaging-tools) is a Windows Forms desktop application in the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which nicely demonstrates a sort of features of Drawing Libraries, such as quantizing and dithering, resizing, adjusting brightness, contrast and gamma, etc. The tool is packed also with some debugger visualizers for several `System.Drawing` types including `Bitmap`, `Metafile`, `Icon`, `Graphics` and more.
 
 <p align="center">
   <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250655-5e760d80-db25-11eb-824f-195e5e1dbcbe.png"/></a>

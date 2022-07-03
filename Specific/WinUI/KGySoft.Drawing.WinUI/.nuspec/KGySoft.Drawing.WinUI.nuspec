@@ -17,8 +17,9 @@
 This library requires targeting at least Windows 10.0.17763.0 (October 2018 release, version 1809).
 
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
-GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
+GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
 WPF specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.Uwp/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
@@ -33,7 +34,7 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
   </metadata>
   <files>
     <file src="..\..\..\..\LICENSE" />
-    <!--<file src="..\..\..\..\Help\KGySoft.Drawing.chm" target="Help" />-->
+    <file src="..\..\..\..\Help\KGySoft.Drawing.chm" target="Help" />
     <!--<file src="readme.txt"/>-->
     <file src="Icon64.png" target="" />
     <file src="..\bin\Release\net5.0-windows10.0.17763\KGySoft.Drawing.WinUI.dll" target="lib\net5.0-windows10.0.17763" />
