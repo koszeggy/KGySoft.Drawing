@@ -16,11 +16,19 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
+using System.Runtime.ExceptionServices;
+using System.Threading;
+#if !NET35
+using System.Threading.Tasks;
+#endif
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 using KGySoft.Drawing.Imaging;
+using KGySoft.Threading;
 
 using NUnit.Framework;
 
@@ -31,6 +39,21 @@ namespace KGySoft.Drawing.Wpf.UnitTests
     [TestFixture]
     public class BitmapSourceExtensionsTest : TestBase
     {
+        #region AsyncTestState class
+
+        private sealed class AsyncTestState
+        {
+            #region Properties
+
+            internal Action<ManualResetEvent> Callback { get; init; } = default!;
+            internal ManualResetEvent WaitHandle { get; init; } = default!;
+            internal Exception? Error { get; set; }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         private static Color testColor = Color.FromRgb(0x80, 0xFF, 0x40);
@@ -161,16 +184,16 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { PixelFormats.Cmyk32, Colors.Black, (byte)128 },
         };
 
-        private static readonly object[][] convertPixelFormatCustomTestSource =
+        private static readonly object?[][] convertPixelFormatCustomTestSource =
         {
-            new object[] { "To 8bpp 256 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), null },
-            new object[] { "To 8bpp 256 color dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer2x2 },
-            new object[] { "To 8bpp 16 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault4BppPalette(), null },
-            new object[] { "To 4bpp 2 color dithering", PixelFormats.Indexed4, PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.DottedHalftone },
-            new object[] { "To BGR555 256 color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.SystemDefault8BppPalette(), new RandomNoiseDitherer(), },
-            new object[] { "To BGR555 32K color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.Argb1555(), new RandomNoiseDitherer(), },
-            new object[] { "To BGR555 16.7M color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.Rgb888(), new RandomNoiseDitherer(), },
-            new object[] { "To 1bpp 2 color dithering auto select quantizer", PixelFormats.Indexed1, null, OrderedDitherer.Bayer8x8 },
+            new object?[] { "To 8bpp 256 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), null },
+            new object?[] { "To 8bpp 256 color dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer2x2 },
+            new object?[] { "To 8bpp 16 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault4BppPalette(), null },
+            new object?[] { "To 4bpp 2 color dithering", PixelFormats.Indexed4, PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.DottedHalftone },
+            new object?[] { "To BGR555 256 color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.SystemDefault8BppPalette(), new RandomNoiseDitherer(), },
+            new object?[] { "To BGR555 32K color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.Argb1555(), new RandomNoiseDitherer(), },
+            new object?[] { "To BGR555 16.7M color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.Rgb888(), new RandomNoiseDitherer(), },
+            new object?[] { "To 1bpp 2 color dithering auto select quantizer", PixelFormats.Indexed1, null, OrderedDitherer.Bayer8x8 },
         };
 
         #endregion
@@ -179,7 +202,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #region Static Methods
 
-        private static BitmapPalette GetDefaultPalette(PixelFormat pixelFormat)
+        private static BitmapPalette? GetDefaultPalette(PixelFormat pixelFormat)
         {
             var result = pixelFormat == PixelFormats.Indexed1 ? Palette.BlackAndWhite()
                 : pixelFormat == PixelFormats.Indexed2 ? new Palette(new[] { Color32.FromGray(0), Color32.FromGray(0x80), Color32.FromGray(0xC0), Color32.FromGray(0xFF) })
@@ -206,19 +229,71 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             };
         }
 
+        /// <summary>
+        /// Executes <paramref name="test"/> on a dedicated thread that starts the dispatcher so
+        /// the thread will neither exit nor be blocked until the test completes.
+        /// Without this even a simple test containing await would be blocked if contains sync callbacks.
+        /// </summary>
+        private static void ExecuteAsyncTestWithDispatcher(Action<ManualResetEvent> test)
+        {
+            // This will be executed on a new thread
+            static void Execute(object? state)
+            {
+                var asyncState = (AsyncTestState)state!;
+
+                // Assuring that the dispatcher (and thus this thread) exits when the test finishes
+                ThreadPool.RegisterWaitForSingleObject(asyncState.WaitHandle, (_, _) => Dispatcher.CurrentDispatcher.InvokeShutdown(), null, Timeout.Infinite, true);
+                try
+                {
+                    // Invoking the callback that will set the wait handle when finishes
+                    asyncState.Callback.Invoke(asyncState.WaitHandle);
+                }
+                catch (Exception e)
+                {
+                    // In case of error we save the exception for so it can be thrown by the test case
+                    // and manually set the wait handle (assuming the callback did not set it due to the error)
+                    asyncState.Error = e;
+                    asyncState.WaitHandle.Set();
+                    return;
+                }
+
+                // Starting the dispatcher that prevents the thread from exiting and processes callbacks
+                Dispatcher.Run();
+            }
+
+            var waitHandle = new ManualResetEvent(false);
+            var state = new AsyncTestState
+            {
+                Callback = test,
+                WaitHandle = waitHandle
+            };
+
+            var thread = new Thread(Execute)
+            {
+#if NETFRAMEWORK
+                ApartmentState = ApartmentState.STA
+#endif
+            };
+
+            thread.Start(state);
+            waitHandle.WaitOne();
+            if (state.Error != null)
+                ExceptionDispatchInfo.Capture(state.Error).Throw();
+        }
+
         #endregion
 
         #region Instance Methods
 
         [TestCaseSource(nameof(setGetPixelTestSource))]
-        public void SetGetPixelTest(string testName, PixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValue)
+        public void SetGetPixelTest(string testName, PixelFormat pixelFormat, Color color, Color expectedResult, long expectedRawValue)
         {
-            Console.WriteLine($"{testName}: {pixelFormat} + {testColor} => {expectedResult} (0x{expectedRawValue:X8})");
+            Console.WriteLine($"{testName}: {pixelFormat} + {color} => {expectedResult} (0x{expectedRawValue:X8})");
 
             var bmp = new WriteableBitmap(1, 1, 96, 96, pixelFormat, GetDefaultPalette(pixelFormat));
             Color32 expectedColor = expectedResult.ToColor32();
             using (var writableBitmapData = bmp.GetWritableBitmapData())
-                writableBitmapData.FirstRow[0] = testColor.ToColor32();
+                writableBitmapData.FirstRow[0] = color.ToColor32();
 
             using (var readableBitmapData = bmp.GetReadableBitmapData())
             {
@@ -265,6 +340,194 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             AssertAreEqual(source, converted, true);
             SaveBitmap(null, converted);
         }
+
+        [Test]
+        public void BeginEndConvertPixelFormatBlockingWaitTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8);
+            Assert.IsFalse(ar.IsCompleted);
+            Assert.Throws<InvalidOperationException>(() => ar.EndConvertPixelFormat(), Res.BitmapSourceExtensionsDeadlock);
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatActiveWaitingTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8);
+            while (!ar.IsCompleted)
+            {
+                // A very non-recommended way (it's like Application.DoEvents in WinForms)
+                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+                Thread.Sleep(1);
+            }
+
+            WriteableBitmap result = ar.EndConvertPixelFormat()!;
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsFalse(ar.CompletedSynchronously);
+            Assert.IsNotNull(result);
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatWithCallbackTest() => ExecuteAsyncTestWithDispatcher(finished =>
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            WriteableBitmap? result = null;
+            IAsyncResult asyncResult = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8,
+                asyncConfig: new AsyncConfig(CompletedCallback));
+
+            // 1.) This part executes immediately
+            Assert.IsFalse(asyncResult.IsCompleted);
+            Assert.IsNull(result);
+
+            // 2.) Here this method returns but the caller ExecuteAsyncTest starts the dispatcher and prevents the thread from exiting or blocking
+
+            // 3.) This is executed when the async operation finishes
+            void CompletedCallback(IAsyncResult ar)
+            {
+                result = ar.EndConvertPixelFormat();
+                Assert.IsNotNull(result);
+                Assert.IsTrue(ar.IsCompleted);
+                Assert.IsFalse(ar.CompletedSynchronously);
+
+                // to let the dispatcher shut down and the test end
+                finished.Set();
+            }
+        });
+
+
+        [Test]
+        public void BeginEndConvertPixelFormatImmediateCancelTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8,
+                asyncConfig: new AsyncConfig(null, () => true));
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsTrue(ar.CompletedSynchronously);
+            Assert.Throws<OperationCanceledException>(() => ar.EndConvertPixelFormat());
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatCancelWithDefaultValueTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8,
+                asyncConfig: new AsyncConfig(null, () => true) { ThrowIfCanceled = false });
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsTrue(ar.CompletedSynchronously);
+            Assert.IsNull(ar.EndConvertPixelFormat());
+        }
+
+#if !NET35
+        [Test]
+        public void ConvertPixelFormatAsyncBlockingWaitTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8);
+            Assert.IsFalse(task.IsCompleted);
+            var ex = Assert.Throws<AggregateException>(() => task.Wait());
+            Assert.IsInstanceOf<InvalidOperationException>(ex.InnerExceptions[0]);
+            Assert.AreEqual(Res.BitmapSourceExtensionsDeadlock, ex.InnerExceptions[0].Message);
+        }
+
+        [Test]
+        public void ConvertPixelFormatActiveWaitingTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8);
+            Assert.IsFalse(task.IsCompleted);
+            do
+            {
+                // A very non-recommended way (it's like Application.DoEvents in WinForms)
+                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+            } while (!task.Wait(1));
+            Assert.IsTrue(task.IsCompleted);
+            Assert.IsNotNull(task.Result);
+        }
+
+        [Test]
+        public void ConvertPixelFormatAsyncWithContinuationTest() => ExecuteAsyncTestWithDispatcher(finished =>
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            WriteableBitmap? result = null;
+            Task task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8)
+                .ContinueWith(Continuation);
+
+            // 1.) This part executes immediately
+            Assert.IsFalse(task.IsCompleted);
+            Assert.IsNull(result);
+
+            // 2.) Here this method returns but the caller ExecuteAsyncTest starts the dispatcher and prevents the thread from exiting or blocking
+
+            // 3.) This is executed when the async operation finishes
+            Task Continuation(Task<WriteableBitmap?> completedTask)
+            {
+                Assert.IsTrue(completedTask.IsCompleted);
+                result = completedTask.Result;
+                Assert.IsNotNull(result);
+
+                // to let the dispatcher shut down and the test end
+                finished.Set();
+                return Task.CompletedTask;
+            }
+        });
+
+        [Test]
+        public void ConvertPixelFormatAsyncImmediateCancelTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8,
+                asyncConfig: new TaskConfig(new CancellationToken(true)));
+            Assert.IsTrue(task.IsCanceled);
+            var ex = Assert.Throws<AggregateException>(() => { var _ = task.Result; });
+            Assert.IsInstanceOf<OperationCanceledException>(ex!.InnerExceptions[0]);
+        }
+
+        [Test]
+        public void ConvertPixelFormatAsyncReturnDefaultIfCanceledTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8,
+                asyncConfig: new TaskConfig(new CancellationToken(true)) { ThrowIfCanceled = false });
+            Assert.IsTrue(task.IsCompleted);
+            Assert.IsNull(task.Result);
+        }
+#endif
+
+
+#if !(NET35 || NET40)
+        [Test]
+        [SuppressMessage("ReSharper", "AsyncVoidLambda", Justification = "No problem, that's why there is the finished event")]
+        public void ConvertPixelFormatAsyncWithAwaitTest() => ExecuteAsyncTestWithDispatcher(async finished =>
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            WriteableBitmap? result = await ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8);
+            Assert.IsNotNull(result);
+            finished.Set();
+        });
+#endif
 
         #endregion
 

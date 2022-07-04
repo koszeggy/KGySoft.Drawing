@@ -39,7 +39,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #region Methods
 
-        protected static void SaveBitmap(string imageName, BitmapSource bitmap, [CallerMemberName]string testName = null)
+        protected static void SaveBitmap(string? imageName, BitmapSource bitmap, [CallerMemberName]string testName = null!)
         {
             if (!SaveToFile)
                 return;
@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         }
 
-        protected static void SaveStream(string streamName, MemoryStream ms, string extension, [CallerMemberName]string testName = null)
+        protected static void SaveStream(string? streamName, MemoryStream ms, string extension, [CallerMemberName]string testName = null!)
         {
             if (!SaveToFile)
                 return;
