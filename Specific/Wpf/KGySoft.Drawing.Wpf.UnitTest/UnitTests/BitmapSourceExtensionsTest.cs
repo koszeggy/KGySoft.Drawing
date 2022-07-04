@@ -240,6 +240,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             static void Execute(object? state)
             {
                 var asyncState = (AsyncTestState)state!;
+                SynchronizationContext.SetSynchronizationContext(new DispatcherSynchronizationContext(Dispatcher.CurrentDispatcher));
 
                 // Assuring that the dispatcher (and thus this thread) exits when the test finishes
                 ThreadPool.RegisterWaitForSingleObject(asyncState.WaitHandle, (_, _) => Dispatcher.CurrentDispatcher.InvokeShutdown(), null, Timeout.Infinite, true);
@@ -250,7 +251,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 }
                 catch (Exception e)
                 {
-                    // In case of error we save the exception for so it can be thrown by the test case
+                    // In case of error we save the exception so it can be thrown by the test case
                     // and manually set the wait handle (assuming the callback did not set it due to the error)
                     asyncState.Error = e;
                     asyncState.WaitHandle.Set();
@@ -342,14 +343,33 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         }
 
         [Test]
-        public void BeginEndConvertPixelFormatBlockingWaitTest()
+        public void BeginEndConvertPixelFormatBlockingWaitSucceedsTest()
         {
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
 
-            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8);
+            // when using a predefined quantizer, no sync callback is used (only for disposing but that is not awaited)
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8, PredefinedColorsQuantizer.Rgb332());
+            Assert.IsFalse(ar.IsCompleted);
+            WriteableBitmap? result = ar.EndConvertPixelFormat();
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsFalse(ar.CompletedSynchronously);
+            Assert.IsNotNull(result);
+            SaveBitmap(null, result!);
+        }
+
+        [Test]
+        public void BeginEndConvertPixelFormatBlockingWaitDeadlockTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            // a non-predefined quantizer causes that the result bitmap is created by a callback, which causes a deadlock with blocking wait
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu());
             Assert.IsFalse(ar.IsCompleted);
             Assert.Throws<InvalidOperationException>(() => ar.EndConvertPixelFormat(), Res.BitmapSourceExtensionsDeadlock);
+            Assert.IsTrue(ar.IsCompleted);
+            Assert.IsFalse(ar.CompletedSynchronously);
         }
 
         [Test]
@@ -358,7 +378,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
 
-            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8);
+            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu());
             while (!ar.IsCompleted)
             {
                 // A very non-recommended way (it's like Application.DoEvents in WinForms)
@@ -370,6 +390,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             Assert.IsTrue(ar.IsCompleted);
             Assert.IsFalse(ar.CompletedSynchronously);
             Assert.IsNotNull(result);
+            SaveBitmap(null, result);
         }
 
         [Test]
@@ -378,8 +399,9 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
 
+            var context = SynchronizationContext.Current!;
             WriteableBitmap? result = null;
-            IAsyncResult asyncResult = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8,
+            IAsyncResult asyncResult = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu(),
                 asyncConfig: new AsyncConfig(CompletedCallback));
 
             // 1.) This part executes immediately
@@ -395,12 +417,12 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 Assert.IsNotNull(result);
                 Assert.IsTrue(ar.IsCompleted);
                 Assert.IsFalse(ar.CompletedSynchronously);
+                context.Post(_ => SaveBitmap(null, result!), null);
 
                 // to let the dispatcher shut down and the test end
                 finished.Set();
             }
         });
-
 
         [Test]
         public void BeginEndConvertPixelFormatImmediateCancelTest()
@@ -430,15 +452,32 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
 #if !NET35
         [Test]
-        public void ConvertPixelFormatAsyncBlockingWaitTest()
+        public void ConvertPixelFormatAsyncBlockingWaitSucceedsTest()
         {
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
 
-            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8);
+            // when using a predefined quantizer, no sync callback is used (only for disposing but that is not awaited)
+            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8, PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.Bayer4x4);
+            Assert.IsFalse(task.IsCompleted);
+            task.Wait();
+            WriteableBitmap? result = task.Result;
+            Assert.IsTrue(task.IsCompleted);
+            Assert.IsNotNull(result);
+            SaveBitmap(null, result!);
+        }
+
+        [Test]
+        public void ConvertPixelFormatAsyncBlockingWaitDeadlockTest()
+        {
+            var ref32bpp = GetInfoIcon256();
+            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
+
+            // a non-predefined quantizer causes that the result bitmap is created by a callback, which causes a deadlock with blocking wait
+            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu());
             Assert.IsFalse(task.IsCompleted);
             var ex = Assert.Throws<AggregateException>(() => task.Wait());
-            Assert.IsInstanceOf<InvalidOperationException>(ex.InnerExceptions[0]);
+            Assert.IsInstanceOf<InvalidOperationException>(ex!.InnerExceptions[0]);
             Assert.AreEqual(Res.BitmapSourceExtensionsDeadlock, ex.InnerExceptions[0].Message);
         }
 
@@ -448,7 +487,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
 
-            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8);
+            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu(16));
             Assert.IsFalse(task.IsCompleted);
             do
             {
@@ -457,6 +496,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             } while (!task.Wait(1));
             Assert.IsTrue(task.IsCompleted);
             Assert.IsNotNull(task.Result);
+            SaveBitmap(null, task.Result!);
         }
 
         [Test]
@@ -465,8 +505,9 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
 
+            var context = SynchronizationContext.Current!;
             WriteableBitmap? result = null;
-            Task task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8)
+            Task task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu())
                 .ContinueWith(Continuation);
 
             // 1.) This part executes immediately
@@ -481,6 +522,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 Assert.IsTrue(completedTask.IsCompleted);
                 result = completedTask.Result;
                 Assert.IsNotNull(result);
+                context.Post(_ => SaveBitmap(null, result!), null);
 
                 // to let the dispatcher shut down and the test end
                 finished.Set();
@@ -514,7 +556,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         }
 #endif
 
-
 #if !(NET35 || NET40)
         [Test]
         [SuppressMessage("ReSharper", "AsyncVoidLambda", Justification = "No problem, that's why there is the finished event")]
@@ -523,8 +564,9 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             var ref32bpp = GetInfoIcon256();
             Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
 
-            WriteableBitmap? result = await ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8);
+            WriteableBitmap? result = await ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu());
             Assert.IsNotNull(result);
+            SaveBitmap(null, result!);
             finished.Set();
         });
 #endif

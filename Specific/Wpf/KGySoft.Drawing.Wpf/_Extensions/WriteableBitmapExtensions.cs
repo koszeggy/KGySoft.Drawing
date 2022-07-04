@@ -18,8 +18,6 @@
 #region Used Namespaces
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -45,6 +43,8 @@ namespace KGySoft.Drawing.Wpf
     {
         #region Methods
 
+        #region Public Methods
+        
         /// <summary>
         /// Gets a managed read-write accessor for a <see cref="WriteableBitmap"/> instance.
         /// </summary>
@@ -61,7 +61,6 @@ namespace KGySoft.Drawing.Wpf
         /// <seealso cref="BitmapSourceExtensions.GetReadableBitmapData"/>
         /// <seealso cref="GetWritableBitmapData"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
-        [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
         public static IReadWriteBitmapData GetReadWriteBitmapData(this WriteableBitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
@@ -69,6 +68,33 @@ namespace KGySoft.Drawing.Wpf
             if (bitmap.IsFrozen)
                 throw new ArgumentException(Res.WriteableBitmapExtensionsBitmapFrozen, nameof(bitmap));
 
+            return GetBitmapDataInternal(bitmap, false, backColor, alphaThreshold);
+        }
+
+        /// <summary>
+        /// Gets a managed write-only accessor for a <see cref="WriteableBitmap"/> instance.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="WriteableBitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
+        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="Color"/>, which has the same RGB values as <see cref="Colors.Black"/>.</param>
+        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the pixels to be set will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <seealso cref="BitmapSourceExtensions.GetReadableBitmapData"/>
+        /// <seealso cref="GetReadWriteBitmapData"/>
+        public static IWritableBitmapData GetWritableBitmapData(this WriteableBitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => GetReadWriteBitmapData(bitmap, backColor, alphaThreshold);
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this WriteableBitmap bitmap, bool readOnly, Color backColor = default, byte alphaThreshold = 128)
+        {
             PixelFormat sourceFormat = bitmap.Format;
             KnownPixelFormat knownFormat = sourceFormat.AsKnownPixelFormat();
 
@@ -77,7 +103,8 @@ namespace KGySoft.Drawing.Wpf
             Color32 backColor32 = backColor.ToColor32();
             Action dispose = () =>
             {
-                bitmap.AddDirtyRect(new Int32Rect(0, 0, size.Width, size.Height));
+                if (!readOnly)
+                    bitmap.AddDirtyRect(new Int32Rect(0, 0, size.Width, size.Height));
                 bitmap.Unlock();
             };
 
@@ -184,23 +211,7 @@ namespace KGySoft.Drawing.Wpf
             throw new InvalidOperationException(Res.InternalError($"Unexpected PixelFormat {sourceFormat}"));
         }
 
-        /// <summary>
-        /// Gets a managed write-only accessor for a <see cref="WriteableBitmap"/> instance.
-        /// </summary>
-        /// <param name="bitmap">A <see cref="WriteableBitmap"/> instance, whose data is about to be accessed.</param>
-        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
-        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
-        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
-        /// <br/>Default value: The bitwise zero instance of <see cref="Color"/>, which has the same RGB values as <see cref="Colors.Black"/>.</param>
-        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
-        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
-        /// then the pixels to be set will never be transparent. This parameter is optional.
-        /// <br/>Default value: <c>128</c>.</param>
-        /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
-        /// <seealso cref="BitmapSourceExtensions.GetReadableBitmapData"/>
-        /// <seealso cref="GetReadWriteBitmapData"/>
-        public static IWritableBitmapData GetWritableBitmapData(this WriteableBitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
-            => GetReadWriteBitmapData(bitmap, backColor, alphaThreshold);
+        #endregion
 
         #endregion
     }

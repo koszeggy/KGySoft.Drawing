@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -181,7 +180,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         #region Static Methods
 
-        private static BitmapPalette GetDefaultPalette(PixelFormat pixelFormat)
+        private static BitmapPalette? GetDefaultPalette(PixelFormat pixelFormat)
         {
             //return null;
             var result = pixelFormat == PixelFormats.Indexed1 ? Palette.BlackAndWhite()

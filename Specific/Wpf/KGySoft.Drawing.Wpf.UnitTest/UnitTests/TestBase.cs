@@ -19,6 +19,7 @@ using System;
 using System.IO;
 using System.Runtime.CompilerServices;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
@@ -43,12 +44,15 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         {
             if (!SaveToFile)
                 return;
+
+            // for potentially async results without 
+            bitmap.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
+
             var encoder = new PngBitmapEncoder();
             encoder.Frames.Add(BitmapFrame.Create(bitmap));
             var stream = new MemoryStream();
             encoder.Save(stream);
             SaveStream(imageName, stream, "png", testName);
-
         }
 
         protected static void SaveStream(string? streamName, MemoryStream ms, string extension, [CallerMemberName]string testName = null!)
