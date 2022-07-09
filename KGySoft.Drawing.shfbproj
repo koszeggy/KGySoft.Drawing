@@ -1249,8 +1249,31 @@
       <ImageId>Warning32Mono</ImageId>
       <AlternateText>Warning 32 Mono</AlternateText>
     </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppWhiteA16.png">
+      <ImageId>AlphaGradientDefault8bppWhiteA16</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppA16_WPF.png">
+      <ImageId>AlphaGradientDefault8bppA16_WPF</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldRgb24_WPF.png">
+      <ImageId>ShieldRgb24_WPF</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientDefault8bppWhiteA16DitheredFS.png">
+      <ImageId>AlphaGradientDefault8bppWhiteA16DitheredFS</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldBgr555BlackDitheredFS.png">
+      <ImageId>ShieldBgr555BlackDitheredFS</ImageId>
+    </Content>
+    <Content Include="Help\Images\ShieldBgr555_WPF.png">
+      <ImageId>ShieldBgr555_WPF</ImageId>
+    </Content>
+    <Content Include="Help\Images\InformationWu4SilverA16DitheredB8.png">
+      <ImageId>InformationWu4SilverA16DitheredB8</ImageId>
+    </Content>
+    <Content Include="Help\Images\Information4A16_WPF.png">
+      <ImageId>Information4A16_WPF</ImageId>
+    </Content>
   </ItemGroup>
-
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.
        Just the PackageReference is not enough. The direct .dll references are enough, left the package reference for auto restoring. -->
@@ -1265,7 +1288,6 @@
       <Private>True</Private>
     </Reference>
   </ItemGroup>
-
   <!-- Import the SHFB build targets -->
   <Import Project="$(SHFBROOT)\SandcastleHelpFileBuilder.targets" />
 </Project>

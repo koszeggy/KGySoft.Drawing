@@ -45,7 +45,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             if (!SaveToFile)
                 return;
 
-            // for potentially async results without 
+            // for potentially async results with blocking or without a running dispatcher: forcing processing pending events with higher priority
             bitmap.Dispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
 
             var encoder = new PngBitmapEncoder();

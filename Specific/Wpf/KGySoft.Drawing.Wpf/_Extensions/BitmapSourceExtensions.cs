@@ -107,7 +107,7 @@ namespace KGySoft.Drawing.Wpf
                         Quantizer = PredefinedColorsQuantizer.FromCustomPalette(new Palette(sourcePaletteEntries.Select(c => c.ToColor32()).ToArray()));
                     else
                     {
-                        Quantizer = newPixelFormat.GetDefaultQuantizer();
+                        Quantizer = newPixelFormat.GetMatchingQuantizer();
                         sourcePaletteEntries = null;
                     }
                 }
@@ -352,7 +352,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Converts the specified <paramref name="bitmap"/> to a <see cref="WriteableBitmap"/> of the desired <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// <br/>See the <strong>Remarks</strong> section for details, image examples and comparisons with <see cref="FormatConvertedBitmap"/> results.
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -374,6 +374,61 @@ namespace KGySoft.Drawing.Wpf
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(BitmapSource,PixelFormat,IQuantizer,IDitherer)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
         /// </remarks>
+        /// <example>
+        /// The following example demonstrates the possible results of this method compared to using WPF's <see cref="FormatConvertedBitmap"/> class:
+        /// <code lang="C#"><![CDATA[
+        /// public static BitmapSource Convert(BitmapSource source, PixelFormat targetPixelFormat, Color backColor, byte alphaThreshold)
+        /// {
+        ///     // a.) by KGy SOFT: can use a back color, handles alpha correctly, uses a default palette for indexed formats.
+        ///     //     (to use specific quantizer or ditherer you can use an other overload)
+        ///     return source.ConvertPixelFormat(targetPixelFormat, backColor, alphaThreshold);
+        /// 
+        ///     // b.) by WPF: no back color is used, alpha colors above the threshold suffer from color bleeding,
+        ///     //     can use an optimized palette for indexed formats, a fixed dithering is forcibly used for <= 8 bpp formats
+        ///     return new FormatConvertedBitmap(source, targetPixelFormat, GetDefaultPalette(), alphaThreshold / 255d * 100d);
+        /// 
+        ///     // Using the same colors for the WPF conversion as KGy SOFT conversion uses.
+        ///     BitmapPalette? GetDefaultPalette() =>
+        ///         source.Palette != null && source.Format.BitsPerPixel <= targetPixelFormat.BitsPerPixel ? source.Palette
+        ///         : targetPixelFormat == PixelFormats.Indexed1 ? ToBitmapPalette(Palette.SystemDefault1BppPalette())
+        ///         : targetPixelFormat == PixelFormats.Indexed2 ? new BitmapPalette(new[] { Colors.Black, Colors.Gray, Colors.Silver, Colors.White })
+        ///         : targetPixelFormat == PixelFormats.Indexed4 ? ToBitmapPalette(Palette.SystemDefault4BppPalette())
+        ///         : targetPixelFormat == PixelFormats.Indexed8 ? ToBitmapPalette(Palette.SystemDefault8BppPalette())
+        ///         : null;
+        /// 
+        ///     static BitmapPalette ToBitmapPalette(Palette palette)
+        ///         => new BitmapPalette(palette.GetEntries().Select(c => Color.FromArgb(c.A, c.R, c.G, c.B)).ToList());
+        /// }]]></code>
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Converted image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppWhiteA16.png" alt="Alpha gradient converted to indexed 8 bit format by KGy SOFT conversion using default palette, white background, alpha threshold is 16"/>
+        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed8"/> format, <see cref="Colors.White"/> background, alpha threshold = 16.
+        /// This overload does not use dithering, the bottom 16 rows are transparent, the alpha pixels above were blended with white.</para>
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppA16_WPF.png" alt="Alpha gradient converted to indexed 8 bit format by FormatConvertedBitmap"/>
+        /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The result is forcibly dithered and the alpha pixels above the threshold
+        /// were not blended with any back color so the vertical gradient has been just disappeared.</para>
+        /// </div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
+        /// <br/>Shield icon with transparency</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/ShieldRgb888Silver.png" alt="Shield icon with silver background"/>
+        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Rgb24"/> format, <see cref="Colors.Silver"/> background.
+        /// The alpha pixels were blended with the silver color (alpha threshold is ignored because this format does not support alpha).</para>
+        /// <para><img src="../Help/Images/ShieldRgb24_WPF.png" alt="Shield icon converted to RGB24 format by FormatConvertedBitmap"/>
+        /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The alpha pixels were just turned opaque
+        /// without blending them with any color. Some light pixels appeared where RGB values of the alpha pixels were not completely black.</para>
+        /// </div></term>
+        /// </item>
+        /// </list>
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         /// <seealso cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer, IDitherer)"/>
@@ -412,6 +467,8 @@ namespace KGySoft.Drawing.Wpf
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormats.Indexed2"/>, <paramref name="bitmap"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then
         /// the palette will consist of 4 grayscale colors, containing black, white and the two gray entries that present in the default 4-bit palette.</para>
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormats.Indexed1"/>, <paramref name="bitmap"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then black and white colors will be used.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)"/>
+        /// and <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)"/> overloads for image examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
@@ -426,7 +483,7 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Converts the specified <paramref name="bitmap"/> to a <see cref="WriteableBitmap"/> with the desired <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// <br/>See the <strong>Remarks</strong> section for details, image examples and comparisons with <see cref="FormatConvertedBitmap"/> results.
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -447,6 +504,77 @@ namespace KGySoft.Drawing.Wpf
         /// <para>To dither a <see cref="WriteableBitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)">BitmapDataExtensions.Dither</see> method.
         /// You can use the <see cref="WriteableBitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method to obtain an <see cref="IReadWriteBitmapData"/> for a <see cref="WriteableBitmap"/>.</para>
         /// </remarks>
+        /// <example>
+        /// The following example demonstrates the possible results of this method compared to using WPF's <see cref="FormatConvertedBitmap"/> class:
+        /// <code lang="C#"><![CDATA[
+        /// public static BitmapSource Convert(BitmapSource source, PixelFormat targetPixelFormat, IQuantizer quantizer, IDitherer ditherer)
+        /// {
+        ///     // a.) by KGy SOFT: can use a specific quantizer and ditherer.
+        ///     //     Back color and alpha threshold is specified by the quantizer
+        ///     return source.ConvertPixelFormat(targetPixelFormat, quantizer, ditherer);
+        ///
+        ///     // b.) by WPF: If no palette is specified, then optimizes colors for indexed images.
+        ///     //     No back color is used, alpha colors above the threshold suffer from color bleeding.
+        ///     //     A fixed ditherer is always applied to <= 8 bpp formats (but not for Bgr555, for example)
+        ///     (BitmapPalette? palette, double alphaThreshold) = GetQuantizerData();
+        ///     return new FormatConvertedBitmap(source, targetPixelFormat, palette, alphaThreshold);
+        ///
+        ///     // Extracting the possible palette and alpha threshold for the WPF conversion from the quantizer
+        ///     (BitmapPalette?, double) GetQuantizerData()
+        ///     {
+        ///         using IReadableBitmapData bitmapData = source.GetReadableBitmapData();
+        ///         using IQuantizingSession session = quantizer.Initialize(bitmapData); // can be slow for OptimizedPaletteQuantizer
+        ///         IList<Color>? colors = session.Palette?.GetEntries().Select(c => Color.FromArgb(c.A, c.R, c.G, c.B)).ToList();
+        ///         return (colors == null ? null : new BitmapPalette(colors), session.AlphaThreshold / 255d * 100d);
+        ///     }
+        /// }]]></code>
+        /// <list type="table">
+        /// <listheader><term>Original image</term><term>Converted image</term></listheader>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppWhiteA16DitheredFS.png" alt="Alpha gradient converted to indexed 8 bit format by KGy SOFT conversion using default palette, white background and Floyd-Steinberg dithering. Alpha threshold is 16."/>
+        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed8"/>
+        /// format, <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">SystemDefault8BppPalette</see> quantizer (background is <see cref="Colors.White"/>, alpha threshold = 16)
+        /// and <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering. The bottom 16 rows are transparent, the alpha pixels above were blended with white.</para>
+        /// <para><img src="../Help/Images/AlphaGradientDefault8bppA16_WPF.png" alt="Alpha gradient converted to indexed 8 bit format by FormatConvertedBitmap"/>
+        /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The result is forcibly dithered and the alpha pixels above the threshold
+        /// were not blended with any back color so the vertical gradient has been just disappeared.</para>
+        /// </div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
+        /// <br/>Shield icon with transparency</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/ShieldBgr555BlackDitheredFS.png" alt="Shield icon converted to BGR555 format with black background and Floyd-Steinber dithering"/>
+        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Bgr555"/>
+        /// format, <see cref="PredefinedColorsQuantizer.Rgb555">Rgb555</see> quantizer with default parameters (so the background is <see cref="Colors.Black"/>)
+        /// and <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.</para>
+        /// <para><img src="../Help/Images/ShieldBgr555_WPF.png" alt="Shield icon converted to BGR555 format by FormatConvertedBitmap"/>
+        /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with <see cref="PixelFormats.Bgr555"/> format. The alpha pixels were just turned opaque
+        /// without blending them with any color so some light pixels appeared where RGB values of the alpha pixels were not completely black.
+        /// As <see cref="FormatConvertedBitmap"/> does not use dithering for this pixel format, the result has a quite noticeable banding.</para>
+        /// </div></term>
+        /// </item>
+        /// <item>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/Information256.png" alt="Information icon with transparent background"/>
+        /// <br/>Information icon with transparency</para></div></term>
+        /// <term><div style="text-align:center;width:512px">
+        /// <para><img src="../Help/Images/InformationWu4SilverA16DitheredB8.png" alt="Information icon converted to Indexed2 format with Wu quantizer using silver background and Bayer 8x8 dithering"/>
+        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed2"/>
+        /// format, <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer with (4 colors, background is <see cref="Colors.Silver"/>, alpha threshold = 16)
+        /// and <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.</para>
+        /// <para><img src="../Help/Images/Information4A16_WPF.png" alt="Information icon converted to Indexed2 format by FormatConvertedBitmap"/>
+        /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with <see cref="PixelFormats.Indexed2"/> format without specifying a palette so it was optimized by <see cref="FormatConvertedBitmap"/>.
+        /// The alpha pixels above the threshold were not blended by any back color so the black shadow just consists of the original pixels after removing alpha. A default dithering was automatically applied.</para>
+        /// </div></term>
+        /// </item>
+        /// </list>
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
