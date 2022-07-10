@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.WinUI</id>
-    <version>7.0.0-alpha.1</version>
+    <version>7.0.0-preview.1</version>
     <title>KGy SOFT Drawing Libraries for WinUI</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -34,7 +34,7 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
   </metadata>
   <files>
     <file src="..\..\..\..\LICENSE" />
-    <file src="..\..\..\..\Help\KGySoft.Drawing.chm" target="Help" />
+    <!--<file src="..\..\..\..\Help\KGySoft.Drawing.chm" target="Help" />-->
     <!--<file src="readme.txt"/>-->
     <file src="Icon64.png" target="" />
     <file src="..\bin\Release\net5.0-windows10.0.17763\KGySoft.Drawing.WinUI.dll" target="lib\net5.0-windows10.0.17763" />

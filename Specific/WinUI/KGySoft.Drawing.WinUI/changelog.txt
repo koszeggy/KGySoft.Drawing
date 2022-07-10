@@ -12,6 +12,6 @@
 + KGySoft.Drawing.WinUI namespace
 ==================================
 + New WriteableBitmapExtensions class:
-  + New GetReadableBitmapData method: to get an IReadableBitmapData data for an UWP WriteableBitmap.
-  + New GetWritableBitmapData method: to get an IWritableBitmapData data for an UWP WriteableBitmap.
-  + New GetReadWriteBitmapData method: to get an IReadWriteBitmapData data for an UWP WriteableBitmap.
+  + New GetReadableBitmapData method: to get an IReadableBitmapData data for a WinUI WriteableBitmap.
+  + New GetWritableBitmapData method: to get an IWritableBitmapData data for a WinUI WriteableBitmap.
+  + New GetReadWriteBitmapData method: to get an IReadWriteBitmapData data for a WinUI WriteableBitmap.
