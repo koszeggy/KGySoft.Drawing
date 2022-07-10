@@ -13,7 +13,12 @@
 ===============================
 + New BitmapSourceExtensions class:
   + New GetReadableBitmapData method: to get an IReadableBitmapData data for all pixel formats.
-  + New ConvertPixelFormat methods
+  + New ConvertPixelFormat/BeginConvertPixelFormat/EndConvertPixelFormat/ConvertPixelFormatAsync methods
 + New WriteableBitmapExtensions class:
   + New GetWritableBitmapData method: to get an IWritableBitmapData data for all pixel formats.
   + New GetReadWriteBitmapData method: to get an IReadWriteBitmapData data for all pixel formats.
++ New PixelFormatExtensions class
+  + New ToPixelFormatInfo method
+  + New ToKnownPixelFormat method
+  + New IsIndexed method
+  + New GetMatchingQuantizer method

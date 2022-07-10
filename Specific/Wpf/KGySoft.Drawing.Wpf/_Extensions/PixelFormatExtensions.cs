@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -26,74 +27,31 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Wpf
 {
-    internal static class PixelFormatExtensions
+    /// <summary>
+    /// Contains extension methods for the <see cref="PixelFormat"/> type.
+    /// </summary>
+    public static class PixelFormatExtensions
     {
         #region Fields
 
-        private static Color32[]? indexedDefault2BppPalette;
-
-        #endregion
-
-        #region Properties
-
-        // Contains the 1 bpp colors (black/white) and two more colors from the 4 bpp default palette (gray/silver)
-        private static Palette IndexedDefault2BppPalette
-            => new Palette(indexedDefault2BppPalette ??= new[] { Color32.FromGray(0), Color32.FromGray(0x80), Color32.FromGray(0xC0), Color32.FromGray(0xFF) });
+        private static readonly Color32[] indexedDefault2BppPalette = { Color32.FromGray(0), Color32.FromGray(0x80), Color32.FromGray(0xC0), Color32.FromGray(0xFF) };
 
         #endregion
 
         #region Methods
 
-        #region Internal Methods
+        #region Public Methods
 
-        internal static KnownPixelFormat AsKnownPixelFormat(this PixelFormat pixelFormat)
-            => pixelFormat == PixelFormats.Bgra32 ? KnownPixelFormat.Format32bppArgb
-             : pixelFormat == PixelFormats.Pbgra32 ? KnownPixelFormat.Format32bppPArgb
-             : pixelFormat == PixelFormats.Bgr32 ? KnownPixelFormat.Format32bppRgb
-             : pixelFormat == PixelFormats.Bgr24 ? KnownPixelFormat.Format24bppRgb
-             : pixelFormat == PixelFormats.Indexed1 ? KnownPixelFormat.Format1bppIndexed
-             : pixelFormat == PixelFormats.Indexed4 ? KnownPixelFormat.Format4bppIndexed
-             : pixelFormat == PixelFormats.Indexed8 ? KnownPixelFormat.Format8bppIndexed
-             : pixelFormat == PixelFormats.Bgr555 ? KnownPixelFormat.Format16bppRgb555
-             : pixelFormat == PixelFormats.Bgr565 ? KnownPixelFormat.Format16bppRgb565
-             : pixelFormat == PixelFormats.Gray16 ? KnownPixelFormat.Format16bppGrayScale
-             : default;
-
-        internal static bool IsIndexed(this PixelFormat pixelFormat)
-            => pixelFormat.In(PixelFormats.Indexed8, PixelFormats.Indexed4, PixelFormats.Indexed2, PixelFormats.Indexed1);
-
-        internal static bool CanBeDithered(this PixelFormat dstFormat)
-            => dstFormat.BitsPerPixel < 24 && !dstFormat.In(PixelFormats.Gray16, PixelFormats.Gray8);
-
-        internal static IQuantizer GetDefaultQuantizer(this PixelFormat pixelFormat)
-            => pixelFormat == PixelFormats.BlackWhite ? PredefinedColorsQuantizer.BlackAndWhite()
-             : pixelFormat == PixelFormats.Gray2 ? PredefinedColorsQuantizer.Grayscale4()
-             : pixelFormat == PixelFormats.Gray4 ? PredefinedColorsQuantizer.Grayscale16()
-             : pixelFormat == PixelFormats.Gray8 ? PredefinedColorsQuantizer.Grayscale()
-             : pixelFormat == PixelFormats.Indexed1 ? PredefinedColorsQuantizer.SystemDefault1BppPalette()
-             : pixelFormat == PixelFormats.Indexed2 ? PredefinedColorsQuantizer.FromCustomPalette(IndexedDefault2BppPalette)
-             : pixelFormat == PixelFormats.Indexed4 ? PredefinedColorsQuantizer.SystemDefault4BppPalette()
-             : pixelFormat == PixelFormats.Indexed8 ? PredefinedColorsQuantizer.SystemDefault8BppPalette()
-             : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat());
-
-        internal static BitmapPalette? GetDefaultPalette(this PixelFormat pixelFormat)
+        /// <summary>
+        /// Converts this <see cref="PixelFormat"/> to a <see cref="PixelFormatInfo"/> structure.
+        /// </summary>
+        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to convert.</param>
+        /// <returns>A <see cref="PixelFormatInfo"/> that represents the specified <see cref="PixelFormat"/>.</returns>
+        public static PixelFormatInfo ToPixelFormatInfo(this PixelFormat pixelFormat)
         {
-            var result = pixelFormat == PixelFormats.Indexed1 ? Palette.BlackAndWhite()
-                : pixelFormat == PixelFormats.Indexed2 ? IndexedDefault2BppPalette
-                : pixelFormat == PixelFormats.Indexed4 ? Palette.SystemDefault4BppPalette()
-                : pixelFormat == PixelFormats.Indexed8 ? Palette.SystemDefault8BppPalette()
-                : null;
-            return result == null ? null : new BitmapPalette(result.GetEntries().Select(c => c.ToMediaColor()).ToArray());
-        }
+            if (pixelFormat == default)
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange);
 
-        #endregion
-
-        #region Private Methods
-
-        private static KnownPixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat) => pixelFormat.ToInfo().ToKnownPixelFormat();
-
-        private static PixelFormatInfo ToInfo(this PixelFormat pixelFormat)
-        {
             KnownPixelFormat knownPixelFormat = pixelFormat.AsKnownPixelFormat();
             if (knownPixelFormat != KnownPixelFormat.Undefined)
                 return new PixelFormatInfo(knownPixelFormat);
@@ -109,6 +67,74 @@ namespace KGySoft.Drawing.Wpf
                 result.HasPremultipliedAlpha = true;
 
             return result;
+        }
+
+        /// <summary>
+        /// Converts this <see cref="PixelFormat"/> to a compatible <see cref="KnownPixelFormat"/> value.
+        /// </summary>
+        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to convert.</param>
+        /// <returns>A <see cref="KnownPixelFormat"/> value that fits the to the specified <see cref="PixelFormat"/>.</returns>
+        public static KnownPixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat) => pixelFormat.ToPixelFormatInfo().ToKnownPixelFormat();
+
+        /// <summary>
+        /// Gets whether this <see cref="PixelFormat"/> represents an indexed format.
+        /// </summary>
+        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to check.</param>
+        /// <returns><see langword="true"/>, if <paramref name="pixelFormat"/> represents an indexed format; otherwise, <see langword="false"/>.</returns>
+        public static bool IsIndexed(this PixelFormat pixelFormat)
+            => pixelFormat.In(PixelFormats.Indexed8, PixelFormats.Indexed4, PixelFormats.Indexed2, PixelFormats.Indexed1);
+
+        /// <summary>
+        /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that fits for the specified <paramref name="pixelFormat"/>.
+        /// For indexed formats a default palette will be used.
+        /// </summary>
+        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to get a quantizer for.</param>
+        /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
+        /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="Color"/>, which has the same RGB values as <see cref="Colors.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
+        /// If 0, then the quantized colors will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
+        public static PredefinedColorsQuantizer GetMatchingQuantizer(this PixelFormat pixelFormat, Color backColor = default, byte alphaThreshold = 128)
+            => pixelFormat == PixelFormats.BlackWhite ? PredefinedColorsQuantizer.BlackAndWhite(backColor.ToDrawingColor())
+                : pixelFormat == PixelFormats.Gray2 ? PredefinedColorsQuantizer.Grayscale4(backColor.ToDrawingColor())
+                : pixelFormat == PixelFormats.Gray4 ? PredefinedColorsQuantizer.Grayscale16(backColor.ToDrawingColor())
+                : pixelFormat == PixelFormats.Gray8 ? PredefinedColorsQuantizer.Grayscale(backColor.ToDrawingColor())
+                : pixelFormat == PixelFormats.Indexed1 ? PredefinedColorsQuantizer.SystemDefault1BppPalette(backColor.ToDrawingColor())
+                : pixelFormat == PixelFormats.Indexed2 ? PredefinedColorsQuantizer.FromCustomPalette(new Palette(indexedDefault2BppPalette, backColor.ToColor32(), alphaThreshold))
+                : pixelFormat == PixelFormats.Indexed4 ? PredefinedColorsQuantizer.SystemDefault4BppPalette(backColor.ToDrawingColor())
+                : pixelFormat == PixelFormats.Indexed8 ? PredefinedColorsQuantizer.SystemDefault8BppPalette(backColor.ToDrawingColor(), alphaThreshold)
+                : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat(), backColor.ToDrawingColor(), alphaThreshold);
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static KnownPixelFormat AsKnownPixelFormat(this PixelFormat pixelFormat)
+            => pixelFormat == PixelFormats.Bgra32 ? KnownPixelFormat.Format32bppArgb
+             : pixelFormat == PixelFormats.Pbgra32 ? KnownPixelFormat.Format32bppPArgb
+             : pixelFormat == PixelFormats.Bgr32 ? KnownPixelFormat.Format32bppRgb
+             : pixelFormat == PixelFormats.Bgr24 ? KnownPixelFormat.Format24bppRgb
+             : pixelFormat == PixelFormats.Indexed1 ? KnownPixelFormat.Format1bppIndexed
+             : pixelFormat == PixelFormats.Indexed4 ? KnownPixelFormat.Format4bppIndexed
+             : pixelFormat == PixelFormats.Indexed8 ? KnownPixelFormat.Format8bppIndexed
+             : pixelFormat == PixelFormats.Bgr555 ? KnownPixelFormat.Format16bppRgb555
+             : pixelFormat == PixelFormats.Bgr565 ? KnownPixelFormat.Format16bppRgb565
+             : pixelFormat == PixelFormats.Gray16 ? KnownPixelFormat.Format16bppGrayScale
+             : KnownPixelFormat.Undefined;
+
+        internal static bool CanBeDithered(this PixelFormat dstFormat)
+            => dstFormat.BitsPerPixel < 24 && !dstFormat.In(PixelFormats.Gray16, PixelFormats.Gray8);
+
+        internal static BitmapPalette? GetDefaultPalette(this PixelFormat pixelFormat)
+        {
+            var result = pixelFormat == PixelFormats.Indexed1 ? Palette.BlackAndWhite()
+                : pixelFormat == PixelFormats.Indexed2 ? new Palette(indexedDefault2BppPalette)
+                : pixelFormat == PixelFormats.Indexed4 ? Palette.SystemDefault4BppPalette()
+                : pixelFormat == PixelFormats.Indexed8 ? Palette.SystemDefault8BppPalette()
+                : null;
+            return result == null ? null : new BitmapPalette(result.GetEntries().Select(c => c.ToMediaColor()).ToArray());
         }
 
         #endregion

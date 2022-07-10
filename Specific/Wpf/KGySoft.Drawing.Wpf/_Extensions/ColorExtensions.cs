@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics;
 using System.Windows.Media;
 
 using KGySoft.Drawing.Imaging;
@@ -42,6 +41,8 @@ namespace KGySoft.Drawing.Wpf
         internal static Color32 ToColor32(this Color color) => new Color32(color.A, color.R, color.G, color.B);
 
         internal static Color ToMediaColor(this Color32 color) => Color.FromArgb(color.A, color.R, color.G, color.B);
+
+        internal static System.Drawing.Color ToDrawingColor(this Color color) => System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
 
         internal static float GetBrightnessLinear(this Color32 color) => ToLinear((color.R * rLum + color.G * gLum + color.B * bLum) / 255f);
 
