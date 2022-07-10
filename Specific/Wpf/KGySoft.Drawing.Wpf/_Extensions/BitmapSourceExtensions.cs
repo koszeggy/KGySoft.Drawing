@@ -44,6 +44,14 @@ using Color = System.Windows.Media.Color;
 
 #endregion
 
+#region Suppressions
+
+#if NET35
+#pragma warning disable CS1574 // XML comment has cref attribute that could not be resolved - in .NET 3.5 not all members are available
+#endif
+
+#endregion
+
 namespace KGySoft.Drawing.Wpf
 {
     /// <summary>
