@@ -565,7 +565,7 @@ namespace KGySoft.Drawing
         /// <note type="tip"><list type="bullet">
         /// <item>To use predefined colors or custom quantization functions use the static methods of the <see cref="PredefinedColorsQuantizer"/> class.
         /// <br/>See the <strong>Remarks</strong> section of its members for details and examples.</item>
-        /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
+        /// <item>To use an optimized palette of a specified number of colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// </list></note>
         /// </remarks>
         /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
@@ -603,7 +603,7 @@ namespace KGySoft.Drawing
         /// <note type="tip"><list type="bullet">
         /// <item>To use predefined colors or custom quantization functions use the static methods of the <see cref="PredefinedColorsQuantizer"/> class.
         /// <br/>See the <strong>Remarks</strong> section of its members for details and examples.</item>
-        /// <item>To use an optimized palette of up to 256 colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
+        /// <item>To use an optimized palette of a specified number of colors adjusted for <paramref name="bitmap"/> see the <see cref="OptimizedPaletteQuantizer"/> class.</item>
         /// <item>For some built-in dithering solutions see the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/>
         /// and <see cref="InterleavedGradientNoiseDitherer"/> classes. All of them have several examples in their <strong>Remarks</strong> section.</item>
         /// </list></note>

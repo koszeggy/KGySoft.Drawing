@@ -74,9 +74,11 @@
 &amp;lt%3bbr/&amp;gt%3bProject Site: &amp;lt%3ba href=&amp;quot%3bhttps://kgysoft.net/drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://kgysoft.net/drawing&amp;lt%3b/a&amp;gt%3b
 &amp;lt%3bbr/&amp;gt%3bGitHub Repository: &amp;lt%3ba href=&amp;quot%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://github.com/koszeggy/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b
 &amp;lt%3bbr/&amp;gt%3bNuGet packages:
-&amp;lt%3bli&amp;gt%3b&amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Core&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Core&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
-&amp;lt%3bli&amp;gt%3b&amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
-&amp;lt%3bli&amp;gt%3b&amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Wpf&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Wpf&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b</FooterText>
+&amp;lt%3bli&amp;gt%3bCore functionality: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Core&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.Core&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
+&amp;lt%3bli&amp;gt%3bGDI+ support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
+&amp;lt%3bli&amp;gt%3bWPF support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Wpf&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.Wpf&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
+&amp;lt%3bli&amp;gt%3bUWP support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.Uwp&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.Uwp&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b
+&amp;lt%3bli&amp;gt%3bWinUI support: &amp;lt%3ba href=&amp;quot%3bhttps://www.nuget.org/packages/KGySoft.Drawing.WinUI&amp;quot%3b target=&amp;quot%3b_blank&amp;quot%3b&amp;gt%3bKGySoft.Drawing.WinUI&amp;lt%3b/a&amp;gt%3b&amp;lt%3b/li&amp;gt%3b</FooterText>
     <PlugInConfigurations>
       <PlugInConfig id="Additional Reference Links" enabled="True">
         <configuration>

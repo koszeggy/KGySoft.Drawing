@@ -409,7 +409,7 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Color hues with alpha gradient</para></div></term>
         /// <term><div style="text-align:center;width:512px">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppWhiteA16.png" alt="Alpha gradient converted to indexed 8 bit format by KGy SOFT conversion using default palette, white background, alpha threshold is 16"/>
-        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed8"/> format, <see cref="Colors.White"/> background, alpha threshold = 16.
+        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed8"/> format, white background, alpha threshold = 16.
         /// This overload does not use dithering, the bottom 16 rows are transparent, the alpha pixels above were blended with white.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppA16_WPF.png" alt="Alpha gradient converted to indexed 8 bit format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The result is forcibly dithered and the alpha pixels above the threshold
@@ -422,7 +422,7 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Shield icon with transparency</para></div></term>
         /// <term><div style="text-align:center;width:512px">
         /// <para><img src="../Help/Images/ShieldRgb888Silver.png" alt="Shield icon with silver background"/>
-        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Rgb24"/> format, <see cref="Colors.Silver"/> background.
+        /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Rgb24"/> format, silver background.
         /// The alpha pixels were blended with the silver color (alpha threshold is ignored because this format does not support alpha).</para>
         /// <para><img src="../Help/Images/ShieldRgb24_WPF.png" alt="Shield icon converted to RGB24 format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The alpha pixels were just turned opaque
@@ -540,7 +540,7 @@ namespace KGySoft.Drawing.Wpf
         /// <term><div style="text-align:center;width:512px">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppWhiteA16DitheredFS.png" alt="Alpha gradient converted to indexed 8 bit format by KGy SOFT conversion using default palette, white background and Floyd-Steinberg dithering. Alpha threshold is 16."/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed8"/>
-        /// format, <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">SystemDefault8BppPalette</see> quantizer (background is <see cref="Colors.White"/>, alpha threshold = 16)
+        /// format, <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">SystemDefault8BppPalette</see> quantizer (white background, alpha threshold = 16)
         /// and <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering. The bottom 16 rows are transparent, the alpha pixels above were blended with white.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppA16_WPF.png" alt="Alpha gradient converted to indexed 8 bit format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The result is forcibly dithered and the alpha pixels above the threshold
@@ -554,7 +554,7 @@ namespace KGySoft.Drawing.Wpf
         /// <term><div style="text-align:center;width:512px">
         /// <para><img src="../Help/Images/ShieldBgr555BlackDitheredFS.png" alt="Shield icon converted to BGR555 format with black background and Floyd-Steinber dithering"/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Bgr555"/>
-        /// format, <see cref="PredefinedColorsQuantizer.Rgb555">Rgb555</see> quantizer with default parameters (so the background is <see cref="Colors.Black"/>)
+        /// format, <see cref="PredefinedColorsQuantizer.Rgb555">Rgb555</see> quantizer with default parameters (so the background is black)
         /// and <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.</para>
         /// <para><img src="../Help/Images/ShieldBgr555_WPF.png" alt="Shield icon converted to BGR555 format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with <see cref="PixelFormats.Bgr555"/> format. The alpha pixels were just turned opaque
@@ -569,7 +569,7 @@ namespace KGySoft.Drawing.Wpf
         /// <term><div style="text-align:center;width:512px">
         /// <para><img src="../Help/Images/InformationWu4SilverA16DitheredB8.png" alt="Information icon converted to Indexed2 format with Wu quantizer using silver background and Bayer 8x8 dithering"/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed2"/>
-        /// format, <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer with (4 colors, background is <see cref="Colors.Silver"/>, alpha threshold = 16)
+        /// format, <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer (with 4 colors, silver background, alpha threshold = 16)
         /// and <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.</para>
         /// <para><img src="../Help/Images/Information4A16_WPF.png" alt="Information icon converted to Indexed2 format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with <see cref="PixelFormats.Indexed2"/> format without specifying a palette so it was optimized by <see cref="FormatConvertedBitmap"/>.
