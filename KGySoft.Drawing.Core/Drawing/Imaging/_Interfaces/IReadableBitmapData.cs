@@ -24,8 +24,10 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Represents a readable <see cref="IBitmapData"/> instance.
-    /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadableBitmapData.htm" target="_blank">BitmapExtensions.GetReadableBitmapData</a> extension method.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
+    /// To create an instance use the <see cref="BitmapDataFactory"/> class or the <c>GetReadableBitmapData</c> extension methods for various platform dependent bitmap implementations.
+    /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for a list about the technologies with dedicated support.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a>
+    /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.
     /// </summary>
     /// <seealso cref="IWritableBitmapData"/>
     /// <seealso cref="IReadWriteBitmapData"/>

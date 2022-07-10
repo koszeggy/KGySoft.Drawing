@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ReadableBitmapDataExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -17,7 +17,6 @@
 
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
 using System.IO;
 
 using KGySoft.Drawing.Imaging;
@@ -91,39 +90,29 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void CloneDecreasingPaletteTest()
         {
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(PixelFormat.Format8bppIndexed).GetReadableBitmapData();
+            using var source = GetInfoIcon256().Clone(KnownPixelFormat.Format8bppIndexed);
             using var clone = source.Clone(KnownPixelFormat.Format1bppIndexed);
-            SaveImage(null, clone.ToBitmap());
+            SaveBitmapData(null, clone);
         }
 
         [TestCase(KnownPixelFormat.Format4bppIndexed)]
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
         public void CloneLowBppForcedDirectProcessingTest(KnownPixelFormat pixelFormat)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat.ToPixelFormat());
-            using (var bitmapData = bmp.GetReadableBitmapData())
-            {
-                var sourceRectangle = new Rectangle(15, 15, 127, 127);
-                using (IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat))
-                {
-                    AssertAreEqual(bitmapData, clone, false, sourceRectangle);
-                    SaveImage($"{pixelFormat} - Clipped", clone.ToBitmap());
-                }
-            }
+            using var bitmapData = GetInfoIcon256().Clone(pixelFormat);
+            var sourceRectangle = new Rectangle(15, 15, 127, 127);
+            using IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat);
+            AssertAreEqual(bitmapData, clone, false, sourceRectangle);
+            SaveBitmapData($"{pixelFormat} - Clipped", clone);
         }
 
         [Test]
         public void CloneWithWrappedDataTest()
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using (var bitmapData = new TestReadableBitmapData(bmp.GetReadableBitmapData()))
-            {
-                using (IReadWriteBitmapData clone = bitmapData.Clone())
-                {
-                    AssertAreEqual(bitmapData, clone);
-                    //SaveImage("Clone", clone.ToBitmap());
-                }
-            }
+            using var bitmapData = GetInfoIcon256();
+            using IReadWriteBitmapData clone = bitmapData.Clone();
+            AssertAreEqual(bitmapData, clone);
+            //SaveBitmapData("Clone", clone);
         }
 
         [TestCase(KnownPixelFormat.Format32bppArgb)]
@@ -134,10 +123,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
         public void CloneWithPredefinedQuantizerTest(KnownPixelFormat pixelFormat)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using var source = bmp.GetReadableBitmapData();
+            using var source = GetInfoIcon256();
             using var clone = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat));
-            SaveImage($"{pixelFormat}", clone.ToBitmap());
+            SaveBitmapData($"{pixelFormat}", clone);
         }
 
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
@@ -145,10 +133,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
         public void CloneWithOptimizedQuantizerTest(KnownPixelFormat pixelFormat)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using var source = bmp.GetReadableBitmapData();
+            using var source = GetInfoIcon256();
             using var clone = source.Clone(pixelFormat, OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel()));
-            SaveImage($"{pixelFormat}", clone.ToBitmap());
+            SaveBitmapData($"{pixelFormat}", clone);
         }
 
         [TestCase(KnownPixelFormat.Format16bppArgb1555)]
@@ -164,13 +151,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
             };
 
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var source = GetInfoIcon256();
             foreach (var ditherer in ditherers)
             {
                 using var cloneIndexed = source.Clone(pixelFormat, ditherer.Value);
                 using var cloneTrueColor = source.Clone(KnownPixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat), ditherer.Value);
                 AssertAreEqual(cloneIndexed, cloneTrueColor, true);
-                SaveImage($"{pixelFormat} {ditherer.Key}", cloneIndexed.ToBitmap());
+                SaveBitmapData($"{pixelFormat} {ditherer.Key}", cloneIndexed);
             }
         }
 
@@ -190,52 +177,45 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
         public void CloneVsClipTest(KnownPixelFormat pixelFormat)
         {
-            using var bitmapData = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadableBitmapData().Clone(pixelFormat);
+            using var bitmapData = GetInfoIcon256().Clone(pixelFormat);
             using (IReadWriteBitmapData clone = bitmapData.Clone())
             {
                 AssertAreEqual(bitmapData, clone);
-                SaveImage($"{pixelFormat} - Complete clone", clone.ToBitmap());
+                SaveBitmapData($"{pixelFormat} - Complete clone", clone);
             }
 
             var sourceRectangle = new Rectangle(16, 16, 128, 128);
             using (IReadWriteBitmapData clone = bitmapData.Clone(sourceRectangle, pixelFormat))
             {
                 AssertAreEqual(bitmapData, clone, false, sourceRectangle);
-                SaveImage($"{pixelFormat} - Clipped clone", clone.ToBitmap());
+                SaveBitmapData($"{pixelFormat} - Clipped clone", clone);
             }
 
             using (IReadableBitmapData clip = bitmapData.Clip(sourceRectangle))
             {
                 AssertAreEqual(bitmapData, clip, false, sourceRectangle);
-                //SaveImage($"{pixelFormat} - Clipping wrapper", clip.ToBitmap());
+                //SaveBitmapData($"{pixelFormat} - Clipping wrapper", clip);
             }
         }
 
         [Test]
         public void CopyToSameInstanceOverlappingTest()
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
-            {
-                Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData, new Point(64, 64)));
-            }
-
-            SaveImage(null, bmp);
+            using IReadWriteBitmapData bitmapData = GetInfoIcon256();
+            Assert.DoesNotThrow(() => bitmapData.CopyTo(bitmapData, new Point(64, 64)));
+            SaveBitmapData(null, bitmapData);
         }
 
         [Test]
         public void CopyToSameInstanceOverlappingByClippingTest()
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
-            {
-                using var clipSrc = bitmapData.Clip(new Rectangle(32, 32, 128, 128));
-                using var clipDst = bitmapData.Clip(new Rectangle(64, 64, 128, 128));
+            using var bitmapData = GetInfoIcon256();
+            using var clipSrc = bitmapData.Clip(new Rectangle(32, 32, 128, 128));
+            using var clipDst = bitmapData.Clip(new Rectangle(64, 64, 128, 128));
 
-                Assert.DoesNotThrow(() => clipSrc.CopyTo(clipDst, new Point(32, 32)));
-            }
+            Assert.DoesNotThrow(() => clipSrc.CopyTo(clipDst, new Point(32, 32)));
 
-            SaveImage(null, bmp);
+            SaveBitmapData(null, bitmapData);
         }
 
 
@@ -245,7 +225,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void CopyToRawTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).ConvertPixelFormat(pixelFormat.ToPixelFormat()).GetReadWriteBitmapData();
+            using var source = GetInfoIcon256().Clone(pixelFormat);
             using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
             source.CopyTo(targetFull);
             AssertAreEqual(source, targetFull);
@@ -254,7 +234,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             source.CopyTo(targetClipped, rect, Point.Empty);
             AssertAreEqual(source, targetClipped, false, rect);
 
-            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+            SaveBitmapData($"{pixelFormat} clipped", targetClipped);
         }
 
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
@@ -263,7 +243,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void CopyToDirectTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var source = GetInfoIcon256();
             using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
             source.CopyTo(targetFull);
 
@@ -272,7 +252,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             AssertAreEqual(targetFull, targetClipped, false, rect);
 
-            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+            SaveBitmapData($"{pixelFormat} clipped", targetClipped);
         }
 
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
@@ -281,7 +261,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void CopyToWithQuantizerTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var source = GetInfoIcon256();
             using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize());
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
             source.CopyTo(targetFull, Point.Empty, quantizer);
@@ -290,7 +270,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             source.CopyTo(targetClipped, rect, Point.Empty, quantizer);
             AssertAreEqual(targetFull, targetClipped, false, rect);
 
-            SaveImage($"{pixelFormat} clipped", targetClipped.ToBitmap());
+            SaveBitmapData($"{pixelFormat} clipped", targetClipped);
         }
 
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
@@ -299,7 +279,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void CopyToWithDithererTest(KnownPixelFormat pixelFormat)
         {
             var rect = new Rectangle(128, 128, 128, 128);
-            using var source = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var source = GetInfoIcon256();
             var ditherers = new Dictionary<string, IDitherer>
             {
                 ["Ordered"] = OrderedDitherer.Bayer8x8,
@@ -311,20 +291,16 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
                 source.CopyTo(targetClipped, rect, Point.Empty, ditherer.Value);
-                SaveImage($"{pixelFormat} {ditherer.Key}", targetClipped.ToBitmap());
+                SaveBitmapData($"{pixelFormat} {ditherer.Key}", targetClipped);
             }
         }
 
         [Test]
         public void DrawIntoWithoutResizeSameInstanceOverlappingTest()
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
-            {
-                Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Point(64, 64)));
-            }
-
-            SaveImage(null, bmp);
+            using var bitmapData = GetInfoIcon256();
+            Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Point(64, 64)));
+            SaveBitmapData(null, bitmapData);
         }
 
 
@@ -336,8 +312,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void DrawIntoNoResizeDirectTest(KnownPixelFormat pixelFormat)
         {
             using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat);
-            using var icon64 = Icons.Information.ExtractBitmap(new Size(64, 64)).GetReadWriteBitmapData();
-            using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var icon64 = GetInfoIcon64();
+            using var icon256 = GetInfoIcon256();
             using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
 
             // solid source
@@ -354,7 +330,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             // alpha gradient source
             gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32));
 
-            SaveImage($"{pixelFormat}", target.ToBitmap());
+            SaveBitmapData($"{pixelFormat}", target);
         }
 
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
@@ -376,8 +352,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             foreach (var ditherer in ditherers)
             {
                 using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
-                using var icon64 = Icons.Information.ExtractBitmap(new Size(64, 64)).GetReadWriteBitmapData();
-                using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+                using var icon64 = GetInfoIcon64();
+                using var icon256 = GetInfoIcon256();
                 using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
 
                 // solid source
@@ -394,7 +370,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 // alpha gradient source
                 gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32), quantizer, ditherer.Value);
 
-                SaveImage($"{pixelFormat} {ditherer.Key}", target.ToBitmap());
+                SaveBitmapData($"{pixelFormat} {ditherer.Key}", target);
             }
         }
 
@@ -402,13 +378,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(ScalingMode.NearestNeighbor)]
         public void DrawIntoWithResizeSameInstanceOverlappingTest(ScalingMode scalingMode)
         {
-            using var bmp = Icons.Information.ExtractBitmap(new Size(256, 256));
-            using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
-            {
-                Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Rectangle(32, 32, 192, 192), new Rectangle(64, 64, 128, 128), scalingMode));
-            }
-
-            SaveImage($"{scalingMode}", bmp);
+            using var bitmapData = GetInfoIcon256();
+            Assert.DoesNotThrow(() => bitmapData.DrawInto(bitmapData, new Rectangle(32, 32, 192, 192), new Rectangle(64, 64, 128, 128), scalingMode));
+            SaveBitmapData($"{scalingMode}", bitmapData);
         }
 
         [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
@@ -431,8 +403,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             // target and sources
             using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, new Color32(Color.Silver));
-            using var icon16 = Icons.Information.ExtractBitmap(new Size(16, 16)).GetReadWriteBitmapData();
-            using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+            using var icon16 = GetInfoIcon16();
+            using var icon256 = GetInfoIcon256();
             using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
 
             // enlarge solid source
@@ -454,7 +426,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             targetRect.Inflate(-10, -10);
             gradient.DrawInto(target, targetRect, scalingMode);
 
-            SaveImage($"{pixelFormat} {scalingMode}", target.ToBitmap());
+            SaveBitmapData($"{pixelFormat} {scalingMode}", target);
         }
 
         [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
@@ -481,8 +453,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 // 32bpp argb target and sources
                 using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
-                using var icon16 = Icons.Information.ExtractBitmap(new Size(16, 16)).GetReadWriteBitmapData();
-                using var icon256 = Icons.Information.ExtractBitmap(new Size(256, 256)).GetReadWriteBitmapData();
+                using var icon16 = GetInfoIcon16();
+                using var icon256 = GetInfoIcon256();
                 using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
 
                 // enlarge solid source
@@ -504,7 +476,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 targetRect.Inflate(-10, -10);
                 gradient.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
-                SaveImage($"{pixelFormat} {ditherer.Key} {scalingMode}", target.ToBitmap());
+                SaveBitmapData($"{pixelFormat} {ditherer.Key} {scalingMode}", target);
             }
         }
 
@@ -553,7 +525,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                         Assert.AreEqual(expected, row[x]);
                 } while (row.MoveNextRow());
 
-                //SaveImage($"{pixelFormat} {source.Name}", source.BitmapData.ToBitmap());
+                //SaveImage($"{pixelFormat} {source.Name}", source.BitmapData);
             }
         }
 
@@ -580,7 +552,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 using var bitmapData = BitmapDataFactory.CreateBitmapData(new Size(size, size), pixelFormat, backColor);
                 bitmapData.Clear(color, ditherer.Value);
 
-                SaveImage($"{pixelFormat} {argb:X8} on {argbBackColor:X8} {ditherer.Key}", bitmapData.ToBitmap());
+                SaveBitmapData($"{pixelFormat} {argb:X8} on {argbBackColor:X8} {ditherer.Key}", bitmapData);
             }
         }
 
@@ -619,45 +591,44 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var refBmpData = GenerateAlphaGradientBitmapData(new Size(512, 256));
             var colorCount = refBmpData.GetColorCount();
             Assert.LessOrEqual(colorCount, refBmpData.Width * refBmpData.Height);
-            SaveImage("32argb", refBmpData.ToBitmap());
+            SaveBitmapData("32argb", refBmpData);
 
             // 24 bit
             using var bmp24bpp = refBmpData.Clone(KnownPixelFormat.Format24bppRgb);
             colorCount = bmp24bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, bmp24bpp.Width * bmp24bpp.Height);
-            SaveImage("24rgb", bmp24bpp.ToBitmap());
+            SaveBitmapData("24rgb", bmp24bpp);
 
             // 48 bit
             using var bmp48bpp = refBmpData.Clone(KnownPixelFormat.Format48bppRgb);
             colorCount = bmp48bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, bmp48bpp.Width * bmp48bpp.Height);
-            SaveImage("48rgb", bmp48bpp.ToBitmap());
+            SaveBitmapData("48rgb", bmp48bpp);
 
             // 64 bit
             using var bmp64bpp = refBmpData.Clone(KnownPixelFormat.Format64bppArgb);
             colorCount = bmp64bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, bmp64bpp.Width * bmp64bpp.Height);
-            SaveImage("64argb", bmp64bpp.ToBitmap());
+            SaveBitmapData("64argb", bmp64bpp);
 
             // 8 bit: returning actual palette
             using var bmp8bpp = refBmpData.Clone(KnownPixelFormat.Format8bppIndexed);
             colorCount = bmp8bpp.GetColorCount();
             Assert.LessOrEqual(colorCount, 256);
-            SaveImage("8ind", bmp8bpp.ToBitmap());
+            SaveBitmapData("8ind", bmp8bpp);
         }
 
         [Test]
         public void ToTransparentTest()
         {
-            using var refBmpData = Icons.Information.ExtractBitmap(new Size(256, 256))
-                .GetReadableBitmapData()
+            using var refBmpData = GetInfoIcon256()
                 .Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver));
-            SaveImage("reference", refBmpData.ToBitmap());
+            SaveBitmapData("reference", refBmpData);
 
             using var transparentAuto = refBmpData.ToTransparent();
             Assert.AreEqual(default(Color32), transparentAuto[0][0]);
 
-            SaveImage("transparent", transparentAuto.ToBitmap());
+            SaveBitmapData("transparent", transparentAuto);
 
             using var transparentDirect = refBmpData.ToTransparent(new Color32(Color.Silver));
             AssertAreEqual(transparentAuto, transparentDirect);
@@ -666,14 +637,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void TrySetPaletteTest()
         {
-            using var bmpData = Icons.Information.ExtractBitmap(new Size(256, 256))
-                .GetReadableBitmapData()
+            using var bmpData = GetInfoIcon256()
                 .Clone(KnownPixelFormat.Format1bppIndexed);
-            SaveImage("BW", bmpData.ToBitmap());
+            SaveBitmapData("BW", bmpData);
 
             Assert.IsTrue(bmpData.TrySetPalette(new Palette(new[] { Color.Transparent, Color.Blue })));
             Assert.AreEqual(new Color32(Color.Transparent), bmpData[0][0]);
-            SaveImage("transparent-blue", bmpData.ToBitmap());
+            SaveBitmapData("transparent-blue", bmpData);
 
             // too many colors for 1bpp
             Assert.IsFalse(bmpData.TrySetPalette(new Palette(new[] { Color.Transparent, Color.Blue, Color.Red })));
@@ -707,7 +677,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             ms.Position = 0;
             IReadWriteBitmapData clone = BitmapDataFactory.Load(ms);
             AssertAreEqual(orig, clone);
-            SaveImage($"{pixelFormat}", clone.ToBitmap());
+            SaveBitmapData($"{pixelFormat}", clone);
         }
 
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
@@ -738,7 +708,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             ms.Position = 0;
             IReadWriteBitmapData clone = BitmapDataFactory.Load(ms);
             AssertAreEqual(orig, clone);
-            SaveImage($"{pixelFormat}", clone.ToBitmap());
+            SaveBitmapData($"{pixelFormat}", clone);
         }
 
         #endregion

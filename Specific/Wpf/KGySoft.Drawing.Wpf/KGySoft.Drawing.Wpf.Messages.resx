@@ -120,7 +120,16 @@
   <data name="General_InternalErrorFormat" xml:space="preserve">
     <value>Internal Error: {0}</value>
   </data>
-  <data name="WriteableBitmap_Frozen" xml:space="preserve">
+  <data name="WriteableBitmapExtensions_BitmapFrozen" xml:space="preserve">
     <value>The bitmap must not be frozen.</value>
+  </data>
+  <data name="BitmapSourceExtensions_QuantizerInitializeNull" xml:space="preserve">
+    <value>The IQuantizer.Initialize method returned a null reference.</value>
+  </data>
+  <data name="BitmapSourceExtensions_Deadlock" xml:space="preserve">
+    <value>Could not perform a callback on the thread of the source bitmap. It can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</value>
+  </data>
+  <data name="BitmapSource_ExtensionsPaletteTooLargeFormat" xml:space="preserve">
+    <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>
 </root>

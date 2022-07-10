@@ -17,20 +17,21 @@
 
 using System;
 using System.Collections.Generic;
-#if NETCOREAPP
 using System.IO;
-#elif !NETFRAMEWORK
-using System.Runtime.InteropServices;
-#endif
+
 using KGySoft.CoreLibraries;
 
 using NUnit.Framework.Api;
 using NUnit.Framework.Interfaces;
 using NUnit.Framework.Internal;
+#if NETCOREAPP
+#elif !NETFRAMEWORK
+using System.Runtime.InteropServices;
+#endif
 
 #endregion
 
-namespace KGySoft.Drawing
+namespace KGySoft.Drawing.Wpf
 {
     internal static class Program
     {

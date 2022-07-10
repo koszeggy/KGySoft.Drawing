@@ -26,7 +26,7 @@ using NUnit.Framework;
 namespace KGySoft.Drawing.UnitTests
 {
     [TestFixture]
-    public class IconsTest : DrawingTestBase
+    public class IconsTest : TestBase
     {
         #region Fields
 

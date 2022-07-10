@@ -16,21 +16,19 @@
 #region Usings
 
 using System;
-using System.IO;
 using System.Linq;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
-using KGySoft.Drawing.Wpf;
 using KGySoft.Reflection;
 
 using NUnit.Framework;
 
 #endregion
 
-namespace KGySoft.Drawing.UnitTests
+namespace KGySoft.Drawing.Wpf.UnitTests
 {
     [TestFixture]
     public class WriteableBitmapExtensionsTest : TestBase
@@ -110,7 +108,11 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "Gray16 Transparent", PixelFormats.Gray16, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "Gray32", PixelFormats.Gray32Float, testColor, Color.FromRgb(0xC3, 0xC3, 0xC3), 0x3F0C1C96 },
+#if NETFRAMEWORK
+		    new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B633 },
+#else
             new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B636 },
+#endif
             new object[] { "Gray32 Transparent", PixelFormats.Gray32Float, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "BGR101010", PixelFormats.Bgr101010, testColor, testColor, 0b1000000010_1111111111_0100000001 },
@@ -141,7 +143,11 @@ namespace KGySoft.Drawing.UnitTests
             new object[] { "RGB128 Alpha", PixelFormats.Rgb128Float, testColorAlpha, testColorBlended, 0x3E5D0A8B_3D51FFEF /* only R and G as float */ },
             new object[] { "RGB128 Transparent", PixelFormats.Rgb128Float, Colors.Transparent, Colors.Black, 0x00000000_00000000 /* only R and G as float */ },
 
+#if NETFRAMEWORK
+            new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BE_00_7E },
+#else
             new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BF_00_7E },
+#endif
             new object[] { "CMYK32 Alpha", PixelFormats.Cmyk32, testColorAlpha, testColorBlended, 0x7E_BF_00_7F },
             new object[] { "CMYK32 Transparent", PixelFormats.Cmyk32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
         };
@@ -182,7 +188,7 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Static Methods
 
-        private static BitmapPalette GetDefaultPalette(PixelFormat pixelFormat)
+        private static BitmapPalette? GetDefaultPalette(PixelFormat pixelFormat)
         {
             //return null;
             var result = pixelFormat == PixelFormats.Indexed1 ? Palette.BlackAndWhite()
@@ -231,8 +237,8 @@ namespace KGySoft.Drawing.UnitTests
                 Assert.AreEqual(expectedRawValue, actualRawValue, $"Raw value {expectedRawValue:X8} was expected but it was {actualRawValue:X8}");
             }
 
-            // The code above just tests self-consistency. To test whether WPF handles the color the same way we convert the bitmap in WPF
-            // CMYK is handled by WPF oddly: it uses a non-reversible transformation (but above test provs that out transformation is 100% reversible)
+            // The code above just tests self-consistency. To test whether WPF handles the color the same way we convert the bitmap in WPF.
+            // CMYK is handled by WPF oddly: it uses a non-reversible transformation (but above test proves that our transformation is 100% reversible)
             var converted = new WriteableBitmap(new FormatConvertedBitmap(bmp, PixelFormats.Bgra32, null, default));
             using IReadWriteBitmapData convertedBitmapData = converted.GetReadWriteBitmapData();
             Color32 convertedColor = convertedBitmapData[0][0];
@@ -243,13 +249,11 @@ namespace KGySoft.Drawing.UnitTests
         [TestCaseSource(nameof(wpfBehaviorTestSource))]
         public void WpfBehaviorTest(PixelFormat pixelFormat)
         {
-            var source = new BitmapImage(new Uri(@"D:\Dokumentumok\Képek\Formats\System4BitColors.png"));
-            //var source = new BitmapImage(new Uri(@"..\..\..\..\KGySoft.Drawing\Help\Images\AlphaGradient.png", UriKind.Relative));
+            var source = GetBitmap(@"..\..\..\..\..\..\Help\Images\AlphaGradient.png");
             var bmp = new WriteableBitmap(source);
             //var bmp = new WriteableBitmap(1, 1, 96, 96, pixelFormat, GetDefaultPalette(pixelFormat));
             //using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
             //    bitmapData[0][0] = Color32.FromGray(128);
-
 
             var converted = new WriteableBitmap(new FormatConvertedBitmap(bmp, pixelFormat, GetDefaultPalette(pixelFormat), 0.5));
             //var converted = new WriteableBitmap(16, 1, 100, 100, pixelFormat, null);
@@ -279,13 +283,7 @@ namespace KGySoft.Drawing.UnitTests
                 Console.WriteLine();
             }
 
-            if (!SaveToFile)
-                return;
-            var encoder = new PngBitmapEncoder();
-            encoder.Frames.Add(BitmapFrame.Create(converted));
-            var stream = new MemoryStream();
-            encoder.Save(stream);
-            SaveStream($"{pixelFormat}", stream, "png");
+            SaveBitmap($"{pixelFormat}", converted);
         }
 
         #endregion

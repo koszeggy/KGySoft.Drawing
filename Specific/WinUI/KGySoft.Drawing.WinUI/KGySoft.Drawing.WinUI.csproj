@@ -1,0 +1,56 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>net5.0-windows10.0.17763</TargetFrameworks>
+    <!--<TargetFrameworks>net6.0-windows10.0.19041.0</TargetFrameworks>-->
+
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <RootNamespace>KGySoft.Drawing.WinUI</RootNamespace>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
+    <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
+    <CodeAnalysisRuleSet>..\..\..\KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Authors>György Kőszeg</Authors>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\LICENSE" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".nuspec\KGySoft.Drawing.WinUI.nuspec" />
+  </ItemGroup>
+
+  <!-- Package references -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22217.1">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.0" />
+    <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.196" />
+  </ItemGroup>
+
+  <!-- Debug only project references -->
+  <ItemGroup Condition="'$(Configuration)' == 'DEBUG'">
+    <ProjectReference Include="..\..\..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Release only package references -->
+  <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
+    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0-preview.1" />
+  </ItemGroup>
+
+  <!--<ItemGroup>
+    <EmbeddedResource Update="KGySoft.Drawing.WinUI.Messages.resx">
+      <LogicalName>KGySoft.Drawing.WinUI.Messages.resources</LogicalName>
+    </EmbeddedResource>
+  </ItemGroup>-->
+
+</Project>

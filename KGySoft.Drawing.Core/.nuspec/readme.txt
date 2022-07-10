@@ -25,5 +25,11 @@ Some Highlights of KGy SOFT Drawing Core Libraries:
 - For GDI+ specific solutions see the KGySoft.Drawing package. It makes possible to create managed, fast accessible
   bitmap data for the Bitmap class, supporting all pixel formats. It also contains many extensions for the Icon,
   Bitmap, Image, Metafile and Graphics types.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing
 - For WPF specific solutions see the KGySoft.Drawing.Wpf package. It makes possible to create managed, fast
-  accessible bitmap data for the WriteableBitmap class, supporting all pixel formats.
+  accessible bitmap data for a WriteableBitmap instance of any pixel format.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.Wpf
+- For dedicated UWP support see the KGySoft.Drawing.Uwp package.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.Uwp
+- For dedicated WinUI support see the KGySoft.Drawing.WinUI package.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.WinUI

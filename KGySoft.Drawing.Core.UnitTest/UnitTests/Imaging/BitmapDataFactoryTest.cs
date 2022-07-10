@@ -303,30 +303,30 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             AssertAreEqual(bitmapDataDitheredContentDependent, referenceBitmapData, true);
 
             // DrawInto
-            using IReadableBitmapData icon32 = Icons.Information.ExtractBitmap(new Size(48, 48)).GetReadableBitmapData();
+            using IReadableBitmapData icon48 = GetInfoIcon48();
             Point iconLocation = new Point(10, 10);
             Rectangle gradientRectangle = new Rectangle(60, 10, 50, 42);
 
             bitmapDataNonDithered.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer);
+            icon48.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer);
             alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer);
-            icon32.DrawInto(bitmapDataNonDithered, iconLocation);
+            icon48.DrawInto(bitmapDataNonDithered, iconLocation);
             alphaGradient.DrawInto(bitmapDataNonDithered, gradientRectangle);
             SaveBitmapData($"{caseName} DrawInto", bitmapDataNonDithered, testName);
             AssertAreEqual(referenceBitmapData, bitmapDataNonDithered, true);
 
             bitmapDataDitheredContentIndependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentIndependentDitherer);
+            icon48.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentIndependentDitherer);
             alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer, contentIndependentDitherer);
-            icon32.DrawInto(bitmapDataDitheredContentIndependent, iconLocation, contentIndependentDitherer);
+            icon48.DrawInto(bitmapDataDitheredContentIndependent, iconLocation, contentIndependentDitherer);
             alphaGradient.DrawInto(bitmapDataDitheredContentIndependent, gradientRectangle, contentIndependentDitherer);
             SaveBitmapData($"{caseName} DrawInto independent ditherer", bitmapDataDitheredContentIndependent, testName);
             AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentIndependent, true);
 
             bitmapDataDitheredContentDependent.CopyTo(referenceBitmapData, default, referenceQuantizer);
-            icon32.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentDependentDitherer);
+            icon48.DrawInto(referenceBitmapData, iconLocation, referenceQuantizer, contentDependentDitherer);
             alphaGradient.DrawInto(referenceBitmapData, gradientRectangle, referenceQuantizer, contentDependentDitherer);
-            icon32.DrawInto(bitmapDataDitheredContentDependent, iconLocation, contentDependentDitherer);
+            icon48.DrawInto(bitmapDataDitheredContentDependent, iconLocation, contentDependentDitherer);
             alphaGradient.DrawInto(bitmapDataDitheredContentDependent, gradientRectangle, contentDependentDitherer);
             SaveBitmapData($"{caseName} DrawInto dependent ditherer", bitmapDataDitheredContentDependent, testName);
             //AssertAreEqual(referenceBitmapData, bitmapDataDitheredContentDependent, true); //- Due to serpentine processing the resizing draw can be different on 32bpp reference and actual bitmap data
@@ -476,9 +476,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             // 0.) Reference: native to self-allocating managed bitmap data
             IReadWriteBitmapData reference;
-            using (Bitmap bmp = Icons.Information.ExtractBitmap(new Size(256, 256)))
+            using (var bmpData = GetInfoIcon256())
             {
-                using var bmpData = bmp.GetReadWriteBitmapData();
                 int bpp = pixelFormat.ToBitsPerPixel();
                 reference = bmpData.Clone(pixelFormat, bpp <= 8 ? OptimizedPaletteQuantizer.Wu(1 << bpp, Color.Silver, (byte)(bpp == 1 ? 0 : 128)) : null, OrderedDitherer.Bayer8x8);
             }
@@ -578,7 +577,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             int maxColors = 1 << bpp;
             foreach (var getQuantizer in new Func<int, Color, byte, OptimizedPaletteQuantizer>[] { OptimizedPaletteQuantizer.Octree, OptimizedPaletteQuantizer.MedianCut, OptimizedPaletteQuantizer.Wu })
             {
-                using IReadableBitmapData optimizedReferenceBitmapData = Icons.Information.ExtractBitmap(new Size(256, 256))!.GetReadableBitmapData()
+                using IReadableBitmapData optimizedReferenceBitmapData = GetInfoIcon256()
                     .Clone(bpp <= 8 ? KnownPixelFormat.Format8bppIndexed : KnownPixelFormat.Format32bppArgb, getQuantizer.Invoke(maxColors, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), OrderedDitherer.Bayer8x8);
                 size = optimizedReferenceBitmapData.GetSize();
                 stride = pixelFormat.GetByteWidth(size.Width);

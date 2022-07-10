@@ -92,8 +92,11 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">
         /// <list type="bullet">
         /// <item>If <paramref name="pixelFormat"/> represents an indexed format you can use the <see cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/> overload to specify the desired palette of the result.</item>
-        /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a native <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Bitmap" target="_blank">Bitmap</a>
-        /// use the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> extension method.</item>
+        /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a platform specific bitmap type such as <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Bitmap" target="_blank">Bitmap</a>
+        /// or <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap" target="_blank">WriteableBitmap</a>, use the <c>GetReadWriteBitmapData</c> extension methods for various platform dependent
+        /// bitmap implementations. See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for a list about the technologies with dedicated support,
+        /// and the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.</item>
         /// </list></note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height

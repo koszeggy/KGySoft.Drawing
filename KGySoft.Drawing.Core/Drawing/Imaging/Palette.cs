@@ -46,7 +46,7 @@ namespace KGySoft.Drawing.Imaging
     /// <para>In order to prevent caching you can pass a custom lookup logic to the constructors. It is expected to be fast (applying some direct mapping to a palette index,
     /// for example), or that it uses some custom caching (which should perform well also when queried concurrently).</para>
     /// <para>The palette can have any number of colors but as the typical usage is quantizing colors for indexed bitmaps the typical maximum palette size
-    /// is 256. Generally, the more color the palette has the slower are the lookups for non-palette colors that are not cached yet.</para>
+    /// is 256. Generally, the more colors the palette has the slower are the lookups for non-palette colors that are not cached yet.</para>
     /// </remarks>
     /// <threadsafety instance="false">If there is no custom lookup logic passed to the constructors, then members of this type are guaranteed to be safe for multi-threaded operations.
     /// If this type is initialized with a custom lookup logic, then thread-safety depends on the custom lookup implementation.</threadsafety>
@@ -201,6 +201,8 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Instance Properties
+        
         #region Public Properties
 
         /// <summary>
@@ -240,6 +242,8 @@ namespace KGySoft.Drawing.Imaging
         internal Color32[] Entries { get; }
         internal int TransparentIndex { get; }
         internal bool HasTransparent => TransparentIndex >= 0;
+
+        #endregion
 
         #endregion
 
@@ -376,7 +380,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 8-bit palette.
-        /// On Windows this palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
+        /// This palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
         /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see> method for details and some examples.
         /// </summary>
@@ -394,7 +398,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 4-bit palette.
-        /// On Windows this palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
+        /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">PredefinedColorsQuantizer.SystemDefault4BppPalette</see> method for details and some examples.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
@@ -408,7 +412,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 1-bit palette.
-        /// On Windows this palette consists of the black and white colors.
+        /// This palette consists of the black and white colors.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
         /// </summary>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).

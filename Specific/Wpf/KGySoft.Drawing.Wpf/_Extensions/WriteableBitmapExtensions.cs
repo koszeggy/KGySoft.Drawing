@@ -18,8 +18,6 @@
 #region Used Namespaces
 
 using System;
-using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -43,17 +41,14 @@ namespace KGySoft.Drawing.Wpf
     /// </summary>
     public static class WriteableBitmapExtensions
     {
-        #region Fields
-
-        private static readonly Color32 black = Color32.FromGray(Byte.MinValue);
-        private static readonly Color32 white = Color32.FromGray(Byte.MaxValue);
-
-        #endregion
-
         #region Methods
+
+        #region Public Methods
 
         /// <summary>
         /// Gets a managed read-write accessor for a <see cref="WriteableBitmap"/> instance.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">A <see cref="WriteableBitmap"/> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
@@ -65,133 +60,62 @@ namespace KGySoft.Drawing.Wpf
         /// then the pixels to be set will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.</returns>
-        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
-            Justification = "Long but very straightforward cases for the possible pixel formats.")]
-        [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
+        /// <seealso cref="BitmapSourceExtensions.GetReadableBitmapData"/>
+        /// <seealso cref="GetWritableBitmapData"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this WriteableBitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
         {
-            #region Local Methods
-
-            Palette? GetPalette()
-            {
-                BitmapPalette? palette = bitmap.Palette;
-                return palette == null ? null : new Palette(palette.Colors.Select(c => c.ToColor32()).ToArray(), backColor.ToColor32(), alphaThreshold);
-            }
-
-            static bool TrySetPalette(Palette _) => false;
-
-            static int GetColorIndexI2(ICustomBitmapDataRow row, int x)
-            {
-                int bits = row.UnsafeGetRefAs<byte>(x >> 2);
-                return (x & 3) switch
-                {
-                    0 => bits >> 6,
-                    1 => (bits >> 4) & 3,
-                    2 => (bits >> 2) & 3,
-                    _ => bits & 3,
-                };
-            }
-
-            static void SetColorIndexI2(ICustomBitmapDataRow row, int x, int colorIndex)
-            {
-                int pos = x >> 2;
-                ref byte bits = ref row.UnsafeGetRefAs<byte>(pos);
-                switch (x & 3)
-                {
-                    case 0:
-                        bits &= 0b00111111;
-                        bits |= (byte)(colorIndex << 6);
-                        break;
-                    case 1:
-                        bits &= 0b11001111;
-                        bits |= (byte)(colorIndex << 4);
-                        break;
-                    case 2:
-                        bits &= 0b11110011;
-                        bits |= (byte)(colorIndex << 2);
-                        break;
-                    default:
-                        bits &= 0b11111100;
-                        bits |= (byte)colorIndex;
-                        break;
-                }
-            }
-
-            static Color32 GetColorBlackWhite(ICustomBitmapDataRow row, int x)
-            {
-                int mask = 128 >> (x & 7);
-                int bits = row.UnsafeGetRefAs<byte>(x >> 3);
-                return (bits & mask) != 0 ? white : black;
-            }
-
-            static void SetColorBlackWhite(ICustomBitmapDataRow row, int x, Color32 c)
-            {
-                int pos = x >> 3;
-                byte brightness = c.Blend(row.BitmapData.BackColor).GetBrightness();
-                int mask = 128 >> (x & 7);
-                if (brightness < 128)
-                    row.UnsafeGetRefAs<byte>(pos) &= (byte)~mask;
-                else
-                    row.UnsafeGetRefAs<byte>(pos) |= (byte)mask;
-            }
-
-            static int GetColorIndexI4(ICustomBitmapDataRow row, int x)
-            {
-                int nibbles = row.UnsafeGetRefAs<byte>(x >> 1);
-                return (x & 1) == 0
-                    ? nibbles >> 4
-                    : nibbles & 0b00001111;
-            }
-
-            static void SetColorIndexI4(ICustomBitmapDataRow row, int x, int colorIndex)
-            {
-                ref byte nibbles = ref row.UnsafeGetRefAs<byte>(x >> 1);
-                if ((x & 1) == 0)
-                {
-                    nibbles &= 0b00001111;
-                    nibbles |= (byte)(colorIndex << 4);
-                }
-                else
-                {
-                    nibbles &= 0b11110000;
-                    nibbles |= (byte)colorIndex;
-                }
-            }
-
-            #endregion
-
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (bitmap.IsFrozen)
-                throw new ArgumentException(Res.WriteableBitmapFrozen, nameof(bitmap));
+                throw new ArgumentException(Res.WriteableBitmapExtensionsBitmapFrozen, nameof(bitmap));
 
+            return GetBitmapDataInternal(bitmap, false, backColor, alphaThreshold);
+        }
+
+        /// <summary>
+        /// Gets a managed write-only accessor for a <see cref="WriteableBitmap"/> instance.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="WriteableBitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
+        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="Color"/>, which has the same RGB values as <see cref="Colors.Black"/>.</param>
+        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the pixels to be set will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <seealso cref="BitmapSourceExtensions.GetReadableBitmapData"/>
+        /// <seealso cref="GetReadWriteBitmapData"/>
+        public static IWritableBitmapData GetWritableBitmapData(this WriteableBitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => GetReadWriteBitmapData(bitmap, backColor, alphaThreshold);
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this WriteableBitmap bitmap, bool readOnly, Color backColor = default, byte alphaThreshold = 128)
+        {
             PixelFormat sourceFormat = bitmap.Format;
-
-            KnownPixelFormat knownFormat = sourceFormat == PixelFormats.Bgra32 ? KnownPixelFormat.Format32bppArgb
-                : sourceFormat == PixelFormats.Pbgra32 ? KnownPixelFormat.Format32bppPArgb
-                : sourceFormat == PixelFormats.Bgr32 ? KnownPixelFormat.Format32bppRgb
-                : sourceFormat == PixelFormats.Bgr24 ? KnownPixelFormat.Format24bppRgb
-                : sourceFormat == PixelFormats.Indexed1 ? KnownPixelFormat.Format1bppIndexed
-                : sourceFormat == PixelFormats.Indexed4 ? KnownPixelFormat.Format4bppIndexed
-                : sourceFormat == PixelFormats.Indexed8 ? KnownPixelFormat.Format8bppIndexed
-                : sourceFormat == PixelFormats.Bgr555 ? KnownPixelFormat.Format16bppRgb555
-                : sourceFormat == PixelFormats.Bgr565 ? KnownPixelFormat.Format16bppRgb565
-                : sourceFormat == PixelFormats.Gray16 ? KnownPixelFormat.Format16bppGrayScale
-                : default;
+            KnownPixelFormat knownFormat = sourceFormat.AsKnownPixelFormat();
 
             bitmap.Lock();
             var size = new Size(bitmap.PixelWidth, bitmap.PixelHeight);
-            var backColor32 = backColor.ToColor32();
+            Color32 backColor32 = backColor.ToColor32();
             Action dispose = () =>
             {
-                bitmap.AddDirtyRect(new Int32Rect(0, 0, size.Width, size.Height));
+                if (!readOnly)
+                    bitmap.AddDirtyRect(new Int32Rect(0, 0, size.Width, size.Height));
                 bitmap.Unlock();
             };
 
             // Known pixel formats
             if (knownFormat != KnownPixelFormat.Undefined)
                 return knownFormat.IsIndexed()
-                    ? BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, knownFormat, GetPalette(), TrySetPalette, dispose)
+                    ? BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, knownFormat, bitmap.GetPalette(backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose)
                     : BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, knownFormat, backColor32, alphaThreshold, dispose);
 
             // Custom pixel formats
@@ -203,18 +127,18 @@ namespace KGySoft.Drawing.Wpf
 
             if (sourceFormat == PixelFormats.Indexed2)
                 return BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, new PixelFormatInfo(2) { Indexed = true },
-                    GetColorIndexI2, SetColorIndexI2, GetPalette(), TrySetPalette, dispose);
+                    IndexedFormatsHelper.GetColorIndexI2, IndexedFormatsHelper.SetColorIndexI2, bitmap.GetPalette(backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose);
 
             if (sourceFormat == PixelFormats.BlackWhite)
                 return BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, new PixelFormatInfo(1) { Grayscale = true },
-                    GetColorBlackWhite, SetColorBlackWhite, backColor32, alphaThreshold, dispose);
+                    IndexedFormatsHelper.GetColorBlackWhite, IndexedFormatsHelper.SetColorBlackWhite, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Gray2)
             {
                 Palette colors = Palette.Grayscale4(backColor32);
                 return BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, new PixelFormatInfo(2) { Grayscale = true },
-                    (row, x) => colors.GetColor(GetColorIndexI2(row, x)),
-                    (row, x, c) => SetColorIndexI2(row, x, colors.GetNearestColorIndex(c)),
+                    (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI2(row, x)),
+                    (row, x, c) => IndexedFormatsHelper.SetColorIndexI2(row, x, colors.GetNearestColorIndex(c)),
                     backColor32, alphaThreshold, dispose);
             }
 
@@ -222,8 +146,8 @@ namespace KGySoft.Drawing.Wpf
             {
                 Palette colors = Palette.Grayscale16(backColor32);
                 return BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, new PixelFormatInfo(4) { Grayscale = true },
-                    (row, x) => colors.GetColor(GetColorIndexI4(row, x)),
-                    (row, x, c) => SetColorIndexI4(row, x, colors.GetNearestColorIndex(c)),
+                    (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI4(row, x)),
+                    (row, x, c) => IndexedFormatsHelper.SetColorIndexI4(row, x, colors.GetNearestColorIndex(c)),
                     backColor32, alphaThreshold, dispose);
             }
 
@@ -290,6 +214,8 @@ namespace KGySoft.Drawing.Wpf
             bitmap.Unlock();
             throw new InvalidOperationException(Res.InternalError($"Unexpected PixelFormat {sourceFormat}"));
         }
+
+        #endregion
 
         #endregion
     }

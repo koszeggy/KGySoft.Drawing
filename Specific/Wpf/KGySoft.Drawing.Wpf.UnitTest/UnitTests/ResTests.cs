@@ -24,7 +24,6 @@ using System.Reflection;
 using System.Resources;
 
 using KGySoft.CoreLibraries;
-using KGySoft.Drawing.Wpf;
 using KGySoft.Reflection;
 using KGySoft.Resources;
 
@@ -32,7 +31,7 @@ using NUnit.Framework;
 
 #endregion
 
-namespace KGySoft.Drawing.UnitTests
+namespace KGySoft.Drawing.Wpf.UnitTests
 {
     [TestFixture]
     public class ResTests
@@ -58,10 +57,10 @@ namespace KGySoft.Drawing.UnitTests
         public void Initialize() => LanguageSettings.DynamicResourceManagersSource = ResourceManagerSources.CompiledOnly;
 
         [Test]
-        public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "unknown").ToString().StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
+        public void TestUnknownResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "unknown")!.ToString()!.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal));
 
         [Test]
-        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "General_InternalErrorFormat", new object[0]).ToString().StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
+        public void TestInvalidResource() => Assert.IsTrue(Reflector.InvokeMethod(typeof(Res), "Get", "General_InternalErrorFormat", Reflector.EmptyArray<object>())!.ToString()!.StartsWith(invalidResourcePrefix, StringComparison.Ordinal));
 
         [Test]
         public void TestResources()
@@ -83,7 +82,7 @@ namespace KGySoft.Drawing.UnitTests
             PropertyInfo[] properties = typeof(Res).GetProperties(BindingFlags.Static | BindingFlags.NonPublic);
             foreach (PropertyInfo property in properties)
             {
-                string value = property.GetValue(null, null).ToString();
+                string value = property.GetValue(null, null)!.ToString()!;
                 Assert.IsTrue(!value.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal), $"{nameof(Res)}.{property.Name} refers to an undefined resource.");
                 Assert.IsTrue(!value.ContainsAny("{", "}"), $"{nameof(Res)}.{property.Name} refers to a parameterized resource.");
                 obtainedMembers.Add(property.Name);
@@ -94,26 +93,19 @@ namespace KGySoft.Drawing.UnitTests
         {
             IEnumerable<MethodInfo> methods = typeof(Res).GetMethods(BindingFlags.Static | BindingFlags.NonPublic).Where(m => m.IsAssembly);
             var generateSettings = new GenerateObjectSettings { AllowCreateObjectWithoutConstructor = true }; // for PropertyDescriptors
-            foreach (MethodInfo mi in methods)
+            foreach (MethodInfo method in methods)
             {
-                var method = mi.IsGenericMethodDefinition ? mi.MakeGenericMethod(random.NextObject(typeof(Enum)).GetType()) : mi;
                 if (method.ReturnType == typeof(void))
                     continue;
 
-                object[] parameters = method.GetParameters().Select(p => random.NextObject(p.ParameterType, generateSettings)).ToArray();
-                string value = method.Invoke(null, parameters).ToString();
+                object[] parameters = method.GetParameters().Select(p => random.NextObject(p.ParameterType, generateSettings)).ToArray()!;
+                string value = method.Invoke(null, parameters)!.ToString()!;
                 Assert.IsTrue(!value.StartsWith(unavailableResourcePrefix, StringComparison.Ordinal), $"{nameof(Res)}.{method.Name} refers to an undefined resource.");
                 Assert.IsTrue(!value.StartsWith(invalidResourcePrefix, StringComparison.Ordinal), $"{nameof(Res)}.{method.Name} uses too few parameters.");
                 for (int i = 0; i < parameters.Length; i++)
                 {
                     var parameter = parameters[i];
-                    Assert.IsTrue(value.Contains(parameter.ToString(), StringComparison.Ordinal)
-                        //|| mi.IsGenericMethodDefinition // Xxx<TEnum>(TEnum value) - not value but possible TValue is printed
-                        //|| parameter is float f && value.Contains(f.ToString("P2"), StringComparison.Ordinal) // percentage format of float
-                        //|| parameter is double d && value.ContainsAny(StringComparison.Ordinal, d.ToString("N2"), d.ToString("P2")) // double: percentage or number
-                        //|| parameter is bool b && value.Contains(b ? PublicResources.Yes : PublicResources.No, StringComparison.Ordinal) // percentage format of float
-                        //|| parameter is int n && value.Contains(n.ToString("N0"), StringComparison.Ordinal) // normal ToString checked above, number format checked here
-                        //|| parameter is long l && value.Contains(l.ToString("N0"), StringComparison.Ordinal), // normal ToString checked above, number format checked here
+                    Assert.IsTrue(value.Contains(parameter.ToString()!, StringComparison.Ordinal)
                         , $"{nameof(Res)}.{method.Name} does not use parameter #{i}.");
                 }
 
@@ -123,8 +115,8 @@ namespace KGySoft.Drawing.UnitTests
 
         private void CheckCoverage(HashSet<string> obtainedMembers)
         {
-            var rm = (ResourceManager)Reflector.GetField(typeof(Res), "resourceManager");
-            ResourceSet rs = rm.GetResourceSet(CultureInfo.InvariantCulture, true, false);
+            var rm = (ResourceManager)Reflector.GetField(typeof(Res), "resourceManager")!;
+            ResourceSet rs = rm.GetResourceSet(CultureInfo.InvariantCulture, true, false)!;
             IDictionaryEnumerator enumerator = rs.GetEnumerator();
             var uncovered = new List<string>();
             while (enumerator.MoveNext())

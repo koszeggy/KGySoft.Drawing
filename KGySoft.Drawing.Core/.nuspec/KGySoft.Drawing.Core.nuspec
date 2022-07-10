@@ -22,7 +22,9 @@ Among others:
 - Creating GIF animations
 
 GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
-WPF specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+WPF specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
+WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
 Demo App and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt</releaseNotes>

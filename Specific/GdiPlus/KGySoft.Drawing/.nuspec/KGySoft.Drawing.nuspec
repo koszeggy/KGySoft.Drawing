@@ -27,7 +27,9 @@ Among others:
 - Useful extensions for the Icon, Bitmap, Image, Metafile and Graphics types.
 
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
-WPF specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+WPF specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
+UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
+WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
 Demo App and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt</releaseNotes>

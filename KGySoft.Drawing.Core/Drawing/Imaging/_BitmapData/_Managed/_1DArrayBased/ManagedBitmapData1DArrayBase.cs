@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.Imaging
         
         /// <summary>
         /// The pixel buffer where the underlying array is a single dimensional one.
-        /// It is a field rather than a property so possible Dispose from a self-allocating derived classes allows mutating it.
+        /// It is a field rather than a property so possible Dispose from a self-allocating derived class allows mutating it.
         /// </summary>
         internal Array2D<T> Buffer;
 
