@@ -108,7 +108,11 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "Gray16 Transparent", PixelFormats.Gray16, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "Gray32", PixelFormats.Gray32Float, testColor, Color.FromRgb(0xC3, 0xC3, 0xC3), 0x3F0C1C96 },
+#if NETFRAMEWORK
+		    new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B633 },
+#else
             new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B636 },
+#endif
             new object[] { "Gray32 Transparent", PixelFormats.Gray32Float, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "BGR101010", PixelFormats.Bgr101010, testColor, testColor, 0b1000000010_1111111111_0100000001 },
@@ -139,7 +143,11 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "RGB128 Alpha", PixelFormats.Rgb128Float, testColorAlpha, testColorBlended, 0x3E5D0A8B_3D51FFEF /* only R and G as float */ },
             new object[] { "RGB128 Transparent", PixelFormats.Rgb128Float, Colors.Transparent, Colors.Black, 0x00000000_00000000 /* only R and G as float */ },
 
+#if NETFRAMEWORK
+            new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BE_00_7E },
+#else
             new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BF_00_7E },
+#endif
             new object[] { "CMYK32 Alpha", PixelFormats.Cmyk32, testColorAlpha, testColorBlended, 0x7E_BF_00_7F },
             new object[] { "CMYK32 Transparent", PixelFormats.Cmyk32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
         };

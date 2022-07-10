@@ -16,9 +16,13 @@
 #region Usings
 
 using System;
+#if !(NET35 || NET40)
 using System.Diagnostics.CodeAnalysis;
+#endif
 using System.Linq;
+#if !(NET35 || NET40)
 using System.Runtime.ExceptionServices;
+#endif
 using System.Threading;
 #if !NET35
 using System.Threading.Tasks;
@@ -45,8 +49,8 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         {
             #region Properties
 
-            internal Action<ManualResetEvent> Callback { get; init; } = default!;
-            internal ManualResetEvent WaitHandle { get; init; } = default!;
+            internal Action<ManualResetEvent> Callback { get; set; } = default!;
+            internal ManualResetEvent WaitHandle { get; set; } = default!;
             internal Exception? Error { get; set; }
 
             #endregion
@@ -129,7 +133,11 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "Gray16 Transparent", PixelFormats.Gray16, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "Gray32", PixelFormats.Gray32Float, testColor, Color.FromRgb(0xC3, 0xC3, 0xC3), 0x3F0C1C96 },
+#if NETFRAMEWORK
+            new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B633 },
+#else
             new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B636 },
+#endif
             new object[] { "Gray32 Transparent", PixelFormats.Gray32Float, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "BGR101010", PixelFormats.Bgr101010, testColor, testColor, 0b1000000010_1111111111_0100000001 },
@@ -160,7 +168,11 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "RGB128 Alpha", PixelFormats.Rgb128Float, testColorAlpha, testColorBlended, 0x3E5D0A8B_3D51FFEF /* only R and G as float */ },
             new object[] { "RGB128 Transparent", PixelFormats.Rgb128Float, Colors.Transparent, Colors.Black, 0x00000000_00000000 /* only R and G as float */ },
 
+#if NETFRAMEWORK
+            new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BE_00_7E },
+#else
             new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BF_00_7E },
+#endif
             new object[] { "CMYK32 Alpha", PixelFormats.Cmyk32, testColorAlpha, testColorBlended, 0x7E_BF_00_7F },
             new object[] { "CMYK32 Transparent", PixelFormats.Cmyk32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
         };
@@ -279,7 +291,13 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             thread.Start(state);
             waitHandle.WaitOne();
             if (state.Error != null)
+            {
+#if NET35 || NET40
+                throw state.Error;
+#else
                 ExceptionDispatchInfo.Capture(state.Error).Throw();
+#endif
+            }
         }
 
         #endregion
@@ -373,27 +391,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         }
 
         [Test]
-        public void BeginEndConvertPixelFormatActiveWaitingTest()
-        {
-            var ref32bpp = GetInfoIcon256();
-            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
-
-            IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu());
-            while (!ar.IsCompleted)
-            {
-                // A very non-recommended way (it's like Application.DoEvents in WinForms)
-                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
-                Thread.Sleep(1);
-            }
-
-            WriteableBitmap result = ar.EndConvertPixelFormat()!;
-            Assert.IsTrue(ar.IsCompleted);
-            Assert.IsFalse(ar.CompletedSynchronously);
-            Assert.IsNotNull(result);
-            SaveBitmap(null, result);
-        }
-
-        [Test]
         public void BeginEndConvertPixelFormatWithCallbackTest() => ExecuteAsyncTestWithDispatcher(finished =>
         {
             var ref32bpp = GetInfoIcon256();
@@ -482,24 +479,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         }
 
         [Test]
-        public void ConvertPixelFormatActiveWaitingTest()
-        {
-            var ref32bpp = GetInfoIcon256();
-            Assert.AreEqual(32, ref32bpp.Format.BitsPerPixel);
-
-            Task<WriteableBitmap?> task = ref32bpp.ConvertPixelFormatAsync(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu(16));
-            Assert.IsFalse(task.IsCompleted);
-            do
-            {
-                // A very non-recommended way (it's like Application.DoEvents in WinForms)
-                Dispatcher.CurrentDispatcher.Invoke(() => { }, DispatcherPriority.ContextIdle);
-            } while (!task.Wait(1));
-            Assert.IsTrue(task.IsCompleted);
-            Assert.IsNotNull(task.Result);
-            SaveBitmap(null, task.Result!);
-        }
-
-        [Test]
         public void ConvertPixelFormatAsyncWithContinuationTest() => ExecuteAsyncTestWithDispatcher(finished =>
         {
             var ref32bpp = GetInfoIcon256();
@@ -526,7 +505,13 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
                 // to let the dispatcher shut down and the test end
                 finished.Set();
+#if NET40
+                var completed = new TaskCompletionSource<bool>();
+                completed.SetResult(default);
+                return completed.Task;
+#else
                 return Task.CompletedTask;
+#endif
             }
         });
 

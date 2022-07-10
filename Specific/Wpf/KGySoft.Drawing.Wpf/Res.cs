@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>The IQuantizer.Initialize method returned a null reference.</summary>
         internal static string BitmapSourceExtensionsQuantizerInitializeNull => Get("BitmapSourceExtensions_QuantizerInitializeNull");
 
-        /// <summary>Could not perform a callback on the thread of the source bitmap. The can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</summary>
+        /// <summary>Could not perform a callback on the thread of the source bitmap. It can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</summary>
         internal static string BitmapSourceExtensionsDeadlock => Get("BitmapSourceExtensions_Deadlock");
 
         #endregion

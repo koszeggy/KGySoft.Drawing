@@ -251,7 +251,7 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static IReadWriteBitmapData GetBitmapData(string fileName)
         {
-            using var bmp = new Bitmap(fileName);
+            using var bmp = new Bitmap(Path.Combine(Files.GetExecutingPath(), fileName));
             return ToBitmapData(bmp);
         }
 
