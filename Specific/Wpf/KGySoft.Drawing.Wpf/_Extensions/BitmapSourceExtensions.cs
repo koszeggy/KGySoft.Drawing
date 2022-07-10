@@ -209,6 +209,8 @@ namespace KGySoft.Drawing.Wpf
 
         /// <summary>
         /// Gets a managed read-only accessor for a <see cref="BitmapSource"/> instance.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
         /// </summary>
         /// <param name="bitmap">A <see cref="BitmapSource"/> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">For an <see cref="IReadableBitmapData"/> instance the <paramref name="backColor"/> is relevant only for indexed bitmaps
@@ -516,16 +518,17 @@ namespace KGySoft.Drawing.Wpf
         ///     // b.) by WPF: If no palette is specified, then optimizes colors for indexed images.
         ///     //     No back color is used, alpha colors above the threshold suffer from color bleeding.
         ///     //     A fixed ditherer is always applied to <= 8 bpp formats (but not for Bgr555, for example)
-        ///     (BitmapPalette? palette, double alphaThreshold) = GetQuantizerData();
+        ///     GetQuantizerData(out BitmapPalette? palette, out double alphaThreshold);
         ///     return new FormatConvertedBitmap(source, targetPixelFormat, palette, alphaThreshold);
         ///
         ///     // Extracting the possible palette and alpha threshold for the WPF conversion from the quantizer
-        ///     (BitmapPalette?, double) GetQuantizerData()
+        ///     void GetQuantizerData(out BitmapPalette? palette, out double alphaThreshold)
         ///     {
         ///         using IReadableBitmapData bitmapData = source.GetReadableBitmapData();
         ///         using IQuantizingSession session = quantizer.Initialize(bitmapData); // can be slow for OptimizedPaletteQuantizer
         ///         IList<Color>? colors = session.Palette?.GetEntries().Select(c => Color.FromArgb(c.A, c.R, c.G, c.B)).ToList();
-        ///         return (colors == null ? null : new BitmapPalette(colors), session.AlphaThreshold / 255d * 100d);
+        ///         palette = colors == null ? null : new BitmapPalette(colors);
+        ///         alphaThreshold = session.AlphaThreshold / 255d * 100d;
         ///     }
         /// }]]></code>
         /// <list type="table">
@@ -663,7 +666,7 @@ namespace KGySoft.Drawing.Wpf
         /// must not be blocked and the dispatcher must run. The result will be usable in the same thread as the source <paramref name="bitmap"/>.
         /// To avoid blocking waiting for the result set the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfig_CompletedCallback.htm" target="_blank">CompletedCallback</a>
         /// parameter of the <paramref name="asyncConfig"/> parameter and call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method from there.</note>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte)"/> method for more details, or the other overloads for image examples.</note>
         /// </remarks>
         public static IAsyncResult BeginConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
@@ -797,7 +800,7 @@ namespace KGySoft.Drawing.Wpf
         /// To avoid blocking waiting for the result use the <see langword="await"/>&#160;keyword in C# (when using .NET Framework 4.5 or newer),
         /// or use the <see cref="Task{TResult}.ContinueWith(Action{Task{TResult}})">Task.ContinueWith</see> method to access
         /// the <see cref="Task{TResult}.Result">Result</see> of the completed task from there.</note>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte)"/> method for more details, or the other overloads for image examples.</note>
         /// </remarks>
         public static Task<WriteableBitmap?> ConvertPixelFormatAsync(this BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
