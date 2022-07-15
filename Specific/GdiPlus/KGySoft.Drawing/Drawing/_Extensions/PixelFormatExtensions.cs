@@ -39,6 +39,12 @@ namespace KGySoft.Drawing
 #endif
     public static class PixelFormatExtensions
     {
+        #region Constants
+
+        internal const PixelFormat Format32bppCmyk = (PixelFormat)8207;
+
+        #endregion
+
         #region Fields
 
         private static Dictionary<PixelFormat, bool>? supportedFormats;

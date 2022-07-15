@@ -49,9 +49,14 @@ namespace KGySoft.Drawing.Imaging
         {
             PixelFormat pixelFormat = bitmap.PixelFormat;
 
-            // On Linux with libgdiplus 16bpp formats can be accessed only via 24bpp bitmap data
+            // - On Windows Vista and above 8207 is used for CMYK images by JPEG/TIFF decoders but when accessing as its actual format
+            //   the changes are not applied back to the original image so we access it as 24bpp bitmap data.
+            //   Even this works only if it wasn't accessed as the actual format before and when the bitmap was created by a decoder, not by Bitmap constructor.
+            // - On Linux with libgdiplus 16bpp formats can be accessed only via 24bpp bitmap data
             PixelFormat bitmapDataPixelFormat = OSUtils.IsWindows
-                ? pixelFormat
+                ? pixelFormat is PixelFormatExtensions.Format32bppCmyk
+                    ? PixelFormat.Format24bppRgb
+                    : pixelFormat
                 : pixelFormat is PixelFormat.Format16bppRgb565 or PixelFormat.Format16bppRgb555
                     ? PixelFormat.Format24bppRgb
                     : pixelFormat;
@@ -59,7 +64,7 @@ namespace KGySoft.Drawing.Imaging
             Size size = bitmap.Size;
             BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
             Action dispose = () => bitmap.UnlockBits(bitmapData);
-            KnownPixelFormat knownPixelFormat = pixelFormat.ToKnownPixelFormatInternal();
+            KnownPixelFormat knownPixelFormat = bitmapDataPixelFormat.ToKnownPixelFormatInternal();
 
             switch (pixelFormat)
             {
@@ -69,6 +74,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format24bppRgb:
                 case PixelFormat.Format16bppArgb1555:
                 case PixelFormat.Format16bppGrayScale:
+                case PixelFormatExtensions.Format32bppCmyk:
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format8bppIndexed:

@@ -28,7 +28,10 @@
 ! The AsyncConfigBase, AsyncConfig and TaskConfig classes and the IAsyncContext interface have been replaced by the
   identically named types ones from the KGySoft.Threading namespace in the KGySoft.CoreLibraries assembly.
 
-+ PixelFormatExtensions:
++ ImageExtensions class:
+  + ConvertPixelFormat methods: supporting CMYK pixel format for source images.
+  + ToIcon methods: supporting CMYK pixel format for source images.
++ PixelFormatExtensions class:
   + New ToKnownPixelFormat(PixelFormat) and ToPixelFormat(KnownPixelFormat) methods
 
 ! KGySoft.Drawing.Imaging namespace
