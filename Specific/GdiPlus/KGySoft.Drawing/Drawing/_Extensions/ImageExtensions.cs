@@ -2264,9 +2264,7 @@ namespace KGySoft.Drawing
                     return null;
                 using (IReadableBitmapData source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
-                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty);
-
-                return context.IsCancellationRequested ? null : result;
+                    return source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty) ? result : null;
             }
             catch (Exception)
             {
@@ -2345,9 +2343,7 @@ namespace KGySoft.Drawing
 
                 // Note: palette is purposely not passed here so a new instance will be created from the colors, without any possible delegate (which is still used by the quantizer).
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
-                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, ditherer);
-
-                return (canceled = context.IsCancellationRequested) ? null : result;
+                    return (canceled = !source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, ditherer)) ? null : result;
             }
             catch (Exception)
             {
