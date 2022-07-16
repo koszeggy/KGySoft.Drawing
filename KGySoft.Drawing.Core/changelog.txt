@@ -53,6 +53,8 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   + Implementing IEquatable<PixelFormatInfo>
   + Equality and inequality operators are overloaded
   + New ToKnownPixelFormat method
++ New QuantizerExtensions class to initialize a quantizing session asynchronously (.NET Framework 4.0 and above)
++ New DithererExtensions class to initialize a dithering session asynchronously (.NET Framework 4.0 and above)
 
 NOTE: See the history of older versions at the following link:
 https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt
