@@ -26,12 +26,15 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedCustomBitmapDataIndexed<T> : ManagedBitmapData1DArrayBase<T>
+    /// <summary>
+    /// Represents a managed bitmap data wrapper with custom indexed pixel format for a 1D array (wrapped into an <see cref="Array2D{T}"/>).
+    /// </summary>
+    internal sealed class ManagedCustomBitmapDataIndexed<T> : ManagedBitmapData1DArrayBase<T, ManagedCustomBitmapDataIndexed<T>.Row>
         where T : unmanaged
     {
-        #region ManagedCustomBitmapDataRow class
+        #region Row class
 
-        private sealed class ManagedCustomBitmapDataRow : ManagedBitmapDataRowIndexedBase<T>, ICustomBitmapDataRow<T>
+        internal sealed class Row : ManagedBitmapDataRowIndexedBase<T>, ICustomBitmapDataRow<T>
         {
             #region Properties and Indexers
 
@@ -90,11 +93,6 @@ namespace KGySoft.Drawing.Imaging
 
         private Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex;
         private Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex;
-        /// <summary>
-        /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
-        /// so it has a bit higher chance that every thread sees the last value was set by itself and no recreation is needed.
-        /// </summary>
-        private ManagedCustomBitmapDataRow? lastRow;
 
         #endregion
 
@@ -109,8 +107,8 @@ namespace KGySoft.Drawing.Imaging
         public ManagedCustomBitmapDataIndexed(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
             Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(buffer, new Size(pixelWidth, buffer.Height), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128,
-                palette, trySetPaletteCallback, disposeCallback)
+            : base(buffer, pixelWidth, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128,
+                disposeCallback, palette, trySetPaletteCallback)
         {
             Debug.Assert(pixelFormat.Indexed);
 
@@ -122,28 +120,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Public Methods
+        #region Protected Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override IBitmapDataRowInternal DoGetRow(int y)
-        {
-            // If the same row is accessed repeatedly we return the cached last row.
-            ManagedCustomBitmapDataRow? result = lastRow;
-            if (result?.Index == y)
-                return result;
-
-            // Otherwise, we create and cache the result.
-            return lastRow = new ManagedCustomBitmapDataRow
-            {
-                Row = Buffer[y],
-                BitmapData = this,
-                Index = y,
-            };
-        }
-
-        #endregion
-
-        #region Protected Methods
+        protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
+  
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
 
         protected override void Dispose(bool disposing)
         {

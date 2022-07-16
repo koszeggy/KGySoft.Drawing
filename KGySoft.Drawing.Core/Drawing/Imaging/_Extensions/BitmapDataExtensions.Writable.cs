@@ -383,7 +383,7 @@ namespace KGySoft.Drawing.Imaging
                 if (width - left < parallelThreshold)
                 {
                     context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                     do
                     {
                         if (context.IsCancellationRequested)
@@ -400,7 +400,7 @@ namespace KGySoft.Drawing.Imaging
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
                     // ReSharper disable once VariableHidesOuterVariable
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     int l = left;
                     int w = width;
                     int c = index;
@@ -416,7 +416,7 @@ namespace KGySoft.Drawing.Imaging
                 if (width - offsetLeft < parallelThreshold)
                 {
                     context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                     do
                     {
                         if (context.IsCancellationRequested)
@@ -433,7 +433,7 @@ namespace KGySoft.Drawing.Imaging
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
                     // ReSharper disable once VariableHidesOuterVariable
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     int l = offsetLeft;
                     int w = width;
                     Color32 c = color;
@@ -481,7 +481,7 @@ namespace KGySoft.Drawing.Imaging
             if (width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                 do
                 {
                     if (context.IsCancellationRequested)
@@ -496,7 +496,7 @@ namespace KGySoft.Drawing.Imaging
             // parallel clear
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
             {
-                IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                 int w = width;
                 T raw = data;
                 for (int x = 0; x < w; x++)
@@ -531,7 +531,7 @@ namespace KGySoft.Drawing.Imaging
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
                             context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                            IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                            IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                             int y = 0;
                             do
                             {
@@ -549,7 +549,7 @@ namespace KGySoft.Drawing.Imaging
                         // parallel clear
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
-                            IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                            IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                             for (int x = 0; x < bitmapData.Width; x++)
                                 row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
                         });

@@ -503,7 +503,7 @@ namespace KGySoft.Drawing.Imaging
             if (width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, imageData.Height);
-                IReadableBitmapDataRow row = imageData.FirstRow;
+                IReadableBitmapDataRowMovable row = imageData.FirstRow;
                 do
                 {
                     if (context.IsCancellationRequested)
@@ -551,7 +551,7 @@ namespace KGySoft.Drawing.Imaging
             if (!imageData.HasAlpha())
                 return result;
 
-            IReadableBitmapDataRow row = imageData.FirstRow;
+            IReadableBitmapDataRowMovable row = imageData.FirstRow;
             do
             {
                 for (int x = 0; x < result.Width; x++)
@@ -571,7 +571,7 @@ namespace KGySoft.Drawing.Imaging
 
             for (int y = result.Bottom - 1; y >= result.Top; y--)
             {
-                row = imageData[y];
+                row.MoveToRow(y);
                 for (int x = 0; x < result.Width; x++)
                 {
                     if (row[x].A != 0)
@@ -587,7 +587,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 for (int y = result.Top; y < result.Bottom; y++)
                 {
-                    if (imageData[y][x].A != 0)
+                    if (imageData.GetColor32(x, y).A != 0)
                         goto continueRight;
                 }
 
@@ -601,7 +601,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 for (int y = result.Top; y < result.Bottom; y++)
                 {
-                    if (imageData[y][x].A != 0)
+                    if (imageData.GetColor32(x, y).A != 0)
                         return result;
                 }
 

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataRow32Argb.cs
+//  File: ManagedBitmapData32Argb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,22 +15,51 @@
 
 #region Usings
 
+using System;
 using System.Runtime.CompilerServices;
+
+using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow32Argb<T> : ManagedBitmapDataRowBase<T>
+    internal sealed class ManagedBitmapData32Argb<T> : ManagedBitmapData1DArrayBase<T, ManagedBitmapData32Argb<T>.Row>
         where T : unmanaged
     {
+        #region Row class
+
+        internal sealed class Row : ManagedBitmapDataRowBase<T>
+        {
+            #region Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override Color32 DoGetColor32(int x) => DoReadRaw<Color32>(x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColor32(int x, Color32 c) => DoWriteRaw(x, c);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        public ManagedBitmapData32Argb(Array2D<T> buffer, int pixelWidth, KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override Color32 DoGetColor32(int x) => DoReadRaw<Color32>(x);
+        protected override Color32 DoGetPixel(int x, int y) => GetPixelRef<Color32>(y, x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColor32(int x, Color32 c) => DoWriteRaw(x, c);
+        protected override void DoSetPixel(int x, int y, Color32 color) => GetPixelRef<Color32>(y, x) = color;
 
         #endregion
     }

@@ -17,6 +17,8 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
+using System.Security;
 
 #endregion
 
@@ -44,6 +46,15 @@ namespace KGySoft.Drawing.Imaging
             Stride = stride;
             RowSize = Math.Abs(stride);
         }
+
+        #endregion
+
+        #region Methods
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected unsafe TPixel* GetPixelAddress<TPixel>(int rowIndex, int offset) where TPixel : unmanaged
+            => &((TPixel*)((byte*)Scan0)[rowIndex * RowSize])[offset];
 
         #endregion
     }

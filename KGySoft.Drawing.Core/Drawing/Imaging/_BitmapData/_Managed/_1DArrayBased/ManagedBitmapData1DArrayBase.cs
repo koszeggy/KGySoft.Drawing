@@ -17,9 +17,7 @@
 
 using System;
 using System.Drawing;
-#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.CompilerServices;
-#endif
 using System.Security;
 
 using KGySoft.Collections;
@@ -32,21 +30,39 @@ namespace KGySoft.Drawing.Imaging
         where T : unmanaged
     {
         #region Fields
-        
+
+        #region Internal Fields
+
         /// <summary>
         /// The pixel buffer where the underlying array is a single dimensional one.
-        /// It is a field rather than a property so possible Dispose from a self-allocating derived class allows mutating it.
+        /// It is a field rather than a property so Dispose allows mutating it.
         /// </summary>
         internal Array2D<T> Buffer;
 
         #endregion
 
+        #region Private Fields
+
+        private readonly bool ownsBuffer;
+
+        #endregion
+
+        #endregion
+
         #region Constructors
 
+        protected ManagedBitmapData1DArrayBase(Size size, KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette)
+            : base(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, null, null)
+        {
+            Debug.Assert(!pixelFormat.IsIndexed() || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
+            Buffer = new Array2D<T>(size.Height, pixelFormat.ToBitsPerPixel() <= 8 ? pixelFormat.GetByteWidth(size.Width) : size.Width);
+            ownsBuffer = true;
+        }
+
         [SecuritySafeCritical]
-        protected unsafe ManagedBitmapData1DArrayBase(Array2D<T> buffer, Size size, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
+        protected unsafe ManagedBitmapData1DArrayBase(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+            : base(new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
             Buffer = buffer;
             RowSize = buffer.Width * sizeof(T);
@@ -55,6 +71,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+
+        #region Internal Methods
 
 #if NETCOREAPP3_0_OR_GREATER
         internal sealed override ref byte GetPinnableReference()
@@ -68,6 +86,43 @@ namespace KGySoft.Drawing.Imaging
                 return ref *(byte*)pHead;
         }
 #endif
+
+        #endregion
+
+        #region Protected Methods
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected ref TPixel GetPixelRef<TPixel>(int rowIndex, int offset)
+            where TPixel : unmanaged
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Unsafe.Add(ref Buffer.GetPinnableReference(), rowIndex * RowSize)), offset);
+#else
+            unsafe
+            {
+                fixed (T* pBuf = Buffer)
+                    return ref ((TPixel*)((byte*)pBuf)[rowIndex * RowSize])[offset];
+            }
+#endif
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            if (disposing)
+            {
+                if (ownsBuffer)
+                    Buffer.Dispose();
+                else
+                    Buffer = default;
+            }
+
+            base.Dispose(disposing);
+        }
+
+        #endregion
 
         #endregion
     }

@@ -67,7 +67,7 @@ namespace KGySoft.Drawing.Imaging
 
                 private readonly GifCompressionMode compressionMode;
                 private readonly int hashShiftSize;
-                private readonly IReadableBitmapDataRow? currentRow;
+                private readonly IReadableBitmapDataRowMovable? currentRow;
 
                 /// <summary>
                 /// Earlier versions used a dictionary as a code table where the key was a span of palette indices.
@@ -119,7 +119,7 @@ namespace KGySoft.Drawing.Imaging
                     CurrentCodeSize = MinimumCodeSize + 1;
 
                     // Trying to use the actual 8-bit index buffer if it is an 8-bit managed bitmap data for better performance
-                    if (imageData is ManagedBitmapData<byte, ManagedBitmapDataRow8I> managed8BitBitmapData)
+                    if (imageData is ManagedBitmapData8I managed8BitBitmapData)
                         indices = managed8BitBitmapData.Buffer.Buffer;
                     else
                         // Otherwise, accessing by BitmapDataRow (non-managed or 1/4 bpp images)

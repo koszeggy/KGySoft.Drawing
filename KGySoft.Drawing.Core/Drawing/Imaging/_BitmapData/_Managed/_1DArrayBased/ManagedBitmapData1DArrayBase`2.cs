@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: UnmanagedBitmapData.cs
+//  File: ManagedBitmapData1DArrayBase`2.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -19,37 +19,44 @@ using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
+using KGySoft.Collections;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class UnmanagedBitmapData<TRow> : UnmanagedBitmapDataBase
-        where TRow : UnmanagedBitmapDataRowBase, new()
+    internal abstract class ManagedBitmapData1DArrayBase<T, TRow> : ManagedBitmapData1DArrayBase<T>
+        where T : unmanaged
+        where TRow : ManagedBitmapDataRowBase<T>, new()
     {
         #region Constructors
 
-        protected UnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
-            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+        protected ManagedBitmapData1DArrayBase(Size size, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
+            : base(size, pixelFormat, backColor, alphaThreshold, palette)
         {
-            Debug.Assert(pixelFormat.IsKnownFormat);
+        }
+
+        protected ManagedBitmapData1DArrayBase(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
+            Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
+            : base(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+        {
         }
 
         #endregion
 
         #region Methods
 
+        #region Private Methods
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected sealed override IBitmapDataRowInternal DoGetRow(int y) => new TRow
         {
-#if NET35
-            Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
-#else
-            Row = y == 0 ? Scan0 : Scan0 + Stride * y,
-#endif
+            Row = Buffer[y],
             BitmapData = this,
             Index = y,
         };
+
+        #endregion
 
         #endregion
     }

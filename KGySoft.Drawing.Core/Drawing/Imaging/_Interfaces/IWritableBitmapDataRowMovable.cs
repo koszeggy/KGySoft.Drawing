@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ICustomBitmapData.cs
+//  File: IWritableBitmapDataRowMovable.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -13,24 +13,13 @@
 
 #endregion
 
-#region Usings
-
-using System;
-using System.Drawing;
-
-#endregion
-
 namespace KGySoft.Drawing.Imaging
 {
-    internal interface ICustomBitmapData : IBitmapData
+    /// <summary>
+    /// Represents a single row of an <see cref="IWritableBitmapData"/> instance that allows setting its position to any row.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
+    /// </summary>
+    public interface IWritableBitmapDataRowMovable : IWritableBitmapDataRow, IBitmapDataRowMovable
     {
-        #region Properties
-
-        /// <summary>
-        /// Gets a factory to create a compatible bitmap data of the specified size that can be used by quantizers.
-        /// </summary>
-        Func<Size, IBitmapDataInternal>  CreateCompatibleBitmapDataFactory { get; }
-
-        #endregion
     }
 }

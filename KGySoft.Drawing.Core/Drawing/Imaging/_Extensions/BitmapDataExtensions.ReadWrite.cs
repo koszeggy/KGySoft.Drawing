@@ -1616,7 +1616,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                         int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                        IBitmapDataRowInternal row = accessor.GetRowCached(0);
                         do
                         {
                             if (context.IsCancellationRequested)
@@ -1633,7 +1633,7 @@ namespace KGySoft.Drawing.Imaging
                     ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                     {
                         int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                        IBitmapDataRowInternal row = accessor.GetRowCached(y);
                         for (int x = 0; x < width; x++)
                             row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
                     });
@@ -1673,7 +1673,7 @@ namespace KGySoft.Drawing.Imaging
                         {
                             context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                             int width = bitmapData.Width;
-                            IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(0);
                             int y = 0;
                             do
                             {
@@ -1692,7 +1692,7 @@ namespace KGySoft.Drawing.Imaging
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
                             int width = bitmapData.Width;
-                            IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(y);
                             for (int x = 0; x < width; x++)
                                 row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
                         });
@@ -1742,7 +1742,7 @@ namespace KGySoft.Drawing.Imaging
                 if (bitmapData.Width < parallelThreshold)
                 {
                     context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                    IBitmapDataRowInternal row = accessor.GetRowCached(0);
                     do
                     {
                         if (context.IsCancellationRequested)
@@ -1758,7 +1758,7 @@ namespace KGySoft.Drawing.Imaging
                 // Parallel processing
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
-                    IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                    IBitmapDataRowInternal row = accessor.GetRowCached(y);
                     for (int x = 0; x < bitmapData.Width; x++)
                         row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
                 });
@@ -1821,7 +1821,7 @@ namespace KGySoft.Drawing.Imaging
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                         {
                             context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                            IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(0);
                             int y = 0;
                             do
                             {
@@ -1839,7 +1839,7 @@ namespace KGySoft.Drawing.Imaging
                         // parallel processing
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
-                            IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(y);
                             for (int x = 0; x < bitmapData.Width; x++)
                                 row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
                         });

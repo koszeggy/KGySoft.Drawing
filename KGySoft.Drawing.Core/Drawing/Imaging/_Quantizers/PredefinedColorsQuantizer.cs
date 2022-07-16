@@ -189,14 +189,14 @@ namespace KGySoft.Drawing.Imaging
                 bitmapDataList = new List<IBitmapData>(Environment.ProcessorCount);
                 Func<int, IBitmapDataRowInternal> createRowFactory = _ =>
                 {
-                    var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1)).DoGetRow(0);
+                    var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1)).GetRowUncached(0);
                     lock (bitmapDataList)
                         bitmapDataList.Add(result.BitmapData);
                     return result;
                 };
                 rowsCache = ThreadSafeCacheFactory.Create(createRowFactory, cacheOptions);
 #else
-                rowsCache = new ThreadLocal<IBitmapDataRowInternal>(() => compatibleBitmapDataFactory.Invoke(new Size(1, 1)).DoGetRow(0), true);
+                rowsCache = new ThreadLocal<IBitmapDataRowInternal>(() => compatibleBitmapDataFactory.Invoke(new Size(1, 1)).GetRowUncached(0), true);
 #endif
             }
 

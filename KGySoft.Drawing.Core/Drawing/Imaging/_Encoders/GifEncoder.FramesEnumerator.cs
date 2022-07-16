@@ -264,8 +264,8 @@ namespace KGySoft.Drawing.Imaging
                 // small width: going with sequential clear
                 if (deltaFrame.Width < parallelThreshold)
                 {
-                    IReadWriteBitmapDataRow rowPrev = previousFrame.FirstRow;
-                    IReadWriteBitmapDataRow rowDelta = deltaFrame.FirstRow;
+                    IReadWriteBitmapDataRowMovable rowPrev = previousFrame.FirstRow;
+                    IReadWriteBitmapDataRowMovable rowDelta = deltaFrame.FirstRow;
 
                     do
                     {
@@ -290,6 +290,7 @@ namespace KGySoft.Drawing.Imaging
                 // parallel clear
                 if (tolerance == 0)
                 {
+                    // TODO: use IBitmapDataInternal and access rows by thread id cache
                     if (transparentIndex >= 0)
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
                             y => ProcessRowIndexed(previousFrame[y], deltaFrame[y], transparentIndex));
@@ -312,8 +313,8 @@ namespace KGySoft.Drawing.Imaging
                 Debug.Assert(alphaThreshold > 0);
                 region = new Rectangle(Point.Empty, currentFrame.GetSize());
 
-                IReadableBitmapDataRow rowCurrent = currentFrame.FirstRow;
-                IReadableBitmapDataRow rowNext = nextFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowCurrent = currentFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowNext = nextFrame.FirstRow;
                 int width = currentFrame.Width;
 
                 do
@@ -335,8 +336,8 @@ namespace KGySoft.Drawing.Imaging
 
                 for (int y = region.Bottom - 1; y >= region.Top; y--)
                 {
-                    rowCurrent = currentFrame[y];
-                    rowNext = nextFrame[y];
+                    rowCurrent.MoveToRow(y);
+                    rowNext.MoveToRow(y);
                     for (int x = 0; x < region.Width; x++)
                     {
                         if (rowNext[x].A < alphaThreshold && rowCurrent[x].A >= alphaThreshold)
@@ -352,7 +353,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     for (int y = region.Top; y < region.Bottom; y++)
                     {
-                        if (nextFrame[y][x].A < alphaThreshold && currentFrame[y][x].A >= alphaThreshold)
+                        if (nextFrame.GetColor32(x, y).A < alphaThreshold && currentFrame.GetColor32(x, y).A >= alphaThreshold)
                             goto continueRight;
                     }
 
@@ -366,7 +367,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     for (int y = region.Top; y < region.Bottom; y++)
                     {
-                        if (nextFrame[y][x].A < alphaThreshold && currentFrame[y][x].A >= alphaThreshold)
+                        if (nextFrame.GetColor32(x, y).A < alphaThreshold && currentFrame.GetColor32(x, y).A >= alphaThreshold)
                             return true;
                     }
 
@@ -434,7 +435,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (bitmapDataPrev[y][x] != bitmapDataCurrent[y][x])
+                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y))
                                 return false;
                         }
                     }
@@ -442,7 +443,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (!bitmapDataPrev[y][x].TolerantEquals(bitmapDataCurrent[y][x], tolerance))
+                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance))
                                 return false;
                         }
                     }
@@ -456,7 +457,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (bitmapDataPrev[y][x] != bitmapDataCurrent[y][x].BlendWithBackground(backColor))
+                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).BlendWithBackground(backColor))
                                 return false;
                         }
                     }
@@ -464,7 +465,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (!bitmapDataPrev[y][x].TolerantEquals(bitmapDataCurrent[y][x], tolerance, backColor))
+                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance, backColor))
                                 return false;
                         }
                     }
@@ -479,8 +480,8 @@ namespace KGySoft.Drawing.Imaging
                 bool hasAlpha = currentFrame.HasAlpha();
                 var region = new Rectangle(Point.Empty, currentFrame.GetSize());
 
-                IReadableBitmapDataRow rowPrev = previousFrame.FirstRow;
-                IReadableBitmapDataRow rowCurrent = currentFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowPrev = previousFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowCurrent = currentFrame.FirstRow;
 
                 // 1.) Top
                 do
@@ -502,8 +503,10 @@ namespace KGySoft.Drawing.Imaging
                 // 2.) Bottom
                 for (int y = region.Bottom - 1; y >= region.Top; y--)
                 {
-                    if (!hasAlpha && !RowEquals(previousFrame[y], currentFrame[y], tolerance)
-                        || hasAlpha && !RowEqualsWithAlpha(previousFrame[y], currentFrame[y], tolerance, backColor))
+                    rowPrev.MoveToRow(y);
+                    rowCurrent.MoveToRow(y);
+                    if (!hasAlpha && !RowEquals(rowPrev, rowCurrent, tolerance)
+                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor))
                     {
                         break;
                     }

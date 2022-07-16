@@ -34,6 +34,24 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   ! The type of the PixelFormat property from now on returns a PixelFormatInfo struct rather than an enum value of
     the System.Drawing.Imaging.PixelFormat type. It now supports custom formats better and you still can convert it
     to a known format if needed.
+! BitmapDataRow interface:
+  ! The MoveNextRow method has been moved to the new IBitmapDataRowMovable interface
+! IReadableBitmapData interface
+  ! FirstRow returns an IReadableBitmapDataRowMovable instead of IReadableBitmapDataRow
+  ! New GetMovableRow method. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this method has a default implementation.
+  ! New GetColor32 method. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this method has a default implementation.
+! IWritableBitmapData interface
+  ! FirstRow returns an IWritableBitmapDataRowMovable instead of IWritableBitmapDataRow
+  ! New GetMovableRow method. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this method has a default implementation.
+  ! New SetColor32 method. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this method has a default implementation.
+! IReadWriteBitmapData interface
+  ! FirstRow returns an IReadWriteBitmapDataRowMovable instead of IReadWriteBitmapDataRow
+  ! New GetMovableRow method. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this method has a default implementation.
 ! BitmapDataExtensions class:
   ! The ToBitmap/BeginToBitmap/EndToBitmap/ToBitmapAsync methods are now in the ReadableBitmapDataExtensions class
     of the KGySoft.Drawing package. When recompiling C# sources, this is not a breaking change if you use the
@@ -45,6 +63,8 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
 + New KnownPixelFormat enum. The names of the actual formats are compatible with System.Drawing.Imaging.PixelFormat
   but some of them have different underlying values. Use the ToPixelFormat extension from KGySoft.Drawing to convert
   it to a System.Drawing.Imaging.PixelFormat.
++ New IBitmapDataRowMovable, IReadableBitmapDataRowMovable, IWritableBitmapDataRowMovable and
+  IReadWriteBitmapDataRowMovable interfaces
 + New KnownPixelFormatExtensions class
 + Palette class:
   + New public constructor to create a new Palette from an existing one with different back color and alpha

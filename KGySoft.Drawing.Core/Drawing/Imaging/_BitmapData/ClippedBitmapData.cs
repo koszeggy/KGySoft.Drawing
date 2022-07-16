@@ -24,20 +24,12 @@ namespace KGySoft.Drawing.Imaging
 {
     internal sealed class ClippedBitmapData : BitmapDataBase
     {
-        #region Nested types
-
-        #region Enumerations
-
-        private enum BitmapDataType { None, Internal, ReadWrite, Readable, Writable }
-
-        #endregion
-
         #region Nested classes
 
         #region ClippedRowBase class
 
         private abstract class ClippedRowBase<TRow> : BitmapDataRowBase
-            where TRow : IBitmapDataRow
+            where TRow : IBitmapDataRowMovable
         {
             #region Fields
 
@@ -59,7 +51,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
-            public override bool MoveNextRow() => base.MoveNextRow() && WrappedRow.MoveNextRow();
+            protected override void DoMoveToIndex() => WrappedRow.MoveToRow(Index + Parent.Y);
 
             #endregion
         }
@@ -72,7 +64,8 @@ namespace KGySoft.Drawing.Imaging
         {
             #region Constructors
 
-            internal ClippedRowInternal(ClippedBitmapData bitmapData, int rowIndex) : base(bitmapData, ((IBitmapDataInternal)bitmapData.BitmapData).DoGetRow(rowIndex + bitmapData.Y))
+            internal ClippedRowInternal(ClippedBitmapData bitmapData, int rowIndex)
+                : base(bitmapData, ((IBitmapDataInternal)bitmapData.BitmapData).GetRowUncached(rowIndex + bitmapData.Y))
             {
             }
 
@@ -96,11 +89,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region ClippedRowReadWrite class
 
-        private sealed class ClippedRowReadWrite : ClippedRowBase<IReadWriteBitmapDataRow>
+        private sealed class ClippedRowReadWrite : ClippedRowBase<IReadWriteBitmapDataRowMovable>
         {
             #region Constructors
 
-            internal ClippedRowReadWrite(ClippedBitmapData bitmapData, int rowIndex) : base(bitmapData, ((IReadWriteBitmapData)bitmapData.BitmapData)[rowIndex + bitmapData.Y])
+            internal ClippedRowReadWrite(ClippedBitmapData bitmapData, int rowIndex)
+                : base(bitmapData, ((IReadWriteBitmapData)bitmapData.BitmapData).GetMovableRow(rowIndex + bitmapData.Y))
             {
             }
 
@@ -122,11 +116,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region ClippedRowReadable class
 
-        private sealed class ClippedRowReadable : ClippedRowBase<IReadableBitmapDataRow>
+        private sealed class ClippedRowReadable : ClippedRowBase<IReadableBitmapDataRowMovable>
         {
             #region Constructors
 
-            internal ClippedRowReadable(ClippedBitmapData bitmapData, int rowIndex) : base(bitmapData, ((IReadableBitmapData)bitmapData.BitmapData)[rowIndex + bitmapData.Y])
+            internal ClippedRowReadable(ClippedBitmapData bitmapData, int rowIndex)
+                : base(bitmapData, ((IReadableBitmapData)bitmapData.BitmapData).GetMovableRow(rowIndex + bitmapData.Y))
             {
             }
 
@@ -148,11 +143,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region ClippedRowWritable class
 
-        private sealed class ClippedRowWritable : ClippedRowBase<IWritableBitmapDataRow>
+        private sealed class ClippedRowWritable : ClippedRowBase<IWritableBitmapDataRowMovable>
         {
             #region Constructors
 
-            internal ClippedRowWritable(ClippedBitmapData bitmapData, int rowIndex) : base(bitmapData, ((IWritableBitmapData)bitmapData.BitmapData)[rowIndex + bitmapData.Y])
+            internal ClippedRowWritable(ClippedBitmapData bitmapData, int rowIndex)
+                : base(bitmapData, ((IWritableBitmapData)bitmapData.BitmapData).GetMovableRow(rowIndex + bitmapData.Y))
             {
             }
 
@@ -174,14 +170,10 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #endregion
-
         #region Fields
 
-        private readonly BitmapDataType bitmapDataType;
+        private readonly Func<int, BitmapDataRowBase> createRowFactory;
         private readonly bool disposeBitmapData;
-
-        private IBitmapDataRowInternal? lastRow;
 
         #endregion
 
@@ -227,13 +219,13 @@ namespace KGySoft.Drawing.Imaging
             if (clippingRegion.IsEmpty)
                 throw new ArgumentOutOfRangeException(nameof(clippingRegion), PublicResources.ArgumentOutOfRange);
 
-            bitmapDataType = BitmapData switch
+            createRowFactory = BitmapData switch
             {
-                IBitmapDataInternal _ => BitmapDataType.Internal,
-                IReadWriteBitmapData _ => BitmapDataType.ReadWrite,
-                IReadableBitmapData _ => BitmapDataType.Readable,
-                IWritableBitmapData _ => BitmapDataType.Writable,
-                _ => BitmapDataType.None
+                IBitmapDataInternal _ => y => new ClippedRowInternal(this, y),
+                IReadWriteBitmapData _ => y => new ClippedRowReadWrite(this, y),
+                IReadableBitmapData _ => y => new ClippedRowReadable(this, y),
+                IWritableBitmapData _ => y => new ClippedRowWritable(this, y),
+                _ => throw new InvalidOperationException(Res.InternalError($"Unexpected bitmap data type: {source.GetType()}"))
             };
 
             X = clippingRegion.X;
@@ -262,29 +254,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Public Methods
-        
-        public override IBitmapDataRowInternal DoGetRow(int y)
-        {
-            // If the same row is accessed repeatedly we return the cached last row.
-            IBitmapDataRowInternal? result = lastRow;
-            if (result?.Index == y)
-                return result;
-
-            // Otherwise, we create and cache the result.
-            return lastRow = bitmapDataType switch
-            {
-                BitmapDataType.Internal => new ClippedRowInternal(this, y),
-                BitmapDataType.ReadWrite => new ClippedRowReadWrite(this, y),
-                BitmapDataType.Readable => new ClippedRowReadable(this, y),
-                BitmapDataType.Writable => new ClippedRowWritable(this, y),
-                _ => throw new InvalidOperationException(Res.InternalError($"Unexpected row access on type: {BitmapData.GetType()}")),
-            };
-        }
-
-        #endregion
-
         #region Protected Methods
+
+        protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
+        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
+        protected override IBitmapDataRowInternal DoGetRow(int y) => createRowFactory.Invoke(y);
 
         protected override void Dispose(bool disposing)
         {

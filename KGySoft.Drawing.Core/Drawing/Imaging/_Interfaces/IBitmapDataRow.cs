@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IBitmapDataRow.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -48,19 +48,6 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.RowSize">IBitmapData.RowSize</see> property for details.
         /// </summary>
         int Size { get; }
-
-        #endregion
-
-        #region Methods
-
-        /// <summary>
-        /// If not already in the last row (<see cref="Index"/> is less than <see cref="IBitmapData.Height">Height</see> of the owner <see cref="IBitmapData"/>),
-        /// then advances the position of the current <see cref="IBitmapDataRow"/> instance so it points to the next row.
-        /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
-        /// </summary>
-        /// <returns><see langword="true"/>, if this <see cref="IBitmapDataRow"/> has been advanced to another row;
-        /// <see langword="false"/>, if this <see cref="IBitmapDataRow"/> had already pointed to the last row before this method was called.</returns>
-        bool MoveNextRow();
 
         #endregion
     }

@@ -33,14 +33,14 @@ namespace KGySoft.Drawing.Imaging
 {
     internal sealed class UnmanagedCustomBitmapData : UnmanagedBitmapDataBase, ICustomBitmapData
     {
-        #region UnmanagedCustomBitmapDataRow class
+        #region Row class
 
-        private sealed class UnmanagedCustomBitmapDataRow : UnmanagedBitmapDataRowBase, ICustomBitmapDataRow
+        private sealed class Row : UnmanagedBitmapDataRowBase, ICustomBitmapDataRow
         {
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetColor.Invoke( this, x);
+            public override Color32 DoGetColor32(int x) => ((UnmanagedCustomBitmapData)BitmapData).rowGetColor.Invoke(this, x);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c) => ((UnmanagedCustomBitmapData)BitmapData).rowSetColor.Invoke(this, x, c);
@@ -67,12 +67,6 @@ namespace KGySoft.Drawing.Imaging
 
         private Func<ICustomBitmapDataRow, int, Color32> rowGetColor;
         private Action<ICustomBitmapDataRow, int, Color32> rowSetColor;
-
-        /// <summary>
-        /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
-        /// so it has a bit higher chance that every thread sees the last value was set by itself and no recreation is needed.
-        /// </summary>
-        private UnmanagedCustomBitmapDataRow? lastRow;
 
         #endregion
 
@@ -153,32 +147,25 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Public Methods
+        #region Protected Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override IBitmapDataRowInternal DoGetRow(int y)
+        protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
+     
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override IBitmapDataRowInternal DoGetRow(int y) => new Row
         {
-            // If the same row is accessed repeatedly we return the cached last row.
-            UnmanagedCustomBitmapDataRow? result = lastRow;
-            if (result?.Index == y)
-                return result;
-
-            // Otherwise, we create and cache the result.
-            return lastRow = new UnmanagedCustomBitmapDataRow
-            {
 #if NET35
-                Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
+            Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
 #else
-                Row = y == 0 ? Scan0 : Scan0 + Stride * y,
+            Row = y == 0 ? Scan0 : Scan0 + Stride * y,
 #endif
-                BitmapData = this,
-                Index = y,
-            };
-        }
-
-        #endregion
-
-        #region Protected Methods
+            BitmapData = this,
+            Index = y,
+        };
 
         protected override void Dispose(bool disposing)
         {

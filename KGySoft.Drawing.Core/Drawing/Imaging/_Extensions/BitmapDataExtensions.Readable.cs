@@ -2900,7 +2900,7 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, data.Height);
-                IBitmapDataRowInternal line = data.DoGetRow(0);
+                IBitmapDataRowInternal line = data.GetRowCached(0);
 
                 do
                 {
@@ -2959,7 +2959,7 @@ namespace KGySoft.Drawing.Imaging
             try
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, data.Height);
-                IBitmapDataRowInternal line = data.DoGetRow(0);
+                IBitmapDataRowInternal line = data.GetRowCached(0);
 
                 do
                 {

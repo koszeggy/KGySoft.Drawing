@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataRow32Argb.cs
+//  File: ManagedBitmapData32Argb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,21 +15,57 @@
 
 #region Usings
 
+using System;
+using System.Drawing;
 using System.Runtime.CompilerServices;
+
+using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow32Argb : ManagedBitmapDataRowBase<Color32>
+    internal sealed class ManagedBitmapData32Argb : ManagedBitmapData1DArrayBase<Color32, ManagedBitmapData32Argb.Row>
     {
+        #region Row class
+
+        internal sealed class Row : ManagedBitmapDataRowBase<Color32>
+        {
+            #region Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override Color32 DoGetColor32(int x) => Row[x];
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColor32(int x, Color32 c) => Row[x] = c;
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        internal ManagedBitmapData32Argb(Size size, Color32 backColor, byte alphaThreshold)
+            : base(size, KnownPixelFormat.Format32bppArgb, backColor, alphaThreshold)
+        {
+        }
+
+        internal ManagedBitmapData32Argb(Array2D<Color32> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, pixelWidth, KnownPixelFormat.Format32bppArgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override Color32 DoGetColor32(int x) => Row[x];
-
+    
+        protected override Color32 DoGetPixel(int x, int y) => Buffer[y, x];
+        
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColor32(int x, Color32 c) => Row[x] = c;
+        protected override void DoSetPixel(int x, int y, Color32 color) => Buffer[y, x] = color;
 
         #endregion
     }

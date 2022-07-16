@@ -32,20 +32,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override bool MoveNextRow()
-        {
-            if (!base.MoveNextRow())
-                return false;
-
-#if NET35
-            Row = new IntPtr(Row.ToInt64() + ((UnmanagedBitmapDataBase)BitmapData).Stride);
-#else
-            Row += ((UnmanagedBitmapDataBase)BitmapData).Stride;
-#endif
-            return true;
-        }
+        
+        #region Public Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -54,6 +42,21 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public sealed override unsafe void DoWriteRaw<T>(int x, T data) => ((T*)Row)[x] = data;
+
+        #endregion
+
+        #region Protected Methods
+
+        protected override void DoMoveToIndex()
+        {
+#if NET35
+            Row = new IntPtr(((UnmanagedBitmapDataBase)BitmapData).Scan0.ToInt64() + ((UnmanagedBitmapDataBase)BitmapData).Stride * Index);
+#else
+            Row = ((UnmanagedBitmapDataBase)BitmapData).Scan0 + ((UnmanagedBitmapDataBase)BitmapData).Stride * Index;
+#endif
+        }
+
+        #endregion
 
         #endregion
     }

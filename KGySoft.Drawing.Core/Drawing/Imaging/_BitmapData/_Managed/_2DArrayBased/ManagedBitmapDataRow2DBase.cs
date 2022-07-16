@@ -34,6 +34,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+        
+        #region Public Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -64,6 +66,16 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
         }
+
+        #endregion
+
+        #region Protected Methods
+
+        protected sealed override void DoMoveToIndex()
+        {
+        }
+
+        #endregion
 
         #endregion
     }

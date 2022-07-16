@@ -96,8 +96,8 @@ namespace KGySoft.Drawing.Imaging
             if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
-                IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
                 byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
@@ -128,8 +128,8 @@ namespace KGySoft.Drawing.Imaging
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
             {
                 IQuantizingSession session = quantizingSession;
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
@@ -152,8 +152,8 @@ namespace KGySoft.Drawing.Imaging
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
-                IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
                 byte alphaThreshold = Math.Max(quantizingSession.AlphaThreshold, (byte)1);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
@@ -187,8 +187,8 @@ namespace KGySoft.Drawing.Imaging
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
             {
                 IDitheringSession session = ditheringSession;
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
@@ -305,8 +305,8 @@ namespace KGySoft.Drawing.Imaging
 
             void ProcessRowStraight(int y)
             {
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
@@ -351,8 +351,8 @@ namespace KGySoft.Drawing.Imaging
 
             void ProcessRowPremultiplied(int y)
             {
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
@@ -532,8 +532,8 @@ namespace KGySoft.Drawing.Imaging
             if (SourceRectangle.Width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
-                IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -556,8 +556,8 @@ namespace KGySoft.Drawing.Imaging
             int sourceWidth = SourceRectangle.Width;
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
             {
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
@@ -572,8 +572,8 @@ namespace KGySoft.Drawing.Imaging
             if (SourceRectangle.Width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                IBitmapDataRowInternal rowSrc = Source.DoGetRow(SourceRectangle.Y);
-                IBitmapDataRowInternal rowDst = Target.DoGetRow(TargetRectangle.Y);
+                IBitmapDataRowInternal rowSrc = Source.GetRowCached(SourceRectangle.Y);
+                IBitmapDataRowInternal rowDst = Target.GetRowCached(TargetRectangle.Y);
                 for (int y = 0; y < SourceRectangle.Height; y++)
                 {
                     if (context.IsCancellationRequested)
@@ -596,8 +596,8 @@ namespace KGySoft.Drawing.Imaging
             int sourceWidth = SourceRectangle.Width;
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, y =>
             {
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 int width = sourceWidth;
@@ -637,8 +637,8 @@ namespace KGySoft.Drawing.Imaging
             void ProcessRow(int y)
             {
                 IQuantizingSession session = quantizingSession;
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 byte alphaThreshold = session.AlphaThreshold;
@@ -715,8 +715,8 @@ namespace KGySoft.Drawing.Imaging
             void ProcessRow(int y)
             {
                 IDitheringSession session = ditheringSession;
-                IBitmapDataRowInternal rowSrc = source.DoGetRow(sourceLocation.Y + y);
-                IBitmapDataRowInternal rowDst = target.DoGetRow(targetLocation.Y + y);
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
                 int offsetSrc = sourceLocation.X;
                 int offsetDst = targetLocation.X;
                 byte alphaThreshold = quantizingSession.AlphaThreshold;

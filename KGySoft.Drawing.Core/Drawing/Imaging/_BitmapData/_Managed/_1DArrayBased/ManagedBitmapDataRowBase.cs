@@ -35,14 +35,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override bool MoveNextRow()
-        {
-            if (!base.MoveNextRow())
-                return false;
-            Row = ((ManagedBitmapData1DArrayBase<T>)BitmapData).Buffer[Index];
-            return true;
-        }
+        #region Public Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -73,6 +66,14 @@ namespace KGySoft.Drawing.Imaging
             }
 #endif
         }
+
+        #endregion
+
+        #region Protected Methods
+
+        protected override void DoMoveToIndex() => Row = ((ManagedBitmapData1DArrayBase<T>)BitmapData).Buffer[Index];
+
+        #endregion
 
         #endregion
     }

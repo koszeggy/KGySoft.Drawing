@@ -40,11 +40,22 @@ namespace KGySoft.Drawing.Imaging
 
             #region Methods
 
+            #region Public Methods
+            
             public override Color32 DoGetColor32(int x) => Color;
+            public override T DoReadRaw<T>(int x) => throw new NotSupportedException(PublicResources.NotSupported);
+            public override void DoSetColor32(int x, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
+            public override void DoWriteRaw<T>(int x, T data) => throw new NotSupportedException(PublicResources.NotSupported);
 
-            public override T DoReadRaw<T>(int x) => throw new InvalidOperationException();
-            public override void DoSetColor32(int x, Color32 c) => throw new InvalidOperationException();
-            public override void DoWriteRaw<T>(int x, T data) => throw new InvalidOperationException();
+            #endregion
+
+            #region Protected Methods
+
+            protected override void DoMoveToIndex()
+            {
+            }
+
+            #endregion
 
             #endregion
         }
@@ -54,8 +65,6 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly Color32 color;
-
-        private IBitmapDataRowInternal? lastRow;
 
         #endregion
 
@@ -71,21 +80,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        public override IBitmapDataRowInternal DoGetRow(int y)
-        {
-            // If the same row is accessed repeatedly we return the cached last row. This is only needed because Index is mutable.
-            IBitmapDataRowInternal? result = lastRow;
-            if (result?.Index == y)
-                return result;
+        protected override Color32 DoGetPixel(int x, int y) => color;
+        protected override void DoSetPixel(int x, int y, Color32 color) => throw new NotSupportedException(PublicResources.NotSupported);
 
-            // Otherwise, we create and cache the result.
-            return lastRow = new Row
-            {
-                BitmapData = this,
-                Color = color,
-                Index = y,
-            };
-        }
+        protected override IBitmapDataRowInternal DoGetRow(int y) => new Row
+        {
+            BitmapData = this,
+            Color = color,
+            Index = y,
+        };
 
         #endregion
     }

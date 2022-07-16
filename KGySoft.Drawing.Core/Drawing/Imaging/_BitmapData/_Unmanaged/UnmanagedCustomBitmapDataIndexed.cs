@@ -26,9 +26,9 @@ namespace KGySoft.Drawing.Imaging
 {
     internal sealed class UnmanagedCustomBitmapDataIndexed : UnmanagedBitmapDataBase
     {
-        #region UnmanagedCustomBitmapDataRowIndexed class
+        #region Row class
 
-        private sealed class UnmanagedCustomBitmapDataRowIndexed : UnmanagedBitmapDataRowIndexedBase, ICustomBitmapDataRow
+        private sealed class Row : UnmanagedBitmapDataRowIndexedBase, ICustomBitmapDataRow
         {
             #region Properties
 
@@ -67,12 +67,6 @@ namespace KGySoft.Drawing.Imaging
         private Func<ICustomBitmapDataRow, int, int> rowGetColorIndex;
         private Action<ICustomBitmapDataRow, int, int> rowSetColorIndex;
 
-        /// <summary>
-        /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
-        /// so it has a bit higher chance that every thread sees the last value was set by itself and no recreation is needed.
-        /// </summary>
-        private UnmanagedCustomBitmapDataRowIndexed? lastRow;
-
         #endregion
 
         #region Properties
@@ -99,32 +93,23 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        #region Public Methods
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
+    
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override IBitmapDataRowInternal DoGetRow(int y)
+        protected override IBitmapDataRowInternal DoGetRow(int y) => new Row
         {
-            // If the same row is accessed repeatedly we return the cached last row.
-            UnmanagedCustomBitmapDataRowIndexed? result = lastRow;
-            if (result?.Index == y)
-                return result;
-
-            // Otherwise, we create and cache the result.
-            return lastRow = new UnmanagedCustomBitmapDataRowIndexed
-            {
 #if NET35
-                Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
+            Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
 #else
-                Row = y == 0 ? Scan0 : Scan0 + Stride * y,
+            Row = y == 0 ? Scan0 : Scan0 + Stride * y,
 #endif
-                BitmapData = this,
-                Index = y,
-            };
-        }
-
-        #endregion
-
-        #region Protected Methods
+            BitmapData = this,
+            Index = y,
+        };
 
         protected override void Dispose(bool disposing)
         {
@@ -134,8 +119,6 @@ namespace KGySoft.Drawing.Imaging
             rowSetColorIndex = null!;
             base.Dispose(disposing);
         }
-
-        #endregion
 
         #endregion
     }
