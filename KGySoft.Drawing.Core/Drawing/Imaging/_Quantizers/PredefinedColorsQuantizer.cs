@@ -61,6 +61,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette? Palette => null;
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
+            public bool IsGrayscale => quantizer.PixelFormatHint.IsGrayscale();
 
             #endregion
 
@@ -107,6 +108,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette Palette { get; }
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
+            public bool IsGrayscale => Palette.IsGrayscale;
 
             #endregion
 
@@ -135,7 +137,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region QuantizingSessionByCustomBitmapData class
 
-        private sealed class QuantizingSessionByCustomBitmapData : IQuantizingSessionInternal
+        private sealed class QuantizingSessionByCustomBitmapData : IQuantizingSession
         {
             #region Fields
 
@@ -1505,7 +1507,6 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        // TODO: add isGrayscale = false in next major version change along with removing IQuantizingSessionInternal
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format24bppRgb, byte alphaThreshold = 0)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, new Color32(backColor), alphaThreshold);
 
@@ -1560,7 +1561,6 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        // TODO: add isGrayscale = false in next major version change along with removing IQuantizingSessionInternal
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format32bppArgb)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint);
 

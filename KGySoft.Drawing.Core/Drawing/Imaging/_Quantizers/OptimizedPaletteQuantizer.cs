@@ -195,6 +195,7 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
+            public bool IsGrayscale => Palette?.IsGrayscale ?? false;
 
             #endregion
 

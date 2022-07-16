@@ -60,6 +60,17 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         byte AlphaThreshold { get; }
 
+        /// <summary>
+        /// Gets whether this <see cref="IQuantizingSession"/> works with grayscale colors.
+        /// Its value may help to optimize the processing in some cases but it is allowed to return always <see langword="false"/>.
+        /// <br/>Default value: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented)
+        /// </summary>
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
+        bool IsGrayscale { get; }
+#else
+        bool IsGrayscale => false;
+#endif
+
         #endregion
 
         #region Methods

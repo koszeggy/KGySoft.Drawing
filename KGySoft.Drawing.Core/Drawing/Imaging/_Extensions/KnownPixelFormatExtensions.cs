@@ -80,6 +80,7 @@ namespace KGySoft.Drawing.Imaging
         internal static int GetByteWidth(this KnownPixelFormat pixelFormat, int pixelWidth) => (pixelWidth * pixelFormat.ToBitsPerPixel() + 7) >> 3;
         internal static bool CanBeDithered(this KnownPixelFormat pixelFormat) => pixelFormat.ToInfoInternal().CanBeDithered;
         internal static bool IsAtByteBoundary(this KnownPixelFormat pixelFormat, int x) => pixelFormat.ToInfoInternal().IsAtByteBoundary(x);
+        internal static bool IsGrayscale(this KnownPixelFormat pixelFormat) => pixelFormat.ToInfoInternal().Grayscale;
 
         #endregion
 
