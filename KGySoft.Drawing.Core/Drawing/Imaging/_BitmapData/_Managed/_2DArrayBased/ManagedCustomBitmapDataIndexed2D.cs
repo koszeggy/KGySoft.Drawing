@@ -24,7 +24,7 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedCustomBitmapDataIndexed2D<T> : ManagedBitmapData2DArrayBase<T, ManagedCustomBitmapDataIndexed2D<T>.Row>
+    internal sealed class ManagedCustomBitmapDataIndexed2D<T> : ManagedBitmapData2DArrayIndexedBase<T, ManagedCustomBitmapDataIndexed2D<T>.Row>
         where T : unmanaged
     {
         #region Row class
@@ -122,10 +122,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
+        protected override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
     
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
+        protected override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 
         protected override void Dispose(bool disposing)
         {

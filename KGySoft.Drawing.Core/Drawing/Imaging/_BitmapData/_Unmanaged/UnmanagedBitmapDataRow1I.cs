@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: UnmanagedBitmapDataRow1I.cs
+//  File: UnmanagedBitmapData1I.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -22,11 +24,41 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedBitmapDataRow1I : UnmanagedBitmapDataRowIndexedBase
+    internal sealed class UnmanagedBitmapData1I : UnmanagedBitmapDataIndexedBase<UnmanagedBitmapData1I.Row>
     {
-        #region Properties
+        #region Row class
 
-        protected override uint MaxIndex => 1;
+        internal sealed class Row : UnmanagedBitmapDataRowIndexedBase
+        {
+            #region Properties
+
+            protected override uint MaxIndex => 1;
+
+            #endregion
+
+            #region Methods
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe int DoGetColorIndex(int x) => ColorExtensions.Get1bppColorIndex(((byte*)Row)[x >> 3], x);
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe void DoSetColorIndex(int x, int colorIndex)
+                => ColorExtensions.Set1bppColorIndex(ref ((byte*)Row)[x >> 3], x, colorIndex);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        internal UnmanagedBitmapData1I(IntPtr buffer, Size size, int stride, Color32 backColor, byte alphaThreshold,
+            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
+            : base(buffer, size, stride, KnownPixelFormat.Format1bppIndexed.ToInfoInternal(), backColor, alphaThreshold, disposeCallback, palette, trySetPaletteCallback)
+        {
+        }
 
         #endregion
 
@@ -34,24 +66,12 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe int DoGetColorIndex(int x)
-        {
-            int mask = 128 >> (x & 7);
-            int bits = ((byte*)Row)[x >> 3];
-            return (bits & mask) != 0 ? 1 : 0;
-        }
+        protected unsafe override int DoGetColorIndex(int x, int y) => ColorExtensions.Get1bppColorIndex(*GetPixelAddress<byte>(y, x >> 3), x);
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColorIndex(int x, int colorIndex)
-        {
-            int pos = x >> 3;
-            int mask = 128 >> (x & 7);
-            if (colorIndex == 0)
-                ((byte*)Row)[pos] &= (byte)~mask;
-            else
-                ((byte*)Row)[pos] |= (byte)mask;
-        }
+        protected unsafe override void DoSetColorIndex(int x, int y, int colorIndex)
+            => ColorExtensions.Set1bppColorIndex(ref *GetPixelAddress<byte>(y, x >> 3), x, colorIndex);
 
         #endregion
     }

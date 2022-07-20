@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: UnmanagedBitmapDataRow16Argb1555.cs
+//  File: UnmanagedBitmapData16Argb1555.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -23,26 +24,64 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedBitmapDataRow16Argb1555 : UnmanagedBitmapDataRowBase
+    internal sealed class UnmanagedBitmapData16Argb1555 : UnmanagedBitmapData<UnmanagedBitmapData16Argb1555.Row>
     {
+        #region Row class
+
+        internal sealed class Row : UnmanagedBitmapDataRowBase
+        {
+            #region Methods
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe Color32 DoGetColor32(int x) => ((Color16Argb1555*)Row)[x].ToColor32();
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe void DoSetColor32(int x, Color32 c)
+            {
+                if (c.A != Byte.MaxValue)
+                {
+                    c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor)
+                        : c.A < 128 ? c
+                        : default;
+                }
+
+                ((Color16Argb1555*)Row)[x] = new Color16Argb1555(c);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        internal UnmanagedBitmapData16Argb1555(IntPtr buffer, Size size, int stride, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, size, stride, KnownPixelFormat.Format16bppArgb1555.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32(int x) => ((Color16Argb1555*)Row)[x].ToColor32();
+        protected override unsafe Color32 DoGetPixel(int x, int y) => GetPixelAddress<Color16Argb1555>(y, x)->ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColor32(int x, Color32 c)
+        protected override unsafe void DoSetPixel(int x, int y, Color32 c)
         {
             if (c.A != Byte.MaxValue)
             {
-                c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor)
+                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor)
                     : c.A < 128 ? c
                     : default;
             }
 
-            ((Color16Argb1555*)Row)[x] = new Color16Argb1555(c);
+            *GetPixelAddress<Color16Argb1555>(y, x) = new Color16Argb1555(c);
         }
 
         #endregion

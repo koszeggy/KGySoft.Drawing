@@ -93,16 +93,16 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected ref TPixel GetPixelRef<TPixel>(int rowIndex, int offset)
+        protected ref TPixel GetPixelRef<TPixel>(int y, int x)
             where TPixel : unmanaged
         {
 #if NETCOREAPP3_0_OR_GREATER
-            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Unsafe.Add(ref Buffer.GetPinnableReference(), rowIndex * RowSize)), offset);
+            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Unsafe.Add(ref Buffer.GetPinnableReference(), y * RowSize)), x);
 #else
             unsafe
             {
                 fixed (T* pBuf = Buffer)
-                    return ref ((TPixel*)((byte*)pBuf)[rowIndex * RowSize])[offset];
+                    return ref ((TPixel*)((byte*)pBuf)[y * RowSize])[x];
             }
 #endif
         }

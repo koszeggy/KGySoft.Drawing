@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetPixel(int x, int y, Color32 color) => *GetPixelAddress<Color32>(y, x) = color;
+        protected override unsafe void DoSetPixel(int x, int y, Color32 c) => *GetPixelAddress<Color32>(y, x) = c;
 
         #endregion
     }

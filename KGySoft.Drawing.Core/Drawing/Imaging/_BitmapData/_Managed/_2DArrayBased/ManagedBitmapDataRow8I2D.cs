@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataRow8I2D.cs
+//  File: ManagedBitmapData8I2D.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,28 +15,56 @@
 
 #region Usings
 
+using System;
 using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow8I2D<T> : ManagedBitmapDataRowIndexed2DBase<T>
+    internal sealed class ManagedBitmapData8I2D<T> : ManagedBitmapData2DArrayIndexedBase<T, ManagedBitmapData8I2D<T>.Row>
         where T : unmanaged
     {
-        #region Properties
+        #region Row class
 
-        protected override uint MaxIndex => 255;
+        internal sealed class Row : ManagedBitmapDataRowIndexed2DBase<T>
+        {
+            #region Properties
+
+            protected override uint MaxIndex => 255;
+
+            #endregion
+
+            #region Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override int DoGetColorIndex(int x) => DoReadRaw<byte>(x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColorIndex(int x, int colorIndex) => DoWriteRaw(x, (byte)colorIndex);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        internal ManagedBitmapData8I2D(T[,] buffer, int pixelWidth, Color32 backColor, byte alphaThreshold,
+            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
+            : base(buffer, pixelWidth, KnownPixelFormat.Format8bppIndexed.ToInfoInternal(), backColor, alphaThreshold, disposeCallback, palette, trySetPaletteCallback)
+        {
+        }
 
         #endregion
 
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override int DoGetColorIndex(int x) => DoReadRaw<byte>(x);
+        protected override int DoGetColorIndex(int x, int y) => GetPixelRef<byte>(y, x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColorIndex(int x, int colorIndex) => DoWriteRaw(x, (byte)colorIndex);
+        protected override void DoSetColorIndex(int x, int y, int colorIndex) => GetPixelRef<byte>(y, x) = (byte)colorIndex;
 
         #endregion
     }

@@ -29,7 +29,7 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a managed bitmap data wrapper with custom indexed pixel format for a 1D array (wrapped into an <see cref="Array2D{T}"/>).
     /// </summary>
-    internal sealed class ManagedCustomBitmapDataIndexed<T> : ManagedBitmapData1DArrayBase<T, ManagedCustomBitmapDataIndexed<T>.Row>
+    internal sealed class ManagedCustomBitmapDataIndexed<T> : ManagedBitmapData1DArrayIndexedBase<T, ManagedCustomBitmapDataIndexed<T>.Row>
         where T : unmanaged
     {
         #region Row class
@@ -123,10 +123,10 @@ namespace KGySoft.Drawing.Imaging
         #region Protected Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
+        protected override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
   
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
+        protected override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 
         protected override void Dispose(bool disposing)
         {

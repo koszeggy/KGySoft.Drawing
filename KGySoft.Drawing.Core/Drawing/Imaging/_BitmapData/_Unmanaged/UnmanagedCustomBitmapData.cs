@@ -31,11 +31,11 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedCustomBitmapData : UnmanagedBitmapDataBase, ICustomBitmapData
+    internal sealed class UnmanagedCustomBitmapData : UnmanagedBitmapData<UnmanagedCustomBitmapData.Row>, ICustomBitmapData
     {
         #region Row class
 
-        private sealed class Row : UnmanagedBitmapDataRowBase, ICustomBitmapDataRow
+        internal sealed class Row : UnmanagedBitmapDataRowBase, ICustomBitmapDataRow
         {
             #region Methods
 
@@ -136,7 +136,7 @@ namespace KGySoft.Drawing.Imaging
         internal UnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
             Func<ICustomBitmapDataRow, int, Color32> rowGetColor, Action<ICustomBitmapDataRow, int, Color32> rowSetColor,
             Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, null, null, disposeCallback)
+            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, disposeCallback)
         {
             Debug.Assert(!pixelFormat.Indexed);
             this.rowGetColor = rowGetColor;
@@ -153,19 +153,7 @@ namespace KGySoft.Drawing.Imaging
         protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
      
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override IBitmapDataRowInternal DoGetRow(int y) => new Row
-        {
-#if NET35
-            Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
-#else
-            Row = y == 0 ? Scan0 : Scan0 + Stride * y,
-#endif
-            BitmapData = this,
-            Index = y,
-        };
+        protected override void DoSetPixel(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
 
         protected override void Dispose(bool disposing)
         {

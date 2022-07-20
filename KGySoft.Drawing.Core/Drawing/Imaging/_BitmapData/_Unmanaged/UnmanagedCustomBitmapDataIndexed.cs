@@ -24,11 +24,11 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedCustomBitmapDataIndexed : UnmanagedBitmapDataBase
+    internal sealed class UnmanagedCustomBitmapDataIndexed : UnmanagedBitmapDataIndexedBase<UnmanagedCustomBitmapDataIndexed.Row>
     {
         #region Row class
 
-        private sealed class Row : UnmanagedBitmapDataRowIndexedBase, ICustomBitmapDataRow
+        internal sealed class Row : UnmanagedBitmapDataRowIndexedBase, ICustomBitmapDataRow
         {
             #region Properties
 
@@ -78,10 +78,10 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [SecurityCritical]
-        public UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
+        internal UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
             Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex,
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette, trySetPaletteCallback, disposeCallback)
+            : base(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, disposeCallback, palette, trySetPaletteCallback)
         {
             Debug.Assert(pixelFormat.Indexed);
 
@@ -94,22 +94,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
-    
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
+        protected override int DoGetColorIndex(int x, int y) => GetRowCached(y).DoGetColorIndex(x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override IBitmapDataRowInternal DoGetRow(int y) => new Row
-        {
-#if NET35
-            Row = y == 0 ? Scan0 : new IntPtr(Scan0.ToInt64() + Stride * y),
-#else
-            Row = y == 0 ? Scan0 : Scan0 + Stride * y,
-#endif
-            BitmapData = this,
-            Index = y,
-        };
+        protected override void DoSetColorIndex(int x, int y, int colorIndex) => GetRowCached(y).DoSetColorIndex(x, colorIndex);
 
         protected override void Dispose(bool disposing)
         {

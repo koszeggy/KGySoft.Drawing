@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: UnmanagedBitmapDataRow64Argb.cs
+//  File: UnmanagedBitmapData64Argb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -22,17 +24,45 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedBitmapDataRow64Argb : UnmanagedBitmapDataRowBase
+    internal sealed class UnmanagedBitmapData64Argb : UnmanagedBitmapData<UnmanagedBitmapData64Argb.Row>
     {
+        #region Row class
+
+        internal sealed class Row : UnmanagedBitmapDataRowBase
+        {
+            #region Methods
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe Color32 DoGetColor32(int x) => ((Color64*)Row)[x].ToColor32();
+
+            [SecurityCritical]
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Row)[x] = new Color64(c);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        internal UnmanagedBitmapData64Argb(IntPtr buffer, Size size, int stride, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, size, stride, KnownPixelFormat.Format64bppArgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe Color32 DoGetColor32(int x) => ((Color64*)Row)[x].ToColor32();
+        protected override unsafe Color32 DoGetPixel(int x, int y) => GetPixelAddress<Color64>(y, x)->ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override unsafe void DoSetColor32(int x, Color32 c) => ((Color64*)Row)[x] = new Color64(c);
+        protected override unsafe void DoSetPixel(int x, int y, Color32 c) => *GetPixelAddress<Color64>(y, x) = new Color64(c);
 
         #endregion
     }

@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public int RowSize => wrapped.RowSize;
             public Color32 BackColor => wrapped.BackColor;
             public byte AlphaThreshold => wrapped.AlphaThreshold;
-            public IReadableBitmapDataRow FirstRow => wrapped.FirstRow;
+            public IReadableBitmapDataRowMovable FirstRow => wrapped.FirstRow;
             public bool IsDisposed => wrapped.IsDisposed;
 
             #endregion
@@ -77,6 +77,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             public void Dispose() => wrapped.Dispose();
             public Color GetPixel(int x, int y) => wrapped.GetPixel(x, y);
+            public Color32 GetColor32(int x, int y) => wrapped.GetColor32(x, y);
+            public IReadableBitmapDataRowMovable GetMovableRow(int y) => wrapped.GetMovableRow(y);
 
             #endregion
         }
@@ -515,7 +517,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 source.BitmapData.Clear(color);
 
-                IReadableBitmapDataRow row = source.BitmapData.FirstRow;
+                IReadableBitmapDataRowMovable row = source.BitmapData.FirstRow;
                 var expected = color;
                 if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha)
                     expected = expected.BlendWithBackground(default);

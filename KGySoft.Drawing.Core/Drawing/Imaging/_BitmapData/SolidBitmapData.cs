@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         protected override Color32 DoGetPixel(int x, int y) => color;
-        protected override void DoSetPixel(int x, int y, Color32 color) => throw new NotSupportedException(PublicResources.NotSupported);
+        protected override void DoSetPixel(int x, int y, Color32 c) => throw new NotSupportedException(PublicResources.NotSupported);
 
         protected override IBitmapDataRowInternal DoGetRow(int y) => new Row
         {

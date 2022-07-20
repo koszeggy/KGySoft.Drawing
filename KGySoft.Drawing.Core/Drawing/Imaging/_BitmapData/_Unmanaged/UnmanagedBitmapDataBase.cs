@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Imaging
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected unsafe TPixel* GetPixelAddress<TPixel>(int rowIndex, int offset) where TPixel : unmanaged
-            => &((TPixel*)((byte*)Scan0)[rowIndex * RowSize])[offset];
+            => (TPixel*)((byte*)Scan0 + rowIndex * Stride) + offset;
 
         #endregion
     }

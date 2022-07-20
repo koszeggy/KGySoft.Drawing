@@ -273,7 +273,7 @@ namespace KGySoft.Drawing.Imaging
 
         protected abstract IBitmapDataRowInternal DoGetRow(int y);
         protected abstract Color32 DoGetPixel(int x, int y);
-        protected abstract void DoSetPixel(int x, int y, Color32 color);
+        protected abstract void DoSetPixel(int x, int y, Color32 c);
 
         protected virtual void Dispose(bool disposing)
         {

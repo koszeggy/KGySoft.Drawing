@@ -232,6 +232,48 @@ namespace KGySoft.Drawing.Imaging
             return TolerantEquals(c1, c2.BlendWithBackground(backColor), tolerance);
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static int Get4bppColorIndex(byte nibbles, int x) => (x & 1) == 0
+            ? nibbles >> 4
+            : nibbles & 0b00001111;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static void Set4bppColorIndex(ref byte nibbles, int x, int colorIndex)
+        {
+            if ((x & 1) == 0)
+            {
+                nibbles &= 0b00001111;
+                nibbles |= (byte)(colorIndex << 4);
+            }
+            else
+            {
+                nibbles &= 0b11110000;
+                nibbles |= (byte)colorIndex;
+            }
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static int Get1bppColorIndex(byte bits, int x)
+        {
+            int mask = 128 >> (x & 7);
+            return (bits & mask) != 0 ? 1 : 0;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static void Set1bppColorIndex(ref byte bits, int x, int colorIndex)
+        {
+            int mask = 128 >> (x & 7);
+            if (colorIndex == 0)
+                bits &= (byte)~mask;
+            else
+                bits |= (byte)mask;
+
+        }
+
         #endregion
 
         #endregion

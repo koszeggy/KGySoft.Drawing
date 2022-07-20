@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataRow16Rgb555.cs
+//  File: ManagedBitmapData16Rgb555.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -18,21 +18,50 @@
 using System;
 using System.Runtime.CompilerServices;
 
+using KGySoft.Collections;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow16Rgb555<T> : ManagedBitmapDataRowBase<T>
+    internal sealed class ManagedBitmapData16Rgb555<T> : ManagedBitmapData1DArrayBase<T, ManagedBitmapData16Rgb555<T>.Row>
         where T : unmanaged
     {
+        #region Row class
+
+        internal sealed class Row : ManagedBitmapDataRowBase<T>
+        {
+            #region Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override Color32 DoGetColor32(int x) => DoReadRaw<Color16Rgb555>(x).ToColor32();
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColor32(int x, Color32 c)
+                => DoWriteRaw(x, new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)));
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        internal ManagedBitmapData16Rgb555(Array2D<T> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, pixelWidth, KnownPixelFormat.Format16bppRgb555.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        {
+        }
+
+        #endregion
+
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override Color32 DoGetColor32(int x) => DoReadRaw<Color16Rgb555>(x).ToColor32();
+        protected override Color32 DoGetPixel(int x, int y) => GetPixelRef<Color16Rgb555>(y, x).ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColor32(int x, Color32 c)
-            => DoWriteRaw(x, new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)));
+        protected override void DoSetPixel(int x, int y, Color32 c)
+            => GetPixelRef<Color16Rgb555>(y, x) = new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
 
         #endregion
     }

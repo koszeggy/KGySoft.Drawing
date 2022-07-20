@@ -25,7 +25,7 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapData8I : ManagedBitmapData1DArrayBase<byte, ManagedBitmapData8I.Row>
+    internal sealed class ManagedBitmapData8I : ManagedBitmapData1DArrayIndexedBase<byte, ManagedBitmapData8I.Row>
     {
         #region Row class
 
@@ -68,10 +68,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => Palette!.GetColor(Buffer[y, x]);
+        protected override int DoGetColorIndex(int x, int y) => Buffer[y, x];
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 color) => Buffer[y, x] = (byte)Palette!.GetNearestColorIndex(color);
+        protected override void DoSetColorIndex(int x, int y, int colorIndex) => Buffer[y, x] = (byte)colorIndex;
 
         #endregion
     }

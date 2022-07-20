@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapDataRow4I.cs
+//  File: ManagedBitmapData4I.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,50 +15,60 @@
 
 #region Usings
 
+using System;
 using System.Runtime.CompilerServices;
+
+using KGySoft.Collections;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapDataRow4I<T> : ManagedBitmapDataRowIndexedBase<T>
+    internal sealed class ManagedBitmapData4I<T> : ManagedBitmapData1DArrayIndexedBase<T, ManagedBitmapData4I<T>.Row>
         where T : unmanaged
     {
-        #region Properties
+        #region Row class
 
-        protected override uint MaxIndex => 15;
+        internal sealed class Row : ManagedBitmapDataRowIndexedBase<T>
+        {
+            #region Properties
+
+            protected override uint MaxIndex => 15;
+
+            #endregion
+
+            #region Methods
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override int DoGetColorIndex(int x) => ColorExtensions.Get4bppColorIndex(DoReadRaw<byte>(x >> 1), x);
+
+            [MethodImpl(MethodImpl.AggressiveInlining)]
+            public override void DoSetColorIndex(int x, int colorIndex)
+                => ColorExtensions.Set4bppColorIndex(ref GetPixelRef<byte>(x >> 1), x, colorIndex);
+
+            #endregion
+        }
+
+        #endregion
+
+        #region Constructors
+
+        internal ManagedBitmapData4I(Array2D<T> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold,
+            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
+            : base(buffer, pixelWidth, KnownPixelFormat.Format4bppIndexed.ToInfoInternal(), backColor, alphaThreshold, disposeCallback, palette, trySetPaletteCallback)
+        {
+        }
 
         #endregion
 
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override int DoGetColorIndex(int x)
-        {
-            int nibbles = DoReadRaw<byte>(x >> 1);
-            return (x & 1) == 0
-                ? nibbles >> 4
-                : nibbles & 0b00001111;
-        }
+        protected override int DoGetColorIndex(int x, int y) => ColorExtensions.Get4bppColorIndex(GetPixelRef<byte>(y, x >> 1), x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public override void DoSetColorIndex(int x, int colorIndex)
-        {
-            int pos = x >> 1;
-            int nibbles = DoReadRaw<byte>(pos);
-            if ((x & 1) == 0)
-            {
-                nibbles &= 0b00001111;
-                nibbles |= colorIndex << 4;
-            }
-            else
-            {
-                nibbles &= 0b11110000;
-                nibbles |= colorIndex;
-            }
-
-            DoWriteRaw(pos, (byte)nibbles);
-        }
+        protected override void DoSetColorIndex(int x, int y, int colorIndex)
+            => ColorExtensions.Set4bppColorIndex(ref GetPixelRef<byte>(y, x >> 1), x, colorIndex);
 
         #endregion
     }

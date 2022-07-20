@@ -46,8 +46,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        public ManagedBitmapData32Argb(Array2D<T> buffer, int pixelWidth, KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData32Argb(Array2D<T> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, pixelWidth, KnownPixelFormat.Format32bppArgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
         {
         }
 
@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
         protected override Color32 DoGetPixel(int x, int y) => GetPixelRef<Color32>(y, x);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 color) => GetPixelRef<Color32>(y, x) = color;
+        protected override void DoSetPixel(int x, int y, Color32 c) => GetPixelRef<Color32>(y, x) = c;
 
         #endregion
     }

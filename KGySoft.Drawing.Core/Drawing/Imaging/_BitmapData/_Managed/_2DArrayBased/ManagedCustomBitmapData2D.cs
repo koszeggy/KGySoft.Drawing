@@ -152,7 +152,7 @@ namespace KGySoft.Drawing.Imaging
         protected override Color32 DoGetPixel(int x, int y) => GetRowCached(y).DoGetColor32(x);
     
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 color) => GetRowCached(y).DoSetColor32(x, color);
+        protected override void DoSetPixel(int x, int y, Color32 c) => GetRowCached(y).DoSetColor32(x, c);
 
         protected override void Dispose(bool disposing)
         {
