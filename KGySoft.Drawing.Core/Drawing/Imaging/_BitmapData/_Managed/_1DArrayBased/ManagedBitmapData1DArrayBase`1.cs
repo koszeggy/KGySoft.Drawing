@@ -97,7 +97,7 @@ namespace KGySoft.Drawing.Imaging
             where TPixel : unmanaged
         {
 #if NETCOREAPP3_0_OR_GREATER
-            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Unsafe.Add(ref Buffer.GetPinnableReference(), y * RowSize)), x);
+            return ref Unsafe.Add(ref Unsafe.As<byte, TPixel>(ref Unsafe.Add(ref GetPinnableReference(), y * RowSize)), x);
 #else
             unsafe
             {
