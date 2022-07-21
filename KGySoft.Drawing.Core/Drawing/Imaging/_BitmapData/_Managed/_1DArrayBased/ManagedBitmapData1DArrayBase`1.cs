@@ -51,12 +51,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        protected ManagedBitmapData1DArrayBase(Size size, KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette)
+        protected unsafe ManagedBitmapData1DArrayBase(Size size, KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette)
             : base(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, null, null)
         {
             Debug.Assert(!pixelFormat.IsIndexed() || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
             Buffer = new Array2D<T>(size.Height, pixelFormat.ToBitsPerPixel() <= 8 ? pixelFormat.GetByteWidth(size.Width) : size.Width);
             ownsBuffer = true;
+            RowSize = Buffer.Width * sizeof(T);
         }
 
         [SecuritySafeCritical]
