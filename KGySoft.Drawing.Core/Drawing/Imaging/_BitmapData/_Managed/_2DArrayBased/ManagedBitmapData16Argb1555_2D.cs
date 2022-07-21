@@ -16,12 +16,14 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Needed to separate digits")]
     internal sealed class ManagedBitmapData16Argb1555_2D<T> : ManagedBitmapData2DArrayBase<T, ManagedBitmapData16Argb1555_2D<T>.Row>
         where T : unmanaged
     {

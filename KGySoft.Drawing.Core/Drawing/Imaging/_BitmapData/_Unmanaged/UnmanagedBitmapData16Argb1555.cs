@@ -24,7 +24,7 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedBitmapData16Argb1555 : UnmanagedBitmapData<UnmanagedBitmapData16Argb1555.Row>
+    internal sealed class UnmanagedBitmapData16Argb1555 : UnmanagedBitmapDataBase<UnmanagedBitmapData16Argb1555.Row>
     {
         #region Row class
 

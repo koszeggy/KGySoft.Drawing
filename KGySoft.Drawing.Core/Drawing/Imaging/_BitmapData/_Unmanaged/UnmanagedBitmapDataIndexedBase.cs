@@ -23,7 +23,7 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class UnmanagedBitmapDataIndexedBase<TRow> : UnmanagedBitmapData<TRow>
+    internal abstract class UnmanagedBitmapDataIndexedBase<TRow> : UnmanagedBitmapDataBase<TRow>
         where TRow : UnmanagedBitmapDataRowBase, new()
     {
         #region Constructors

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: UnmanagedBitmapData32Rgb.cs
+//  File: UnmanagedBitmapData16Rgb565.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -24,7 +24,7 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedBitmapData32Rgb : UnmanagedBitmapData<UnmanagedBitmapData32Rgb.Row>
+    internal sealed class UnmanagedBitmapData16Rgb565 : UnmanagedBitmapDataBase<UnmanagedBitmapData16Rgb565.Row>
     {
         #region Row class
 
@@ -34,12 +34,12 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe Color32 DoGetColor32(int x) => ((Color32*)Row)[x].ToOpaque();
+            public override unsafe Color32 DoGetColor32(int x) => ((Color16Rgb565*)Row)[x].ToColor32();
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override unsafe void DoSetColor32(int x, Color32 c)
-                => ((Color32*)Row)[x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor);
+                => ((Color16Rgb565*)Row)[x] = new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
 
             #endregion
         }
@@ -48,8 +48,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal UnmanagedBitmapData32Rgb(IntPtr buffer, Size size, int stride, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, size, stride, KnownPixelFormat.Format32bppRgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal UnmanagedBitmapData16Rgb565(IntPtr buffer, Size size, int stride, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, size, stride, KnownPixelFormat.Format16bppRgb565.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
         {
         }
 
@@ -59,12 +59,12 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color32 DoGetPixel(int x, int y) => GetPixelAddress<Color32>(y, x)->ToOpaque();
+        protected override unsafe Color32 DoGetPixel(int x, int y) => GetPixelAddress<Color16Rgb565>(y, x)->ToColor32();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override unsafe void DoSetPixel(int x, int y, Color32 c)
-            => *GetPixelAddress<Color32>(y, x) = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor);
+            => *GetPixelAddress<Color16Rgb565>(y, x) = new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
 
         #endregion
     }

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ManagedBitmapData16Rgb555_2D.cs
+//  File: ManagedBitmapData16Rgb565_2D.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -16,13 +16,15 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapData16Rgb555_2D<T> : ManagedBitmapData2DArrayBase<T, ManagedBitmapData16Rgb555_2D<T>.Row>
+    [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "Needed to separate digits")]
+    internal sealed class ManagedBitmapData16Rgb565_2D<T> : ManagedBitmapData2DArrayBase<T, ManagedBitmapData16Rgb565_2D<T>.Row>
         where T : unmanaged
     {
         #region Row class
@@ -32,11 +34,11 @@ namespace KGySoft.Drawing.Imaging
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32(int x) => DoReadRaw<Color16Rgb555>(x).ToColor32();
+            public override Color32 DoGetColor32(int x) => DoReadRaw<Color16Rgb565>(x).ToColor32();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c)
-                => DoWriteRaw(x, new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)));
+                => DoWriteRaw(x, new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor)));
 
             #endregion
         }
@@ -45,8 +47,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData16Rgb555_2D(T[,] buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format16bppRgb555.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData16Rgb565_2D(T[,] buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
+            : base(buffer, pixelWidth, KnownPixelFormat.Format16bppRgb565.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
         {
         }
 
@@ -55,11 +57,11 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => GetPixelRef<Color16Rgb555>(y, x).ToColor32();
+        protected override Color32 DoGetPixel(int x, int y) => GetPixelRef<Color16Rgb565>(y, x).ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetPixel(int x, int y, Color32 c)
-            => GetPixelRef<Color16Rgb555>(y, x) = new Color16Rgb555(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
+            => GetPixelRef<Color16Rgb565>(y, x) = new Color16Rgb565(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
 
         #endregion
     }

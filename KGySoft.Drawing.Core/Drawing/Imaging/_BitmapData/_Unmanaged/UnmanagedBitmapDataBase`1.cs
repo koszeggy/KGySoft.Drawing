@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: UnmanagedBitmapData.cs
+//  File: UnmanagedBitmapDataBase`1.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -23,12 +23,12 @@ using System.Runtime.CompilerServices;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class UnmanagedBitmapData<TRow> : UnmanagedBitmapDataBase
+    internal abstract class UnmanagedBitmapDataBase<TRow> : UnmanagedBitmapDataBase
         where TRow : UnmanagedBitmapDataRowBase, new()
     {
         #region Constructors
 
-        protected UnmanagedBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
+        protected UnmanagedBitmapDataBase(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
             Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
             : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {

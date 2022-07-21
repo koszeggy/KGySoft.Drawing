@@ -31,7 +31,7 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class UnmanagedCustomBitmapData : UnmanagedBitmapData<UnmanagedCustomBitmapData.Row>, ICustomBitmapData
+    internal sealed class UnmanagedCustomBitmapData : UnmanagedBitmapDataBase<UnmanagedCustomBitmapData.Row>, ICustomBitmapData
     {
         #region Row class
 
