@@ -20,7 +20,6 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
         
         IBitmapData BitmapData { get; }
-        new int Index { get; set; }
 
         #endregion
 
@@ -34,6 +33,7 @@ namespace KGySoft.Drawing.Imaging
         void DoWriteRaw<T>(int x, T data) where T : unmanaged;
         int DoGetColorIndex(int x);
         void DoSetColorIndex(int x, int colorIndex);
+        void DoMoveToRow(int y);
 
         #endregion
     }

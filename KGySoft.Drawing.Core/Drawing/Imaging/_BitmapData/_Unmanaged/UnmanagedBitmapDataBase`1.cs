@@ -32,7 +32,6 @@ namespace KGySoft.Drawing.Imaging
             Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
             : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
-            Debug.Assert(pixelFormat.IsKnownFormat);
         }
 
         #endregion

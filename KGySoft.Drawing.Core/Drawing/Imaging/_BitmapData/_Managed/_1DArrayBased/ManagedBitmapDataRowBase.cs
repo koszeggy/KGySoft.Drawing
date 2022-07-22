@@ -63,7 +63,7 @@ namespace KGySoft.Drawing.Imaging
 #endif
         }
 
-        protected override void DoMoveToIndex() => Row = ((ManagedBitmapData1DArrayBase<T>)BitmapData).Buffer[Index];
+        protected sealed override void DoMoveToIndex() => Row = ((ManagedBitmapData1DArrayBase<T>)BitmapData).Buffer[Index];
 
         #endregion
 

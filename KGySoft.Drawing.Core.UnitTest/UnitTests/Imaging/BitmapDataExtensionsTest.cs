@@ -248,6 +248,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var source = GetInfoIcon256();
             using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
             source.CopyTo(targetFull);
+            SaveBitmapData($"{pixelFormat} target", targetFull); // tODO: remove
 
             using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
             source.CopyTo(targetClipped, rect, Point.Empty);

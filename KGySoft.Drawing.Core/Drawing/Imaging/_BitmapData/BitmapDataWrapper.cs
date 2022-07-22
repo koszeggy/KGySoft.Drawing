@@ -94,6 +94,7 @@ namespace KGySoft.Drawing.Imaging
             public void SetColorIndex(int x, int colorIndex) => writableBitmapDataRow.SetColorIndex(x, colorIndex);
             public void WriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
 
+            public void DoMoveToRow(int y) => row.MoveToRow(y);
             public Color32 DoGetColor32(int x) => readableBitmapDataRow[x];
             public void DoSetColor32(int x, Color32 c) => writableBitmapDataRow[x] = c;
             public T DoReadRaw<T>(int x) where T : unmanaged => readableBitmapDataRow.ReadRaw<T>(x);
@@ -203,7 +204,7 @@ namespace KGySoft.Drawing.Imaging
             var hash = Thread.CurrentThread.ManagedThreadId & hashMask;
             StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>? cached = cachedRows![hash];
             if (cached?.Value.ThreadId == Thread.CurrentThread.ManagedThreadId)
-                cached.Value.Row.Index = y;
+                cached.Value.Row.DoMoveToRow(y);
             else
                 cachedRows[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((Thread.CurrentThread.ManagedThreadId, DoGetRow(y)));
             return cached.Value.Row;

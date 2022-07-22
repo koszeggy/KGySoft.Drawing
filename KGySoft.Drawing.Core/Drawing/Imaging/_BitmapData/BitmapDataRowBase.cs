@@ -130,7 +130,6 @@ namespace KGySoft.Drawing.Imaging
             DoWriteRaw(x, data);
         }
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
         public bool MoveNextRow()
         {
             if (Index == BitmapData.Height - 1)
@@ -140,10 +139,17 @@ namespace KGySoft.Drawing.Imaging
             return true;
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public void MoveToRow(int y)
         {
             if (y >= (uint)BitmapData.Height)
                 ThrowYOutOfRange();
+            DoMoveToRow(y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void DoMoveToRow(int y)
+        {
             Index = y;
             DoMoveToIndex();
         }

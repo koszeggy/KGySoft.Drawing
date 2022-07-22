@@ -342,7 +342,7 @@ namespace KGySoft.Drawing.Imaging
             var hash = Thread.CurrentThread.ManagedThreadId & hashMask;
             StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>? cached = cachedRowByThreadId![hash];
             if (cached?.Value.ThreadId == Thread.CurrentThread.ManagedThreadId)
-                cached.Value.Row.Index = y;
+                cached.Value.Row.DoMoveToRow(y);
             else
                 cachedRowByThreadId[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((Thread.CurrentThread.ManagedThreadId, DoGetRow(y)));
             return cached.Value.Row;

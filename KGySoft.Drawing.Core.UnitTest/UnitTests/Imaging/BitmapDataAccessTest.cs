@@ -206,7 +206,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
             IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
-            using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat, 
+            using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
                disposeCallback: () => Marshal.FreeHGlobal(bufUnmanaged)))
             {
                 // by Accessor Set/GetPixel

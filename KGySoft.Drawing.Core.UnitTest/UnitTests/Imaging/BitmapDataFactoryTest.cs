@@ -254,7 +254,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // CopyTo
             using IReadWriteBitmapData alphaGradient = GenerateAlphaGradientBitmapData(size);
-
             alphaGradient.CopyTo(bitmapDataNonDithered);
             SaveBitmapData($"{caseName} CopyTo", bitmapDataNonDithered, testName);
             alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer);
