@@ -66,8 +66,8 @@ namespace KGySoft.Drawing.PerformanceTests
                     using var result = new Bitmap(bmp.Width, bmp.Height);
                     using IReadableBitmapData src = bmp.GetReadableBitmapData();
                     using IWritableBitmapData dst = result.GetWritableBitmapData();
-                    IReadableBitmapDataRow rowSrc = src.FirstRow;
-                    IWritableBitmapDataRow rowDst = dst.FirstRow;
+                    IReadableBitmapDataRowMovable rowSrc = src.FirstRow;
+                    IWritableBitmapDataRowMovable rowDst = dst.FirstRow;
                     do
                     {
                         for (int x = 0; x < src.Width; x++)

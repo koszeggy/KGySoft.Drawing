@@ -974,7 +974,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, target);
             DoCopy(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            return context?.IsCancellationRequested != false;
+            return context?.IsCancellationRequested != true;
         }
 
         #endregion
@@ -1224,7 +1224,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, target);
             DoDrawInto(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
-            return context?.IsCancellationRequested != false;
+            return context?.IsCancellationRequested != true;
         }
 
         #endregion
@@ -1549,7 +1549,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, target, scalingMode);
             DoDrawInto(context ?? AsyncHelper.DefaultContext, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
-            return context?.IsCancellationRequested != false;
+            return context?.IsCancellationRequested != true;
         }
 
         #endregion

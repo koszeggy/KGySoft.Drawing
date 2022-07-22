@@ -168,7 +168,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
             DoQuantize(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer);
-            return context?.IsCancellationRequested != false;
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>
@@ -236,7 +236,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
             DoDither(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer, ditherer);
-            return context?.IsCancellationRequested != false;
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>
@@ -458,7 +458,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData, transformFunction);
             DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, transformFunction, ditherer);
-            return context?.IsCancellationRequested != false;
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>

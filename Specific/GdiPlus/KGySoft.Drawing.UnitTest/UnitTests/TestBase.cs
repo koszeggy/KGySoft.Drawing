@@ -242,7 +242,7 @@ namespace KGySoft.Drawing.UnitTests
             if (bitmapData.Height < 2)
                 return;
 
-            var row = bitmapData[1];
+            var row = bitmapData.GetMovableRow(1);
             ratio = 255f / bitmapData.Height;
             do
             {
@@ -260,8 +260,8 @@ namespace KGySoft.Drawing.UnitTests
             if (!allowDifferentPixelFormats)
                 Assert.AreEqual(source.PixelFormat, target.PixelFormat);
 
-            IReadableBitmapDataRow rowSrc = source.FirstRow;
-            IReadableBitmapDataRow rowDst = target.FirstRow;
+            IReadableBitmapDataRowMovable rowSrc = source.FirstRow;
+            IReadableBitmapDataRowMovable rowDst = target.FirstRow;
 
             do
             {

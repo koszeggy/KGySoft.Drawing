@@ -489,8 +489,8 @@ namespace KGySoft.Drawing
         /// <para>If the pixels are not accessed randomly, then the sequential enumeration of rows can be a bit faster:</para>
         /// <code lang="C#"><![CDATA[
         /// // Replace the body of the inner using block of the previous example with the following code:
-        /// IReadableBitmapDataRow rowSrc = dataSrc.FirstRow;
-        /// IWritableBitmapDataRow rowDst = dataDst.FirstRow;
+        /// IReadableBitmapDataRowMovable rowSrc = dataSrc.FirstRow;
+        /// IWritableBitmapDataRowMovable rowDst = dataDst.FirstRow;
         /// do
         /// {
         ///     for (int x = 0; x < dataSrc.Width; x++)
@@ -519,7 +519,7 @@ namespace KGySoft.Drawing
         ///
         ///     using (IReadWriteBitmapData bmpData = bmp.GetReadWriteBitmapData())
         ///     {
-        ///         IReadWriteBitmapDataRow row = bmpData.FirstRow;
+        ///         IReadWriteBitmapDataRowMovable row = bmpData.FirstRow;
         ///         do
         ///         {
         ///             for (int x = 0; x < bmpData.Width; x++)

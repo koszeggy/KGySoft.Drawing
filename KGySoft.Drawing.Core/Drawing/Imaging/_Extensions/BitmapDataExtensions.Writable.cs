@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(bitmapData);
             DoClear(context ?? AsyncHelper.DefaultContext, bitmapData, color, ditherer);
-            return context?.IsCancellationRequested != false;
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>

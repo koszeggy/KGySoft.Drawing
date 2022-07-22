@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="IReadableBitmapDataRow"/> representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IReadableBitmapData"/>.
-        /// When obtaining the same row repeatedly, then a cached instance is returned.
+        /// When obtaining the same row repeatedly, then a cached instance is returned. To get a movable row use the <see cref="GetMovableRow">GetMovableRow</see> method instead.
         /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
         /// </summary>
         /// <param name="y">The y-coordinate of the row to obtain.</param>
@@ -111,9 +111,7 @@ namespace KGySoft.Drawing.Imaging
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         Color32 GetColor32(int x, int y);
 #else
-        Color32 GetColor32(int x, int y);
-        // TODO: apply when all implementations are finished
-        //Color32 GetColor32(int x, int y) => new Color32(GetPixel(x, y));
+        Color32 GetColor32(int x, int y) => new Color32(GetPixel(x, y));
 #endif
 
         /// <summary>
@@ -129,14 +127,12 @@ namespace KGySoft.Drawing.Imaging
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         IReadableBitmapDataRowMovable GetMovableRow(int y);
 #else
-        IReadableBitmapDataRowMovable GetMovableRow(int y);
-        // TODO: apply when all implementations are finished
-        //IReadableBitmapDataRowMovable GetMovableRow(int y)
-        //{
-        //    var result = FirstRow;
-        //    result.MoveToRow(y);
-        //    return result;
-        //}
+        IReadableBitmapDataRowMovable GetMovableRow(int y)
+        {
+            IReadableBitmapDataRowMovable result = FirstRow;
+            result.MoveToRow(y);
+            return result;
+        }
 #endif
 
         #endregion

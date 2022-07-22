@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="IWritableBitmapDataRow"/> representing the row of the specified <paramref name="y"/> coordinate in the current <see cref="IWritableBitmapData"/>.
-        /// When obtaining the same row repeatedly, then a cached instance is returned.
+        /// When obtaining the same row repeatedly, then a cached instance is returned. To get a movable row use the <see cref="GetMovableRow">GetMovableRow</see> method instead.
         /// <br/>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.
         /// </summary>
         /// <param name="y">The y-coordinate of the row to obtain.</param>
@@ -112,9 +112,7 @@ namespace KGySoft.Drawing.Imaging
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         void SetColor32(int x, int y, Color32 color);
 #else
-        void SetColor32(int x, int y, Color32 color);
-        // TODO: apply when all implementations are finished
-        //void SetColor32(int x, int y, Color32 color) => SetPixel(x, y, color.ToColor());
+        void SetColor32(int x, int y, Color32 color) => SetPixel(x, y, color.ToColor());
 #endif
 
         /// <summary>
@@ -127,7 +125,16 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="y"/> is less than zero or is greater than or equal to <see cref="IBitmapData.Height"/>.</exception>
         /// <seealso cref="this"/>
         /// <seealso cref="FirstRow"/>
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         IWritableBitmapDataRowMovable GetMovableRow(int y);
+#else
+        IWritableBitmapDataRowMovable GetMovableRow(int y)
+        {
+            IWritableBitmapDataRowMovable result = FirstRow;
+            result.MoveToRow(y);
+            return result;
+        }
+#endif
 
         #endregion
     }
