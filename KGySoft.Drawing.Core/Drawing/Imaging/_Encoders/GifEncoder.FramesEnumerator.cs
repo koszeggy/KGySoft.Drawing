@@ -413,7 +413,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            if (rowPrev[x] != rowCurrent[x].BlendWithBackground(backColor))
+                            if (rowPrev[x] != rowCurrent[x].Blend(backColor))
                                 return false;
                         }
                     }
@@ -457,7 +457,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).BlendWithBackground(backColor))
+                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).Blend(backColor))
                                 return false;
                         }
                     }

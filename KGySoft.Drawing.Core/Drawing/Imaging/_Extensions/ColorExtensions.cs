@@ -176,9 +176,12 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
+            Debug.Assert(c.A != 255, "Partially transparent fore color is expected. Call Blend for better performance.");
+            Debug.Assert(backColor.A == 255, "Totally opaque back color is expected.");
+
             // The blending is applied only to the color and not the resulting alpha, which will always be opaque
             if (c.A == 0)
-                return backColor.ToOpaque();
+                return backColor;
             int inverseAlpha = 255 - c.A;
             return new Color32(Byte.MaxValue,
                 (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
@@ -234,8 +237,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor)
         {
-            Debug.Assert(c1.A == 255);
-            return TolerantEquals(c1, c2.BlendWithBackground(backColor), tolerance);
+            Debug.Assert(c1.A == 255 && backColor.A == 255);
+            return TolerantEquals(c1, c2.Blend(backColor), tolerance);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

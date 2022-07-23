@@ -99,7 +99,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     int offset = bitPos % 8;
                     bits &= ~(511 << offset);
                     if (c.A >= row.BitmapData.AlphaThreshold)
-                        bits |= (256 | c.BlendWithBackground(row.BitmapData.BackColor).GetBrightness()) << offset;
+                        bits |= (256 | c.Blend(row.BitmapData.BackColor).GetBrightness()) << offset;
                     row.UnsafeGetRefAs<byte>(bytePos) = (byte)bits;
                     row.UnsafeGetRefAs<byte>(bytePos + 1) = (byte)(bits >> 8);
                 }

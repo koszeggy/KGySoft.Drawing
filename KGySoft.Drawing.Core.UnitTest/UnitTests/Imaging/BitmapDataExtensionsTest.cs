@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -520,8 +521,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 IReadableBitmapDataRowMovable row = source.BitmapData.FirstRow;
                 var expected = color;
-                if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha)
-                    expected = expected.BlendWithBackground(default);
+                if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha && expected.A != Byte.MaxValue)
+                    expected = expected.BlendWithBackground(Color32.Black);
                 do
                 {
                     for (int x = 0; x < source.BitmapData.Width; x++)
