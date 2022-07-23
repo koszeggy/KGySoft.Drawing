@@ -109,6 +109,20 @@ namespace KGySoft.Drawing.Imaging
         /// <returns><see langword="true"/>&#160;if the two <see cref="Color32"/> structures are different; otherwise, <see langword="false"/>.</returns>
         public static bool operator !=(Color32 left, Color32 right) => !left.Equals(right);
 
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="Color"/> to <see cref="Color32"/>.
+        /// </summary>
+        /// <param name="color">A <see cref="Color"/> instance to convert to <see cref="Color32"/>.</param>
+        /// <returns>A <see cref="Color32"/> instance representing the specified <paramref name="color"/>.</returns>
+        public static implicit operator Color32(Color color) => new Color32(color);
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="Color32"/> to <see cref="Color"/>.
+        /// </summary>
+        /// <param name="color">A <see cref="Color32"/> instance to convert to <see cref="Color"/>.</param>
+        /// <returns>A <see cref="Color"/> instance representing the specified <paramref name="color"/>.</returns>
+        public static implicit operator Color(Color32 color) => color.ToColor();
+
         #endregion
 
         #region Constructors
