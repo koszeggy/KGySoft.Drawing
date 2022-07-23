@@ -179,12 +179,11 @@ namespace KGySoft.Drawing.Imaging
             // The blending is applied only to the color and not the resulting alpha, which will always be opaque
             if (c.A == 0)
                 return backColor.ToOpaque();
-            float alpha = c.A / 255f;
-            float inverseAlpha = 1f - alpha;
+            int inverseAlpha = 255 - c.A;
             return new Color32(Byte.MaxValue,
-                (byte)(c.R * alpha + backColor.R * inverseAlpha),
-                (byte)(c.G * alpha + backColor.G * inverseAlpha),
-                (byte)(c.B * alpha + backColor.B * inverseAlpha));
+                (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
+                (byte)((c.G * c.A + backColor.G * inverseAlpha) >> 8),
+                (byte)((c.B * c.A + backColor.B * inverseAlpha) >> 8));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -201,19 +200,26 @@ namespace KGySoft.Drawing.Imaging
                 (byte)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
+
+            // This would be the floating point free version but in practice it's not faster at all (at least on my computer):
+            //int inverseAlphaSrc = 255 - src.A;
+            //int alphaOut = src.A + ((dst.A * inverseAlphaSrc) >> 8);
+
+            //return new Color32((byte)alphaOut,
+            //    (byte)((src.R * src.A + ((dst.R * dst.A * inverseAlphaSrc) >> 8)) / alphaOut),
+            //    (byte)((src.G * src.A + ((dst.G * dst.A * inverseAlphaSrc) >> 8)) / alphaOut),
+            //    (byte)((src.B * src.A + ((dst.B * dst.A * inverseAlphaSrc) >> 8)) / alphaOut));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
-
-            float inverseAlphaSrc = (255 - src.A) / 255f;
-
-            return new Color32((byte)(src.A + dst.A * inverseAlphaSrc),
-                (byte)(src.R + dst.R * inverseAlphaSrc),
-                (byte)(src.G + dst.G * inverseAlphaSrc),
-                (byte)(src.B + dst.B * inverseAlphaSrc));
+            int inverseAlphaSrc = 255 - src.A;
+            return new Color32((byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
+                (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
+                (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
+                (byte)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
