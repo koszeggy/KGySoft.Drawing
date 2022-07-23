@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                IReadableBitmapData initSource = targetRectangle.Size == target.GetSize()
+                IReadableBitmapData initSource = targetRectangle.Size == target.Size
                     ? target
                     : target.Clip(targetRectangle);
 
@@ -500,7 +500,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                IReadableBitmapData initSource = targetRectangle.Size == target.GetSize()
+                IReadableBitmapData initSource = targetRectangle.Size == target.Size
                     ? target
                     : target.Clip(targetRectangle);
 

@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.GetSize()
+            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.Size
                 ? source
                 : new ClippedBitmapData(source, clippingRegion, disposeSource);
         }
@@ -514,7 +514,7 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                     return;
                 IReadableBitmapData initSource = ditherer.InitializeReliesOnContent
-                    ? new SolidBitmapData(bitmapData.GetSize(), color)
+                    ? new SolidBitmapData(bitmapData.Size, color)
                     : bitmapData;
 
                 try

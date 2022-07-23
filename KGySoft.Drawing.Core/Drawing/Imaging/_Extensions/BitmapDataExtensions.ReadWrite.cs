@@ -89,7 +89,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.GetSize()
+            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.Size
                 ? source
                 : new ClippedBitmapData(source, clippingRegion, disposeSource);
         }
@@ -1783,7 +1783,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer.InitializeReliesOnContent)
             {
                 // not using premultiplied format because transformation is faster on simple ARGB32
-                using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb);
+                using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb);
                 if (context.IsCancellationRequested)
                     return;
 
@@ -1792,7 +1792,7 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                     return;
 
-                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone.GetSize()), Point.Empty, null, ditherer);
+                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone.Size), Point.Empty, null, ditherer);
                 return;
             }
 

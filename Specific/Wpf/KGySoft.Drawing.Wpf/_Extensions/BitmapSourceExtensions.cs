@@ -898,7 +898,7 @@ namespace KGySoft.Drawing.Wpf
                     return null;
 
                 IReadableBitmapData source = conversionContext.Source;
-                return source.CopyTo(conversionContext.Target!, asyncContext, new Rectangle(0, 0, source.Width, source.Height), Point.Empty)
+                return source.CopyTo(conversionContext.Target!, asyncContext, new Rectangle(Point.Empty, source.Size), Point.Empty)
                     ? conversionContext.Result
                     : null;
             }
@@ -948,7 +948,7 @@ namespace KGySoft.Drawing.Wpf
                 if (asyncContext.IsCancellationRequested)
                     return null;
 
-                return source.CopyTo(conversionContext.Target!, asyncContext, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, conversionContext.Ditherer)
+                return source.CopyTo(conversionContext.Target!, asyncContext, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, conversionContext.Ditherer)
                     ? conversionContext.Result
                     : null;
             }

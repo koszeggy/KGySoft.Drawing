@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Drawing;
 
 #endregion
 
@@ -46,6 +47,15 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the width of the current <see cref="IBitmapData"/> instance in pixels.
         /// </summary>
         int Width { get; }
+
+        /// <summary>
+        /// Gets the size of the current <see cref="IBitmapData"/> instance in pixels.
+        /// </summary>
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
+        Size Size { get; }
+#else
+        Size Size => new Size(Width, Height);
+#endif
 
         /// <summary>
         /// Gets a <see cref="PixelFormatInfo"/> of the current <see cref="IBitmapData"/> instance.

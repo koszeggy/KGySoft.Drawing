@@ -116,14 +116,14 @@ namespace KGySoft.Drawing.UnitTests
                     BitmapData bitmapData = actualFrames[i].LockBits(new Rectangle(Point.Empty, size), ImageLockMode.ReadOnly, actualFrames[i].PixelFormat);
                     using IReadableBitmapData actualFrame = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, KnownPixelFormat.Format32bppArgb, disposeCallback: () => actualFrames[i].UnlockBits(bitmapData));
                     IReadWriteBitmapData expectedFrame;
-                    if (sourceFrame.GetSize() == actualFrame.GetSize())
+                    if (sourceFrame.Size == actualFrame.Size)
                         expectedFrame = sourceFrames[i].Clone(KnownPixelFormat.Format8bppIndexed, quantizer, config.Ditherer);
                     else
                     {
                         Assert.AreNotEqual(AnimationFramesSizeHandling.ErrorIfDiffers, config.SizeHandling);
-                        expectedFrame = BitmapDataFactory.CreateBitmapData(actualFrame.GetSize());
+                        expectedFrame = BitmapDataFactory.CreateBitmapData(actualFrame.Size);
                         if (config.SizeHandling == AnimationFramesSizeHandling.Resize)
-                            sourceFrame.DrawInto(expectedFrame, new Rectangle(Point.Empty, expectedFrame.GetSize()), quantizer, config.Ditherer);
+                            sourceFrame.DrawInto(expectedFrame, new Rectangle(Point.Empty, expectedFrame.Size), quantizer, config.Ditherer);
                         else
                             sourceFrame.DrawInto(expectedFrame, new Point(expectedFrame.Width / 2 - sourceFrame.Width / 2, expectedFrame.Height / 2 - expectedFrame.Width / 2), quantizer, config.Ditherer);
                     }
@@ -258,9 +258,9 @@ namespace KGySoft.Drawing.UnitTests
         protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default, int tolerance = 0)
         {
             if (sourceRectangle == default)
-                sourceRectangle = new Rectangle(Point.Empty, source.GetSize());
+                sourceRectangle = new Rectangle(Point.Empty, source.Size);
 
-            Assert.AreEqual(sourceRectangle.Size, target.GetSize());
+            Assert.AreEqual(sourceRectangle.Size, target.Size);
             if (!allowDifferentPixelFormats)
                 Assert.AreEqual(source.PixelFormat, target.PixelFormat);
             

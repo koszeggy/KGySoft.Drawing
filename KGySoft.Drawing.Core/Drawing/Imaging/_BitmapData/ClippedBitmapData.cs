@@ -213,7 +213,7 @@ namespace KGySoft.Drawing.Imaging
             else
             {
                 BitmapData = source;
-                clippingRegion.Intersect(new Rectangle(Point.Empty, source.GetSize()));
+                clippingRegion.Intersect(new Rectangle(Point.Empty, source.Size));
             }
 
             if (clippingRegion.IsEmpty)

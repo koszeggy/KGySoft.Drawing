@@ -80,8 +80,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             using var source = reference.GetReadableBitmapData();
             using var target = check.GetReadableBitmapData();
-            Assert.AreEqual(source.Width, target.Width);
-            Assert.AreEqual(source.Height, target.Height);
+            Assert.AreEqual(source.Size, target.Size);
 
             IReadableBitmapDataRowMovable rowSrc = source.FirstRow;
             IReadableBitmapDataRowMovable rowDst = target.FirstRow;

@@ -411,7 +411,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 context.Progress?.New(DrawingOperation.Saving);
                 Palette palette = source.Palette!;
-                new GifEncoder(stream, imageData.GetSize())
+                new GifEncoder(stream, imageData.Size)
                     {
                         GlobalPalette = palette,
                         BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
@@ -453,7 +453,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             using var enumerator = new LayersEnumerator(context, imageData, backColor, alphaThreshold, fullScan);
-            using GifEncoder encoder = new GifEncoder(stream, imageData.GetSize())
+            using GifEncoder encoder = new GifEncoder(stream, imageData.Size)
             {
 #if DEBUG
                 AddMetaInfo = true
@@ -547,7 +547,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static Rectangle GetContentArea(IReadableBitmapData imageData)
         {
-            Rectangle result = new Rectangle(0, 0, imageData.Width, imageData.Height);
+            Rectangle result = new Rectangle(Point.Empty, imageData.Size);
             if (!imageData.HasAlpha())
                 return result;
 

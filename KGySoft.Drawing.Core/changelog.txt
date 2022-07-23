@@ -34,6 +34,8 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   ! The type of the PixelFormat property from now on returns a PixelFormatInfo struct rather than an enum value of
     the System.Drawing.Imaging.PixelFormat type. It now supports custom formats better and you still can convert it
     to a known format if needed.
+  ! New Size property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this property has a default implementation using the Width and Height properties.
 ! BitmapDataRow interface:
   ! The MoveNextRow method has been moved to the new IBitmapDataRowMovable interface
 ! IReadableBitmapData interface

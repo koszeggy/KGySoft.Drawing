@@ -256,7 +256,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #endregion
 
-                Debug.Assert(previousFrame.GetSize() == deltaFrame.GetSize());
+                Debug.Assert(previousFrame.Size == deltaFrame.Size);
                 Debug.Assert(deltaFrame.SupportsTransparency());
 
                 int transparentIndex = deltaFrame.Palette?.TransparentIndex ?? -1;
@@ -308,10 +308,10 @@ namespace KGySoft.Drawing.Imaging
 
             private static bool HasNewTransparentPixel(IReadableBitmapData currentFrame, IReadableBitmapData nextFrame, byte alphaThreshold, out Rectangle region)
             {
-                Debug.Assert(currentFrame.GetSize() == nextFrame.GetSize());
+                Debug.Assert(currentFrame.Size == nextFrame.Size);
                 Debug.Assert(nextFrame.SupportsTransparency());
                 Debug.Assert(alphaThreshold > 0);
-                region = new Rectangle(Point.Empty, currentFrame.GetSize());
+                region = new Rectangle(Point.Empty, currentFrame.Size);
 
                 IReadableBitmapDataRowMovable rowCurrent = currentFrame.FirstRow;
                 IReadableBitmapDataRowMovable rowNext = nextFrame.FirstRow;
@@ -475,10 +475,10 @@ namespace KGySoft.Drawing.Imaging
 
                 #endregion
 
-                Debug.Assert(previousFrame.GetSize() == currentFrame.GetSize());
+                Debug.Assert(previousFrame.Size == currentFrame.Size);
 
                 bool hasAlpha = currentFrame.HasAlpha();
-                var region = new Rectangle(Point.Empty, currentFrame.GetSize());
+                var region = new Rectangle(Point.Empty, currentFrame.Size);
 
                 IReadableBitmapDataRowMovable rowPrev = previousFrame.FirstRow;
                 IReadableBitmapDataRowMovable rowCurrent = currentFrame.FirstRow;
@@ -586,7 +586,7 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentException(Res.GifEncoderAnimationContainsNoFrames);
                 }
 
-                logicalScreenSize = config.Size ?? nextUnprocessedInputFrame.GetSize();
+                logicalScreenSize = config.Size ?? nextUnprocessedInputFrame.Size;
 
                 // this must succeed now because we could move to the first frame, unless a cancellation request occurred
                 if (!MoveNextGeneratedFrame())
@@ -761,9 +761,9 @@ namespace KGySoft.Drawing.Imaging
                 if (!ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
                     preparedFrame.BitmapData.Dispose();
 
-                if (contentArea.Size != generatedFrame.GetSize())
+                if (contentArea.Size != generatedFrame.Size)
                 {
-                    Debug.Assert(generatedFrame.GetSize() == logicalScreenSize);
+                    Debug.Assert(generatedFrame.Size == logicalScreenSize);
                     generatedFrame = generatedFrame!.Clip(contentArea, true);
                 }
 
@@ -1036,7 +1036,7 @@ namespace KGySoft.Drawing.Imaging
                 IQuantizer? preparedQuantizer = !canUseDelta && (config.Quantizer != null || inputFrame.PixelFormat.AsKnownPixelFormatInternal != preparedPixelFormat) ? quantizer : null;
                 IDitherer? preparedDitherer = preparedQuantizer == null ? null : config.Ditherer;
 
-                Size inputSize = inputFrame.GetSize();
+                Size inputSize = inputFrame.Size;
                 if (inputSize == logicalScreenSize)
                     preparedFrame = inputFrame.DoClone(asyncContext, preparedPixelFormat, preparedQuantizer, preparedDitherer);
                 else

@@ -48,12 +48,7 @@ namespace KGySoft.Drawing.Imaging
             public IBitmapData BitmapData { get; }
             public int Width => row.Width;
             public int Size => row.Size;
-
-            public int Index
-            {
-                get => row.Index;
-                set => throw new InvalidOperationException(Res.InternalError("The row index of a wrapped bitmap data row is never expected to be set"));
-            }
+            public int Index => row.Index;
 
             #endregion
 
@@ -127,6 +122,7 @@ namespace KGySoft.Drawing.Imaging
 
         public int Height => BitmapData.Height;
         public int Width => BitmapData.Width;
+        public Size Size => BitmapData.Size;
         public PixelFormatInfo PixelFormat => BitmapData.PixelFormat;
         public Palette? Palette => BitmapData.Palette;
         public int RowSize => BitmapData.RowSize;

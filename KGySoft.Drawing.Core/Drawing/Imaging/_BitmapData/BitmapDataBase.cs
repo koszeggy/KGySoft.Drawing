@@ -52,6 +52,7 @@ namespace KGySoft.Drawing.Imaging
 
         public int Height { get; protected set; }
         public int Width { get; protected set; }
+        public Size Size => new Size(Width, Height);
         public PixelFormatInfo PixelFormat { get; }
         public Color32 BackColor { get; }
         public byte AlphaThreshold { get; }

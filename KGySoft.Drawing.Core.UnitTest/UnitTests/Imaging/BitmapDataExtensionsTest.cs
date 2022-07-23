@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = GetInfoIcon256().Clone(pixelFormat);
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size, pixelFormat);
             source.CopyTo(targetFull);
             AssertAreEqual(source, targetFull);
 
@@ -246,7 +246,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = GetInfoIcon256();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size, pixelFormat);
             source.CopyTo(targetFull);
             SaveBitmapData($"{pixelFormat} target", targetFull); // tODO: remove
 
@@ -265,7 +265,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = GetInfoIcon256();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize());
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size);
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
             source.CopyTo(targetFull, Point.Empty, quantizer);
 
@@ -420,7 +420,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             icon16.DrawInto(target, targetRect, scalingMode);
 
             // shrink single bit alpha source
-            targetRect = new Rectangle(Point.Empty, target.GetSize());
+            targetRect = new Rectangle(Point.Empty, target.Size);
             targetRect.Inflate(-32, -32);
             icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
                 .DrawInto(target, targetRect, scalingMode);
@@ -470,7 +470,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 icon16.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
                 // shrink single bit alpha source
-                targetRect = new Rectangle(Point.Empty, target.GetSize());
+                targetRect = new Rectangle(Point.Empty, target.Size);
                 targetRect.Inflate(-32, -32);
                 icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
                     .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);

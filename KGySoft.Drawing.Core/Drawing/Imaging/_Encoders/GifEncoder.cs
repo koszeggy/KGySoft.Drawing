@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.Imaging
                 if (imagesCount > 0 || delay != 0 || disposalMethod != GifGraphicDisposalMethod.NotSpecified || usedPalette.TransparentIndex >= 0)
                     WriteGraphicControlExtension(delay, disposalMethod, usedPalette.TransparentIndex);
 
-                WriteImageDescriptor(location, actualImageData.GetSize(), localPalette);
+                WriteImageDescriptor(location, actualImageData.Size, localPalette);
                 if (localPalette != null)
                     WritePalette(localPalette);
 

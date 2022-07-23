@@ -255,8 +255,7 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false)
         {
-            Assert.AreEqual(source.Width, target.Width);
-            Assert.AreEqual(source.Height, target.Height);
+            Assert.AreEqual(source.Size, target.Size);
             if (!allowDifferentPixelFormats)
                 Assert.AreEqual(source.PixelFormat, target.PixelFormat);
 

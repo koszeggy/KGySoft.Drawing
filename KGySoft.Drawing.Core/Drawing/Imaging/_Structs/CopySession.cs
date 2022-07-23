@@ -215,7 +215,7 @@ namespace KGySoft.Drawing.Imaging
                 return;
             }
 
-            IReadableBitmapData initSource = SourceRectangle.Size == Source.GetSize()
+            IReadableBitmapData initSource = SourceRectangle.Size == Source.Size
                 ? Source
                 : Source.Clip(SourceRectangle);
 
