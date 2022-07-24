@@ -15,3 +15,5 @@
   + New GetReadableBitmapData method: to get an IReadableBitmapData data for a WinUI WriteableBitmap.
   + New GetWritableBitmapData method: to get an IWritableBitmapData data for a WinUI WriteableBitmap.
   + New GetReadWriteBitmapData method: to get an IReadWriteBitmapData data for a WinUI WriteableBitmap.
++ New ReadableBitmapDataExtensions class:
+  + New ToWriteableBitmap/ToWriteableBitmapAsync methods
