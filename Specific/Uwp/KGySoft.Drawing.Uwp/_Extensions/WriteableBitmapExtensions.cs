@@ -13,6 +13,8 @@
 
 #endregion
 
+#nullable enable
+
 #region Usings
 
 using System;
