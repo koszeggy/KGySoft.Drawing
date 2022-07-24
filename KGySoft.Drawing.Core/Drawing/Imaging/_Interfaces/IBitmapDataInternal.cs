@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IBitmapDataInternal.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -26,9 +26,15 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        IBitmapDataRowInternal DoGetRow(int y);
-
         bool TrySetPalette(Palette? palette);
+        IBitmapDataRowInternal GetRowUncached(int y);
+
+        /// <summary>
+        /// Should be called from internal row access if the row is not exposed for public usage.
+        /// If called repeatedly by the same thread, the same row instance is returned with adjusted row index.
+        /// Works only if the result row is used in a scope that is never accessible to multiple threads.
+        /// </summary>
+        IBitmapDataRowInternal GetRowCached(int y);
 
         #endregion
     }

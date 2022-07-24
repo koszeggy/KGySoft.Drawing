@@ -35,35 +35,39 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override TResult DoReadRaw<TResult>(int x) => GetPixelRef<TResult>(x);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public sealed override void DoWriteRaw<TValue>(int x, TValue data) => GetPixelRef<TValue>(x) = data;
+
+        #endregion
+
+        #region Protected Methods
+
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override TResult DoReadRaw<TResult>(int x)
+        protected ref TPixel GetPixelRef<TPixel>(int x)
+            where TPixel : unmanaged
         {
 #if NETCOREAPP3_0_OR_GREATER
-            return Unsafe.Add(ref Unsafe.As<T, TResult>(ref Buffer[Index, 0]), x);
+            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Buffer[Index, 0]), x);
 #else
             unsafe
             {
                 fixed (T* pRow = &Buffer[Index, 0])
-                    return ((TResult*)pRow)[x];
+                    return ref ((TPixel*)pRow)[x];
             }
 #endif
         }
 
-        [SecurityCritical]
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public sealed override void DoWriteRaw<TValue>(int x, TValue data)
+        protected sealed override void DoMoveToIndex()
         {
-#if NETCOREAPP3_0_OR_GREATER
-            Unsafe.Add(ref Unsafe.As<T, TValue>(ref Buffer[Index, 0]), x) = data;
-#else
-            unsafe
-            {
-                fixed (T* pRow = &Buffer[Index, 0])
-                    ((TValue*)pRow)[x] = data;
-            }
-#endif
         }
+
+        #endregion
 
         #endregion
     }

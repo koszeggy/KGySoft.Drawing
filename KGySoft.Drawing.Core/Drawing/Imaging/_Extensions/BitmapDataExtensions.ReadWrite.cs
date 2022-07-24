@@ -89,7 +89,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.GetSize()
+            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.Size
                 ? source
                 : new ClippedBitmapData(source, clippingRegion, disposeSource);
         }
@@ -147,6 +147,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncContext.htm" target="_blank">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.</para>
@@ -158,7 +160,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="quantizer"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">The <paramref name="quantizer"/>'s <see cref="IQuantizer.Initialize">Initialize</see> method returned <see langword="null"/>.</exception>
-        public static void Quantize(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer)
+        public static bool Quantize(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -166,6 +168,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(quantizer), PublicResources.ArgumentNull);
 
             DoQuantize(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer);
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>
@@ -209,6 +212,8 @@ namespace KGySoft.Drawing.Imaging
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmapData"/>.</param>
         /// <param name="ditherer">An <see cref="IDitherer"/> implementation to be used for dithering during the quantization of the specified <paramref name="bitmapData"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/>, <paramref name="quantizer"/> or <paramref name="ditherer"/> is <see langword="null"/>.</exception>
         /// <exception cref="InvalidOperationException">The <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method
         /// or the <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
@@ -221,7 +226,7 @@ namespace KGySoft.Drawing.Imaging
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// <note>See the <see cref="Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/> overload for more details about the other parameters.</note>
         /// </remarks>
-        public static void Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
+        public static bool Dither(this IReadWriteBitmapData bitmapData, IAsyncContext? context, IQuantizer quantizer, IDitherer ditherer)
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
@@ -231,6 +236,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentNullException(nameof(ditherer), PublicResources.ArgumentNull);
 
             DoDither(context ?? AsyncHelper.DefaultContext, bitmapData, quantizer, ditherer);
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>
@@ -436,6 +442,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmapData"/>. It must be thread-safe.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if <paramref name="transformFunction"/> returns colors
         /// that is not compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="bitmapData"/> or <paramref name="transformFunction"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
@@ -446,10 +454,11 @@ namespace KGySoft.Drawing.Imaging
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// <note>See the <see cref="TransformColors(IReadWriteBitmapData, Func{Color32, Color32}, IDitherer?)"/> overload for more details about the other parameters.</note>
         /// </remarks>
-        public static void TransformColors(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
+        public static bool TransformColors(this IReadWriteBitmapData bitmapData, IAsyncContext? context, Func<Color32, Color32> transformFunction, IDitherer? ditherer)
         {
             ValidateArguments(bitmapData, transformFunction);
             DoTransformColors(context ?? AsyncHelper.DefaultContext, bitmapData, transformFunction, ditherer);
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>
@@ -1607,7 +1616,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                         int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                        IBitmapDataRowInternal row = accessor.GetRowCached(0);
                         do
                         {
                             if (context.IsCancellationRequested)
@@ -1624,7 +1633,7 @@ namespace KGySoft.Drawing.Imaging
                     ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                     {
                         int width = bitmapData.Width;
-                        IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                        IBitmapDataRowInternal row = accessor.GetRowCached(y);
                         for (int x = 0; x < width; x++)
                             row.DoSetColor32(x, session.GetQuantizedColor(row.DoGetColor32(x)));
                     });
@@ -1664,7 +1673,7 @@ namespace KGySoft.Drawing.Imaging
                         {
                             context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
                             int width = bitmapData.Width;
-                            IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(0);
                             int y = 0;
                             do
                             {
@@ -1683,7 +1692,7 @@ namespace KGySoft.Drawing.Imaging
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
                             int width = bitmapData.Width;
-                            IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(y);
                             for (int x = 0; x < width; x++)
                                 row.DoSetColor32(x, ditheringSession.GetDitheredColor(row.DoGetColor32(x), x, y));
                         });
@@ -1733,7 +1742,7 @@ namespace KGySoft.Drawing.Imaging
                 if (bitmapData.Width < parallelThreshold)
                 {
                     context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                    IBitmapDataRowInternal row = accessor.GetRowCached(0);
                     do
                     {
                         if (context.IsCancellationRequested)
@@ -1749,7 +1758,7 @@ namespace KGySoft.Drawing.Imaging
                 // Parallel processing
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
-                    IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                    IBitmapDataRowInternal row = accessor.GetRowCached(y);
                     for (int x = 0; x < bitmapData.Width; x++)
                         row.DoSetColor32(x, transformFunction.Invoke(row.DoGetColor32(x)));
                 });
@@ -1774,7 +1783,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer.InitializeReliesOnContent)
             {
                 // not using premultiplied format because transformation is faster on simple ARGB32
-                using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.GetSize()), KnownPixelFormat.Format32bppArgb);
+                using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb);
                 if (context.IsCancellationRequested)
                     return;
 
@@ -1783,7 +1792,7 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                     return;
 
-                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone.GetSize()), Point.Empty, null, ditherer);
+                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
                 return;
             }
 
@@ -1812,7 +1821,7 @@ namespace KGySoft.Drawing.Imaging
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold)
                         {
                             context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                            IBitmapDataRowInternal row = accessor.DoGetRow(0);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(0);
                             int y = 0;
                             do
                             {
@@ -1830,7 +1839,7 @@ namespace KGySoft.Drawing.Imaging
                         // parallel processing
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
-                            IBitmapDataRowInternal row = accessor.DoGetRow(y);
+                            IBitmapDataRowInternal row = accessor.GetRowCached(y);
                             for (int x = 0; x < bitmapData.Width; x++)
                                 row.DoSetColor32(x, ditheringSession.GetDitheredColor(transformFunction.Invoke(row.DoGetColor32(x)), x, y));
                         });

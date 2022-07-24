@@ -39,8 +39,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static Size GetSize(this IBitmapData? bitmapData) => bitmapData == null ? default : new Size(bitmapData.Width, bitmapData.Height);
-
         internal static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;

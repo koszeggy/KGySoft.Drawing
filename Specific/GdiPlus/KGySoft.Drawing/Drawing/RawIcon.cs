@@ -965,7 +965,7 @@ namespace KGySoft.Drawing
             PixelFormat pixelFormat = image.PixelFormat;
             Bitmap[] bitmaps;
 
-            if (pixelFormat.ToBitsPerPixel().In(invalidIconFormats))
+            if (pixelFormat.ToBitsPerPixel().In(invalidIconFormats) || pixelFormat == PixelFormatExtensions.Format32bppCmyk)
                 bitmaps = new[] { image.ConvertPixelFormat(PixelFormat.Format32bppArgb) };
             else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                 bitmaps = image.ExtractIconImages();

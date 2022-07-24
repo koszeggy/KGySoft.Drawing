@@ -99,7 +99,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     int offset = bitPos % 8;
                     bits &= ~(511 << offset);
                     if (c.A >= row.BitmapData.AlphaThreshold)
-                        bits |= (256 | c.BlendWithBackground(row.BitmapData.BackColor).GetBrightness()) << offset;
+                        bits |= (256 | c.Blend(row.BitmapData.BackColor).GetBrightness()) << offset;
                     row.UnsafeGetRefAs<byte>(bytePos) = (byte)bits;
                     row.UnsafeGetRefAs<byte>(bytePos + 1) = (byte)(bits >> 8);
                 }
@@ -254,7 +254,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // CopyTo
             using IReadWriteBitmapData alphaGradient = GenerateAlphaGradientBitmapData(size);
-
             alphaGradient.CopyTo(bitmapDataNonDithered);
             SaveBitmapData($"{caseName} CopyTo", bitmapDataNonDithered, testName);
             alphaGradient.CopyTo(referenceBitmapData, default, referenceQuantizer);
@@ -486,7 +485,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // 1.) 1D array
             byte[] buf1D = new byte[reference.RowSize * reference.Height];
-            using (IReadWriteBitmapData bmpData = BitmapDataFactory.CreateBitmapData(buf1D, reference.GetSize(), reference.RowSize, pixelFormat, reference.Palette))
+            using (IReadWriteBitmapData bmpData = BitmapDataFactory.CreateBitmapData(buf1D, reference.Size, reference.RowSize, pixelFormat, reference.Palette))
             {
                 reference.CopyTo(bmpData);
                 AssertAreEqual(reference, bmpData);
@@ -503,7 +502,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             // 3.) Unmanaged memory (note: DrawInto would cause and error here because allocated memory is not cleared)
             IntPtr memory = Marshal.AllocHGlobal(reference.RowSize * reference.Height);
             void DisposeUnmanaged() => Marshal.FreeHGlobal(memory);
-            using (IReadWriteBitmapData bmpData = BitmapDataFactory.CreateBitmapData((IntPtr)memory, reference.GetSize(), reference.RowSize, pixelFormat, reference.Palette, null, DisposeUnmanaged))
+            using (IReadWriteBitmapData bmpData = BitmapDataFactory.CreateBitmapData((IntPtr)memory, reference.Size, reference.RowSize, pixelFormat, reference.Palette, null, DisposeUnmanaged))
             {
                 reference.CopyTo(bmpData);
                 AssertAreEqual(reference, bmpData);
@@ -579,7 +578,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 using IReadableBitmapData optimizedReferenceBitmapData = GetInfoIcon256()
                     .Clone(bpp <= 8 ? KnownPixelFormat.Format8bppIndexed : KnownPixelFormat.Format32bppArgb, getQuantizer.Invoke(maxColors, Color.Silver, (byte)(bpp == 1 ? 0 : 128)), OrderedDitherer.Bayer8x8);
-                size = optimizedReferenceBitmapData.GetSize();
+                size = optimizedReferenceBitmapData.Size;
                 stride = pixelFormat.GetByteWidth(size.Width);
 
                 // Creating custom bitmap data with optimized palette

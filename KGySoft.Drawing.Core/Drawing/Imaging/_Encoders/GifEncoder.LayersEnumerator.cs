@@ -104,7 +104,7 @@ namespace KGySoft.Drawing.Imaging
                 this.backColor = backColor;
                 this.alphaThreshold = alphaThreshold;
                 this.fullScan = fullScan;
-                size = imageData.GetSize();
+                size = imageData.Size;
                 this.asyncContext.Progress?.New(DrawingOperation.Saving, size.Width * ((size.Height - 1) / 16 + 1));
 #if NETFRAMEWORK || NETSTANDARD2_0
                 currentColors = new HashSet<Color32>();

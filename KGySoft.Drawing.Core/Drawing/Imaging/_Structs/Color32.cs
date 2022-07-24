@@ -17,6 +17,9 @@
 
 using System;
 using System.Drawing;
+#if NET5_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 using System.Runtime.InteropServices;
 
 #endregion
@@ -106,6 +109,20 @@ namespace KGySoft.Drawing.Imaging
         /// <returns><see langword="true"/>&#160;if the two <see cref="Color32"/> structures are different; otherwise, <see langword="false"/>.</returns>
         public static bool operator !=(Color32 left, Color32 right) => !left.Equals(right);
 
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="Color"/> to <see cref="Color32"/>.
+        /// </summary>
+        /// <param name="color">A <see cref="Color"/> instance to convert to <see cref="Color32"/>.</param>
+        /// <returns>A <see cref="Color32"/> instance representing the specified <paramref name="color"/>.</returns>
+        public static implicit operator Color32(Color color) => new Color32(color);
+
+        /// <summary>
+        /// Performs an implicit conversion from <see cref="Color32"/> to <see cref="Color"/>.
+        /// </summary>
+        /// <param name="color">A <see cref="Color32"/> instance to convert to <see cref="Color"/>.</param>
+        /// <returns>A <see cref="Color"/> instance representing the specified <paramref name="color"/>.</returns>
+        public static implicit operator Color(Color32 color) => color.ToColor();
+
         #endregion
 
         #region Constructors
@@ -120,8 +137,13 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
         public Color32(byte a, byte r, byte g, byte b)
+#if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             B = b;
             G = g;
             R = r;
@@ -150,8 +172,13 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Constructors
 
         internal Color32(uint argb)
-            : this() // so the compiler does not complain about not initializing ARGB fields
+#if !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             value = argb;
         }
 

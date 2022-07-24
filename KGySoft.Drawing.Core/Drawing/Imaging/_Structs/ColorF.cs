@@ -128,10 +128,13 @@ namespace KGySoft.Drawing.Imaging
         #region Public Constructors
 
         public ColorF(float a, float r, float g, float b)
-#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
-            : this() // so the compiler does not complain about not initializing the value field
+#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing ARGB fields
 #endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             R = r;
             G = g;
             B = b;
@@ -148,8 +151,13 @@ namespace KGySoft.Drawing.Imaging
         }
 #else
         public ColorF(Color32 c)
+#if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing ARGB fields
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             value = new Vector4(c.R, c.G, c.B, c.A) / max8Bpp;
         }
 #endif
@@ -160,8 +168,13 @@ namespace KGySoft.Drawing.Imaging
 
 #if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
         private ColorF(Vector4 vector)
+#if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing ARGB fields
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             value = vector;
         }
 #endif

@@ -1,4 +1,4 @@
-﻿This used to be the link to the change log of the original KGySoft.Drawing package that has been split to multiple packages.
+﻿This used to be the location of the change log of the original KGySoft.Drawing package that has been split into multiple packages.
 
 New locations:
 KGySoft.Drawing.Core: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt

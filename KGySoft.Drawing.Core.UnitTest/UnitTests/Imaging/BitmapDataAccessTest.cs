@@ -17,6 +17,7 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 
 using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
@@ -43,7 +44,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "32 bit PARGB Alpha 254", KnownPixelFormat.Format32bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0xFE_00_00_FE },
             new object[] { "32 bit PARGB Transparent", KnownPixelFormat.Format32bppPArgb, Color.Transparent, Color.Empty, 0x00_00_00_00 },
             new object[] { "32 bit RGB Blue", KnownPixelFormat.Format32bppRgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
-            new object[] { "32 bit RGB Alpha 50%", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), 0xFF_00_00_80 },
+            new object[] { "32 bit RGB Alpha 50%", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), 0xFF_00_00_7F },
             new object[] { "32 bit RGB Transparent", KnownPixelFormat.Format32bppRgb, Color.Transparent, Color.Black, 0xFF_00_00_00 },
             new object[] { "24 bit RGB Blue", KnownPixelFormat.Format24bppRgb, Color.Blue, Color.Blue, 0x00_00_FF },
             new object[] { "24 bit RGB Transparent", KnownPixelFormat.Format24bppRgb, Color.Transparent, Color.Black, 0x00_00_00 },
@@ -123,6 +124,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCaseSource(nameof(setGetPixelTestSource))]
         public unsafe void SetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValue)
         {
+            Size size = new Size(3, 2);
             Color actualColor;
             long actualRawValue;
 
@@ -131,7 +133,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             bool AreEqual(Color c1, Color c2) => c1.ToArgb() == c2.ToArgb()
                 || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
 
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(new Size(1, 1), pixelFormat))
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel allocating managed accessor: ");
@@ -145,13 +147,17 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(expectedRawValue, actualRawValue);
 
                 // by indexer
-                managedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.DoGetRow(0)[0].ToColor()));
+                managedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetRowCached(0)[0].ToColor()));
                 Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
+
+                // nonzero coordinates
+                managedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
             }
 
-            long[] bufManaged = new long[1];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(new Array2D<long>(bufManaged, 1, 1), 1, pixelFormat))
+            long[] bufManaged = new long[size.Height * size.Width];
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor: ");
@@ -165,13 +171,17 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(expectedRawValue, actualRawValue);
 
                 // by indexer
-                managedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.DoGetRow(0)[0].ToColor()));
+                managedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetRowCached(0)[0].ToColor()));
                 Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
+
+                // nonzero coordinates
+                managedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
             }
 
-            long[,] bufManaged2D = new long[1, 1];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, 1, pixelFormat))
+            long[,] bufManaged2D = new long[size.Height, size.Width];
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor 2D: ");
@@ -185,13 +195,19 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(expectedRawValue, actualRawValue);
 
                 // by indexer
-                managedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.DoGetRow(0)[0].ToColor()));
+                managedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetRowCached(0)[0].ToColor()));
                 Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
+
+                // nonzero coordinates
+                managedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
             }
 
-            long bufUnmanaged = 0L;
-            using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData((IntPtr)(&bufUnmanaged), new Size(1, 1), sizeof(long), pixelFormat))
+            int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
+            IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
+            using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
+               disposeCallback: () => Marshal.FreeHGlobal(bufUnmanaged)))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel unmanaged accessor: ");
@@ -205,9 +221,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Assert.AreEqual(expectedRawValue, actualRawValue);
 
                 // by indexer
-                unmanagedBitmapData.DoGetRow(0)[0] = new Color32(testColor);
-                Assert.IsTrue(AreEqual(expectedResult, unmanagedBitmapData.DoGetRow(0)[0].ToColor()));
+                unmanagedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, unmanagedBitmapData.GetRowCached(0)[0].ToColor()));
                 Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, unmanagedBitmapData));
+
+                // nonzero coordinates
+                unmanagedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, unmanagedBitmapData.GetPixel(2, 1)));
             }
         }
 

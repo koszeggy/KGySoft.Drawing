@@ -443,7 +443,7 @@ namespace KGySoft.Drawing.Imaging
             int GetNearestColorIndex(Color32 c)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(backColor);
+                    c = c.BlendWithBackground(backColor.ToOpaque());
 
                 return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
             }
@@ -466,7 +466,7 @@ namespace KGySoft.Drawing.Imaging
             int GetNearestColorIndex(Color32 c)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(backColor);
+                    c = c.BlendWithBackground(backColor.ToOpaque());
                 return c.GetBrightness();
             }
 
@@ -492,7 +492,7 @@ namespace KGySoft.Drawing.Imaging
             int GetNearestColorIndex(Color32 c)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(backColor);
+                    c = c.BlendWithBackground(backColor.ToOpaque());
                 return c.GetBrightness() >> 4;
             }
 
@@ -518,7 +518,7 @@ namespace KGySoft.Drawing.Imaging
             int GetNearestColorIndex(Color32 c)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(backColor);
+                    c = c.BlendWithBackground(backColor.ToOpaque());
                 return c.GetBrightness() >> 6;
             }
 
@@ -543,7 +543,7 @@ namespace KGySoft.Drawing.Imaging
             int GetNearestColorIndex(Color32 c)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(backColor);
+                    c = c.BlendWithBackground(backColor.ToOpaque());
 
                 return c == Color32.Black ? 0
                     : c == Color32.White ? 1

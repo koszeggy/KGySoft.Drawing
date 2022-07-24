@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
-            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.GetSize()
+            return clippingRegion.Location.IsEmpty && clippingRegion.Size == source.Size
                 ? source
                 : new ClippedBitmapData(source, clippingRegion, disposeSource);
         }
@@ -117,6 +117,8 @@ namespace KGySoft.Drawing.Imaging
         /// </param>
         /// <param name="ditherer">The ditherer to be used for the clearing. Has no effect if <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> has at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns><see langword="true"/>, if the operation completed successfully.
+        /// <br/><see langword="false"/>, if the operation has been canceled.</returns>
         /// <remarks>
         /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
         /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.</para>
@@ -125,10 +127,11 @@ namespace KGySoft.Drawing.Imaging
         /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_AsyncHelper.htm" target="_blank">AsyncHelper</a>
         /// class for details about how to create a context for possibly async top level methods.</note>
         /// </remarks>
-        public static void Clear(this IWritableBitmapData bitmapData, IAsyncContext? context, Color32 color, IDitherer? ditherer = null)
+        public static bool Clear(this IWritableBitmapData bitmapData, IAsyncContext? context, Color32 color, IDitherer? ditherer = null)
         {
             ValidateArguments(bitmapData);
             DoClear(context ?? AsyncHelper.DefaultContext, bitmapData, color, ditherer);
+            return context?.IsCancellationRequested != true;
         }
 
         /// <summary>
@@ -295,7 +298,7 @@ namespace KGySoft.Drawing.Imaging
                     Color32 rawColor = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
                     {
                         KnownPixelFormat.Format32bppPArgb => color.ToPremultiplied(),
-                        KnownPixelFormat.Format32bppRgb => color.BlendWithBackground(bitmapData.BackColor),
+                        KnownPixelFormat.Format32bppRgb => color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor),
                         _ => color,
                     };
 
@@ -380,7 +383,7 @@ namespace KGySoft.Drawing.Imaging
                 if (width - left < parallelThreshold)
                 {
                     context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                     do
                     {
                         if (context.IsCancellationRequested)
@@ -397,7 +400,7 @@ namespace KGySoft.Drawing.Imaging
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
                     // ReSharper disable once VariableHidesOuterVariable
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     int l = left;
                     int w = width;
                     int c = index;
@@ -413,7 +416,7 @@ namespace KGySoft.Drawing.Imaging
                 if (width - offsetLeft < parallelThreshold)
                 {
                     context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                     do
                     {
                         if (context.IsCancellationRequested)
@@ -430,7 +433,7 @@ namespace KGySoft.Drawing.Imaging
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                 {
                     // ReSharper disable once VariableHidesOuterVariable
-                    IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                    IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                     int l = offsetLeft;
                     int w = width;
                     Color32 c = color;
@@ -478,7 +481,7 @@ namespace KGySoft.Drawing.Imaging
             if (width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                 do
                 {
                     if (context.IsCancellationRequested)
@@ -493,7 +496,7 @@ namespace KGySoft.Drawing.Imaging
             // parallel clear
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
             {
-                IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                 int w = width;
                 T raw = data;
                 for (int x = 0; x < w; x++)
@@ -511,7 +514,7 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                     return;
                 IReadableBitmapData initSource = ditherer.InitializeReliesOnContent
-                    ? new SolidBitmapData(bitmapData.GetSize(), color)
+                    ? new SolidBitmapData(bitmapData.Size, color)
                     : bitmapData;
 
                 try
@@ -528,7 +531,7 @@ namespace KGySoft.Drawing.Imaging
                         if (ditheringSession.IsSequential || bitmapData.Width < parallelThreshold >> ditheringScale)
                         {
                             context.Progress?.New(DrawingOperation.ProcessingPixels, bitmapData.Height);
-                            IBitmapDataRowInternal row = bitmapData.DoGetRow(0);
+                            IBitmapDataRowInternal row = bitmapData.GetRowCached(0);
                             int y = 0;
                             do
                             {
@@ -546,7 +549,7 @@ namespace KGySoft.Drawing.Imaging
                         // parallel clear
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, bitmapData.Height, y =>
                         {
-                            IBitmapDataRowInternal row = bitmapData.DoGetRow(y);
+                            IBitmapDataRowInternal row = bitmapData.GetRowCached(y);
                             for (int x = 0; x < bitmapData.Width; x++)
                                 row.DoSetColor32(x, ditheringSession.GetDitheredColor(color, x, y));
                         });

@@ -57,7 +57,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     using var bmp = new Bitmap(size, size, pixelFormat);
                     using IWritableBitmapData acc = bmp.GetWritableBitmapData();
                     var c = new Color32(color);
-                    IWritableBitmapDataRow row = acc.FirstRow;
+                    IWritableBitmapDataRowMovable row = acc.FirstRow;
                     do
                     {
                         for (int x = 0; x < acc.Width; x++)
@@ -93,7 +93,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(acc, quantizingSession))
                     {
-                        IReadWriteBitmapDataRow row = acc.FirstRow;
+                        IReadWriteBitmapDataRowMovable row = acc.FirstRow;
                         do
                         {
                             for (int x = 0; x < acc.Width; x++)
@@ -225,7 +225,7 @@ namespace KGySoft.Drawing.PerformanceTests
                     {
                         Color32 from = new Color32(Color.Black);
                         Color32 to = new Color32(Color.Transparent);
-                        IReadWriteBitmapDataRow row = bitmapData.FirstRow;
+                        IReadWriteBitmapDataRowMovable row = bitmapData.FirstRow;
                         do
                         {
                             for (int x = 0; x < bitmapData.Width; x++)

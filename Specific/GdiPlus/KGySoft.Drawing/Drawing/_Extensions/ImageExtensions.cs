@@ -502,7 +502,7 @@ namespace KGySoft.Drawing
         /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>
-        /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
+        /// <para>To produce a result with a specified number of colors optimized for the source <paramref name="image"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
         /// <para>To quantize a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Quantize">BitmapExtensions.Quantize</see> method.</para>
         /// <para>To dither a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Dither">BitmapExtensions.Dither</see> method.</para>
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
@@ -2264,9 +2264,7 @@ namespace KGySoft.Drawing
                     return null;
                 using (IReadableBitmapData source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
-                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty);
-
-                return context.IsCancellationRequested ? null : result;
+                    return source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty) ? result : null;
             }
             catch (Exception)
             {
@@ -2345,9 +2343,7 @@ namespace KGySoft.Drawing
 
                 // Note: palette is purposely not passed here so a new instance will be created from the colors, without any possible delegate (which is still used by the quantizer).
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
-                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty, quantizer, ditherer);
-
-                return (canceled = context.IsCancellationRequested) ? null : result;
+                    return (canceled = !source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer)) ? null : result;
             }
             catch (Exception)
             {

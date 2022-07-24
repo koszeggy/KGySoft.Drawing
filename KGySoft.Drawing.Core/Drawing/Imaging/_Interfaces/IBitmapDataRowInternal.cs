@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IBitmapDataRowInternal.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,7 +15,7 @@
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal interface IBitmapDataRowInternal : IReadWriteBitmapDataRow
+    internal interface IBitmapDataRowInternal : IReadWriteBitmapDataRowMovable
     {
         #region Properties
         
@@ -33,6 +33,7 @@ namespace KGySoft.Drawing.Imaging
         void DoWriteRaw<T>(int x, T data) where T : unmanaged;
         int DoGetColorIndex(int x);
         void DoSetColorIndex(int x, int colorIndex);
+        void DoMoveToRow(int y);
 
         #endregion
     }

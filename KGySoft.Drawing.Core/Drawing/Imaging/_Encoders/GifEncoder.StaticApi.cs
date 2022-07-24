@@ -411,7 +411,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 context.Progress?.New(DrawingOperation.Saving);
                 Palette palette = source.Palette!;
-                new GifEncoder(stream, imageData.GetSize())
+                new GifEncoder(stream, imageData.Size)
                     {
                         GlobalPalette = palette,
                         BackColorIndex = (byte)(palette.HasAlpha ? palette.TransparentIndex : 0),
@@ -453,7 +453,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             using var enumerator = new LayersEnumerator(context, imageData, backColor, alphaThreshold, fullScan);
-            using GifEncoder encoder = new GifEncoder(stream, imageData.GetSize())
+            using GifEncoder encoder = new GifEncoder(stream, imageData.Size)
             {
 #if DEBUG
                 AddMetaInfo = true
@@ -503,7 +503,7 @@ namespace KGySoft.Drawing.Imaging
             if (width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, imageData.Height);
-                IReadableBitmapDataRow row = imageData.FirstRow;
+                IReadableBitmapDataRowMovable row = imageData.FirstRow;
                 do
                 {
                     if (context.IsCancellationRequested)
@@ -547,11 +547,11 @@ namespace KGySoft.Drawing.Imaging
 
         private static Rectangle GetContentArea(IReadableBitmapData imageData)
         {
-            Rectangle result = new Rectangle(0, 0, imageData.Width, imageData.Height);
+            Rectangle result = new Rectangle(Point.Empty, imageData.Size);
             if (!imageData.HasAlpha())
                 return result;
 
-            IReadableBitmapDataRow row = imageData.FirstRow;
+            IReadableBitmapDataRowMovable row = imageData.FirstRow;
             do
             {
                 for (int x = 0; x < result.Width; x++)
@@ -571,7 +571,7 @@ namespace KGySoft.Drawing.Imaging
 
             for (int y = result.Bottom - 1; y >= result.Top; y--)
             {
-                row = imageData[y];
+                row.MoveToRow(y);
                 for (int x = 0; x < result.Width; x++)
                 {
                     if (row[x].A != 0)
@@ -587,7 +587,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 for (int y = result.Top; y < result.Bottom; y++)
                 {
-                    if (imageData[y][x].A != 0)
+                    if (imageData.GetColor32(x, y).A != 0)
                         goto continueRight;
                 }
 
@@ -601,7 +601,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 for (int y = result.Top; y < result.Bottom; y++)
                 {
-                    if (imageData[y][x].A != 0)
+                    if (imageData.GetColor32(x, y).A != 0)
                         return result;
                 }
 

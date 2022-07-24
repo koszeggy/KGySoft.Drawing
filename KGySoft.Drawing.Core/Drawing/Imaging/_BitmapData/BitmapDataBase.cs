@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Runtime.CompilerServices;
+using System.Threading;
 
 #endregion
 
@@ -32,6 +33,15 @@ namespace KGySoft.Drawing.Imaging
         private Action? disposeCallback;
         private Func<Palette, bool>? trySetPaletteCallback;
 
+        // This cache is exposed only for the indexers, which return interface types without MoveNext/MoveToRow methods
+        // Non-volatile field because it's even better if the threads see their lastly set instance
+        private IBitmapDataRowInternal? cachedRowByIndex;
+
+        // This cache is not exposed to public access, only to the internal GetCachedRow method.
+        // Its consumers must always use the result in a local scope where no context switch is possible between threads.
+        private volatile StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>?[]? cachedRowByThreadId;
+        private int hashMask; // non-volatile because always the volatile cachedRowByThreadId is accessed first
+
         #endregion
 
         #region Properties and Indexers
@@ -42,6 +52,7 @@ namespace KGySoft.Drawing.Imaging
 
         public int Height { get; protected set; }
         public int Width { get; protected set; }
+        public Size Size => new Size(Width, Height);
         public PixelFormatInfo PixelFormat { get; }
         public Color32 BackColor { get; }
         public byte AlphaThreshold { get; }
@@ -61,9 +72,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Properties
 
-        IReadableBitmapDataRow IReadableBitmapData.FirstRow => GetFirstRow();
-        IWritableBitmapDataRow IWritableBitmapData.FirstRow => GetFirstRow();
-        IReadWriteBitmapDataRow IReadWriteBitmapData.FirstRow => GetFirstRow();
+        IReadableBitmapDataRowMovable IReadableBitmapData.FirstRow => GetFirstRow();
+        IWritableBitmapDataRowMovable IWritableBitmapData.FirstRow => GetFirstRow();
+        IReadWriteBitmapDataRowMovable IReadWriteBitmapData.FirstRow => GetFirstRow();
 
         #endregion
 
@@ -82,7 +93,7 @@ namespace KGySoft.Drawing.Imaging
                     ThrowDisposed();
                 if ((uint)y >= Height)
                     ThrowYOutOfRange();
-                return DoGetRow(y);
+                return GetCachedRowByIndex(y);
             }
         }
 
@@ -100,7 +111,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Construction and Destruction
-        
+
         #region Constructors
 
         protected BitmapDataBase(Size size, PixelFormatInfo pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
@@ -176,12 +187,19 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Private Methods
-        
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowYOutOfRange()
         {
             // ReSharper disable once NotResolvedInText
             throw new ArgumentOutOfRangeException("y", PublicResources.ArgumentOutOfRange);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowXOutOfRange()
+        {
+            // ReSharper disable once NotResolvedInText
+            throw new ArgumentOutOfRangeException("x", PublicResources.ArgumentOutOfRange);
         }
 
         #endregion
@@ -193,26 +211,40 @@ namespace KGySoft.Drawing.Imaging
         #region Public Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public Color GetPixel(int x, int y)
+        public Color GetPixel(int x, int y) => GetColor32(x, y).ToColor();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void SetPixel(int x, int y, Color color) => SetColor32(x, y, new Color32(color));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public Color32 GetColor32(int x, int y)
         {
             if (IsDisposed)
                 ThrowDisposed();
             if ((uint)y >= Height)
                 ThrowYOutOfRange();
-            return DoGetRow(y).GetColor(x);
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            return DoGetPixel(x, y);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public void SetPixel(int x, int y, Color color)
+        public void SetColor32(int x, int y, Color32 color)
         {
             if (IsDisposed)
                 ThrowDisposed();
             if ((uint)y >= Height)
                 ThrowYOutOfRange();
-            DoGetRow(y).SetColor(x, color);
+            if ((uint)x >= Width)
+                ThrowXOutOfRange();
+            DoSetPixel(x, y, color);
         }
 
-        public abstract IBitmapDataRowInternal DoGetRow(int y);
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public IBitmapDataRowInternal GetRowUncached(int y) => DoGetRow(y);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public IBitmapDataRowInternal GetRowCached(int y) => GetCachedRowByThreadId(y);
 
         public bool TrySetPalette(Palette? palette)
         {
@@ -240,6 +272,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Protected Methods
 
+        protected abstract IBitmapDataRowInternal DoGetRow(int y);
+        protected abstract Color32 DoGetPixel(int x, int y);
+        protected abstract void DoSetPixel(int x, int y, Color32 c);
+
         protected virtual void Dispose(bool disposing)
         {
             if (IsDisposed)
@@ -260,6 +296,8 @@ namespace KGySoft.Drawing.Imaging
             {
                 disposeCallback = null;
                 trySetPaletteCallback = null;
+                cachedRowByIndex = null;
+                cachedRowByThreadId = null;
                 IsDisposed = true;
             }
         }
@@ -268,12 +306,64 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Methods
 
-        private IReadWriteBitmapDataRow GetFirstRow()
+        private IBitmapDataRowInternal GetFirstRow()
         {
             if (IsDisposed)
                 ThrowDisposed();
             return DoGetRow(0);
         }
+
+        private IBitmapDataRowInternal GetMovableRow(int y)
+        {
+            if (IsDisposed)
+                ThrowDisposed();
+            if ((uint)y >= Height)
+                ThrowYOutOfRange();
+            return DoGetRow(y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private IBitmapDataRowInternal GetCachedRowByIndex(int y)
+        {
+            // If the same row is accessed repeatedly we return the cached last row.
+            // Note: this caching is exposed only to the indexer, which returns an immutable interface where Index cannot be changed
+            IBitmapDataRowInternal? cached = cachedRowByIndex;
+            if (cached?.Index == y)
+                return cached;
+
+            // Otherwise, we create and cache the result.
+            return cachedRowByIndex = DoGetRow(y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private IBitmapDataRowInternal GetCachedRowByThreadId(int y)
+        {
+            if (cachedRowByThreadId == null)
+                InitThreadIdCache();
+            var hash = Thread.CurrentThread.ManagedThreadId & hashMask;
+            StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>? cached = cachedRowByThreadId![hash];
+            if (cached?.Value.ThreadId == Thread.CurrentThread.ManagedThreadId)
+                cached.Value.Row.DoMoveToRow(y);
+            else
+                cachedRowByThreadId[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((Thread.CurrentThread.ManagedThreadId, DoGetRow(y)));
+            return cached.Value.Row;
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private void InitThreadIdCache()
+        {
+            var result = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>[Math.Max(8, ((uint)Environment.ProcessorCount << 1).RoundUpToPowerOf2())];
+            hashMask = result.Length - 1;
+            cachedRowByThreadId = result;
+        }
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
+        IReadableBitmapDataRowMovable IReadableBitmapData.GetMovableRow(int y) => GetMovableRow(y);
+        IWritableBitmapDataRowMovable IWritableBitmapData.GetMovableRow(int y) => GetMovableRow(y);
+        IReadWriteBitmapDataRowMovable IReadWriteBitmapData.GetMovableRow(int y) => GetMovableRow(y);
 
         #endregion
 
@@ -281,4 +371,5 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
     }
+
 }

@@ -474,7 +474,7 @@ namespace KGySoft.Drawing.UnitTests
             bmp.Clear(color);
             using (IReadableBitmapData bitmapData = bmp.GetReadableBitmapData())
             {
-                IReadableBitmapDataRow row = bitmapData.FirstRow;
+                IReadableBitmapDataRowMovable row = bitmapData.FirstRow;
                 var c32 = new Color32(color);
                 if (!pixelFormat.HasAlpha())
                     c32 = c32.Blend(Color32.FromGray(0));

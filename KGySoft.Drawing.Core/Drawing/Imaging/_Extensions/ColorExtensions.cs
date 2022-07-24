@@ -176,15 +176,17 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
         {
+            Debug.Assert(c.A != 255, "Partially transparent fore color is expected. Call Blend for better performance.");
+            Debug.Assert(backColor.A == 255, "Totally opaque back color is expected.");
+
             // The blending is applied only to the color and not the resulting alpha, which will always be opaque
             if (c.A == 0)
-                return backColor.ToOpaque();
-            float alpha = c.A / 255f;
-            float inverseAlpha = 1f - alpha;
+                return backColor;
+            int inverseAlpha = 255 - c.A;
             return new Color32(Byte.MaxValue,
-                (byte)(c.R * alpha + backColor.R * inverseAlpha),
-                (byte)(c.G * alpha + backColor.G * inverseAlpha),
-                (byte)(c.B * alpha + backColor.B * inverseAlpha));
+                (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
+                (byte)((c.G * c.A + backColor.G * inverseAlpha) >> 8),
+                (byte)((c.B * c.A + backColor.B * inverseAlpha) >> 8));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -201,19 +203,26 @@ namespace KGySoft.Drawing.Imaging
                 (byte)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
+
+            // This would be the floating point free version but in practice it's not faster at all (at least on my computer):
+            //int inverseAlphaSrc = 255 - src.A;
+            //int alphaOut = src.A + ((dst.A * inverseAlphaSrc) >> 8);
+
+            //return new Color32((byte)alphaOut,
+            //    (byte)((src.R * src.A + ((dst.R * dst.A * inverseAlphaSrc) >> 8)) / alphaOut),
+            //    (byte)((src.G * src.A + ((dst.G * dst.A * inverseAlphaSrc) >> 8)) / alphaOut),
+            //    (byte)((src.B * src.A + ((dst.B * dst.A * inverseAlphaSrc) >> 8)) / alphaOut));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
-
-            float inverseAlphaSrc = (255 - src.A) / 255f;
-
-            return new Color32((byte)(src.A + dst.A * inverseAlphaSrc),
-                (byte)(src.R + dst.R * inverseAlphaSrc),
-                (byte)(src.G + dst.G * inverseAlphaSrc),
-                (byte)(src.B + dst.B * inverseAlphaSrc));
+            int inverseAlphaSrc = 255 - src.A;
+            return new Color32((byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
+                (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
+                (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
+                (byte)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -228,8 +237,50 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor)
         {
-            Debug.Assert(c1.A == 255);
-            return TolerantEquals(c1, c2.BlendWithBackground(backColor), tolerance);
+            Debug.Assert(c1.A == 255 && backColor.A == 255);
+            return TolerantEquals(c1, c2.Blend(backColor), tolerance);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static int Get4bppColorIndex(byte nibbles, int x) => (x & 1) == 0
+            ? nibbles >> 4
+            : nibbles & 0b00001111;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static void Set4bppColorIndex(ref byte nibbles, int x, int colorIndex)
+        {
+            if ((x & 1) == 0)
+            {
+                nibbles &= 0b00001111;
+                nibbles |= (byte)(colorIndex << 4);
+            }
+            else
+            {
+                nibbles &= 0b11110000;
+                nibbles |= (byte)colorIndex;
+            }
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static int Get1bppColorIndex(byte bits, int x)
+        {
+            int mask = 128 >> (x & 7);
+            return (bits & mask) != 0 ? 1 : 0;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        internal static void Set1bppColorIndex(ref byte bits, int x, int colorIndex)
+        {
+            int mask = 128 >> (x & 7);
+            if (colorIndex == 0)
+                bits &= (byte)~mask;
+            else
+                bits |= (byte)mask;
+
         }
 
         #endregion

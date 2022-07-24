@@ -16,7 +16,7 @@
 #region Usings
 
 using System;
-using System.Linq;
+using System.Diagnostics;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 
@@ -107,6 +107,30 @@ namespace KGySoft.Drawing.Wpf
                 : pixelFormat == PixelFormats.Indexed8 ? PredefinedColorsQuantizer.SystemDefault8BppPalette(backColor.ToDrawingColor(), alphaThreshold)
                 : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat(), backColor.ToDrawingColor(), alphaThreshold);
 
+        /// <summary>
+        /// Converts a <see cref="KnownPixelFormat"/> to the closest <see cref="PixelFormat"/>.
+        /// </summary>
+        /// <param name="pixelFormat">The source <see cref="KnownPixelFormat"/> to convert to a <see cref="PixelFormat"/>.</param>
+        /// <returns>A <see cref="PixelFormat"/> instance. It will be <see cref="PixelFormats.Default"/> value if the source <paramref name="pixelFormat"/> cannot be mapped.</returns>
+        public static PixelFormat ToPixelFormat(this KnownPixelFormat pixelFormat) => pixelFormat switch
+        {
+            KnownPixelFormat.Format1bppIndexed => PixelFormats.Indexed1,
+            KnownPixelFormat.Format4bppIndexed => PixelFormats.Indexed4,
+            KnownPixelFormat.Format8bppIndexed => PixelFormats.Indexed8,
+            KnownPixelFormat.Format16bppGrayScale => PixelFormats.Gray16,
+            KnownPixelFormat.Format16bppRgb555 => PixelFormats.Bgr555,
+            KnownPixelFormat.Format16bppRgb565 => PixelFormats.Bgr565,
+            KnownPixelFormat.Format16bppArgb1555 => PixelFormats.Bgra32,
+            KnownPixelFormat.Format24bppRgb => PixelFormats.Bgr24,
+            KnownPixelFormat.Format32bppRgb => PixelFormats.Bgr32,
+            KnownPixelFormat.Format32bppArgb => PixelFormats.Bgra32,
+            KnownPixelFormat.Format32bppPArgb => PixelFormats.Pbgra32,
+            KnownPixelFormat.Format48bppRgb => PixelFormats.Rgb48,
+            KnownPixelFormat.Format64bppArgb => PixelFormats.Rgba64,
+            KnownPixelFormat.Format64bppPArgb => PixelFormats.Prgba64,
+            _ => PixelFormats.Default
+        };
+
         #endregion
 
         #region Internal Methods
@@ -134,7 +158,7 @@ namespace KGySoft.Drawing.Wpf
                 : pixelFormat == PixelFormats.Indexed4 ? Palette.SystemDefault4BppPalette()
                 : pixelFormat == PixelFormats.Indexed8 ? Palette.SystemDefault8BppPalette()
                 : null;
-            return result == null ? null : new BitmapPalette(result.GetEntries().Select(c => c.ToMediaColor()).ToArray());
+            return result.ToBitmapPalette();
         }
 
         #endregion

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataRowBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
         #region Public Properties
 
         [AllowNull]public IBitmapData BitmapData { get; internal set; }
-        public int Index { get; internal set; }
+        public int Index { get; set; }
         public int Width => BitmapData.Width;
         public int Size => BitmapData.RowSize;
 
@@ -75,6 +75,13 @@ namespace KGySoft.Drawing.Imaging
         {
             // ReSharper disable once NotResolvedInText
             throw new ArgumentOutOfRangeException("x", PublicResources.ArgumentOutOfRange);
+        }
+
+        [MethodImpl(MethodImplOptions.NoInlining)]
+        private static void ThrowYOutOfRange()
+        {
+            // ReSharper disable once NotResolvedInText
+            throw new ArgumentOutOfRangeException("y", PublicResources.ArgumentOutOfRange);
         }
 
         #endregion
@@ -123,13 +130,28 @@ namespace KGySoft.Drawing.Imaging
             DoWriteRaw(x, data);
         }
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public virtual bool MoveNextRow()
+        public bool MoveNextRow()
         {
             if (Index == BitmapData.Height - 1)
                 return false;
             Index += 1;
+            DoMoveToIndex();
             return true;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void MoveToRow(int y)
+        {
+            if (y >= (uint)BitmapData.Height)
+                ThrowYOutOfRange();
+            DoMoveToRow(y);
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public void DoMoveToRow(int y)
+        {
+            Index = y;
+            DoMoveToIndex();
         }
 
         public abstract Color32 DoGetColor32(int x);
@@ -144,6 +166,12 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public virtual void DoSetColor32Premultiplied(int x, Color32 c) => DoSetColor32(x, c.ToStraight());
+
+        #endregion
+
+        #region Protected Methods
+
+        protected abstract void DoMoveToIndex();
 
         #endregion
 

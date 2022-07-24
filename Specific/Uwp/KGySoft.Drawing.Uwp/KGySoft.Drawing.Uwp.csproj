@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_Extensions\ReadableBitmapDataExtensions.cs" />
     <Compile Include="_Extensions\WriteableBitmapExtensions.cs" />
     <Compile Include="__doc\NamespaceDoc.cs" />
     <EmbeddedResource Include="Properties\KGySoft.Drawing.Uwp.rd.xml" />
@@ -48,7 +49,7 @@
       <Version>6.2.13</Version>
     </PackageReference>
     <PackageReference Include="KGySoft.Drawing.Core">
-      <Version>7.0.0-preview.1</Version>
+      <Version>7.0.0-preview.2</Version>
     </PackageReference>
   </ItemGroup>
   <!--Debug-only references-->

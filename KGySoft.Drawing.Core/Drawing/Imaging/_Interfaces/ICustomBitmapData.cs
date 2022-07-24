@@ -27,7 +27,7 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         /// <summary>
-        /// Gets a factory to create a compatible bitmap data of 1x1 size that can be used for quantizers.
+        /// Gets a factory to create a compatible bitmap data of the specified size that can be used by quantizers.
         /// </summary>
         Func<Size, IBitmapDataInternal>  CreateCompatibleBitmapDataFactory { get; }
 

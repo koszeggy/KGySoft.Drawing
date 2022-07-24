@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -54,7 +55,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public int RowSize => wrapped.RowSize;
             public Color32 BackColor => wrapped.BackColor;
             public byte AlphaThreshold => wrapped.AlphaThreshold;
-            public IReadableBitmapDataRow FirstRow => wrapped.FirstRow;
+            public IReadableBitmapDataRowMovable FirstRow => wrapped.FirstRow;
             public bool IsDisposed => wrapped.IsDisposed;
 
             #endregion
@@ -77,6 +78,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             public void Dispose() => wrapped.Dispose();
             public Color GetPixel(int x, int y) => wrapped.GetPixel(x, y);
+            public Color32 GetColor32(int x, int y) => wrapped.GetColor32(x, y);
+            public IReadableBitmapDataRowMovable GetMovableRow(int y) => wrapped.GetMovableRow(y);
 
             #endregion
         }
@@ -226,7 +229,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = GetInfoIcon256().Clone(pixelFormat);
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size, pixelFormat);
             source.CopyTo(targetFull);
             AssertAreEqual(source, targetFull);
 
@@ -244,8 +247,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = GetInfoIcon256();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize(), pixelFormat);
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size, pixelFormat);
             source.CopyTo(targetFull);
+            SaveBitmapData($"{pixelFormat} target", targetFull); // tODO: remove
 
             using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
             source.CopyTo(targetClipped, rect, Point.Empty);
@@ -262,7 +266,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             var rect = new Rectangle(128, 128, 128, 128);
             using var source = GetInfoIcon256();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.GetSize());
+            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size);
             var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
             source.CopyTo(targetFull, Point.Empty, quantizer);
 
@@ -417,7 +421,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             icon16.DrawInto(target, targetRect, scalingMode);
 
             // shrink single bit alpha source
-            targetRect = new Rectangle(Point.Empty, target.GetSize());
+            targetRect = new Rectangle(Point.Empty, target.Size);
             targetRect.Inflate(-32, -32);
             icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
                 .DrawInto(target, targetRect, scalingMode);
@@ -467,7 +471,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 icon16.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
                 // shrink single bit alpha source
-                targetRect = new Rectangle(Point.Empty, target.GetSize());
+                targetRect = new Rectangle(Point.Empty, target.Size);
                 targetRect.Inflate(-32, -32);
                 icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
                     .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
@@ -515,10 +519,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 source.BitmapData.Clear(color);
 
-                IReadableBitmapDataRow row = source.BitmapData.FirstRow;
+                IReadableBitmapDataRowMovable row = source.BitmapData.FirstRow;
                 var expected = color;
-                if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha)
-                    expected = expected.BlendWithBackground(default);
+                if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha && expected.A != Byte.MaxValue)
+                    expected = expected.BlendWithBackground(Color32.Black);
                 do
                 {
                     for (int x = 0; x < source.BitmapData.Width; x++)

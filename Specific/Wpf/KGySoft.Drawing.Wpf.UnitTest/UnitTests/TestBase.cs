@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
     {
         #region Properties
 
-        protected static bool SaveToFile => true;
+        protected static bool SaveToFile => false;
 
         #endregion
 
@@ -80,11 +80,10 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
             using var source = reference.GetReadableBitmapData();
             using var target = check.GetReadableBitmapData();
-            Assert.AreEqual(source.Width, target.Width);
-            Assert.AreEqual(source.Height, target.Height);
+            Assert.AreEqual(source.Size, target.Size);
 
-            IReadableBitmapDataRow rowSrc = source.FirstRow;
-            IReadableBitmapDataRow rowDst = target.FirstRow;
+            IReadableBitmapDataRowMovable rowSrc = source.FirstRow;
+            IReadableBitmapDataRowMovable rowDst = target.FirstRow;
 
             do
             {

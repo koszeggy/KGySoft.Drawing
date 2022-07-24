@@ -195,6 +195,7 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 BackColor => quantizer.backColor;
             public byte AlphaThreshold => quantizer.alphaThreshold;
+            public bool IsGrayscale => Palette?.IsGrayscale ?? false;
 
             #endregion
 
@@ -229,7 +230,7 @@ namespace KGySoft.Drawing.Imaging
                 using var alg = new TAlg();
                 alg.Initialize(quantizer.maxColors, quantizer.bitLevel, source);
                 int width = source.Width;
-                IReadableBitmapDataRow row = source.FirstRow;
+                IReadableBitmapDataRowMovable row = source.FirstRow;
                 context.Progress?.New(DrawingOperation.InitializingQuantizer, source.Height);
                 do
                 {

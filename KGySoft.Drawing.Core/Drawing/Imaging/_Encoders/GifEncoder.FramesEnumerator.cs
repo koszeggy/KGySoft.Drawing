@@ -256,7 +256,7 @@ namespace KGySoft.Drawing.Imaging
 
                 #endregion
 
-                Debug.Assert(previousFrame.GetSize() == deltaFrame.GetSize());
+                Debug.Assert(previousFrame.Size == deltaFrame.Size);
                 Debug.Assert(deltaFrame.SupportsTransparency());
 
                 int transparentIndex = deltaFrame.Palette?.TransparentIndex ?? -1;
@@ -264,8 +264,8 @@ namespace KGySoft.Drawing.Imaging
                 // small width: going with sequential clear
                 if (deltaFrame.Width < parallelThreshold)
                 {
-                    IReadWriteBitmapDataRow rowPrev = previousFrame.FirstRow;
-                    IReadWriteBitmapDataRow rowDelta = deltaFrame.FirstRow;
+                    IReadWriteBitmapDataRowMovable rowPrev = previousFrame.FirstRow;
+                    IReadWriteBitmapDataRowMovable rowDelta = deltaFrame.FirstRow;
 
                     do
                     {
@@ -290,6 +290,7 @@ namespace KGySoft.Drawing.Imaging
                 // parallel clear
                 if (tolerance == 0)
                 {
+                    // TODO: use IBitmapDataInternal and access rows by thread id cache
                     if (transparentIndex >= 0)
                         ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, deltaFrame.Height,
                             y => ProcessRowIndexed(previousFrame[y], deltaFrame[y], transparentIndex));
@@ -307,13 +308,13 @@ namespace KGySoft.Drawing.Imaging
 
             private static bool HasNewTransparentPixel(IReadableBitmapData currentFrame, IReadableBitmapData nextFrame, byte alphaThreshold, out Rectangle region)
             {
-                Debug.Assert(currentFrame.GetSize() == nextFrame.GetSize());
+                Debug.Assert(currentFrame.Size == nextFrame.Size);
                 Debug.Assert(nextFrame.SupportsTransparency());
                 Debug.Assert(alphaThreshold > 0);
-                region = new Rectangle(Point.Empty, currentFrame.GetSize());
+                region = new Rectangle(Point.Empty, currentFrame.Size);
 
-                IReadableBitmapDataRow rowCurrent = currentFrame.FirstRow;
-                IReadableBitmapDataRow rowNext = nextFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowCurrent = currentFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowNext = nextFrame.FirstRow;
                 int width = currentFrame.Width;
 
                 do
@@ -335,8 +336,8 @@ namespace KGySoft.Drawing.Imaging
 
                 for (int y = region.Bottom - 1; y >= region.Top; y--)
                 {
-                    rowCurrent = currentFrame[y];
-                    rowNext = nextFrame[y];
+                    rowCurrent.MoveToRow(y);
+                    rowNext.MoveToRow(y);
                     for (int x = 0; x < region.Width; x++)
                     {
                         if (rowNext[x].A < alphaThreshold && rowCurrent[x].A >= alphaThreshold)
@@ -352,7 +353,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     for (int y = region.Top; y < region.Bottom; y++)
                     {
-                        if (nextFrame[y][x].A < alphaThreshold && currentFrame[y][x].A >= alphaThreshold)
+                        if (nextFrame.GetColor32(x, y).A < alphaThreshold && currentFrame.GetColor32(x, y).A >= alphaThreshold)
                             goto continueRight;
                     }
 
@@ -366,7 +367,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     for (int y = region.Top; y < region.Bottom; y++)
                     {
-                        if (nextFrame[y][x].A < alphaThreshold && currentFrame[y][x].A >= alphaThreshold)
+                        if (nextFrame.GetColor32(x, y).A < alphaThreshold && currentFrame.GetColor32(x, y).A >= alphaThreshold)
                             return true;
                     }
 
@@ -412,7 +413,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            if (rowPrev[x] != rowCurrent[x].BlendWithBackground(backColor))
+                            if (rowPrev[x] != rowCurrent[x].Blend(backColor))
                                 return false;
                         }
                     }
@@ -434,7 +435,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (bitmapDataPrev[y][x] != bitmapDataCurrent[y][x])
+                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y))
                                 return false;
                         }
                     }
@@ -442,7 +443,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (!bitmapDataPrev[y][x].TolerantEquals(bitmapDataCurrent[y][x], tolerance))
+                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance))
                                 return false;
                         }
                     }
@@ -456,7 +457,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (bitmapDataPrev[y][x] != bitmapDataCurrent[y][x].BlendWithBackground(backColor))
+                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).Blend(backColor))
                                 return false;
                         }
                     }
@@ -464,7 +465,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (!bitmapDataPrev[y][x].TolerantEquals(bitmapDataCurrent[y][x], tolerance, backColor))
+                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance, backColor))
                                 return false;
                         }
                     }
@@ -474,13 +475,13 @@ namespace KGySoft.Drawing.Imaging
 
                 #endregion
 
-                Debug.Assert(previousFrame.GetSize() == currentFrame.GetSize());
+                Debug.Assert(previousFrame.Size == currentFrame.Size);
 
                 bool hasAlpha = currentFrame.HasAlpha();
-                var region = new Rectangle(Point.Empty, currentFrame.GetSize());
+                var region = new Rectangle(Point.Empty, currentFrame.Size);
 
-                IReadableBitmapDataRow rowPrev = previousFrame.FirstRow;
-                IReadableBitmapDataRow rowCurrent = currentFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowPrev = previousFrame.FirstRow;
+                IReadableBitmapDataRowMovable rowCurrent = currentFrame.FirstRow;
 
                 // 1.) Top
                 do
@@ -502,8 +503,10 @@ namespace KGySoft.Drawing.Imaging
                 // 2.) Bottom
                 for (int y = region.Bottom - 1; y >= region.Top; y--)
                 {
-                    if (!hasAlpha && !RowEquals(previousFrame[y], currentFrame[y], tolerance)
-                        || hasAlpha && !RowEqualsWithAlpha(previousFrame[y], currentFrame[y], tolerance, backColor))
+                    rowPrev.MoveToRow(y);
+                    rowCurrent.MoveToRow(y);
+                    if (!hasAlpha && !RowEquals(rowPrev, rowCurrent, tolerance)
+                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor))
                     {
                         break;
                     }
@@ -583,7 +586,7 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentException(Res.GifEncoderAnimationContainsNoFrames);
                 }
 
-                logicalScreenSize = config.Size ?? nextUnprocessedInputFrame.GetSize();
+                logicalScreenSize = config.Size ?? nextUnprocessedInputFrame!.Size;
 
                 // this must succeed now because we could move to the first frame, unless a cancellation request occurred
                 if (!MoveNextGeneratedFrame())
@@ -758,10 +761,10 @@ namespace KGySoft.Drawing.Imaging
                 if (!ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
                     preparedFrame.BitmapData.Dispose();
 
-                if (contentArea.Size != generatedFrame.GetSize())
+                if (contentArea.Size != generatedFrame!.Size)
                 {
-                    Debug.Assert(generatedFrame.GetSize() == logicalScreenSize);
-                    generatedFrame = generatedFrame!.Clip(contentArea, true);
+                    Debug.Assert(generatedFrame.Size == logicalScreenSize);
+                    generatedFrame = generatedFrame.Clip(contentArea, true);
                 }
 
                 nextGeneratedFrame = (generatedFrame, contentArea.Location, preparedFrame.Delay, disposeMethod);
@@ -1033,7 +1036,7 @@ namespace KGySoft.Drawing.Imaging
                 IQuantizer? preparedQuantizer = !canUseDelta && (config.Quantizer != null || inputFrame.PixelFormat.AsKnownPixelFormatInternal != preparedPixelFormat) ? quantizer : null;
                 IDitherer? preparedDitherer = preparedQuantizer == null ? null : config.Ditherer;
 
-                Size inputSize = inputFrame.GetSize();
+                Size inputSize = inputFrame.Size;
                 if (inputSize == logicalScreenSize)
                     preparedFrame = inputFrame.DoClone(asyncContext, preparedPixelFormat, preparedQuantizer, preparedDitherer);
                 else

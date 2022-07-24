@@ -55,6 +55,7 @@ namespace KGySoft.Drawing
             // Filtering can be done by reflecting NUnit.Framework.Internal.Filters.TestNameFilter,
             // or just calling the method to debug directly
             Console.WriteLine(FrameworkVersion);
+
             var runner = new NUnitTestAssemblyRunner(new DefaultTestAssemblyBuilder());
             runner.Load(typeof(Program).Assembly, new Dictionary<string, object>());
             Console.WriteLine("Executing tests...");

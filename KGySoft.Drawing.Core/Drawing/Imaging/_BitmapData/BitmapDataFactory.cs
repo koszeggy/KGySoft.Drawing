@@ -1003,7 +1003,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static IReadWriteBitmapData? EndLoad(IAsyncResult asyncResult)
-            => AsyncHelper.EndOperation<IReadWriteBitmapData>(asyncResult, nameof(BeginLoad));
+            => AsyncHelper.EndOperation<IReadWriteBitmapData?>(asyncResult, nameof(BeginLoad));
 
 #if !NET35
         /// <summary>
@@ -1037,28 +1037,25 @@ namespace KGySoft.Drawing.Imaging
 
         #region Managed
 
-        /// <summary>
-        /// Creates a managed <see cref="IBitmapDataInternal"/> with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.
-        /// </summary>
         internal static IBitmapDataInternal CreateManagedBitmapData(Size size, KnownPixelFormat pixelFormat = KnownPixelFormat.Format32bppArgb, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
         {
             Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             return pixelFormat switch
             {
-                KnownPixelFormat.Format32bppArgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32Argb>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format32bppPArgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32PArgb>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format32bppRgb => new ManagedBitmapData<Color32, ManagedBitmapDataRow32Rgb>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData<Color24, ManagedBitmapDataRow24Rgb>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format8bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow8I>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette),
-                KnownPixelFormat.Format4bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow4I>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette),
-                KnownPixelFormat.Format1bppIndexed => new ManagedBitmapData<byte, ManagedBitmapDataRow1I>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette),
-                KnownPixelFormat.Format64bppArgb => new ManagedBitmapData<Color64, ManagedBitmapDataRow64Argb>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format64bppPArgb => new ManagedBitmapData<Color64, ManagedBitmapDataRow64PArgb>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData<Color48, ManagedBitmapDataRow48Rgb>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData<Color16Rgb565, ManagedBitmapDataRow16Rgb565>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData<Color16Rgb555, ManagedBitmapDataRow16Rgb555>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData<Color16Argb1555, ManagedBitmapDataRow16Argb1555>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
-                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData<Color16Gray, ManagedBitmapDataRow16Gray>(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold),
+                KnownPixelFormat.Format32bppArgb => new ManagedBitmapData32Argb(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format32bppPArgb => new ManagedBitmapData32PArgb(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format32bppRgb => new ManagedBitmapData32Rgb(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format8bppIndexed => new ManagedBitmapData8I(size, backColor, alphaThreshold, palette),
+                KnownPixelFormat.Format4bppIndexed => new ManagedBitmapData4I(size, backColor, alphaThreshold, palette),
+                KnownPixelFormat.Format1bppIndexed => new ManagedBitmapData1I(size, backColor, alphaThreshold, palette),
+                KnownPixelFormat.Format64bppArgb => new ManagedBitmapData64Argb(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format64bppPArgb => new ManagedBitmapData64PArgb(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555(size, backColor, alphaThreshold),
+                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray(size, backColor, alphaThreshold),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1074,47 +1071,47 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat switch
             {
                 KnownPixelFormat.Format32bppArgb => buffer is Array2D<Color32> buf
-                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32Argb>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32Argb<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData32Argb(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData32Argb<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format32bppPArgb => buffer is Array2D<Color32> buf
-                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32PArgb>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32PArgb<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData32PArgb(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData32PArgb<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format32bppRgb => buffer is Array2D<Color32> buf
-                    ? new ManagedBitmapDataWrapper<Color32, ManagedBitmapDataRow32Rgb>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow32Rgb<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData32Rgb(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData32Rgb<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format24bppRgb => buffer is Array2D<Color24> buf
-                    ? new ManagedBitmapDataWrapper<Color24, ManagedBitmapDataRow24Rgb>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow24Rgb<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData24Rgb(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData24Rgb<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format8bppIndexed => buffer is Array2D<byte> buf
-                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow8I>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow8I<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                    ? new ManagedBitmapData8I(buf, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+                    : new ManagedBitmapData8I<T>(buffer, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
                 KnownPixelFormat.Format4bppIndexed => buffer is Array2D<byte> buf
-                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow4I>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow4I<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                    ? new ManagedBitmapData4I(buf, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+                    : new ManagedBitmapData4I<T>(buffer, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
                 KnownPixelFormat.Format1bppIndexed => buffer is Array2D<byte> buf
-                    ? new ManagedBitmapDataWrapper<byte, ManagedBitmapDataRow1I>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow1I<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                    ? new ManagedBitmapData1I(buf, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+                    : new ManagedBitmapData1I<T>(buffer, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
                 KnownPixelFormat.Format64bppArgb => buffer is Array2D<Color64> buf
-                    ? new ManagedBitmapDataWrapper<Color64, ManagedBitmapDataRow64Argb>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow64Argb<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData64Argb(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData64Argb<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format64bppPArgb => buffer is Array2D<Color64> buf
-                    ? new ManagedBitmapDataWrapper<Color64, ManagedBitmapDataRow64PArgb>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow64PArgb<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData64PArgb(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData64PArgb<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format48bppRgb => buffer is Array2D<Color48> buf
-                    ? new ManagedBitmapDataWrapper<Color48, ManagedBitmapDataRow48Rgb>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow48Rgb<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData48Rgb(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData48Rgb<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format16bppRgb565 => buffer is Array2D<Color16Rgb565> buf
-                    ? new ManagedBitmapDataWrapper<Color16Rgb565, ManagedBitmapDataRow16Rgb565>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Rgb565<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData16Rgb565(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData16Rgb565<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format16bppRgb555 => buffer is Array2D<Color16Rgb555> buf
-                    ? new ManagedBitmapDataWrapper<Color16Rgb555, ManagedBitmapDataRow16Rgb555>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Rgb555<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData16Rgb555(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData16Rgb555<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format16bppArgb1555 => buffer is Array2D<Color16Argb1555> buf
-                    ? new ManagedBitmapDataWrapper<Color16Argb1555, ManagedBitmapDataRow16Argb1555>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Argb1555<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData16Argb1555(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData16Argb1555<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 KnownPixelFormat.Format16bppGrayScale => buffer is Array2D<Color16Gray> buf
-                    ? new ManagedBitmapDataWrapper<Color16Gray, ManagedBitmapDataRow16Gray>(buf, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback)
-                    : new ManagedBitmapDataWrapper<T, ManagedBitmapDataRow16Gray<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                    ? new ManagedBitmapData16Gray(buf, pixelWidth, backColor, alphaThreshold, disposeCallback)
+                    : new ManagedBitmapData16Gray<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1145,20 +1142,20 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(palette == null || backColor.ToOpaque() == palette.BackColor && alphaThreshold == palette.AlphaThreshold);
             return pixelFormat switch
             {
-                KnownPixelFormat.Format32bppArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32Argb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format32bppPArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32PArgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format32bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow32Rgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format24bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow24Rgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format8bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow8I2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                KnownPixelFormat.Format4bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow4I2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                KnownPixelFormat.Format1bppIndexed => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow1I2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                KnownPixelFormat.Format64bppArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow64Argb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format64bppPArgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow64PArgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format48bppRgb => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow48Rgb2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Rgb565_2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Rgb555_2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Argb1555_2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapDataWrapper2D<T, ManagedBitmapDataRow16Gray2D<T>>(buffer, pixelWidth, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
+                KnownPixelFormat.Format32bppArgb => new ManagedBitmapData32Argb2D<T>(buffer, pixelWidth,  backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format32bppPArgb => new ManagedBitmapData32PArgb2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format32bppRgb => new ManagedBitmapData32Rgb2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format24bppRgb => new ManagedBitmapData24Rgb2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format8bppIndexed => new ManagedBitmapData8I2D<T>(buffer, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format4bppIndexed => new ManagedBitmapData4I2D<T>(buffer, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format1bppIndexed => new ManagedBitmapData1I2D<T>(buffer, pixelWidth, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format64bppArgb => new ManagedBitmapData64Argb2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format64bppPArgb => new ManagedBitmapData64PArgb2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format48bppRgb => new ManagedBitmapData48Rgb2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppRgb565 => new ManagedBitmapData16Rgb565_2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppRgb555 => new ManagedBitmapData16Rgb555_2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppArgb1555 => new ManagedBitmapData16Argb1555_2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppGrayScale => new ManagedBitmapData16Gray2D<T>(buffer, pixelWidth, backColor, alphaThreshold, disposeCallback),
                 _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat))
             };
         }
@@ -1191,20 +1188,20 @@ namespace KGySoft.Drawing.Imaging
 
             return pixelFormat switch
             {
-                KnownPixelFormat.Format32bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Argb>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format32bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32PArgb>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format32bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow32Rgb>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format24bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow24Rgb>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format8bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow8I>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                KnownPixelFormat.Format4bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow4I>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                KnownPixelFormat.Format1bppIndexed => new UnmanagedBitmapData<UnmanagedBitmapDataRow1I>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
-                KnownPixelFormat.Format64bppArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64Argb>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format64bppPArgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow64PArgb>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format48bppRgb => new UnmanagedBitmapData<UnmanagedBitmapDataRow48Rgb>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppRgb565 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb565>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppRgb555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Rgb555>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Argb1555>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, null, null, disposeCallback),
-                KnownPixelFormat.Format16bppGrayScale => new UnmanagedBitmapData<UnmanagedBitmapDataRow16Gray>(buffer, size, stride, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, null, disposeCallback),
+                KnownPixelFormat.Format32bppArgb => new UnmanagedBitmapData32Argb(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format32bppPArgb => new UnmanagedBitmapData32PArgb(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format32bppRgb => new UnmanagedBitmapData32Rgb(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format24bppRgb => new UnmanagedBitmapData24Rgb(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format8bppIndexed => new UnmanagedBitmapData8I(buffer, size, stride, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format4bppIndexed => new UnmanagedBitmapData4I(buffer, size, stride, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format1bppIndexed => new UnmanagedBitmapData1I(buffer, size, stride, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback),
+                KnownPixelFormat.Format64bppArgb => new UnmanagedBitmapData64Argb(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format64bppPArgb => new UnmanagedBitmapData64PArgb(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format48bppRgb => new UnmanagedBitmapData48Rgb(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppRgb565 => new UnmanagedBitmapData16Rgb565(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppRgb555 => new UnmanagedBitmapData16Rgb555(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppArgb1555 => new UnmanagedBitmapData16Argb1555(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
+                KnownPixelFormat.Format16bppGrayScale => new UnmanagedBitmapData16Gray(buffer, size, stride, backColor, alphaThreshold, disposeCallback),
                 _ => throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"))
             };
         }
@@ -1254,10 +1251,7 @@ namespace KGySoft.Drawing.Imaging
 
             try
             {
-                if ((bitmapData is ManagedBitmapDataBase { IsCustomPixelFormat: false } or UnmanagedBitmapDataBase { IsCustomPixelFormat: false }
-                        // TODO: Add this in next major version. Now it can't be used because native wide formats also return valid formats even though they are custom ones
-                        //|| bitmapData.PixelFormat == pixelFormat
-                        )
+                if ((bitmapData is ManagedBitmapDataBase { IsCustomPixelFormat: false } or UnmanagedBitmapDataBase { IsCustomPixelFormat: false })
                     && bitmapData.RowSize >= pixelFormat.GetByteWidth(rect.Right) && pixelFormat.IsAtByteBoundary(rect.Left))
                 {
                     DoSaveRaw(context, bitmapData, pixelFormat, rect, writer);
@@ -1477,7 +1471,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static unsafe void DoSaveCustom(IAsyncContext context, IBitmapDataInternal bitmapData, KnownPixelFormat pixelFormat, Rectangle rect, BinaryWriter writer)
         {
-            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
 
             if (pixelFormat.ToBitsPerPixel() <= 8)
             {
@@ -1549,7 +1543,7 @@ namespace KGySoft.Drawing.Imaging
             var buffer = new byte[byteLength];
             using IBitmapDataInternal tempData = CreateManagedBitmapData(new Array2D<byte>(buffer, 1, byteLength), 1, pixelFormat, bitmapData.BackColor, bitmapData.AlphaThreshold, bitmapData.Palette);
 #endif
-            IBitmapDataRowInternal tempRow = tempData.DoGetRow(0);
+            IBitmapDataRowInternal tempRow = tempData.GetRowCached(0);
             for (int y = 0; y < rect.Height; y++)
             {
                 if (context.IsCancellationRequested)
@@ -1606,7 +1600,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoSaveRawBytes(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
-            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
             for (int y = 0; y < rect.Height; y++)
             {
                 if (context.IsCancellationRequested)
@@ -1622,7 +1616,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoSaveRawShorts(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
-            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
             for (int y = 0; y < rect.Height; y++)
             {
                 if (context.IsCancellationRequested)
@@ -1638,7 +1632,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoSaveRawInts(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
-            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
             for (int y = 0; y < rect.Height; y++)
             {
                 if (context.IsCancellationRequested)
@@ -1654,7 +1648,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static void DoSaveRawLongs(IAsyncContext context, IBitmapDataInternal bitmapData, Rectangle rect, BinaryWriter writer)
         {
-            IBitmapDataRowInternal row = bitmapData.DoGetRow(rect.Top);
+            IBitmapDataRowInternal row = bitmapData.GetRowCached(rect.Top);
             for (int y = 0; y < rect.Height; y++)
             {
                 if (context.IsCancellationRequested)
@@ -1704,7 +1698,7 @@ namespace KGySoft.Drawing.Imaging
             bool canceled = false;
             try
             {
-                IBitmapDataRowInternal row = result.DoGetRow(0);
+                IBitmapDataRowInternal row = result.GetRowCached(0);
                 for (int y = 0; y < result.Height; y++)
                 {
                     if (canceled = context.IsCancellationRequested)

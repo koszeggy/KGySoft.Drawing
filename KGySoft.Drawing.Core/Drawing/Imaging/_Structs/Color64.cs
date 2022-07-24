@@ -17,6 +17,9 @@
 
 using System;
 using System.Collections.Generic;
+#if NET5_0_OR_GREATER
+using System.Runtime.CompilerServices;
+#endif
 using System.Runtime.InteropServices;
 
 #endregion
@@ -75,14 +78,24 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal Color64(ulong argb)
-            : this() // so the compiler does not complain about not initializing ARGB fields
+#if !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             value = argb;
         }
 
         internal Color64(ushort a, ushort r, ushort g, ushort b)
+#if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             B = b;
             G = g;
             R = r;
@@ -90,8 +103,13 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal Color64(ushort r, ushort g, ushort b)
+#if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             B = b;
             G = g;
             R = r;
@@ -99,8 +117,13 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal Color64(Color32 c)
+#if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
+#endif
         {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
             B = (ushort)((c.B << 8) | c.B);
             G = (ushort)((c.G << 8) | c.G);
             R = (ushort)((c.R << 8) | c.R);

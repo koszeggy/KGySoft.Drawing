@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                IReadableBitmapData initSource = targetRectangle.Size == target.GetSize()
+                IReadableBitmapData initSource = targetRectangle.Size == target.Size
                     ? target
                     : target.Clip(targetRectangle);
 
@@ -151,8 +151,8 @@ namespace KGySoft.Drawing.Imaging
                     float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
                     float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
 
-                    IBitmapDataRowInternal rowSrc = source.DoGetRow((int)(y * heightFactor + sourceRectangle.Y));
-                    IBitmapDataRowInternal rowDst = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
 
                     int targetLeft = targetRectangle.Left;
                     int sourceLeft = sourceRectangle.Left;
@@ -201,8 +201,8 @@ namespace KGySoft.Drawing.Imaging
                     float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
                     float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
 
-                    IBitmapDataRowInternal rowSrc = source.DoGetRow((int)(y * heightFactor + sourceRectangle.Y));
-                    IBitmapDataRowInternal rowDst = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
 
                     int targetLeft = targetRectangle.Left;
                     int sourceLeft = sourceRectangle.Left;
@@ -270,8 +270,8 @@ namespace KGySoft.Drawing.Imaging
                     float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
 
                     IQuantizingSession session = quantizingSession;
-                    IBitmapDataRowInternal rowSrc = source.DoGetRow((int)(y * heightFactor + sourceRectangle.Y));
-                    IBitmapDataRowInternal rowDst = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
 
                     int targetLeft = targetRectangle.Left;
                     int sourceLeft = sourceRectangle.Left;
@@ -346,8 +346,8 @@ namespace KGySoft.Drawing.Imaging
                     float heightFactor = sourceRectangle.Height / (float)targetRectangle.Height;
 
                     IDitheringSession session = ditheringSession;
-                    IBitmapDataRowInternal rowSrc = source.DoGetRow((int)(y * heightFactor + sourceRectangle.Y));
-                    IBitmapDataRowInternal rowDst = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal rowSrc = source.GetRowCached((int)(y * heightFactor + sourceRectangle.Y));
+                    IBitmapDataRowInternal rowDst = target.GetRowCached(y + targetRectangle.Y);
 
                     int targetLeft = targetRectangle.Left;
                     int sourceLeft = sourceRectangle.Left;
@@ -500,7 +500,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                IReadableBitmapData initSource = targetRectangle.Size == target.GetSize()
+                IReadableBitmapData initSource = targetRectangle.Size == target.Size
                     ? target
                     : target.Clip(targetRectangle);
 
@@ -562,7 +562,7 @@ namespace KGySoft.Drawing.Imaging
                 void ProcessRow(int y)
                 {
                     var sourceRowBuffer = new ArraySection<ColorF>(sourceRectangle.Width);
-                    IBitmapDataRowInternal sourceRow = source.DoGetRow(y + sourceRectangle.Top);
+                    IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
 
                     for (int x = 0; x < sourceRectangle.Width; x++)
                         sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow.DoGetColor32Premultiplied(x + sourceRectangle.Left));
@@ -617,7 +617,7 @@ namespace KGySoft.Drawing.Imaging
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
                         Slide();
 
-                    IBitmapDataRowInternal row = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
                     int topLine = kernel.StartIndex - currentWindow.Top;
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
@@ -677,7 +677,7 @@ namespace KGySoft.Drawing.Imaging
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
                         Slide();
 
-                    IBitmapDataRowInternal row = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
                     int topLine = kernel.StartIndex - currentWindow.Top;
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
@@ -727,7 +727,7 @@ namespace KGySoft.Drawing.Imaging
                         Slide();
 
                     IQuantizingSession session = quantizingSession;
-                    IBitmapDataRowInternal row = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
                     int topLine = kernel.StartIndex - currentWindow.Top;
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
@@ -801,7 +801,7 @@ namespace KGySoft.Drawing.Imaging
                         Slide();
 
                     IDitheringSession session = ditheringSession;
-                    IBitmapDataRowInternal row = target.DoGetRow(y + targetRectangle.Y);
+                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
                     int topLine = kernel.StartIndex - currentWindow.Top;
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;

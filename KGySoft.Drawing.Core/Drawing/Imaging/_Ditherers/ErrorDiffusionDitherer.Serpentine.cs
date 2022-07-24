@@ -53,7 +53,7 @@ namespace KGySoft.Drawing.Imaging
                     PrepareNewRow(y);
 
                 // odd row: returning preprocessed result
-                Debug.Assert(origColor == source[y][x]);
+                Debug.Assert(origColor == source.GetColor32(x, y));
                 return preprocessedResults[x];
             }
 

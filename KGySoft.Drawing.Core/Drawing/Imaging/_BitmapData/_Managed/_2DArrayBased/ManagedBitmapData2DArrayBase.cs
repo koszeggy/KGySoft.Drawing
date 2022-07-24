@@ -17,10 +17,9 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 #if NET6_0_OR_GREATER
 using System.Runtime.InteropServices;
-#elif NETCOREAPP3_0_OR_GREATER
-using System.Runtime.CompilerServices;
 #endif
 using System.Security;
 
@@ -28,21 +27,22 @@ using System.Security;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal abstract class ManagedBitmapData2DArrayBase<T> : ManagedBitmapDataBase
+    internal abstract class ManagedBitmapData2DArrayBase<T, TRow> : ManagedBitmapDataBase
         where T : unmanaged
+        where TRow : ManagedBitmapDataRow2DBase<T>, new()
     {
         #region Properties
 
-        internal T[,] Buffer { get; }
+        protected T[,] Buffer { get; }
 
         #endregion
 
         #region Constructors
 
         [SecuritySafeCritical]
-        protected unsafe ManagedBitmapData2DArrayBase(T[,] buffer, Size size, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+        protected unsafe ManagedBitmapData2DArrayBase(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
+            Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
+            : base(new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
         {
             Buffer = buffer;
             RowSize = buffer.GetLength(1) * sizeof(T);
@@ -51,6 +51,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+
+        #region Internal Methods
 
 #if NET6_0_OR_GREATER
         internal sealed override ref byte GetPinnableReference() => ref MemoryMarshal.GetArrayDataReference(Buffer);
@@ -65,6 +67,40 @@ namespace KGySoft.Drawing.Imaging
                 return ref *(byte*)pHead;
         }
 #endif
+
+        #endregion
+
+        #region Protected Methods
+
+        [SecurityCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected ref TPixel GetPixelRef<TPixel>(int rowIndex, int offset)
+            where TPixel : unmanaged
+        {
+#if NET6_0_OR_GREATER
+            return ref Unsafe.Add(ref Unsafe.As<byte, TPixel>(ref Unsafe.Add(ref GetPinnableReference(), rowIndex * RowSize)), offset);
+#elif NETCOREAPP3_0_OR_GREATER
+            // we could use the same as above but under .NET 6 the GetPinnableReference already has an indexed access so it is faster this way
+            return ref Unsafe.Add(ref Unsafe.As<T, TPixel>(ref Buffer[rowIndex, 0]), offset);
+#else
+            unsafe
+            {
+                ref T row = ref Buffer[rowIndex, 0];
+                fixed (T* pRow = &row)
+                    return ref ((TPixel*)pRow)[offset];
+            }
+#endif
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        protected sealed override IBitmapDataRowInternal DoGetRow(int y) => new TRow
+        {
+            Buffer = Buffer,
+            BitmapData = this,
+            Index = y,
+        };
+
+        #endregion
 
         #endregion
     }

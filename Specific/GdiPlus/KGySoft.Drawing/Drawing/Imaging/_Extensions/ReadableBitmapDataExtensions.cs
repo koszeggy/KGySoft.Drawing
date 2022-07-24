@@ -59,7 +59,7 @@ namespace KGySoft.Drawing.Imaging
         /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/>.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
         /// <returns>A <see cref="Bitmap"/> instance that has the same content as the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
@@ -81,7 +81,7 @@ namespace KGySoft.Drawing.Imaging
         /// Begins to convert the specified <paramref name="source"/> to a <see cref="Bitmap"/> asynchronously.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
@@ -115,7 +115,7 @@ namespace KGySoft.Drawing.Imaging
         /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/> asynchronously.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
@@ -173,7 +173,7 @@ namespace KGySoft.Drawing.Imaging
                 if (canceled = context.IsCancellationRequested)
                     return null;
                 using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
-                    source.CopyTo(target, context, new Rectangle(0, 0, source.Width, source.Height), Point.Empty);
+                    source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }
             catch (Exception)

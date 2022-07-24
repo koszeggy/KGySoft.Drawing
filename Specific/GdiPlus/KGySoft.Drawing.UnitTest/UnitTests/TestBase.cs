@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Properties
 
-        private static bool SaveToFile => false;
+        private static bool SaveToFile => true;
 
         #endregion
 
@@ -242,7 +242,7 @@ namespace KGySoft.Drawing.UnitTests
             if (bitmapData.Height < 2)
                 return;
 
-            var row = bitmapData[1];
+            var row = bitmapData.GetMovableRow(1);
             ratio = 255f / bitmapData.Height;
             do
             {
@@ -255,13 +255,12 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false)
         {
-            Assert.AreEqual(source.Width, target.Width);
-            Assert.AreEqual(source.Height, target.Height);
+            Assert.AreEqual(source.Size, target.Size);
             if (!allowDifferentPixelFormats)
                 Assert.AreEqual(source.PixelFormat, target.PixelFormat);
 
-            IReadableBitmapDataRow rowSrc = source.FirstRow;
-            IReadableBitmapDataRow rowDst = target.FirstRow;
+            IReadableBitmapDataRowMovable rowSrc = source.FirstRow;
+            IReadableBitmapDataRowMovable rowDst = target.FirstRow;
 
             do
             {

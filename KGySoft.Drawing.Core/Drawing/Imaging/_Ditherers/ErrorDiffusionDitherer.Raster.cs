@@ -65,8 +65,7 @@ namespace KGySoft.Drawing.Imaging
                 this.ditherer = ditherer;
                 ImageWidth = source.Width;
                 imageHeight = source.Height;
-                // TODO: byBrightness = ditherer.byBrightness ?? quantizer.IsGrayscale; when IQuantizingSessionInternal is removed in next major version change
-                byBrightness = ditherer.byBrightness ?? (quantizer as IQuantizingSessionInternal)?.IsGrayscale ?? quantizer.Palette?.IsGrayscale ?? false;
+                byBrightness = ditherer.byBrightness ?? quantizer.IsGrayscale;
 
                 // Initializing a circular buffer for the diffused errors.
                 // This helps to minimize used memory because it needs only a few lines to be stored.

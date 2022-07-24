@@ -106,7 +106,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 {
                     int diffs = 0;
                     using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
-                    IReadWriteBitmapDataRow row = accessor.FirstRow;
+                    IReadWriteBitmapDataRowMovable row = accessor.FirstRow;
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
@@ -124,7 +124,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 {
                     int diffs = 0;
                     using IReadWriteBitmapData accessor = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
-                    IReadWriteBitmapDataRow row = accessor.FirstRow;
+                    IReadWriteBitmapDataRowMovable row = accessor.FirstRow;
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
@@ -274,7 +274,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 {
                     int diffs = 0;
                     using IReadWriteBitmapData accessor = bmp.GetReadWriteBitmapData();
-                    IReadWriteBitmapDataRow row = accessor.FirstRow;
+                    IReadWriteBitmapDataRowMovable row = accessor.FirstRow;
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
@@ -292,7 +292,7 @@ namespace KGySoft.Drawing.PerformanceTests.Imaging
                 {
                     int diffs = 0;
                     using IReadWriteBitmapData accessor = BitmapDataFactory.CreateBitmapData(size, pixelFormat);
-                    IReadWriteBitmapDataRow row = accessor.FirstRow;
+                    IReadWriteBitmapDataRowMovable row = accessor.FirstRow;
                     do
                     {
                         for (int x = 0; x < size.Width; x++)
