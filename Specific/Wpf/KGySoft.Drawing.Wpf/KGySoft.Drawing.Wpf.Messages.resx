@@ -132,4 +132,7 @@
   <data name="BitmapSource_ExtensionsPaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>
+  <data name="ReadableBitmapDataExtensions_InvalidBitmapDataSize" xml:space="preserve">
+    <value>The bitmap data has an invalid size.</value>
+  </data>
 </root>

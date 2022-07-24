@@ -22,3 +22,6 @@
   + New ToKnownPixelFormat method
   + New IsIndexed method
   + New GetMatchingQuantizer method
+  + New ToPixelFormat method
++ New ReadableBitmapDataExtensions class
+  + New ToWriteableBitmap/BeginToWriteableBitmap/EndToWriteableBitmap/ToWriteableBitmapAsync methods

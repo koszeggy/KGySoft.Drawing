@@ -57,6 +57,9 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>Could not perform a callback on the thread of the source bitmap. It can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</summary>
         internal static string BitmapSourceExtensionsDeadlock => Get("BitmapSourceExtensions_Deadlock");
 
+        /// <summary>The bitmap data has an invalid size.</summary>
+        internal static string ReadableBitmapDataExtensionsInvalidBitmapDataSize => Get("ReadableBitmapDataExtensions_InvalidBitmapDataSize");
+
         #endregion
 
         #region Methods
