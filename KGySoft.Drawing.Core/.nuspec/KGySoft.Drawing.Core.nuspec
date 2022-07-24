@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>7.0.0-internal.1</version>
+    <version>7.0.0-preview.2</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -60,6 +60,9 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
       <group targetFramework="net5.0" >
         <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
       </group>
+      <group targetFramework="net6.0" >
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+      </group>
     </dependencies>
   </metadata>
   <files>
@@ -85,5 +88,7 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <file src="..\bin\Release\netcoreapp3.0\KGySoft.Drawing.Core.xml" target="lib\netcoreapp3.0" />
     <file src="..\bin\Release\net5.0\KGySoft.Drawing.Core.dll" target="lib\net5.0" />
     <file src="..\bin\Release\net5.0\KGySoft.Drawing.Core.xml" target="lib\net5.0" />
+    <file src="..\bin\Release\net6.0\KGySoft.Drawing.Core.dll" target="lib\net6.0" />
+    <file src="..\bin\Release\net6.0\KGySoft.Drawing.Core.xml" target="lib\net6.0" />
   </files>
 </package>
