@@ -1792,7 +1792,7 @@ namespace KGySoft.Drawing.Imaging
                 if (context.IsCancellationRequested)
                     return;
 
-                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone.Size), Point.Empty, null, ditherer);
+                DoCopy(context, tempClone!, bitmapData, new Rectangle(Point.Empty, tempClone!.Size), Point.Empty, null, ditherer);
                 return;
             }
 

@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -88,12 +87,6 @@ namespace KGySoft.Drawing.Imaging
 
         private Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex;
         private Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex;
-
-        /// <summary>
-        /// The cached lastly accessed row. Though may be accessed from multiple threads it is intentionally not volatile
-        /// so it has a bit higher chance that every thread sees the last value was set by itself and no recreation is needed.
-        /// </summary>
-        private Row? lastRow;
 
         #endregion
 

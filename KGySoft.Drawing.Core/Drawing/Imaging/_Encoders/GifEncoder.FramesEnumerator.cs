@@ -586,7 +586,7 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentException(Res.GifEncoderAnimationContainsNoFrames);
                 }
 
-                logicalScreenSize = config.Size ?? nextUnprocessedInputFrame.Size;
+                logicalScreenSize = config.Size ?? nextUnprocessedInputFrame!.Size;
 
                 // this must succeed now because we could move to the first frame, unless a cancellation request occurred
                 if (!MoveNextGeneratedFrame())
@@ -761,10 +761,10 @@ namespace KGySoft.Drawing.Imaging
                 if (!ReferenceEquals(preparedFrame.BitmapData, generatedFrame))
                     preparedFrame.BitmapData.Dispose();
 
-                if (contentArea.Size != generatedFrame.Size)
+                if (contentArea.Size != generatedFrame!.Size)
                 {
                     Debug.Assert(generatedFrame.Size == logicalScreenSize);
-                    generatedFrame = generatedFrame!.Clip(contentArea, true);
+                    generatedFrame = generatedFrame.Clip(contentArea, true);
                 }
 
                 nextGeneratedFrame = (generatedFrame, contentArea.Location, preparedFrame.Delay, disposeMethod);
