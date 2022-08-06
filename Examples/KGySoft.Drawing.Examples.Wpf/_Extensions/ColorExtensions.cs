@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: MainWindow.cs
+//  File: ColorExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -15,23 +15,17 @@
 
 #region Usings
 
-using System.Windows;
-
-using KGySoft.Drawing.Examples.Wpf.ViewModel;
+using System.Windows.Media;
 
 #endregion
 
-namespace KGySoft.Drawing.Examples.Wpf.View
+namespace KGySoft.Drawing.Examples.Wpf
 {
-    public partial class MainWindow : Window
+    internal static class ColorExtensions
     {
-        #region Constructors
+        #region Methods
 
-        public MainWindow()
-        {
-            InitializeComponent();
-            DataContext = new MainViewModel();
-        }
+        internal static System.Drawing.Color ToDrawingColor(this Color color) => System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
 
         #endregion
     }

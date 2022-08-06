@@ -7,7 +7,7 @@
         mc:Ignorable="d"
         d:DataContext="{d:DesignInstance viewModel:MainViewModel, IsDesignTimeCreatable=True}"
         Title="KGy SOFT Drawing WPF Example App"
-        Width="400">
+        Width="400" SizeToContent="Height">
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -18,6 +18,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
@@ -59,7 +60,7 @@
             <TextBlock Grid.Column="0">Back Color:</TextBlock>
             <TextBox Grid.Column="1"
                      Text="{Binding BackColorText, ValidatesOnDataErrors=True}"/>
-            <Rectangle Grid.Column="2" Fill="{Binding BackColor}" />
+            <Rectangle Grid.Column="2" Fill="{Binding BackColorBrush}" />
         </Grid>
 
         <!-- c.) Alpha Threshold -->
@@ -86,9 +87,20 @@
                   SelectedItem="{Binding SelectedDitherer}"/>
 
         <!--Image-->
-        <Image Grid.Row="7" Grid.ColumnSpan="2"
-               Source="{Binding ResultImage, Mode=OneWay}"/>
+        <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+               Source="{Binding DisplayImage, Mode=OneWay}"
+               RenderOptions.BitmapScalingMode="HighQuality"/>
 
+
+        <!--Progress Bar-->
+        <TextBlock Grid.Row="8" Grid.Column="0"
+                   Text="{Binding ProgressText}"
+                   Visibility="{Binding ProgressVisibility}"/>
+        <ProgressBar Grid.Row="8" Grid.Column="1"
+                     IsIndeterminate="{Binding IsProgressIndeterminate}"
+                     Maximum="{Binding ProgressMaxValue}"
+                     Value="{Binding ProgressValue}"
+                     Visibility="{Binding ProgressVisibility}"/>
 
     </Grid>
 </Window>
