@@ -219,7 +219,7 @@ namespace KGySoft.Drawing.Imaging
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
             int inverseAlphaSrc = 255 - src.A;
-            return new Color32((byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
+            return new Color32(dst.A == Byte.MaxValue ? Byte.MaxValue : (byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
                 (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
                 (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
                 (byte)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
