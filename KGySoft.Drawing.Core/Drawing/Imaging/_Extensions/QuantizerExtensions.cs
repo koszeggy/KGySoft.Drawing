@@ -61,9 +61,11 @@ namespace KGySoft.Drawing.Imaging
             if (context.IsCancellationRequested)
                 return null;
             IQuantizingSession result = quantizer.Initialize(source, context);
-            if (result == null && !context.IsCancellationRequested)
+            if (context.IsCancellationRequested)
+                return null;
+            if (result == null)
                 throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
-            return context.IsCancellationRequested ? null : result;
+            return result;
         }
 
         #endregion

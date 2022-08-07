@@ -64,9 +64,11 @@ namespace KGySoft.Drawing.Imaging
             if (context.IsCancellationRequested)
                 return null;
             IDitheringSession result = ditherer.Initialize(source, quantizingSession, context);
-            if (result == null && !context.IsCancellationRequested)
+            if (context.IsCancellationRequested)
+                return null;
+            if (result == null)
                 throw new InvalidOperationException(Res.ImagingDithererInitializeNull);
-            return context.IsCancellationRequested ? null : result;
+            return result;
         }
 
         #endregion
