@@ -15,7 +15,11 @@
 
 #region Usings
 
+#if !(NET35 || NET40)
+using System;
+#else
 using System.Threading;
+#endif
 
 #endregion
 
