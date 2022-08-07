@@ -693,21 +693,40 @@ namespace KGySoft.Drawing.Imaging
 
                 quantizerProperties.Initialized = true;
 
-                // the default Wu quantizer supports transparency and has black back color
-                if (config.Quantizer == null)
+                switch (config.Quantizer)
                 {
-                    quantizerProperties.SupportsTransparency = true;
-                    quantizerProperties.BackColor = Color32.Black;
-                    quantizerProperties.AlphaThreshold = 128;
-                    return true;
+                    case null:
+                        // the default Wu quantizer supports transparency and has black back color
+                        quantizerProperties.SupportsTransparency = true;
+                        quantizerProperties.BackColor = Color32.Black;
+                        quantizerProperties.AlphaThreshold = 128;
+                        return true;
+
+                    case PredefinedColorsQuantizer { Palette: Palette palette }:
+                        // predefined quantizer: due to possible custom functions relying on it without actual quantizing test only if there is a palette
+                        quantizerProperties.BackColor = palette.BackColor;
+                        quantizerProperties.SupportsTransparency = palette.HasTransparent && palette.AlphaThreshold > 0;
+                        quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? palette.AlphaThreshold : (byte)0;
+                        return quantizerProperties.SupportsTransparency;
+
+                    case OptimizedPaletteQuantizer optimized:
+                        // optimized quantizer always supports transparency if the threshold is nonzero
+                        quantizerProperties.BackColor = optimized.BackColor;
+                        quantizerProperties.AlphaThreshold = optimized.AlphaThreshold;
+                        quantizerProperties.SupportsTransparency = optimized.AlphaThreshold > 0;
+                        return quantizerProperties.SupportsTransparency;
+
+                    default:
+                        // we have to test the quantizer with a single pixel
+                        using (IQuantizingSession session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))
+                        {
+                            quantizerProperties.BackColor = session.BackColor;
+                            quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
+                            quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
+                            return quantizerProperties.SupportsTransparency;
+                        }
                 }
 
-                // we have to test the quantizer with a single pixel
-                using IQuantizingSession session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default));
-                quantizerProperties.BackColor = session.BackColor;
-                quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
-                quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
-                return quantizerProperties.SupportsTransparency;
             }
 
             private bool CanUseDeltaByClipping() => config.AllowDeltaFrames && config.AllowClippedFrames;

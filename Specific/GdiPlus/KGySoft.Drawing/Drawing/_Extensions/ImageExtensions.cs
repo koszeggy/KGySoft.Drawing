@@ -718,7 +718,7 @@ namespace KGySoft.Drawing
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
-        public static Bitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap>(asyncResult, nameof(BeginConvertPixelFormat));
+        public static Bitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap?>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
 
@@ -858,7 +858,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this Image source, Bitmap target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, quantizer, ditherer);
 
         /// <summary>
@@ -884,7 +884,7 @@ namespace KGySoft.Drawing
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         public static void DrawInto(this Image source, Bitmap target, Point targetLocation, IDitherer? ditherer)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetLocation, null, ditherer);
 
         /// <summary>
@@ -1017,7 +1017,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IQuantizer? quantizer = null, IDitherer? ditherer = null, ScalingMode scalingMode = ScalingMode.Auto)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, quantizer, ditherer, scalingMode);
 
         /// <summary>
@@ -1046,7 +1046,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, IDitherer? ditherer, ScalingMode scalingMode = ScalingMode.Auto)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, null, ditherer, scalingMode);
 
         /// <summary>
@@ -1072,7 +1072,7 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentNullException"><paramref name="source"/> or <paramref name="target"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="scalingMode"/> has an unsupported value.</exception>
         public static void DrawInto(this Image source, Bitmap target, Rectangle targetRectangle, ScalingMode scalingMode)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException before throwing ArgumentNullException
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException before throwing ArgumentNullException
             => DrawInto(source, target, new Rectangle(Point.Empty, source?.Size ?? default), targetRectangle, null, null, scalingMode);
 
         /// <summary>
@@ -2290,7 +2290,7 @@ namespace KGySoft.Drawing
 
             try
             {
-                Color[]? paletteEntries = null;
+                Color[]? sourcePaletteToApply = null;
                 if (quantizer == null)
                 {
                     // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
@@ -2300,13 +2300,13 @@ namespace KGySoft.Drawing
                     // here we need to pick a quantizer for the dithering
                     int bpp = newPixelFormat.ToBitsPerPixel();
 
-                    paletteEntries = bmp.Palette.Entries;
-                    if (bpp <= 8 && paletteEntries.Length > 0 && paletteEntries.Length <= (1 << bpp))
-                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteEntries);
+                    sourcePaletteToApply = bmp.Palette.Entries;
+                    if (bpp <= 8 && sourcePaletteToApply.Length > 0 && sourcePaletteToApply.Length <= (1 << bpp))
+                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(sourcePaletteToApply);
                     else
                     {
                         quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat.ToKnownPixelFormatInternal());
-                        paletteEntries = null;
+                        sourcePaletteToApply = null;
                     }
                 }
 
@@ -2315,35 +2315,59 @@ namespace KGySoft.Drawing
                 result = new Bitmap(image.Width, image.Height, newPixelFormat);
                 using IReadableBitmapData source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
 
-                // We explicitly initialize the quantizer just to determine the palette colors for the result Bitmap.
-                context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                Palette? palette = null;
+                Palette? paletteByQuantizer = null;
                 Color32 backColor;
                 byte alphaThreshold;
-                using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
+
+                switch (quantizer)
                 {
-                    if (canceled = context.IsCancellationRequested)
-                        return null;
-                    if (quantizingSession == null)
-                        throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
+                    // shortcut for predefined quantizers: we can extract everything
+                    case PredefinedColorsQuantizer predefinedColorsQuantizer:
+                        backColor = predefinedColorsQuantizer.BackColor;
+                        alphaThreshold = predefinedColorsQuantizer.AlphaThreshold;
+                        paletteByQuantizer = predefinedColorsQuantizer.Palette;
+                        break;
+
+                    // optimized quantizer: shortcut if we don't need the palette to initialize the result
+                    case OptimizedPaletteQuantizer optimizedPaletteQuantizer when !newPixelFormat.IsIndexed():
+                        backColor = optimizedPaletteQuantizer.BackColor;
+                        alphaThreshold = optimizedPaletteQuantizer.AlphaThreshold;
+                        break;
                     
-                    // validating and initializing palette
-                    if (newPixelFormat.IsIndexed())
-                        InitPalette(newPixelFormat, bmp, result, paletteEntries ?? (palette = quantizingSession.Palette)?.GetEntries().Select(c => c.ToColor()).ToArray());
-                    backColor = quantizingSession.BackColor;
-                    alphaThreshold = quantizingSession.AlphaThreshold;
+                    // we explicitly initialize the quantizer just to determine the back color, alpha threshold and possible palette for the result
+                    default:
+                        context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                        using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
+                        {
+                            if (canceled = context.IsCancellationRequested)
+                                return null;
+                            if (quantizingSession == null)
+                                throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
+
+                            Debug.Assert(sourcePaletteToApply == null);
+                            paletteByQuantizer = quantizingSession.Palette;
+                            backColor = quantizingSession.BackColor;
+                            alphaThreshold = quantizingSession.AlphaThreshold;
+
+                            // We have a palette from a potentially expensive quantizer: creating a predefined quantizer from the already generated palette to avoid generating it again.
+                            Debug.Assert(quantizer is not PredefinedColorsQuantizer);
+                            if (paletteByQuantizer != null)
+                                quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteByQuantizer);
+                        }
+
+                        break;
                 }
 
                 if (canceled = context.IsCancellationRequested)
                     return null;
 
-                // We have a palette from a potentially expensive quantizer: creating a predefined quantizer from the already generated palette to avoid generating it again.
-                if (palette != null && quantizer is not PredefinedColorsQuantizer)
-                    quantizer = PredefinedColorsQuantizer.FromCustomPalette(palette);
+                // validating and initializing palette
+                if (newPixelFormat.IsIndexed())
+                    InitPalette(newPixelFormat, bmp, result, sourcePaletteToApply ?? paletteByQuantizer?.GetEntries().Select(c => c.ToColor()).ToArray());
 
                 // Note: palette is purposely not passed here so a new instance will be created from the colors, without any possible delegate (which is still used by the quantizer).
-                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold))
-                    return (canceled = !source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer)) ? null : result;
+                using IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold);
+                return (canceled = !source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer)) ? null : result;
             }
             catch (Exception)
             {
@@ -2369,7 +2393,7 @@ namespace KGySoft.Drawing
 
             // if the quantized target does not have a palette but converting to a higher bpp indexed image, then taking the source palette
             if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
-                // ReSharper disable once ConstantConditionalAccessQualifier
+                // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
                 palette = source.Palette?.Entries;
 
             if (palette == null || palette.Length == 0)

@@ -181,6 +181,7 @@ namespace KGySoft.Drawing.Imaging
 
 #if NET35 || NET40
             [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
+            [SuppressMessage("ReSharper", "ConvertToLocalFunction", Justification = "False alarm, it would be converted to a delegate anyway.")]
 #endif
             internal QuantizingSessionByCustomBitmapData(PredefinedColorsQuantizer quantizer, Func<Size, IBitmapDataInternal> compatibleBitmapDataFactory)
             {

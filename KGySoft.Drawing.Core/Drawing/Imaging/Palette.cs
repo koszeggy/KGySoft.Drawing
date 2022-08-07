@@ -344,7 +344,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
         public Palette(Color[] entries, Color backColor = default, byte alphaThreshold = 128, Func<Color32, int>? customGetNearestColorIndex = null)
-            // ReSharper disable once ConstantConditionalAccessQualifier - needed to avoid NullReferenceException so the ArgumentNullException can be thrown by the other overload
+            // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract - needed to avoid NullReferenceException so the ArgumentNullException can be thrown by the other overload
             : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, customGetNearestColorIndex)
         {
         }

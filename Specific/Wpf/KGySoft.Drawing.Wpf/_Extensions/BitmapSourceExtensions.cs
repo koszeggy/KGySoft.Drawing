@@ -126,22 +126,12 @@ namespace KGySoft.Drawing.Wpf
                     Source = GetSourceBitmapData(bitmap);
 
                     // Precreating the result bitmap only if the quantizer can be initialized effortlessly
-                    if (Quantizer is not PredefinedColorsQuantizer)
+                    if (Quantizer is not PredefinedColorsQuantizer predefinedColorsQuantizer)
                         return;
 
-                    Palette? palette;
-                    Color32 backColor;
-                    byte alphaThreshold;
-                    using (IQuantizingSession session = Quantizer.Initialize(Source))
-                    {
-                        palette = session.Palette;
-                        backColor = session.BackColor;
-                        alphaThreshold = session.AlphaThreshold;
-                    }
-
                     Result = new WriteableBitmap(Source.Width, Source.Height, bitmap.DpiX, bitmap.DpiY, newPixelFormat,
-                        GetTargetPalette(newPixelFormat, bitmap, sourcePaletteEntries ?? palette?.GetEntries().Select(c => c.ToMediaColor()).ToArray()));
-                    Target = Result.GetWritableBitmapData(backColor.ToMediaColor(), alphaThreshold);
+                        GetTargetPalette(newPixelFormat, bitmap, sourcePaletteEntries ?? predefinedColorsQuantizer.Palette?.GetEntries().Select(c => c.ToMediaColor()).ToArray()));
+                    Target = Result.GetWritableBitmapData(predefinedColorsQuantizer.BackColor.ToMediaColor(), predefinedColorsQuantizer.AlphaThreshold);
                 });
             }
 
@@ -920,6 +910,7 @@ namespace KGySoft.Drawing.Wpf
                     Palette? palette;
                     Color32 backColor;
                     byte alphaThreshold;
+                    asyncContext.Progress?.New(DrawingOperation.InitializingQuantizer);
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(source, asyncContext))
                     {
                         if (asyncContext.IsCancellationRequested)
