@@ -193,8 +193,8 @@ namespace KGySoft.Drawing.Imaging
 
             public Palette? Palette { get; }
 
-            public Color32 BackColor => quantizer.backColor;
-            public byte AlphaThreshold => quantizer.alphaThreshold;
+            public Color32 BackColor => quantizer.BackColor;
+            public byte AlphaThreshold => quantizer.AlphaThreshold;
             public bool IsGrayscale => Palette?.IsGrayscale ?? false;
 
             #endregion
@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.Imaging
             private Palette? InitializePalette(IReadableBitmapData source, IAsyncContext context)
             {
                 using var alg = new TAlg();
-                alg.Initialize(quantizer.maxColors, quantizer.bitLevel, source);
+                alg.Initialize(quantizer.MaxColors, quantizer.bitLevel, source);
                 int width = source.Width;
                 IReadableBitmapDataRowMovable row = source.FirstRow;
                 context.Progress?.New(DrawingOperation.InitializingQuantizer, source.Height);
@@ -243,14 +243,14 @@ namespace KGySoft.Drawing.Imaging
 
                         // handling alpha including full transparency
                         if (c.A != Byte.MaxValue)
-                            c = c.A < quantizer.alphaThreshold ? default : c.BlendWithBackground(quantizer.backColor);
+                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor);
                         alg.AddColor(c);
                     }
                     context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
                 Color32[]? palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.backColor, quantizer.alphaThreshold);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold);
             }
 
             #endregion
@@ -264,9 +264,6 @@ namespace KGySoft.Drawing.Imaging
 
         #region Fields
 
-        private readonly int maxColors;
-        private readonly Color32 backColor;
-        private readonly byte alphaThreshold;
         private readonly Algorithm algorithm;
         private readonly byte? bitLevel;
 
@@ -279,18 +276,40 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="KnownPixelFormat"/>, which is compatible with this <see cref="OptimizedPaletteQuantizer"/> instance.
         /// </summary>
-        public KnownPixelFormat PixelFormatHint => maxColors switch
+        public KnownPixelFormat PixelFormatHint => MaxColors switch
         {
-            > 256 => alphaThreshold == 0 ? KnownPixelFormat.Format24bppRgb : KnownPixelFormat.Format32bppArgb,
+            > 256 => AlphaThreshold == 0 ? KnownPixelFormat.Format24bppRgb : KnownPixelFormat.Format32bppArgb,
             > 16 => KnownPixelFormat.Format8bppIndexed,
             > 2 => KnownPixelFormat.Format4bppIndexed,
             _ => KnownPixelFormat.Format1bppIndexed
         };
 
+        /// <summary>
+        /// Gets the back color used by this <see cref="OptimizedPaletteQuantizer"/>. This value will be returned also by
+        /// the <see cref="IQuantizingSession.BackColor"/> property once an <see cref="IQuantizingSession"/> is created from this instance.
+        /// The <see cref="Color32.A"/> field of the returned color is always 255.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IQuantizingSession.AlphaThreshold">IQuantizingSession.AlphaThreshold</see> property for details.
+        /// </summary>
+        public Color32 BackColor { get; }
+
+        /// <summary>
+        /// Gets the alpha threshold value used by this <see cref="OptimizedPaletteQuantizer"/>. This value will be returned also by
+        /// the <see cref="IQuantizingSession.AlphaThreshold"/> property once an <see cref="IQuantizingSession"/> is created from this instance.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IQuantizingSession.AlphaThreshold">IQuantizingSession.AlphaThreshold</see> property for details.
+        /// </summary>
+        public byte AlphaThreshold { get; }
+
+        /// <summary>
+        /// Gets the maximum number of colors this <see cref="OptimizedPaletteQuantizer"/> is allowed to use.
+        /// Once an <see cref="IQuantizingSession"/> is created from this instance the <see cref="IQuantizingSession.Palette"/> property
+        /// will contain no more colors than the value of this property.
+        /// </summary>
+        public int MaxColors { get; }
+
         #endregion
 
         #region Explicitly Implemented Interface Properties
-        
+
         bool IQuantizer.InitializeReliesOnContent => true;
 
         #endregion
@@ -299,19 +318,19 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        private OptimizedPaletteQuantizer(Algorithm algorithm, int maxColors, Color backColor, byte alphaThreshold)
+        private OptimizedPaletteQuantizer(Algorithm algorithm, int maxColors, Color32 backColor, byte alphaThreshold)
         {
             const int max = 1 << 16;
             if (maxColors is < 2 or > max)
                 throw new ArgumentOutOfRangeException(nameof(maxColors), PublicResources.ArgumentMustBeBetween(2, max));
             this.algorithm = algorithm;
-            this.maxColors = maxColors;
-            this.backColor = new Color32(backColor).ToOpaque();
-            this.alphaThreshold = alphaThreshold;
+            MaxColors = maxColors;
+            BackColor = backColor.ToOpaque();
+            AlphaThreshold = alphaThreshold;
         }
 
         private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel)
-            : this(original.algorithm, original.maxColors, original.backColor.ToColor(), original.alphaThreshold)
+            : this(original.algorithm, original.MaxColors, original.BackColor, original.AlphaThreshold)
         {
             this.bitLevel = bitLevel;
         }
@@ -358,7 +377,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MedianCut"/>
         /// <seealso cref="Wu"/>
         public static OptimizedPaletteQuantizer Octree(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
-            => new OptimizedPaletteQuantizer(Algorithm.Octree, maxColors, backColor, alphaThreshold);
+            => new OptimizedPaletteQuantizer(Algorithm.Octree, maxColors, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Median Cut quantizing algorithm.
@@ -396,7 +415,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="Octree"/>
         /// <seealso cref="Wu"/>
         public static OptimizedPaletteQuantizer MedianCut(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
-            => new OptimizedPaletteQuantizer(Algorithm.MedianCut, maxColors, backColor, alphaThreshold);
+            => new OptimizedPaletteQuantizer(Algorithm.MedianCut, maxColors, new Color32(backColor), alphaThreshold);
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using Xiaolin Wu's quantizing algorithm.
@@ -434,7 +453,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="Octree"/>
         /// <seealso cref="MedianCut"/>
         public static OptimizedPaletteQuantizer Wu(int maxColors = 256, Color backColor = default, byte alphaThreshold = 128)
-            => new OptimizedPaletteQuantizer(Algorithm.Wu, maxColors, backColor, alphaThreshold);
+            => new OptimizedPaletteQuantizer(Algorithm.Wu, maxColors, new Color32(backColor), alphaThreshold);
 
         #endregion
 

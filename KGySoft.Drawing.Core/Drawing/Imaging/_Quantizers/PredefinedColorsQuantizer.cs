@@ -59,8 +59,8 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             public Palette? Palette => null;
-            public Color32 BackColor => quantizer.backColor;
-            public byte AlphaThreshold => quantizer.alphaThreshold;
+            public Color32 BackColor => quantizer.BackColor;
+            public byte AlphaThreshold => quantizer.AlphaThreshold;
             public bool IsGrayscale => quantizer.PixelFormatHint.IsGrayscale();
 
             #endregion
@@ -106,8 +106,8 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             public Palette Palette { get; }
-            public Color32 BackColor => quantizer.backColor;
-            public byte AlphaThreshold => quantizer.alphaThreshold;
+            public Color32 BackColor => quantizer.BackColor;
+            public byte AlphaThreshold => quantizer.AlphaThreshold;
             public bool IsGrayscale => Palette.IsGrayscale;
 
             #endregion
@@ -171,8 +171,8 @@ namespace KGySoft.Drawing.Imaging
             #region Properties
 
             public Palette? Palette => null;
-            public Color32 BackColor => quantizer.backColor;
-            public byte AlphaThreshold => quantizer.alphaThreshold;
+            public Color32 BackColor => quantizer.BackColor;
+            public byte AlphaThreshold => quantizer.AlphaThreshold;
             public bool IsGrayscale => quantizer.isGrayscale;
 
             #endregion
@@ -237,11 +237,8 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly Func<Color32, Color32>? quantizingFunction;
-        private readonly Color32 backColor;
-        private readonly byte alphaThreshold;
         private readonly bool blendAlphaBeforeQuantize;
         private readonly bool isGrayscale;
-        private readonly Palette? palette;
         private readonly Func<Size, IBitmapDataInternal>? compatibleBitmapDataFactory;
 
         #endregion
@@ -257,6 +254,28 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         public KnownPixelFormat PixelFormatHint { get; }
 
+        /// <summary>
+        /// Gets the back color used by this <see cref="PredefinedColorsQuantizer"/>. This value will be returned also by
+        /// the <see cref="IQuantizingSession.BackColor"/> property once an <see cref="IQuantizingSession"/> is created from this instance.
+        /// The <see cref="Color32.A"/> field of the returned color is always 255.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IQuantizingSession.AlphaThreshold">IQuantizingSession.AlphaThreshold</see> property for details.
+        /// </summary>
+        public Color32 BackColor { get; }
+
+        /// <summary>
+        /// Gets the alpha threshold value used by this <see cref="PredefinedColorsQuantizer"/>. This value will be returned also by
+        /// the <see cref="IQuantizingSession.AlphaThreshold"/> property once an <see cref="IQuantizingSession"/> is created from this instance.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IQuantizingSession.AlphaThreshold">IQuantizingSession.AlphaThreshold</see> property for details.
+        /// </summary>
+        public byte AlphaThreshold { get; }
+
+        /// <summary>
+        /// If this <see cref="PredefinedColorsQuantizer"/> is associated with a specific palette, then returns the same <see cref="Imaging.Palette"/> that will be returned also by
+        /// the <see cref="IQuantizingSession.Palette"/> property once an <see cref="IQuantizingSession"/> is created from this instance;
+        /// otherwise, returns <see langword="null"/>.
+        /// </summary>
+        public Palette? Palette { get; }
+
         #endregion
 
         #region Explicitly Implemented Interface Properties
@@ -271,9 +290,9 @@ namespace KGySoft.Drawing.Imaging
 
         private PredefinedColorsQuantizer(Palette palette)
         {
-            this.palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
-            backColor = palette.BackColor;
-            alphaThreshold = palette.AlphaThreshold;
+            Palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
+            BackColor = palette.BackColor;
+            AlphaThreshold = palette.AlphaThreshold;
             isGrayscale = palette.IsGrayscale;
             PixelFormatHint = palette.Count switch
             {
@@ -287,8 +306,8 @@ namespace KGySoft.Drawing.Imaging
         private PredefinedColorsQuantizer(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint, Color32 backColor, byte alphaThreshold = 0, bool blend = true)
             : this(quantizingFunction, pixelFormatHint)
         {
-            this.backColor = backColor.ToOpaque();
-            this.alphaThreshold = alphaThreshold;
+            BackColor = backColor.ToOpaque();
+            AlphaThreshold = alphaThreshold;
             blendAlphaBeforeQuantize = blend;
         }
 
@@ -305,8 +324,8 @@ namespace KGySoft.Drawing.Imaging
             compatibleBitmapDataFactory = customBitmapData.CreateCompatibleBitmapDataFactory;
             isGrayscale = customBitmapData.IsGrayscale();
             PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
-            backColor = customBitmapData.BackColor;
-            alphaThreshold = customBitmapData.AlphaThreshold;
+            BackColor = customBitmapData.BackColor;
+            AlphaThreshold = customBitmapData.AlphaThreshold;
         }
 
         #endregion
@@ -1684,8 +1703,8 @@ namespace KGySoft.Drawing.Imaging
 
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext? context)
             => compatibleBitmapDataFactory == null
-                ? palette != null
-                    ? new QuantizingSessionIndexed(this, palette)
+                ? Palette != null
+                    ? new QuantizingSessionIndexed(this, Palette)
                     : new QuantizingSessionCustomMapping(this, quantizingFunction!)
                 : new QuantizingSessionByCustomBitmapData(this, compatibleBitmapDataFactory);
 
