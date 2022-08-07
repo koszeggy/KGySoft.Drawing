@@ -201,6 +201,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object?[] { "To 8bpp 256 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), null },
             new object?[] { "To 8bpp 256 color dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault8BppPalette(), OrderedDitherer.Bayer2x2 },
             new object?[] { "To 8bpp 16 color no dithering", PixelFormats.Indexed8, PredefinedColorsQuantizer.SystemDefault4BppPalette(), null },
+            new object[] { "To 8bpp 16 color optimized dithering", PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu(16), OrderedDitherer.BlueNoise },
             new object?[] { "To 4bpp 2 color dithering", PixelFormats.Indexed4, PredefinedColorsQuantizer.BlackAndWhite(), OrderedDitherer.DottedHalftone },
             new object?[] { "To BGR555 256 color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.SystemDefault8BppPalette(), new RandomNoiseDitherer(), },
             new object?[] { "To BGR555 32K color dithering", PixelFormats.Bgr555, PredefinedColorsQuantizer.Argb1555(), new RandomNoiseDitherer(), },
