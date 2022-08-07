@@ -18,7 +18,6 @@
 using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
-using System.Threading;
 
 #endregion
 
@@ -197,12 +196,13 @@ namespace KGySoft.Drawing.Imaging
         {
             if (cachedRows == null)
                 InitThreadIdCache();
-            var hash = Thread.CurrentThread.ManagedThreadId & hashMask;
+            int threadId = EnvironmentHelper.CurrentThreadId;
+            var hash = threadId & hashMask;
             StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>? cached = cachedRows![hash];
-            if (cached?.Value.ThreadId == Thread.CurrentThread.ManagedThreadId)
+            if (cached?.Value.ThreadId == threadId)
                 cached.Value.Row.DoMoveToRow(y);
             else
-                cachedRows[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((Thread.CurrentThread.ManagedThreadId, DoGetRow(y)));
+                cachedRows[hash] = cached = new StrongBox<(int ThreadId, IBitmapDataRowInternal Row)>((threadId, DoGetRow(y)));
             return cached.Value.Row;
         }
 

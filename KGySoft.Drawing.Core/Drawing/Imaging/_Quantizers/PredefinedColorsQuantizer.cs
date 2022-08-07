@@ -208,7 +208,7 @@ namespace KGySoft.Drawing.Imaging
             public Color32 GetQuantizedColor(Color32 origColor)
             {
 #if NET35 || NET40
-                IBitmapDataRowInternal row = rowsCache[Thread.CurrentThread.ManagedThreadId];
+                IBitmapDataRowInternal row = rowsCache[EnvironmentHelper.CurrentThreadId];
 #else
                 IBitmapDataRowInternal row = rowsCache.Value!;
 #endif
