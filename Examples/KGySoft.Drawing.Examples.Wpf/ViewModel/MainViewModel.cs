@@ -286,7 +286,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 }
 
                 // There is an image overlay: demonstrating how to work with IReadWriteBitmapData in WPF
-                using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.PixelWidth, bmpSource.PixelHeight)))
+                using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.PixelWidth, bmpSource.PixelHeight), KnownPixelFormat.Format32bppPArgb))
                 {
                     // 1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any BitmapSource.
                     using (IReadableBitmapData bitmapDataSource = bmpSource.GetReadableBitmapData())
@@ -322,9 +322,10 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
                     // 3.) Quantizing with or without dithering if needed. For demonstration purpose we use the Dither/Quantize methods here, which
                     //     actually don't change the pixel format but work on the original 32bpp bitmap data.
+                    PixelFormatInfo info = selectedFormat.ToPixelFormatInfo();
                     if (ditherer != null)
                         await (generateResultTask = resultBitmapData.DitherAsync(quantizer!, ditherer));
-                    else if (selectedFormat.BitsPerPixel < 32 || selectedFormat.ToPixelFormatInfo().Grayscale)
+                    else if (selectedFormat.BitsPerPixel < 32 || info.Grayscale || !info.HasAlpha)
                         await (generateResultTask = resultBitmapData.QuantizeAsync(quantizer ?? selectedFormat.GetMatchingQuantizer(BackColor, AlphaThreshold)));
 
                     if (token.IsCancellationRequested)
