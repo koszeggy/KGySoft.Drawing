@@ -1,4 +1,6 @@
-﻿#region Copyright
+﻿#if NET35 || NET40
+
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Accessors.cs
@@ -37,6 +39,7 @@ namespace KGySoft.Drawing
         private static readonly LockFreeCacheOptions cacheProfile128 = new LockFreeCacheOptions { ThresholdCapacity = 128, HashingStrategy = HashingStrategy.And, MergeInterval = TimeSpan.FromSeconds(1) };
 
         private static IThreadSafeCacheAccessor<(Type DeclaringType, Type? FieldType, string? FieldNamePattern), FieldAccessor?>? fields;
+        private static IThreadSafeCacheAccessor<(Type DeclaringType, string MethodName), MethodAccessor?>? methods;
 
         #endregion
 
@@ -44,18 +47,16 @@ namespace KGySoft.Drawing
 
         #region Exception
 
-#if NET35 || NET40
-        internal static string GetSource(this Exception exception) => GetFieldValueOrDefault<string>(exception, "source")!;
-        internal static void SetSource(this Exception exception, string value) => TrySetFieldValue(exception, "source", value);
-        internal static void SetRemoteStackTraceString(this Exception exception, string value) => TrySetFieldValue(exception, "remoteStackTraceString", value);
-        internal static void InternalPreserveStackTrace(this Exception exception) => Reflector.TryInvokeMethod(exception, "InternalPreserveStackTrace", out var _);
-#endif
+        internal static string? GetSource(this Exception exception) => GetFieldValueOrDefault<Exception, string?>(exception, null, "_source");
+        internal static void SetSource(this Exception exception, string? value) => GetField(typeof(Exception), null, "_source")?.SetInstanceValue(exception, value);
+        internal static void SetRemoteStackTraceString(this Exception exception, string value) => GetField(typeof(Exception), null, "_remoteStackTraceString")?.SetInstanceValue(exception, value);
+        internal static void InternalPreserveStackTrace(this Exception exception) => GetMethod(typeof(Exception), nameof(InternalPreserveStackTrace))?.InvokeInstanceAction(exception);
 
         #endregion
 
-        #region General field access
+        #region Any Member
 
-        internal static FieldAccessor? GetField(this Type type, Type? fieldType, string? fieldNamePattern)
+        private static FieldAccessor? GetField(this Type type, Type? fieldType, string? fieldNamePattern)
         {
             #region Local Methods
 
@@ -83,29 +84,25 @@ namespace KGySoft.Drawing
             return fields[(type, fieldType, fieldNamePattern)];
         }
 
-        internal static T? GetFieldValueOrDefault<T>(this object obj, string? fieldNamePattern = null)
+        private static TField? GetFieldValueOrDefault<TInstance, TField>(TInstance obj, TField? defaultValue = default, string? fieldNamePattern = null)
+            where TInstance : class
         {
-            FieldAccessor? field = GetField(obj.GetType(), typeof(T), fieldNamePattern);
-            return field == null ? default : (T)field.Get(obj)!;
+            FieldAccessor? field = GetField(obj.GetType(), typeof(TField), fieldNamePattern);
+            return field == null ? defaultValue : field.GetInstanceValue<TInstance, TField>(obj);
         }
 
-        internal static bool TrySetFieldValue<T>(this object obj, string? fieldNamePattern, T value)
+        private static MethodAccessor? GetMethod(Type type, string methodName)
         {
-            Type type = obj.GetType();
-            FieldAccessor? field = GetField(type, typeof(T), fieldNamePattern);
-            if (field == null)
-                return false;
-
-#if NETSTANDARD2_0
-            if (field.IsReadOnly || field.MemberInfo.DeclaringType?.IsValueType == true)
+            static MethodAccessor? GetMethodAccessor((Type DeclaringType, string MethodName) key)
             {
-                ((FieldInfo)field.MemberInfo).SetValue(obj, value);
-                return true;
+                // Properties are meant to be used for visible members so always exact names are searched
+                MethodInfo? method = key.DeclaringType.GetMethod(key.MethodName, BindingFlags.Instance | BindingFlags.NonPublic);
+                return method == null ? null : MethodAccessor.GetAccessor(method);
             }
-#endif
 
-            field.Set(obj, value);
-            return true;
+            if (methods == null)
+                Interlocked.CompareExchange(ref methods, ThreadSafeCacheFactory.Create<(Type, string), MethodAccessor?>(GetMethodAccessor, cacheProfile128), null);
+            return methods[(type, methodName)];
         }
 
         #endregion
@@ -113,3 +110,4 @@ namespace KGySoft.Drawing
         #endregion
     }
 }
+#endif

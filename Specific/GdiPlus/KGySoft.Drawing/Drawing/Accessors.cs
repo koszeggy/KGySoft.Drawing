@@ -54,7 +54,7 @@ namespace KGySoft.Drawing
 
         #region Graphics
 
-        internal static Image? GetBackingImage(this Graphics graphics) => graphics.GetFieldValueOrDefault<Image?>("backingImage");
+        internal static Image? GetBackingImage(this Graphics graphics) => GetFieldValueOrDefault<Graphics, Image?>(graphics, null, "backingImage");
 
         #endregion
 
@@ -67,8 +67,8 @@ namespace KGySoft.Drawing
 
         #region ColorPalette
         
-        internal static bool TrySetEntries(this ColorPalette palette, Color[] value) => palette.TrySetFieldValue("entries", value);
-        internal static void SetFlags(this ColorPalette palette, int value) => palette.TrySetFieldValue("flags", value);
+        internal static bool TrySetEntries(this ColorPalette palette, Color[] value) => TrySetFieldValue(palette, "entries", value);
+        internal static void SetFlags(this ColorPalette palette, int value) => TrySetFieldValue(palette, "flags", value);
 
         #endregion
 
@@ -104,16 +104,18 @@ namespace KGySoft.Drawing
             return fields[(type, fieldType, fieldNamePattern)];
         }
 
-        private static T? GetFieldValueOrDefault<T>(this object obj, string? fieldNamePattern = null)
+        private static TField? GetFieldValueOrDefault<TInstance, TField>(TInstance obj, TField? defaultValue = default, string? fieldNamePattern = null)
+            where TInstance : class
         {
-            FieldAccessor? field = GetField(obj.GetType(), typeof(T), fieldNamePattern);
-            return field == null ? default : (T)field.Get(obj)!;
+            FieldAccessor? field = GetField(obj.GetType(), typeof(TField), fieldNamePattern);
+            return field == null ? defaultValue : field.GetInstanceValue<TInstance, TField>(obj);
         }
 
-        private static bool TrySetFieldValue<T>(this object obj, string? fieldNamePattern, T value)
+        private static bool TrySetFieldValue<TInstance, TField>(TInstance obj, string? fieldNamePattern, TField value)
+            where TInstance : class
         {
             Type type = obj.GetType();
-            FieldAccessor? field = GetField(type, typeof(T), fieldNamePattern);
+            FieldAccessor? field = GetField(type, typeof(TField), fieldNamePattern);
             if (field == null)
                 return false;
 
@@ -125,12 +127,11 @@ namespace KGySoft.Drawing
             }
 #endif
 
-            field.Set(obj, value);
+            field.SetInstanceValue(obj, value);
             return true;
         }
 
         #endregion
-
 
         #endregion
     }
