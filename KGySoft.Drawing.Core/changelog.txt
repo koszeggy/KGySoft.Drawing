@@ -80,7 +80,9 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   + New ToKnownPixelFormat method
 + New QuantizerExtensions class to initialize a quantizing session asynchronously (.NET Framework 4.0 and above)
 + New DithererExtensions class to initialize a dithering session asynchronously (.NET Framework 4.0 and above)
-+ Color32 struct: New implicit conversions to and from Color.
++ Color32 struct:
+  + Making Color32 serializable
+  + New implicit conversions to and from Color.
 + PredefinedColorsQuantizer class:
   + New public BackColor, AlphaThreshold and Palette properties.
 + OptimizedPaletteQuantizer class:

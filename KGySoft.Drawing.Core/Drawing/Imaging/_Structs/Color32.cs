@@ -31,6 +31,7 @@ namespace KGySoft.Drawing.Imaging
     /// for better performance and smaller memory consumption.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
+    [Serializable]
     public readonly struct Color32 : IEquatable<Color32>
     {
         #region Constants
@@ -58,24 +59,28 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the alpha component value of this <see cref="Color32"/> structure.
         /// </summary>
         [FieldOffset(3)]
+        [NonSerialized]
         public readonly byte A;
 
         /// <summary>
         /// Gets the red component value of this <see cref="Color32"/> structure.
         /// </summary>
         [FieldOffset(2)]
+        [NonSerialized]
         public readonly byte R;
 
         /// <summary>
         /// Gets the green component value of this <see cref="Color32"/> structure.
         /// </summary>
         [FieldOffset(1)]
+        [NonSerialized]
         public readonly byte G;
 
         /// <summary>
         /// Gets the blue component value of this <see cref="Color32"/> structure.
         /// </summary>
         [FieldOffset(0)]
+        [NonSerialized]
         public readonly byte B;
 
         #endregion
