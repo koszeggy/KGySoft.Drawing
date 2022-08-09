@@ -288,6 +288,7 @@ namespace KGySoft.Drawing.Wpf
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         /// <seealso cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer, IDitherer)"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, Color32, byte)"/>
         public static WriteableBitmap ConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128)
@@ -330,6 +331,7 @@ namespace KGySoft.Drawing.Wpf
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
+        /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         /// <seealso cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer, IDitherer)"/>
         /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, Palette)"/>
         public static WriteableBitmap ConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128)
@@ -344,7 +346,7 @@ namespace KGySoft.Drawing.Wpf
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
@@ -436,6 +438,7 @@ namespace KGySoft.Drawing.Wpf
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
+        /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         /// <seealso cref="IQuantizer"/>
         /// <seealso cref="IDitherer"/>
         /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
@@ -485,6 +488,8 @@ namespace KGySoft.Drawing.Wpf
         /// parameter of the <paramref name="asyncConfig"/> parameter and call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method from there.</note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         public static IAsyncResult BeginConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
             => BeginConvertPixelFormat(bitmap, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
 
@@ -522,6 +527,9 @@ namespace KGySoft.Drawing.Wpf
         /// parameter of the <paramref name="asyncConfig"/> parameter and call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method from there.</note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte)"/> method for more details, or the other overloads for image examples.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         public static IAsyncResult BeginConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(bitmap, newPixelFormat);
@@ -535,7 +543,7 @@ namespace KGySoft.Drawing.Wpf
         /// </summary>
         /// <param name="bitmap">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
@@ -560,6 +568,9 @@ namespace KGySoft.Drawing.Wpf
         /// otherwise, a deadlock may occur.</item></list></note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
         public static IAsyncResult BeginConvertPixelFormat(this BitmapSource bitmap, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(bitmap, newPixelFormat);
@@ -579,6 +590,8 @@ namespace KGySoft.Drawing.Wpf
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="WriteableBitmap"/> instance that is the result of the operation,
         /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="asyncResult"/> is <see langword="null"/>, or was not returned by a <see cref="O:KGySoft.Drawing.Wpf.BitmapSourceExtensions.BeginConvertPixelFormat">BeginConvertPixelFormat</see> overload.</exception>
+        /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         public static WriteableBitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<WriteableBitmap?>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
@@ -618,6 +631,8 @@ namespace KGySoft.Drawing.Wpf
         /// the <see cref="Task{TResult}.Result">Result</see> of the completed task from there.</note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         public static Task<WriteableBitmap?> ConvertPixelFormatAsync(this BitmapSource bitmap, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
             => ConvertPixelFormatAsync(bitmap, newPixelFormat, null, backColor, alphaThreshold, asyncConfig);
 
@@ -656,6 +671,10 @@ namespace KGySoft.Drawing.Wpf
         /// the <see cref="Task{TResult}.Result">Result</see> of the completed task from there.</note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte)"/> method for more details, or the other overloads for image examples.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="palette"/> contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
+        /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         public static Task<WriteableBitmap?> ConvertPixelFormatAsync(this BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(bitmap, newPixelFormat);
@@ -669,7 +688,7 @@ namespace KGySoft.Drawing.Wpf
         /// </summary>
         /// <param name="bitmap">The original bitmap to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
@@ -695,6 +714,10 @@ namespace KGySoft.Drawing.Wpf
         /// otherwise, a deadlock may occur.</item></list></note>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
+        /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         public static Task<WriteableBitmap?> ConvertPixelFormatAsync(this BitmapSource bitmap, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateConvertPixelFormat(bitmap, newPixelFormat);

@@ -491,7 +491,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
@@ -688,7 +688,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
@@ -795,7 +795,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
-        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors if the result.
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
