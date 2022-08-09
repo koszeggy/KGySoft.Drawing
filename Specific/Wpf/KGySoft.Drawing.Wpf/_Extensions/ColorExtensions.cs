@@ -24,7 +24,10 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.Wpf
 {
-    internal static class ColorExtensions
+    /// <summary>
+    /// Contains extension methods for the <see cref="Color"/> type.
+    /// </summary>
+    public static class ColorExtensions
     {
         #region Constants
 
@@ -36,13 +39,39 @@ namespace KGySoft.Drawing.Wpf
 
         #region Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Converts a <see cref="Color">System.Windows.Media.Color</see> struct to <a href="https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_Color32.htm" target="_blank">KGySoft.Drawing.Imaging.Color32</a>.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The result of the conversion.</returns>
+        public static Color32 ToColor32(this Color color) => new Color32(color.A, color.R, color.G, color.B);
+
+        /// <summary>
+        /// Converts a <a href="https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_Color32.htm" target="_blank">KGySoft.Drawing.Imaging.Color32</a> struct to <see cref="Color">System.Windows.Media.Color</see>.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The result of the conversion.</returns>
+        public static Color ToMediaColor(this Color32 color) => Color.FromArgb(color.A, color.R, color.G, color.B);
+
+        /// <summary>
+        /// Converts a <see cref="Color">System.Windows.Media.Color</see> struct to <see cref="System.Drawing.Color">System.Drawing.Color</see>.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The result of the conversion.</returns>
+        public static System.Drawing.Color ToDrawingColor(this Color color) => System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
+
+        /// <summary>
+        /// Converts a <see cref="System.Drawing.Color">System.Drawing.Color</see> struct to <see cref="Color">System.Windows.Media.Color</see>.
+        /// </summary>
+        /// <param name="color">The source color.</param>
+        /// <returns>The result of the conversion.</returns>
+        public static Color ToMediaColor(this System.Drawing.Color color) => Color.FromArgb(color.A, color.R, color.G, color.B);
+
+        #endregion
+
         #region Internal Methods
-
-        internal static Color32 ToColor32(this Color color) => new Color32(color.A, color.R, color.G, color.B);
-
-        internal static Color ToMediaColor(this Color32 color) => Color.FromArgb(color.A, color.R, color.G, color.B);
-
-        internal static System.Drawing.Color ToDrawingColor(this Color color) => System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
 
         internal static float GetBrightnessLinear(this Color32 color) => ToLinear((color.R * rLum + color.G * gLum + color.B * bLum) / 255f);
 

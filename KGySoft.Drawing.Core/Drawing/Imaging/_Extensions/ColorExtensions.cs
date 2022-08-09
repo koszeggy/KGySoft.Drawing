@@ -264,7 +264,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "1B is confusable with 18")]
         internal static int Get1bppColorIndex(byte bits, int x)
         {
             int mask = 128 >> (x & 7);
@@ -272,7 +272,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "4B is confusable with 48")]
+        [SuppressMessage("ReSharper", "InconsistentNaming", Justification = "1B is confusable with 18")]
         internal static void Set1bppColorIndex(ref byte bits, int x, int colorIndex)
         {
             int mask = 128 >> (x & 7);

@@ -25,3 +25,4 @@
   + New ToPixelFormat method
 + New ReadableBitmapDataExtensions class
   + New ToWriteableBitmap/BeginToWriteableBitmap/EndToWriteableBitmap/ToWriteableBitmapAsync methods
++ New ColorExtensions class
