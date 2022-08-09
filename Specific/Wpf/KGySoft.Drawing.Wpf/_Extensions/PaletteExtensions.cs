@@ -29,7 +29,7 @@ namespace KGySoft.Drawing.Wpf
         #region Methods
 
         internal static BitmapPalette? ToBitmapPalette(this Palette? palette)
-            => palette == null ? null : new BitmapPalette(palette.GetEntries().Select(c => ColorExtensions.ToMediaColor(c)).ToArray());
+            => palette == null ? null : new BitmapPalette(palette.GetEntries().Select(c => c.ToMediaColor()).ToArray());
 
         #endregion
     }

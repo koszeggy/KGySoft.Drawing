@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
         [TestCase(KnownPixelFormat.Format64bppPArgb)]
         public void ToWriteableBitmapTest(KnownPixelFormat pixelFormat)
         {
-            using IReadWriteBitmapData src = GetInfoIcon256().GetReadableBitmapData().Clone(pixelFormat, OrderedDitherer.Bayer8x8);
+            using IReadWriteBitmapData src = GetInfoIcon256().GetReadableBitmapData().Clone(pixelFormat);
             var result = src.ToWriteableBitmap();
 
             Assert.AreEqual(pixelFormat.ToPixelFormat(), result.Format);

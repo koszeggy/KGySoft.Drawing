@@ -18,7 +18,6 @@
 #region Used Namespaces
 
 using System;
-using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Linq;
@@ -27,11 +26,9 @@ using System.Threading.Tasks;
 #endif
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Threading;
 
 using KGySoft.Collections;
 using KGySoft.Drawing.Imaging;
-using KGySoft.Reflection;
 using KGySoft.Threading;
 
 #endregion
@@ -59,146 +56,6 @@ namespace KGySoft.Drawing.Wpf
     /// </summary>
     public static class BitmapSourceExtensions
     {
-        #region ConversionContext class
-
-        /// <summary>
-        /// Contains all possible prefetched data to avoid most of the sync callbacks from the working thread
-        /// </summary>
-        private sealed class ConversionContext : IDisposable
-        {
-            #region Fields
-
-            private static readonly TimeSpan callbackTimeout = TimeSpan.FromMilliseconds(250);
-
-            #endregion
-
-            #region Properties
-
-            internal BitmapSource Bitmap { get; }
-            internal PixelFormat NewPixelFormat { get; }
-            internal IReadableBitmapData Source { get; private set; } = default!;
-            internal WriteableBitmap? Result { get; set; }
-            internal IWritableBitmapData? Target { get; set; }
-            internal IQuantizer? Quantizer { get; }
-            internal IDitherer? Ditherer { get; }
-
-            #endregion
-
-            #region Constructors
-
-            #region Internal Constructors
-
-            internal ConversionContext(BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
-                : this(bitmap, newPixelFormat) => InitDirect(bitmap, palette, backColor, alphaThreshold);
-
-            internal ConversionContext(BitmapSource bitmap, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
-                : this(bitmap, newPixelFormat)
-            {
-                Quantizer = quantizer;
-                IList<Color>? sourcePaletteEntries = null;
-                if (quantizer == null)
-                {
-                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                    if (ditherer == null || !newPixelFormat.CanBeDithered())
-                    {
-                        InitDirect(bitmap, null, default, 128);
-                        return;
-                    }
-
-                    // here we need to pick a quantizer for the dithering
-                    int bpp = newPixelFormat.BitsPerPixel;
-                    BitmapPalette? sourcePalette = null;
-                    Invoke(true, () => sourcePalette = bitmap.Palette);
-
-                    sourcePaletteEntries = sourcePalette?.Colors ?? Reflector.EmptyArray<Color>();
-                    if (bpp <= 8 && sourcePaletteEntries.Count > 0 && sourcePaletteEntries.Count <= (1 << bpp))
-                        Quantizer = PredefinedColorsQuantizer.FromCustomPalette(new Palette(sourcePaletteEntries.Select(c => c.ToColor32()).ToArray()));
-                    else
-                    {
-                        Quantizer = newPixelFormat.GetMatchingQuantizer();
-                        sourcePaletteEntries = null;
-                    }
-                }
-
-                Ditherer = ditherer;
-                Invoke(true, () =>
-                {
-                    Source = GetSourceBitmapData(bitmap);
-
-                    // Precreating the result bitmap only if the quantizer can be initialized effortlessly
-                    if (Quantizer is not PredefinedColorsQuantizer predefinedColorsQuantizer)
-                        return;
-
-                    Result = new WriteableBitmap(Source.Width, Source.Height, bitmap.DpiX, bitmap.DpiY, newPixelFormat,
-                        GetTargetPalette(newPixelFormat, bitmap, sourcePaletteEntries ?? predefinedColorsQuantizer.Palette?.GetEntries().Select(c => c.ToMediaColor()).ToArray()));
-                    Target = Result.GetWritableBitmapData(predefinedColorsQuantizer.BackColor.ToMediaColor(), predefinedColorsQuantizer.AlphaThreshold);
-                });
-            }
-
-            #endregion
-
-            #region Private Constructors
-
-            private ConversionContext(BitmapSource bitmap, PixelFormat newPixelFormat)
-            {
-                Bitmap = bitmap;
-                NewPixelFormat = newPixelFormat;
-            }
-
-            #endregion
-
-            #endregion
-
-            #region Methods
-
-            #region Public Methods
-
-            public void Dispose() => Invoke(false, () =>
-            {
-                Target?.Dispose();
-                Source.Dispose();
-            });
-
-            #endregion
-
-            #region Internal Methods
-
-            internal void Invoke(bool synchronized, Action callback)
-            {
-                if (Bitmap.Dispatcher.CheckAccess())
-                {
-                    callback.Invoke();
-                    return;
-                }
-
-                DispatcherOperation operation = Bitmap.Dispatcher.BeginInvoke(DispatcherPriority.Send, callback);
-                if (!synchronized)
-                    return;
-
-                if (operation.Wait(callbackTimeout) != DispatcherOperationStatus.Completed)
-                    throw new InvalidOperationException(Res.BitmapSourceExtensionsDeadlock);
-            }
-
-            #endregion
-
-            #region Private Methods
-
-            private void InitDirect(BitmapSource bitmap, Color[]? palette, Color backColor, byte alphaThreshold)
-                => Invoke(true, () =>
-                {
-                    Source = GetSourceBitmapData(bitmap);
-                    Result = new WriteableBitmap(bitmap.PixelWidth, bitmap.PixelHeight, bitmap.DpiX, bitmap.DpiY, NewPixelFormat,
-                        GetTargetPalette(NewPixelFormat, bitmap, palette));
-                    Target = Result.GetWritableBitmapData(backColor, alphaThreshold);
-                });
-
-            #endregion
-
-            #endregion
-        }
-
-        #endregion
-
         #region Methods
 
         #region Public Methods
@@ -579,7 +436,6 @@ namespace KGySoft.Drawing.Wpf
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="newPixelFormat"/>.</exception>
-        /// <exception cref="PlatformNotSupportedException"><paramref name="newPixelFormat"/> is not supported on the current platform.</exception>
         /// <seealso cref="IQuantizer"/>
         /// <seealso cref="IDitherer"/>
         /// <seealso cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)"/>
@@ -875,11 +731,6 @@ namespace KGySoft.Drawing.Wpf
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), PublicResources.ArgumentOutOfRange);
         }
 
-        private static IReadableBitmapData GetSourceBitmapData(BitmapSource source)
-            => source is WriteableBitmap { IsFrozen: false } wb
-                ? wb.GetBitmapDataInternal(true)
-                : source.GetReadableBitmapData();
-
         private static WriteableBitmap? DoConvertPixelFormatDirect(IAsyncContext asyncContext, ConversionContext conversionContext)
         {
             using (conversionContext)
@@ -916,7 +767,7 @@ namespace KGySoft.Drawing.Wpf
                         if (asyncContext.IsCancellationRequested)
                             return null;
                         if (quantizingSession == null)
-                            throw new InvalidOperationException(Res.BitmapSourceExtensionsQuantizerInitializeNull);
+                            throw new InvalidOperationException(Res.QuantizerInitializeNull);
 
                         palette = quantizingSession.Palette;
                         backColor = quantizingSession.BackColor;
@@ -926,8 +777,8 @@ namespace KGySoft.Drawing.Wpf
                     conversionContext.Invoke(true, () =>
                     {
                         conversionContext.Result = new WriteableBitmap(source.Width, source.Height,
-                            conversionContext.Bitmap.DpiX, conversionContext.Bitmap.DpiX, conversionContext.NewPixelFormat,
-                            GetTargetPalette(conversionContext.NewPixelFormat, conversionContext.Bitmap, palette?.GetEntries().Select(c => c.ToMediaColor()).ToArray()));
+                            conversionContext.BitmapSource!.DpiX, conversionContext.BitmapSource.DpiX, conversionContext.PixelFormat,
+                            conversionContext.GetTargetPalette(palette));
                         conversionContext.Target = conversionContext.Result.GetWritableBitmapData(backColor.ToMediaColor(), alphaThreshold);
                     });
 
@@ -943,29 +794,6 @@ namespace KGySoft.Drawing.Wpf
                     ? conversionContext.Result
                     : null;
             }
-        }
-
-        private static BitmapPalette? GetTargetPalette(PixelFormat newPixelFormat, BitmapSource source, IList<Color>? palette)
-        {
-            if (!newPixelFormat.IsIndexed())
-                return null;
-
-            int bpp = newPixelFormat.BitsPerPixel;
-            var sourceInfo = source.Format.ToPixelFormatInfo();
-
-            // if no desired colors are specified but converting to a higher bpp indexed image, then taking the source palette
-            if (palette == null && sourceInfo.Indexed && sourceInfo.BitsPerPixel <= bpp)
-                return source.Palette;
-
-            if (palette == null || palette.Count == 0)
-                return newPixelFormat.GetDefaultPalette();
-
-            // there is a desired palette to apply
-            int maxColors = 1 << bpp;
-            if (palette.Count > maxColors)
-                throw new ArgumentException(Res.BitmapSourceExtensionsPaletteTooLarge(maxColors, bpp), nameof(palette));
-
-            return new BitmapPalette(palette);
         }
 
         #endregion

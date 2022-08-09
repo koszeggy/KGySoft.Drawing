@@ -18,14 +18,18 @@
 #region Used Namespaces
 
 using System;
+using System.Collections.Generic;
 using System.Drawing;
+using System.Linq;
 #if !NET35
 using System.Threading.Tasks;
 #endif
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 using KGySoft.Drawing.Imaging;
+using KGySoft.Reflection;
 using KGySoft.Threading;
 
 #endregion
@@ -73,9 +77,16 @@ namespace KGySoft.Drawing.Wpf
         public static WriteableBitmap ToWriteableBitmap(this IReadableBitmapData source)
         {
             ValidateArguments(source);
-            WriteableBitmap result = CreateCompatibleBitmap(source);
-            IWritableBitmapData target = result.GetWritableBitmapData(source.BackColor.ToMediaColor(), source.AlphaThreshold);
-            return DoConvertToWriteableBitmap(AsyncHelper.DefaultContext, source, target, result)!;
+            return DoConvertToWriteableBitmapDirect(AsyncHelper.DefaultContext, new ConversionContext(source))!;
+        }
+
+        public static WriteableBitmap ToWriteableBitmap(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            var context = new ConversionContext(source, pixelFormat, quantizer, ditherer);
+            return context.Quantizer == null
+                ? DoConvertToWriteableBitmapDirect(AsyncHelper.DefaultContext, context)!
+                : DoConvertToWriteableBitmapWithQuantizer(AsyncHelper.DefaultContext, context)!;
         }
 
         /// <summary>
@@ -99,9 +110,17 @@ namespace KGySoft.Drawing.Wpf
         public static IAsyncResult BeginToWriteableBitmap(this IReadableBitmapData source, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            WriteableBitmap result = CreateCompatibleBitmap(source);
-            IWritableBitmapData target = result.GetWritableBitmapData(source.BackColor.ToMediaColor(), source.AlphaThreshold);
-            return AsyncHelper.BeginOperation(ctx => DoConvertToWriteableBitmap(ctx, source, target, result), asyncConfig);
+            var context = new ConversionContext(source);
+            return AsyncHelper.BeginOperation(ctx => DoConvertToWriteableBitmapDirect(ctx, context), asyncConfig);
+        }
+
+        public static IAsyncResult BeginToWriteableBitmap(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            var context = new ConversionContext(source, pixelFormat, quantizer, ditherer);
+            return context.Quantizer == null
+                ? AsyncHelper.BeginOperation(ctx => DoConvertToWriteableBitmapDirect(ctx, context), asyncConfig)
+                : AsyncHelper.BeginOperation(ctx => DoConvertToWriteableBitmapWithQuantizer(ctx, context), asyncConfig);
         }
 
         /// <summary>
@@ -134,9 +153,17 @@ namespace KGySoft.Drawing.Wpf
         public static Task<WriteableBitmap?> ToWriteableBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            WriteableBitmap result = CreateCompatibleBitmap(source);
-            IWritableBitmapData target = result.GetWritableBitmapData(source.BackColor.ToMediaColor(), source.AlphaThreshold);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertToWriteableBitmap(ctx, source, target, result), asyncConfig);
+            var context = new ConversionContext(source);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertToWriteableBitmapDirect(ctx, context), asyncConfig);
+        }
+
+        public static Task<WriteableBitmap?> ToWriteableBitmapAsync(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            var context = new ConversionContext(source, pixelFormat, quantizer, ditherer);
+            return context.Quantizer == null
+                ? AsyncHelper.DoOperationAsync(ctx => DoConvertToWriteableBitmapDirect(ctx, context), asyncConfig)
+                : AsyncHelper.DoOperationAsync(ctx => DoConvertToWriteableBitmapWithQuantizer(ctx, context), asyncConfig);
         }
 #endif
 
@@ -144,37 +171,68 @@ namespace KGySoft.Drawing.Wpf
 
         #region Private Methods
 
-        private static WriteableBitmap CreateCompatibleBitmap(IBitmapData source)
+        private static WriteableBitmap? DoConvertToWriteableBitmapDirect(IAsyncContext asyncContext, ConversionContext conversionContext)
         {
-            PixelFormatInfo sourceFormat = source.PixelFormat;
-            PixelFormat pixelFormat = sourceFormat.ToKnownPixelFormat().ToPixelFormat();
-            Palette? palette = source.Palette;
+            using (conversionContext)
+            {
+                if (asyncContext.IsCancellationRequested)
+                    return null;
 
-            // indexed custom formats with >8 bpp: ToKnownPixelFormat returns 32bpp but it can be fine-tuned
-            if (sourceFormat.IsCustomFormat && sourceFormat.Indexed && sourceFormat.BitsPerPixel > 8 && palette != null)
-                pixelFormat = palette.HasAlpha ? PixelFormats.Bgra32
-                    : palette.IsGrayscale ? PixelFormats.Gray16
-                    : PixelFormats.Bgr24;
-
-            return new WriteableBitmap(source.Width, source.Height, 96d, 96d, pixelFormat, pixelFormat.IsIndexed() ? palette.ToBitmapPalette() : null);
+                IReadableBitmapData source = conversionContext.Source;
+                return source.CopyTo(conversionContext.Target!, asyncContext, new Rectangle(Point.Empty, source.Size), Point.Empty)
+                    ? conversionContext.Result
+                    : null;
+            }
         }
 
-        private static WriteableBitmap? DoConvertToWriteableBitmap(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target, WriteableBitmap result)
+        private static WriteableBitmap? DoConvertToWriteableBitmapWithQuantizer(IAsyncContext asyncContext, ConversionContext conversionContext)
         {
-            // As in WPF WriteableBitmap must be accessed from the same it was created in, we can only put the CopyTo in this method.
-            // Here result is used only to access the dispatcher (to dispose target in the same thread result was created in) and to return it on success.
-            try
+            using (conversionContext)
             {
-                if (context.IsCancellationRequested)
+                if (asyncContext.IsCancellationRequested)
                     return null;
-                return source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty) ? result : null;
-            }
-            finally
-            {
-                if (result.Dispatcher.CheckAccess())
-                    target.Dispose();
-                else
-                    result.Dispatcher.BeginInvoke(DispatcherPriority.Send, target.Dispose);
+
+                IReadableBitmapData source = conversionContext.Source;
+                IQuantizer quantizer = conversionContext.Quantizer!;
+
+                // we might have an uninitialized result if the quantizer is not a predefined one
+                if (conversionContext.Result == null)
+                {
+                    Palette? palette;
+                    Color32 backColor;
+                    byte alphaThreshold;
+                    asyncContext.Progress?.New(DrawingOperation.InitializingQuantizer);
+                    using (IQuantizingSession quantizingSession = quantizer.Initialize(source, asyncContext))
+                    {
+                        if (asyncContext.IsCancellationRequested)
+                            return null;
+                        if (quantizingSession == null)
+                            throw new InvalidOperationException(Res.QuantizerInitializeNull);
+
+                        palette = quantizingSession.Palette;
+                        backColor = quantizingSession.BackColor;
+                        alphaThreshold = quantizingSession.AlphaThreshold;
+                    }
+
+                    conversionContext.Invoke(true, () =>
+                    {
+                        conversionContext.Result = new WriteableBitmap(source.Width, source.Height,
+                            96, 96, conversionContext.PixelFormat,
+                            conversionContext.GetTargetPalette(palette));
+                        conversionContext.Target = conversionContext.Result.GetWritableBitmapData(backColor.ToMediaColor(), alphaThreshold);
+                    });
+
+                    // We have a palette from a potentially expensive quantizer: creating a predefined quantizer from the already generated palette to avoid generating it again.
+                    if (palette != null && quantizer is not PredefinedColorsQuantizer)
+                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(palette);
+                }
+
+                if (asyncContext.IsCancellationRequested)
+                    return null;
+
+                return source.CopyTo(conversionContext.Target!, asyncContext, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, conversionContext.Ditherer)
+                    ? conversionContext.Result
+                    : null;
             }
         }
 
@@ -183,7 +241,14 @@ namespace KGySoft.Drawing.Wpf
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (source.Width <= 0 || source.Height <= 0)
-                throw new ArgumentException(Res.ReadableBitmapDataExtensionsInvalidBitmapDataSize, nameof(source));
+                throw new ArgumentException(Res.InvalidBitmapDataSize, nameof(source));
+        }
+
+        private static void ValidateArguments(IReadableBitmapData source, PixelFormat pixelFormat)
+        {
+            ValidateArguments(source);
+            if (pixelFormat == default)
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange);
         }
 
         #endregion

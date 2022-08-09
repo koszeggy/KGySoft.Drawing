@@ -68,7 +68,7 @@ namespace KGySoft.Drawing.Wpf
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             if (bitmap.IsFrozen)
-                throw new ArgumentException(Res.WriteableBitmapExtensionsBitmapFrozen, nameof(bitmap));
+                throw new ArgumentException(Res.BitmapFrozen, nameof(bitmap));
 
             return GetBitmapDataInternal(bitmap, false, backColor, alphaThreshold);
         }

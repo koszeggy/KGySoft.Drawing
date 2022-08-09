@@ -49,16 +49,16 @@ namespace KGySoft.Drawing.Wpf
         #region Properties
 
         /// <summary>The bitmap must not be frozen.</summary>
-        internal static string WriteableBitmapExtensionsBitmapFrozen => Get("WriteableBitmapExtensions_BitmapFrozen");
+        internal static string BitmapFrozen => Get("BitmapFrozen");
 
         /// <summary>The IQuantizer.Initialize method returned a null reference.</summary>
-        internal static string BitmapSourceExtensionsQuantizerInitializeNull => Get("BitmapSourceExtensions_QuantizerInitializeNull");
+        internal static string QuantizerInitializeNull => Get("QuantizerInitializeNull");
 
         /// <summary>Could not perform a callback on the thread of the source bitmap. It can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</summary>
-        internal static string BitmapSourceExtensionsDeadlock => Get("BitmapSourceExtensions_Deadlock");
+        internal static string DispatcherDeadlock => Get("DispatcherDeadlock");
 
         /// <summary>The bitmap data has an invalid size.</summary>
-        internal static string ReadableBitmapDataExtensionsInvalidBitmapDataSize => Get("ReadableBitmapDataExtensions_InvalidBitmapDataSize");
+        internal static string InvalidBitmapDataSize => Get("InvalidBitmapDataSize");
 
         #endregion
 
@@ -71,7 +71,7 @@ namespace KGySoft.Drawing.Wpf
         internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
 
         /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
-        internal static string BitmapSourceExtensionsPaletteTooLarge(int max, int bpp) => Get("BitmapSource_ExtensionsPaletteTooLargeFormat", max, bpp);
+        internal static string PaletteTooLarge(int max, int bpp) => Get("ExtensionsPaletteTooLargeFormat", max, bpp);
 
         #endregion
 

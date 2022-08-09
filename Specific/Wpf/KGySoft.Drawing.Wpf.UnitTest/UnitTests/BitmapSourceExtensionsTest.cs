@@ -386,7 +386,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             // a non-predefined quantizer causes that the result bitmap is created by a callback, which causes a deadlock with blocking wait
             IAsyncResult ar = ref32bpp.BeginConvertPixelFormat(PixelFormats.Indexed8, OptimizedPaletteQuantizer.Wu());
             Assert.IsFalse(ar.IsCompleted);
-            Assert.Throws<InvalidOperationException>(() => ar.EndConvertPixelFormat(), Res.BitmapSourceExtensionsDeadlock);
+            Assert.Throws<InvalidOperationException>(() => ar.EndConvertPixelFormat(), Res.DispatcherDeadlock);
             Assert.IsTrue(ar.IsCompleted);
             Assert.IsFalse(ar.CompletedSynchronously);
         }
@@ -476,7 +476,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             Assert.IsFalse(task.IsCompleted);
             var ex = Assert.Throws<AggregateException>(() => task.Wait());
             Assert.IsInstanceOf<InvalidOperationException>(ex!.InnerExceptions[0]);
-            Assert.AreEqual(Res.BitmapSourceExtensionsDeadlock, ex.InnerExceptions[0].Message);
+            Assert.AreEqual(Res.DispatcherDeadlock, ex.InnerExceptions[0].Message);
         }
 
         [Test]
