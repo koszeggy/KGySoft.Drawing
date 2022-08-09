@@ -66,7 +66,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         
         #region Static Fields
 
-        private static HashSet<string> affectsPreview = new()
+        private static readonly HashSet<string> affectsPreview = new()
         {
             nameof(ImageFile),
             nameof(OverlayFile),
@@ -144,6 +144,8 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 result.AddError(nameof(ImageFile), imageFileError);
             if (ShowOverlay && String.IsNullOrEmpty(OverlayFile) || !File.Exists(OverlayFile))
                 result.AddError(nameof(OverlayFile), "The specified file does not exist");
+            else if (overlayFileError != null)
+                result.AddError(nameof(OverlayFile), overlayFileError);
             try
             {
                 ColorConverter.ConvertFromString(BackColorText);
@@ -286,7 +288,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 }
 
                 // There is an image overlay: demonstrating how to work with IReadWriteBitmapData in WPF
-                using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.PixelWidth, bmpSource.PixelHeight), KnownPixelFormat.Format32bppPArgb))
+                using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.PixelWidth, bmpSource.PixelHeight), KnownPixelFormat.Format32bppPArgb, BackColor.ToColor32(), AlphaThreshold))
                 {
                     // 1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any BitmapSource.
                     using (IReadableBitmapData bitmapDataSource = bmpSource.GetReadableBitmapData())
@@ -320,19 +322,8 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                     if (token.IsCancellationRequested)
                         return;
 
-                    // 3.) Quantizing with or without dithering if needed. For demonstration purpose we use the Dither/Quantize methods here, which
-                    //     actually don't change the pixel format but work on the original 32bpp bitmap data.
-                    PixelFormatInfo info = selectedFormat.ToPixelFormatInfo();
-                    if (ditherer != null)
-                        await (generateResultTask = resultBitmapData.DitherAsync(quantizer!, ditherer));
-                    else if (selectedFormat.BitsPerPixel < 32 || info.Grayscale || !info.HasAlpha)
-                        await (generateResultTask = resultBitmapData.QuantizeAsync(quantizer ?? selectedFormat.GetMatchingQuantizer(BackColor, AlphaThreshold)));
-
-                    if (token.IsCancellationRequested)
-                        return;
-
-                    // 4.) Converting to WriteableBitmap. We could call ConvertPixelFormat on the result but the appearance of the result will be the same anyway.
-                    Task<WriteableBitmap?> taskConvert = resultBitmapData.ToWriteableBitmapAsync(asyncConfig);
+                    // 3.) Converting to WriteableBitmap of the desired pixel format
+                    Task<WriteableBitmap?> taskConvert = resultBitmapData.ToWriteableBitmapAsync(selectedFormat, quantizer, ditherer, asyncConfig);
                     generateResultTask = taskConvert;
                     result = await taskConvert;
                 }
@@ -354,6 +345,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             tokenSource.Dispose();
             cancelGeneratingPreview = null;
         }
+
         private async Task WaitForPendingGenerate()
         {
             var runningTask = generateResultTask;
