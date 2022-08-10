@@ -174,7 +174,7 @@
   <data name="ImageExtensions_EncoderSaveFailFormat" xml:space="preserve">
     <value>Could not save the image by the '{0}' encoder.</value>
   </data>
-  <data name="ImageExtensions_PixelFormatNotSupportedFormat" xml:space="preserve">
+  <data name="General_PixelFormatNotSupportedFormat" xml:space="preserve">
     <value>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</value>
   </data>
   <data name="ImageExtensions_QuantizerInitializeNull" xml:space="preserve">
@@ -183,7 +183,7 @@
   <data name="ImageExtensions_DithererInitializeNull" xml:space="preserve">
     <value>The IDitherer.Initialize method returned a null reference.</value>
   </data>
-  <data name="ImageExtensions_PaletteTooLargeFormat" xml:space="preserve">
+  <data name="General_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>
   <data name="MetafileExtensions_CannotBeSavesAsEmf" xml:space="preserve">

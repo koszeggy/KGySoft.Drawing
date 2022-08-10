@@ -19,6 +19,7 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
+using System.Linq;
 #if NET7_0_OR_GREATER
 using System.Runtime.Versioning;
 #endif
@@ -74,7 +75,13 @@ namespace KGySoft.Drawing.Imaging
         public static Bitmap ToBitmap(this IReadableBitmapData source)
         {
             ValidateArguments(source);
-            return DoConvertToBitmap(AsyncHelper.DefaultContext, source)!;
+            return DoConvertToBitmapDirect(AsyncHelper.DefaultContext, source, GetCompatiblePixelFormat(source))!;
+        }
+
+        public static Bitmap ToBitmap(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return DoConvertToBitmapByQuantizer(AsyncHelper.DefaultContext, source, pixelFormat, quantizer, ditherer)!;
         }
 
         /// <summary>
@@ -98,7 +105,13 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.BeginOperation(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoConvertToBitmapDirect(ctx, source, GetCompatiblePixelFormat(source)), asyncConfig);
+        }
+
+        public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncHelper.BeginOperation(ctx => DoConvertToBitmapByQuantizer(ctx, source, pixelFormat, quantizer, ditherer), asyncConfig);
         }
 
         /// <summary>
@@ -131,9 +144,24 @@ namespace KGySoft.Drawing.Imaging
         public static Task<Bitmap?> ToBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertToBitmap(ctx, source), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertToBitmapDirect(ctx, source, GetCompatiblePixelFormat(source)), asyncConfig);
+        }
+
+        public static IAsyncResult ToBitmapAsync(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertToBitmapByQuantizer(ctx, source, pixelFormat, quantizer, ditherer), asyncConfig);
         }
 #endif
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static Bitmap? ToBitmap(this IReadableBitmapData source, IAsyncContext context, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+            => quantizer == null && ditherer == null
+                ? DoConvertToBitmapDirect(context, source, pixelFormat)
+                : DoConvertToBitmapByQuantizer(context, source, pixelFormat, quantizer, ditherer);
 
         #endregion
 
@@ -147,32 +175,31 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
         }
 
-        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static Bitmap? DoConvertToBitmap(IAsyncContext context, IReadableBitmapData source)
+        private static void ValidateArguments(IReadableBitmapData source, PixelFormat pixelFormat)
         {
-            PixelFormatInfo sourceFormat = source.PixelFormat;
-            PixelFormat pixelFormat = sourceFormat.ToKnownPixelFormat().ToPixelFormat();
-            Palette? palette = source.Palette;
-
-            // indexed custom formats with >8 bpp: ToKnownPixelFormat returns 32bpp but it can be fine-tuned
-            if (sourceFormat.IsCustomFormat && sourceFormat.Indexed && sourceFormat.BitsPerPixel > 8 && palette != null)
-                pixelFormat = palette.HasAlpha ? PixelFormat.Format32bppArgb
-                    : palette.IsGrayscale ? PixelFormat.Format16bppGrayScale
-                    : PixelFormat.Format24bppRgb;
-
+            ValidateArguments(source);
+            if (!pixelFormat.IsValidFormat())
+                throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
             if (!pixelFormat.IsSupportedNatively())
-                pixelFormat = pixelFormat.HasAlpha() ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb;
+                throw new PlatformNotSupportedException(Res.PixelFormatNotSupported(pixelFormat));
+        }
 
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static Bitmap? DoConvertToBitmapDirect(IAsyncContext context, IReadableBitmapData source, PixelFormat pixelFormat)
+        {
+            if (context.IsCancellationRequested)
+                return null;
             var result = new Bitmap(source.Width, source.Height, pixelFormat);
             bool canceled = false;
             try
             {
-                if (pixelFormat.IsIndexed() && palette != null)
-                    result.TrySetPalette(palette);
+                // validating and initializing palette in target bitmap
+                if (pixelFormat.IsIndexed())
+                    result.TrySetPalette(GetTargetPalette(pixelFormat, source, null));
 
                 if (canceled = context.IsCancellationRequested)
                     return null;
-                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.Palette))
+                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold))
                     source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }
@@ -187,6 +214,140 @@ namespace KGySoft.Drawing.Imaging
                 if (canceled)
                     result?.Dispose();
             }
+        }
+
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        private static Bitmap? DoConvertToBitmapByQuantizer(IAsyncContext context, IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
+        {
+            if (context.IsCancellationRequested)
+                return null;
+            Bitmap? result = null;
+            bool canceled = false;
+            try
+            {
+                Palette? sourcePaletteToApply = null;
+                if (quantizer == null)
+                {
+                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
+                    if (ditherer == null || !pixelFormat.CanBeDithered())
+                        return DoConvertToBitmapDirect(context, source, pixelFormat);
+
+                    // here we need to pick a quantizer for the dithering
+                    int bpp = pixelFormat.ToBitsPerPixel();
+
+                    sourcePaletteToApply = source.Palette;
+                    if (bpp <= 8 && sourcePaletteToApply?.Count > 0 && sourcePaletteToApply.Count <= (1 << bpp))
+                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(sourcePaletteToApply);
+                    else
+                    {
+                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormatInternal(), source.BackColor, source.AlphaThreshold);
+                        sourcePaletteToApply = null;
+                    }
+                }
+
+                if (canceled = context.IsCancellationRequested)
+                    return null;
+
+                result = new Bitmap(source.Width, source.Height, pixelFormat);
+                Palette? paletteByQuantizer = null;
+                Color32 backColor;
+                byte alphaThreshold;
+
+                switch (quantizer)
+                {
+                    // shortcut for predefined quantizers: we can extract everything
+                    case PredefinedColorsQuantizer predefinedColorsQuantizer:
+                        backColor = predefinedColorsQuantizer.BackColor;
+                        alphaThreshold = predefinedColorsQuantizer.AlphaThreshold;
+                        paletteByQuantizer = predefinedColorsQuantizer.Palette;
+                        break;
+
+                    // optimized quantizer: shortcut if we don't need the palette to initialize the result
+                    case OptimizedPaletteQuantizer optimizedPaletteQuantizer when !pixelFormat.IsIndexed():
+                        backColor = optimizedPaletteQuantizer.BackColor;
+                        alphaThreshold = optimizedPaletteQuantizer.AlphaThreshold;
+                        break;
+
+                    // we explicitly initialize the quantizer just to determine the back color, alpha threshold and possible palette for the result
+                    default:
+                        context.Progress?.New(DrawingOperation.InitializingQuantizer);
+                        using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
+                        {
+                            if (canceled = context.IsCancellationRequested)
+                                return null;
+                            if (quantizingSession == null)
+                                throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
+
+                            Debug.Assert(sourcePaletteToApply == null);
+                            paletteByQuantizer = quantizingSession.Palette;
+                            backColor = quantizingSession.BackColor;
+                            alphaThreshold = quantizingSession.AlphaThreshold;
+
+                            // We have a palette from a potentially expensive quantizer: creating a predefined quantizer from the already generated palette to avoid generating it again.
+                            Debug.Assert(quantizer is not PredefinedColorsQuantizer);
+                            if (paletteByQuantizer != null)
+                                quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteByQuantizer);
+                        }
+
+                        break;
+                }
+
+                if (canceled = context.IsCancellationRequested)
+                    return null;
+
+                // validating and initializing palette
+                if (pixelFormat.IsIndexed())
+                    result.TrySetPalette(GetTargetPalette(pixelFormat, source, sourcePaletteToApply ?? paletteByQuantizer));
+
+                using IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold);
+                return (canceled = !source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer)) ? null : result;
+            }
+            catch (Exception)
+            {
+                result?.Dispose();
+                result = null;
+                throw;
+            }
+            finally
+            {
+                if (canceled)
+                    result?.Dispose();
+            }
+        }
+
+        private static PixelFormat GetCompatiblePixelFormat(IReadableBitmapData source)
+        {
+            var pixelFormat = source.PixelFormat.ToKnownPixelFormat().ToPixelFormat();
+            return pixelFormat.IsSupportedNatively() ? pixelFormat
+                : pixelFormat.HasAlpha() ? PixelFormat.Format32bppArgb
+                : PixelFormat.Format24bppRgb;
+        }
+
+        private static Palette GetTargetPalette(PixelFormat pixelFormat, IReadableBitmapData source, Palette? palette)
+        {
+            Debug.Assert(pixelFormat.IsIndexed());
+
+            int bpp = pixelFormat.ToBitsPerPixel();
+            int maxColors = 1 << bpp;
+
+            // if no desired colors are specified but converting to a higher bpp indexed image, then taking the source palette
+            if (palette == null && source.PixelFormat.Indexed && source.Palette is { Count: > 0 } sourcePalette && sourcePalette.Count <= maxColors)
+                return sourcePalette;
+
+            if (palette == null || palette.Count == 0)
+                return pixelFormat switch
+                {
+                    PixelFormat.Format8bppIndexed => Palette.SystemDefault8BppPalette(),
+                    PixelFormat.Format4bppIndexed => Palette.SystemDefault4BppPalette(),
+                    PixelFormat.Format1bppIndexed => Palette.SystemDefault1BppPalette(),
+                    _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
+                };
+
+            // there is a desired palette to apply
+            if (palette.Count > maxColors)
+                throw new ArgumentException(Res.PaletteTooLarge(maxColors, bpp), nameof(palette));
+
+            return palette;
         }
 
         #endregion

@@ -40,6 +40,7 @@
   API changes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt
 + New ReadableBitmapDataExtensions class: contains the ToBitmap/BeginToBitmap/EndToBitmap/ToBitmapAsync methods of
   the original BitmapDataExtensions class that is now in the KGySoft.Drawing.Core package.
+  + New ToBitmap/BeginToBitmap/ToBitmapAsync overloads with custom pixel format, quantizer and ditherer.
 
 
 ~~~~~~~~~

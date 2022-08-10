@@ -171,6 +171,12 @@ namespace KGySoft
         /// <summary>Pixel format '{0}' does not represent an actual format.</summary>
         internal static string PixelFormatInvalid(PixelFormat pixelFormat) => Get("General_PixelFormatInvalidFormat", Enum<PixelFormat>.ToString(pixelFormat));
 
+        /// <summary>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</summary>
+        internal static string PixelFormatNotSupported(PixelFormat pixelFormat) => Get("General_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
+
+        /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
+        internal static string PaletteTooLarge(int max, int bpp) => Get("General_PaletteTooLargeFormat", max, bpp);
+
         #endregion
 
         #region ImageExtensions
@@ -180,12 +186,6 @@ namespace KGySoft
 
         /// <summary>Could not save the image by the '{0}' encoder.</summary>
         internal static string ImageExtensionsEncoderSaveFail(ImageFormat imageFormat) => Get("ImageExtensions_EncoderSaveFailFormat", imageFormat);
-
-        /// <summary>Pixel format '{0}' is not supported by native Bitmaps on the current platform.</summary>
-        internal static string ImageExtensionsPixelFormatNotSupported(PixelFormat pixelFormat) => Get("ImageExtensions_PixelFormatNotSupportedFormat", Enum<PixelFormat>.ToString(pixelFormat));
-
-        /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
-        internal static string ImageExtensionsPaletteTooLarge(int max, int bpp) => Get("ImageExtensions_PaletteTooLargeFormat", max, bpp);
 
         #endregion
 

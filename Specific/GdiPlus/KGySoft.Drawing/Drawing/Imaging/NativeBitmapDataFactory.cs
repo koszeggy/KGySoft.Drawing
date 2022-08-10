@@ -45,7 +45,7 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "Very straightforward switch with many conditions. Would be OK without the libgdiplus special handling for 16bpp RGB555/565 formats.")]
         [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
-        internal static IReadWriteBitmapData CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
+        internal static IReadWriteBitmapData CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128)
         {
             PixelFormat pixelFormat = bitmap.PixelFormat;
 
@@ -80,8 +80,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
-                    Debug.Assert(palette == null || palette.GetEntries().SequenceEqual(bitmap.Palette.Entries.Select(c => new Color32(c))), "Non-null palette entries must match actual palette. Expected to be passed to re-use its cache only.");
-                    palette ??= new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
+                    var palette = new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, palette, bitmap.TrySetPalette, dispose);
 
                 case PixelFormat.Format64bppArgb:

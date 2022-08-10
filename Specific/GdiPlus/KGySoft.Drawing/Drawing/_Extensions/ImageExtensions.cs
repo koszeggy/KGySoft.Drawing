@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -2223,188 +2222,42 @@ namespace KGySoft.Drawing
             if (!newPixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(newPixelFormat), Res.PixelFormatInvalid(newPixelFormat));
             if (!newPixelFormat.IsSupportedNatively())
-                throw new PlatformNotSupportedException(Res.ImageExtensionsPixelFormatNotSupported(newPixelFormat));
+                throw new PlatformNotSupportedException(Res.PixelFormatNotSupported(newPixelFormat));
         }
 
         private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
         {
-            #region Local Methods
-
-            static Palette GetDefaultPalette(PixelFormat pixelFormat) => pixelFormat switch
-            {
-                PixelFormat.Format8bppIndexed => Palette.SystemDefault8BppPalette(),
-                PixelFormat.Format4bppIndexed => Palette.SystemDefault4BppPalette(),
-                PixelFormat.Format1bppIndexed => Palette.SystemDefault1BppPalette(),
-                _ => throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange)
-            };
-            
-            #endregion
-
+            if (context.IsCancellationRequested)
+                return null;
             Bitmap bmp = image.AsBitmap();
-            Bitmap? result = null;
-
             try
             {
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-
-                // validating and initializing palette in target bitmap
-                if (newPixelFormat.IsIndexed())
-                    InitPalette(newPixelFormat, bmp, result, palette);
-
-                // shortcut for target bitmap data palette: prevents to obtain palette from bitmap
-                Palette? targetPalette =
-                    // null if target is not indexed or there is no custom palette and source is indexed (so it will be taken from source)
-                    !newPixelFormat.IsIndexed() || palette == null && bmp.PixelFormat.IsIndexed() ? null
-                    // using the custom colors
-                    : palette != null ? new Palette(palette, backColor, alphaThreshold)
-                    // using the default palette from target
-                    : new Palette(GetDefaultPalette(newPixelFormat), new Color32(backColor), alphaThreshold);
-
-                if (context.IsCancellationRequested)
-                    return null;
-                using (IReadableBitmapData source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly))
-                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, targetPalette))
-                    return source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty) ? result : null;
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                result = null;
-                throw;
+                using var source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly, backColor, alphaThreshold);
+                return source.ToBitmap(context, newPixelFormat, palette == null ? null : PredefinedColorsQuantizer.FromCustomPalette(palette, backColor, alphaThreshold), null);
             }
             finally
             {
                 if (!ReferenceEquals(bmp, image))
                     bmp.Dispose();
-                if (context.IsCancellationRequested)
-                    result?.Dispose();
             }
         }
 
-        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         private static Bitmap? DoConvertPixelFormat(IAsyncContext context, Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
         {
+            if (context.IsCancellationRequested)
+                return null;
             Bitmap bmp = image.AsBitmap();
-            Bitmap? result = null;
-            bool canceled = false;
 
             try
             {
-                Color[]? sourcePaletteToApply = null;
-                if (quantizer == null)
-                {
-                    // converting without using a quantizer (even if only a ditherer is specified for a high-bpp pixel format)
-                    if (ditherer == null || !newPixelFormat.CanBeDithered())
-                        return DoConvertPixelFormat(context, image, newPixelFormat, null, Color.Empty, 128);
-
-                    // here we need to pick a quantizer for the dithering
-                    int bpp = newPixelFormat.ToBitsPerPixel();
-
-                    sourcePaletteToApply = bmp.Palette.Entries;
-                    if (bpp <= 8 && sourcePaletteToApply.Length > 0 && sourcePaletteToApply.Length <= (1 << bpp))
-                        quantizer = PredefinedColorsQuantizer.FromCustomPalette(sourcePaletteToApply);
-                    else
-                    {
-                        quantizer = PredefinedColorsQuantizer.FromPixelFormat(newPixelFormat.ToKnownPixelFormatInternal());
-                        sourcePaletteToApply = null;
-                    }
-                }
-
-                if (canceled = context.IsCancellationRequested)
-                    return null;
-                result = new Bitmap(image.Width, image.Height, newPixelFormat);
-                using IReadableBitmapData source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
-
-                Palette? paletteByQuantizer = null;
-                Color32 backColor;
-                byte alphaThreshold;
-
-                switch (quantizer)
-                {
-                    // shortcut for predefined quantizers: we can extract everything
-                    case PredefinedColorsQuantizer predefinedColorsQuantizer:
-                        backColor = predefinedColorsQuantizer.BackColor;
-                        alphaThreshold = predefinedColorsQuantizer.AlphaThreshold;
-                        paletteByQuantizer = predefinedColorsQuantizer.Palette;
-                        break;
-
-                    // optimized quantizer: shortcut if we don't need the palette to initialize the result
-                    case OptimizedPaletteQuantizer optimizedPaletteQuantizer when !newPixelFormat.IsIndexed():
-                        backColor = optimizedPaletteQuantizer.BackColor;
-                        alphaThreshold = optimizedPaletteQuantizer.AlphaThreshold;
-                        break;
-                    
-                    // we explicitly initialize the quantizer just to determine the back color, alpha threshold and possible palette for the result
-                    default:
-                        context.Progress?.New(DrawingOperation.InitializingQuantizer);
-                        using (IQuantizingSession quantizingSession = quantizer.Initialize(source, context))
-                        {
-                            if (canceled = context.IsCancellationRequested)
-                                return null;
-                            if (quantizingSession == null)
-                                throw new InvalidOperationException(Res.ImageExtensionsQuantizerInitializeNull);
-
-                            Debug.Assert(sourcePaletteToApply == null);
-                            paletteByQuantizer = quantizingSession.Palette;
-                            backColor = quantizingSession.BackColor;
-                            alphaThreshold = quantizingSession.AlphaThreshold;
-
-                            // We have a palette from a potentially expensive quantizer: creating a predefined quantizer from the already generated palette to avoid generating it again.
-                            Debug.Assert(quantizer is not PredefinedColorsQuantizer);
-                            if (paletteByQuantizer != null)
-                                quantizer = PredefinedColorsQuantizer.FromCustomPalette(paletteByQuantizer);
-                        }
-
-                        break;
-                }
-
-                if (canceled = context.IsCancellationRequested)
-                    return null;
-
-                // validating and initializing palette
-                if (newPixelFormat.IsIndexed())
-                    InitPalette(newPixelFormat, bmp, result, sourcePaletteToApply ?? paletteByQuantizer?.GetEntries().Select(c => c.ToColor()).ToArray());
-
-                // Note: palette is purposely not passed here so a new instance will be created from the colors, without any possible delegate (which is still used by the quantizer).
-                using IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold);
-                return (canceled = !source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer)) ? null : result;
-            }
-            catch (Exception)
-            {
-                result?.Dispose();
-                result = null;
-                throw;
+                using var source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
+                return source.ToBitmap(context, newPixelFormat, quantizer, ditherer);
             }
             finally
             {
                 if (!ReferenceEquals(bmp, image))
                     bmp.Dispose();
-                if (canceled)
-                    result?.Dispose();
             }
-        }
-
-        /// <summary>
-        /// Initializes target bitmap palette.
-        /// </summary>
-        private static void InitPalette(PixelFormat newPixelFormat, Bitmap source, Bitmap target, Color[]? palette)
-        {
-            int bpp = newPixelFormat.ToBitsPerPixel();
-
-            // if the quantized target does not have a palette but converting to a higher bpp indexed image, then taking the source palette
-            if (palette == null && source.PixelFormat.ToBitsPerPixel() <= bpp)
-                // ReSharper disable once ConditionalAccessQualifierIsNonNullableAccordingToAPIContract
-                palette = source.Palette?.Entries;
-
-            if (palette == null || palette.Length == 0)
-                return;
-
-            // there is a desired palette to apply
-            int maxColors = 1 << bpp;
-            if (palette.Length > maxColors)
-                throw new ArgumentException(Res.ImageExtensionsPaletteTooLarge(maxColors, bpp), nameof(palette));
-
-            target.TrySetPalette(palette);
         }
 
         #endregion
