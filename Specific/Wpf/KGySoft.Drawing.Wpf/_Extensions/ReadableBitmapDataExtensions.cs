@@ -176,7 +176,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Waits for the pending asynchronous operation started by any of
         /// the <see cref="O:KGySoft.Drawing.Wpf.ReadableBitmapDataExtensions.BeginToWriteableBitmap">BeginToWriteableBitmap</see> methods to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadableBitmapDataExtensions.ToWriteableBitmapAsync">ToWriteableBitmapAsync</see> method instead.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Wpf.ReadableBitmapDataExtensions.ToWriteableBitmapAsync">ToWriteableBitmapAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="WriteableBitmap"/> instance that is the result of the operation,

@@ -19,7 +19,6 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Linq;
 #if NET7_0_OR_GREATER
 using System.Runtime.Versioning;
 #endif
@@ -64,8 +63,8 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Bitmap"/> instance that has the same content as the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToBitmap">BeginToBitmap</see>
-        /// or <see cref="ToBitmapAsync">ToBitmapAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginToBitmap(IReadableBitmapData, AsyncConfig?)">BeginToBitmap</see>
+        /// or <see cref="ToBitmapAsync(IReadableBitmapData, TaskConfig?)">ToBitmapAsync</see> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>The result <see cref="Bitmap"/> will have the closest possible <see cref="PixelFormat"/> to <paramref name="source"/>. If the source pixel format is not supported on the current platform,
         /// then the result will have either <see cref="PixelFormat.Format24bppRgb"/> or <see cref="PixelFormat.Format32bppArgb"/> format, depending whether source has transparency.
         /// <note>On Windows every format is supported with more or less limitations. For details and further information about the possible usable <see cref="PixelFormat"/>s on different platforms
@@ -78,6 +77,31 @@ namespace KGySoft.Drawing.Imaging
             return DoConvertToBitmapDirect(AsyncHelper.DefaultContext, source, GetCompatiblePixelFormat(source))!;
         }
 
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/> that has the specified <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="pixelFormat">The desired result pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
+        /// If <see langword="null"/>&#160;and <paramref name="pixelFormat"/> is an indexed format, then a default palette and quantization logic will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="pixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A <see cref="Bitmap"/> converted from the specified <paramref name="source"/>.</returns>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="BeginToBitmap(IReadableBitmapData, PixelFormat, IQuantizer?, IDitherer?, AsyncConfig?)">BeginToBitmap</see>
+        /// or <see cref="ToBitmapAsync(IReadableBitmapData, PixelFormat, IQuantizer?, IDitherer?, TaskConfig?)">ToBitmapAsync</see> (in .NET Framework 4.0 and above)
+        /// methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>To produce a <see cref="Bitmap"/> with the best matching pixel format to <paramref name="source"/>,
+        /// use the <see cref="ToBitmap(IReadableBitmapData)"/> overload instead.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="PlatformNotSupportedException">The specified <paramref name="pixelFormat"/> is not supported on the current platform.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="pixelFormat"/>.</exception>
         public static Bitmap ToBitmap(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -97,10 +121,10 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
-        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ToBitmapAsync">ToBitmapAsync</see> method.</para>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ToBitmapAsync(IReadableBitmapData, TaskConfig?)">ToBitmapAsync</see> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndToBitmap">EndToBitmap</see> method.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToBitmap">ToBitmap</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToBitmapAsync(IReadableBitmapData, TaskConfig?)">ToBitmap</see> method for more details.</note>
         /// </remarks>
         public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, AsyncConfig? asyncConfig = null)
         {
@@ -108,6 +132,32 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.BeginOperation(ctx => DoConvertToBitmapDirect(ctx, source, GetCompatiblePixelFormat(source)), asyncConfig);
         }
 
+        /// <summary>
+        /// Begins to convert the specified <paramref name="source"/> to a <see cref="Bitmap"/> with a specific <see cref="PixelFormat"/> asynchronously.
+        /// <br/>See the <strong>Remarks</strong> section for details.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="pixelFormat">The desired result pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
+        /// If <see langword="null"/>&#160;and <paramref name="pixelFormat"/> is an indexed format, then a default palette and quantization logic will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="pixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ToBitmapAsync(IReadableBitmapData, PixelFormat, IQuantizer?, IDitherer?, TaskConfig?)">ToBitmapAsync</see> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndToBitmap">EndToBitmap</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="PlatformNotSupportedException">The specified <paramref name="pixelFormat"/> is not supported on the current platform.</exception>
         public static IAsyncResult BeginToBitmap(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
@@ -115,8 +165,8 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Waits for the pending asynchronous operation started by the <see cref="BeginToBitmap">BeginToBitmap</see> method to complete.
-        /// In .NET Framework 4.0 and above you can use the <see cref="ToBitmapAsync">ToBitmapAsync</see> method instead.
+        /// Waits for the pending asynchronous operation started by any of the <see cref="O:KGySoft.Drawing.Imaging.ReadableBitmapDataExtensions.BeginToBitmap">BeginToBitmap</see> methods to complete.
+        /// In .NET Framework 4.0 and above you can use the <see cref="O:KGySoft.Drawing.Imaging.ReadableBitmapDataExtensions.ToBitmapAsync">ToBitmapAsync</see> methods instead.
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
@@ -126,7 +176,6 @@ namespace KGySoft.Drawing.Imaging
 #if !NET35
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
@@ -139,7 +188,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
-        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToBitmap">ToBitmap</see> method for more details.</note>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToBitmap(IReadableBitmapData)">ToBitmap</see> method for more details.</note>
         /// </remarks>
         public static Task<Bitmap?> ToBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
@@ -147,6 +196,31 @@ namespace KGySoft.Drawing.Imaging
             return AsyncHelper.DoOperationAsync(ctx => DoConvertToBitmapDirect(ctx, source, GetCompatiblePixelFormat(source)), asyncConfig);
         }
 
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to a <see cref="Bitmap"/> asynchronously.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
+        /// <param name="pixelFormat">The desired result pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
+        /// If <see langword="null"/>&#160;and <paramref name="pixelFormat"/> is an indexed format, then a default palette and quantization logic will be used. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="pixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is a <see cref="Bitmap"/> instance that has the same content as the specified <paramref name="source"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
+        /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="pixelFormat"/>.</exception>
+        /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
         public static IAsyncResult ToBitmapAsync(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
