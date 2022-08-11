@@ -81,10 +81,12 @@
         </Grid>
 
         <!--Ditherer-->
-        <TextBlock Grid.Row="6" Grid.Column="0">Ditherer:</TextBlock>
+        <CheckBox Grid.Row="6" Grid.Column="0"
+                  IsChecked="{Binding UseDithering}">Ditherer:</CheckBox>
         <ComboBox Grid.Row="6" Grid.Column="1"
                   ItemsSource="{Binding Ditherers, Mode=OneTime}"
-                  SelectedItem="{Binding SelectedDitherer}"/>
+                  SelectedItem="{Binding SelectedDitherer}"
+                  IsEnabled="{Binding UseDithering}"/>
 
         <!--Image-->
         <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"

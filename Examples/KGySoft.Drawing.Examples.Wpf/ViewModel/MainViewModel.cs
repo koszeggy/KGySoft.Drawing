@@ -53,7 +53,6 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         public enum Ditherer
         {
-            None,
             Ordered,
             ErrorDiffusion,
             RandomNoise,
@@ -75,6 +74,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             nameof(BackColor),
             nameof(AlphaThreshold),
             nameof(OptimizePalette),
+            nameof(UseDithering),
             nameof(SelectedDitherer),
         };
 
@@ -111,6 +111,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         public byte AlphaThreshold { get => Get<byte>(128); set => Set(value); }
         public bool OptimizePalette { get => Get<bool>(); set => Set(value); }
         public bool OptimizePaletteEnabled { get => Get(true); set => Set(value); }
+        public bool UseDithering { get => Get<bool>(); set => Set(value); }
         public Ditherer SelectedDitherer { get => Get<Ditherer>(); set => Set(value); }
         public ImageSource? DisplayImage { get => Get<ImageSource?>(); set => Set(value); }
         public string? ProgressText { get => Get<string?>(); set => Set(value); }
@@ -253,16 +254,17 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
 
-
             // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
-            IDitherer? ditherer = SelectedDitherer switch
-            {
-                Ditherer.Ordered => OrderedDitherer.Bayer8x8,
-                Ditherer.ErrorDiffusion => ErrorDiffusionDitherer.FloydSteinberg,
-                Ditherer.RandomNoise => new RandomNoiseDitherer(),
-                Ditherer.InterleavedGradientNoise => new InterleavedGradientNoiseDitherer(),
-                _ => null
-            };
+            IDitherer? ditherer = !UseDithering
+                ? null
+                : SelectedDitherer switch
+                {
+                    Ditherer.Ordered => OrderedDitherer.Bayer8x8,
+                    Ditherer.ErrorDiffusion => ErrorDiffusionDitherer.FloydSteinberg,
+                    Ditherer.RandomNoise => new RandomNoiseDitherer(),
+                    Ditherer.InterleavedGradientNoise => new InterleavedGradientNoiseDitherer(),
+                    _ => null
+                };
 
             // Quantizer: effectively using only when palette optimization is requested. Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
             IQuantizer? quantizer = OptimizePalette && selectedFormat.IsIndexed()
