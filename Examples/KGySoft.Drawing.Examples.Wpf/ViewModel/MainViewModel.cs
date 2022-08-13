@@ -181,8 +181,10 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         public enum Ditherer
         {
-            Ordered,
-            ErrorDiffusion,
+            Bayer8x8,
+            DottedHalftone,
+            BlueNoise,
+            FloydSteinberg,
             RandomNoise,
             InterleavedGradientNoise
         }
@@ -218,12 +220,16 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         private string? overlayFileError;
         private CancellationTokenSource? cancelGeneratingPreview;
         private Task? generateResultTask;
+        private IReadableBitmapData? cachedSource;
+        private IReadableBitmapData? cachedOverlay;
 
         #endregion
 
         #endregion
 
         #region Properties
+        
+        #region Public Properties
 
         public PixelFormat[] PixelFormats { get; } = typeof(PixelFormats).GetProperties()
             .Where(p => p.Name != nameof(System.Windows.Media.PixelFormats.Default))
@@ -234,11 +240,13 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         public string? ImageFile { get => Get<string?>(); set => Set(value); }
         public string? OverlayFile { get => Get<string?>(); set => Set(value); }
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
-        public PixelFormat SelectedFormat { get => Get(System.Windows.Media.PixelFormats.Indexed8); set => Set(value); }
+        public PixelFormat SelectedFormat { get => Get<PixelFormat>(); set => Set(value); }
         public string BackColorText { get => Get("Silver"); set => Set(value); }
         public Color BackColor { get => Get(Colors.Silver); set => Set(value); }
         public Brush? BackColorBrush { get => Get<Brush?>(() => new SolidColorBrush(BackColor)); set => Set(value); }
+        public bool BackColorEnabled { get => Get<bool>(); set => Set(value); }
         public byte AlphaThreshold { get => Get<byte>(128); set => Set(value); }
+        public bool AlphaThresholdEnabled { get => Get<bool>(); set => Set(value); }
         public bool OptimizePalette { get => Get<bool>(); set => Set(value); }
         public bool OptimizePaletteEnabled { get => Get(true); set => Set(value); }
         public bool UseDithering { get => Get<bool>(); set => Set(value); }
@@ -252,11 +260,42 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         #endregion
 
+        #region Private Properties
+
+        private IReadableBitmapData? CachedSource => cachedSource ??= sourceBitmap?.GetReadableBitmapData();
+
+        private IReadableBitmapData? CachedOverlay
+        {
+            get
+            {
+                if (cachedOverlay != null)
+                    return cachedOverlay;
+
+                if (sourceBitmap == null || overlayBitmap == null)
+                    return null;
+
+                IReadableBitmapData overlayBitmapData = overlayBitmap.GetReadableBitmapData();
+                if (overlayBitmapData.Width <= sourceBitmap.PixelWidth && overlayBitmapData.Height <= sourceBitmap.PixelHeight)
+                    return cachedOverlay = overlayBitmapData;
+
+                // Shrinking overlay if larger than the actual image.
+                IReadWriteBitmapData resizedOverlay = BitmapDataFactory.CreateBitmapData(new Size(Math.Min(sourceBitmap.PixelHeight, overlayBitmapData.Width), Math.Min(sourceBitmap.PixelHeight, overlayBitmapData.Height)), KnownPixelFormat.Format32bppPArgb);
+                overlayBitmapData.DrawInto(resizedOverlay, new Rectangle(Point.Empty, resizedOverlay.Size));
+                overlayBitmapData.Dispose();
+                return cachedOverlay = resizedOverlay;
+            }
+        }
+
+        #endregion
+        
+        #endregion
+
         #region Constructors
 
         public MainViewModel()
         {
             progressUpdater = new ProgressUpdater(this);
+            SelectedFormat = System.Windows.Media.PixelFormats.Indexed8;
             ImageFile = @"..\..\..\..\..\Help\Images\Shield256.png";
             OverlayFile = @"..\..\..\..\..\Help\Images\AlphaGradient.png";
         }
@@ -304,6 +343,8 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                     try
                     {
                         sourceBitmap = new BitmapImage(new Uri(file, UriKind.RelativeOrAbsolute));
+                        cachedSource?.Dispose();
+                        cachedSource = null;
                     }
                     catch (Exception ex)
                     {
@@ -316,6 +357,8 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 case nameof(OverlayFile):
                     overlayFileError = null;
                     file = e.NewValue as string;
+                    cachedOverlay?.Dispose();
+                    cachedOverlay = null;
                     if (String.IsNullOrWhiteSpace(file) || !File.Exists(file))
                         break;
 
@@ -348,6 +391,13 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                     break;
             }
 
+            if (e.PropertyName is nameof(SelectedFormat) or nameof(UseDithering) or nameof(OptimizePalette))
+            {
+                PixelFormatInfo pixelFormatInfo = SelectedFormat.ToPixelFormatInfo();
+                AlphaThresholdEnabled = pixelFormatInfo.HasAlpha && UseDithering || pixelFormatInfo.BitsPerPixel == 8 || (pixelFormatInfo.Indexed && OptimizePalette);
+                BackColorEnabled = !pixelFormatInfo.HasAlpha || UseDithering;
+            }
+
             if (affectsPreview.Contains(e.PropertyName!))
                 await GenerateResult();
         }
@@ -357,7 +407,12 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             if (IsDisposed)
                 return;
             if (disposing)
+            {
                 progressUpdater.Dispose();
+                cachedSource?.Dispose();
+                cachedOverlay?.Dispose();
+            }
+
             base.Dispose(disposing);
         }
 
@@ -376,7 +431,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             }
 
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
-            // Therefore it is possible that despite of the clearing generatePreviewTask in WaitForPendingGenerate it not null upon starting the continuation.
+            // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
             {
                 CancelRunningGenerate();
@@ -398,8 +453,10 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 ? null
                 : SelectedDitherer switch
                 {
-                    Ditherer.Ordered => OrderedDitherer.Bayer8x8,
-                    Ditherer.ErrorDiffusion => ErrorDiffusionDitherer.FloydSteinberg,
+                    Ditherer.Bayer8x8 => OrderedDitherer.Bayer8x8,
+                    Ditherer.DottedHalftone => OrderedDitherer.DottedHalftone,
+                    Ditherer.BlueNoise => OrderedDitherer.BlueNoise,
+                    Ditherer.FloydSteinberg => ErrorDiffusionDitherer.FloydSteinberg,
                     Ditherer.RandomNoise => new RandomNoiseDitherer(),
                     Ditherer.InterleavedGradientNoise => new InterleavedGradientNoiseDitherer(),
                     _ => null
@@ -422,43 +479,27 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 {
                     Task<WriteableBitmap?> taskConvert = quantizer == null && ditherer == null
                         ? bmpSource.ConvertPixelFormatAsync(selectedFormat, BackColor, AlphaThreshold, asyncConfig) // without quantizing and dithering
-                        : bmpSource.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig); // with quantizing and dithering
+                        : bmpSource.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig); // with quantizing and/or dithering
                     generateResultTask = taskConvert;
                     result = await taskConvert;
                     return;
                 }
 
-                // There is an image overlay: demonstrating how to work with IReadWriteBitmapData in WPF
-                using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.PixelWidth, bmpSource.PixelHeight), KnownPixelFormat.Format32bppPArgb, BackColor.ToColor32(), AlphaThreshold))
+                // There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in WPF
+                using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.PixelWidth, bmpSource.PixelHeight), KnownPixelFormat.Format32bppArgb, BackColor.ToColor32(), AlphaThreshold))
                 {
                     // 1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any BitmapSource.
-                    using (IReadableBitmapData bitmapDataSource = bmpSource.GetReadableBitmapData())
-                        await (generateResultTask = bitmapDataSource.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig));
+                    await (generateResultTask = CachedSource!.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig));
 
                     if (token.IsCancellationRequested)
                         return;
 
-                    // 2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which uses blending and supports resizing.
-                    using (IReadableBitmapData bitmapDataOverlay = bmpOverlay.GetReadableBitmapData())
-                    {
-                        // Shrinking overlay if larger than the actual image.
-                        var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - bitmapDataOverlay.Width / 2,
-                            resultBitmapData.Height / 2 - bitmapDataOverlay.Height / 2, bitmapDataOverlay.Width, bitmapDataOverlay.Height);
-                        if (targetRectangle.X < 0)
-                        {
-                            targetRectangle.X = 0;
-                            targetRectangle.Width = resultBitmapData.Width;
-                        }
-
-                        if (targetRectangle.Y < 0)
-                        {
-                            targetRectangle.Y = 0;
-                            targetRectangle.Height = resultBitmapData.Height;
-                        }
-
-                        await (generateResultTask = bitmapDataOverlay.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, bitmapDataOverlay.Size),
-                            targetRectangle, asyncConfig: asyncConfig));
-                    }
+                    // 2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which uses alpha blending
+                    IReadableBitmapData overlayBitmapData = CachedOverlay!;
+                    var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
+                        resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
+                    await (generateResultTask = overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
+                        targetRectangle, asyncConfig: asyncConfig));
 
                     if (token.IsCancellationRequested)
                         return;
