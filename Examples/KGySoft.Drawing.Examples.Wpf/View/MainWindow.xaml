@@ -8,6 +8,27 @@
         d:DataContext="{d:DesignInstance viewModel:MainViewModel, IsDesignTimeCreatable=True}"
         Title="KGy SOFT Drawing WPF Example App"
         Width="400" SizeToContent="Height">
+    <Window.Resources>
+        <Style TargetType="TextBox">
+            <Style.Triggers>
+                <Trigger Property="Validation.HasError" Value="True">
+                    <Setter Property="Validation.ErrorTemplate">
+                        <Setter.Value>
+                            <ControlTemplate>
+                                <AdornedElementPlaceholder Name="adorner">
+                                    <Polygon HorizontalAlignment="Right" VerticalAlignment="Top"
+                                             Points="10,10 10,0 0,0"
+                                             Fill="Red"
+                                             ToolTip="{Binding ElementName=adorner, Path=AdornedElement.(Validation.Errors)/ErrorContent}"/>
+                                </AdornedElementPlaceholder>
+                            </ControlTemplate>
+                        </Setter.Value>
+                    </Setter>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+    </Window.Resources>
+
     <Grid Margin="5">
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -35,7 +56,7 @@
         <!--Image Overlay File-->
         <CheckBox Grid.Row="1" Grid.Column="0"
                   IsChecked="{Binding ShowOverlay}"
-                  ToolTip="Check to blend an overlay image onto the base image">Image Overlay:</CheckBox>
+                  ToolTip="Check to blend an overlay image with the base image">Image Overlay:</CheckBox>
         <TextBox Grid.Row="1" Grid.Column="1"
                  Text="{Binding OverlayFile, ValidatesOnDataErrors=True}"
                  ToolTip="The overlay image to display"
@@ -53,7 +74,8 @@
         <CheckBox Grid.Row="3" Grid.Column="1"
                   IsChecked="{Binding OptimizePalette}"
                   IsEnabled="{Binding OptimizePaletteEnabled}"
-                  ToolTip="When an indexed pixel format is selected, check to use an optimized palette instead of a predefined one.">Optimize Palette</CheckBox>
+                  ToolTip="When an indexed pixel format is selected, check to use an optimized palette instead of a predefined one."
+                  ToolTipService.ShowOnDisabled="True">Optimize Palette</CheckBox>
 
         <!-- b.) Back Color -->
         <Grid Grid.Row="4" Grid.Column="1">
@@ -66,7 +88,8 @@
             <TextBox Grid.Column="1"
                      Text="{Binding BackColorText, ValidatesOnDataErrors=True}"
                      IsEnabled="{Binding BackColorEnabled}"
-                     ToolTip="When the selected pixel format does not support gradient transparency, or dithering is selected, then specifies the background color.&#x0a;Alpha pixels that are considered opaque are blended with this color during the processing.&#x0a;Hex #AARRGGBB format is also supported."/>
+                     ToolTip="When the selected pixel format does not support gradient transparency, or dithering is selected, then specifies the background color.&#x0a;Alpha pixels that are considered opaque are blended with this color during the processing.&#x0a;Hex #AARRGGBB format is also supported."
+                     ToolTipService.ShowOnDisabled="True"/>
             <Rectangle Grid.Column="2" Fill="{Binding BackColorBrush}" />
         </Grid>
 
@@ -85,7 +108,8 @@
                     SmallChange="1" LargeChange="25"
                     Value="{Binding AlphaThreshold}"
                     IsEnabled="{Binding AlphaThresholdEnabled}"
-                    ToolTip="Specifies the alpha threshold under which the pixel is considered transparent.&#x0a;If 0, then the result will not have any transparent pixels.&#x0a;If 255, then all partially transparent pixels will turn transparent."/>
+                    ToolTip="Specifies the alpha threshold under which the pixel is considered transparent.&#x0a;If 0, then the result will not have any transparent pixels.&#x0a;If 255, then all partially transparent pixels will turn transparent."
+                    ToolTipService.ShowOnDisabled="True"/>
             <TextBlock Grid.Column="2" Text="{Binding AlphaThreshold, Mode=OneWay}"/>
         </Grid>
 
@@ -97,7 +121,8 @@
                   ItemsSource="{Binding Ditherers, Mode=OneTime}"
                   SelectedItem="{Binding SelectedDitherer}"
                   IsEnabled="{Binding UseDithering}"
-                  ToolTip="The selected ditherer.&#x0a;Floyd-Steinberg is an error diffusion ditherer, which does not support parallel processing but usually has high quality.&#x0a;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."/>
+                  ToolTip="The selected ditherer.&#x0a;Floyd-Steinberg is an error diffusion ditherer, which does not support parallel processing but usually has high quality.&#x0a;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."
+                  ToolTipService.ShowOnDisabled="True"/>
 
         <!--Image-->
         <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"

@@ -262,9 +262,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         #region Private Properties
 
-        private IReadableBitmapData? CachedSource => cachedSource ??= sourceBitmap?.GetReadableBitmapData();
-
-        private IReadableBitmapData? CachedOverlay
+        private IReadableBitmapData CachedOverlay
         {
             get
             {
@@ -272,7 +270,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                     return cachedOverlay;
 
                 if (sourceBitmap == null || overlayBitmap == null)
-                    return null;
+                    throw new InvalidOperationException("Source and overlay are not expected to be null here");
 
                 IReadableBitmapData overlayBitmapData = overlayBitmap.GetReadableBitmapData();
                 if (overlayBitmapData.Width <= sourceBitmap.PixelWidth && overlayBitmapData.Height <= sourceBitmap.PixelHeight)
@@ -308,6 +306,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         protected override ValidationResultsCollection DoValidation()
         {
+            // Validating properties. To display also Warning and Info validation levels see the demo project at https://github.com/koszeggy/KGySoft.ComponentModelDemo
             var result = new ValidationResultsCollection();
             if (String.IsNullOrEmpty(ImageFile) || !File.Exists(ImageFile))
                 result.AddError(nameof(ImageFile), "The specified file does not exist");
@@ -394,7 +393,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             if (e.PropertyName is nameof(SelectedFormat) or nameof(UseDithering) or nameof(OptimizePalette))
             {
                 PixelFormatInfo pixelFormatInfo = SelectedFormat.ToPixelFormatInfo();
-                AlphaThresholdEnabled = pixelFormatInfo.HasAlpha && UseDithering || pixelFormatInfo.BitsPerPixel == 8 || (pixelFormatInfo.Indexed && OptimizePalette);
+                AlphaThresholdEnabled = pixelFormatInfo.HasAlpha && UseDithering || (pixelFormatInfo.Indexed && (OptimizePalette || pixelFormatInfo.BitsPerPixel == 8));
                 BackColorEnabled = !pixelFormatInfo.HasAlpha || UseDithering;
             }
 
@@ -420,7 +419,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         #region Private Methods
 
-        // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the actual task
+        // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
         // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
         private async Task GenerateResult()
         {
@@ -489,13 +488,14 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.PixelWidth, bmpSource.PixelHeight), KnownPixelFormat.Format32bppArgb, BackColor.ToColor32(), AlphaThreshold))
                 {
                     // 1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any BitmapSource.
-                    await (generateResultTask = CachedSource!.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig));
+                    cachedSource ??= bmpSource.GetReadableBitmapData();
+                    await (generateResultTask = cachedSource.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig));
 
                     if (token.IsCancellationRequested)
                         return;
 
-                    // 2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which uses alpha blending
-                    IReadableBitmapData overlayBitmapData = CachedOverlay!;
+                    // 2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
+                    IReadableBitmapData overlayBitmapData = CachedOverlay;
                     var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
                         resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
                     await (generateResultTask = overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),

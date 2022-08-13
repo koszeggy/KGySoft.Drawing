@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Windows;
 
 using KGySoft.Drawing.Examples.Wpf.ViewModel;
@@ -31,6 +32,16 @@ namespace KGySoft.Drawing.Examples.Wpf.View
         {
             InitializeComponent();
             DataContext = new MainViewModel();
+        }
+
+        #endregion
+
+        #region Methods
+        
+        protected override void OnClosed(EventArgs e)
+        {
+            base.OnClosed(e);
+            (DataContext as IDisposable)?.Dispose();
         }
 
         #endregion
