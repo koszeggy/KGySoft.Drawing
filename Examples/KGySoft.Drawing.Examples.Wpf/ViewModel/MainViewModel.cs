@@ -21,11 +21,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 
 using KGySoft.ComponentModel;
 using KGySoft.CoreLibraries;
@@ -49,6 +51,132 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 {
     internal class MainViewModel : ValidatingObjectBase
     {
+        #region ProgressUpdater class
+
+        /// <summary>
+        /// Using this class to update progress from a dispatcher timer on the UI thread.
+        /// Alternatively, our ViewModel could also implement IAsyncProgress and use Dispatcher.Invoke to set the ProgressValue
+        /// on every update but that would be quite ineffective.
+        /// </summary>
+        private sealed class ProgressUpdater : IAsyncProgress, IDisposable
+        {
+            #region Fields
+
+            private readonly MainViewModel owner;
+            private readonly DispatcherTimer timer;
+
+            private (string? Op, int Max, int Value) current;
+
+            #endregion
+
+            #region Constructors
+
+            internal ProgressUpdater(MainViewModel owner)
+            {
+                this.owner = owner;
+                timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(30) };
+                timer.Tick += Timer_Tick;
+            }
+
+            #endregion
+
+            #region Methods
+
+            #region Public Methods
+
+            public void Report<T>(AsyncProgress<T> progress)
+            {
+                lock (timer)
+                    current = (SeparateWords(progress.OperationType?.ToString()), progress.MaximumValue, progress.CurrentValue);
+            }
+
+            public void New<T>(T operationType, int maximumValue = 0, int currentValue = 0)
+                => Report(new AsyncProgress<T>(operationType, maximumValue, currentValue));
+
+            public void Increment()
+            {
+                lock (timer)
+                    current.Value++;
+            }
+
+            public void SetProgressValue(int value)
+            {
+                lock (timer)
+                    current.Value = value;
+            }
+
+            public void Complete()
+            {
+                lock (timer)
+                    current.Value = current.Max;
+            }
+
+            public void Dispose()
+            {
+                timer.Stop();
+                timer.Tick -= Timer_Tick;
+            }
+
+            #endregion
+
+            #region Internal Methods
+
+            internal void Start()
+            {
+                lock (timer)
+                    current = default;
+                    
+                timer.Start();
+                owner.ProgressVisibility = Visibility.Visible;
+                owner.IsProgressIndeterminate = true;
+            }
+
+            internal void Stop()
+            {
+                timer.Stop();
+                owner.ProgressVisibility = Visibility.Hidden;
+            }
+
+            #endregion
+
+            #region Private Methods
+
+            private static string? SeparateWords(string? s)
+            {
+                if (s == null)
+                    return null;
+                var result = new StringBuilder(s);
+                for (int i = s.Length - 1; i > 0; i--)
+                {
+                    if (Char.IsUpper(s[i]))
+                        result.Insert(i, ' ');
+                }
+
+                return s.Length == result.Length ? s : result.ToString();
+            }
+
+            #endregion
+
+            #region Event Handlers
+
+            private void Timer_Tick(object? sender, EventArgs e)
+            {
+                lock (timer)
+                {
+                    owner.ProgressText = current.Op;
+                    owner.IsProgressIndeterminate = current.Max == 0;
+                    owner.ProgressMaxValue = current.Max;
+                    owner.ProgressValue = current.Value;
+                }
+            }
+
+            #endregion
+
+            #endregion
+        }
+
+        #endregion
+
         #region Enumerations
 
         public enum Ditherer
@@ -81,6 +209,8 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         #endregion
 
         #region Instance Fields
+
+        private readonly ProgressUpdater progressUpdater;
 
         private BitmapSource? sourceBitmap;
         private string? imageFileError;
@@ -126,6 +256,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         public MainViewModel()
         {
+            progressUpdater = new ProgressUpdater(this);
             ImageFile = @"..\..\..\..\..\Help\Images\Shield256.png";
             OverlayFile = @"..\..\..\..\..\Help\Images\AlphaGradient.png";
         }
@@ -221,6 +352,15 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 await GenerateResult();
         }
 
+        protected override void Dispose(bool disposing)
+        {
+            if (IsDisposed)
+                return;
+            if (disposing)
+                progressUpdater.Dispose();
+            base.Dispose(disposing);
+        }
+
         #endregion
 
         #region Private Methods
@@ -248,8 +388,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             if (IsDisposed || bmpSource == null)
                 return;
 
-            ProgressVisibility = Visibility.Visible;
-            IsProgressIndeterminate = true;
+            progressUpdater.Start();
             PixelFormat selectedFormat = SelectedFormat;
             CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
             CancellationToken token = tokenSource.Token;
@@ -274,7 +413,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                     : selectedFormat.GetMatchingQuantizer(BackColor, AlphaThreshold);
 
             WriteableBitmap? result = null;
-            var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
+            var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false, Progress = progressUpdater };
 
             try
             {
@@ -332,7 +471,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             }
             finally
             {
-                ProgressVisibility = Visibility.Hidden;
+                progressUpdater.Stop();
                 if (result != null)
                     DisplayImage = result;
             }
