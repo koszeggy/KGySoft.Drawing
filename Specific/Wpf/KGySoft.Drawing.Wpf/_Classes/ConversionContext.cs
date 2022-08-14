@@ -46,6 +46,7 @@ namespace KGySoft.Drawing.Wpf
         #region Instance Fields
 
         private readonly Dispatcher dispatcher;
+        private readonly bool disposeSource;
 
         #endregion
 
@@ -77,6 +78,7 @@ namespace KGySoft.Drawing.Wpf
         internal ConversionContext(BitmapSource bitmap, PixelFormat newPixelFormat, Color[]? palette, Color backColor, byte alphaThreshold)
         {
             dispatcher = bitmap.Dispatcher;
+            disposeSource = true;
             BitmapSource = bitmap;
             PixelFormat = newPixelFormat;
             InitDirect(palette, backColor, alphaThreshold);
@@ -121,6 +123,7 @@ namespace KGySoft.Drawing.Wpf
         internal ConversionContext(BitmapSource bitmap, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
         {
             dispatcher = bitmap.Dispatcher;
+            disposeSource = true;
             BitmapSource = bitmap;
             PixelFormat = newPixelFormat;
             Quantizer = quantizer;
@@ -194,6 +197,8 @@ namespace KGySoft.Drawing.Wpf
         public void Dispose() => Invoke(false, () =>
         {
             Target?.Dispose();
+            if (disposeSource)
+                Source.Dispose();
         });
 
         #endregion

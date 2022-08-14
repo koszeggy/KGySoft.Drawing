@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private static Color testColor = Color.FromRgb(0x80, 0xFF, 0x40);
         private static Color testColorAlpha = Color.FromArgb(0x80, 0x80, 0xFF, 0x40);
-        private static Color testColorBlended = Color.FromArgb(0xFF, 0x40, 0x80, 0x20);
+        private static Color testColorBlended = Color.FromArgb(0xFF, 0x40, 0x7F, 0x20);
 
         private static readonly object[][] setGetPixelTestSource =
         {
@@ -52,15 +52,15 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "PBGRA32 Alpha 254", PixelFormats.Pbgra32, Color.FromArgb(254, 0, 0, 255), Color.FromArgb(254, 0, 0, 255), 0xFE_00_00_FE },
 
             new object[] { "BGR32", PixelFormats.Bgr32, testColor, testColor, 0xFF_80_FF_40 },
-            new object[] { "BGR32 Alpha", PixelFormats.Bgr32, testColorAlpha, testColorBlended, 0xFF_40_80_20 },
+            new object[] { "BGR32 Alpha", PixelFormats.Bgr32, testColorAlpha, testColorBlended, 0xFF_40_7F_20 },
             new object[] { "BGR32 Transparent", PixelFormats.Bgr32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
 
             new object[] { "BGR24", PixelFormats.Bgr24, testColor, testColor, 0x80_FF_40 },
-            new object[] { "BGR24 Alpha", PixelFormats.Bgr24, testColorAlpha, testColorBlended, 0x40_80_20 },
+            new object[] { "BGR24 Alpha", PixelFormats.Bgr24, testColorAlpha, testColorBlended, 0x40_7F_20 },
             new object[] { "BGR24 Transparent", PixelFormats.Bgr24, Colors.Transparent, Colors.Black, 0x00_00_00 },
 
             new object[] { "RGB24", PixelFormats.Rgb24, testColor, testColor, 0x40_FF_80 },
-            new object[] { "RGB24 Alpha", PixelFormats.Rgb24, testColorAlpha, testColorBlended, 0x20_80_40 },
+            new object[] { "RGB24 Alpha", PixelFormats.Rgb24, testColorAlpha, testColorBlended, 0x20_7F_40 },
             new object[] { "RGB24 Transparent", PixelFormats.Rgb24, Colors.Transparent, Colors.Black, 0x00_00_00 },
 
             new object[] { "I1", PixelFormats.Indexed1, testColor, Colors.White, 1 },
@@ -76,7 +76,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "I4 Transparent", PixelFormats.Indexed4, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "I8", PixelFormats.Indexed8, testColor, Color.FromRgb(0x99, 0xFF, 0x33), 179 },
-            new object[] { "I8 Alpha", PixelFormats.Indexed8, testColorAlpha, Color.FromRgb(0x33, 0x99, 0x33), 95 },
+            new object[] { "I8 Alpha", PixelFormats.Indexed8, testColorAlpha, Color.FromRgb(0x33, 0x66, 0x33), 89 },
             new object[] { "I8 Transparent", PixelFormats.Indexed8, Colors.Transparent, default(Color), 16 },
 
             new object[] { "BW", PixelFormats.BlackWhite, testColor, Colors.White, 1 },
@@ -96,31 +96,27 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "Gray8 Transparent", PixelFormats.Gray8, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "BGR555", PixelFormats.Bgr555, testColor, Color.FromRgb(0b10000100, 0b11111111, 0b01000010), 0b10000_11111_01000 },
-            new object[] { "BGR555 Alpha", PixelFormats.Bgr555, testColorAlpha, Color.FromRgb(0b01000010, 0b10000100, 0b00100001), 0b01000_10000_00100 },
+            new object[] { "BGR555 Alpha", PixelFormats.Bgr555, testColorAlpha, Color.FromRgb(0b01000010, 0b01111011, 0b00100001), 0b01000_01111_00100 },
             new object[] { "BGR555 Transparent", PixelFormats.Bgr555, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "BGR565", PixelFormats.Bgr565, testColor, Color.FromRgb(0b10000100, 0b11111111, 0b01000010), 0b10000_111111_01000 },
-            new object[] { "BGR565 Alpha", PixelFormats.Bgr565, testColorAlpha, Color.FromRgb(0b01000010, 0b10000010, 0b00100001), 0b01000_100000_00100 },
+            new object[] { "BGR565 Alpha", PixelFormats.Bgr565, testColorAlpha, Color.FromRgb(0b01000010, 0b01111101, 0b00100001), 0b01000_011111_00100 },
             new object[] { "BGR565 Transparent", PixelFormats.Bgr565, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "Gray16", PixelFormats.Gray16, testColor, Color.FromRgb(0xC4, 0xC4, 0xC4), 0xC404 },
-            new object[] { "Gray16 Alpha", PixelFormats.Gray16, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x624D },
+            new object[] { "Gray16 Alpha", PixelFormats.Gray16, testColorAlpha, Color.FromRgb(0x61, 0x61, 0x61), 0x61B6 },
             new object[] { "Gray16 Transparent", PixelFormats.Gray16, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "Gray32", PixelFormats.Gray32Float, testColor, Color.FromRgb(0xC3, 0xC3, 0xC3), 0x3F0C1C96 },
-#if NETFRAMEWORK
-		    new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B633 },
-#else
-            new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x62, 0x62, 0x62), 0x3DF9B636 },
-#endif
+            new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x61, 0x61, 0x61), 0x3DF694AB },
             new object[] { "Gray32 Transparent", PixelFormats.Gray32Float, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "BGR101010", PixelFormats.Bgr101010, testColor, testColor, 0b1000000010_1111111111_0100000001 },
-            new object[] { "BGR101010 Alpha", PixelFormats.Bgr101010, testColorAlpha, testColorBlended, 0b0100000001_1000000010_0010000000 },
+            new object[] { "BGR101010 Alpha", PixelFormats.Bgr101010, testColorAlpha, testColorBlended, 0b0100000001_0111111101_0010000000 },
             new object[] { "BGR101010 Transparent", PixelFormats.Bgr101010, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "RGB48", PixelFormats.Rgb48, testColor, testColor, 0x4040_FFFF_8080 },
-            new object[] { "RGB48 Alpha", PixelFormats.Rgb48, testColorAlpha, testColorBlended, 0x2020_8080_4040 },
+            new object[] { "RGB48 Alpha", PixelFormats.Rgb48, testColorAlpha, testColorBlended, 0x2020_7F7F_4040 },
             new object[] { "RGB48 Transparent", PixelFormats.Rgb48, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "RGBA64", PixelFormats.Rgba64, testColor, testColor, unchecked((long)0xFFFF_4040_FFFF_8080) },
@@ -140,15 +136,11 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "PRGBA128 Transparent", PixelFormats.Prgba128Float, Colors.Transparent, default(Color), 0x00000000_00000000 /* only R and G as float */ },
 
             new object[] { "RGB128", PixelFormats.Rgb128Float, testColor, testColor, 0x3F800000_3E5D0A8B /* only R and G as float */ },
-            new object[] { "RGB128 Alpha", PixelFormats.Rgb128Float, testColorAlpha, testColorBlended, 0x3E5D0A8B_3D51FFEF /* only R and G as float */ },
+            new object[] { "RGB128 Alpha", PixelFormats.Rgb128Float, testColorAlpha, testColorBlended, 0x3E595303_3D51FFEF /* only R and G as float */ },
             new object[] { "RGB128 Transparent", PixelFormats.Rgb128Float, Colors.Transparent, Colors.Black, 0x00000000_00000000 /* only R and G as float */ },
 
-#if NETFRAMEWORK
-            new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BE_00_7E },
-#else
             new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BF_00_7E },
-#endif
-            new object[] { "CMYK32 Alpha", PixelFormats.Cmyk32, testColorAlpha, testColorBlended, 0x7E_BF_00_7F },
+            new object[] { "CMYK32 Alpha", PixelFormats.Cmyk32, testColorAlpha, testColorBlended, 0x7F_BE_00_7E },
             new object[] { "CMYK32 Transparent", PixelFormats.Cmyk32, Colors.Transparent, Colors.Black, 0xFF_00_00_00 },
         };
 

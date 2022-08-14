@@ -71,7 +71,7 @@ namespace KGySoft.Drawing.Wpf
         internal static string InternalError(string msg) => Get("General_InternalErrorFormat", msg);
 
         /// <summary>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</summary>
-        internal static string PaletteTooLarge(int max, int bpp) => Get("ExtensionsPaletteTooLargeFormat", max, bpp);
+        internal static string PaletteTooLarge(int max, int bpp) => Get("PaletteTooLargeFormat", max, bpp);
 
         #endregion
 

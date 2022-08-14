@@ -57,6 +57,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public byte AlphaThreshold => wrapped.AlphaThreshold;
             public IReadableBitmapDataRowMovable FirstRow => wrapped.FirstRow;
             public bool IsDisposed => wrapped.IsDisposed;
+            public Size Size => wrapped.Size;
 
             #endregion
 
@@ -515,17 +516,17 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 ("clipped left", bitmapData.Clone().Clip(new Rectangle(1, 0, size - 1, 1))),
             };
 
-            foreach (var source in sources)
+            foreach ((var _, IReadWriteBitmapData readWriteBitmapData) in sources)
             {
-                source.BitmapData.Clear(color);
+                readWriteBitmapData.Clear(color);
 
-                IReadableBitmapDataRowMovable row = source.BitmapData.FirstRow;
+                IReadableBitmapDataRowMovable row = readWriteBitmapData.FirstRow;
                 var expected = color;
                 if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha && expected.A != Byte.MaxValue)
                     expected = expected.BlendWithBackground(Color32.Black);
                 do
                 {
-                    for (int x = 0; x < source.BitmapData.Width; x++)
+                    for (int x = 0; x < readWriteBitmapData.Width; x++)
                         Assert.AreEqual(expected, row[x]);
                 } while (row.MoveNextRow());
 

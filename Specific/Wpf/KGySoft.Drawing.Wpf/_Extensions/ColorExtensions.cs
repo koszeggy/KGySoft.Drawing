@@ -42,14 +42,14 @@ namespace KGySoft.Drawing.Wpf
         #region Public Methods
 
         /// <summary>
-        /// Converts a <see cref="Color">System.Windows.Media.Color</see> struct to <a href="https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_Color32.htm" target="_blank">KGySoft.Drawing.Imaging.Color32</a>.
+        /// Converts a <see cref="Color">System.Windows.Media.Color</see> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>
         public static Color32 ToColor32(this Color color) => new Color32(color.A, color.R, color.G, color.B);
 
         /// <summary>
-        /// Converts a <a href="https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_Color32.htm" target="_blank">KGySoft.Drawing.Imaging.Color32</a> struct to <see cref="Color">System.Windows.Media.Color</see>.
+        /// Converts a <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see> struct to <see cref="Color">System.Windows.Media.Color</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>

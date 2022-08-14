@@ -129,7 +129,7 @@
   <data name="DispatcherDeadlock" xml:space="preserve">
     <value>Could not perform a callback on the thread of the source bitmap. It can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</value>
   </data>
-  <data name="ExtensionsPaletteTooLargeFormat" xml:space="preserve">
+  <data name="PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>
   <data name="InvalidBitmapDataSize" xml:space="preserve">

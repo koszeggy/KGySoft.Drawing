@@ -103,7 +103,7 @@ namespace KGySoft.Drawing.Imaging
             unsafe
             {
                 fixed (T* pBuf = Buffer)
-                    return ref ((TPixel*)((byte*)pBuf)[y * RowSize])[x];
+                    return ref ((TPixel*)&((byte*)pBuf)[y * RowSize])[x];
             }
 #endif
         }
