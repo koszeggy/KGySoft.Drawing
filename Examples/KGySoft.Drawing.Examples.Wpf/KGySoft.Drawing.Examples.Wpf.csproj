@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing.Wpf" Version="7.0.0-preview.2" />
+    <PackageReference Include="KGySoft.Drawing.Wpf" Version="7.0.0-preview.3" />
   </ItemGroup>
 
 </Project>
