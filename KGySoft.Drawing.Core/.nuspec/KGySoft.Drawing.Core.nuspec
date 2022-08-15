@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>7.0.0-preview.2</version>
+    <version>7.0.0-preview.3</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -34,34 +34,34 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework=".NETFramework4.6">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
       <group targetFramework="net6.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.2" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
       </group>
     </dependencies>
   </metadata>
