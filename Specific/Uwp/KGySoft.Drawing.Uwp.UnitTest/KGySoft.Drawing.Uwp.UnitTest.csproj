@@ -127,6 +127,7 @@
     <Compile Include="Controls\ConsoleRenderer.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UnitTests\ReadableBitmapDataExtensionsTest.cs" />
     <Compile Include="UnitTests\TestBase.cs" />
     <Compile Include="UnitTests\WriteableBitmapExtensionsTest.cs" />
   </ItemGroup>
