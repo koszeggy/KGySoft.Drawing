@@ -17,3 +17,5 @@
   + New GetReadWriteBitmapData method: to get an IReadWriteBitmapData data for an UWP WriteableBitmap.
 + New ReadableBitmapDataExtensions class:
   + New ToWriteableBitmap/ToWriteableBitmapAsync methods
++ New ColorExtensions class:
+  + New ToColor32/ToWindowsColor/ToDrawingColor methods

@@ -39,6 +39,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="_Extensions\ColorExtensions.cs" />
     <Compile Include="_Extensions\ReadableBitmapDataExtensions.cs" />
     <Compile Include="_Extensions\WriteableBitmapExtensions.cs" />
     <Compile Include="__doc\NamespaceDoc.cs" />
