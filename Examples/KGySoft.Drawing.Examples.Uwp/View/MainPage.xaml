@@ -1,0 +1,138 @@
+﻿<Page
+    x:Class="KGySoft.Drawing.Examples.Uwp.View.MainPage"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:vm="using:KGySoft.Drawing.Examples.Uwp.ViewModel"
+    xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+    xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+    mc:Ignorable="d"
+    d:DataContext="{d:DesignInstance vm:MainViewModel, IsDesignTimeCreatable=True}"
+    Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="120"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <!--Image Overlay-->
+        <CheckBox Grid.Row="0" Grid.Column="0"
+                  IsChecked="{Binding ShowOverlay, Mode=TwoWay}"
+                  ToolTipService.ToolTip="Check to blend an overlay image with the base image">Image Overlay</CheckBox>
+
+        <!--Quantizer-->
+        <CheckBox Grid.Row="1" Grid.Column="0"
+                  IsChecked="{Binding UseQuantizer, Mode=TwoWay}"
+                  ToolTipService.ToolTip="Check to use a quantizer. For lower bit-per-pixel quantizers it is recommended to enable dithering.">Quantizer:</CheckBox>
+        <ComboBox Grid.Row="1" Grid.Column="1"
+                  Name="cmbQuantizer"
+                  ItemsSource="{Binding Quantizers, Mode=OneTime}"
+                  SelectedItem="{Binding SelectedQuantizer, Mode=TwoWay}"
+                  IsEnabled="{Binding UseQuantizer}"
+                  ToolTipService.ToolTip="The desired quantizer to use. For lower bit-per-pixel formats it is recommended to enable dithering."/>
+
+        <!-- a.) Back Color -->
+        <Grid Grid.Row="2" Grid.Column="1"
+              Visibility="{Binding BackColorVisibility}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0">Back Color:</TextBlock>
+            <TextBox Grid.Column="1"
+                     Text="{Binding BackColorText, Mode=TwoWay}"
+                     ToolTipService.ToolTip="When the selected pixel format does not support gradient transparency, or dithering is selected, then specifies the background color.&#x0a;Alpha pixels that are considered opaque are blended with this color during the processing.&#x0a;Hex #AARRGGBB format is also supported."/>
+            <Rectangle Grid.Column="2" Fill="{Binding BackColorBrush}" />
+        </Grid>
+
+        <!-- b.) Alpha Threshold -->
+        <Grid Grid.Row="3" Grid.Column="1"
+              Visibility="{Binding AlphaThresholdVisibility}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0">Alpha Threshold:</TextBlock>
+            <Slider Grid.Column="1"
+                    Maximum="255"
+                    TickFrequency="25"
+                    TickPlacement="BottomRight"
+                    SmallChange="1" LargeChange="25"
+                    Value="{Binding AlphaThreshold, Mode=TwoWay}"
+                    ToolTipService.ToolTip="Specifies the alpha threshold under which the pixel is considered transparent.&#x0a;If 0, then the result will not have any transparent pixels.&#x0a;If 255, then all partially transparent pixels will turn transparent."/>
+            <TextBlock Grid.Column="2" Text="{Binding AlphaThreshold}"/>
+        </Grid>
+
+        <!-- c.) White Threshold -->
+        <Grid Grid.Row="4" Grid.Column="1"
+              Visibility="{Binding WhiteThresholdVisibility}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0">White Threshold:</TextBlock>
+            <Slider Grid.Column="1"
+                    Maximum="255"
+                    TickFrequency="25"
+                    TickPlacement="BottomRight"
+                    SmallChange="1" LargeChange="25"
+                    Value="{Binding WhiteThreshold, Mode=TwoWay}"
+                    ToolTipService.ToolTip="Determines the lowest input brightness to consider the result color white.&#x0d;&#x0a;If 0, then only completely black pixels will be black.&#x0d;&#x0a;If 255, then the complete result will be black."/>
+            <TextBlock Grid.Column="2" Text="{Binding WhiteThreshold}"/>
+        </Grid>
+
+        <!-- d.) Palette Size -->
+        <Grid Grid.Row="5" Grid.Column="1"
+              Visibility="{Binding MaxColorsVisibility}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <TextBlock Grid.Column="0">Palette Size:</TextBlock>
+            <Slider Grid.Column="1"
+                    Minimum="2"
+                    Maximum="256"
+                    TickFrequency="25"
+                    TickPlacement="BottomRight"
+                    SmallChange="1" LargeChange="25"
+                    Value="{Binding PaletteSize, Mode=TwoWay}"
+                    ToolTipService.ToolTip="Determines the maximum number of allowed colors the quantizer can use."/>
+            <TextBlock Grid.Column="2" Text="{Binding PaletteSize}"/>
+        </Grid>
+
+        <!--Ditherer-->
+        <CheckBox Grid.Row="6" Grid.Column="0"
+                  IsChecked="{Binding UseDithering, Mode=TwoWay}"
+                  IsEnabled="{Binding UseQuantizer}"
+                  ToolTipService.ToolTip="Check to use a ditherer. For high bit-per-pixel formats it makes little sense as for those its only practical effect is just removing possible partial transparency.">Ditherer:</CheckBox>
+        <ComboBox Grid.Row="6" Grid.Column="1"
+                  ItemsSource="{Binding Ditherers, Mode=OneTime}"
+                  SelectedItem="{Binding SelectedDitherer, Mode=TwoWay}"
+                  IsEnabled="{Binding DitheringEnabled}"
+                  ToolTipService.ToolTip="The selected ditherer.&#x0a;Error diffusion ditherers do not support parallel processing but usually have high quality.&#x0a;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."/>
+
+        <!--Image-->
+        <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+               Source="{Binding DisplayImage, Mode=OneWay}"/>
+
+        <!--<Button Click="LoadImageFileClick">From File</Button>
+        <Button Click="FromBitmapDataClick">From Bitmap Data</Button>
+        <TextBox Name="txtInfo"/>
+        <Image Name="imgImage"/>-->
+    </Grid>
+</Page>
