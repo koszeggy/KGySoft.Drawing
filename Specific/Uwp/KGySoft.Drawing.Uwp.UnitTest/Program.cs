@@ -58,7 +58,8 @@ namespace KGySoft.Drawing.Uwp.UnitTest
 
         #region Static Methods
 
-        static void Main(string[] args) => Start(_ => new Program());
+        // ReSharper disable once ObjectCreationAsStatement
+        static void Main() => Start(_ => new Program());
 
         private static void ProcessChildren(IEnumerable<ITestResult> children)
         {
@@ -92,7 +93,7 @@ namespace KGySoft.Drawing.Uwp.UnitTest
         {
             // This executes all tests in a real UWP application using a mocked UWP console.
             // It is needed for test cases that require a regular dispatcher thread
-            // (eg. creating a WriteableBitmap would also throw an Exception with RPC_E_WRONG_THREAD otherwise).
+            // (eg. even creating a WriteableBitmap would throw an Exception with RPC_E_WRONG_THREAD otherwise).
             base.OnLaunched(args);
             Dispatcher = Window.Current.Dispatcher;
 

@@ -15,7 +15,7 @@
 
   <Properties>
     <DisplayName>KGySoft.Drawing.Uwp.UnitTest</DisplayName>
-    <PublisherDisplayName>Gyuri</PublisherDisplayName>
+    <PublisherDisplayName>KGy SOFT</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
 
