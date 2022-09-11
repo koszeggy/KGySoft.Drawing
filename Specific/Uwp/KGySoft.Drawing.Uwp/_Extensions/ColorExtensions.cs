@@ -21,24 +21,30 @@ using KGySoft.Drawing.Imaging;
 
 #endregion
 
+#region Suppressions
+
+#pragma warning disable CS0419 // Ambiguous reference in cref attribute - known issue: https://github.com/dotnet/roslyn/issues/4033
+
+#endregion
+
 namespace KGySoft.Drawing.Uwp
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="Color"/> type.
+    /// Contains extension methods for the <see cref="Windows.UI.Color"/> type.
     /// </summary>
     public static class ColorExtensions
     {
         #region Methods
 
         /// <summary>
-        /// Converts a <see cref="Color">Windows.UI.Color</see> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
+        /// Converts a <see cref="Windows.UI.Color">Windows.UI.Color</see> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>
-        public static Color32 ToColor32(this Color color) => new Color32(color.A, color.R, color.G, color.B);
+        public static Color32 ToColor32(this Color color) => new (color.A, color.R, color.G, color.B);
 
         /// <summary>
-        /// Converts a <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see> struct to <see cref="Color">Windows.UI.Color</see>.
+        /// Converts a <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see> struct to <see cref="Windows.UI.Color">Windows.UI.Color</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>
@@ -52,7 +58,7 @@ namespace KGySoft.Drawing.Uwp
         public static System.Drawing.Color ToDrawingColor(this Color color) => System.Drawing.Color.FromArgb(color.A, color.R, color.G, color.B);
 
         /// <summary>
-        /// Converts a <see cref="System.Drawing.Color">System.Drawing.Color</see> struct to <see cref="Color">Windows.UI.Color</see>.
+        /// Converts a <see cref="System.Drawing.Color">System.Drawing.Color</see> struct to <see cref="Windows.UI.Color">Windows.UI.Color</see>.
         /// </summary>
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>

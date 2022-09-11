@@ -19,6 +19,7 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Runtime.InteropServices.WindowsRuntime;
 
 using KGySoft.Collections;
@@ -78,34 +79,40 @@ namespace KGySoft.Drawing.Uwp
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            var size = new Size(bitmap.PixelWidth, bitmap.PixelHeight);
-
-            // Alert: this is a COM object so all of its members use "remoting".
-            IBuffer nativeBuffer = bitmap.PixelBuffer;
-
-            // Just because it can use array pooling if referenced from a project that can target .NET Standard 2.1
-            ArraySection<byte> managedBuffer = new ArraySection<byte>((int)nativeBuffer.Length, false);
             try
             {
-                nativeBuffer.CopyTo(managedBuffer.UnderlyingArray);
+                var size = new Size(bitmap.PixelWidth, bitmap.PixelHeight);
+                IBuffer nativeBuffer = bitmap.PixelBuffer;
 
-                // UWP's WriteableBitmap is really simple: it always uses the premultiplied ARGB32 format
-                return BitmapDataFactory.CreateBitmapData(managedBuffer, size, size.Width << 2, KnownPixelFormat.Format32bppPArgb,
-                    disposeCallback: () =>
-                    {
-                        if (!readOnly)
+                // Just because it can use array pooling if referenced from a project that can target .NET Standard 2.1
+                ArraySection<byte> managedBuffer = new ArraySection<byte>((int)nativeBuffer.Length, false);
+                try
+                {
+                    nativeBuffer.CopyTo(managedBuffer.UnderlyingArray);
+
+                    // UWP's WriteableBitmap is really simple: it always uses the premultiplied ARGB32 format
+                    return BitmapDataFactory.CreateBitmapData(managedBuffer, size, size.Width << 2, KnownPixelFormat.Format32bppPArgb,
+                        disposeCallback: () =>
                         {
-                            nativeBuffer.AsStream().Write(managedBuffer.UnderlyingArray!, 0, managedBuffer.Length);
-                            bitmap.Invalidate();
-                        }
+                            if (!readOnly)
+                            {
+                                nativeBuffer.AsStream().Write(managedBuffer.UnderlyingArray!, 0, managedBuffer.Length);
+                                bitmap.Invalidate();
+                            }
 
-                        managedBuffer.Release();
-                    });
+                            managedBuffer.Release();
+                        });
+                }
+                catch (Exception)
+                {
+                    managedBuffer.Release();
+                    throw;
+                }
             }
-            catch (Exception)
+            catch (Exception e) when (e.GetType() == typeof(Exception) && e.HResult != 0)
             {
-                managedBuffer.Release();
-                throw;
+                // Converting possible non-derived Exceptions to specific ones if possible. Can happen because UWP uses lots of wrapped COM objects.
+                throw Marshal.GetExceptionForHR(e.HResult) ?? e;
             }
         }
 
