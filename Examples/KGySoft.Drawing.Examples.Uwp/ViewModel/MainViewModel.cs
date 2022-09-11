@@ -23,11 +23,13 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading;
 using System.Threading.Tasks;
 
 using KGySoft.ComponentModel;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Uwp;
+using KGySoft.Threading;
 
 using Windows.Graphics.Imaging;
 using Windows.Storage;
@@ -67,6 +69,8 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
         private Dictionary<string, Color>? knownColors;
         private WriteableBitmap? baseImage;
         private WriteableBitmap? overlayImage;
+        private CancellationTokenSource? cancelGeneratingPreview;
+        private Task? generateResultTask;
 
         #endregion
 
@@ -112,7 +116,7 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
         internal MainViewModel()
         {
             SetVisibilities();
-            GenerateDisplayImage(); // TODO: async warning
+            var _ = GenerateDisplayImage();
         }
 
         #endregion
@@ -175,9 +179,7 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             if (IsDisposed)
                 return;
             if (disposing)
-            {
-
-            }
+                cancelGeneratingPreview?.Dispose();
 
             base.Dispose(disposing);
         }
@@ -186,12 +188,21 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
 
         #region Private Methods
 
+        // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
+        // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
         private async Task GenerateDisplayImage()
         {
             baseImage ??= await LoadResourceBitmap("Information256.png");
             overlayImage ??= await LoadResourceBitmap("AlphaGradient.png");
 
-            // TODO: cancellation
+            // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
+            // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
+            while (generateResultTask != null)
+            {
+                CancelRunningGenerate();
+                await WaitForPendingGenerate();
+            }
+
             bool useQuantizer = UseQuantizer;
             bool showOverlay = ShowOverlay;
             IQuantizer? quantizer = useQuantizer ? SelectedQuantizer.Create(this) : null;
@@ -204,19 +215,39 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
                 return;
             }
 
+            CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
+            CancellationToken token = tokenSource.Token;
+
+            var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
+            Task<WriteableBitmap?> taskToWriteableBitmap;
+            WriteableBitmap? result;
+
             // No overlay: just creating a clone bitmap with the specified quantizer/ditherer
             using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData();
             if (!showOverlay)
             {
-                DisplayImage = await baseImageBitmapData.ToWriteableBitmapAsync(quantizer, ditherer);
+                generateResultTask = taskToWriteableBitmap = baseImageBitmapData.ToWriteableBitmapAsync(quantizer, ditherer, asyncConfig);
+                result = await taskToWriteableBitmap;
+                if (!token.IsCancellationRequested)
+                    DisplayImage = result;
                 return;
             }
 
             // Using an overlay: working on a bitmap data directly
-            using IReadWriteBitmapData blendedResult = await baseImageBitmapData.CloneAsync(); // Or: BitmapDataFactory.Create + baseImageBitmapData.CopyTo(blendedResult)
+            Task<IReadWriteBitmapData?> taskClone = baseImageBitmapData.CloneAsync(asyncConfig); // Or: BitmapDataFactory.Create + baseImageBitmapData.CopyTo(blendedResult)
+            generateResultTask = taskClone;
+            using IReadWriteBitmapData? blendedResult = await taskClone;
+            if (blendedResult == null || token.IsCancellationRequested)
+                return;
             using IReadableBitmapData overlayImageBitmapData = overlayImage.GetReadableBitmapData();
-            await overlayImageBitmapData.DrawIntoAsync(blendedResult);
-            DisplayImage = await blendedResult.ToWriteableBitmapAsync(quantizer, ditherer);
+            Task taskDrawInto = generateResultTask = overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
+            await taskDrawInto;
+            if (token.IsCancellationRequested)
+                return;
+            generateResultTask = taskToWriteableBitmap = blendedResult.ToWriteableBitmapAsync(quantizer, ditherer, asyncConfig);
+            result = await taskToWriteableBitmap;
+            if (result != null && !token.IsCancellationRequested)
+                DisplayImage = result;
         }
 
         private void SetVisibilities()
@@ -267,6 +298,34 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             };
 
             return true;
+        }
+
+        private void CancelRunningGenerate()
+        {
+            var tokenSource = cancelGeneratingPreview;
+            if (tokenSource == null)
+                return;
+            tokenSource.Cancel();
+            tokenSource.Dispose();
+            cancelGeneratingPreview = null;
+        }
+
+        private async Task WaitForPendingGenerate()
+        {
+            var runningTask = generateResultTask;
+            if (runningTask == null)
+                return;
+
+            generateResultTask = null;
+
+            try
+            {
+                await runningTask;
+            }
+            catch (Exception)
+            {
+                // pending generate is always awaited after cancellation so ignoring everything from here
+            }
         }
 
         #endregion

@@ -91,7 +91,7 @@
                     TickPlacement="BottomRight"
                     SmallChange="1" LargeChange="25"
                     Value="{Binding WhiteThreshold, Mode=TwoWay}"
-                    ToolTipService.ToolTip="Determines the lowest input brightness to consider the result color white.&#x0d;&#x0a;If 0, then only completely black pixels will be black.&#x0d;&#x0a;If 255, then the complete result will be black."/>
+                    ToolTipService.ToolTip="Determines the lowest input brightness to consider the result color white."/>
             <TextBlock Grid.Column="2" Text="{Binding WhiteThreshold}"/>
         </Grid>
 

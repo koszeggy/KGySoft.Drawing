@@ -70,7 +70,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         protected static BitmapSource GetInfoIcon256() => GetBitmap(@"..\..\..\..\..\..\Help\Images\Information256.png");
 
-        //protected static BitmapSource GetBitmap(string fileName) => new BitmapImage(new Uri(fileName, UriKind.Relative));
         protected static BitmapSource GetBitmap(string fileName) => new BitmapImage(new Uri(Path.Combine(Files.GetExecutingPath(), fileName), UriKind.Absolute));
 
         protected static void AssertAreEqual(BitmapSource reference, BitmapSource check, bool allowDifferentPixelFormats = false)

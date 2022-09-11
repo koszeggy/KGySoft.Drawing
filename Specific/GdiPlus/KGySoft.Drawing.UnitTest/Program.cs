@@ -42,7 +42,7 @@ namespace KGySoft.Drawing
 #elif NETCOREAPP
             $".NET Core {Path.GetFileName(Path.GetDirectoryName(typeof(object).Assembly.Location))}";
 #else
-            $"{RuntimeInformation.FrameworkDescription})";
+            $"{RuntimeInformation.FrameworkDescription}";
 #endif
 
         #endregion

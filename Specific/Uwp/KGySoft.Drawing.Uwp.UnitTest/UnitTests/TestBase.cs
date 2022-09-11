@@ -43,6 +43,8 @@ namespace KGySoft.Drawing.Uwp.UnitTest
         protected async Task ExecuteTestAsync(Func<Task> callback)
         {
             var result = new TaskCompletionSource<bool>();
+
+            // ReSharper disable once AsyncVoidLambda - not a problem, finished state is signed in result
             await Program.Dispatcher.RunAsync(CoreDispatcherPriority.Normal, async () =>
             {
                 try
