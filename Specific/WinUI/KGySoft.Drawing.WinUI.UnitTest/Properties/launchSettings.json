@@ -1,0 +1,7 @@
+{
+  "profiles": {
+    "KGySoft.Drawing.WinUI.UnitTest": {
+      "commandName": "MsixPackage"
+    }
+  }
+}

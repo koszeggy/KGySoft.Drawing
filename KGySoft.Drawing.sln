@@ -42,6 +42,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.WinUI", "Sp
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Uwp.UnitTest", "Specific\Uwp\KGySoft.Drawing.Uwp.UnitTest\KGySoft.Drawing.Uwp.UnitTest.csproj", "{B1650067-6047-400D-AF6F-73567F017963}"
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.WinUI.UnitTest", "Specific\WinUI\KGySoft.Drawing.WinUI.UnitTest\KGySoft.Drawing.WinUI.UnitTest.csproj", "{7126D6F3-B366-4FC5-A611-BA795A47794E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -90,6 +92,12 @@ Global
 		{B1650067-6047-400D-AF6F-73567F017963}.Release|Any CPU.ActiveCfg = Release|x64
 		{B1650067-6047-400D-AF6F-73567F017963}.Release|Any CPU.Build.0 = Release|x64
 		{B1650067-6047-400D-AF6F-73567F017963}.Release|Any CPU.Deploy.0 = Release|x64
+		{7126D6F3-B366-4FC5-A611-BA795A47794E}.Debug|Any CPU.ActiveCfg = Debug|x64
+		{7126D6F3-B366-4FC5-A611-BA795A47794E}.Debug|Any CPU.Build.0 = Debug|x64
+		{7126D6F3-B366-4FC5-A611-BA795A47794E}.Debug|Any CPU.Deploy.0 = Debug|x64
+		{7126D6F3-B366-4FC5-A611-BA795A47794E}.Release|Any CPU.ActiveCfg = Release|x64
+		{7126D6F3-B366-4FC5-A611-BA795A47794E}.Release|Any CPU.Build.0 = Release|x64
+		{7126D6F3-B366-4FC5-A611-BA795A47794E}.Release|Any CPU.Deploy.0 = Release|x64
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -107,6 +115,7 @@ Global
 		{301ACD6A-D907-45C6-AB5D-0093D088C9F0} = {1F64BBA7-A172-4356-8ED7-B4765F03C08E}
 		{597BEC1F-2118-46B2-B4CF-7B97AC68B728} = {301ACD6A-D907-45C6-AB5D-0093D088C9F0}
 		{B1650067-6047-400D-AF6F-73567F017963} = {C022057E-A852-4E98-B058-159C5A66AC76}
+		{7126D6F3-B366-4FC5-A611-BA795A47794E} = {301ACD6A-D907-45C6-AB5D-0093D088C9F0}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {0FAD51C6-1E18-4C33-A1E4-1E9C7DDB9570}
