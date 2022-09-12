@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "KGySoft.Drawing.Examples.WinUI (Package)": {
+      "commandName": "MsixPackage"
+    },
+    "KGySoft.Drawing.Examples.WinUI (Unpackaged)": {
+      "commandName": "Project"
+    }
+  }
+}
