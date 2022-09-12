@@ -87,33 +87,33 @@ namespace KGySoft.Drawing.WinUI.UnitTests
             AssertAreEqual(src, resultData);
         });
 
-        //[TestCaseSource(nameof(convertWithQuantizingTestSource))]
-        //public Task ToWriteableBitmapWithQuantizingTest(string name, IQuantizer quantizer, IDitherer? ditherer) => ExecuteTest(() =>
-        //{
-        //    Console.WriteLine(name);
-        //    var size = new Size(32, 16);
-        //    using IReadWriteBitmapData src = GenerateAlphaGradientBitmapData(size);
-        //    var result = src.ToWriteableBitmap(quantizer, ditherer);
+        [TestCaseSource(nameof(convertWithQuantizingTestSource))]
+        public Task ToWriteableBitmapWithQuantizingTest(string name, IQuantizer quantizer, IDitherer? ditherer) => ExecuteTest(() =>
+        {
+            Console.WriteLine(name);
+            var size = new Size(32, 16);
+            using IReadWriteBitmapData src = GenerateAlphaGradientBitmapData(size);
+            var result = src.ToWriteableBitmap(quantizer, ditherer);
 
-        //    Assert.AreEqual(size.Width, result.PixelWidth);
-        //    Assert.AreEqual(size.Height, result.PixelHeight);
-        //    using var resultData = result.GetReadableBitmapData();
-        //    AssertAreEqual(src.Clone(src.PixelFormat.ToKnownPixelFormat(), quantizer, ditherer), resultData);
-        //});
+            Assert.AreEqual(size.Width, result.PixelWidth);
+            Assert.AreEqual(size.Height, result.PixelHeight);
+            using var resultData = result.GetReadableBitmapData();
+            AssertAreEqual(src.Clone(src.PixelFormat.ToKnownPixelFormat(), quantizer, ditherer), resultData);
+        });
 
-        //[TestCaseSource(nameof(convertWithQuantizingTestSource))]
-        //public Task ToWriteableBitmapAsyncWithQuantizingTest(string name, IQuantizer quantizer, IDitherer? ditherer) => ExecuteTestAsync(async () =>
-        //{
-        //    Console.WriteLine(name);
-        //    var size = new Size(32, 16);
-        //    using IReadWriteBitmapData src = GenerateAlphaGradientBitmapData(size);
-        //    WriteableBitmap result = (await src.ToWriteableBitmapAsync(quantizer, ditherer))!;
+        [TestCaseSource(nameof(convertWithQuantizingTestSource))]
+        public Task ToWriteableBitmapAsyncWithQuantizingTest(string name, IQuantizer quantizer, IDitherer? ditherer) => ExecuteTestAsync(async () =>
+        {
+            Console.WriteLine(name);
+            var size = new Size(32, 16);
+            using IReadWriteBitmapData src = GenerateAlphaGradientBitmapData(size);
+            WriteableBitmap result = (await src.ToWriteableBitmapAsync(quantizer, ditherer))!;
 
-        //    Assert.AreEqual(size.Width, result.PixelWidth);
-        //    Assert.AreEqual(size.Height, result.PixelHeight);
-        //    using var resultData = result.GetReadableBitmapData();
-        //    AssertAreEqual(await src.CloneAsync(src.PixelFormat.ToKnownPixelFormat(), quantizer, ditherer), resultData);
-        //});
+            Assert.AreEqual(size.Width, result.PixelWidth);
+            Assert.AreEqual(size.Height, result.PixelHeight);
+            using var resultData = result.GetReadableBitmapData();
+            AssertAreEqual(await src.CloneAsync(src.PixelFormat.ToKnownPixelFormat(), quantizer, ditherer), resultData);
+        });
 
         #endregion
     }
