@@ -44,6 +44,8 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
             new("System default 4 bpp palette (16 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.SystemDefault4BppPalette)),
             new("System default 8 bpp palette (256 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.SystemDefault8BppPalette)),
             new("RGB332 palette (256 colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb332)),
+            new("ARGB1555 color space (32K colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Argb1555)),
+            new("RGB565 color space (64K colors)", typeof(PredefinedColorsQuantizer), nameof(PredefinedColorsQuantizer.Rgb565)),
 
             new("Optimized palette (Octree algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.Octree)),
             new("Optimized palette (Median Cut algorithm)", typeof(OptimizedPaletteQuantizer), nameof(OptimizedPaletteQuantizer.MedianCut)),

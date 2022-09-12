@@ -410,6 +410,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 progressUpdater.Dispose();
                 cachedSource?.Dispose();
                 cachedOverlay?.Dispose();
+                cancelGeneratingPreview?.Dispose();
             }
 
             base.Dispose(disposing);

@@ -1,16 +1,19 @@
 ﻿using System.Reflection;
-using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("UwpApp1")]
-[assembly: AssemblyDescription("")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("UwpApp1")]
-[assembly: AssemblyCopyright("Copyright ©  2022")]
+[assembly: AssemblyTitle("KGySoft.Drawing.Examples.Uwp")]
+[assembly: AssemblyDescription("KGy SOFT Drawing Exmaple for UWP")]
+#if DEBUG
+[assembly: AssemblyConfiguration("Debug")]
+#else
+[assembly: AssemblyConfiguration("Release")]
+#endif
+[assembly: AssemblyCompany("KGy SOFT")]
+[assembly: AssemblyProduct("KGy SOFT Drawing")]
+[assembly: AssemblyCopyright("Copyright © KGy SOFT. All rights reserved.")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

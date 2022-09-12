@@ -53,7 +53,7 @@
             <TextBlock Grid.Column="0">Back Color:</TextBlock>
             <TextBox Grid.Column="1"
                      Text="{Binding BackColorText, Mode=TwoWay}"
-                     ToolTipService.ToolTip="When the selected pixel format does not support gradient transparency, or dithering is selected, then specifies the background color.&#x0a;Alpha pixels that are considered opaque are blended with this color during the processing.&#x0a;Hex #AARRGGBB format is also supported."/>
+                     ToolTipService.ToolTip="Specifies the background color.&#x0a;Alpha pixels that are considered opaque are blended with this color during the processing.&#x0a;Hex #RRGGBB format is also supported."/>
             <Rectangle Grid.Column="2" Fill="{Binding BackColorBrush}" />
         </Grid>
 
