@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.WinUI</id>
-    <version>7.0.0-preview.3</version>
+    <version>7.0.0-preview.4</version>
     <title>KGy SOFT Drawing Libraries for WinUI</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -21,7 +21,7 @@ GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
 WPF specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
 UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
 Find Documentation: https://docs.kgysoft.net/drawing</description>
-    <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.Uwp/changelog.txt</releaseNotes>
+    <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.WinUI/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
     <tags>KGySoft Drawing winui winrt extension writeable-bitmap writeablebitmap bitmapdata</tags>
     <language>en-US</language>
