@@ -126,7 +126,8 @@ namespace KGySoft.Drawing.WinUI
                     : result.SkipCount > 0 ? ConsoleColor.Yellow
                     : ConsoleColor.Green;
                 Console.WriteLine($"Passed: {result.PassCount}; Failed: {result.FailCount}; Skipped: {result.SkipCount}");
-                Console.WriteLine($"Message: {result.Message}");
+                if (!String.IsNullOrEmpty(result.Message))
+                    Console.WriteLine($"Message: {result.Message}");
                 ProcessChildren(result.Children);
             }, TaskCreationOptions.LongRunning);
         }

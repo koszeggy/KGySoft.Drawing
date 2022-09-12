@@ -8,7 +8,7 @@
 
   <Identity
     Name="a7e1c7db-74e7-4066-b99f-0ba7337749fc"
-    Publisher="CN=Gyuri"
+    Publisher="CN=KGySoft"
     Version="1.0.0.0" />
 
   <mp:PhoneIdentity PhoneProductId="a7e1c7db-74e7-4066-b99f-0ba7337749fc" PhonePublisherId="00000000-0000-0000-0000-000000000000"/>
@@ -28,9 +28,9 @@
   </Resources>
 
   <Applications>
-    <Application Id="App"
+    <Application Id="KGySoft.Drawing.Uwp.UnitTest"
       Executable="$targetnametoken$.exe"
-      EntryPoint="KGySoft.Drawing.Uwp.UnitTest.App">
+      EntryPoint="KGySoft.Drawing.Uwp.UnitTest.Program">
       <uap:VisualElements
         DisplayName="KGySoft.Drawing.Uwp.UnitTest"
         Square150x150Logo="Assets\Square150x150Logo.png"

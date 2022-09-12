@@ -152,9 +152,6 @@
     <PackageReference Include="NUnit">
       <Version>3.13.3</Version>
     </PackageReference>
-    <PackageReference Include="NUnit3TestAdapter">
-      <Version>4.2.1</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\KGySoft.Drawing.Uwp\KGySoft.Drawing.Uwp.csproj">
