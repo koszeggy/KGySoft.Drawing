@@ -17,12 +17,17 @@
 
 using System;
 using System.Drawing;
+using System.Runtime.InteropServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 using KGySoft.Drawing.Imaging;
 using KGySoft.Threading;
 
+using Microsoft.UI.Dispatching;
 using Microsoft.UI.Xaml.Media.Imaging;
+
+using Windows.UI.Core;
 
 #endregion
 
@@ -33,6 +38,70 @@ namespace KGySoft.Drawing.WinUI
     /// </summary>
     public static class ReadableBitmapDataExtensions
     {
+        #region ConversionContext class
+
+        private sealed class ConversionContext : IDisposable
+        {
+            #region Fields
+
+            private readonly DispatcherQueue dispatcher;
+
+            #endregion
+
+            #region Properties
+
+            internal IReadableBitmapData Source { get; }
+            internal WriteableBitmap Result { get; }
+            internal IWritableBitmapData Target { get; }
+            internal IQuantizer? Quantizer { get; }
+            internal IDitherer? Ditherer { get; }
+
+            #endregion
+
+            #region Constructors
+
+            internal ConversionContext(IReadableBitmapData source, IQuantizer? quantizer = null, IDitherer? ditherer = null)
+            {
+                Source = source;
+                Result = new WriteableBitmap(source.Width, source.Height);
+                dispatcher = Result.DispatcherQueue;
+                Quantizer = quantizer;
+                Ditherer = ditherer;
+                Target = Result.GetWritableBitmapData();
+            }
+
+            #endregion
+
+            #region Methods
+
+            #region Public Methods
+
+            public void Dispose() => Invoke(Target.Dispose);
+
+            #endregion
+
+            #region Private Methods
+
+            private void Invoke(DispatcherQueueHandler callback)
+            {
+                // Running from the UI thread: direct invoke
+                if (dispatcher.HasThreadAccess)
+                {
+                    callback.Invoke();
+                    return;
+                }
+
+                // Running from a worker thread: beginning invoke and ignoring result
+                dispatcher.TryEnqueue(DispatcherQueuePriority.High, callback);
+            }
+
+            #endregion
+
+            #endregion
+        }
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -51,7 +120,7 @@ namespace KGySoft.Drawing.WinUI
         public static WriteableBitmap ToWriteableBitmap(this IReadableBitmapData source)
         {
             ValidateArguments(source);
-            return DoConvertToWriteableBitmap(AsyncHelper.DefaultContext, source)!;
+            return DoConvertToWriteableBitmap(AsyncHelper.DefaultContext, new ConversionContext(source))!;
         }
 
         /// <summary>
@@ -74,7 +143,8 @@ namespace KGySoft.Drawing.WinUI
         public static Task<WriteableBitmap?> ToWriteableBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertToWriteableBitmap(ctx, source), asyncConfig);
+            var context = new ConversionContext(source);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertToWriteableBitmap(ctx, context), asyncConfig);
         }
 
         #endregion
@@ -91,13 +161,18 @@ namespace KGySoft.Drawing.WinUI
                 throw new ArgumentException(PublicResources.PropertyMustBeGreaterThan(nameof(source.Height), 0), nameof(source));
         }
 
-        private static WriteableBitmap? DoConvertToWriteableBitmap(IAsyncContext context, IReadableBitmapData source)
+        private static WriteableBitmap? DoConvertToWriteableBitmap(IAsyncContext asyncContext, ConversionContext conversionContext)
         {
-            if (context.IsCancellationRequested)
-                return null;
-            var result = new WriteableBitmap(source.Width, source.Height);
-            using IWritableBitmapData target = result.GetWritableBitmapData();
-            return source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty) ? result : null;
+            using (conversionContext)
+            {
+                if (asyncContext.IsCancellationRequested)
+                    return null;
+
+                IReadableBitmapData source = conversionContext.Source;
+                return source.CopyTo(conversionContext.Target, asyncContext, new Rectangle(Point.Empty, source.Size), Point.Empty, conversionContext.Quantizer, conversionContext.Ditherer)
+                    ? conversionContext.Result
+                    : null;
+            }
         }
 
         #endregion
