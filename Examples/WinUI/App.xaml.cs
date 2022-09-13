@@ -1,27 +1,32 @@
-﻿using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Runtime.InteropServices.WindowsRuntime;
+﻿#region Copyright
 
-using Microsoft.UI.Xaml;
-using Microsoft.UI.Xaml.Controls;
-using Microsoft.UI.Xaml.Controls.Primitives;
-using Microsoft.UI.Xaml.Data;
-using Microsoft.UI.Xaml.Input;
-using Microsoft.UI.Xaml.Media;
-using Microsoft.UI.Xaml.Navigation;
-using Microsoft.UI.Xaml.Shapes;
+///////////////////////////////////////////////////////////////////////////////
+//  File: App.cs
+///////////////////////////////////////////////////////////////////////////////
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//
+//  You should have received a copy of the LICENSE file at the top-level
+//  directory of this distribution.
+//
+//  Please refer to the LICENSE file if you want to use this source code.
+///////////////////////////////////////////////////////////////////////////////
 
-using Windows.ApplicationModel;
-using Windows.ApplicationModel.Activation;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
+#endregion
+
+#region Usings
+
+using System;
 
 using KGySoft.Drawing.Examples.WinUI.View;
 
-// To learn more about WinUI, the WinUI project structure,
-// and more about our project templates, see: http://aka.ms/winui-project-info.
+using Microsoft.UI.Xaml;
+using Microsoft.UI.Xaml.Controls;
+using Microsoft.UI.Xaml.Navigation;
+
+using Windows.ApplicationModel;
+using Windows.ApplicationModel.Activation;
+
+#endregion
 
 namespace KGySoft.Drawing.Examples.WinUI
 {
@@ -30,6 +35,14 @@ namespace KGySoft.Drawing.Examples.WinUI
     /// </summary>
     public partial class App : Application
     {
+        #region Fields
+
+        private Window window;
+
+        #endregion
+
+        #region Constructors
+
         /// <summary>
         /// Initializes the singleton application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -39,6 +52,12 @@ namespace KGySoft.Drawing.Examples.WinUI
             this.InitializeComponent();
         }
 
+        #endregion
+
+        #region Methods
+
+        #region Protected Methods
+
         /// <summary>
         /// Invoked when the application is launched normally by the end user.  Other entry points
         /// will be used such as when the application is launched to open a specific file.
@@ -46,9 +65,9 @@ namespace KGySoft.Drawing.Examples.WinUI
         /// <param name="args">Details about the launch request and process.</param>
         protected override void OnLaunched(Microsoft.UI.Xaml.LaunchActivatedEventArgs e)
         {
-            _window = new Window();
+            window = new Window { Title = "KGy SOFT Drawing WinUI Example App" };
 
-            var rootFrame = _window.Content as Frame;
+            var rootFrame = window.Content as Frame;
 
             // Do not repeat app initialization when the Window already has content,
             // just ensure that the window is active
@@ -65,7 +84,7 @@ namespace KGySoft.Drawing.Examples.WinUI
                 }
 
                 // Place the frame in the current Window
-                _window.Content = rootFrame;
+                window.Content = rootFrame;
             }
 
             if (rootFrame.Content == null)
@@ -77,8 +96,12 @@ namespace KGySoft.Drawing.Examples.WinUI
             }
 
             // Ensure the current window is active
-            _window.Activate();
+            window.Activate();
         }
+
+        #endregion
+
+        #region Event handlers
 
         /// <summary>
         /// Invoked when Navigation to a certain page fails
@@ -104,6 +127,8 @@ namespace KGySoft.Drawing.Examples.WinUI
             deferral.Complete();
         }
 
-        private Window _window;
+        #endregion
+
+        #endregion
     }
 }
