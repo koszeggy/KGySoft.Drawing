@@ -10,5 +10,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 {
     internal class MainViewModel : ValidatingObjectBase
     {
+        protected override ValidationResultsCollection DoValidation()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

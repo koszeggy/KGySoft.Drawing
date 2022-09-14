@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.3.32721.290
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Examples.WinForms", "KGySoft.Drawing.Examples.WinForms.csproj", "{76E702CE-7D08-4FD3-9C77-69F79BA14C06}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Examples.WinForms", "KGySoft.Drawing.Examples.WinForms.csproj", "{76E702CE-7D08-4FD3-9C77-69F79BA14C06}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "KGySoft.Drawing.Examples.Shared", "..\_Shared\KGySoft.Drawing.Examples.Shared.shproj", "{AF687D89-616E-45E1-8BEB-1049B84B6167}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,5 +23,8 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {A1907DAF-EBA2-47FB-9F10-4DFC366AC8AF}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{af687d89-616e-45e1-8beb-1049b84b6167}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal
