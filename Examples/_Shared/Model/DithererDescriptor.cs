@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: DithererViewModel.cs
+//  File: DithererDescriptor.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
@@ -13,28 +13,31 @@
 
 #endregion
 
+#nullable enable
+
 #region Usings
 
 using System;
 using System.Linq;
 using System.Reflection;
 
-using KGySoft.Drawing.Examples.WinUI.ViewModel;
+using KGySoft.Drawing.Examples.Shared.Interfaces;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
 #endregion
 
-namespace KGySoft.Drawing.Examples.WinUI.ViewModel
+namespace KGySoft.Drawing.Examples.Shared.Model
 {
-    internal class DithererViewModel
+    public class DithererDescriptor
     {
         #region Fields
 
         #region Static Fields
 
-        internal static readonly DithererViewModel[] Ditherers =
+        internal static readonly DithererDescriptor[] Ditherers =
         {
+            new("Bayer 2x2 (Ordered)", typeof(OrderedDitherer), nameof(OrderedDitherer.Bayer2x2)),
             new("Bayer 4x4 (Ordered)", typeof(OrderedDitherer), nameof(OrderedDitherer.Bayer4x4)),
             new("Bayer 8x8 (Ordered)", typeof(OrderedDitherer), nameof(OrderedDitherer.Bayer8x8)),
             new("Dotted Halftone (Ordered)", typeof(OrderedDitherer), nameof(OrderedDitherer.DottedHalftone)),
@@ -62,20 +65,21 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 
         #region Properties
 
-        internal bool HasStrength { get; }
-        internal bool HasSeed { get; }
-        internal bool HasSerpentineProcessing { get; }
+        public bool HasStrength { get; }
+        public bool HasSeed { get; }
+        public bool HasSerpentineProcessing { get; }
+        public bool HasByBrightness { get; }
 
         #endregion
 
         #region Constructors
 
-        private DithererViewModel(string name, Type type, string propertyName)
+        private DithererDescriptor(string name, Type type, string propertyName)
             : this(name, type.GetProperty(propertyName)!)
         {
         }
 
-        private DithererViewModel(string name, MemberInfo member)
+        private DithererDescriptor(string name, MemberInfo member)
         {
             displayName = name;
             switch (member)
@@ -90,7 +94,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
                 case PropertyInfo pi:
                     property = PropertyAccessor.GetAccessor(pi);
                     HasStrength = pi.DeclaringType == typeof(OrderedDitherer);
-                    HasSerpentineProcessing = pi.DeclaringType == typeof(ErrorDiffusionDitherer);
+                    HasSerpentineProcessing = HasByBrightness = pi.DeclaringType == typeof(ErrorDiffusionDitherer);
                     break;
 
                 default:
@@ -110,7 +114,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 
         #region Internal Methods
 
-        internal IDitherer Create(MainViewModel settings)
+        internal IDitherer Create(IDithererSettings settings)
         {
             IDitherer result;
             if (ctor != null)
@@ -120,8 +124,8 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
                 {
                     args[i] = parameters[i].Name switch
                     {
-                        "strength" => 0f,
-                        "seed" => default(int?),
+                        "strength" => settings.Strength,
+                        "seed" => settings.Seed,
                         _ => throw new InvalidOperationException($"Unhandled parameter: {parameters[i].Name}")
                     };
                 }
@@ -130,7 +134,14 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
             }
             else
             {
-                result = (IDitherer)property!.Get(null)!;
+                result = property!.GetStaticValue<IDitherer>();
+                result = result switch
+                {
+                    OrderedDitherer ordered => ordered.ConfigureStrength(settings.Strength),
+                    ErrorDiffusionDitherer errorDiffusion => errorDiffusion.ConfigureErrorDiffusionMode(settings.ByBrightness)
+                        .ConfigureProcessingDirection(settings.DoSerpentineProcessing),
+                    _ => result
+                };
             }
 
             return result;

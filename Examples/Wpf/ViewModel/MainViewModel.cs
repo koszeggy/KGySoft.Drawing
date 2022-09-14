@@ -30,7 +30,8 @@ using System.Windows.Media.Imaging;
 using System.Windows.Threading;
 
 using KGySoft.ComponentModel;
-using KGySoft.CoreLibraries;
+using KGySoft.Drawing.Examples.Shared.Interfaces;
+using KGySoft.Drawing.Examples.Shared.Model;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Wpf;
 using KGySoft.Threading;
@@ -49,7 +50,7 @@ using Size = System.Drawing.Size;
 
 namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 {
-    internal class MainViewModel : ValidatingObjectBase
+    internal class MainViewModel : ValidatingObjectBase, IDithererSettings
     {
         #region ProgressUpdater class
 
@@ -177,20 +178,6 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
         #endregion
 
-        #region Enumerations
-
-        public enum Ditherer
-        {
-            Bayer8x8,
-            DottedHalftone,
-            BlueNoise,
-            FloydSteinberg,
-            RandomNoise,
-            InterleavedGradientNoise
-        }
-
-        #endregion
-
         #region Fields
         
         #region Static Fields
@@ -236,7 +223,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             .Select(p => (PixelFormat)p.GetValue(null, null)!)
             .ToArray();
 
-        public Ditherer[] Ditherers { get; } = Enum<Ditherer>.GetValues();
+        public DithererDescriptor[] Ditherers { get; } = DithererDescriptor.Ditherers;
         public string? ImageFile { get => Get<string?>(); set => Set(value); }
         public string? OverlayFile { get => Get<string?>(); set => Set(value); }
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
@@ -250,7 +237,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         public bool OptimizePalette { get => Get<bool>(); set => Set(value); }
         public bool OptimizePaletteEnabled { get => Get(true); set => Set(value); }
         public bool UseDithering { get => Get<bool>(); set => Set(value); }
-        public Ditherer SelectedDitherer { get => Get<Ditherer>(); set => Set(value); }
+        public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public ImageSource? DisplayImage { get => Get<ImageSource?>(); set => Set(value); }
         public string? ProgressText { get => Get<string?>(); set => Set(value); }
         public Visibility ProgressVisibility { get => Get(Visibility.Hidden); set => Set(value); }
@@ -285,7 +272,16 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         }
 
         #endregion
-        
+
+        #region Explicitly Implemented Interface Properties
+
+        float IDithererSettings.Strength => 0f;
+        bool? IDithererSettings.ByBrightness => null;
+        bool IDithererSettings.DoSerpentineProcessing => false;
+        int? IDithererSettings.Seed => null;
+
+        #endregion
+
         #endregion
 
         #region Constructors
@@ -451,16 +447,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
             IDitherer? ditherer = !UseDithering
                 ? null
-                : SelectedDitherer switch
-                {
-                    Ditherer.Bayer8x8 => OrderedDitherer.Bayer8x8,
-                    Ditherer.DottedHalftone => OrderedDitherer.DottedHalftone,
-                    Ditherer.BlueNoise => OrderedDitherer.BlueNoise,
-                    Ditherer.FloydSteinberg => ErrorDiffusionDitherer.FloydSteinberg,
-                    Ditherer.RandomNoise => new RandomNoiseDitherer(),
-                    Ditherer.InterleavedGradientNoise => new InterleavedGradientNoiseDitherer(),
-                    _ => null
-                };
+                : SelectedDitherer.Create(this);
 
             // Quantizer: effectively using only when palette optimization is requested. Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
             IQuantizer? quantizer = OptimizePalette && selectedFormat.IsIndexed()

@@ -5,6 +5,8 @@ VisualStudioVersion = 17.3.32721.290
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Examples.Uwp", "KGySoft.Drawing.Examples.Uwp.csproj", "{B0807C89-8194-4EC2-B156-BAB263FCF282}"
 EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "KGySoft.Drawing.Examples.Shared", "..\_Shared\KGySoft.Drawing.Examples.Shared.shproj", "{AF687D89-616E-45E1-8BEB-1049B84B6167}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|ARM = Debug|ARM
@@ -47,5 +49,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {EF829ACD-A635-443E-B9F5-980EFD4C8098}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{af687d89-616e-45e1-8beb-1049b84b6167}*SharedItemsImports = 13
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{b0807c89-8194-4ec2-b156-bab263fcf282}*SharedItemsImports = 4
 	EndGlobalSection
 EndGlobal

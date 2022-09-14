@@ -39,11 +39,14 @@ using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
 
+using KGySoft.Drawing.Examples.Shared.Interfaces;
+using KGySoft.Drawing.Examples.Shared.Model;
+
 #endregion
 
 namespace KGySoft.Drawing.Examples.Uwp.ViewModel
 {
-    internal class MainViewModel : ObservableObjectBase
+    internal class MainViewModel : ObservableObjectBase, IQuantizerSettings, IDithererSettings
     {
         #region Fields
 
@@ -82,8 +85,8 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
 
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
         public bool UseQuantizer { get => Get<bool>(); set => Set(value); }
-        public QuantizerViewModel[] Quantizers => QuantizerViewModel.Quantizers;
-        public QuantizerViewModel SelectedQuantizer { get => Get(Quantizers[0]); set => Set(value); }
+        public QuantizerDescriptor[] Quantizers => QuantizerDescriptor.Quantizers;
+        public QuantizerDescriptor SelectedQuantizer { get => Get(Quantizers[0]); set => Set(value); }
         public Visibility BackColorVisibility { get => Get<Visibility>(); set => Set(value); }
         public string BackColorText { get => Get("Silver"); set => Set(value); }
         public Color BackColor { get => Get(Colors.Silver); set => Set(value); }
@@ -96,8 +99,8 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
         public int PaletteSize { get => Get(256); set => Set(value); }
         public bool UseDithering { get => Get<bool>(); set => Set(value); }
         public bool DitheringEnabled { get => Get<bool>(); set => Set(value); }
-        public DithererViewModel[] Ditherers => DithererViewModel.Ditherers;
-        public DithererViewModel SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
+        public DithererDescriptor[] Ditherers => DithererDescriptor.Ditherers;
+        public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public WriteableBitmap? DisplayImage { get => Get<WriteableBitmap?>(); set => Set(value); }
 
         #endregion
@@ -106,6 +109,20 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
 
         private Dictionary<string, Color> KnownColors => knownColors ??= typeof(Colors).GetProperties()
             .ToDictionary(pi => pi.Name, pi => (Color)pi.GetValue(null), StringComparer.OrdinalIgnoreCase);
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        System.Drawing.Color IQuantizerSettings.BackColor => BackColor.ToDrawingColor();
+        byte IQuantizerSettings.AlphaThreshold => (byte)AlphaThreshold;
+        byte IQuantizerSettings.WhiteThreshold => (byte)WhiteThreshold;
+        bool IQuantizerSettings.DirectMapping => false;
+        byte? IQuantizerSettings.BitLevel => null;
+        float IDithererSettings.Strength => 0f;
+        bool? IDithererSettings.ByBrightness => null;
+        bool IDithererSettings.DoSerpentineProcessing => false;
+        int? IDithererSettings.Seed => null;
 
         #endregion
 
@@ -253,7 +270,7 @@ namespace KGySoft.Drawing.Examples.Uwp.ViewModel
         private void SetVisibilities()
         {
             bool useQuantizer = UseQuantizer;
-            QuantizerViewModel quantizer = SelectedQuantizer;
+            QuantizerDescriptor quantizer = SelectedQuantizer;
             BackColorVisibility = useQuantizer ? Visibility.Visible : Visibility.Collapsed;
             AlphaThresholdVisibility = useQuantizer && quantizer.HasAlphaThreshold ? Visibility.Visible : Visibility.Collapsed;
             WhiteThresholdVisibility = useQuantizer && quantizer.HasWhiteThreshold ? Visibility.Visible : Visibility.Collapsed;

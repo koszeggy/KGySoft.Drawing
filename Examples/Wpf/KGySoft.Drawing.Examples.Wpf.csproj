@@ -12,4 +12,6 @@
     <PackageReference Include="KGySoft.Drawing.Wpf" Version="7.0.0-preview.3" />
   </ItemGroup>
 
+  <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />
+
 </Project>

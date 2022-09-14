@@ -3,7 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.2.32630.192
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Examples.Wpf", "KGySoft.Drawing.Examples.Wpf.csproj", "{8194A33A-A36C-4528-84AE-A598B762B349}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Examples.Wpf", "KGySoft.Drawing.Examples.Wpf.csproj", "{8194A33A-A36C-4528-84AE-A598B762B349}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "KGySoft.Drawing.Examples.Shared", "..\_Shared\KGySoft.Drawing.Examples.Shared.shproj", "{AF687D89-616E-45E1-8BEB-1049B84B6167}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,5 +23,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {D5C64881-AE4E-4A2B-9462-B62DD7C77C13}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{8194a33a-a36c-4528-84ae-a598b762b349}*SharedItemsImports = 5
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{af687d89-616e-45e1-8beb-1049b84b6167}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

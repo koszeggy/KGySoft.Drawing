@@ -64,4 +64,5 @@
   <PropertyGroup Condition="'$(DisableHasPackageAndPublishMenuAddedByProject)'!='true' and '$(EnableMsixTooling)'=='true'">
     <HasPackageAndPublishMenu>true</HasPackageAndPublishMenu>
   </PropertyGroup>
+  <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />
 </Project>
