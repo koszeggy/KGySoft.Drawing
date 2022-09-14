@@ -32,6 +32,7 @@
   + ConvertPixelFormat methods: supporting CMYK pixel format for source images.
   + ToIcon methods: supporting CMYK pixel format for source images.
 + PixelFormatExtensions class:
+  + The IsIndexed method has been made public
   + New ToKnownPixelFormat(PixelFormat) and ToPixelFormat(KnownPixelFormat) methods
 
 ! KGySoft.Drawing.Imaging namespace

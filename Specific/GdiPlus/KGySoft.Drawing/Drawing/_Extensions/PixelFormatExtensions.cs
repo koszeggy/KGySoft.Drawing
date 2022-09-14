@@ -74,6 +74,16 @@ namespace KGySoft.Drawing
             => pixelFormat != PixelFormat.Max && (pixelFormat & PixelFormat.Max) != 0 && pixelFormat.IsDefined();
 
         /// <summary>
+        /// Gets whether this <see cref="PixelFormat"/> instance represents an indexed format without checking
+        /// whether <paramref name="pixelFormat"/> represents a valid value.
+        /// </summary>
+        /// <param name="pixelFormat">The pixel format to be checked.</param>
+        /// <returns><see langword="true"/>, if this <see cref="PixelFormat"/> instance represents an indexed format; otherwise, <see langword="false"/>.</returns>
+        public static bool IsIndexed(this PixelFormat pixelFormat)
+            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
+            => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
+
+        /// <summary>
         /// Gets whether the specified <paramref name="pixelFormat"/> is supported natively on the current operating system.
         /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
@@ -147,10 +157,6 @@ namespace KGySoft.Drawing
         #endregion
 
         #region Internal Methods
-
-        internal static bool IsIndexed(this PixelFormat pixelFormat)
-            // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
-            => (pixelFormat & PixelFormat.Indexed) == PixelFormat.Indexed;
 
         internal static bool HasAlpha(this PixelFormat pixelFormat)
             // ReSharper disable once BitwiseOperatorOnEnumWithoutFlags
