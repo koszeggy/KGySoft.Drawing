@@ -41,7 +41,7 @@ namespace KGySoft.Drawing
     {
         #region Constants
 
-        internal const PixelFormat Format32bppCmyk = (PixelFormat)8207;
+        internal const PixelFormat Format32bppCmyk = (PixelFormat)0x200F;
 
         #endregion
 
@@ -152,7 +152,27 @@ namespace KGySoft.Drawing
         /// <param name="pixelFormat">The source <see cref="PixelFormat"/> to convert to a <see cref="KnownPixelFormat"/>.</param>
         /// <returns>A <see cref="KnownPixelFormat"/> instance. It will be <see cref="KnownPixelFormat.Undefined"/> if the source <paramref name="pixelFormat"/> cannot be mapped.</returns>
         public static KnownPixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat)
-            => !pixelFormat.IsValidFormat() ? KnownPixelFormat.Undefined : pixelFormat.ToKnownPixelFormatInternal();
+            => pixelFormat == Format32bppCmyk ? KnownPixelFormat.Format24bppRgb
+                : !pixelFormat.IsValidFormat() ? KnownPixelFormat.Undefined
+                : pixelFormat.ToKnownPixelFormatInternal();
+
+        /// <summary>
+        /// Gets a <see cref="PixelFormatInfo"/> for this <paramref name="pixelFormat"/>.
+        /// Please note that this may return a different result than calling <see cref="ToKnownPixelFormat">ToKnownPixelFormat()</see>.<see cref="KnownPixelFormatExtensions.GetInfo">GetInfo()</see>
+        /// because the <see cref="PixelFormatInfo.IsCustomFormat"/> in the result of this method can be <see langword="true"/>&#160;if the actual pixel layout
+        /// of the specified <paramref name="pixelFormat"/> differs from the layout of its <see cref="KnownPixelFormat"/> counterpart with the same name.
+        /// </summary>
+        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to retrieve a <see cref="PixelFormatInfo"/> for.</param>
+        /// <returns>A <see cref="PixelFormatInfo"/> representing the specified <paramref name="pixelFormat"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> must be a valid format.</exception>
+        public static PixelFormatInfo GetInfo(this PixelFormat pixelFormat) => pixelFormat switch
+        {
+            PixelFormat.Format48bppRgb => new PixelFormatInfo(48),
+            PixelFormat.Format64bppArgb => new PixelFormatInfo(64) { HasAlpha = true },
+            PixelFormat.Format64bppPArgb => new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
+            Format32bppCmyk => new PixelFormatInfo(32),
+            _ => pixelFormat.IsValidFormat() ? pixelFormat.ToKnownPixelFormatInternal().GetInfo() : throw new ArgumentOutOfRangeException(Res.PixelFormatInvalid(pixelFormat))
+        };
 
         #endregion
 
