@@ -640,6 +640,22 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Test]
+        public void ResizeTest()
+        {
+            using var refBmpData = GetInfoIcon256();
+            var newSize = new Size(256, 128);
+            using var resized = refBmpData.Resize(newSize);
+            Assert.AreEqual(newSize, resized.Size);
+            Assert.AreEqual(KnownPixelFormat.Format32bppPArgb, resized.PixelFormat.ToKnownPixelFormat());
+            SaveBitmapData("NotKeepingAspectRatio", resized);
+
+            using var resizedKeepAspectRatio = refBmpData.Resize(newSize, keepAspectRatio: true);
+            Assert.AreEqual(newSize, resizedKeepAspectRatio.Size);
+            Assert.AreEqual(KnownPixelFormat.Format32bppPArgb, resizedKeepAspectRatio.PixelFormat.ToKnownPixelFormat());
+            SaveBitmapData("KeepingAspectRatio", resizedKeepAspectRatio);
+        }
+
+        [Test]
         public void TrySetPaletteTest()
         {
             using var bmpData = GetInfoIcon256()
