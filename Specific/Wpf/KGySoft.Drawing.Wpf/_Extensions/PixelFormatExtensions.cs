@@ -43,11 +43,12 @@ namespace KGySoft.Drawing.Wpf
         #region Public Methods
 
         /// <summary>
-        /// Converts this <see cref="PixelFormat"/> to a <see cref="PixelFormatInfo"/> structure.
+        /// Gets a <see cref="PixelFormatInfo"/> for this <paramref name="pixelFormat"/>.
         /// </summary>
-        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to convert.</param>
+        /// <param name="pixelFormat">The <see cref="PixelFormat"/> to retrieve a <see cref="PixelFormatInfo"/> for.</param>
         /// <returns>A <see cref="PixelFormatInfo"/> that represents the specified <see cref="PixelFormat"/>.</returns>
-        public static PixelFormatInfo ToPixelFormatInfo(this PixelFormat pixelFormat)
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> must be a non-default valid value.</exception>
+        public static PixelFormatInfo GetInfo(this PixelFormat pixelFormat)
         {
             if (pixelFormat == default)
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), PublicResources.ArgumentOutOfRange);
@@ -74,7 +75,8 @@ namespace KGySoft.Drawing.Wpf
         /// </summary>
         /// <param name="pixelFormat">The <see cref="PixelFormat"/> to convert.</param>
         /// <returns>A <see cref="KnownPixelFormat"/> value that fits the to the specified <see cref="PixelFormat"/>.</returns>
-        public static KnownPixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat) => pixelFormat.ToPixelFormatInfo().ToKnownPixelFormat();
+        public static KnownPixelFormat ToKnownPixelFormat(this PixelFormat pixelFormat)
+            => pixelFormat == default ? KnownPixelFormat.Undefined : pixelFormat.GetInfo().ToKnownPixelFormat();
 
         /// <summary>
         /// Gets whether this <see cref="PixelFormat"/> represents an indexed format.

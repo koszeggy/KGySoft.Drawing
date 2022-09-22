@@ -253,7 +253,7 @@ namespace KGySoft.Drawing.Wpf
                 return null;
 
             int bpp = PixelFormat.BitsPerPixel;
-            var sourceInfo = BitmapSource!.Format.ToPixelFormatInfo();
+            var sourceInfo = BitmapSource!.Format.GetInfo();
 
             // if no desired colors are specified but converting to a higher bpp indexed image, then taking the source palette
             if (palette == null && sourceInfo.Indexed && sourceInfo.BitsPerPixel <= bpp)

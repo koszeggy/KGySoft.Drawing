@@ -18,7 +18,7 @@
   + New GetWritableBitmapData method: to get an IWritableBitmapData data for all pixel formats.
   + New GetReadWriteBitmapData method: to get an IReadWriteBitmapData data for all pixel formats.
 + New PixelFormatExtensions class
-  + New ToPixelFormatInfo method
+  + New GetInfo method
   + New ToKnownPixelFormat method
   + New IsIndexed method
   + New GetMatchingQuantizer method
