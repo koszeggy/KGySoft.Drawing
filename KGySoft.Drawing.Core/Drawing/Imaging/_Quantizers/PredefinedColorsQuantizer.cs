@@ -337,7 +337,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to the 32-bit ARGB color space.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Determines the <see cref="IQuantizingSession.BackColor"/> property of the returned quantizer.
         /// Considering that this quantizer can return alpha colors it has effect only when the returned quantizer is used with
@@ -423,7 +422,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 24-bit ones where each color component is encoded in 8 bits.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -488,7 +486,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where red,
         /// green and blue components are encoded in 5, 6 and 5 bits, respectively.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -559,7 +556,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where each color component is encoded in 5 bits.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -630,7 +626,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 16-bit ones where alpha, red,
         /// green and blue components are encoded in 1, 5, 5 and 5 bits, respectively.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before quantization.
@@ -706,14 +701,13 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 8-bit ones where red,
         /// green and blue components are encoded in 3, 3 and 2 bits, respectively.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
-        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 8-bit ones where red,
         /// green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
@@ -809,7 +803,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 8-bit grayscale ones of 256 shades.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -867,14 +860,13 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 4-bit grayscale ones of 16 shades.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
-        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 4-bit grayscale ones.</returns>
         /// <remarks>
@@ -953,14 +945,13 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 2-bit grayscale ones of 4 shades.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
-        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors to 2-bit grayscale ones.</returns>
         /// <remarks>
@@ -1052,7 +1043,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes every color to black or white.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with the specified <paramref name="backColor"/> before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -1152,7 +1142,6 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 8-bit palette.
         /// This palette contains the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>,
         /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -1251,7 +1240,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 4-bit palette.
         /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -1334,7 +1322,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the system default 1-bit palette.
         /// This palette consists of the black and white colors.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="backColor">Colors with alpha (transparency) will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
@@ -1353,7 +1340,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the colors in the specified <paramref name="palette"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="palette">The array of colors to be used by the returned instance.</param>
         /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
@@ -1454,7 +1440,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the specified <paramref name="palette"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="palette">The <see cref="Palette"/> to be used by the returned instance.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the specified <paramref name="palette"/>.</returns>
@@ -1467,7 +1452,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="quantizingFunction">A delegate that specifies the custom quantization logic. It must be thread-safe for parallel invoking and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
@@ -1532,7 +1516,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
-        /// <br/>See the <strong>Remarks</strong> section for details and some examples.
         /// </summary>
         /// <param name="quantizingFunction">A delegate that specifies the custom quantization logic. It must be thread-safe for parallel invoking and it is expected to be fast.
         /// The results returned by the delegate are not cached.</param>
@@ -1587,7 +1570,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>
         /// and uses its <see cref="IBitmapData.Palette"/> if <paramref name="bitmapData"/> represents an indexed bitmap.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmapData">The <see cref="IBitmapData"/> to get a compatible quantizer for.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="bitmapData"/>.</returns>

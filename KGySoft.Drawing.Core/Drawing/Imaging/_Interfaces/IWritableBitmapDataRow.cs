@@ -24,7 +24,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Provides a fast write-only access to a single row of an <see cref="IWritableBitmapData"/>.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a>method for details and examples.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a>method for details and examples.
     /// </summary>
     /// <seealso cref="IReadableBitmapDataRow"/>
     /// <seealso cref="IReadWriteBitmapDataRow"/>
@@ -35,7 +35,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to set.</param>
         /// <value>A <see cref="Color32"/> instance that represents the color of the specified pixel.</value>
@@ -45,7 +44,7 @@ namespace KGySoft.Drawing.Imaging
         /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw data
         /// use the <see cref="WriteRaw{T}">WriteRaw</see> method.</para>
         /// <para>If the color to be set is not supported by owner <see cref="IWritableBitmapData"/>, then it will be quantized to a supported color value.</para>
-        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.</note>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IWritableBitmapData"/>.</exception>
         /// <seealso cref="SetColor"/>
@@ -59,7 +58,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Sets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to set.</param>
         /// <param name="color">A <see cref="Color"/> instance that represents the color of the specified pixel.</param>
@@ -79,7 +77,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// If the owner <see cref="IWritableBitmapData"/> has an indexed pixel format, then sets the color index of the pixel in the current row at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the color index to set.</param>
         /// <param name="colorIndex">A palette index that represents the color to be set.</param>
@@ -99,7 +96,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Sets the underlying raw value within the current <see cref="IWritableBitmapDataRow"/> at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <typeparam name="T">The type of the value to write. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to write. The valid range depends on the size of <typeparamref name="T"/>.</param>

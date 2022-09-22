@@ -48,7 +48,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// If this <see cref="IQuantizingSession"/> can produce transparent pixels, then gets the alpha threshold value
         /// that can be used to determine whether a color with alpha should be considered transparent or should be blended with <see cref="BackColor"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <remarks>
         /// <para>If this <see cref="IQuantizingSession"/> can produce transparent pixels, and <see cref="GetQuantizedColor">GetQuantizedColor</see> is called with a color,
@@ -76,7 +75,7 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         /// <summary>
-        /// Gets the quantized color of the specified <paramref name="origColor"/>. If <see cref="Palette"/> property has non-<see langword="null"/>&#160;return value,
+        /// Gets the quantized color of the specified <paramref name="origColor"/>. If <see cref="Palette"/> property has non-<see langword="null"/> return value,
         /// then the result color must be a valid <see cref="Imaging.Palette"/> entry.
         /// <br/>See the also <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
         /// </summary>

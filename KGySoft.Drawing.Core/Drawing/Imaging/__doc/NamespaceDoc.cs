@@ -22,7 +22,7 @@ using System.Runtime.CompilerServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// The <c>KGySoft.Drawing.Imaging</c> namespace provides advanced imaging functionality such as low-level bitmap data access for any pixel format,
+    /// The <see cref="N:KGySoft.Drawing.Imaging"/> namespace provides advanced imaging functionality such as low-level bitmap data access for any pixel format,
     /// interfaces for quantization and dithering along with some built-in implementations, etc.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>

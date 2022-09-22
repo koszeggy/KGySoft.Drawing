@@ -33,7 +33,6 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents an indexed set of colors and provides efficient color lookup with caching.
     /// To create an instance use the static methods or the constructors.
-    /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="Palette"/> class can be used to perform quick lookup operations (see <see cref="GetNearestColor">GetNearestColor</see>
@@ -432,9 +431,9 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but without dithering may end up in a noticeably poorer result and higher contrast;
-        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.Rgb332"/>
@@ -481,9 +480,9 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
-        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale16"/>
@@ -507,9 +506,9 @@ namespace KGySoft.Drawing.Imaging
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="directMapping"><see langword="true"/>&#160;to map any color directly to an index instead of searching for a nearest color,
+        /// <param name="directMapping"><see langword="true"/> to map any color directly to an index instead of searching for a nearest color,
         /// which is very fast but may end up in a result of a bit higher contrast than the original image;
-        /// <see langword="false"/>&#160;to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
+        /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale4"/>
@@ -574,14 +573,13 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the index of a <see cref="Palette"/> entry that is the nearest color to the specified <see cref="Color32"/> instance.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="c">The color for which the nearest palette entry index should be returned.</param>
         /// <returns>The index of a <see cref="Palette"/> entry that is the nearest color to the specified <see cref="Color32"/> instance.</returns>
         /// <remarks>
         /// <para>If the <see cref="Palette"/> does not contain the specified color, then the result may depend on the arguments passed to the constructor.</para>
         /// <para>If <paramref name="c"/> has transparency, then the result may depend on <see cref="BackColor"/> and <see cref="AlphaThreshold"/> values.</para>
-        /// <para>The result can be customized by passing a non-<see langword="null"/>&#160;delegate to one of the <see cref="Palette"/> constructors.</para>
+        /// <para>The result can be customized by passing a non-<see langword="null"/> delegate to one of the <see cref="Palette"/> constructors.</para>
         /// <note>For more details see the <strong>Remarks</strong> section of the <see cref="Palette"/> class.</note>
         /// </remarks>
         public int GetNearestColorIndex(Color32 c)
@@ -602,14 +600,13 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="Color32"/> entry of this <see cref="Palette"/> that is the nearest color to the specified <see cref="Color32"/> instance.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="c">The color for which the nearest palette entry should be returned.</param>
         /// <returns>The <see cref="Color32"/> entry of this <see cref="Palette"/> that is the nearest color to the specified <see cref="Color32"/> instance.</returns>
         /// <remarks>
         /// <para>If the <see cref="Palette"/> does not contain the specified color, then the result may depend on the arguments passed to the constructor.</para>
         /// <para>If <paramref name="c"/> has transparency, then the result may depend on <see cref="BackColor"/> and <see cref="AlphaThreshold"/> values.</para>
-        /// <para>The result can be customized by passing a non-<see langword="null"/>&#160;delegate to one of the <see cref="Palette"/> constructors.</para>
+        /// <para>The result can be customized by passing a non-<see langword="null"/> delegate to one of the <see cref="Palette"/> constructors.</para>
         /// <note>For more details see the <strong>Remarks</strong> section of the <see cref="Palette"/> class.</note>
         /// </remarks>
         /// <exception cref="IndexOutOfRangeException">The <see cref="Palette"/> class was initialized by a custom lookup delegate, which returned an invalid index.</exception>

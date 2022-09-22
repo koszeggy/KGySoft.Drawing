@@ -27,7 +27,6 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for error diffusion dithering.
     /// Use the static properties of this class to use predefined error diffusion filters or the <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool,bool?)">constructor</see> to create a custom one.
-    /// <br/>See the <strong>Remarks</strong> section for details and some image examples.
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="ErrorDiffusionDitherer(byte[,],int,int,bool,bool?)">constructor</see> can be used to create an error diffusion ditherer using a custom matrix.</para>
@@ -170,7 +169,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the original filter proposed by Floyd and Steinberg in 1975 when they came out with the idea of error diffusion dithering.
         /// Uses a small, 3x2 matrix so the processing is somewhat faster than by the other alternatives.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -252,7 +250,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by Jarvis, Judice and Ninke in 1976.
         /// Uses a 5x3 matrix so the processing is slower than by the original <see cref="FloydSteinberg">Floyd-Steinberg</see> filter but distributes errors in a wider range.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -303,7 +300,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by P. Stucki in 1981.
         /// Uses a 5x3 matrix so the processing is slower than by the original <see cref="FloydSteinberg">Floyd-Steinberg</see> filter but distributes errors in a wider range.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -354,7 +350,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the filter proposed by D. Burkes in 1988.
         /// Uses a 5x2 matrix, which is actually the same as the first two lines of the matrix used by the <see cref="Stucki"/> filter.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -404,7 +399,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the three-line filter proposed by Frankie Sierra in 1989.
         /// Uses a 5x3 matrix so this is the slowest Sierra filter but this disperses errors to the furthest among them.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -455,7 +449,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the two-line filter proposed by Frankie Sierra in 1990.
         /// Uses a 5x2 matrix so this somewhat faster than the <see cref="Sierra3">three-line version</see> and still provides a similar quality.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -505,7 +498,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using a small two-line filter proposed by Frankie Sierra.
         /// Uses a 3x2 matrix so it has the same performance as the <see cref="FloydSteinberg">Floyd-Steinberg</see> algorithm and also produces a quite similar result.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -555,7 +547,6 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets an <see cref="ErrorDiffusionDitherer"/> instance using the hexagonal filter proposed by Stevenson and Arce in 1985.
         /// Uses a fairly large, 7x4 matrix, but due to the hexagonal arrangement of the coefficients the processing performance is comparable to a rectangular 5x3 matrix.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -609,7 +600,6 @@ namespace KGySoft.Drawing.Imaging
         /// Uses a 4x3 matrix of only 6 effective values, and propagates only the 75% of the quantization error, which may cause
         /// total loss of details of light and dark areas (result may seem under- or overexposed) whereas midtones have higher contrast
         /// and preserve details better.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -673,19 +663,18 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="ErrorDiffusionDitherer" /> class using the specified <paramref name="matrix"/>, <paramref name="divisor"/> and <paramref name="matrixFirstPixelIndex"/>.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <param name="matrix">A matrix to be used as the coefficients for the quantization errors to be propagated to the neighboring pixels.</param>
         /// <param name="divisor">Each elements in the <paramref name="matrix"/> will be divided by this value. If less than the sum of the elements
         /// in the <paramref name="matrix"/>, then only a fraction of the error will be propagated.</param>
         /// <param name="matrixFirstPixelIndex">Specifies the first effective index in the first row of the matrix. If larger than zero, then the error will be propagated also to the bottom-left direction.
         /// Must be between 0 and <paramref name="matrix"/> width, excluding upper bound.</param>
-        /// <param name="serpentineProcessing"><see langword="true"/>&#160;to process odd lines right-to-left and even lines left-to-right;
-        /// <see langword="false"/>&#160;to process all lines left-to-right.
+        /// <param name="serpentineProcessing"><see langword="true"/> to process odd lines right-to-left and even lines left-to-right;
+        /// <see langword="false"/> to process all lines left-to-right.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="ConfigureProcessingDirection">ConfigureProcessingDirection</see> method for details. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
-        /// <param name="byBrightness"><see langword="true"/>&#160;to apply the same quantization error on every color channel determined by brightness difference;
-        /// <see langword="false"/>&#160;to handle quantization errors on each color channels independently; <see langword="null"/>&#160;to auto select strategy.
+        /// <param name="byBrightness"><see langword="true"/> to apply the same quantization error on every color channel determined by brightness difference;
+        /// <see langword="false"/> to handle quantization errors on each color channels independently; <see langword="null"/> to auto select strategy.
         /// Deciding by brightness can produce a better result when fully saturated colors are mapped to a grayscale palette.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="ConfigureErrorDiffusionMode">ConfigureErrorDiffusionMode</see> method for details. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -804,10 +793,9 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a new <see cref="ErrorDiffusionDitherer"/> instance that has the specified error diffusion mode.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="byBrightness"><see langword="true"/>&#160;to apply the same quantization error on every color channel determined by brightness difference;
-        /// <see langword="false"/>&#160;to handle quantization errors on each color channels independently; <see langword="null"/>&#160;to auto select strategy.
+        /// <param name="byBrightness"><see langword="true"/> to apply the same quantization error on every color channel determined by brightness difference;
+        /// <see langword="false"/> to handle quantization errors on each color channels independently; <see langword="null"/> to auto select strategy.
         /// Deciding by brightness can produce a better result when fully saturated colors are mapped to a grayscale palette.</param>
         /// <returns>A new <see cref="ErrorDiffusionDitherer"/> instance that has the specified error diffusion mode.</returns>
         /// <remarks>
@@ -858,10 +846,9 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a new <see cref="ErrorDiffusionDitherer"/> instance that has the specified processing direction.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
-        /// <param name="serpentine"><see langword="true"/>&#160;to process odd lines right-to-left and even lines left-to-right;
-        /// <see langword="false"/>&#160;to process all lines left-to-right.</param>
+        /// <param name="serpentine"><see langword="true"/> to process odd lines right-to-left and even lines left-to-right;
+        /// <see langword="false"/> to process all lines left-to-right.</param>
         /// <returns>A new <see cref="ErrorDiffusionDitherer"/> instance that has the specified processing direction.</returns>
         /// <remarks>
         /// <note>This method always returns a new <see cref="ErrorDiffusionDitherer"/> instance instead of changing the processing direction of the original one.

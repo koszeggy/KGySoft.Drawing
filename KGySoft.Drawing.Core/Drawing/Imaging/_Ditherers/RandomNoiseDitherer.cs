@@ -27,7 +27,6 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for random noise dithering. This class applies a random white noise to the result. For other noise-like
     /// ditherers see the <see cref="OrderedDitherer.BlueNoise">OrderedDitherer.BlueNoise</see> property and the <see cref="InterleavedGradientNoiseDitherer"/> class.
-    /// <br/>See the <strong>Remarks</strong> section for details and some examples.
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="RandomNoiseDitherer"/> generates some random white noise to the quantized source.</para>
@@ -137,14 +136,13 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="RandomNoiseDitherer"/> class.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
         /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and some examples regarding dithering strength.
         /// The same applies also for the <see cref="RandomNoiseDitherer"/> class. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
-        /// <param name="seed">If <see langword="null"/>, then a <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_CoreLibraries_ThreadSafeRandom.htm" target="_blank">ThreadSafeRandom</a>
+        /// <param name="seed">If <see langword="null"/>, then a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_CoreLibraries_ThreadSafeRandom.htm">ThreadSafeRandom</a>
         /// instance will be used internally with a time-dependent seed value, and the dithering session will allow parallel processing.
         /// If not <see langword="null"/>, then a <see cref="Random"/> instance will be created for each dithering session with the specified <paramref name="seed"/>, and the dithering session will not allow parallel processing.</param>
         /// <example>

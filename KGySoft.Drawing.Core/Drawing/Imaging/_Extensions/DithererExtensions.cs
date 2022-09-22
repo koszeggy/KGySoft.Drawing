@@ -47,7 +47,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="IDitheringSession"/> instance that can be used to dither the result of the specified <see cref="IQuantizingSession"/>
         /// applied to the specified <paramref name="source"/>, or <see langword="null"/>, if the operation was canceled and
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="InvalidOperationException">The non-canceled <see cref="IDitherer.Initialize">IDitherer.Initialize</see> method returned <see langword="null"/>.</exception>
         public static Task<IDitheringSession?> InitializeAsync(this IDitherer ditherer, IReadableBitmapData source, IQuantizingSession quantizingSession, TaskConfig? asyncConfig = null)
             // Actually every ditherer in this assembly is known to be fast-initialized (none of them use the IAsyncContext parameter)

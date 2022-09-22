@@ -24,7 +24,7 @@ namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
     /// Provides a fast read-only access to a single row of an <see cref="IReadableBitmapData"/>.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for details and examples.
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for details and examples.
     /// </summary>
     /// <seealso cref="IWritableBitmapDataRow"/>
     /// <seealso cref="IReadWriteBitmapDataRow"/>
@@ -35,7 +35,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
         /// <returns>A <see cref="Color32"/> instance that represents the color of the specified pixel.</returns>
@@ -44,7 +43,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>The returned value represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
         /// regardless of the underlying <see cref="KnownPixelFormat"/>. To access the actual <see cref="KnownPixelFormat"/>-dependent raw value
         /// use the <see cref="ReadRaw{T}">ReadRaw</see> method.</para>
-        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> method for examples.</note>
+        /// <note>See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> method for examples.</note>
         /// </remarks>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="x"/> is less than zero or is greater than or equal to the <see cref="IBitmapData.Width"/> of the parent <see cref="IReadableBitmapData"/>.</exception>
         /// <seealso cref="GetColor"/>
@@ -58,7 +57,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the color of the pixel in the current row at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the pixel to retrieve.</param>
         /// <returns>A <see cref="Color"/> instance that represents the color of the specified pixel.</returns>
@@ -77,7 +75,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// If the owner <see cref="IReadableBitmapData"/> is an indexed one, then gets the color index of the pixel in the current row at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="x">The x-coordinate of the color index to retrieve.</param>
         /// <returns>A palette index that represents the color of the specified pixel.</returns>
@@ -98,7 +95,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the underlying raw value within the current <see cref="IReadableBitmapDataRow"/> at the specified <paramref name="x"/> coordinate.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <typeparam name="T">The type of the value to return. Must be a value type without managed references.</typeparam>
         /// <param name="x">The x-coordinate of the value within the row to retrieve. The valid range depends on the size of <typeparamref name="T"/>.</param>

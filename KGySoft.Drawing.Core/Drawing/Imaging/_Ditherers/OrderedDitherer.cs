@@ -27,7 +27,6 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an <see cref="IDitherer"/> implementation for dithering patterns that are based on an ordered matrix.
     /// Use the static properties of this class to use predefined patterns or the <see cref="OrderedDitherer(byte[,],float)">constructor</see> to create a custom ordered ditherer.
-    /// <br/>See the <strong>Remarks</strong> section for details and some image examples.
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="OrderedDitherer(byte[,],float)">constructor</see> can be used to create an ordered ditherer using a custom matrix.</para>
@@ -184,7 +183,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 2x2 matrix.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -233,7 +231,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 3x3 matrix.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -283,7 +280,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 4x4 matrix.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -334,7 +330,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using the standard Bayer 8x8 matrix.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -411,7 +406,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using a 8x8 matrix of a dotted halftone pattern.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <example>
         /// The following example demonstrates how to use the ditherer returned by this property:
@@ -467,7 +461,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OrderedDitherer"/> using a fixed 64x64 blue noise pattern of 256 different values.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <remarks>
         /// <note>Generating random blue noise patterns is a very resource intensive operation but this method uses a pregenerated fix pattern, which is very fast.
@@ -599,7 +592,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="OrderedDitherer"/> class using the specified <paramref name="matrix"/> and <paramref name="strength"/>.
-        /// <br/>See the <strong>Examples</strong> section for some examples.
         /// </summary>
         /// <param name="matrix">A matrix to be used as the coefficients of the dithering. Ideally contains every value between zero
         /// and the maximum value in the matrix. Repeated values will appear always together for the same input colors.</param>
@@ -738,7 +730,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a new <see cref="OrderedDitherer"/> instance that has the specified dithering <paramref name="strength"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
         /// Specify 0 to use an auto value for each dithering session based on the used quantizer.</param>

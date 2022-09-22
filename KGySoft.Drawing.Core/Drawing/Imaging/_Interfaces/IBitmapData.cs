@@ -28,7 +28,7 @@ namespace KGySoft.Drawing.Imaging
     /// or <c>GetReadWriteBitmapData</c> extension methods when applicable (see the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for a list
     /// about the supported platforms). Otherwise, you can use the members of the <see cref="BitmapDataFactory"/> class to create a bitmap data for
     /// any managed or unmanaged preallocated buffer of any bitmap implementation.
-    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a>
+    /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
     /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.
     /// </summary>
     /// <seealso cref="IReadableBitmapData"/>
@@ -59,7 +59,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets a <see cref="PixelFormatInfo"/> of the current <see cref="IBitmapData"/> instance.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <remarks>
         /// <para>The value of this property determines how the raw underlying values should be interpreted if the pixels
@@ -67,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
         /// methods. Otherwise, in most cases using the members of the interfaces derived from the <see cref="IBitmapData"/> and <see cref="IBitmapDataRow"/> interfaces
         /// work seamlessly.</para>
         /// <para>If this property returns an indexed format (see <see cref="PixelFormatInfo.Indexed"/>),
-        /// then the <see cref="Palette"/> property returns a non-<see langword="null"/>&#160;value.</para>
+        /// then the <see cref="Palette"/> property returns a non-<see langword="null"/> value.</para>
         /// </remarks>
         PixelFormatInfo PixelFormat { get; }
 
@@ -79,7 +78,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the size of a row in bytes, or zero, if this <see cref="IBitmapData"/> instance does not have an actual raw buffer to access.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <remarks>
         /// <para>This property can be useful when accessing the bitmap data by the <see cref="IReadableBitmapDataRow.ReadRaw{T}">ReadRaw</see> or <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> methods.</para>
@@ -96,7 +94,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// When accessing pixels of indexed bitmaps, or setting pixels of bitmaps without alpha support, gets the color of the background.
         /// For example, when setting color values with alpha, which are considered opaque, they will be blended with this color before setting the pixel.
-        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">GetReadWriteBitmapData</a> extension method for details and examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> extension method for details and examples.
         /// </summary>
         Color32 BackColor { get; }
 

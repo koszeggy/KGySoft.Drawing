@@ -9,22 +9,22 @@ KGy SOFT Drawing Libraries offer advanced features for `System.Drawing` types su
 > 📝 _Note_: In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux based systems are also supported (if the libgdiplus library is installed).
 
 Main highlights:
-- Fast [direct native Bitmap data access](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) for every PixelFormat
-- [Quantizing](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_Quantize.htm) and [dithering](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_Dither.htm)
-- Creating [GIF animations](https://docs.kgysoft.net/drawing/?topic=html/Overload_KGySoft_Drawing_ImageExtensions_SaveAsAnimatedGif.htm) even in high color
-- Several [built-in icons](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Icons.htm) as well as simple access to Windows associated and stock icons.
+- Fast [direct native Bitmap data access](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm) for every PixelFormat
+- [Quantizing](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Quantize.htm) and [dithering](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_Dither.htm)
+- Creating [GIF animations](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_SaveAsAnimatedGif.htm) even in high color
+- Several [built-in icons](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Icons.htm) as well as simple access to Windows associated and stock icons.
 - Extracting bitmaps from multi-frame bitmaps and icons.
 - Creating combined icons and multi-resolution bitmaps.
 - Saving metafiles in EMF/WMF formats.
 - Advanced support for saving images as Icon, BMP, JPEG, PNG, GIF and TIFF formats.
-- [Converting between various pixel formats](https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm) preserving transparency if possible.
-- Useful extensions for the [Icon](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_IconExtensions.htm), [Bitmap](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_BitmapExtensions.htm), [Image](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_ImageExtensions.htm), [Metafile](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_MetafileExtensions.htm) and [Graphics](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_GraphicsExtensions.htm) types.
+- [Converting between various pixel formats](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm) preserving transparency if possible.
+- Useful extensions for the [Icon](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_IconExtensions.htm), [Bitmap](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_BitmapExtensions.htm), [Image](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_ImageExtensions.htm), [Metafile](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_MetafileExtensions.htm) and [Graphics](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_GraphicsExtensions.htm) types.
 
 See the [online help](https://docs.kgysoft.net/drawing) for the complete documentation or the [project site](https://kgysoft.net/drawing) for some highlighted code examples.
 
 > 💡 _Tip_:
 > * For technology-agnostic solutions that can be used on any platform see the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core/) package.
-> * For WPF specific solutions see the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf/) package. It makes possible to obtain a managed, fast accessible bitmap data for a `WriteableBitmap` instance of any pixel format, offering all features of an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/?topic=html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a `WriteableBitmap`.
+> * For WPF specific solutions see the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf/) package. It makes possible to obtain a managed, fast accessible bitmap data for a `WriteableBitmap` instance of any pixel format, offering all features of an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a `WriteableBitmap`.
 > * For dedicated UWP support see the [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp/) package.
 > * For dedicated WinUI support see the [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI/) package.
 > * See also the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which contains debugger visualizers built on the KGy SOFT Drawing Libraries as well as a test project, which demonstrates its features.

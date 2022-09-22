@@ -31,7 +31,7 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         /// <summary>
-        /// Gets whether this ditherer allows only sequential processing (line by line). Even returning <see langword="true"/>&#160;does
+        /// Gets whether this ditherer allows only sequential processing (line by line). Even returning <see langword="true"/> does
         /// not guarantee that every pixel will be queried. It just enforces that queried rows are processed sequentially.
         /// </summary>
         /// <value>

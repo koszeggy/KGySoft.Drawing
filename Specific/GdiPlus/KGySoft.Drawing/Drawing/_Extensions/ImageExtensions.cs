@@ -134,7 +134,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Returns a new <see cref="Image"/>, which is the grayscale version of the specified <paramref name="image"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The image to convert to grayscale.</param>
         /// <returns>An <see cref="Image"/> containing the grayscale version of the original <paramref name="image"/>.</returns>
@@ -160,7 +159,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -242,7 +240,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example, as well as for information about the possible usable <see cref="PixelFormat"/>s on different platforms.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -263,7 +260,7 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(Image,PixelFormat,IQuantizer,IDitherer)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
-        /// <h1 class="heading">Restrictions of Possible Pixel Formats on Different Platforms</h1>
+        /// <h2>Restrictions of Possible Pixel Formats on Different Platforms</h2>
         /// <para>The support of <see cref="Bitmap"/>s with different <see cref="PixelFormat"/>s may vary from platform to platform.
         /// Though the types in KGySoft Drawing Libraries support every <see cref="PixelFormat"/> the standard <c>System.Drawing</c> libraries has some restrictions.
         /// The following table summarizes the levels of support for Windows and Linux/Unix systems (applicable both for Mono and .NET Core if <a href="https://www.mono-project.com/docs/gui/libgdiplus/" target="_blank">libgdiplus</a> is installed).</para>
@@ -486,12 +483,11 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> with the desired <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
-        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
+        /// If <see langword="null"/> and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -619,7 +615,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -635,15 +630,15 @@ namespace KGySoft.Drawing
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
@@ -654,7 +649,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -667,15 +661,15 @@ namespace KGySoft.Drawing
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, AsyncConfig? asyncConfig = null)
@@ -683,25 +677,24 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Begins to convert the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
-        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
+        /// If <see langword="null"/> and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> method.</para>
         /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndConvertPixelFormat">EndConvertPixelFormat</see> method.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
         /// </remarks>
         public static IAsyncResult BeginConvertPixelFormat(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, AsyncConfig? asyncConfig = null)
@@ -716,7 +709,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static Bitmap? EndConvertPixelFormat(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap?>(asyncResult, nameof(BeginConvertPixelFormat));
 
         #endregion
@@ -726,7 +719,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -742,15 +734,15 @@ namespace KGySoft.Drawing
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
         public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color[]? palette, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
@@ -761,7 +753,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
@@ -774,15 +765,15 @@ namespace KGySoft.Drawing
         /// then the result will not have transparent pixels. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/> method, which is available on every platform.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, Color, byte)"/> method for more details and image examples.</note>
         /// </remarks>
         public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, Color backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
@@ -790,25 +781,24 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Converts the specified <paramref name="image"/> to a <see cref="Bitmap"/> of the desired <see cref="PixelFormat"/> asynchronously.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to convert.</param>
         /// <param name="newPixelFormat">The desired new pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
-        /// If <see langword="null"/>&#160;and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
+        /// If <see langword="null"/> and <paramref name="newPixelFormat"/> is an indexed format, then a default palette and quantization logic will be used.</param>
         /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
         /// and <paramref name="newPixelFormat"/> represents an at least 24 bits-per-pixel size. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="Bitmap"/> instance with the desired pixel format,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/> method, which is available on every platform.</para>
-        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> method for more details and image examples.</note>
         /// </remarks>
         public static Task<Bitmap?> ConvertPixelFormatAsync(this Image image, PixelFormat newPixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
@@ -831,7 +821,6 @@ namespace KGySoft.Drawing
         /// without scaling. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
         /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -865,7 +854,6 @@ namespace KGySoft.Drawing
         /// without scaling. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
         /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -891,7 +879,6 @@ namespace KGySoft.Drawing
         /// without scaling. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
         /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -917,7 +904,6 @@ namespace KGySoft.Drawing
         /// without scaling. This method is similar to <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see>
         /// methods, except that this one always preserves the source size in pixels, works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
         /// For scaling use the overloads with <c>targetRectangle</c> and <see cref="ScalingMode"/> parameters.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -987,7 +973,6 @@ namespace KGySoft.Drawing
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
         /// This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
         /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -1023,7 +1008,6 @@ namespace KGySoft.Drawing
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
         /// This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
         /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -1052,7 +1036,6 @@ namespace KGySoft.Drawing
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
         /// This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
         /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -1078,7 +1061,6 @@ namespace KGySoft.Drawing
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
         /// This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
         /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -1104,7 +1086,6 @@ namespace KGySoft.Drawing
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
         /// This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
         /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -1133,7 +1114,6 @@ namespace KGySoft.Drawing
         /// Draws the <paramref name="source"/>&#160;<see cref="Image"/> into the <paramref name="target"/>&#160;<see cref="Bitmap"/> with possible scaling.
         /// This method is similar to <see cref="O:System.Drawing.Graphics.DrawImage">Graphics.DrawImage</see>
         /// methods, except that this one works between any pair of source and target <see cref="PixelFormat"/>s and supports quantizing and dithering.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="source">The source <see cref="Image"/> to be drawn into the <paramref name="target"/>.</param>
         /// <param name="target">The target <see cref="Bitmap"/> into which <paramref name="source"/> should be drawn.</param>
@@ -1213,7 +1193,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image1">First image instance.</param>
         /// <param name="image2">Second image instance.</param>
-        /// <returns><see langword="true"/>&#160;if both images have the same content; otherwise, <see langword="false"/>.</returns>
+        /// <returns><see langword="true"/> if both images have the same content; otherwise, <see langword="false"/>.</returns>
         /// <remarks>If an image is not a <see cref="Bitmap"/> instance, a temporary <see cref="Bitmap"/> is created for the check.
         /// <note>This method compares images by raw content. If the images have padding in each stride (content row), padding content is considered as well.</note></remarks>
         public static bool EqualsByContent(this Image? image1, Image? image2) => CompareImages(image1, image2);
@@ -1286,7 +1266,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> into a <paramref name="stream"/> using the built-in BMP encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
@@ -1382,7 +1361,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in JPEG encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
@@ -1474,7 +1452,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in PNG encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images, then only the current frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
@@ -1540,7 +1517,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in GIF encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
@@ -1556,7 +1532,7 @@ namespace KGySoft.Drawing
         /// <para>The <paramref name="image"/> can be saved even without a registered GIF encoder in the current operating system. To save the GIF image, the <see cref="GifEncoder"/> class is used internally.</para>
         /// <para>If <paramref name="image"/> is an animated GIF, then the whole animation will be saved (can depend on the operating system).</para>
         /// <para>The GIF format supports single bit transparency only.</para>
-        /// <para>If <paramref name="quantizer"/> is <see langword="null"/>&#160;and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
+        /// <para>If <paramref name="quantizer"/> is <see langword="null"/> and <paramref name="image"/> has a non-indexed pixel format, then a quantizer
         /// is automatically selected for optimizing the palette. The auto selected quantizer is obtained by the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method
         /// for the <see cref="PixelFormat.Format16bppGrayScale"/> pixel format, and by the <see cref="OptimizedPaletteQuantizer.Wu">OptimizedPaletteQuantizer.Wu</see> method for any other pixel formats.</para>
         /// <para>If <paramref name="ditherer"/> is <see langword="null"/>, then no ditherer will be auto-selected for the quantization.</para>
@@ -1626,7 +1602,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The image to save. If image contains multiple images other than animated GIF frames, then only the current image will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
-        /// <param name="allowDithering"><see langword="true"/>&#160; to allow dithering high color images using a fix palette; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <param name="allowDithering"><see langword="true"/>  to allow dithering high color images using a fix palette; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <remarks>
         /// <para>This method is kept for compatibility reasons only and calls the <see cref="SaveAsGif(Image, Stream, IQuantizer, IDitherer)"/> overload with the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">SystemDefault8BppPalette</see> quantizer.</para>
@@ -1654,11 +1630,10 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the provided <paramref name="frames"/> as a looping GIF animation into the specified <see cref="Stream"/>.
         /// When <see cref="Image"/> instances in <paramref name="frames"/> contain already multiple frames, only the current frame is taken.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
         /// <param name="stream">The stream into the GIF data is to be saved.</param>
-        /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/>&#160;or empty,
+        /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/> or empty,
         /// then a default 100 ms delay will be used for all frames.
         /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
@@ -1727,7 +1702,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="frames">The frames to save into the GIF data stream.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="frames"/>. The directory of the specified path is created if it does not exist.</param>
-        /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/>&#160;or empty,
+        /// <param name="delays">The collection of the delays to be used for the animation. If <see langword="null"/> or empty,
         /// then a default 100 ms delay will be used for all frames.
         /// If contains less elements than <paramref name="frames"/>, then the last value will be re-used for the remaining frames.</param>
         /// <param name="quantizer">An optional quantizer to be used for the frames. If <see langword="null"/>, then
@@ -1783,12 +1758,11 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Encodes the specified <paramref name="image"/> as a multi-layered, single frame GIF image and writes it into the specified <paramref name="stream"/>, preserving its original color depth.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The <see cref="Image"/> to save. If contains multiple images or frames, then only the current image or frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
-        /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
-        /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
+        /// <param name="allowFullScan"><see langword="true"/> to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
+        /// <br/><see langword="false"/> to expand the initial layer area to the local pixels only. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color during the encoding.
@@ -1809,7 +1783,7 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="allowFullScan"/> is <see langword="false"/>, then each layer is attempted to be as compact as possible. It allows a very fast processing with lower memory usage.
         /// Though it usually produces more layers, the final size will not be necessarily larger, especially for true color images.</para>
         /// <note type="tip">You can prequantize true color images using a 16-bit quantizer (with or without dithering) to produce fairly compact, still high color GIF images.
-        /// For such images the <paramref name="allowFullScan"/> parameter with <see langword="true"/>&#160;value typically produces more compact results.
+        /// For such images the <paramref name="allowFullScan"/> parameter with <see langword="true"/> value typically produces more compact results.
         /// You can consider using the <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer for images with transparency,
         /// or the <see cref="PredefinedColorsQuantizer.Rgb565">Rgb565</see> quantizer for non-transparent images.</note>
         /// <para>To create a multi-layered image completely manually you can create a <see cref="GifEncoder"/> instance that provides a lower level access.</para>
@@ -1840,8 +1814,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The <see cref="Image"/> to save. If contains multiple images or frames, then only the current image or frame will be saved.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="image"/>. The directory of the specified path is created if it does not exist.</param>
-        /// <param name="allowFullScan"><see langword="true"/>&#160;to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
-        /// <br/><see langword="false"/>&#160;to expand the initial layer area to the local pixels only. This parameter is optional.
+        /// <param name="allowFullScan"><see langword="true"/> to allow scanning the whole image for each layers to be able to re-use the local palette of the current layer.
+        /// <br/><see langword="false"/> to expand the initial layer area to the local pixels only. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <param name="backColor">Colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
         /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color during the encoding.
@@ -1868,16 +1842,15 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> using the built-in TIFF encoder if available in the current operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images, then the frames to be saved can be specified by the <paramref name="currentFrameOnly"/> parameter.</param>
         /// <param name="stream">The stream to save the image into.</param>
-        /// <param name="currentFrameOnly"><see langword="true"/>&#160;to save only the current frame of the specified <paramref name="image"/>;
-        /// <see langword="false"/>&#160;to save all frames. The frames can represent pages, animation and resolution dimensions but in any case they will be saved as pages. This parameter is optional.
+        /// <param name="currentFrameOnly"><see langword="true"/> to save only the current frame of the specified <paramref name="image"/>;
+        /// <see langword="false"/> to save all frames. The frames can represent pages, animation and resolution dimensions but in any case they will be saved as pages. This parameter is optional.
         /// <br/>Default value: <see langword="true"/>.</param>
         /// <remarks>
         /// <para>The <paramref name="image"/> can only be saved if a built-in TIFF encoder is available in the current operating system.</para>
-        /// <para>If <paramref name="currentFrameOnly"/> is <see langword="false"/>&#160;and <paramref name="image"/> is an icon, then images of the same resolution but lower color depth might be skipped.</para>
+        /// <para>If <paramref name="currentFrameOnly"/> is <see langword="false"/> and <paramref name="image"/> is an icon, then images of the same resolution but lower color depth might be skipped.</para>
         /// <para>Images with different <see cref="PixelFormat"/>s are handled as follows (on Windows, unless specified otherwise):
         /// <list type="definition">
         /// <item><term><see cref="PixelFormat.Format1bppIndexed"/></term><description>If palette is black and white (in this order), then pixel format will be preserved.
@@ -1971,8 +1944,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images, then the frames to be saved can be specified by the <paramref name="currentFrameOnly"/> parameter.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="image"/>. The directory of the specified path is created if it does not exist.</param>
-        /// <param name="currentFrameOnly"><see langword="true"/>&#160;to save only the current frame of the specified <paramref name="image"/>;
-        /// <see langword="false"/>&#160;to save all frames. The frames can represent pages, animation and resolution dimensions but in any case they will be saved as pages. This parameter is optional.
+        /// <param name="currentFrameOnly"><see langword="true"/> to save only the current frame of the specified <paramref name="image"/>;
+        /// <see langword="false"/> to save all frames. The frames can represent pages, animation and resolution dimensions but in any case they will be saved as pages. This parameter is optional.
         /// <br/>Default value: <see langword="true"/>.</param>
         public static void SaveAsTiff(this Image image, string fileName, bool currentFrameOnly = true)
         {
@@ -1987,7 +1960,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the provided <paramref name="images"/> as a multi-page TIFF into the specified <see cref="Stream"/>.
         /// When <see cref="Image"/> instances in <paramref name="images"/> contain already multiple pages, only the current page is taken.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="images">The images to save into the TIFF data stream.</param>
         /// <param name="stream">The stream into the TIFF data is to be saved.</param>
@@ -2092,12 +2064,11 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="image"/> as an Icon without relying on a built-in encoder in the operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/> and does not save a PNG stream when no built-in Icon encoder can be found in the operating system.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images other than multi-resolution icon bitmaps, then only the current frame will be saved.</param>
         /// <param name="stream">The stream to save the image into.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force saving an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force saving an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <remarks>
         /// <para>The <paramref name="image"/> can be saved even without a registered Icon encoder in the current operating system.</para>
@@ -2116,8 +2087,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The image to save. If contains multiple images other than multi-resolution icon bitmaps, then only the current frame will be saved.</param>
         /// <param name="fileName">The name of the file to which to save the <paramref name="image"/>. The directory of the specified path is created if it does not exist.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force saving an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force saving an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         public static void SaveAsIcon(this Image image, string fileName, bool forceUncompressedResult = false)
         {
@@ -2132,12 +2103,11 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Saves the specified <paramref name="images"/> as an Icon without relying on a built-in encoder in the operating system.
         /// Unlike the <see cref="Image.Save(Stream,ImageFormat)"/> method, this one supports every <see cref="PixelFormat"/> and does not save a PNG stream when no built-in Icon encoder can be found in the operating system.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="images">The images to save as a single icon.</param>
         /// <param name="stream">The stream to save the images into.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force saving an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force saving an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <remarks>
         /// <para>The icon can be saved even without a registered Icon encoder in the current operating system.</para>
@@ -2145,7 +2115,7 @@ namespace KGySoft.Drawing
         /// The indexed and 24 BPP pixel formats are preserved though if the saved stream is reloaded by the <see cref="Icon(Stream)"/> constructor.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="images"/> or <paramref name="stream"/> is <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="images"/> contains a <see langword="null"/>&#160;element.</exception>
+        /// <exception cref="ArgumentException"><paramref name="images"/> contains a <see langword="null"/> element.</exception>
         [SecuritySafeCritical]
         public static void SaveAsIcon(this IEnumerable<Image> images, Stream stream, bool forceUncompressedResult = false)
         {

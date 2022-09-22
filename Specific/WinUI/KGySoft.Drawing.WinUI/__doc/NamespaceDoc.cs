@@ -24,7 +24,7 @@ using Microsoft.UI.Xaml.Media.Imaging;
 namespace KGySoft.Drawing.WinUI
 {
     /// <summary>
-    /// The <c>KGySoft.Drawing.WinUI</c> namespace offers direct support to the <see cref="WriteableBitmap"/> type and is available as a separate
+    /// The <see cref="N:KGySoft.Drawing.WinUI"/> namespace offers direct support to the <see cref="WriteableBitmap"/> type and is available as a separate
     /// NuGet package <a href="https://www.nuget.org/packages/KGySoft.Drawing.WinUI/" target="_blank">KGySoft.Drawing.WinUI</a>.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>

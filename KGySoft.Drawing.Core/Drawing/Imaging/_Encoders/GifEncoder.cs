@@ -30,7 +30,6 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Provides an encoder for GIF image format that supports animation. Use the static members for high-level access or create an instance to
     /// control everything manually.
-    /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
     /// <remarks>
     /// <para>The simplest way to create a single-frame GIF image is calling the static <see cref="EncodeImage">EncodeImage</see> method. It can
@@ -50,7 +49,7 @@ namespace KGySoft.Drawing.Imaging
     /// Non-indexed images will be quantized using the default 8-bit "web-safe" palette without dithering.</note></para>
     /// </remarks>
     /// <example>
-    /// <para>The following example demonstrates how to use the encoder in a <see langword="using"/>&#160;block:
+    /// <para>The following example demonstrates how to use the encoder in a <see langword="using"/> block:
     /// <code lang="C#"><![CDATA[
     /// using (var encoder = new GifEncoder(stream, new Size(48, 48)) { GlobalPalette = palette })
     /// {
@@ -247,7 +246,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Writes an image to the output stream.
-        /// <br/>See the <strong>Remarks</strong> section if the <see cref="GifEncoder"/> class for details and examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GifEncoder"/> class for details and examples.
         /// </summary>
         /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
         /// by the system default 8-bpp "web-safe" palette (see also <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see>)
@@ -357,7 +356,7 @@ namespace KGySoft.Drawing.Imaging
         /// Finalizes the encoding. It should be called after adding the last image.
         /// It is implicitly called when this <see cref="GifEncoder"/> instance is disposed.
         /// </summary>
-        /// <param name="leaveStreamOpen"><see langword="true"/>&#160;to leave the underlying stream open; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <param name="leaveStreamOpen"><see langword="true"/> to leave the underlying stream open; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="true"/>.</param>
         public void FinalizeEncoding(bool leaveStreamOpen = true)
         {

@@ -26,16 +26,15 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// The <c>KGySoft.Drawing</c> namespace contains extension methods and types built around the types of the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing" target="_blank">System.Drawing</a> namespace.
+    /// The <see cref="N:KGySoft.Drawing"/> namespace contains extension methods and types built around the types of the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing" target="_blank">System.Drawing</a> namespace.
     /// Among others, provides advanced support for the <see cref="Icon"/> type such as extracting, combining and converting multi-resolution icons, including hi-resolution ones,
     /// supports saving several <see cref="Image"/> formats, including formats without built-in encoders (eg. icons and <see cref="Metafile"/>s), provides methods for pixel format conversion, quantizing, dithering, etc.
-    /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
     /// <remarks>
-    /// <note>Starting with version 7.0.0 the <c>KGySoft.Drawing</c> libraries have been split into multiple packages.
-    /// If a type is not found at compile time you can check this documentation where the <strong>Assembly</strong> indicates the name of the assembly
-    /// (and the NuGet package) in which the type is located.
-    /// <list type="definition">
+    /// <note>Starting with version 7.0.0 the <c>KGySoft.Drawing</c> libraries are split into multiple packages.
+    /// The <strong>Assembly</strong> name is indicated for all types, which indicates also the the NuGet package the type is located in.</note>
+    /// <h2>The available packages of KGy SOFT Drawing Libraries:</h2>
+    /// <para><list type="definition">
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a></term>
     /// <description>This package contains the technology and platform independent core functionality and covers most of the types in
     /// the <see cref="N:KGySoft.Drawing.Imaging"/> namespace along with a few ones in the <see cref="N:KGySoft.Drawing"/> namespace.
@@ -65,7 +64,7 @@ namespace KGySoft.Drawing
     /// but it provides exactly the same functionality as the WinUI package.
     /// This package requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version
     /// of the <a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a> library.</description></item>
-    /// </list></note>
+    /// </list></para>
     /// </remarks>
     [CompilerGenerated]
     internal static class NamespaceDoc

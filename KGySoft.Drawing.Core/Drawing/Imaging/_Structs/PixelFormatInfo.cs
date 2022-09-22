@@ -171,7 +171,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets or sets whether the represented pixel format uses premultiplied alpha.
-        /// Setting this property to <see langword="true"/>&#160;sets also the <see cref="HasAlpha"/> property.
+        /// Setting this property to <see langword="true"/> sets also the <see cref="HasAlpha"/> property.
         /// </summary>
         public bool HasPremultipliedAlpha
         {
@@ -194,7 +194,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets or sets whether the represented pixel format supports single-bit alpha only (a pixel is either completely transparent or completely opaque).
-        /// Setting this property to <see langword="true"/>&#160;sets also the <see cref="HasAlpha"/> property.
+        /// Setting this property to <see langword="true"/> sets also the <see cref="HasAlpha"/> property.
         /// It is not mandatory to set this property for custom single-bit alpha formats but it helps optimizing some drawing operations.
         /// </summary>
         public bool HasSingleBitAlpha
@@ -265,7 +265,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="left">The <see cref="PixelFormatInfo"/> instance that is to the left of the equality operator.</param>
         /// <param name="right">The <see cref="PixelFormatInfo"/> instance that is to the right of the equality operator.</param>
-        /// <returns><see langword="true"/>&#160;if the two <see cref="PixelFormatInfo"/> structures are equal; otherwise, <see langword="false"/>.</returns>
+        /// <returns><see langword="true"/> if the two <see cref="PixelFormatInfo"/> structures are equal; otherwise, <see langword="false"/>.</returns>
         public static bool operator ==(PixelFormatInfo left, PixelFormatInfo right) => left.Equals(right);
 
         /// <summary>
@@ -273,7 +273,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="left">The <see cref="PixelFormatInfo"/> instance that is to the left of the inequality operator.</param>
         /// <param name="right">The <see cref="PixelFormatInfo"/> instance that is to the right of the inequality operator.</param>
-        /// <returns><see langword="true"/>&#160;if the two <see cref="PixelFormatInfo"/> structures are different; otherwise, <see langword="false"/>.</returns>
+        /// <returns><see langword="true"/> if the two <see cref="PixelFormatInfo"/> structures are different; otherwise, <see langword="false"/>.</returns>
         public static bool operator !=(PixelFormatInfo left, PixelFormatInfo right) => !left.Equals(right);
 
         #endregion

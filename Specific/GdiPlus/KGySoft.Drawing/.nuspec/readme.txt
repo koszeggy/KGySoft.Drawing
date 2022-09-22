@@ -21,7 +21,6 @@ Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/
 
 Project Home Page: https://kgysoft.net/drawing
 Online documentation: https://docs.kgysoft.net/drawing
-Offline documentation: <packages folder>\KGySoft.Drawing.<version>\Help\KGySoft.Drawing.chm
 GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
                                                  ~~*~~

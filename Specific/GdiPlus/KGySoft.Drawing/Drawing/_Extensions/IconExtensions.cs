@@ -199,9 +199,9 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large uncompressed icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large uncompressed icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractIcons(Icon)" />
         public static Bitmap?[] ExtractBitmaps(this Icon icon, bool keepOriginalFormat = false) => ExtractBitmaps(icon, null, null, keepOriginalFormat);
@@ -215,9 +215,9 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large uncompressed icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large uncompressed icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractIcons(Icon,Size)"/>
         public static Bitmap?[] ExtractBitmaps(this Icon icon, Size size, bool keepOriginalFormat = false) => ExtractBitmaps(icon, size, null, keepOriginalFormat);
@@ -231,9 +231,9 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Bitmap" /> instances, which were extracted from the <paramref name="icon" />.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large uncompressed icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large uncompressed icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractIcons(Icon,PixelFormat)"/>
         public static Bitmap?[] ExtractBitmaps(this Icon icon, PixelFormat pixelFormat, bool keepOriginalFormat = false)
@@ -248,7 +248,7 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
-        /// or <see langword="null"/>&#160;if no image was found in the <paramref name="icon"/>.</returns>
+        /// or <see langword="null"/> if no image was found in the <paramref name="icon"/>.</returns>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
         /// </remarks>
@@ -264,7 +264,7 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
-        /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
+        /// or <see langword="null"/> if no icon found with the specified size.</returns>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
         /// </remarks>
@@ -281,7 +281,7 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
-        /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
+        /// or <see langword="null"/> if no icon found with the specified size and format.</returns>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
         /// </remarks>
@@ -298,7 +298,7 @@ namespace KGySoft.Drawing
         /// non-32 bpp ARGB formats may be black. If <see langword="false"/>, always returns 32 bpp images with transparency. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An <see cref="Bitmap"/> instance, which was extracted from the <paramref name="icon"/>,
-        /// or <see langword="null"/>&#160;if the specified <paramref name="index"/> was too large.</returns>
+        /// or <see langword="null"/> if the specified <paramref name="index"/> was too large.</returns>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large uncompressed icons.</note>
         /// </remarks>
@@ -346,10 +346,10 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon)
@@ -359,12 +359,12 @@ namespace KGySoft.Drawing
         /// Extracts every icon from an <see cref="Icon"/> instance as separated <see cref="Icon"/> instances.
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning uncompressed icons only;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning uncompressed icons only;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon, bool forceUncompressedResult) => ExtractIcons(icon, null, null, forceUncompressedResult);
@@ -375,10 +375,10 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,Size,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon, Size size)
@@ -389,12 +389,12 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning uncompressed icons only;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning uncompressed icons only;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,Size,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon, Size size, bool forceUncompressedResult)
@@ -406,10 +406,10 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,PixelFormat,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon, PixelFormat pixelFormat)
@@ -420,12 +420,12 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning uncompressed icons only;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning uncompressed icons only;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An array of <see cref="Icon"/> instances, which were extracted from the <paramref name="icon"/>.
-        /// On Windows the result never has <see langword="null"/>&#160;elements</returns>
+        /// On Windows the result never has <see langword="null"/> elements</returns>
         /// <remarks>
-        /// <note>On some non-Windows platforms the result may contain <see langword="null"/>&#160;elements in place of very large icons.</note>
+        /// <note>On some non-Windows platforms the result may contain <see langword="null"/> elements in place of very large icons.</note>
         /// </remarks>
         /// <seealso cref="ExtractBitmaps(Icon,PixelFormat,bool)"/>
         public static Icon?[] ExtractIcons(this Icon icon, PixelFormat pixelFormat, bool forceUncompressedResult)
@@ -438,7 +438,7 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
+        /// or <see langword="null"/> if no icon found with the specified size.</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large icons.</note>
@@ -453,10 +453,10 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if no icon found with the specified size.</returns>
+        /// or <see langword="null"/> if no icon found with the specified size.</returns>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large or compressed icons.</note>
         /// </remarks>
@@ -471,7 +471,7 @@ namespace KGySoft.Drawing
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
+        /// or <see langword="null"/> if no icon found with the specified size and format.</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large icons.</note>
@@ -487,10 +487,10 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if no icon found with the specified size and format.</returns>
+        /// or <see langword="null"/> if no icon found with the specified size and format.</returns>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large or compressed icons.</note>
         /// </remarks>
@@ -504,7 +504,7 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="index">The zero-based index of the icon image to retrieve.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if the specified <paramref name="index"/> was too large.</returns>
+        /// or <see langword="null"/> if the specified <paramref name="index"/> was too large.</returns>
         /// <remarks>
         /// <para>The result <see cref="Icon"/> instances are compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large icons.</note>
@@ -517,10 +517,10 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="index">The zero-based index of the icon image to retrieve.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image,
-        /// or <see langword="null"/>&#160;if the specified <paramref name="index"/> was too large.</returns>
+        /// or <see langword="null"/> if the specified <paramref name="index"/> was too large.</returns>
         /// <remarks>
         /// <note>On some platforms this method may throw a <see cref="PlatformNotSupportedException"/> for very large or compressed icons.</note>
         /// </remarks>
@@ -549,7 +549,7 @@ namespace KGySoft.Drawing
         /// <remarks>
         /// <para>The result <see cref="Icon"/> is compatible with Windows XP if the method is executed in a Windows XP environment.</para>
         /// <para>On some platforms it may happen that a smaller icon is returned than requested size if the requested icon size is not supported.
-        /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/>&#160;is returned.</para>
+        /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/> is returned.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
         public static Icon ExtractNearestIcon(this Icon icon, Size size, PixelFormat pixelFormat) => ExtractNearestIcon(icon, size, pixelFormat, OSUtils.IsXpOrEarlier);
@@ -561,13 +561,13 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon that may contain multiple images.</param>
         /// <param name="size">The required icon size to retrieve.</param>
         /// <param name="pixelFormat">The required pixel format to retrieve</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>An <see cref="Icon"/> instance, which contains only a single image. If no
         /// icon was found with the specified size and format the nearest icon (<paramref name="size"/> match have preference over <paramref name="pixelFormat"/>) is returned.</returns>
         /// <remarks>
         /// <para>On some platforms it may happen that a smaller icon is returned than requested size if the requested icon size is not supported.
-        /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/>&#160;is returned.</para>
+        /// If <paramref name="icon"/> contains only unsupported icon sizes, then <see langword="null"/> is returned.</para>
         /// </remarks>
         /// <seealso cref="ExtractNearestBitmap(Icon,Size,PixelFormat,bool)"/>
         [SecuritySafeCritical]
@@ -609,8 +609,8 @@ namespace KGySoft.Drawing
         /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
         /// <param name="icon">The icon to combine with other icons.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="icons">The icons to be combined with the specified <paramref name="icon"/>.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</remarks>
@@ -620,8 +620,8 @@ namespace KGySoft.Drawing
         /// Combines an <see cref="Icon"/> instance with the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
         /// <param name="icon">The icon to combine with other icons.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="icons">The icons to be combined with the specified <paramref name="icon"/>.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>Both <paramref name="icon"/> and elements of <paramref name="icons"/> may contain multiple icons.</remarks>
@@ -677,8 +677,8 @@ namespace KGySoft.Drawing
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
         /// </summary>
         /// <param name="icon">The icon to combine with other images.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="images">The images to be added to the <paramref name="icon"/>. Images can be non-squared ones.</param>
         /// <returns>
         /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
@@ -690,8 +690,8 @@ namespace KGySoft.Drawing
         /// Combines an <see cref="Icon" /> instance with the provided <paramref name="images" /> into a multi-resolution <see cref="Icon" /> instance.
         /// </summary>
         /// <param name="icon">The icon to combine with other images.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="images">The images to be added to the <paramref name="icon"/>. Images can be non-squared ones.</param>
         /// <returns>
         /// An <see cref="Icon" /> instance that contains every image of the source <paramref name="images" />.
@@ -738,8 +738,8 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon to combine with other images.</param>
         /// <param name="image">The image to be added to the <paramref name="icon"/>. Can be a non-squared one.</param>
         /// <param name="transparentColor">A color that represents the transparent color in <paramref name="image"/>.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>
         /// An <see cref="Icon" /> instance that contains the source <paramref name="image" />.
         /// </returns>
@@ -767,8 +767,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to save</param>
         /// <param name="stream">A stream into which the icon has to be saved.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force saving an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force saving an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         [SecuritySafeCritical]
         public static void SaveAsIcon(this Icon icon, Stream stream, bool forceUncompressedResult = false)
@@ -797,7 +797,7 @@ namespace KGySoft.Drawing
         /// <param name="icon">The icon.</param>
         /// <param name="index">The index to check. If <see langword="null"/>, then the result determines whether the <paramref name="icon"/> has at least one compressed image. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
-        /// <returns><see langword="true"/>&#160;if the icon or its image at the specified index is compressed.</returns>
+        /// <returns><see langword="true"/> if the icon or its image at the specified index is compressed.</returns>
         [SecuritySafeCritical]
         public static bool IsCompressed(this Icon icon, int? index = null)
         {
@@ -877,7 +877,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Converts the provided <paramref name="icon"/> to a <see cref="CursorHandle"/>, which can be passed to the
         /// <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">System.Windows.Forms.Cursor</a> constructor
-        /// to create a new cursor that supports colors and partial transparency. <br/>See the <strong>Remarks</strong> section for details.
+        /// to create a new cursor that supports colors and partial transparency.
         /// </summary>
         /// <param name="icon">The <see cref="Icon"/>, which should be converted to a cursor.</param>
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor. This parameter is optional.

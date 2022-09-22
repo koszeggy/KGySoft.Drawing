@@ -32,7 +32,7 @@ namespace KGySoft.Drawing
     /// <summary>
     /// Represents a windows cursor that supports colors and partial transparency. The <see cref="CursorHandle"/> instance can be passed to the
     /// <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">System.Windows.Forms.Cursor</a> constructor
-    /// to create a new cursor. <br/>See the <strong>Remarks</strong> section for details.
+    /// to create a new cursor.
     /// </summary>
     /// <remarks>
     /// <para>A <see cref="CursorHandle"/> instance can be created from an <see cref="Icon"/> or <see cref="Bitmap"/> instance by using the

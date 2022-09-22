@@ -103,7 +103,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="left">The <see cref="Color32"/> instance that is to the left of the equality operator.</param>
         /// <param name="right">The <see cref="Color32"/> instance that is to the right of the equality operator.</param>
-        /// <returns><see langword="true"/>&#160;if the two <see cref="Color32"/> structures are equal; otherwise, <see langword="false"/>.</returns>
+        /// <returns><see langword="true"/> if the two <see cref="Color32"/> structures are equal; otherwise, <see langword="false"/>.</returns>
         public static bool operator ==(Color32 left, Color32 right) => left.Equals(right);
 
         /// <summary>
@@ -111,7 +111,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="left">The <see cref="Color32"/> instance that is to the left of the inequality operator.</param>
         /// <param name="right">The <see cref="Color32"/> instance that is to the right of the inequality operator.</param>
-        /// <returns><see langword="true"/>&#160;if the two <see cref="Color32"/> structures are different; otherwise, <see langword="false"/>.</returns>
+        /// <returns><see langword="true"/> if the two <see cref="Color32"/> structures are different; otherwise, <see langword="false"/>.</returns>
         public static bool operator !=(Color32 left, Color32 right) => !left.Equals(right);
 
         /// <summary>

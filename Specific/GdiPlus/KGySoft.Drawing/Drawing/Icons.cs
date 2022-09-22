@@ -608,8 +608,8 @@ namespace KGySoft.Drawing
         /// Loads an <see cref="Icon"/> from the specified <paramref name="stream"/>.
         /// </summary>
         /// <param name="stream">The stream to load the icon from.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>The <see cref="Icon"/> loaded from the <paramref name="stream"/>, or <see langword="null"/>, if <paramref name="stream"/> contains an empty icon header.</returns>
         [SecuritySafeCritical]
         public static Icon? FromStream(Stream stream, bool forceUncompressedResult)
@@ -645,8 +645,8 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="icons">The icons to be combined.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
@@ -656,8 +656,8 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Combines the provided <paramref name="icons"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="icons">The icons to be combined.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="icons"/>.</returns>
         /// <remarks>The elements of <paramref name="icons"/> may contain multiple icons.</remarks>
@@ -705,8 +705,8 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
@@ -719,8 +719,8 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Combines the provided <paramref name="images"/> into a multi-resolution <see cref="Icon"/> instance.
         /// </summary>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <param name="images">The images to be added to the result icon. Images can be non-squared ones.
         /// Transparency is determined automatically by image format.</param>
         /// <returns>An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.</returns>
@@ -762,8 +762,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="images">The images to be added to the icon. Images can be non-squares ones.</param>
         /// <param name="transparentColors">An array of transparent colors of the images. The array must have as many elements as <paramref name="images"/>.</param>
-        /// <param name="forceUncompressedResult"><see langword="true"/>&#160;to force returning an uncompressed icon;
-        /// <see langword="false"/>&#160;to allow PNG compression, which is supported by Windows Vista and above.</param>
+        /// <param name="forceUncompressedResult"><see langword="true"/> to force returning an uncompressed icon;
+        /// <see langword="false"/> to allow PNG compression, which is supported by Windows Vista and above.</param>
         /// <returns>
         /// An <see cref="Icon"/> instance that contains every image of the source <paramref name="images"/>.
         /// </returns>

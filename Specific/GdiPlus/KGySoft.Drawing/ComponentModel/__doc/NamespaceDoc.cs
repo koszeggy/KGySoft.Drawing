@@ -23,8 +23,8 @@ using System.Runtime.CompilerServices;
 namespace KGySoft.ComponentModel
 {
     /// <summary>
-    /// In KGy SOFT Drawing Libraries the <c>KGySoft.ComponentModel</c> namespace contains a single <see cref="TypeConverter"/> implementation.
-    /// <br/>For more <c>KGySoft.ComponentModel</c> types see the <a href="http://docs.kgysoft.net/corelibraries/?topic=html/N_KGySoft_ComponentModel.htm" target="_blank">KGySoft.ComponentModel</a> namespace of the KGy SOFT Core Libraries.
+    /// In KGy SOFT Drawing Libraries the <see cref="N:KGySoft.ComponentModel"/> namespace contains a single <see cref="TypeConverter"/> implementation.
+    /// <br/>For more <see cref="N:KGySoft.ComponentModel"/> types see the <a href="http://docs.kgysoft.net/corelibraries/html/N_KGySoft_ComponentModel.htm">KGySoft.ComponentModel</a> namespace of the KGy SOFT Core Libraries.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>
     [CompilerGenerated]

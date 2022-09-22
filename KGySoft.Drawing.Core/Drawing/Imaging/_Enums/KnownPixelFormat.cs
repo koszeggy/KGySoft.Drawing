@@ -24,7 +24,6 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents pixel formats with built-in support.
     /// For custom formats you can use the <see cref="PixelFormatInfo"/> type when applicable.
-    /// <br/>See the <strong>Remarks</strong> section for details.
     /// </summary>
     /// <remarks>
     /// <note>The <see cref="KnownPixelFormat"/> enumeration contains all formats that

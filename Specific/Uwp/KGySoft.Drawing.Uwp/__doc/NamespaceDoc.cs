@@ -24,7 +24,7 @@ using Windows.UI.Xaml.Media.Imaging;
 namespace KGySoft.Drawing.Uwp
 {
     /// <summary>
-    /// The <c>KGySoft.Drawing.Uwp</c> namespace offers dedicated support for the <see cref="WriteableBitmap"/> type and is available as a separate
+    /// The <see cref="N:KGySoft.Drawing.Uwp"/> namespace offers dedicated support for the <see cref="WriteableBitmap"/> type and is available as a separate
     /// NuGet package <a href="https://www.nuget.org/packages/KGySoft.Drawing.Uwp/" target="_blank">KGySoft.Drawing.Uwp</a>.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>

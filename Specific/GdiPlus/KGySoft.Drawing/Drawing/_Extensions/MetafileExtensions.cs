@@ -130,7 +130,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
         /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>. This overload does not maintain aspect ratio.</param>
-        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <param name="antiAliased"><see langword="true"/> to create an anti-aliased result; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased = false) => ToBitmap(metafile, requestedSize, antiAliased, false);
@@ -140,8 +140,8 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="metafile">The <see cref="Metafile"/> to convert.</param>
         /// <param name="requestedSize">The requested size of the result <see cref="Bitmap"/>.</param>
-        /// <param name="antiAliased"><see langword="true"/>&#160;to create an anti-aliased result; otherwise, <see langword="false"/>.</param>
-        /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="metafile"/>; otherwise, <see langword="false"/>.</param>
+        /// <param name="antiAliased"><see langword="true"/> to create an anti-aliased result; otherwise, <see langword="false"/>.</param>
+        /// <param name="keepAspectRatio"><see langword="true"/> to keep aspect ratio of the source <paramref name="metafile"/>; otherwise, <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance of the requested size.</returns>
         public static Bitmap ToBitmap(this Metafile metafile, Size requestedSize, bool antiAliased, bool keepAspectRatio)
         {

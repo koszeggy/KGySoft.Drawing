@@ -28,7 +28,6 @@ namespace KGySoft.Drawing.Imaging
     /// <summary>
     /// Represents a quantizer that can generate an optimized set of colors best matching to the original image.
     /// Use the static methods to retrieve an instance. For using predefined colors see the <see cref="PredefinedColorsQuantizer"/> class.
-    /// <br/>See the <strong>Remarks</strong> section for details and results comparison.
     /// </summary>
     /// <remarks>
     /// <para>The <see cref="OptimizedPaletteQuantizer"/> class can be used to reduce colors of an <see cref="IReadableBitmapData"/> using a
@@ -343,8 +342,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Octree quantizing algorithm.
-        /// <br/>See the <strong>Examples</strong> section for an example,
-        /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
@@ -381,8 +378,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using the Median Cut quantizing algorithm.
-        /// <br/>See the <strong>Examples</strong> section for an example,
-        /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
@@ -419,8 +414,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets an <see cref="OptimizedPaletteQuantizer"/> instance that quantizes colors of an image using Xiaolin Wu's quantizing algorithm.
-        /// <br/>See the <strong>Examples</strong> section for an example,
-        /// and the <strong>Remarks</strong> section of the <see cref="OptimizedPaletteQuantizer"/> for details and results comparison with the other algorithms.
         /// </summary>
         /// <param name="maxColors">The upper limit of generated colors. Must be between 2 and 65536, inclusive bounds. This parameter is optional.
         /// <br/>Default value: <c>256</c>.</param>
@@ -465,7 +458,6 @@ namespace KGySoft.Drawing.Imaging
         /// Configures the bit level per color channel to be used while optimizing the palette.
         /// If the input image is a monochromatic one, then may determine the bit depth of the result, depending on the used algorithm.
         /// Affects the quality, speed and memory usage.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitLevel">Specifies the desired bit level. If <see langword="null"/>, then the value is automatically set by the chosen algorithm.</param>
         /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified bit level.</returns>

@@ -7,7 +7,6 @@ Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.D
 
 Project Home Page: https://kgysoft.net/drawing
 Online documentation: https://docs.kgysoft.net/drawing
-Offline documentation: <packages folder>\KGySoft.Drawing.Core.<version>\Help\KGySoft.Drawing.chm
 GitHub: https://github.com/koszeggy/KGySoft.Drawing
 
                                                  ~~*~~

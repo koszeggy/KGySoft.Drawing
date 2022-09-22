@@ -85,7 +85,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Gets whether the specified <paramref name="pixelFormat"/> is supported natively on the current operating system.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="pixelFormat">The pixel format to check.</param>
         /// <returns><see langword="true"/>, if the specified <paramref name="pixelFormat"/> is supported on the current operating system; otherwise, <see langword="false"/>.</returns>
@@ -159,7 +158,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets a <see cref="PixelFormatInfo"/> for this <paramref name="pixelFormat"/>.
         /// Please note that this may return a different result than calling <see cref="ToKnownPixelFormat">ToKnownPixelFormat()</see>.<see cref="KnownPixelFormatExtensions.GetInfo">GetInfo()</see>
-        /// because the <see cref="PixelFormatInfo.IsCustomFormat"/> in the result of this method can be <see langword="true"/>&#160;if the actual pixel layout
+        /// because the <see cref="PixelFormatInfo.IsCustomFormat"/> in the result of this method can be <see langword="true"/> if the actual pixel layout
         /// of the specified <paramref name="pixelFormat"/> differs from the layout of its <see cref="KnownPixelFormat"/> counterpart with the same name.
         /// </summary>
         /// <param name="pixelFormat">The <see cref="PixelFormat"/> to retrieve a <see cref="PixelFormatInfo"/> for.</param>

@@ -70,7 +70,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="image">The original image to resize</param>
         /// <param name="newSize">The requested new size.</param>
-        /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="image"/>; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <param name="keepAspectRatio"><see langword="true"/> to keep aspect ratio of the source <paramref name="image"/>; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
         public static Bitmap Resize(this Bitmap image, Size newSize, bool keepAspectRatio = false)
@@ -115,12 +115,11 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Resizes the image using the specified <paramref name="scalingMode"/>. The result always has a <see cref="PixelFormat.Format32bppPArgb"/> pixel format.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="image">The original image to resize</param>
         /// <param name="newSize">The requested new size.</param>
         /// <param name="scalingMode">A <see cref="ScalingMode"/> value, which determines the quality of the result as well as the processing time.</param>
-        /// <param name="keepAspectRatio"><see langword="true"/>&#160;to keep aspect ratio of the source <paramref name="image"/>; otherwise, <see langword="false"/>. This parameter is optional.
+        /// <param name="keepAspectRatio"><see langword="true"/> to keep aspect ratio of the source <paramref name="image"/>; otherwise, <see langword="false"/>. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
         /// <remarks>
@@ -265,14 +264,13 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Gets the colors used in the defined <paramref name="bitmap"/>. A limit can be defined in <paramref name="maxColors"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The bitmap, whose colors have to be returned. If it is indexed and the <paramref name="forceScanningContent"/> parameter is <see langword="false"/>,
         /// then its palette entries are returned and <paramref name="maxColors"/> is ignored.</param>
         /// <param name="maxColors">A limit of the returned colors. If <paramref name="forceScanningContent"/> parameter is <see langword="false"/>, then
         /// this parameter is ignored for indexed bitmaps. Use 0 for no limit. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
-        /// <param name="forceScanningContent"><see langword="true"/>&#160;to force scanning the actual image content even if the specified <paramref name="bitmap"/> is
+        /// <param name="forceScanningContent"><see langword="true"/> to force scanning the actual image content even if the specified <paramref name="bitmap"/> is
         /// indexed and has a palette. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>An array of <see cref="Color"/> entries.</returns>
@@ -300,7 +298,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Gets the actual number of colors of the specified <paramref name="bitmap"/>. Colors are counted even for indexed bitmaps.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The bitmap, whose colors have to be counted to count its colors.</param>
         /// <returns>The actual number of colors of the specified <paramref name="bitmap"/>.</returns>
@@ -326,7 +323,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Converts the provided <paramref name="bitmap"/> to a <see cref="CursorHandle"/>, which can be passed to the
         /// <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms.cursor" target="_blank">System.Windows.Forms.Cursor</a> constructor
-        /// to create a new cursor that supports colors and partial transparency. <br/>See the <strong>Remarks</strong> section for details.
+        /// to create a new cursor that supports colors and partial transparency.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/>, which should be converted to a cursor.</param>
         /// <param name="cursorHotspot">The hotspot coordinates of the cursor. This parameter is optional.
@@ -428,7 +425,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
         /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and examples.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
@@ -547,7 +543,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Quantizes a <paramref name="bitmap"/> using the specified <paramref name="quantizer"/> (reduces the number of colors).
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance to be quantized.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmap"/>.</param>
@@ -583,7 +578,6 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Quantizes a <paramref name="bitmap"/> with dithering (reduces the number of colors while trying to preserve details)
         /// using the specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance to be quantized.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> implementation to be used for quantizing the specified <paramref name="bitmap"/>.</param>
@@ -681,7 +675,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Transforms the colors of a <paramref name="bitmap"/> using the specified <paramref name="transformFunction"/> delegate.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmap"/>. It must be thread-safe.</param>
@@ -720,7 +713,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Transforms the colors of a <paramref name="bitmap"/> using the specified <paramref name="transformFunction"/> delegate.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="transformFunction">The transform function to be used on the colors of the specified <paramref name="bitmap"/>. It must be thread-safe.</param>
@@ -785,7 +777,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Replaces every <paramref name="oldColor"/> occurrences to <paramref name="newColor"/> in the specified <paramref name="bitmap"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="oldColor">The original color to be replaced.</param>
@@ -815,7 +806,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Inverts the colors of the specified <paramref name="bitmap"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be inverted.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result of the transformation if the inverse of the <paramref name="bitmap"/>
@@ -841,7 +831,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Makes a <paramref name="bitmap"/> opaque using the specified <paramref name="backColor"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to make opaque.</param>
         /// <param name="backColor">Pixels with alpha in <paramref name="bitmap"/> will be blended with this color.
@@ -869,7 +858,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Makes a <paramref name="bitmap"/> grayscale.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to make grayscale.</param>
         /// <param name="ditherer">An optional <see cref="IDitherer"/> instance to dither the result if grayscale colors
@@ -899,7 +887,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the brightness of the specified <paramref name="bitmap"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="brightness">A float value between -1 and 1, inclusive bounds. Positive values make the <paramref name="bitmap"/> brighter,
@@ -959,7 +946,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the contrast of the specified <paramref name="bitmap"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="contrast">A float value between -1 and 1, inclusive bounds. Positive values increase the contrast,
@@ -1019,7 +1005,6 @@ namespace KGySoft.Drawing
 
         /// <summary>
         /// Adjusts the gamma correction of the specified <paramref name="bitmap"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details and an example.
         /// </summary>
         /// <param name="bitmap">The <see cref="Bitmap"/> to be transformed.</param>
         /// <param name="gamma">A float value between 0 and 10, inclusive bounds. Values less than 1 decrease gamma correction,

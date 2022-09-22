@@ -62,7 +62,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with the specified <paramref name="size"/> and <paramref name="pixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The desired pixel format of the bitmap data to create. This parameter is optional.
@@ -95,7 +94,7 @@ namespace KGySoft.Drawing.Imaging
         /// <item>To create an <see cref="IReadWriteBitmapData"/> instance from a platform specific bitmap type such as <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Bitmap" target="_blank">Bitmap</a>
         /// or <a href="https://docs.microsoft.com/en-us/dotnet/api/system.windows.media.imaging.writeablebitmap" target="_blank">WriteableBitmap</a>, use the <c>GetReadWriteBitmapData</c> extension methods for various platform dependent
         /// bitmap implementations. See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for a list about the technologies with dedicated support,
-        /// and the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/?topic=html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm" target="_blank">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// and the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
         /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for all sources.</item>
         /// </list></note>
         /// </remarks>
@@ -204,7 +203,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom non-indexed pixel format for a preallocated one dimensional array with the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -253,7 +251,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates an <see cref="IReadWriteBitmapData"/> instance with a custom indexed pixel format for a preallocated one dimensional array with the specified parameters.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
         /// <param name="buffer">A preallocated array to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
@@ -313,7 +310,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_ArraySection_1.htm" target="_blank">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// It can be larger than it is required for the specified parameters.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
@@ -329,7 +326,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/?topic=html/F_KGySoft_Collections_ArraySection_1_Null.htm" target="_blank">Null</a>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/html/F_KGySoft_Collections_ArraySection_1_Null.htm">Null</a>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats
@@ -350,7 +347,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates an <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the specified parameters.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_ArraySection_1.htm" target="_blank">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// It can be larger than it is required for the specified parameters.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
@@ -363,7 +360,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/?topic=html/F_KGySoft_Collections_ArraySection_1_Null.htm" target="_blank">Null</a>.</exception>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/html/F_KGySoft_Collections_ArraySection_1_Null.htm">Null</a>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats
@@ -388,7 +385,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_ArraySection_1.htm" target="_blank">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// It can be larger than it is required for the specified parameters.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
@@ -405,7 +402,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/?topic=html/F_KGySoft_Collections_ArraySection_1_Null.htm" target="_blank">Null</a>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/html/F_KGySoft_Collections_ArraySection_1_Null.htm">Null</a>
         /// <br/>-or-
         /// <br/><paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
@@ -436,7 +433,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, int}, Action{ICustomBitmapDataRow{T}, int, int}, Palette?, Func{Palette, bool}?, Action?)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_ArraySection_1.htm" target="_blank">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm">ArraySection&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.
         /// It can be larger than it is required for the specified parameters.</param>
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
@@ -452,7 +449,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/?topic=html/F_KGySoft_Collections_ArraySection_1_Null.htm" target="_blank">Null</a>
+        /// <exception cref="ArgumentNullException"><paramref name="buffer"/> is <a href="https://docs.kgysoft.net/corelibraries/html/F_KGySoft_Collections_ArraySection_1_Null.htm">Null</a>
         /// <br/>-or-
         /// <br/><paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="size"/> has a zero or negative width or height
@@ -637,7 +634,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_Array2D_1.htm" target="_blank">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create. This parameter is optional.
         /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
@@ -651,7 +648,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Collections_Array2D_1_IsNull.htm" target="_blank">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.</exception>
+        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Collections_Array2D_1_IsNull.htm">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormat"/>
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
@@ -667,7 +664,7 @@ namespace KGySoft.Drawing.Imaging
         /// Creates an <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the specified parameters.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_Array2D_1.htm" target="_blank">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
         /// <param name="palette">If <paramref name="pixelFormat"/> represents an indexed format, then specifies the desired <see cref="IBitmapData.Palette"/> of the returned <see cref="IReadWriteBitmapData"/> instance.
@@ -678,7 +675,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns> 
-        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Collections_Array2D_1_IsNull.htm" target="_blank">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.</exception>
+        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Collections_Array2D_1_IsNull.htm">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormat"/>
         /// <br/>-or-
         /// <br/><paramref name="pixelFormat"/> is not one of the valid formats.</exception>
@@ -699,7 +696,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, Color32}, Action{ICustomBitmapDataRow{T}, int, Color32}, Color32, byte, Action?)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_Array2D_1.htm" target="_blank">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
@@ -714,7 +711,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Collections_Array2D_1_IsNull.htm" target="_blank">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
+        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Collections_Array2D_1_IsNull.htm">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
         /// <br/>-or-
         /// <br/><paramref name="rowGetColor"/> or <paramref name="rowSetColor"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
@@ -742,7 +739,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData{T}(T[], Size, int, PixelFormatInfo, Func{ICustomBitmapDataRow{T}, int, int}, Action{ICustomBitmapDataRow{T}, int, int}, Palette?, Func{Palette, bool}?, Action?)"/> overload for details.
         /// </summary>
         /// <typeparam name="T">The type of the elements in <paramref name="buffer"/>.</typeparam>
-        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Collections_Array2D_1.htm" target="_blank">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
+        /// <param name="buffer">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm">Array2D&lt;T></a> to be used as the underlying buffer for the returned <see cref="IReadWriteBitmapData"/>.</param>
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormatInfo">A <see cref="PixelFormatInfo"/> instance that describes the pixel format.</param>
         /// <param name="rowGetColorIndex">A delegate that can get the color index of a pixel in a row of the bitmap data.</param>
@@ -756,7 +753,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="disposeCallback">A delegate to be called when the returned <see cref="IReadWriteBitmapData"/> is disposed or finalized. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance wrapping the specified <paramref name="buffer"/> and using the provided parameters.</returns>
-        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Collections_Array2D_1_IsNull.htm" target="_blank">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
+        /// <exception cref="ArgumentNullException">The <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Collections_Array2D_1_IsNull.htm">IsNull</a> property of <paramref name="buffer"/> is <see langword="true"/>.
         /// <br/>-or-
         /// <br/><paramref name="rowGetColorIndex"/> or <paramref name="rowSetColorIndex"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelWidth"/> is too large for the specified <paramref name="buffer"/> and <paramref name="pixelFormatInfo"/>.</exception>
@@ -974,19 +971,18 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Begins to load a managed <see cref="IReadWriteBitmapData"/> instance from the specified <paramref name="stream"/> asynchronously that was saved by
         /// the <see cref="BitmapDataExtensions.Save">BitmapDataExtensions.Save</see> method.
-        /// <br/>See the <strong>Remarks</strong> section for details.
         /// </summary>
         /// <param name="stream">The stream to load the bitmap data from.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
         /// <remarks>
         /// <para>In .NET Framework 4.0 and above you can use also the <see cref="LoadAsync">LoadAsync</see> method.</para>
         /// <para>To finish the operation and to get the exception that occurred during the operation you have to call the <see cref="EndLoad">EndLoad</see> method.</para>
-        /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// </remarks>
         public static IAsyncResult BeginLoad(Stream stream, AsyncConfig? asyncConfig = null)
         {
@@ -1001,7 +997,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static IReadWriteBitmapData? EndLoad(IAsyncResult asyncResult)
             => AsyncHelper.EndOperation<IReadWriteBitmapData?>(asyncResult, nameof(BeginLoad));
 
@@ -1012,14 +1008,14 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="stream">The stream to load the bitmap data from.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as cancellation, reporting progress, etc.
-        /// When <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm" target="_blank">Progress</a> is set in this parameter,
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
-        /// the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/T_KGySoft_Threading_IAsyncProgress.htm" target="_blank">IAsyncProgress</a> interface. This parameter is optional.
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A <see cref="Task"/> that represents the asynchronous operation, which could still be pending.
-        /// its result can be <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm" target="_blank">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// its result can be <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
-        /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/?topic=html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm" target="_blank">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
+        /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// </remarks>
         public static Task<IReadWriteBitmapData?> LoadAsync(Stream stream, TaskConfig? asyncConfig = null)
         {

@@ -23,7 +23,7 @@ using System.Windows.Media.Imaging;
 namespace KGySoft.Drawing.Wpf
 {
     /// <summary>
-    /// The <c>KGySoft.Drawing.Wpf</c> namespace offers direct support to the <see cref="WriteableBitmap"/> type and is available as a separate
+    /// The <see cref="N:KGySoft.Drawing.Wpf"/> namespace offers direct support to the <see cref="WriteableBitmap"/> type and is available as a separate
     /// NuGet package <a href="https://www.nuget.org/packages/KGySoft.Drawing.Wpf/" target="_blank">KGySoft.Drawing.Wpf</a>.
     /// <br/>See the <strong>Remarks</strong> section of the <see cref="N:KGySoft.Drawing"/> namespace for details about the available KGy SOFT Drawing packages and their covered namespaces.
     /// </summary>
