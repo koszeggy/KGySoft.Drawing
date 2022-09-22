@@ -125,8 +125,8 @@ namespace KGySoft.Drawing
         /// <returns>A <see cref="Bitmap"/> instance with the new size.</returns>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
-        /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
-        /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
+        /// Use the <see cref="BitmapDataExtensions.BeginResize(IReadableBitmapData, Size, ScalingMode, bool, AsyncConfig)">BitmapDataExtensions.BeginResize</see>
+        /// or <see cref="BitmapDataExtensions.ResizeAsync(IReadableBitmapData, Size, ScalingMode, bool, TaskConfig)">BitmapDataExtensions.ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/>&#160;<see cref="PixelFormat"/>. To resize an image
         /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
