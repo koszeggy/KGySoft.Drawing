@@ -15,6 +15,9 @@
 
 #region Usings
 
+using System;
+using System.Windows.Forms;
+
 using KGySoft.Drawing.Examples.WinForms.View;
 using KGySoft.Drawing.Examples.WinForms.ViewModel;
 

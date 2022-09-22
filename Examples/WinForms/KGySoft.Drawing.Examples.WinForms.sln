@@ -25,6 +25,7 @@ Global
 		SolutionGuid = {A1907DAF-EBA2-47FB-9F10-4DFC366AC8AF}
 	EndGlobalSection
 	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{76e702ce-7d08-4fd3-9c77-69f79ba14c06}*SharedItemsImports = 5
 		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{af687d89-616e-45e1-8beb-1049b84b6167}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

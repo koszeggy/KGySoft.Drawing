@@ -1,4 +1,6 @@
-﻿namespace KGySoft.Drawing.Examples.WinForms.View
+﻿using System.Windows.Forms;
+
+namespace KGySoft.Drawing.Examples.WinForms.View
 {
     partial class MainForm
     {
@@ -6,19 +8,6 @@
         /// Required designer variable.
         /// </summary>
         private System.ComponentModel.IContainer components = null;
-
-        /// <summary>
-        /// Clean up any resources being used.
-        /// </summary>
-        /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
-                components.Dispose();
-            }
-            base.Dispose(disposing);
-        }
 
         #region Windows Form Designer generated code
 
@@ -53,6 +42,7 @@
             this.ssStatus = new System.Windows.Forms.StatusStrip();
             this.lblProgress = new System.Windows.Forms.ToolStripStatusLabel();
             this.pbProgress = new System.Windows.Forms.ToolStripProgressBar();
+            this.timerProgress = new System.Windows.Forms.Timer(this.components);
             this.tblContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).BeginInit();
             this.tblBackColor.SuspendLayout();
@@ -327,8 +317,7 @@
             // lblProgress
             // 
             this.lblProgress.Name = "lblProgress";
-            this.lblProgress.Size = new System.Drawing.Size(467, 17);
-            this.lblProgress.Spring = true;
+            this.lblProgress.Size = new System.Drawing.Size(52, 17);
             this.lblProgress.Text = "Progress";
             this.lblProgress.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             // 
@@ -336,6 +325,10 @@
             // 
             this.pbProgress.Name = "pbProgress";
             this.pbProgress.Size = new System.Drawing.Size(100, 16);
+            // 
+            // timerProgress
+            // 
+            this.timerProgress.Interval = 30;
             // 
             // MainForm
             // 
@@ -390,5 +383,6 @@
         private StatusStrip ssStatus;
         private ToolStripStatusLabel lblProgress;
         private ToolStripProgressBar pbProgress;
+        private System.Windows.Forms.Timer timerProgress;
     }
 }

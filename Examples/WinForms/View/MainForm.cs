@@ -8,13 +8,15 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
+using KGySoft.ComponentModel;
 using KGySoft.Drawing.Examples.WinForms.ViewModel;
 
 namespace KGySoft.Drawing.Examples.WinForms.View
 {
     public partial class MainForm : Form
     {
-        private MainViewModel ViewModel { get; } = default!;
+        private readonly MainViewModel viewModel = default!;
+        private readonly CommandBindingsCollection commandBindings = new();
 
         /// <summary>
         /// This constructor is just for the designer
@@ -23,7 +25,32 @@ namespace KGySoft.Drawing.Examples.WinForms.View
 
         internal MainForm(MainViewModel viewModel) : this()
         {
-            ViewModel = viewModel;
+            this.viewModel = viewModel;
+            InitPropertyBindings();
+            InitCommandBindings();
+        }
+
+        protected override void Dispose(bool disposing)
+        {
+            if (disposing)
+            {
+                commandBindings.Dispose();
+                components?.Dispose();
+            }
+
+            base.Dispose(disposing);
+        }
+
+
+        private void InitPropertyBindings()
+        {
+
+        }
+
+        private void InitCommandBindings()
+        {
+            commandBindings.Add(viewModel.UpdateProgressCommand)
+                .AddSource(timerProgress, nameof(timerProgress.Tick));
         }
     }
 }

@@ -5,11 +5,12 @@
     <TargetFramework>net6.0-windows</TargetFramework>
     <Nullable>enable</Nullable>
     <UseWindowsForms>true</UseWindowsForms>
-    <ImplicitUsings>enable</ImplicitUsings>
   </PropertyGroup>
 
   <ItemGroup>
     <PackageReference Include="KGySoft.Drawing" Version="7.0.0-preview.3" />
   </ItemGroup>
+
+  <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />
 
 </Project>
