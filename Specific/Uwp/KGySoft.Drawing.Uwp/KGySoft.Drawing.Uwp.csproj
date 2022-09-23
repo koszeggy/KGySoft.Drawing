@@ -50,7 +50,7 @@
       <Version>6.2.13</Version>
     </PackageReference>
     <PackageReference Include="KGySoft.Drawing.Core">
-      <Version>7.0.0-preview.3</Version>
+      <Version>7.0.0-rc.1</Version>
     </PackageReference>
   </ItemGroup>
   <!--Debug-only references-->

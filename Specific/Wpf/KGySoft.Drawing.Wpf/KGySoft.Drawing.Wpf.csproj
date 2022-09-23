@@ -1,8 +1,8 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>-->
-    <TargetFrameworks>net6.0-windows</TargetFrameworks>
+    <TargetFrameworks>net35;net40;netcoreapp3.0</TargetFrameworks>
+    <!--<TargetFrameworks>net6.0-windows</TargetFrameworks>-->
 
     <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
@@ -33,7 +33,7 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22362.3">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22403.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -46,7 +46,7 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0-preview.3" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0-rc.1" />
   </ItemGroup>
 
   <ItemGroup>
