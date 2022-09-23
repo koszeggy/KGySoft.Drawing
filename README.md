@@ -7,7 +7,7 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
 [![Website](https://img.shields.io/website/https/kgysoft.net/corelibraries.svg)](https://kgysoft.net/drawing)
 [![Online Help](https://img.shields.io/website/https/docs.kgysoft.net/drawing.svg?label=online%20help&up_message=available)](https://docs.kgysoft.net/drawing)
 [![GitHub Repo](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.svg?label=github)](https://github.com/koszeggy/KGySoft.Drawing)
-[![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.svg)](https://www.nuget.org/packages/KGySoft.Drawing)
+[![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Core.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Core)
 [![Drawing Tools](https://img.shields.io/github/repo-size/koszeggy/KGySoft.Drawing.Tools.svg?label=Drawing%20Tools)](https://github.com/koszeggy/KGySoft.Drawing.Tools)
 
 ## Table of Contents:
@@ -35,7 +35,7 @@ Starting with version 7.0.0 KGy SOFT Drawing Libraries are available in multiple
 
 > ⚠️ _Note_: Version 7.0.0 is currently in preview. As a stable release, you can only download the combined `KGySoft.Drawing` package so far. Version 7.0.0 intruduces several major breaking changes due to the assembly split. Feel free to refer to the [release notes](#release-notes).
 
-#### [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core)
+#### [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Core.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Core)
 
 This package contains the platform-independent core functionality that mainly resides in the [KGySoft.Drawing.Imaging](https://docs.kgysoft.net/drawing/html/N_KGySoft_Drawing_Imaging.htm) namespace.
 
@@ -50,7 +50,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
     PM> Install-Package KGySoft.Drawing.Core
 
-#### [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing)
+#### [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.svg)](https://www.nuget.org/packages/KGySoft.Drawing)
 
 This package provides special support for `System.Drawing` types such as `Bitmap`, `Metafile`, `Image`, `Icon`, `Graphics`. In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux based systems are also supported (if the libgdiplus library is installed).
 
@@ -70,7 +70,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
     PM> Install-Package KGySoft.Drawing
 
-#### [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf)
+#### [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Wpf.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Wpf)
 
 This package helps accessing the bitmap data of the `WriteableBitmap` type in WPF supporting all of its possible pixel formats. It also allows direct read-only access to the bitmap data of any `BitmapSource`.
 
@@ -78,7 +78,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
     PM> Install-Package KGySoft.Drawing.Wpf
 
-#### [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp)
+#### [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Uwp.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Uwp)
 
 This package helps accessing the bitmap data of the `WriteableBitmap` type in UWP (Universal Windows Platform). This library requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version of the dependent core libraries.
 
@@ -86,7 +86,7 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 
     PM> Install-Package KGySoft.Drawing.Uwp
 
-#### [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI)
+#### [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.WinUI.svg)](https://www.nuget.org/packages/KGySoft.Drawing.WinUI)
 
 This package helps accessing the bitmap data of the `WriteableBitmap` type of the Windows App SDK used in WinUI applications. This library requires targeting at least .NET 5 and Windows 10.0.17763.0 (October 2018 release, version 1809).
 

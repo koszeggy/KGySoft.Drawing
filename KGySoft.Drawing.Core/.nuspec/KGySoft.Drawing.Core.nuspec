@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>7.0.0-preview.3</version>
+    <version>7.0.0-rc.1</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -29,45 +29,45 @@ Demo App and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.T
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
-    <tags>KGySoft Drawing Core extension gif animgif quantizing quantization dithering bitmapdata pixelformat</tags>
+    <tags>KGySoft Drawing Core extension gif animgif quantizing quantization dithering bitmapdata pixelformat bitmap image</tags>
     <language>en-US</language>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework=".NETFramework4.6">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
       <group targetFramework="net6.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0-preview.3" />
+        <dependency id="KGySoft.CoreLibraries" version="7.0.0-rc.1" />
       </group>
     </dependencies>
   </metadata>
   <files>
     <file src="..\..\LICENSE" />
-    <file src="..\..\Help\KGySoft.Drawing.chm" target="Help" />
+    <!--<file src="..\..\Help\KGySoft.Drawing.chm" target="Help" />-->
     <file src="readme.txt"/>
     <file src="Icon64.png" target="" />
     <file src="..\bin\Release\net35\KGySoft.Drawing.Core.dll" target="lib\net35" />
