@@ -217,7 +217,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
         /// <exception cref="ArgumentException">The <paramref name="quantizer"/> palette contains too many colors for the indexed format specified by <paramref name="pixelFormat"/>.</exception>
         /// <exception cref="InvalidOperationException">A deadlock has been detected while attempting to create the result.</exception>
-        public static IAsyncResult ToBitmapAsync(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+        public static Task<Bitmap?> ToBitmapAsync(this IReadableBitmapData source, PixelFormat pixelFormat, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncHelper.DoOperationAsync(ctx => DoConvertToBitmapByQuantizer(ctx, source, pixelFormat, quantizer, ditherer), asyncConfig);
