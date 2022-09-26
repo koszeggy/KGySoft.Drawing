@@ -388,7 +388,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
             if (e.PropertyName is nameof(SelectedFormat) or nameof(UseDithering) or nameof(OptimizePalette))
             {
-                PixelFormatInfo pixelFormatInfo = SelectedFormat.ToPixelFormatInfo();
+                PixelFormatInfo pixelFormatInfo = SelectedFormat.GetInfo();
                 AlphaThresholdEnabled = pixelFormatInfo.HasAlpha && UseDithering || (pixelFormatInfo.Indexed && (OptimizePalette || pixelFormatInfo.BitsPerPixel == 8));
                 BackColorEnabled = !pixelFormatInfo.HasAlpha || UseDithering;
             }
