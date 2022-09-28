@@ -34,6 +34,7 @@
   + The IsIndexed method has been made public
   + New ToKnownPixelFormat(PixelFormat) and ToPixelFormat(KnownPixelFormat) methods
   + New GetInfo method
+  + New GetMatchingQuantizer method
 
 ! KGySoft.Drawing.Imaging namespace
 ===================================
