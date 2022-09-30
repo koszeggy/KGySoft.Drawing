@@ -25,16 +25,16 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.chbImageOverlay = new System.Windows.Forms.CheckBox();
             this.txtImageFile = new System.Windows.Forms.TextBox();
             this.txtImageOverlay = new System.Windows.Forms.TextBox();
-            this.cbPixelFormat = new System.Windows.Forms.ComboBox();
+            this.cmbPixelFormat = new System.Windows.Forms.ComboBox();
             this.chbOptimizePalette = new System.Windows.Forms.CheckBox();
             this.tblBackColor = new System.Windows.Forms.TableLayoutPanel();
             this.lblBackColor = new System.Windows.Forms.Label();
             this.btnBackColor = new System.Windows.Forms.Button();
             this.pnlBackColor = new System.Windows.Forms.Panel();
             this.chbDitherer = new System.Windows.Forms.CheckBox();
-            this.cbDitherer = new System.Windows.Forms.ComboBox();
+            this.cmbDitherer = new System.Windows.Forms.ComboBox();
             this.tblAlphaThreshold = new System.Windows.Forms.TableLayoutPanel();
-            this.lblAlphaTresholdValue = new System.Windows.Forms.Label();
+            this.lblAlphaThresholdValue = new System.Windows.Forms.Label();
             this.lblAlphaThreshold = new System.Windows.Forms.Label();
             this.tbAlphaThreshold = new System.Windows.Forms.TrackBar();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -43,6 +43,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.lblProgress = new System.Windows.Forms.ToolStripStatusLabel();
             this.pbProgress = new System.Windows.Forms.ToolStripProgressBar();
             this.timerProgress = new System.Windows.Forms.Timer(this.components);
+            this.colorDialog = new System.Windows.Forms.ColorDialog();
             this.tblContent.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pbImage)).BeginInit();
             this.tblBackColor.SuspendLayout();
@@ -63,11 +64,11 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tblContent.Controls.Add(this.chbImageOverlay, 0, 1);
             this.tblContent.Controls.Add(this.txtImageFile, 1, 0);
             this.tblContent.Controls.Add(this.txtImageOverlay, 1, 1);
-            this.tblContent.Controls.Add(this.cbPixelFormat, 1, 2);
+            this.tblContent.Controls.Add(this.cmbPixelFormat, 1, 2);
             this.tblContent.Controls.Add(this.chbOptimizePalette, 1, 3);
             this.tblContent.Controls.Add(this.tblBackColor, 1, 4);
             this.tblContent.Controls.Add(this.chbDitherer, 0, 6);
-            this.tblContent.Controls.Add(this.cbDitherer, 1, 6);
+            this.tblContent.Controls.Add(this.cmbDitherer, 1, 6);
             this.tblContent.Controls.Add(this.tblAlphaThreshold, 1, 5);
             this.tblContent.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblContent.Location = new System.Drawing.Point(0, 0);
@@ -150,16 +151,16 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.txtImageOverlay.Size = new System.Drawing.Size(452, 23);
             this.txtImageOverlay.TabIndex = 3;
             // 
-            // cbPixelFormat
+            // cmbPixelFormat
             // 
-            this.cbPixelFormat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbPixelFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbPixelFormat.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.cbPixelFormat.FormattingEnabled = true;
-            this.cbPixelFormat.Location = new System.Drawing.Point(126, 59);
-            this.cbPixelFormat.Name = "cbPixelFormat";
-            this.cbPixelFormat.Size = new System.Drawing.Size(452, 23);
-            this.cbPixelFormat.TabIndex = 5;
+            this.cmbPixelFormat.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbPixelFormat.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbPixelFormat.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.cmbPixelFormat.FormattingEnabled = true;
+            this.cmbPixelFormat.Location = new System.Drawing.Point(126, 59);
+            this.cmbPixelFormat.Name = "cmbPixelFormat";
+            this.cmbPixelFormat.Size = new System.Drawing.Size(452, 23);
+            this.cmbPixelFormat.TabIndex = 5;
             // 
             // chbOptimizePalette
             // 
@@ -235,16 +236,16 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.chbDitherer.Text = "Ditherer:";
             this.chbDitherer.UseVisualStyleBackColor = true;
             // 
-            // cbDitherer
+            // cmbDitherer
             // 
-            this.cbDitherer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
-            this.cbDitherer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cbDitherer.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.cbDitherer.FormattingEnabled = true;
-            this.cbDitherer.Location = new System.Drawing.Point(126, 171);
-            this.cbDitherer.Name = "cbDitherer";
-            this.cbDitherer.Size = new System.Drawing.Size(452, 23);
-            this.cbDitherer.TabIndex = 10;
+            this.cmbDitherer.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.cmbDitherer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cmbDitherer.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.cmbDitherer.FormattingEnabled = true;
+            this.cmbDitherer.Location = new System.Drawing.Point(126, 171);
+            this.cmbDitherer.Name = "cmbDitherer";
+            this.cmbDitherer.Size = new System.Drawing.Size(452, 23);
+            this.cmbDitherer.TabIndex = 10;
             // 
             // tblAlphaThreshold
             // 
@@ -253,7 +254,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tblAlphaThreshold.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tblAlphaThreshold.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tblAlphaThreshold.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblAlphaThreshold.Controls.Add(this.lblAlphaTresholdValue, 2, 0);
+            this.tblAlphaThreshold.Controls.Add(this.lblAlphaThresholdValue, 2, 0);
             this.tblAlphaThreshold.Controls.Add(this.lblAlphaThreshold, 0, 0);
             this.tblAlphaThreshold.Controls.Add(this.tbAlphaThreshold, 1, 0);
             this.tblAlphaThreshold.Location = new System.Drawing.Point(126, 143);
@@ -265,15 +266,15 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             // 
             // lblAlphaTresholdValue
             // 
-            this.lblAlphaTresholdValue.Anchor = System.Windows.Forms.AnchorStyles.Left;
-            this.lblAlphaTresholdValue.AutoSize = true;
-            this.lblAlphaTresholdValue.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.lblAlphaTresholdValue.Location = new System.Drawing.Point(243, 3);
-            this.lblAlphaTresholdValue.Name = "lblAlphaTresholdValue";
-            this.lblAlphaTresholdValue.Size = new System.Drawing.Size(13, 15);
-            this.lblAlphaTresholdValue.TabIndex = 2;
-            this.lblAlphaTresholdValue.Text = "0";
-            this.lblAlphaTresholdValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.lblAlphaThresholdValue.Anchor = System.Windows.Forms.AnchorStyles.Left;
+            this.lblAlphaThresholdValue.AutoSize = true;
+            this.lblAlphaThresholdValue.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.lblAlphaThresholdValue.Location = new System.Drawing.Point(243, 3);
+            this.lblAlphaThresholdValue.Name = "lblAlphaThresholdValue";
+            this.lblAlphaThresholdValue.Size = new System.Drawing.Size(13, 15);
+            this.lblAlphaThresholdValue.TabIndex = 2;
+            this.lblAlphaThresholdValue.Text = "0";
+            this.lblAlphaThresholdValue.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             // 
             // lblAlphaThreshold
             // 
@@ -365,18 +366,18 @@ namespace KGySoft.Drawing.Examples.WinForms.View
         private CheckBox chbImageOverlay;
         private TextBox txtImageFile;
         private TextBox txtImageOverlay;
-        private ComboBox cbPixelFormat;
+        private ComboBox cmbPixelFormat;
         private CheckBox chbOptimizePalette;
         private TableLayoutPanel tblBackColor;
         private CheckBox chbDitherer;
-        private ComboBox cbDitherer;
+        private ComboBox cmbDitherer;
         private TableLayoutPanel tblAlphaThreshold;
         private PictureBox pbImage;
         private Label lblBackColor;
         private Label lblAlphaThreshold;
         private Button btnBackColor;
         private Panel pnlBackColor;
-        private Label lblAlphaTresholdValue;
+        private Label lblAlphaThresholdValue;
         private TrackBar tbAlphaThreshold;
         private ToolTip toolTip;
         private ErrorProvider errorProvider;
@@ -384,5 +385,6 @@ namespace KGySoft.Drawing.Examples.WinForms.View
         private ToolStripStatusLabel lblProgress;
         private ToolStripProgressBar pbProgress;
         private System.Windows.Forms.Timer timerProgress;
+        private ColorDialog colorDialog;
     }
 }
