@@ -15,6 +15,8 @@
 
 #region Usings
 
+using System.Drawing;
+using System.Drawing.Imaging;
 using System.Globalization;
 using System.Windows.Forms;
 
@@ -131,8 +133,23 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             // VM.SelectedDitherer <- cmbDitherer.SelectedValue (cannot use two-way for SelectedValue because ValueMember is not set)
             commandBindings.AddPropertyBinding(cmbDitherer, nameof(cmbDitherer.SelectedValue), nameof(viewModel.SelectedDitherer), viewModel);
 
-            // VM.DisplayImage -> pbImage.Image
-            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.DisplayImage), nameof(pbImage.Image), pbImage);
+            // VM.DisplayImage -> pbImage.Image (ToSupportedFormat)
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.DisplayImage), nameof(pbImage.Image), bmp => FormatDisplayImage((Bitmap)bmp!), pbImage);
+
+            #region Local Methods
+
+            static Bitmap? FormatDisplayImage(Bitmap? bitmap)
+            {
+                // GDI+ Format16bppGrayScale is not supported by WinForms controls
+                if (bitmap?.PixelFormat != PixelFormat.Format16bppGrayScale)
+                    return bitmap;
+
+                Bitmap result = bitmap.ConvertPixelFormat(PixelFormat.Format32bppPArgb);
+                bitmap.Dispose();
+                return result;
+            }
+
+            #endregion
         }
 
         private void InitCommandBindings()

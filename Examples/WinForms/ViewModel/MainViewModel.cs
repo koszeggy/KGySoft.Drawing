@@ -17,6 +17,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.IO;
@@ -38,6 +39,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 {
     internal class MainViewModel : ValidatingObjectBase, IDithererSettings
     {
+        #region Nested Types
+
         #region ProgressUpdater class
 
         /// <summary>
@@ -143,6 +146,46 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #endregion
 
+        #region GenerateParams record
+
+        private record GenerateParams
+        {
+            #region Properties
+            
+            internal Bitmap? SourceBitmap { get; private init; }
+            internal Bitmap? OverlayBitmap { get; private init; }
+            internal bool ShowOverlay { get; private init; }
+            internal PixelFormat SelectedFormat { get; private init; }
+            internal Color BackColor { get; private init; }
+            internal byte AlphaThreshold { get; private init; }
+            internal bool OptimizePalette { get; private init; }
+            internal bool UseDithering { get; private init; }
+            internal DithererDescriptor? SelectedDitherer { get; private init; }
+
+            #endregion
+
+            #region Methods
+
+            internal static GenerateParams Capture(MainViewModel viewModel) => new GenerateParams
+            {
+                SourceBitmap = viewModel.sourceBitmap,
+                OverlayBitmap = viewModel.overlayBitmap,
+                ShowOverlay = viewModel.ShowOverlay,
+                SelectedFormat = viewModel.SelectedFormat,
+                BackColor = viewModel.BackColor,
+                AlphaThreshold = viewModel.AlphaThreshold,
+                OptimizePalette = viewModel.OptimizePalette,
+                UseDithering = viewModel.UseDithering,
+                SelectedDitherer = viewModel.SelectedDitherer,
+            };
+
+            #endregion
+        }
+
+        #endregion
+
+        #endregion
+
         #region Fields
 
         #region Static Fields
@@ -164,15 +207,15 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #region Instance Fields
 
+        private readonly SemaphoreSlim syncRoot = new SemaphoreSlim(1, 1);
         private readonly ProgressUpdater progressUpdater;
 
         private Bitmap? sourceBitmap;
         private string? imageFileError;
         private Bitmap? overlayBitmap;
         private string? overlayFileError;
-        private CancellationTokenSource? cancelGeneratingPreview;
-        private Task? generateResultTask;
-        private IReadableBitmapData? cachedSource;
+        private volatile CancellationTokenSource? cancelGeneratingPreview;
+        private volatile Task? generateResultTask;
         private IReadableBitmapData? cachedOverlay;
 
         #endregion
@@ -183,14 +226,14 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #region Public Properties
 
+        [SuppressMessage("ReSharper", "BitwiseOperatorOnEnumWithoutFlags", Justification = "PixelFormat should actually be a Flags enum")]
         public PixelFormat[] PixelFormats { get; } = Enum<PixelFormat>.GetValues()
-            .Where(f => f != PixelFormat.Max && ((int)f & (int)PixelFormat.Max) != 0)
+            .Where(f => f != PixelFormat.Max && (f & PixelFormat.Max) != 0)
+            .OrderBy(pf => pf & PixelFormat.Max)
             .ToArray();
 
         public ICommand UpdateProgressCommand { get => Get<ICommand>(() => new SimpleCommand(OnUpdateProgressCommand)); }
 
-        public DithererDescriptor[] Ditherers { get; } = DithererDescriptor.Ditherers;
-        public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public string? ImageFile { get => Get<string?>(); set => Set(value); }
         public string? OverlayFile { get => Get<string?>(); set => Set(value); }
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
@@ -202,6 +245,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         public bool OptimizePalette { get => Get<bool>(); set => Set(value); }
         public bool OptimizePaletteEnabled { get => Get(true); set => Set(value); }
         public bool UseDithering { get => Get<bool>(); set => Set(value); }
+        public DithererDescriptor[] Ditherers { get; } = DithererDescriptor.Ditherers;
+        public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public Bitmap? DisplayImage { get => Get<Bitmap?>(); set => Set(value); }
         public string? ProgressText { get => Get<string?>(); set => Set(value); }
         public bool ProgressVisible { get => Get<bool>(); set => Set(value); }
@@ -293,9 +338,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
                     try
                     {
+                        sourceBitmap?.Dispose();
                         sourceBitmap = new Bitmap(file);
-                        cachedSource?.Dispose();
-                        cachedSource = null;
                     }
                     catch (Exception ex)
                     {
@@ -338,7 +382,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             }
 
             if (affectsPreview.Contains(e.PropertyName!))
-                await GenerateResult();
+                await GenerateResult(GenerateParams.Capture(this));
         }
 
         protected override void Dispose(bool disposing)
@@ -347,10 +391,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 return;
             if (disposing)
             {
+                cachedOverlay?.Dispose();
                 sourceBitmap?.Dispose();
                 overlayBitmap?.Dispose();
-                cachedSource?.Dispose();
-                cachedOverlay?.Dispose();
                 cancelGeneratingPreview?.Dispose();
             }
 
@@ -362,8 +405,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         #region Private Methods
 
         // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
-        // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
-        private async Task GenerateResult()
+        // in the generatePreviewTask field, which can be awaited after a cancellation and before starting to generate a new result.
+        private async Task GenerateResult(GenerateParams generateParams)
         {
             if (!IsValid)
             {
@@ -379,75 +422,95 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 await WaitForPendingGenerate();
             }
 
-            Bitmap? bmpSource = sourceBitmap;
-            Bitmap? bmpOverlay = overlayBitmap;
-            if (IsDisposed || bmpSource == null)
-                return;
-
-            progressUpdater.Start();
-            PixelFormat selectedFormat = SelectedFormat;
-            CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
-            CancellationToken token = tokenSource.Token;
-
-            // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
-            IDitherer? ditherer = !UseDithering
-                ? null
-                : SelectedDitherer.Create(this);
-
-            // Quantizer: effectively using only when palette optimization is requested. Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
-            IQuantizer? quantizer = OptimizePalette && selectedFormat.IsIndexed()
-                ? OptimizedPaletteQuantizer.Wu(1 << selectedFormat.ToBitsPerPixel(), BackColor, AlphaThreshold)
-                : ditherer == null
-                    ? null
-                    : selectedFormat.GetMatchingQuantizer(BackColor, AlphaThreshold);
-
-            Bitmap? result = null;
-            var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false, Progress = progressUpdater };
-
+            // This is essentially a lock. Achieved by a SemaphoreSlim because an actual lock cannot be used with awaits in the code.
+            await syncRoot.WaitAsync();
             try
             {
-                // No overlay: ConvertPixelFormat does everything in a single step for us.
-                if (!ShowOverlay || bmpOverlay == null)
-                {
-                    Task<Bitmap?> taskConvert = quantizer == null && ditherer == null
-                        ? bmpSource.ConvertPixelFormatAsync(selectedFormat, BackColor, AlphaThreshold, asyncConfig) // without quantizing and dithering
-                        : bmpSource.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig); // with quantizing and/or dithering
-                    generateResultTask = taskConvert;
-                    result = await taskConvert;
+                // lost race: returning if parameters have been changed since calling this method
+                if (generateParams != GenerateParams.Capture(this))
                     return;
-                }
 
-                // There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in WPF
-                using (IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.Width, bmpSource.Height), KnownPixelFormat.Format32bppArgb, BackColor, AlphaThreshold))
+                Bitmap? bmpSource = generateParams.SourceBitmap;
+                Bitmap? bmpOverlay = generateParams.OverlayBitmap;
+                if (IsDisposed || bmpSource == null)
+                    return;
+
+                // Creating a manually completable task for the generateResultTask field. Would not be necessary if this method had just one awaitable task.
+                var generateTaskCompletion = new TaskCompletionSource();
+                CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
+                generateResultTask = generateTaskCompletion.Task;
+                try
                 {
-                    // 1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any BitmapSource.
-                    cachedSource ??= bmpSource.GetReadableBitmapData();
-                    await (generateResultTask = cachedSource.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig));
+                    progressUpdater.Start();
+                    PixelFormat selectedFormat = generateParams.SelectedFormat;
+                    CancellationToken token = tokenSource.Token;
 
-                    if (token.IsCancellationRequested)
-                        return;
+                    // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
+                    IDitherer? ditherer = !generateParams.UseDithering
+                        ? null
+                        : generateParams.SelectedDitherer!.Create(this);
 
-                    // 2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
-                    IReadableBitmapData overlayBitmapData = CachedOverlay;
-                    var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
-                        resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
-                    await (generateResultTask = overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
-                        targetRectangle, asyncConfig: asyncConfig));
+                    // Quantizer: effectively using only when palette optimization is requested.
+                    // Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
+                    IQuantizer? quantizer = generateParams.OptimizePalette && selectedFormat.IsIndexed()
+                        ? OptimizedPaletteQuantizer.Wu(1 << selectedFormat.ToBitsPerPixel(), generateParams.BackColor, generateParams.AlphaThreshold)
+                        : ditherer == null
+                            ? null
+                            : selectedFormat.GetMatchingQuantizer(generateParams.BackColor, generateParams.AlphaThreshold);
 
-                    if (token.IsCancellationRequested)
-                        return;
+                    Bitmap? result = null;
+                    var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false, Progress = progressUpdater };
 
-                    // 3.) Converting to WriteableBitmap of the desired pixel format
-                    Task<Bitmap?> taskConvert = resultBitmapData.ToBitmapAsync(selectedFormat, quantizer, ditherer, asyncConfig);
-                    generateResultTask = taskConvert;
-                    result = await taskConvert;
+                    try
+                    {
+                        // No overlay: ConvertPixelFormat does everything in a single step for us.
+                        if (!generateParams.ShowOverlay || bmpOverlay == null)
+                        {
+                            result = await (quantizer == null && ditherer == null
+                                ? bmpSource.ConvertPixelFormatAsync(selectedFormat, generateParams.BackColor, generateParams.AlphaThreshold, asyncConfig) // without quantizing and dithering
+                                : bmpSource.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
+                            return;
+                        }
+
+                        // There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in System.Drawing
+                        using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.Width, bmpSource.Height),
+                            KnownPixelFormat.Format32bppArgb, generateParams.BackColor, generateParams.AlphaThreshold);
+
+                        // 1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any Bitmap.
+                        using (var bmpSourceData = bmpSource.GetReadableBitmapData())
+                            await bmpSourceData.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig);
+
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        // 2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
+                        IReadableBitmapData overlayBitmapData = CachedOverlay;
+                        var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
+                            resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
+                        await overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
+                            targetRectangle, asyncConfig: asyncConfig);
+
+                        if (token.IsCancellationRequested)
+                            return;
+
+                        // 3.) Converting the result back to a Bitmap of the desired pixel format
+                        result = await resultBitmapData.ToBitmapAsync(selectedFormat, quantizer, ditherer, asyncConfig);
+                    }
+                    finally
+                    {
+                        progressUpdater.Stop();
+                        if (result != null)
+                            DisplayImage = result;
+                    }
+                }
+                finally
+                {
+                    generateTaskCompletion.SetResult();
                 }
             }
             finally
             {
-                progressUpdater.Stop();
-                if (result != null)
-                    DisplayImage = result;
+                syncRoot.Release();
             }
         }
 
