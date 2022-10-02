@@ -326,6 +326,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             // 
             // pbProgress
             // 
+            this.pbProgress.AutoSize = false;
             this.pbProgress.Name = "pbProgress";
             this.pbProgress.Size = new System.Drawing.Size(100, 16);
             // 

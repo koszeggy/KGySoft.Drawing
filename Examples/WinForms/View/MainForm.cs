@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Drawing.Imaging;
 using System.Globalization;
@@ -30,6 +31,8 @@ namespace KGySoft.Drawing.Examples.WinForms.View
     public partial class MainForm : Form
     {
         #region Fields
+
+        private static readonly bool visualStyles = Application.RenderWithVisualStyles;
 
         private readonly MainViewModel viewModel = default!;
         private readonly CommandBindingsCollection commandBindings = new();
@@ -92,8 +95,9 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             txtImageFile.DataBindings.Add(nameof(txtImageFile.Text), viewModel, nameof(viewModel.ImageFile), false, DataSourceUpdateMode.OnPropertyChanged);
             //commandBindings.AddTwoWayPropertyBinding(viewModel, nameof(viewModel.ImageFile), txtImageFile, nameof(txtImageFile.Text));
 
-            // chbImageOverlay.Checked -> VM.ShowOverlay
+            // chbImageOverlay.Checked -> VM.ShowOverlay -> txtImageOverlay.Enabled
             commandBindings.AddPropertyBinding(chbImageOverlay, nameof(chbImageOverlay.Checked), nameof(viewModel.ShowOverlay), viewModel);
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.ShowOverlay), nameof(txtImageOverlay.Enabled), txtImageOverlay);
 
             // VM.OverlayFile <-> txtImageOverlay.Text
             txtImageOverlay.DataBindings.Add(nameof(txtImageOverlay.Text), viewModel, nameof(viewModel.OverlayFile), false, DataSourceUpdateMode.OnPropertyChanged);
@@ -130,8 +134,9 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             // VM.AlphaThresholdEnabled -> tblAlphaThreshold.Enabled
             commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.AlphaThresholdEnabled), nameof(tblAlphaThreshold.Enabled), tblAlphaThreshold);
 
-            // chbDitherer.Checked -> VM.UseDithering
+            // chbDitherer.Checked -> VM.UseDithering -> cmbDitherer.Enabled
             commandBindings.AddPropertyBinding(chbDitherer, nameof(chbDitherer.Checked), nameof(viewModel.UseDithering), viewModel);
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.UseDithering), nameof(cmbDitherer.Enabled), cmbDitherer);
 
             // VM.Ditherers -> cmbDitherer.DataSource (once)
             cmbDitherer.DataSource = viewModel.Ditherers;
@@ -144,6 +149,23 @@ namespace KGySoft.Drawing.Examples.WinForms.View
 
             // VM.DisplayImage -> pbImage.Image (ToSupportedFormat)
             commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.DisplayImage), nameof(pbImage.Image), bmp => FormatDisplayImage((Bitmap)bmp!), pbImage);
+
+            // VM.ProgressVisible -> lblProgress.Visible, pbProgress.Visible, timerProgress.Enabled
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.ProgressVisible), nameof(Visible), pbProgress, lblProgress);
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.ProgressVisible), nameof(timerProgress.Enabled), timerProgress);
+
+            // VM.ProgressText -> lblProgress.Text
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.ProgressText), nameof(lblProgress.Text), lblProgress);
+
+            // VM.ProgressMaxValue -> pbProgress.Maximum
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.ProgressMaxValue), nameof(pbProgress.Maximum), pbProgress);
+
+            // VM.IsProgressIndeterminate (bool) -> pbProgress.Style (ProgressBarStyle)
+            commandBindings.AddPropertyBinding(viewModel, nameof(viewModel.IsProgressIndeterminate), nameof(pbProgress.Style),
+                b => (bool)b! ? ProgressBarStyle.Marquee : ProgressBarStyle.Blocks, pbProgress);
+
+            // VM.ProgressValue -> pbProgress.Value (by UpdateProgressValue)
+            commandBindings.AddPropertyChangedHandlerBinding(viewModel, () => UpdateProgressValue(viewModel.ProgressValue, pbProgress.ProgressBar!), nameof(viewModel.ProgressValue));
 
             #region Local Methods
 
@@ -158,6 +180,14 @@ namespace KGySoft.Drawing.Examples.WinForms.View
                 return result;
             }
 
+            static void UpdateProgressValue(int value, ProgressBar progressBar)
+            {
+                // Workaround for progress bar with visual styles enabled in which case it advances very slow
+                if (visualStyles && value > progressBar.Value && value < progressBar.Maximum)
+                    progressBar.Value = value + 1;
+                progressBar.Value = value;
+            }
+
             #endregion
         }
 
@@ -170,12 +200,18 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             // timerProgress.Tick -> VM.UpdateProgressCommand
             commandBindings.Add(viewModel.UpdateProgressCommand)
                 .AddSource(timerProgress, nameof(timerProgress.Tick));
+
+            // lblProgress.TextChanged, ssStatus.SizeChanged -> OnResizeProgressCommand
+            commandBindings.Add(OnResizeProgressCommand)
+                .AddSource(lblProgress, nameof(lblProgress.TextChanged))
+                .AddSource(ssStatus, nameof(ssStatus.SizeChanged));
         }
 
         #endregion
 
         #region Command Handlers
 
+        private void OnResizeProgressCommand() => pbProgress.Width = ssStatus.ClientSize.Width - lblProgress.Width - 16;
         private void OnPickBackColorCommand()
         {
             colorDialog.Color = viewModel.BackColor;
