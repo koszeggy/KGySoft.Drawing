@@ -45,6 +45,7 @@ namespace KGySoft.Drawing.Examples.Shared.Model
 
             new("Atkinson (Error Diffusion)", typeof(ErrorDiffusionDitherer), nameof(ErrorDiffusionDitherer.Atkinson)),
             new("Floyd-Steinberg (Error Diffusion)", typeof(ErrorDiffusionDitherer), nameof(ErrorDiffusionDitherer.FloydSteinberg)),
+            new("Sierra (Error Diffusion)", typeof(ErrorDiffusionDitherer), nameof(ErrorDiffusionDitherer.Sierra3)),
 
             new("Random White Noise", typeof(RandomNoiseDitherer).GetConstructor(new[] { typeof(float), typeof(int?) })!),
             new("Interleaved Gradient Noise", typeof(InterleavedGradientNoiseDitherer).GetConstructor(new[] { typeof(float) })!),
