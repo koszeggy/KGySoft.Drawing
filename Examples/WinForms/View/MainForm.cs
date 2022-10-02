@@ -54,6 +54,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.viewModel = viewModel;
             InitPropertyBindings();
             InitCommandBindings();
+            viewModel.ViewApplied().GetAwaiter(); // GetAwaiter: just to suppress CS4014, we don't want to await the result here
         }
 
         #endregion

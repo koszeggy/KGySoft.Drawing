@@ -210,6 +210,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         private readonly SemaphoreSlim syncRoot = new SemaphoreSlim(1, 1);
         private readonly ProgressUpdater progressUpdater;
 
+        private bool isViewApplied;
         private Bitmap? sourceBitmap;
         private Bitmap? overlayBitmap;
         private volatile CancellationTokenSource? cancelGeneratingPreview;
@@ -307,6 +308,16 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         #endregion
 
         #region Methods
+
+        #region Internal Methods
+
+        internal async Task ViewApplied()
+        {
+            isViewApplied = true;
+            await GenerateResult(GenerateParams.Capture(this));
+        }
+
+        #endregion
 
         #region Protected Methods
 
@@ -411,6 +422,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         // in the generatePreviewTask field, which can be awaited after a cancellation and before starting to generate a new result.
         private async Task GenerateResult(GenerateParams generateParams)
         {
+            if (!isViewApplied || IsDisposed)
+                return;
+
             if (!IsValid)
             {
                 DisplayImage = null;
