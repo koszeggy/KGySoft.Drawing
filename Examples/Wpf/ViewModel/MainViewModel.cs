@@ -336,7 +336,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             ImageFile = @"..\..\..\..\..\Help\Images\Information256.png";
             OverlayFile = @"..\..\..\..\..\Help\Images\AlphaGradient.png";
             isInitializing = false;
-            GenerateResult(Configuration.Capture(this)).GetAwaiter(); // GetAwaiter: just to suppress CS4014, we don't want to await the result here
+            var _ = GenerateResult(Configuration.Capture(this));
         }
 
         #endregion
@@ -451,6 +451,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 progressUpdater.Dispose();
                 cachedOverlay?.Dispose();
                 cancelGeneratingPreview?.Dispose();
+                syncRoot.Dispose();
             }
 
             base.Dispose(disposing);

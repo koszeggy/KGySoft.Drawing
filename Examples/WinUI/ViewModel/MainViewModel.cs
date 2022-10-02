@@ -45,8 +45,61 @@ using Windows.UI;
 
 namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 {
-    internal class MainViewModel : ObservableObjectBase, IQuantizerSettings, IDithererSettings
+    internal class MainViewModel : ObservableObjectBase
     {
+        #region Configuration record
+
+        private sealed record Configuration : IQuantizerSettings, IDithererSettings // as a record so equality check compares the properties
+        {
+            #region Properties
+
+            #region Public Properties
+            
+            public bool ShowOverlay { get; private init; }
+            public bool UseQuantizer { get; private init; }
+            public QuantizerDescriptor? SelectedQuantizer { get; private init; }
+            public System.Drawing.Color BackColor { get; private init; }
+            public byte AlphaThreshold { get; private init; }
+            public byte WhiteThreshold { get; private init; }
+            public int PaletteSize { get; private init; }
+            public bool UseDithering { get; private init; }
+            public DithererDescriptor? SelectedDitherer { get; private init; }
+
+            #endregion
+
+            #region Explicitly Implemented Interface Properties
+
+            bool IQuantizerSettings.DirectMapping => false;
+            byte? IQuantizerSettings.BitLevel => null;
+            float IDithererSettings.Strength => 0f;
+            bool? IDithererSettings.ByBrightness => null;
+            bool IDithererSettings.DoSerpentineProcessing => false;
+            int? IDithererSettings.Seed => null;
+
+            #endregion
+
+            #endregion
+
+            #region Methods
+
+            internal static Configuration Capture(MainViewModel viewModel) => new Configuration
+            {
+                ShowOverlay = viewModel.ShowOverlay,
+                UseQuantizer = viewModel.UseQuantizer,
+                SelectedQuantizer = viewModel.SelectedQuantizer,
+                BackColor = viewModel.BackColor.ToDrawingColor(),
+                AlphaThreshold = (byte)viewModel.AlphaThreshold,
+                WhiteThreshold = (byte)viewModel.WhiteThreshold,
+                PaletteSize = viewModel.PaletteSize,
+                UseDithering = viewModel.UseDithering,
+                SelectedDitherer = viewModel.SelectedDitherer,
+            };
+
+            #endregion
+        }
+
+        #endregion
+
         #region Fields
 
         #region Static Fields
@@ -67,6 +120,8 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
         #endregion
 
         #region Instance Fields
+
+        private readonly SemaphoreSlim syncRoot = new SemaphoreSlim(1, 1);
 
         private Dictionary<string, Color>? knownColors;
         private WriteableBitmap? baseImage;
@@ -111,20 +166,6 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 
         #endregion
 
-        #region Explicitly Implemented Interface Properties
-
-        System.Drawing.Color IQuantizerSettings.BackColor => BackColor.ToDrawingColor();
-        byte IQuantizerSettings.AlphaThreshold => (byte)AlphaThreshold;
-        byte IQuantizerSettings.WhiteThreshold => (byte)WhiteThreshold;
-        bool IQuantizerSettings.DirectMapping => false;
-        byte? IQuantizerSettings.BitLevel => null;
-        float IDithererSettings.Strength => 0f;
-        bool? IDithererSettings.ByBrightness => null;
-        bool IDithererSettings.DoSerpentineProcessing => false;
-        int? IDithererSettings.Seed => null;
-
-        #endregion
-
         #endregion
 
         #region Constructors
@@ -132,7 +173,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
         internal MainViewModel()
         {
             SetVisibilities();
-            var _ = GenerateDisplayImage();
+            var _ = GenerateDisplayImage(Configuration.Capture(this));
         }
 
         #endregion
@@ -187,7 +228,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
             }
 
             if (affectsDisplayImage.Contains(e.PropertyName!))
-                await GenerateDisplayImage();
+                await GenerateDisplayImage(Configuration.Capture(this));
         }
 
         protected override void Dispose(bool disposing)
@@ -195,7 +236,10 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
             if (IsDisposed)
                 return;
             if (disposing)
+            {
                 cancelGeneratingPreview?.Dispose();
+                syncRoot.Dispose();
+            }
 
             base.Dispose(disposing);
         }
@@ -206,7 +250,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 
         // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
         // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
-        private async Task GenerateDisplayImage()
+        private async Task GenerateDisplayImage(Configuration cfg)
         {
             baseImage ??= await LoadResourceBitmap("Information256.png");
             overlayImage ??= await LoadResourceBitmap("AlphaGradient.png");
@@ -219,51 +263,70 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
                 await WaitForPendingGenerate();
             }
 
-            bool useQuantizer = UseQuantizer;
-            bool showOverlay = ShowOverlay;
-            IQuantizer? quantizer = useQuantizer ? SelectedQuantizer.Create(this) : null;
-            IDitherer? ditherer = useQuantizer && UseDithering ? SelectedDitherer.Create(this) : null;
+            // Using a manually completable task for the generateResultTask field. If this method had just one awaitable task we could simply assign that to the field.
+            TaskCompletionSource? generateTaskCompletion = null;
+            WriteableBitmap? result = null;
 
-            // Shortcut: displaying the base image only
-            if (!useQuantizer && !showOverlay)
+            // This is essentially a lock. Achieved by a SemaphoreSlim because an actual lock cannot be used with awaits in the code.
+            await syncRoot.WaitAsync();
+            try
             {
-                DisplayImage = baseImage;
-                return;
+                // lost race: returning if configuration has been changed by the time we entered the lock
+                if (cfg != Configuration.Capture(this) || IsDisposed)
+                    return;
+
+                bool useQuantizer = cfg.UseQuantizer;
+                bool showOverlay = cfg.ShowOverlay;
+                IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg) : null;
+                IDitherer? ditherer = useQuantizer && cfg.UseDithering ? cfg.SelectedDitherer!.Create(cfg) : null;
+
+                // Shortcut: displaying the base image only
+                if (!useQuantizer && !showOverlay)
+                {
+                    result = baseImage;
+                    return;
+                }
+
+                generateTaskCompletion = new TaskCompletionSource();
+                CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
+                CancellationToken token = tokenSource.Token;
+                generateResultTask = generateTaskCompletion.Task;
+
+                var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
+
+                using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData();
+
+                // ===== a.) No overlay: just creating a clone bitmap with the specified quantizer/ditherer =====
+                if (!showOverlay)
+                {
+                    result = await baseImageBitmapData.ToWriteableBitmapAsync(quantizer, ditherer, asyncConfig);
+                    return;
+                }
+
+                // ===== b.) There is an image overlay: working on the bitmap data directly =====
+                // b.1.) Cloning the source bitmap first. blendedResult = BitmapDataFactory.Create and then baseImageBitmapData.CopyTo(blendedResult) would also work
+                using IReadWriteBitmapData? blendedResult = await baseImageBitmapData.CloneAsync(asyncConfig);
+                
+                if (blendedResult == null || token.IsCancellationRequested)
+                    return;
+
+                // b.2.) Drawing the overlay. DrawInto supports alpha blending
+                using (IReadableBitmapData overlayImageBitmapData = overlayImage.GetReadableBitmapData())
+                    await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
+
+                if (token.IsCancellationRequested)
+                    return;
+
+                // b.3.) Converting back to a WinUI bitmap using the desired quantizer and ditherer
+                result = await blendedResult.ToWriteableBitmapAsync(quantizer, ditherer, asyncConfig);
             }
-
-            CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
-            CancellationToken token = tokenSource.Token;
-
-            var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
-            Task<WriteableBitmap?> taskToWriteableBitmap;
-            WriteableBitmap? result;
-
-            // No overlay: just creating a clone bitmap with the specified quantizer/ditherer
-            using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData();
-            if (!showOverlay)
+            finally
             {
-                generateResultTask = taskToWriteableBitmap = baseImageBitmapData.ToWriteableBitmapAsync(quantizer, ditherer, asyncConfig);
-                result = await taskToWriteableBitmap;
-                if (!token.IsCancellationRequested)
+                generateTaskCompletion?.SetResult();
+                syncRoot.Release();
+                if (result != null)
                     DisplayImage = result;
-                return;
             }
-
-            // Using an overlay: working on a bitmap data directly
-            Task<IReadWriteBitmapData?> taskClone = baseImageBitmapData.CloneAsync(asyncConfig); // Or: BitmapDataFactory.Create + baseImageBitmapData.CopyTo(blendedResult)
-            generateResultTask = taskClone;
-            using IReadWriteBitmapData? blendedResult = await taskClone;
-            if (blendedResult == null || token.IsCancellationRequested)
-                return;
-            using IReadableBitmapData overlayImageBitmapData = overlayImage.GetReadableBitmapData();
-            Task taskDrawInto = generateResultTask = overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
-            await taskDrawInto;
-            if (token.IsCancellationRequested)
-                return;
-            generateResultTask = taskToWriteableBitmap = blendedResult.ToWriteableBitmapAsync(quantizer, ditherer, asyncConfig);
-            result = await taskToWriteableBitmap;
-            if (result != null && !token.IsCancellationRequested)
-                DisplayImage = result;
         }
 
         private void SetVisibilities()

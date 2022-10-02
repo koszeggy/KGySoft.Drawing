@@ -37,7 +37,7 @@ using KGySoft.Threading;
 
 namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 {
-    internal class MainViewModel : ValidatingObjectBase, IDithererSettings
+    internal class MainViewModel : ValidatingObjectBase
     {
         #region Nested Types
 
@@ -146,9 +146,11 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #region Configuration record
 
-        private record Configuration // as a record so equality check compares the properties
+        private record Configuration : IDithererSettings // as a record so equality check compares the properties
         {
             #region Properties
+
+            #region Internal Properties
             
             internal Bitmap? Source { get; private init; }
             internal Bitmap? Overlay { get; private init; }
@@ -159,6 +161,17 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             internal bool OptimizePalette { get; private init; }
             internal bool UseDithering { get; private init; }
             internal DithererDescriptor? SelectedDitherer { get; private init; }
+
+            #endregion
+
+            #region Explicitly Implemented Interface Properties
+
+            float IDithererSettings.Strength => 0f;
+            bool? IDithererSettings.ByBrightness => null;
+            bool IDithererSettings.DoSerpentineProcessing => false;
+            int? IDithererSettings.Seed => null;
+
+            #endregion
 
             #endregion
 
@@ -279,15 +292,6 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 return cachedOverlay = resizedOverlay;
             }
         }
-
-        #endregion
-
-        #region Explicitly Implemented Interface Properties
-
-        float IDithererSettings.Strength => 0f;
-        bool? IDithererSettings.ByBrightness => null;
-        bool IDithererSettings.DoSerpentineProcessing => false;
-        int? IDithererSettings.Seed => null;
 
         #endregion
 
@@ -413,6 +417,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 sourceBitmap?.Dispose();
                 overlayBitmap?.Dispose();
                 cancelGeneratingPreview?.Dispose();
+                syncRoot.Dispose();
             }
 
             base.Dispose(disposing);
@@ -465,7 +470,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
                 IDitherer? ditherer = !cfg.UseDithering
                     ? null
-                    : cfg.SelectedDitherer!.Create(this);
+                    : cfg.SelectedDitherer!.Create(cfg);
 
                 // Quantizer: effectively using only when palette optimization is requested.
                 // Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
