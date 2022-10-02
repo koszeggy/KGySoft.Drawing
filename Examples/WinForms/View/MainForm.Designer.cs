@@ -18,6 +18,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tblContent = new System.Windows.Forms.TableLayoutPanel();
             this.pbImage = new System.Windows.Forms.PictureBox();
             this.lblImageFile = new System.Windows.Forms.Label();
@@ -129,6 +130,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.chbImageOverlay.Size = new System.Drawing.Size(111, 20);
             this.chbImageOverlay.TabIndex = 2;
             this.chbImageOverlay.Text = "Image Overlay:";
+            this.toolTip.SetToolTip(this.chbImageOverlay, "Check to blend an overlay image with the base image");
             this.chbImageOverlay.UseVisualStyleBackColor = true;
             // 
             // txtImageFile
@@ -141,6 +143,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.txtImageFile.Name = "txtImageFile";
             this.txtImageFile.Size = new System.Drawing.Size(452, 23);
             this.txtImageFile.TabIndex = 1;
+            this.toolTip.SetToolTip(this.txtImageFile, "The base image file to display");
             // 
             // txtImageOverlay
             // 
@@ -152,6 +155,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.txtImageOverlay.Name = "txtImageOverlay";
             this.txtImageOverlay.Size = new System.Drawing.Size(452, 23);
             this.txtImageOverlay.TabIndex = 3;
+            this.toolTip.SetToolTip(this.txtImageOverlay, "The overlay image to display");
             // 
             // cmbPixelFormat
             // 
@@ -163,6 +167,8 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.cmbPixelFormat.Name = "cmbPixelFormat";
             this.cmbPixelFormat.Size = new System.Drawing.Size(452, 23);
             this.cmbPixelFormat.TabIndex = 5;
+            this.toolTip.SetToolTip(this.cmbPixelFormat, "The desired target pixel format. For lower bit-per-pixel formats it is recommende" +
+        "d to enable dithering.");
             // 
             // chbOptimizePalette
             // 
@@ -174,6 +180,8 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.chbOptimizePalette.Size = new System.Drawing.Size(452, 20);
             this.chbOptimizePalette.TabIndex = 6;
             this.chbOptimizePalette.Text = "Optimize Palette";
+            this.toolTip.SetToolTip(this.chbOptimizePalette, "When an indexed pixel format is selected, check to use an optimized palette inste" +
+        "ad of a predefined one.");
             this.chbOptimizePalette.UseVisualStyleBackColor = true;
             // 
             // tblBackColor
@@ -215,6 +223,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.btnBackColor.Size = new System.Drawing.Size(75, 22);
             this.btnBackColor.TabIndex = 2;
             this.btnBackColor.Text = "Pick Color";
+            this.toolTip.SetToolTip(this.btnBackColor, resources.GetString("btnBackColor.ToolTip"));
             this.btnBackColor.UseVisualStyleBackColor = true;
             // 
             // pnlBackColor
@@ -236,6 +245,9 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.chbDitherer.Size = new System.Drawing.Size(77, 20);
             this.chbDitherer.TabIndex = 9;
             this.chbDitherer.Text = "Ditherer:";
+            this.toolTip.SetToolTip(this.chbDitherer, "Check to use a ditherer. For high bit-per-pixel formats it makes little sense as " +
+        "for those its only practical effect is just removing possible partial transparen" +
+        "cy.");
             this.chbDitherer.UseVisualStyleBackColor = true;
             // 
             // cmbDitherer
@@ -248,6 +260,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.cmbDitherer.Name = "cmbDitherer";
             this.cmbDitherer.Size = new System.Drawing.Size(452, 23);
             this.cmbDitherer.TabIndex = 10;
+            this.toolTip.SetToolTip(this.cmbDitherer, resources.GetString("cmbDitherer.ToolTip"));
             // 
             // tblAlphaThreshold
             // 
@@ -301,6 +314,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tbAlphaThreshold.Size = new System.Drawing.Size(120, 22);
             this.tbAlphaThreshold.TabIndex = 1;
             this.tbAlphaThreshold.TickFrequency = 16;
+            this.toolTip.SetToolTip(this.tbAlphaThreshold, resources.GetString("tbAlphaThreshold.ToolTip"));
             // 
             // errorProvider
             // 
