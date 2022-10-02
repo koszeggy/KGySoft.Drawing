@@ -50,7 +50,7 @@
         <!--Image File-->
         <TextBlock Grid.Row="0" Grid.Column="0">Image File:</TextBlock>
         <TextBox Grid.Row="0" Grid.Column="1"
-                 Text="{Binding ImageFile, ValidatesOnDataErrors=True}"
+                 Text="{Binding ImageFile, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                  ToolTip="The base image file to display"/>
 
         <!--Image Overlay File-->
@@ -58,7 +58,7 @@
                   IsChecked="{Binding ShowOverlay}"
                   ToolTip="Check to blend an overlay image with the base image">Image Overlay:</CheckBox>
         <TextBox Grid.Row="1" Grid.Column="1"
-                 Text="{Binding OverlayFile, ValidatesOnDataErrors=True}"
+                 Text="{Binding OverlayFile, ValidatesOnDataErrors=True, UpdateSourceTrigger=PropertyChanged}"
                  ToolTip="The overlay image to display"
                  IsEnabled="{Binding ShowOverlay}"/>
 
@@ -121,7 +121,7 @@
                   ItemsSource="{Binding Ditherers, Mode=OneTime}"
                   SelectedItem="{Binding SelectedDitherer}"
                   IsEnabled="{Binding UseDithering}"
-                  ToolTip="The selected ditherer.&#x0a;Floyd-Steinberg is an error diffusion ditherer, which does not support parallel processing but usually has high quality.&#x0a;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."
+                  ToolTip="The selected ditherer.&#x0a;Error diffusion ditherers do not support parallel processing but usually produce a high quality result.&#x0a;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."
                   ToolTipService.ShowOnDisabled="True"/>
 
         <!--Image-->
