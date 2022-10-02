@@ -15,10 +15,8 @@
 
 #region Usings
 
-using System;
 using System.Drawing;
 using System.Drawing.Imaging;
-using System.Globalization;
 using System.Windows.Forms;
 
 using KGySoft.ComponentModel;
@@ -28,7 +26,7 @@ using KGySoft.Drawing.Examples.WinForms.ViewModel;
 
 namespace KGySoft.Drawing.Examples.WinForms.View
 {
-    public partial class MainForm : Form
+    internal partial class MainForm : Form
     {
         #region Fields
 
@@ -43,10 +41,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
 
         #region Public Constructors
 
-        /// <summary>
-        /// This constructor is just for the designer
-        /// </summary>
-        public MainForm() => InitializeComponent();
+        public MainForm() => InitializeComponent(); // This ctor is just for the designer
 
         #endregion
 
@@ -83,10 +78,8 @@ namespace KGySoft.Drawing.Examples.WinForms.View
 
         #region Private Methods
 
-        /// <summary>
-        /// Initializing property bindings. Using regular WinForms bindings for TextBoxes so ErrorProvider also works automatically.
-        /// For other controls using KGy SOFT bindings. For details, see https://github.com/koszeggy/KGySoft.CoreLibraries#command-binding
-        /// </summary>
+        // Initializing property bindings. Using regular WinForms bindings for TextBoxes so ErrorProvider also works automatically.
+        // For other controls using KGy SOFT bindings. For details, see https://github.com/koszeggy/KGySoft.CoreLibraries#command-binding
         private void InitPropertyBindings()
         {
             errorProvider.DataSource = viewModel;

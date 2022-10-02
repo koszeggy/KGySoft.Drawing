@@ -43,11 +43,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #region ProgressUpdater class
 
-        /// <summary>
-        /// This class tracks every progress update without immediately updating the bound ViewModel properties,
-        /// which are updated only upon request by a timer running on the UI thread. This is much more effective than
-        /// invoking a synchronized update in the UI thread for every tiny progress change.
-        /// </summary>
+        // This class tracks every progress update without immediately updating the bound ViewModel properties,
+        // which are updated only upon request by a timer running on the UI thread. This is much more effective than
+        // invoking a synchronized update in the UI thread for every tiny progress change.
         private sealed class ProgressUpdater : IAsyncProgress
         {
             #region Fields
@@ -104,8 +102,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 lock (this)
                     current = default;
 
-                owner.ProgressVisible = true;
                 owner.IsProgressIndeterminate = true;
+                owner.ProgressVisible = true;
             }
 
             internal void Stop() => owner.ProgressVisible = false;
@@ -146,14 +144,14 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         #endregion
 
-        #region GenerateParams record
+        #region Configuration record
 
-        private record GenerateParams
+        private record Configuration // as a record so equality check compares the properties
         {
             #region Properties
             
-            internal Bitmap? SourceBitmap { get; private init; }
-            internal Bitmap? OverlayBitmap { get; private init; }
+            internal Bitmap? Source { get; private init; }
+            internal Bitmap? Overlay { get; private init; }
             internal bool ShowOverlay { get; private init; }
             internal PixelFormat SelectedFormat { get; private init; }
             internal Color BackColor { get; private init; }
@@ -166,10 +164,10 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
             #region Methods
 
-            internal static GenerateParams Capture(MainViewModel viewModel) => new GenerateParams
+            internal static Configuration Capture(MainViewModel viewModel) => new Configuration
             {
-                SourceBitmap = viewModel.sourceBitmap,
-                OverlayBitmap = viewModel.overlayBitmap,
+                Source = viewModel.sourceBitmap,
+                Overlay = viewModel.overlayBitmap,
                 ShowOverlay = viewModel.ShowOverlay,
                 SelectedFormat = viewModel.SelectedFormat,
                 BackColor = viewModel.BackColor,
@@ -301,7 +299,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         {
             progressUpdater = new ProgressUpdater(this);
             SelectedFormat = PixelFormat.Format8bppIndexed;
-            ImageFile = @"..\..\..\..\..\Help\Images\Shield256.png";
+            ImageFile = @"..\..\..\..\..\Help\Images\Information256.png";
             OverlayFile = @"..\..\..\..\..\Help\Images\AlphaGradient.png";
         }
 
@@ -314,7 +312,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         internal async Task ViewApplied()
         {
             isViewApplied = true;
-            await GenerateResult(GenerateParams.Capture(this));
+            await GenerateResult(Configuration.Capture(this));
         }
 
         #endregion
@@ -386,17 +384,23 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 case nameof(SelectedFormat):
                     OptimizePaletteEnabled = SelectedFormat.IsIndexed();
                     break;
+
+                case nameof(DisplayImage):
+                    (e.OldValue as Bitmap)?.Dispose();
+                    break;
             }
 
             if (e.PropertyName is nameof(SelectedFormat) or nameof(UseDithering) or nameof(OptimizePalette))
             {
                 PixelFormatInfo pixelFormatInfo = SelectedFormat.GetInfo();
-                AlphaThresholdEnabled = pixelFormatInfo.HasAlpha && UseDithering || (pixelFormatInfo.Indexed && (OptimizePalette || pixelFormatInfo.BitsPerPixel == 8));
+                AlphaThresholdEnabled = pixelFormatInfo.HasSingleBitAlpha 
+                    || pixelFormatInfo.HasAlpha && UseDithering
+                    || (pixelFormatInfo.Indexed && (OptimizePalette || pixelFormatInfo.BitsPerPixel == 8));
                 BackColorEnabled = !pixelFormatInfo.HasAlpha || UseDithering;
             }
 
             if (affectsPreview.Contains(e.PropertyName!))
-                await GenerateResult(GenerateParams.Capture(this));
+                await GenerateResult(Configuration.Capture(this));
         }
 
         protected override void Dispose(bool disposing)
@@ -420,9 +424,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
 
         // The caller method is async void, so basically fire-and-forget. To prevent parallel generate sessions we store the current task
         // in the generatePreviewTask field, which can be awaited after a cancellation and before starting to generate a new result.
-        private async Task GenerateResult(GenerateParams generateParams)
+        private async Task GenerateResult(Configuration cfg)
         {
-            if (!isViewApplied || IsDisposed)
+            if (!isViewApplied || IsDisposed || cfg.Source == null)
                 return;
 
             if (!IsValid)
@@ -439,95 +443,80 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 await WaitForPendingGenerate();
             }
 
+            // Using a manually completable task for the generateResultTask field. If this method had just one awaitable task we could simply assign that to the field.
+            TaskCompletionSource? generateTaskCompletion = null;
+            Bitmap? result = null;
+
             // This is essentially a lock. Achieved by a SemaphoreSlim because an actual lock cannot be used with awaits in the code.
             await syncRoot.WaitAsync();
             try
             {
-                // lost race: returning if parameters have been changed since calling this method
-                if (generateParams != GenerateParams.Capture(this))
+                // lost race: returning if configuration has been changed by the time we entered the lock
+                if (cfg != Configuration.Capture(this) || IsDisposed)
                     return;
 
-                Bitmap? bmpSource = generateParams.SourceBitmap;
-                Bitmap? bmpOverlay = generateParams.OverlayBitmap;
-                if (IsDisposed || bmpSource == null)
-                    return;
-
-                // Creating a manually completable task for the generateResultTask field. Would not be necessary if this method had just one awaitable task.
-                var generateTaskCompletion = new TaskCompletionSource();
+                progressUpdater.Start();
+                generateTaskCompletion = new TaskCompletionSource();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
                 generateResultTask = generateTaskCompletion.Task;
-                try
-                {
-                    progressUpdater.Start();
-                    PixelFormat selectedFormat = generateParams.SelectedFormat;
-                    CancellationToken token = tokenSource.Token;
+                PixelFormat selectedFormat = cfg.SelectedFormat;
+                CancellationToken token = tokenSource.Token;
 
-                    // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
-                    IDitherer? ditherer = !generateParams.UseDithering
+                // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
+                IDitherer? ditherer = !cfg.UseDithering
+                    ? null
+                    : cfg.SelectedDitherer!.Create(this);
+
+                // Quantizer: effectively using only when palette optimization is requested.
+                // Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
+                IQuantizer? quantizer = cfg.OptimizePalette && selectedFormat.IsIndexed()
+                    ? OptimizedPaletteQuantizer.Wu(1 << selectedFormat.ToBitsPerPixel(), cfg.BackColor, cfg.AlphaThreshold)
+                    : ditherer == null
                         ? null
-                        : generateParams.SelectedDitherer!.Create(this);
+                        : selectedFormat.GetMatchingQuantizer(cfg.BackColor, cfg.AlphaThreshold);
 
-                    // Quantizer: effectively using only when palette optimization is requested.
-                    // Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
-                    IQuantizer? quantizer = generateParams.OptimizePalette && selectedFormat.IsIndexed()
-                        ? OptimizedPaletteQuantizer.Wu(1 << selectedFormat.ToBitsPerPixel(), generateParams.BackColor, generateParams.AlphaThreshold)
-                        : ditherer == null
-                            ? null
-                            : selectedFormat.GetMatchingQuantizer(generateParams.BackColor, generateParams.AlphaThreshold);
+                var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false, Progress = progressUpdater };
 
-                    Bitmap? result = null;
-                    var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false, Progress = progressUpdater };
-
-                    try
-                    {
-                        // No overlay: ConvertPixelFormat does everything in a single step for us.
-                        if (!generateParams.ShowOverlay || bmpOverlay == null)
-                        {
-                            result = await (quantizer == null && ditherer == null
-                                ? bmpSource.ConvertPixelFormatAsync(selectedFormat, generateParams.BackColor, generateParams.AlphaThreshold, asyncConfig) // without quantizing and dithering
-                                : bmpSource.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
-                            return;
-                        }
-
-                        // There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in System.Drawing
-                        using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(bmpSource.Width, bmpSource.Height),
-                            KnownPixelFormat.Format32bppArgb, generateParams.BackColor, generateParams.AlphaThreshold);
-
-                        // 1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any Bitmap.
-                        using (var bmpSourceData = bmpSource.GetReadableBitmapData())
-                            await bmpSourceData.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig);
-
-                        if (token.IsCancellationRequested)
-                            return;
-
-                        // 2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
-                        IReadableBitmapData overlayBitmapData = CachedOverlay;
-                        var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
-                            resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
-                        await overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
-                            targetRectangle, asyncConfig: asyncConfig);
-
-                        if (token.IsCancellationRequested)
-                            return;
-
-                        // 3.) Converting the result back to a Bitmap of the desired pixel format
-                        result = await resultBitmapData.ToBitmapAsync(selectedFormat, quantizer, ditherer, asyncConfig);
-                    }
-                    finally
-                    {
-                        progressUpdater.Stop();
-                        if (result != null)
-                            DisplayImage = result;
-                    }
-                }
-                finally
+                // ===== a.) No overlay: ConvertPixelFormat does everything in a single step for us. =====
+                if (!cfg.ShowOverlay || cfg.Overlay == null)
                 {
-                    generateTaskCompletion.SetResult();
+                    result = await (quantizer == null && ditherer == null
+                        ? cfg.Source.ConvertPixelFormatAsync(selectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
+                        : cfg.Source.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
+                    return;
                 }
+
+                // ===== b.) There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in System.Drawing =====
+                using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source.Width, cfg.Source.Height),
+                    KnownPixelFormat.Format32bppPArgb, cfg.BackColor, cfg.AlphaThreshold);
+
+                // b.1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any Bitmap.
+                using (IReadableBitmapData bmpSourceData = cfg.Source.GetReadableBitmapData())
+                    await bmpSourceData.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig);
+
+                if (token.IsCancellationRequested)
+                    return;
+
+                // b.2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
+                IReadableBitmapData overlayBitmapData = CachedOverlay;
+                var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
+                    resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
+                await overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
+                    targetRectangle, asyncConfig: asyncConfig);
+
+                if (token.IsCancellationRequested)
+                    return;
+
+                // b.3.) Converting to a Bitmap of the desired pixel format
+                result = await resultBitmapData.ToBitmapAsync(selectedFormat, quantizer, ditherer, asyncConfig);
             }
             finally
             {
+                generateTaskCompletion?.SetResult();
                 syncRoot.Release();
+                progressUpdater.Stop();
+                if (result != null)
+                    DisplayImage = result;
             }
         }
 
