@@ -136,6 +136,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.txtImageFile.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtImageFile.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
             this.txtImageFile.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+            this.errorProvider.SetIconAlignment(this.txtImageFile, System.Windows.Forms.ErrorIconAlignment.MiddleLeft);
             this.txtImageFile.Location = new System.Drawing.Point(126, 3);
             this.txtImageFile.Name = "txtImageFile";
             this.txtImageFile.Size = new System.Drawing.Size(452, 23);
@@ -146,6 +147,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.txtImageOverlay.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.txtImageOverlay.AutoCompleteMode = System.Windows.Forms.AutoCompleteMode.SuggestAppend;
             this.txtImageOverlay.AutoCompleteSource = System.Windows.Forms.AutoCompleteSource.FileSystem;
+            this.errorProvider.SetIconAlignment(this.txtImageOverlay, System.Windows.Forms.ErrorIconAlignment.MiddleLeft);
             this.txtImageOverlay.Location = new System.Drawing.Point(126, 31);
             this.txtImageOverlay.Name = "txtImageOverlay";
             this.txtImageOverlay.Size = new System.Drawing.Size(452, 23);
@@ -264,7 +266,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tblAlphaThreshold.Size = new System.Drawing.Size(452, 22);
             this.tblAlphaThreshold.TabIndex = 8;
             // 
-            // lblAlphaTresholdValue
+            // lblAlphaThresholdValue
             // 
             this.lblAlphaThresholdValue.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.lblAlphaThresholdValue.AutoSize = true;

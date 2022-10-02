@@ -211,9 +211,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         private readonly ProgressUpdater progressUpdater;
 
         private Bitmap? sourceBitmap;
-        private string? imageFileError;
         private Bitmap? overlayBitmap;
-        private string? overlayFileError;
         private volatile CancellationTokenSource? cancelGeneratingPreview;
         private volatile Task? generateResultTask;
         private IReadableBitmapData? cachedOverlay;
@@ -257,6 +255,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         #endregion
 
         #region Private Properties
+
+        private string? ImageFileError { get => Get<string>(); set => Set(value); }
+        private string? OverlayFileError { get => Get<string>(); set => Set(value); }
 
         private IReadableBitmapData CachedOverlay
         {
@@ -315,12 +316,12 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             var result = new ValidationResultsCollection();
             if (String.IsNullOrEmpty(ImageFile) || !File.Exists(ImageFile))
                 result.AddError(nameof(ImageFile), "The specified file does not exist");
-            else if (imageFileError != null)
-                result.AddError(nameof(ImageFile), imageFileError);
+            else if (ImageFileError != null)
+                result.AddError(nameof(ImageFile), ImageFileError);
             if (ShowOverlay && String.IsNullOrEmpty(OverlayFile) || !File.Exists(OverlayFile))
                 result.AddError(nameof(OverlayFile), "The specified file does not exist");
-            else if (overlayFileError != null)
-                result.AddError(nameof(OverlayFile), overlayFileError);
+            else if (OverlayFileError != null)
+                result.AddError(nameof(OverlayFile), OverlayFileError);
 
             return result;
         }
@@ -331,7 +332,9 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             switch (e.PropertyName)
             {
                 case nameof(ImageFile):
-                    imageFileError = null;
+                    cachedOverlay?.Dispose();
+                    cachedOverlay = null;
+                    ImageFileError = null;
                     string? file = e.NewValue as string;
                     if (String.IsNullOrWhiteSpace(file) || !File.Exists(file))
                         break;
@@ -344,13 +347,13 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                     catch (Exception ex)
                     {
                         sourceBitmap = null;
-                        imageFileError = ex.Message;
+                        ImageFileError = $"Failed to load file as a Bitmap: {ex.Message}";
                     }
 
                     break;
 
                 case nameof(OverlayFile):
-                    overlayFileError = null;
+                    OverlayFileError = null;
                     file = e.NewValue as string;
                     cachedOverlay?.Dispose();
                     cachedOverlay = null;
@@ -364,7 +367,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                     catch (Exception ex)
                     {
                         overlayBitmap = null;
-                        overlayFileError = ex.Message;
+                        OverlayFileError = $"Failed to load file as a Bitmap: {ex.Message}";
                     }
 
                     break;

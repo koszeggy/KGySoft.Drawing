@@ -79,16 +79,24 @@ namespace KGySoft.Drawing.Examples.WinForms.View
 
         #region Private Methods
 
+        /// <summary>
+        /// Initializing property bindings. Using regular WinForms bindings for TextBoxes so ErrorProvider also works automatically.
+        /// For other controls using KGy SOFT bindings. For details, see https://github.com/koszeggy/KGySoft.CoreLibraries#command-binding
+        /// </summary>
         private void InitPropertyBindings()
         {
+            errorProvider.DataSource = viewModel;
+
             // VM.ImageFile <-> txtImageFile.Text
-            commandBindings.AddTwoWayPropertyBinding(viewModel, nameof(viewModel.ImageFile), txtImageFile, nameof(txtImageFile.Text));
+            txtImageFile.DataBindings.Add(nameof(txtImageFile.Text), viewModel, nameof(viewModel.ImageFile), false, DataSourceUpdateMode.OnPropertyChanged);
+            //commandBindings.AddTwoWayPropertyBinding(viewModel, nameof(viewModel.ImageFile), txtImageFile, nameof(txtImageFile.Text));
 
             // chbImageOverlay.Checked -> VM.ShowOverlay
             commandBindings.AddPropertyBinding(chbImageOverlay, nameof(chbImageOverlay.Checked), nameof(viewModel.ShowOverlay), viewModel);
 
             // VM.OverlayFile <-> txtImageOverlay.Text
-            commandBindings.AddTwoWayPropertyBinding(viewModel, nameof(viewModel.OverlayFile), txtImageOverlay, nameof(txtImageOverlay.Text));
+            txtImageOverlay.DataBindings.Add(nameof(txtImageOverlay.Text), viewModel, nameof(viewModel.OverlayFile), false, DataSourceUpdateMode.OnPropertyChanged);
+            //commandBindings.AddTwoWayPropertyBinding(viewModel, nameof(viewModel.OverlayFile), txtImageOverlay, nameof(txtImageOverlay.Text));
 
             // VM.PixelFormats -> cmbPixelFormat.DataSource (once)
             cmbPixelFormat.DataSource = viewModel.PixelFormats;
