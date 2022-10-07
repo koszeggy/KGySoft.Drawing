@@ -34,6 +34,11 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         IBitmapData BitmapData { get; }
 
+        /// <summary>
+        /// Gets the index of the current row. Can fall between zero and <see cref="IBitmapData.Height">Height</see> of the owner <see cref="BitmapData"/> (exclusive upper bound).
+        /// </summary>
+        int Index { get; }
+
         #endregion
 
         #region Methods

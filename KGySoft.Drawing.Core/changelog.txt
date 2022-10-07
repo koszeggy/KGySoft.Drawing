@@ -38,6 +38,8 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
     this property has a default implementation using the Width and Height properties.
 ! BitmapDataRow interface:
   ! The MoveNextRow method has been moved to the new IBitmapDataRowMovable interface
+! ICustomBitmapDataRow interface
+  ! New Index property
 ! IReadableBitmapData interface
   ! FirstRow returns an IReadableBitmapDataRowMovable instead of IReadableBitmapDataRow
   ! New GetMovableRow method. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
