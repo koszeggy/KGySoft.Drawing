@@ -63,6 +63,9 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
 ! IQuantizingSession interface:
   ! New IsGrayscale property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
     this property returns false if not implemented.
++ ColorExtensions class:
+  + New Color32 extension method.
+  * Blend method: improving performance when blending with opaque background color.
 + New KnownPixelFormat enum. The names of the actual formats are compatible with System.Drawing.Imaging.PixelFormat
   but some of them have different underlying values. Use the ToPixelFormat extension from KGySoft.Drawing to convert
   it to a System.Drawing.Imaging.PixelFormat.
@@ -88,8 +91,6 @@ changes are compared to KGySoft.Drawing v6.3.2. Breaking changes can be interpre
   + New public BackColor, AlphaThreshold and Palette properties.
 + OptimizedPaletteQuantizer class:
   + New BackColor, AlphaThreshold and MaxColors properties.
-* ColorExtensions class:
-  * Blend method: improving performance when blending with opaque background color.
 
 NOTE: See the history of older versions at the following link:
 https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt

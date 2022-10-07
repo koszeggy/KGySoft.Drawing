@@ -17,6 +17,7 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
+using System.Drawing;
 using System.Runtime.CompilerServices;
 
 #endregion
@@ -39,6 +40,13 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
+
+        /// <summary>
+        /// Converts this <see cref="Color"/> to a <see cref="Color32"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color"/> to convert.</param>
+        /// <returns>A <see cref="Color32"/> instance that represents the original <see cref="Color"/> instance.</returns>
+        public static Color32 ToColor32(this Color color) => new Color32(color);
 
         /// <summary>
         /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="byte">byte</see> based on human perception.
