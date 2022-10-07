@@ -34,7 +34,7 @@ Demo App and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.T
 Find Documentation: https://docs.kgysoft.net/drawing</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
-    <tags>KGySoft Drawing Core extension icon bitmap image metafile graphics gif animgif tiff emf wmf quantizing quantization dithering bitmapdata pixelformat</tags>
+    <tags>KGySoft Drawing gdi gdiplus extension icon bitmap image metafile graphics gif animgif tiff emf wmf quantizing quantization dithering bitmapdata pixelformat</tags>
     <language>en-US</language>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
