@@ -27,6 +27,8 @@ using System.Threading;
 using System.Threading.Tasks;
 
 using KGySoft.ComponentModel;
+using KGySoft.Drawing.Examples.Shared.Interfaces;
+using KGySoft.Drawing.Examples.Shared.Model;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Drawing.Uwp;
 using KGySoft.Threading;
@@ -38,9 +40,6 @@ using Windows.UI;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Media.Imaging;
-
-using KGySoft.Drawing.Examples.Shared.Interfaces;
-using KGySoft.Drawing.Examples.Shared.Model;
 
 #endregion
 

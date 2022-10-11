@@ -130,9 +130,5 @@
         <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
                Source="{Binding DisplayImage, Mode=OneWay}"/>
 
-        <!--<Button Click="LoadImageFileClick">From File</Button>
-        <Button Click="FromBitmapDataClick">From Bitmap Data</Button>
-        <TextBox Name="txtInfo"/>
-        <Image Name="imgImage"/>-->
     </Grid>
 </Page>
