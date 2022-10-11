@@ -77,9 +77,9 @@ namespace KGySoft.Drawing.Wpf
             UInt16.MaxValue => this,
             0 => default,
             _ => new ColorRgba64(a,
-                a == 0 ? (ushort)0 : (ushort)((uint)r * UInt16.MaxValue / a),
-                a == 0 ? (ushort)0 : (ushort)((uint)g * UInt16.MaxValue / a),
-                a == 0 ? (ushort)0 : (ushort)((uint)b * UInt16.MaxValue / a))
+                (ushort)((uint)r * UInt16.MaxValue / a),
+                (ushort)((uint)g * UInt16.MaxValue / a),
+                (ushort)((uint)b * UInt16.MaxValue / a))
         };
 
         internal ColorRgba64 ToPremultiplied() => a switch
