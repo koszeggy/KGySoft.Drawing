@@ -99,18 +99,15 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToPremultiplied(this Color32 c)
-        {
-            if (c.A == Byte.MaxValue)
-                return c;
-            if (c.A == 0)
-                return default;
-
-            return new Color32(c.A,
-                (byte)(c.R * c.A / Byte.MaxValue),
-                (byte)(c.G * c.A / Byte.MaxValue),
-                (byte)(c.B * c.A / Byte.MaxValue));
-        }
+        internal static Color32 ToPremultiplied(this Color32 c) => c.A switch
+            {
+                Byte.MaxValue => c,
+                0 => default,
+                _ => new Color32(c.A,
+                    (byte)(c.R * c.A / Byte.MaxValue),
+                    (byte)(c.G * c.A / Byte.MaxValue),
+                    (byte)(c.B * c.A / Byte.MaxValue))
+            };
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 AsValidPremultiplied(this Color32 c)
@@ -121,65 +118,50 @@ namespace KGySoft.Drawing.Imaging
                 Math.Min(c.A, c.G),
                 Math.Min(c.A, c.B));
         }
-        
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToPremultiplied(this Color64 c)
-        {
-            if (c.A == UInt16.MaxValue)
-                return c;
-            if (c.A == 0)
-                return default;
 
-            return new Color64(c.A,
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 ToPremultiplied(this Color64 c) => c.A switch
+        {
+            UInt16.MaxValue => c,
+            0 => default,
+            _ => new Color64(c.A,
                 (ushort)((uint)c.R * c.A / UInt16.MaxValue),
                 (ushort)((uint)c.G * c.A / UInt16.MaxValue),
-                (ushort)((uint)c.B * c.A / UInt16.MaxValue));
-        }
+                (ushort)((uint)c.B * c.A / UInt16.MaxValue))
+        };
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToStraight(this Color32 c)
+        internal static Color32 ToStraight(this Color32 c) => c.A switch
         {
-            if (c.A == Byte.MaxValue)
-                return c;
-            if (c.A == 0)
-                return default;
-
-            return new Color32(
-                c.A,
-                c.A == 0 ? (byte)0 : (byte)(c.R * Byte.MaxValue / c.A),
-                c.A == 0 ? (byte)0 : (byte)(c.G * Byte.MaxValue / c.A),
-                c.A == 0 ? (byte)0 : (byte)(c.B * Byte.MaxValue / c.A));
-        }
+            Byte.MaxValue => c,
+            0 => default,
+            _ => new Color32(c.A,
+                (byte)(c.R * Byte.MaxValue / c.A),
+                (byte)(c.G * Byte.MaxValue / c.A),
+                (byte)(c.B * Byte.MaxValue / c.A))
+        };
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToStraightSafe(this Color32 c)
+        internal static Color32 ToStraightSafe(this Color32 c) => c.A switch
         {
-            if (c.A == Byte.MaxValue)
-                return c;
-            if (c.A == 0)
-                return default;
-
-            return new Color32(
-                c.A,
-                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.R) * Byte.MaxValue / c.A),
-                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.G) * Byte.MaxValue / c.A),
-                c.A == 0 ? (byte)0 : (byte)(Math.Min(c.A, c.B) * Byte.MaxValue / c.A));
-        }
+            Byte.MaxValue => c,
+            0 => default,
+            _ => new Color32(c.A,
+                (byte)(Math.Min(c.A, c.R) * Byte.MaxValue / c.A),
+                (byte)(Math.Min(c.A, c.G) * Byte.MaxValue / c.A),
+                (byte)(Math.Min(c.A, c.B) * Byte.MaxValue / c.A))
+        };
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToStraight(this Color64 c)
+        internal static Color64 ToStraight(this Color64 c) => c.A switch
         {
-            if (c.A == UInt16.MaxValue)
-                return c;
-            if (c.A == 0)
-                return default;
-
-            return new Color64(
-                c.A,
-                c.A == 0 ? (ushort)0 : (ushort)((uint)c.R * UInt16.MaxValue / c.A),
-                c.A == 0 ? (ushort)0 : (ushort)((uint)c.G * UInt16.MaxValue / c.A),
-                c.A == 0 ? (ushort)0 : (ushort)((uint)c.B * UInt16.MaxValue / c.A));
-        }
+            UInt16.MaxValue => c,
+            0 => default,
+            _ => new Color64(c.A,
+                (ushort)((uint)c.R * UInt16.MaxValue / c.A),
+                (ushort)((uint)c.G * UInt16.MaxValue / c.A),
+                (ushort)((uint)c.B * UInt16.MaxValue / c.A))
+        };
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
