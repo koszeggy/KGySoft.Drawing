@@ -9,7 +9,9 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Examples.Xa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Examples.Xamarin.iOS", "KGySoft.Drawing.Examples.Xamarin.iOS\KGySoft.Drawing.Examples.Xamarin.iOS.csproj", "{4F6D7A80-59F8-4C17-B7B4-64834251BB1A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "KGySoft.Drawing.Examples.Xamarin", "KGySoft.Drawing.Examples.Xamarin\KGySoft.Drawing.Examples.Xamarin.csproj", "{74E1E944-E47A-4B83-ACB1-6836A949C22F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "KGySoft.Drawing.Examples.Xamarin", "KGySoft.Drawing.Examples.Xamarin\KGySoft.Drawing.Examples.Xamarin.csproj", "{74E1E944-E47A-4B83-ACB1-6836A949C22F}"
+EndProject
+Project("{D954291E-2A0B-460D-934E-DC6B0785DB48}") = "KGySoft.Drawing.Examples.Shared", "..\_Shared\KGySoft.Drawing.Examples.Shared.shproj", "{AF687D89-616E-45E1-8BEB-1049B84B6167}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -177,5 +179,9 @@ Global
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {9CD950D0-546A-4B41-AE57-1260D5338081}
+	EndGlobalSection
+	GlobalSection(SharedMSBuildProjectFiles) = preSolution
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{74e1e944-e47a-4b83-acb1-6836a949c22f}*SharedItemsImports = 5
+		..\_Shared\KGySoft.Drawing.Examples.Shared.projitems*{af687d89-616e-45e1-8beb-1049b84b6167}*SharedItemsImports = 13
 	EndGlobalSection
 EndGlobal

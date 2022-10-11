@@ -4,4 +4,13 @@
     xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
     xmlns:local="using:KGySoft.Drawing.Examples.Xamarin.UWP">
 
+    <Application.Resources>
+
+        <!-- Turning off On/Off text on Windows--> 
+        <Style TargetType="ToggleSwitch">
+            <Setter Property="OnContent" Value=""/>
+            <Setter Property="OffContent" Value=""/>
+            <Setter Property="Margin" Value="0,0,-110,0" />
+        </Style>
+    </Application.Resources>
 </Application>

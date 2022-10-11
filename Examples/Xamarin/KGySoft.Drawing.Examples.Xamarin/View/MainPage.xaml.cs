@@ -17,7 +17,11 @@
 
 using System;
 
+using KGySoft.ComponentModel;
 using KGySoft.Drawing.Examples.Xamarin.ViewModel;
+
+using SkiaSharp.Views.Forms;
+using SkiaSharp;
 
 using Xamarin.Forms;
 
@@ -27,16 +31,25 @@ namespace KGySoft.Drawing.Examples.Xamarin.View
 {
     public partial class MainPage : ContentPage
     {
+        #region Properties
+
+        private MainViewModel? ViewModel => BindingContext as MainViewModel;
+
+        #endregion
+
         #region Constructors
 
         public MainPage()
         {
             InitializeComponent();
+            sliderPaletteSize.Minimum = 2;
         }
 
         #endregion
 
         #region Methods
+
+        #region Protected Methods
 
         protected override void OnAppearing()
         {
@@ -49,6 +62,8 @@ namespace KGySoft.Drawing.Examples.Xamarin.View
             base.OnDisappearing();
             (BindingContext as IDisposable)?.Dispose();
         }
+
+        #endregion
 
         #endregion
     }
