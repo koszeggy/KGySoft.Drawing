@@ -15,52 +15,22 @@
 
 #region Usings
 
-using System;
-
-using KGySoft.Drawing.Examples.Xamarin.ViewModel;
-
-using Xamarin.Forms;
+using Microsoft.Maui.Controls;
 
 #endregion
 
-namespace KGySoft.Drawing.Examples.Xamarin.View
+namespace KGySoft.Drawing.Examples.Maui.View
 {
     public partial class MainPage : ContentPage
     {
-        #region Properties
-
-        private MainViewModel? ViewModel => BindingContext as MainViewModel;
-
-        #endregion
-
         #region Constructors
 
         public MainPage()
         {
             InitializeComponent();
-            sliderPaletteSize.Minimum = 2;
         }
-
-        #endregion
-
-        #region Methods
-
-        #region Protected Methods
-
-        protected override void OnAppearing()
-        {
-            BindingContext = new MainViewModel();
-            base.OnAppearing();
-        }
-
-        protected override void OnDisappearing()
-        {
-            base.OnDisappearing();
-            (BindingContext as IDisposable)?.Dispose();
-        }
-
-        #endregion
 
         #endregion
     }
 }
+

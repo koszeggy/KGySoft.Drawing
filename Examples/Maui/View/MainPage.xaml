@@ -1,0 +1,135 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="KGySoft.Drawing.Examples.Maui.View.MainPage"
+             xmlns:vm="clr-namespace:KGySoft.Drawing.Examples.Maui.ViewModel"
+             Title="KGy SOFT Drawing MAUI Example App">
+    <ContentPage.BindingContext>
+        <vm:MainViewModel />
+    </ContentPage.BindingContext>
+
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition/>
+        </Grid.RowDefinitions>
+
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="150"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+
+        <!--Image Overlay-->
+        <StackLayout Grid.Row="0" Grid.Column="0"
+                     Orientation="Horizontal">
+            <Switch IsToggled="{Binding ShowOverlay, Mode=TwoWay}"/>
+            <Label Text="Image Overlay" VerticalOptions="Center"/>
+        </StackLayout>
+
+        <!--Quantizer-->
+        <StackLayout Grid.Row="1" Grid.Column="0"
+                     Orientation="Horizontal" >
+            <Switch IsToggled="{Binding UseQuantizer, Mode=TwoWay}"/>
+            <Label Text="Quantizer:" VerticalOptions="Center"/>
+        </StackLayout>
+        <Picker Grid.Row="1" Grid.Column="1"
+                VerticalOptions="Center"
+                ItemsSource="{Binding Quantizers, Mode=OneTime}"
+                SelectedItem="{Binding SelectedQuantizer, Mode=TwoWay}"
+                IsEnabled="{Binding UseQuantizer}"/>
+
+        <!-- a.) Back Color -->
+        <Grid Grid.Row="2" Grid.Column="1"
+              IsVisible="{Binding IsBackColorVisible}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" VerticalOptions="Center">Back Color:</Label>
+            <Editor Grid.Column="1"
+                     Text="{Binding BackColorText, Mode=TwoWay}"/>
+            <Rectangle Grid.Column="2" Fill="{Binding BackColorBrush}" />
+        </Grid>
+
+        <!-- b.) Alpha Threshold -->
+        <Grid Grid.Row="3" Grid.Column="1"
+              IsVisible="{Binding IsAlphaThresholdVisible}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" VerticalOptions="Center">Alpha Threshold:</Label>
+            <Slider Grid.Column="1"
+                    VerticalOptions="Center"
+                    Maximum="255"
+                    Value="{Binding AlphaThreshold, Mode=TwoWay}"/>
+            <Label Grid.Column="2" Text="{Binding AlphaThreshold}"
+                   VerticalOptions="Center"
+                   Margin="5,0,0,0"/>
+        </Grid>
+
+        <!-- c.) White Threshold -->
+        <Grid Grid.Row="4" Grid.Column="1"
+              IsVisible="{Binding IsWhiteThresholdVisible}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" VerticalOptions="Center">White Threshold:</Label>
+            <Slider Grid.Column="1"
+                    VerticalOptions="Center"
+                    Maximum="255"
+                    Value="{Binding WhiteThreshold, Mode=TwoWay}"/>
+            <Label Grid.Column="2" Text="{Binding WhiteThreshold}"
+                   VerticalOptions="Center"
+                   Margin="5,0,0,0"/>
+        </Grid>
+
+        <!-- d.) Palette Size -->
+        <Grid Grid.Row="5" Grid.Column="1"
+              IsVisible="{Binding IsMaxColorsVisible}">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition Width="100"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Label Grid.Column="0" VerticalOptions="Center">Palette Size:</Label>
+            <Slider Grid.Column="1" x:Name="sliderPaletteSize"
+                    VerticalOptions="Center"
+                    Maximum="256"
+                    Minimum="2"
+                    Value="{Binding PaletteSize, Mode=TwoWay}"/>
+            <Label Grid.Column="2"
+                   VerticalOptions="Center"
+                   Margin="5,0,0,0"
+                   Text="{Binding PaletteSize}"/>
+        </Grid>
+
+        <!--Ditherer-->
+        <StackLayout Grid.Row="6" Grid.Column="0"
+                     Orientation="Horizontal">
+            <Switch IsToggled="{Binding UseDithering, Mode=TwoWay}" IsEnabled="{Binding UseQuantizer}"/>
+            <Label Text="Ditherer:" VerticalOptions="Center"/>
+        </StackLayout>
+        <Picker Grid.Row="6" Grid.Column="1"
+                VerticalOptions="Center"
+                ItemsSource="{Binding Ditherers, Mode=OneTime}"
+                SelectedItem="{Binding SelectedDitherer, Mode=TwoWay}"
+                IsEnabled="{Binding DitheringEnabled}"/>
+
+        <!--Image-->
+        <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+               Source="{Binding DisplayImage, Mode=OneWay}"/>
+
+    </Grid>
+
+</ContentPage>
