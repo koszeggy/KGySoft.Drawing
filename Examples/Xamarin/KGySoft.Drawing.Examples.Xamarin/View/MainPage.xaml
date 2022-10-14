@@ -2,11 +2,10 @@
 <ContentPage xmlns="http://xamarin.com/schemas/2014/forms"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
              x:Class="KGySoft.Drawing.Examples.Xamarin.View.MainPage"
-             xmlns:vm="clr-namespace:KGySoft.Drawing.Examples.Xamarin.ViewModel"
-             xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
-             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-             mc:Ignorable="d"
-             d:DataContext="{d:DesignInstance vm:MainViewModel}">
+             xmlns:vm="clr-namespace:KGySoft.Drawing.Examples.Xamarin.ViewModel">
+    <ContentPage.BindingContext>
+        <vm:MainViewModel />
+    </ContentPage.BindingContext>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -69,7 +68,7 @@
             <Slider Grid.Column="1"
                     Maximum="255"
                     Value="{Binding AlphaThreshold, Mode=TwoWay}"/>
-            <Label Grid.Column="2" Text="{Binding AlphaThreshold}"/>
+            <Label Grid.Column="2" Text="{Binding AlphaThreshold}" VerticalOptions="Center"/>
         </Grid>
 
         <!-- c.) White Threshold -->
@@ -84,7 +83,7 @@
             <Slider Grid.Column="1"
                     Maximum="255"
                     Value="{Binding WhiteThreshold, Mode=TwoWay}"/>
-            <Label Grid.Column="2" Text="{Binding WhiteThreshold}"/>
+            <Label Grid.Column="2" Text="{Binding WhiteThreshold}" VerticalOptions="Center"/>
         </Grid>
 
         <!-- d.) Palette Size -->
@@ -96,9 +95,10 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" VerticalOptions="Center">Palette Size:</Label>
-                    <!--Minimum="2"-->
-            <Slider Grid.Column="1" x:Name="sliderPaletteSize"
+            
+            <Slider Grid.Column="1"
                     Maximum="256"
+                    Minimum="2"
                     Value="{Binding PaletteSize, Mode=TwoWay}"/>
             <Label Grid.Column="2" Text="{Binding PaletteSize}"/>
         </Grid>
@@ -106,7 +106,7 @@
         <!--Ditherer-->
         <StackLayout Grid.Row="6" Grid.Column="0"
                      Orientation="Horizontal">
-            <Switch IsToggled="{Binding UseDithering, Mode=TwoWay}" IsEnabled="{Binding DitheringEnabled}"/>
+            <Switch IsToggled="{Binding UseDithering, Mode=TwoWay}" IsEnabled="{Binding UseQuantizer}"/>
             <Label Text="Ditherer:" VerticalOptions="Center"/>
         </StackLayout>
         <Picker Grid.Row="6" Grid.Column="1"

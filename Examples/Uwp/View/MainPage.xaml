@@ -50,7 +50,7 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0">Back Color:</TextBlock>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center">Back Color:</TextBlock>
             <TextBox Grid.Column="1"
                      Text="{Binding BackColorText, Mode=TwoWay}"
                      ToolTipService.ToolTip="Specifies the background color.&#x0a;Alpha pixels that are considered opaque are blended with this color during the processing.&#x0a;Hex #RRGGBB format is also supported."/>
@@ -65,15 +65,16 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0">Alpha Threshold:</TextBlock>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center">Alpha Threshold:</TextBlock>
             <Slider Grid.Column="1"
+                    Margin="5,0"
                     Maximum="255"
                     TickFrequency="25"
                     TickPlacement="BottomRight"
                     SmallChange="1" LargeChange="25"
                     Value="{Binding AlphaThreshold, Mode=TwoWay}"
                     ToolTipService.ToolTip="Specifies the alpha threshold under which the pixel is considered transparent.&#x0a;If 0, then the result will not have any transparent pixels.&#x0a;If 255, then all partially transparent pixels will turn transparent."/>
-            <TextBlock Grid.Column="2" Text="{Binding AlphaThreshold}"/>
+            <TextBlock Grid.Column="2" Text="{Binding AlphaThreshold}" VerticalAlignment="Center"/>
         </Grid>
 
         <!-- c.) White Threshold -->
@@ -84,15 +85,16 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0">White Threshold:</TextBlock>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center">White Threshold:</TextBlock>
             <Slider Grid.Column="1"
+                    Margin="5,0"
                     Maximum="255"
                     TickFrequency="25"
                     TickPlacement="BottomRight"
                     SmallChange="1" LargeChange="25"
                     Value="{Binding WhiteThreshold, Mode=TwoWay}"
                     ToolTipService.ToolTip="Determines the lowest input brightness to consider the result color white."/>
-            <TextBlock Grid.Column="2" Text="{Binding WhiteThreshold}"/>
+            <TextBlock Grid.Column="2" Text="{Binding WhiteThreshold}" VerticalAlignment="Center"/>
         </Grid>
 
         <!-- d.) Palette Size -->
@@ -103,8 +105,9 @@
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
-            <TextBlock Grid.Column="0">Palette Size:</TextBlock>
+            <TextBlock Grid.Column="0" VerticalAlignment="Center">Palette Size:</TextBlock>
             <Slider Grid.Column="1"
+                    Margin="5,0"
                     Minimum="2"
                     Maximum="256"
                     TickFrequency="25"
@@ -112,7 +115,7 @@
                     SmallChange="1" LargeChange="25"
                     Value="{Binding PaletteSize, Mode=TwoWay}"
                     ToolTipService.ToolTip="Determines the maximum number of allowed colors the quantizer can use."/>
-            <TextBlock Grid.Column="2" Text="{Binding PaletteSize}"/>
+            <TextBlock Grid.Column="2" Text="{Binding PaletteSize}" VerticalAlignment="Center"/>
         </Grid>
 
         <!--Ditherer-->

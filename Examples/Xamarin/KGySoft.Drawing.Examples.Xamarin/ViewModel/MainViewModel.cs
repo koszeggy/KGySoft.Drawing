@@ -17,7 +17,6 @@
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -115,7 +114,6 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
 
         private readonly SemaphoreSlim syncRoot = new SemaphoreSlim(1, 1);
    
-        private Dictionary<string, Color>? knownColors;
         private SKBitmap? baseImage;
         private SKBitmap? overlayImage;
         private CancellationTokenSource? cancelGeneratingPreview;
@@ -126,8 +124,6 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
         #endregion
 
         #region Properties
-
-        #region Public Properties
 
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
         public bool UseQuantizer { get => Get<bool>(); set => Set(value); }
@@ -148,15 +144,6 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
         public DithererDescriptor[] Ditherers => DithererDescriptor.Ditherers;
         public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public ImageSource? DisplayImage { get => Get<ImageSource?>(); set => Set(value); }
-
-        #endregion
-
-        #region Private Properties
-
-        private Dictionary<string, Color> KnownColors => knownColors ??= typeof(Color).GetFields()
-            .ToDictionary(pi => pi.Name, pi => (Color)pi.GetValue(null), StringComparer.OrdinalIgnoreCase);
-
-        #endregion
 
         #endregion
 
@@ -206,14 +193,17 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
                 await GenerateDisplayImage(Configuration.Capture(this));
         }
 
-        protected override void Dispose(bool disposing)
+        protected override async void Dispose(bool disposing)
         {
             if (IsDisposed)
                 return;
             if (disposing)
             {
-                cancelGeneratingPreview?.Dispose();
+                CancelRunningGenerate();
+                await WaitForPendingGenerate();
                 syncRoot.Dispose();
+                baseImage?.Dispose();
+                overlayImage?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -292,7 +282,7 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
                 if (token.IsCancellationRequested)
                     return;
 
-                // b.3.) Converting back to a UWP bitmap using the desired quantizer and ditherer
+                // b.3.) Converting back to a Skia bitmap using the desired quantizer and ditherer
                 result = await blendedResult.ToSKBitmapAsync(quantizer, ditherer, asyncConfig);
             }
             finally
