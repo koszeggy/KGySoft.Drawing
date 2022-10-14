@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Wpf</id>
-    <version>7.0.0-rc.1</version>
+    <version>7.0.0-rc.2</version>
     <title>KGy SOFT Drawing Libraries for WPF</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -32,13 +32,13 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.Drawing.Core" version="7.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="7.0.0-rc.2" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.Drawing.Core" version="7.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="7.0.0-rc.2" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.Drawing.Core" version="7.0.0-rc.1" />
+        <dependency id="KGySoft.Drawing.Core" version="7.0.0-rc.2" />
       </group>
     </dependencies>
   </metadata>

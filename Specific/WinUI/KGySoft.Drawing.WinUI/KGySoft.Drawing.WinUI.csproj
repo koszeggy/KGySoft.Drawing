@@ -29,7 +29,7 @@
 
   <!-- Package references -->
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22403.2">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22464.1">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -44,7 +44,7 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0-rc.1" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0-rc.2" />
   </ItemGroup>
 
   <!--<ItemGroup>
