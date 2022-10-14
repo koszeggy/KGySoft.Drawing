@@ -168,7 +168,7 @@
   </ItemGroup>
   <ItemGroup>
     <PackageReference Include="KGySoft.Drawing.Uwp">
-      <Version>7.0.0-rc.1</Version>
+      <Version>7.0.0-rc.2</Version>
     </PackageReference>
     <PackageReference Include="Microsoft.NETCore.UniversalWindowsPlatform">
       <Version>6.2.13</Version>

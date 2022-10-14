@@ -29,7 +29,6 @@ using KGySoft.Threading;
 
 using Microsoft.Maui.Controls;
 using Microsoft.Maui.Graphics;
-using Microsoft.Maui.Graphics.Converters;
 
 using SkiaSharp;
 using SkiaSharp.Views.Maui.Controls;
@@ -177,16 +176,10 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                     break;
 
                 case nameof(BackColorText):
-                    try
+                    if (Color.TryParse(BackColorText, out Color color))
                     {
-                        if (new ColorTypeConverter().ConvertFromInvariantString(BackColorText) is Color c)
-                        {
-                            BackColor = c;
-                            BackColorBrush = new SolidColorBrush(BackColor);
-                        }
-                    }
-                    catch (InvalidOperationException)
-                    {
+                        BackColor = color;
+                        BackColorBrush = new SolidColorBrush(color);
                     }
 
                     break;
