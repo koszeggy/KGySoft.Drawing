@@ -21,7 +21,7 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
    - [Icon Manipulation](#icon-manipulation)
    - [Fast Bitmap Manipulation](#fast-bitmap-manipulation)
    - [Managed Bitmap Data Manipulation](#managed-bitmap-data-manipulation)
-   - [WriteableBitmap and Other 3rd Party Bitmap Types Support](#writeablebitmap-and-other-3rd-party-bitmap-types-support)
+   - [3rd Party Bitmap Types Support](#3rd-party-bitmap-types-support)
    - [Supporting Custom Pixel Formats](#supporting-custom-pixel-formats)
    - [Quantizing and Dithering](#quantizing-and-dithering)
    - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
@@ -102,7 +102,8 @@ See the [Examples](Examples) folder for example applications for using KGy SOFT 
 
 <p align="center">
   <a href="Examples/Maui"><img alt="KGy SOFT Drawing MAUI Example App" src="https://user-images.githubusercontent.com/27336165/195989657-0e2fb0ba-4d2d-4de1-889b-d3f75b572895.png"/></a>
-  <br/><em>KGy SOFT Drawing MAUI Example App running on Android Phone.</em>
+  <br/><em>KGy SOFT Drawing MAUI Example App running on Android Phone.
+  <br/>See the <a href="Examples">Examples</a> folder for all of the example applications.</em>
 </p>
 
 #### KGy SOFT Imaging Tools and Debugger Visualizers:
@@ -143,6 +144,7 @@ Starting with version 7.0.0 each packages have their own change logs:
 ## Examples
 
 ### Icon Manipulation
+<sub>(Requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Icon` type)</sub>
 
 Icon images of different resolutions and color depth can be extracted from an `Icon`, whereas `Bitmap` and `Icon` instances can be combined into a new `Icon`. PNG compressed icons are also supported.
 
@@ -157,6 +159,7 @@ Icon combined = myIcon.Combine(bmp);
 > 💡 _Tip:_ See more details at the [Icons](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Icons.htm) and [IconExtensions](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_IconExtensions.htm) classes.
 
 ### Fast Bitmap Manipulation
+<sub>(This example requires the [KGySoft.Drawing](https://www.nuget.org/packages/KGySoft.Drawing) package for the GDI+ `Bitmap` type but works similarly also for bitmaps of other frameworks you can create an [`IBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IBitmapData.htm) instance for.)</sub>
 
 As it is well known, `Bitmap.SetPixel`/`GetPixel` methods are very slow. Additionally, they do not support every pixel format. A typical solution can be to obtain a `BitmapData` by the `LockBits` method, which has further drawbacks: you need to use unsafe code and pointers, and the way you need to access the bitmap data depends on the actual `PixelFormat` of the bitmap.
 
@@ -197,13 +200,14 @@ Not only for the native `Bitmap` type can you obtain a managed accessor (as desc
 
 The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class has many [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads. The ones whose first parameter is `Size` allocate the underlying buffer by themselves, which is not directly accessible from outside. But you are also able to use predefined arrays of any primitive element type (one or two dimensional ones), and also [`ArraySection<T>`](https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_ArraySection_1.htm) or [`Array2D<T>`](https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Collections_Array2D_1.htm) buffers to create a managed bitmap data for.
 
-### WriteableBitmap and Other 3rd Party Bitmap Types Support
+### 3rd Party Bitmap Types Support
+<sup>(This example requires the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package and WPF. Actually you can simply use the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) package for WPF.)</sup>
 
 The [`BitmapDataFactory`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_BitmapDataFactory.htm) class has also [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads to support unmanaged memory. This makes possible to support any bitmap representation that exposes its buffer by a pointer.
 
-For example, this is how you can create a managed accessor for a `WriteableBitmap` instance commonly used in WPF/WinRT/UWP and other XAML-based environments, which expose such a pointer:
+For example, this is how you can create a managed accessor for a `WriteableBitmap` instance commonly used in WPF/WinRT/UWP and other XAML-based environments, which expose such a pointer or stream:
 
-> 💡 _Tip:_ In fact, if you use the `WriteableBitmap` for WPF, then you can simply use the [`GetReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) extension from the `KGySoft.Drawing.Wpf` package. But this is how you can access a `WriteableBitmap` of other XAML-based environments that do not have direct support yet.
+> 💡 _Tip:_ In fact, if you use the `WriteableBitmap` of WPF/UWP/WinUI platforms, then you can simply use the [`GetReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) extensions from their corresponding [package](#available-packages). But this is how you can turn a bitmap of any environment into a managed bitmap data that does not have direct support yet.
 
 ```cs
 // Though naming is different, PixelFormats.Pbgra32 is the same as KnownPixelFormat.Format32bppPArgb.
@@ -225,11 +229,12 @@ bitmap.Unlock();
 ```
 
 ### Supporting Custom Pixel Formats
+<sup>(This example requires the [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) package and WPF. Actually you can simply use the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) package for WPF.)</sup>
 
 The previous example demonstrated how we can create a managed accessor for a `WriteableBitmap`. But it worked only because we used a pixel format that happen to have built-in support also in KGy SOFT Drawing Libraries. In fact, the libraries provide support for any custom pixel format. The [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) methods have several overloads that allow you to specify a custom pixel format along with a couple of delegates to be called when pixels are read or written:
 
 ```cs
-// Gray8 format has no built-in support
+// Gray8 format has no built-in support in KGySoft.Drawing.Core
 var bitmap = new WriteableBitmap(width, height, dpiX, dpiY, PixelFormats.Gray8, null);
 
 // But we can specify how to use it
@@ -249,6 +254,8 @@ return BitmapDataFactory.CreateBitmapData(
         bitmap.Unlock();
     });
 ```
+
+> 💡 _Tip:_ See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/2f769973dff4c702dd496873f77ddcc4e728a994/Examples/Maui/Extensions/SKBitmapExtensions.cs#L99) to create a bitmap data for SkiaSharp's `SKBitmap` type.
 
 Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB8888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you can always access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
 
