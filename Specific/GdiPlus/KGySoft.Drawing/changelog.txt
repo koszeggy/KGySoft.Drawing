@@ -27,6 +27,8 @@
   KGySoft.CoreLibraries assembly.
 ! The AsyncConfigBase, AsyncConfig and TaskConfig classes and the IAsyncContext interface have been replaced by the
   identically named types ones from the KGySoft.Threading namespace in the KGySoft.CoreLibraries assembly.
+! BitmapExtensions class:
+  ! CloneCurrentFrame method returns a Bitmap with Format24bppRgb pixel format for CMYK sources.
 + ImageExtensions class:
   + ConvertPixelFormat methods: supporting CMYK pixel format for source images.
   + ToIcon methods: supporting CMYK pixel format for source images.

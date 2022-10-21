@@ -210,8 +210,9 @@ namespace KGySoft.Drawing
         }
 
         /// <summary>
-        /// Creates a clone of the current frame of the provided <see cref="Bitmap"/> instance. Unlike the <see cref="Bitmap(Image)"/> constructor, this method preserves original pixel format,
-        /// and unlike <see cref="Bitmap.Clone(Rectangle,PixelFormat)">Bitmap.Clone(Rectangle,PixelFormat)</see> method, this method returns a single frame image.
+        /// Creates a clone of the current frame of the provided <see cref="Bitmap"/> instance. Unlike the <see cref="Bitmap(Image)"/> constructor,
+        /// this method attempts to preserve original pixel format, and unlike <see cref="Bitmap.Clone(Rectangle,PixelFormat)">Bitmap.Clone(Rectangle,PixelFormat)</see> method,
+        /// this method returns a single frame image.
         /// </summary>
         /// <param name="bitmap">The bitmap to be cloned.</param>
         /// <returns>A single frame <see cref="Bitmap"/> instance that has the same content and has the same pixel format as the current frame of the source bitmap.</returns>
@@ -221,13 +222,13 @@ namespace KGySoft.Drawing
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            Bitmap result = new Bitmap(bitmap.Width, bitmap.Height, bitmap.PixelFormat);
+            Bitmap result = new Bitmap(bitmap.Width, bitmap.Height, bitmap.GetClonePixelFormat());
             ColorPalette palette = bitmap.Palette;
             if (palette.Entries.Length > 0)
                 result.Palette = palette;
 
             Rectangle rect = new Rectangle(Point.Empty, bitmap.Size);
-            BitmapData sourceData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.PixelFormat);
+            BitmapData sourceData = bitmap.LockBits(rect, ImageLockMode.ReadOnly, bitmap.GetClonePixelFormat());
             try
             {
                 BitmapData targetData = result.LockBits(rect, ImageLockMode.WriteOnly, result.PixelFormat);
@@ -1167,6 +1168,9 @@ namespace KGySoft.Drawing
         #endregion
 
         #region Private Methods
+
+        private static PixelFormat GetClonePixelFormat(this Bitmap bitmap)
+            => bitmap.PixelFormat is PixelFormatExtensions.Format32bppCmyk ? PixelFormat.Format24bppRgb : bitmap.PixelFormat;
 
         private static Rectangle GetTargetRectangleWithPreservedAspectRatio(Size desiredSize, Size sourceSize)
         {
