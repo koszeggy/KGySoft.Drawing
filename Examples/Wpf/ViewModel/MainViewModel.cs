@@ -557,7 +557,6 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 progressUpdater.Stop();
                 if (result != null)
                     DisplayImage = result;
-
             }
         }
 

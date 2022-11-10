@@ -109,7 +109,7 @@ namespace KGySoft.Drawing.WinUI
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/>.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to convert.</param>
         /// <returns>A <see cref="WriteableBitmap"/> instance that has the same content as the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
@@ -125,7 +125,7 @@ namespace KGySoft.Drawing.WinUI
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> asynchronously.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
@@ -148,7 +148,7 @@ namespace KGySoft.Drawing.WinUI
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> using an optionally specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to convert.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> instance to use for the conversion, or <see langword="null"/> to do the conversion without reducing the colors.</param>
         /// <param name="ditherer">An <see cref="IDitherer"/> instance to use for the conversion or <see langword="null"/> to do the conversion without dithering. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -169,7 +169,7 @@ namespace KGySoft.Drawing.WinUI
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> asynchronously, using an optionally specified <paramref name="quantizer"/> and <paramref name="ditherer"/>.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
         /// <param name="quantizer">An <see cref="IQuantizer"/> instance to use for the conversion, or <see langword="null"/> to do the conversion without reducing the colors.</param>
         /// <param name="ditherer">An <see cref="IDitherer"/> instance to use for the conversion or <see langword="null"/> to do the conversion without dithering. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>

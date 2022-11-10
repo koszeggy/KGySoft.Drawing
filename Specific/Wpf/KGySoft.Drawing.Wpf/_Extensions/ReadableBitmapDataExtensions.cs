@@ -60,7 +60,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/>.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to convert.</param>
         /// <returns>A <see cref="WriteableBitmap"/> instance that has the same content as the specified <paramref name="source"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
@@ -78,7 +78,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> that has the specified <see cref="PixelFormat"/>.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to convert.</param>
         /// <param name="pixelFormat">The desired result pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/> and <paramref name="pixelFormat"/> is an indexed format, then a default palette and quantization logic will be used. This parameter is optional.
@@ -114,7 +114,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Begins to convert the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> asynchronously.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to convert.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
@@ -137,7 +137,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Begins to convert the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> with a specific <see cref="PixelFormat"/> asynchronously.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadWriteBitmapData"/> instance to convert.</param>
         /// <param name="pixelFormat">The desired result pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/> and <paramref name="pixelFormat"/> is an indexed format, then a default palette and quantization logic will be used. This parameter is optional.
@@ -189,7 +189,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> asynchronously.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
@@ -211,7 +211,7 @@ namespace KGySoft.Drawing.Wpf
         /// <summary>
         /// Converts the specified <paramref name="source"/> to a <see cref="WriteableBitmap"/> asynchronously.
         /// </summary>
-        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to covert.</param>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
         /// <param name="pixelFormat">The desired result pixel format.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
         /// If <see langword="null"/> and <paramref name="pixelFormat"/> is an indexed format, then a default palette and quantization logic will be used. This parameter is optional.
