@@ -45,7 +45,7 @@
 
   <!-- .NET 7.0 or newer references: Unix is no nonger supported -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
-    <PackageReference Include="System.Drawing.Common" Version="7.0.0-preview.4.22229.4" />
+    <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
   </ItemGroup>
 
   <!-- .NET 5.0 or newer references: Unix is supported only by an app context switch (initialized by DrawingModule) -->
