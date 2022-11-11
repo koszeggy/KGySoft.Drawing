@@ -2,41 +2,36 @@
     "version": "2.0.0",
     "tasks": [
         {
-            "label": "build",
+            "label": "Build Core UnitTest",
             "command": "/usr/bin/dotnet",
             "type": "process",
             "args": [
                 "build",
-                "${workspaceFolder}/KGySoft.Drawing.UnitTest/KGySoft.Drawing.UnitTest.csproj",
+                 "${workspaceFolder}/KGySoft.Drawing.Core.UnitTest/KGySoft.Drawing.Core.UnitTest.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
         {
-            "label": "publish",
+            "label": "Build Drawing UnitTest",
             "command": "/usr/bin/dotnet",
             "type": "process",
             "args": [
-                "publish",
-                "${workspaceFolder}/KGySoft.Drawing.UnitTest/KGySoft.Drawing.UnitTest.csproj",
+                "build",
+                 "${workspaceFolder}/Specific/GdiPlus/KGySoft.Drawing.UnitTest/KGySoft.Drawin.UnitTest.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
-            "problemMatcher": "$msCompile"
+            "problemMatcher": "$msCompile",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            }
         },
-        {
-            "label": "watch",
-            "command": "/usr/bin/dotnet",
-            "type": "process",
-            "args": [
-                "watch",
-                "run",
-                "${workspaceFolder}/KGySoft.Drawing.UnitTest/KGySoft.Drawing.UnitTest.csproj",
-                "/property:GenerateFullPaths=true",
-                "/consoleloggerparameters:NoSummary"
-            ],
-            "problemMatcher": "$msCompile"
-        }
     ]
 }

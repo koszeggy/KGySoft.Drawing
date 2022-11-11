@@ -5,17 +5,27 @@
     "version": "0.2.0",
     "configurations": [
         {
-            "name": ".NET Core Launch (console)",
+            "name": "Debug Core UnitTest",
             "type": "coreclr",
             "request": "launch",
-            "preLaunchTask": "build",
-            "program": "${workspaceFolder}/KGySoft.Drawing.UnitTest/bin/Debug/net5.0/KGySoft.Drawing.UnitTest.dll",
+            "preLaunchTask": "Build Core UnitTest",
+            "program": "${workspaceFolder}/KGySoft.Drawing.Core.UnitTest/bin/Debug/net6.0/KGySoft.Drawing.Core.UnitTest.dll",
             "args": [],
-            "cwd": "${workspaceFolder}/KGySoft.Drawing.UnitTest",
+            "cwd": "${workspaceFolder}/KGySoft.Drawing.Core.UnitTest",
             "console": "internalConsole",
             "stopAtEntry": false
         },
         {
+            "name": "Debug Drawing UnitTest",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Drawing UnitTest",
+            "program": "${workspaceFolder}/Specific/GdiPlus/KGySoft.Drawing.UnitTest/bin/Debug/net6.0/KGySoft.Drawing.UnitTest.dll",
+            "args": [],
+            "cwd": "${workspaceFolder}/KGySoft.Drawing.Core.UnitTest",
+            "console": "internalConsole",
+            "stopAtEntry": false
+        },     {
             "name": ".NET Core Attach",
             "type": "coreclr",
             "request": "attach",

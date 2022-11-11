@@ -102,6 +102,7 @@ namespace KGySoft.Drawing.UnitTests
             {
                 int expectedLength = sourceFrames.Length + (config.AnimationMode == AnimationMode.PingPong ? Math.Max(0, sourceFrames.Length - 2) : 0);
                 Assert.AreEqual(expectedLength, actualFrames.Length);
+#if WINDOWS
                 if (!performCompare)
                     return;
 
@@ -139,6 +140,7 @@ namespace KGySoft.Drawing.UnitTests
 
                     Console.WriteLine("Equals");
                 }
+#endif
             }
             finally
             {
@@ -251,6 +253,9 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static IReadWriteBitmapData GetBitmapData(string fileName)
         {
+#if !WINDOWS
+            fileName = fileName.Replace('\\', Path.DirectorySeparatorChar);
+#endif
             using var bmp = new Bitmap(Path.Combine(Files.GetExecutingPath(), fileName));
             return ToBitmapData(bmp);
         }
