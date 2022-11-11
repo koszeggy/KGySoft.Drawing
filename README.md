@@ -33,8 +33,6 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
 
 Starting with version 7.0.0 KGy SOFT Drawing Libraries are available in multiple packages:
 
-> ⚠️ _Note_: Version 7.0.0 is currently in preview. As a stable release, you can only download the combined `KGySoft.Drawing` package so far. Version 7.0.0 intruduces several major breaking changes due to the assembly split. Feel free to refer to the [release notes](#release-notes).
-
 #### [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Core.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Core)
 
 This package contains the platform-independent core functionality that mainly resides in the [KGySoft.Drawing.Imaging](https://docs.kgysoft.net/drawing/html/N_KGySoft_Drawing_Imaging.htm) namespace.
@@ -73,6 +71,11 @@ The package can be downloaded directly from [NuGet](https://www.nuget.org/packag
 #### [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) [![Nuget](https://img.shields.io/nuget/vpre/KGySoft.Drawing.Wpf.svg)](https://www.nuget.org/packages/KGySoft.Drawing.Wpf)
 
 This package helps accessing the bitmap data of the `WriteableBitmap` type in WPF supporting all of its possible pixel formats. It also allows direct read-only access to the bitmap data of any `BitmapSource`.
+
+Main highlights:
+- Fast [direct native WriteableBitmap data access](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_WriteableBitmapExtensions_GetReadWriteBitmapData.htm) for every PixelFormat
+- [Converting between various pixel formats](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Wpf_BitmapSourceExtensions_ConvertPixelFormat.htm) with optional dithering.
+- Useful extensions for the [BitmapSource](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Wpf_BitmapSourceExtensions.htm), [Color](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Wpf_ColorExtensions.htm), [PixelFormat](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Wpf_PixelFormatExtensions.htm) and [WriteableBitmap](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Wpf_WriteableBitmapExtensions.htm) types.
 
 The package can be downloaded directly from [NuGet](https://www.nuget.org/packages/KGySoft.Drawing.Wpf) or by using the Package Manager Console:
 
@@ -291,7 +294,7 @@ See the following table for the possible results (click the images for displayin
 | Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Cameraman" quantized with black and white palette using Floyd-Steinberg dithering](Help/Images/CameramanBWDitheredFS.gif) |
 
 > 💡 _Tip:_
-> Use  `KGy SOFT Imaging Tools` from the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository to try image quantization and dithering in an application.
+> Use  `KGy SOFT Imaging Tools` from the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository to try image quantization and dithering in a real application. See also the [Examples](Examples) folder for example applications in vairous environments.
 
 <p align="center">
   <a href="https://github.com/koszeggy/KGySoft.Drawing.Tools"><img alt="Quantizing and Dithering in KGy SOFT Imaging Tools" src="https://user-images.githubusercontent.com/27336165/124250977-b3198880-db25-11eb-9f72-6fa51d54a9da.png"/></a>

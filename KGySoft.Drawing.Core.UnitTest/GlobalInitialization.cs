@@ -1,10 +1,9 @@
-﻿#if !NETFRAMEWORK
-#region Copyright
+﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: GlobalInitialization.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,8 +15,9 @@
 
 #region Usings
 
-#if !WINDOWS && (NET5_0 || NET6_0)
 using System;
+#if NETCOREAPP
+using System.IO;
 #endif
 
 using NUnit.Framework;
@@ -34,6 +34,19 @@ namespace KGySoft.Drawing
         [OneTimeSetUp]
         public void Initialize()
         {
+            Console.WriteLine($"Referenced runtime by KGySoft.Drawing.Core: {typeof(DrawingCoreModule).Assembly.GetReferencedAssemblies()[0]}");
+#if NET35
+            if (typeof(object).Assembly.GetName().Version != new Version(2, 0, 0, 0))
+                Assert.Inconclusive($"mscorlib version does not match to .NET 3.5: {typeof(object).Assembly.GetName().Version}. Change the executing framework to .NET 2.0");
+#elif NETFRAMEWORK
+            if (typeof(object).Assembly.GetName().Version != new Version(4, 0, 0, 0))
+                Assert.Inconclusive($"mscorlib version does not match to .NET 4.x: {typeof(object).Assembly.GetName().Version}. Change the executing framework to .NET 4.x");
+#elif NETCOREAPP
+            Console.WriteLine($"Tests executed on .NET Core version {Path.GetFileName(Path.GetDirectoryName(typeof(object).Assembly.Location))}");
+#else
+#error unknown .NET version
+#endif
+
 #if !WINDOWS && (NET5_0 || NET6_0)
             AppContext.SetSwitch("System.Drawing.EnableUnixSupport", true);
 #endif
@@ -46,4 +59,3 @@ namespace KGySoft.Drawing
         #endregion
     }
 }
-#endif
