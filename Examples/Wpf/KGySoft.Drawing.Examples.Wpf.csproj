@@ -9,7 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing.Wpf" Version="7.0.0-rc.2" />
+    <PackageReference Include="KGySoft.Drawing.Wpf" Version="7.0.0" />
   </ItemGroup>
 
   <Import Project="..\_Shared\KGySoft.Drawing.Examples.Shared.projitems" Label="Shared" />
