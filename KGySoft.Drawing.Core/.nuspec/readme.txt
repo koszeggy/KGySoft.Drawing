@@ -5,6 +5,13 @@ Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.D
 
                                                  ~~*~~
 
+               +----------------------------------------------------------------------+
+               | Example applications for MAUI, UWP, WinForms, WinUI WPF and Xamarin: |
+               | https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples     |
+               +----------------------------------------------------------------------+
+
+                                                 ~~*~~
+
 Project Home Page: https://kgysoft.net/drawing
 Online documentation: https://docs.kgysoft.net/drawing
 GitHub: https://github.com/koszeggy/KGySoft.Drawing
