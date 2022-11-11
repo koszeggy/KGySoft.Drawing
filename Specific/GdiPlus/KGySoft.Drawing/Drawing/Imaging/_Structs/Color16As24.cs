@@ -40,9 +40,10 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color16As24(Color32 c, bool is565)
         {
-            b = (byte)((c.B >> 3) << 3);
-            g = (byte)(is565 ? ((c.B >> 2) << 2) : ((c.B >> 3) << 3));
-            r = (byte)((c.R >> 3) << 3);
+            int greenBits = is565 ? 6 : 5;
+            b = (byte)(((c.B >> 3) << 3) | (c.B >> 5));
+            g = (byte)(((c.G >> (8 - greenBits)) << (8 - greenBits)) | (c.G >> greenBits));
+            r = (byte)(((c.R >> 3) << 3) | (c.R >> 5));
         }
 
         #endregion

@@ -23,7 +23,7 @@
             "type": "process",
             "args": [
                 "build",
-                 "${workspaceFolder}/Specific/GdiPlus/KGySoft.Drawing.UnitTest/KGySoft.Drawin.UnitTest.csproj",
+                 "${workspaceFolder}/Specific/GdiPlus/KGySoft.Drawing.UnitTest/KGySoft.Drawing.UnitTest.csproj",
                 "/property:GenerateFullPaths=true",
                 "/consoleloggerparameters:NoSummary"
             ],
