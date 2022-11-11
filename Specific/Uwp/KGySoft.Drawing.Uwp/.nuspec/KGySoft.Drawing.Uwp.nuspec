@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Uwp</id>
-    <version>7.0.0-rc.2</version>
+    <version>7.0.0</version>
     <title>KGy SOFT Drawing Libraries for UWP</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -16,11 +16,15 @@
 
 This library requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version of the dependent core libraries.
 
+Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
+Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
+Online Documentation: https://docs.kgysoft.net/drawing
+
+See Also:
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
 GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
 WPF specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
-WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
-Find Documentation: https://docs.kgysoft.net/drawing</description>
+WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Uwp/KGySoft.Drawing.Uwp/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
     <tags>KGySoft Drawing uwp uap winrt extension writeable-bitmap writeablebitmap bitmapdata</tags>
@@ -28,7 +32,7 @@ Find Documentation: https://docs.kgysoft.net/drawing</description>
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="uap10.0.16299" >
-        <dependency id="KGySoft.Drawing.Core" version="7.0.0-rc.2" />
+        <dependency id="KGySoft.Drawing.Core" version="7.0.0" />
       </group>
     </dependencies>
   </metadata>
