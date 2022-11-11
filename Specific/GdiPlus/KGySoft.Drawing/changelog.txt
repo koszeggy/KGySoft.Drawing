@@ -26,7 +26,7 @@
 ! The DrawingProgress struct has been removed. It is replaced by KGySoft.Threading.AsyncProgress<T> from the
   KGySoft.CoreLibraries assembly.
 ! The AsyncConfigBase, AsyncConfig and TaskConfig classes and the IAsyncContext interface have been replaced by the
-  identically named types ones from the KGySoft.Threading namespace in the KGySoft.CoreLibraries assembly.
+  identically named types from the KGySoft.Threading namespace in the KGySoft.CoreLibraries assembly.
 ! BitmapExtensions class:
   ! CloneCurrentFrame method returns a Bitmap with Format24bppRgb pixel format for CMYK sources.
 + ImageExtensions class:

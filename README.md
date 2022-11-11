@@ -139,10 +139,11 @@ Find the project site at [kgysoft.net](https://kgysoft.net/drawing/)
 
 ## Release Notes
 
-Starting with version 7.0.0 each packages have their own change logs:
 * [KGySoft.Drawing.Core change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt)
 * [KGySoft.Drawing change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/GdiPlus/KGySoft.Drawing/changelog.txt)
 * [KGySoft.Drawing.Wpf change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt)
+* [KGySoft.Drawing.Uwp change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Uwp/KGySoft.Drawing.Uwp/changelog.txt)
+* [KGySoft.Drawing.WinUI change log](https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.WinUI/changelog.txt)
 
 ## Examples
 
