@@ -34,7 +34,7 @@
       <DocumentationSource sourceFile="Specific\Wpf\KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>7.0.0-rc.2</HelpFileVersion>
+    <HelpFileVersion>7.0.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -55,7 +55,7 @@
     <VisibleItems>Attributes, InheritedMembers, Protected, ProtectedInternalAsProtected, NonBrowsable</VisibleItems>
     <WarnOnMissingSourceContext>False</WarnOnMissingSourceContext>
     <PlugInConfigurations>
-      <PlugInConfig id="Additional Reference Links" enabled="True" xmlns="">
+      <PlugInConfig id="Additional Reference Links" enabled="True">
         <configuration>
           <targets>
             <target htmlSdkLinkType="None" helpViewerSdkLinkType="None" websiteSdkLinkType="None" helpFileProject="..\KGySoft.CoreLibraries\KGySoft.CoreLibraries\KGySoft.CoreLibraries.shfbproj" />
