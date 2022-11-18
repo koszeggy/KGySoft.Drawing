@@ -132,9 +132,8 @@ namespace KGySoft.Drawing.UnitTests
                 string key = ((string)enumerator.Key).Replace("_", String.Empty);
                 if (key.StartsWith("General", StringComparison.Ordinal))
                     key = key.Substring("General".Length);
-                if (obtainedMembers.Contains(key) || !key.EndsWith("Format", StringComparison.Ordinal))
-                    continue;
-                key = key.Substring(0, key.Length - "Format".Length);
+                if (key.EndsWith("Format", StringComparison.Ordinal))
+                    key = key.Substring(0, key.Length - "Format".Length);
                 if (!obtainedMembers.Contains(key))
                     uncovered.Add((string)enumerator.Key);
             }
