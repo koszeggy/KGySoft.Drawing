@@ -16,6 +16,8 @@
 #region Usings
 
 using Xamarin.Forms;
+using Xamarin.Forms.PlatformConfiguration;
+using Xamarin.Forms.PlatformConfiguration.iOSSpecific;
 
 #endregion
 
@@ -28,6 +30,7 @@ namespace KGySoft.Drawing.Examples.Xamarin.View
         public MainPage()
         {
             InitializeComponent();
+            On<iOS>().SetUseSafeArea(true);
         }
 
         #endregion

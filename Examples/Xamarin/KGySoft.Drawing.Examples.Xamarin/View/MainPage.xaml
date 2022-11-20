@@ -6,6 +6,11 @@
     <ContentPage.BindingContext>
         <vm:MainViewModel />
     </ContentPage.BindingContext>
+    <ContentPage.Padding>
+        <OnPlatform x:TypeArguments="Thickness">
+            <On Platform="iOS" Value="0,20,0,0" />
+        </OnPlatform>
+    </ContentPage.Padding>
 
     <Grid>
         <Grid.RowDefinitions>
@@ -20,7 +25,13 @@
         </Grid.RowDefinitions>
 
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="150"/>
+            <ColumnDefinition>
+                <ColumnDefinition.Width>
+                    <OnPlatform x:TypeArguments="GridLength" Default="150">
+                        <On Platform="iOS" Value="168" />
+                    </OnPlatform>
+                </ColumnDefinition.Width>
+            </ColumnDefinition>
             <ColumnDefinition/>
         </Grid.ColumnDefinitions>
 
