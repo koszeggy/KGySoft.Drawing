@@ -79,7 +79,7 @@ namespace KGySoft.Drawing.Imaging
         /// <remarks>
         /// <para>Use the <see cref="SetColor32">SetColor32</see> method for a slightly better performance.</para>
         /// <para>Line by line processing is also possible by obtaining the first row by the <see cref="FirstRow"/> property,
-        /// setting the pixels by the <see cref="IWritableBitmapDataRow"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
+        /// setting the pixels by the <see cref="IWritableBitmapDataRowMovable"/> members and then moving to the next line by the <see cref="IBitmapDataRowMovable.MoveNextRow">MoveNextRow</see> method.</para>
         /// <para>The <paramref name="color"/> argument represents a straight (non-premultiplied) color with gamma correction γ = 2.2,
         /// regardless of the underlying <see cref="IBitmapData.PixelFormat"/>. To access the actual <see cref="IBitmapData.PixelFormat"/>-dependent raw value
         /// obtain a row and use the <see cref="IWritableBitmapDataRow.WriteRaw{T}">WriteRaw</see> method.</para>
