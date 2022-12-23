@@ -1,0 +1,37 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--<TargetFrameworks>net462;netcoreapp3.1;netstandard2.0</TargetFrameworks>-->
+    <TargetFrameworks>net6.0</TargetFrameworks>
+
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+	<RootNamespace>KGySoft.Drawing.SkiaSharp</RootNamespace>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
+    <LangVersion>latest</LangVersion>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Nullable>enable</Nullable>
+
+    <!-- So the tests can be executed as a console app -->
+    <OutputType>Exe</OutputType>
+    <GenerateProgramFile>false</GenerateProgramFile>
+
+    <!--Suppression NETSDK1138: The target framework 'netcoreapp3.1' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+  </PropertyGroup>
+
+  <!-- Common NuGet references -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.11.0" />
+    <PackageReference Include="NUnit" Version="3.13.2" />
+    <PackageReference Include="NUnit3TestAdapter" Version="4.0.0">
+      <NoWarn>NU1701</NoWarn>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Project references -->
+  <ItemGroup>
+    <ProjectReference Include="..\KGySoft.Drawing.SkiaSharp\KGySoft.Drawing.SkiaSharp.csproj" />
+  </ItemGroup>
+
+</Project>

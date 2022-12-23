@@ -1,0 +1,52 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <!--<TargetFrameworks>net462;netcoreapp3.1;netstandard2.0</TargetFrameworks>-->
+    <TargetFrameworks>net6.0</TargetFrameworks>
+
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <RootNamespace>KGySoft.Drawing.SkiaSharp</RootNamespace>
+    <DocumentationFile>bin\$(Configuration)\$(TargetFramework)\$(AssemblyName).xml</DocumentationFile>
+    <SignAssembly>true</SignAssembly>
+    <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
+    <!--<RunCodeAnalysis>true</RunCodeAnalysis>-->
+    <CodeAnalysisRuleSet>..\..\..\KGySoft.Drawing.ruleset</CodeAnalysisRuleSet>
+    <LangVersion>latest</LangVersion>
+    <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
+    <PackageLicenseFile>LICENSE</PackageLicenseFile>
+    <Authors>György Kőszeg</Authors>
+    <Nullable>enable</Nullable>
+
+    <!-- Suppression NETSDK1138: The target framework 'netcoreapp3.1' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
+    <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <None Include="..\..\..\LICENSE" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include=".nuspec\KGySoft.Drawing.SkiaSharp.nuspec" />
+  </ItemGroup>
+
+  <!-- Package references -->
+  <ItemGroup>
+    <PackageReference Include="SkiaSharp" Version="2.88.0" />
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
+    </PackageReference>
+  </ItemGroup>
+
+  <!-- Debug only project references -->
+  <ItemGroup Condition="'$(Configuration)' == 'DEBUG'">
+    <ProjectReference Include="..\..\..\KGySoft.Drawing.Core\KGySoft.Drawing.Core.csproj" />
+  </ItemGroup>
+
+  <!-- Release only package references -->
+  <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
+    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0" />
+  </ItemGroup>
+
+</Project>
