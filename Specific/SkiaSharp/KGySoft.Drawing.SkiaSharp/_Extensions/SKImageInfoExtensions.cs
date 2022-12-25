@@ -31,9 +31,22 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Fields
 
+        /// <summary>
+        /// These formats do not have native known support but have custom get/set pixel support
+        /// </summary>
         private static readonly HashSet<(SKColorType, SKAlphaType)> directlySupportedCustomFormats = new()
         {
-            //(SKColorType.Bgra8888, SKAlphaType.Opaque),
+            (SKColorType.Rgba8888, SKAlphaType.Unpremul),
+            (SKColorType.Rgba8888, SKAlphaType.Premul),
+            (SKColorType.Rgba8888, SKAlphaType.Opaque),
+
+            (SKColorType.Rgb888x, SKAlphaType.Opaque),
+
+            (SKColorType.Gray8, SKAlphaType.Opaque),
+
+            (SKColorType.Rgba16161616, SKAlphaType.Unpremul),
+            (SKColorType.Rgba16161616, SKAlphaType.Premul),
+            (SKColorType.Rgba16161616, SKAlphaType.Opaque),
         };
 
         #endregion
@@ -70,10 +83,9 @@ namespace KGySoft.Drawing.SkiaSharp
 
             switch (imageInfo.ColorType)
             {
-                // these types have alpha even with AlphaType.Oqaque
+                // These types have alpha even with AlphaType.Opaque.
                 case SKColorType.Alpha8:
                 case SKColorType.Alpha16:
-                case SKColorType.Bgra8888: // Even Opaque can have alpha: sets as Premul, reads raw value
                     info.HasAlpha = true;
                     break;
                 case SKColorType.Gray8:
@@ -99,8 +111,10 @@ namespace KGySoft.Drawing.SkiaSharp
                 {
                     SKAlphaType.Unpremul => KnownPixelFormat.Format32bppArgb,
                     SKAlphaType.Premul => KnownPixelFormat.Format32bppPArgb,
-                    _ => KnownPixelFormat.Undefined, // Bgra8888/Opaque: sets as Premul, reads raw value
+                    SKAlphaType.Opaque => KnownPixelFormat.Format32bppRgb,
+                    _ => KnownPixelFormat.Undefined
                 },
+                SKColorType.Rgb565 => KnownPixelFormat.Format16bppRgb565,
                 _ => KnownPixelFormat.Undefined
             };
         }
