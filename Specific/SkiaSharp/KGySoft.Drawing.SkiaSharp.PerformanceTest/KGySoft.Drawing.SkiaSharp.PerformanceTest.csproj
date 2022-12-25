@@ -3,21 +3,24 @@
   <PropertyGroup>
     <!--<TargetFrameworks>net462;netcoreapp3.1;netcoreapp2.0</TargetFrameworks>-->
     <TargetFrameworks>net6.0</TargetFrameworks>
-
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
-	<RootNamespace>KGySoft.Drawing.SkiaSharp</RootNamespace>
+    <RootNamespace>KGySoft.Drawing.SkiaSharp</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <LangVersion>latest</LangVersion>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <Nullable>enable</Nullable>
 
-    <!-- So the tests can be executed as a console app -->
+    <!-- To be able to execute the tests as a console app -->
     <OutputType>Exe</OutputType>
     <GenerateProgramFile>false</GenerateProgramFile>
 
     <!--Suppression NETSDK1138: The target framework 'netcoreapp3.1' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
     <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+
+    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <!-- Common NuGet references -->
