@@ -34,19 +34,19 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels) => pixels.GetBitmapDataInternal();
+        public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels) => pixels.GetBitmapDataInternal(true);
 
         public static IReadWriteBitmapData GetWritableBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(backColor, alphaThreshold);
+            => pixels.GetBitmapDataInternal(false, backColor, alphaThreshold);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(backColor, alphaThreshold);
+            => pixels.GetBitmapDataInternal(false, backColor, alphaThreshold);
 
         #endregion
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKPixmap pixels, bool readOnly, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             if (pixels == null)
                 throw new ArgumentNullException(nameof(pixels), PublicResources.ArgumentNull);
@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
             // shortcut: if pixel format is directly supported, then we can simply create a bitmap data for its back buffer
             if (imageInfo.IsDirectlySupported())
-                return NativeBitmapDataFactory.CreateBitmapData(pixels.GetPixels(), imageInfo, backColor, alphaThreshold, disposeCallback);
+                return NativeBitmapDataFactory.CreateBitmapData(pixels.GetPixels(), imageInfo, pixels.RowBytes, backColor, alphaThreshold, disposeCallback);
 
             // otherwise, we create an SKBitmap for it, so the fallback manipulation can be used
             var bitmap = new SKBitmap();
@@ -74,7 +74,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     bitmap.Dispose();
                     disposeCallback();
                 };
-            return bitmap.GetFallbackBitmapData(backColor, alphaThreshold, disposeBitmap);
+            return bitmap.GetFallbackBitmapData(readOnly, backColor, alphaThreshold, disposeBitmap);
         }
 
         #endregion

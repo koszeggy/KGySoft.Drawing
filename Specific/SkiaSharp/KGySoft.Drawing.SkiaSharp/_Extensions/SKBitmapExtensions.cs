@@ -35,37 +35,55 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        public static IReadWriteBitmapData GetReadableBitmapData(this SKBitmap bitmap) => bitmap.GetBitmapDataInternal();
+        public static IReadWriteBitmapData GetReadableBitmapData(this SKBitmap bitmap) => bitmap.GetBitmapDataInternal(true);
 
         public static IReadWriteBitmapData GetWritableBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
 
         #endregion
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKBitmap bitmap, bool readOnly, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             SKImageInfo imageInfo = bitmap.Info;
 
             return imageInfo.IsDirectlySupported()
-                ? NativeBitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), imageInfo, backColor, alphaThreshold, disposeCallback)
-                : bitmap.GetFallbackBitmapData(backColor, alphaThreshold, disposeCallback);
+                ? NativeBitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), imageInfo, bitmap.RowBytes, backColor, alphaThreshold, disposeCallback)
+                : bitmap.GetFallbackBitmapData(readOnly, backColor, alphaThreshold, disposeCallback);
         }
 
-        internal static IReadWriteBitmapData GetFallbackBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetFallbackBitmapData(this SKBitmap bitmap, bool readOnly, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             Debug.Assert(!bitmap.Info.IsDirectlySupported());
             SKImageInfo info = bitmap.Info;
 
+            Action<ICustomBitmapDataRow, int, Color32> rowSetColor;
+            if (readOnly)
+                rowSetColor = (_, _, _) => { };
+            else
+            {
+                // Though we could use bitmap.SetPixel, it would be slower as it creates and disposes a canvas for each pixel
+                var canvas = new SKCanvas(bitmap);
+                rowSetColor = (row, x, c) => canvas.DrawPoint(x, row.Index, c.ToSKColor());
+                Action? callerDispose = disposeCallback;
+                disposeCallback = callerDispose == null
+                    ? canvas.Dispose
+                    : () =>
+                    {
+                        canvas.Dispose();
+                        callerDispose.Invoke();
+                    };
+            }
+
             return BitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), new Size(info.Width, info.Height), info.RowBytes, info.GetInfo(),
-                (row, x) => bitmap.GetPixel(x, row.Index).ToColor32(),
-                (row, x, c) => bitmap.SetPixel(x, row.Index, c.ToSKColor()), backColor.ToColor32(), alphaThreshold, disposeCallback);
+                (row, x) => bitmap.GetPixel(x, row.Index).ToColor32(), rowSetColor,
+                backColor.ToColor32(), alphaThreshold, disposeCallback);
         }
 
         #endregion

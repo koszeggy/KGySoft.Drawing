@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Drawing;
 
 using KGySoft.Drawing.Imaging;
 
@@ -29,10 +30,30 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Methods
 
-        internal static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, SKImageInfo info, SKColor backColor, byte alphaThreshold, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData CreateBitmapData(IntPtr buffer, SKImageInfo info, int stride, SKColor backColor, byte alphaThreshold, Action? disposeCallback = null)
         {
             Debug.Assert(info.IsDirectlySupported());
-            throw new NotImplementedException();
+
+            var size = new Size(info.Width, info.Height);
+            KnownPixelFormat knownPixelFormat = info.AsKnownPixelFormat();
+            Color32 backColor32 = backColor.ToColor32();
+
+            // natively supported formats
+            if (knownPixelFormat != KnownPixelFormat.Undefined)
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownPixelFormat, backColor32, alphaThreshold, disposeCallback);
+
+            // supported custom formats
+            PixelFormatInfo pixelFormatInfo = info.GetInfo();
+            switch (info)
+            {
+                //case { ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Opaque }:
+                //    return BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                //        (row, x) => row.UnsafeGetRefAs<Color32>(x),
+                //        (row, x, c) => row.UnsafeGetRefAs<Color32>(x) = c.ToPremultiplied(),
+                //        backColor32, alphaThreshold, disposeCallback);
+            }
+
+            throw new InvalidOperationException(Res.InternalError($"{info.ColorType}/{info.AlphaType} is not supported directly. {nameof(SKBitmapExtensions.GetFallbackBitmapData)} should have been called from the caller."));
         }
 
         #endregion

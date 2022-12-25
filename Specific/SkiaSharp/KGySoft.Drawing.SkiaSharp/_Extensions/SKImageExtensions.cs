@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Methods
 
-        internal static IReadableBitmapData GetBitmapDataInternal(this SKImage image, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadableBitmapData GetBitmapDataInternal(this SKImage image, Action? disposeCallback = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -49,7 +49,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
             // Raster-based image: We can simply get a bitmap data for its pixels
             if (pixels != null)
-                return pixels.GetBitmapDataInternal(backColor, alphaThreshold, disposeCallback);
+                return pixels.GetBitmapDataInternal(true, disposeCallback: disposeCallback);
 
             // Other image: converting it to a bitmap
             // TODO: test if this works for GPU/vector images
@@ -70,7 +70,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     disposeCallback();
                 };
 
-            return bitmap.GetBitmapDataInternal(backColor, alphaThreshold, disposeBitmap);
+            return bitmap.GetBitmapDataInternal(true, disposeCallback: disposeBitmap);
         }
 
         #endregion

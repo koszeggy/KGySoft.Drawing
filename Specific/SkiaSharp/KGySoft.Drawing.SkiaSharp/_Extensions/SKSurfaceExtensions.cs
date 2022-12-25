@@ -40,9 +40,13 @@ namespace KGySoft.Drawing.SkiaSharp
                 return pixels.GetReadableBitmapData();
 
             // fallback: taking a snapshot as an SKImage, and obtaining the bitmap data for that
+            // TODO: this will use SKImage.ReadPixels internally, which is another allocation. Instead, use surface.ReadPixels directly if there will be a surface.Info or surface.Canvas.Info so no Snapshot will be needed: https://github.com/mono/SkiaSharp/issues/2281
             SKImage skImage = surface.Snapshot();
             return skImage.GetBitmapDataInternal(disposeCallback: skImage.Dispose);
         }
+
+        public static IWritableBitmapData GetWritableBitmapData(this SKSurface surface, SKColor backColor = default, byte alphaThreshold = 128)
+            => GetReadWriteBitmapData(surface, backColor, alphaThreshold);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKSurface surface, SKColor backColor = default, byte alphaThreshold = 128)
         {
@@ -67,10 +71,11 @@ namespace KGySoft.Drawing.SkiaSharp
                     pixels.Dispose();
                 };
 
-                return pixels.GetBitmapDataInternal(backColor, alphaThreshold, disposeCallback);
+                return pixels.GetBitmapDataInternal(false, backColor, alphaThreshold, disposeCallback);
             }
 
             // Not a raster-based surface: taking a snapshot as an image, converting it to bitmap and doing the same as above
+            // TODO: use surface.ReadPixels directly if there will be a surface.Info or surface.Canvas.Info so no Snapshot will be needed: https://github.com/mono/SkiaSharp/issues/2281
             SKBitmap bitmap;
             using (SKImage snapshot = surface.Snapshot())
             {
@@ -90,7 +95,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 bitmap.Dispose();
             };
 
-            return bitmap.GetBitmapDataInternal(backColor, alphaThreshold, disposeCallback);
+            return bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, disposeCallback);
         }
 
         #endregion
