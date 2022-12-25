@@ -70,6 +70,8 @@ namespace KGySoft.Drawing.Imaging
         public static Color32 Blend(this Color32 foreColor, Color32 backColor)
             => foreColor.A == Byte.MaxValue ? foreColor
                 : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor)
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
                 : foreColor.BlendWith(backColor);
 
         /// <summary>
@@ -100,14 +102,14 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToPremultiplied(this Color32 c) => c.A switch
-            {
-                Byte.MaxValue => c,
-                0 => default,
-                _ => new Color32(c.A,
-                    (byte)(c.R * c.A / Byte.MaxValue),
-                    (byte)(c.G * c.A / Byte.MaxValue),
-                    (byte)(c.B * c.A / Byte.MaxValue))
-            };
+        {
+            Byte.MaxValue => c,
+            0 => default,
+            _ => new Color32(c.A,
+                (byte)(c.R * c.A / Byte.MaxValue),
+                (byte)(c.G * c.A / Byte.MaxValue),
+                (byte)(c.B * c.A / Byte.MaxValue))
+        };
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 AsValidPremultiplied(this Color32 c)
