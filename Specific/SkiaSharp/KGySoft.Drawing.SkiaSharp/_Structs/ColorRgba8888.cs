@@ -29,10 +29,10 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Fields
 
-        [FieldOffset(0)] private readonly byte r;
-        [FieldOffset(1)] private readonly byte g;
-        [FieldOffset(2)] private readonly byte b;
-        [FieldOffset(3)] private readonly byte a;
+        [FieldOffset(0)]private readonly byte r;
+        [FieldOffset(1)]private readonly byte g;
+        [FieldOffset(2)]private readonly byte b;
+        [FieldOffset(3)]private readonly byte a;
 
         #endregion
 

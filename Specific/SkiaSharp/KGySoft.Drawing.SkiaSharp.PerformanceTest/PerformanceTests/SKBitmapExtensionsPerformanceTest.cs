@@ -22,6 +22,10 @@ namespace KGySoft.Drawing.SkiaSharp.PerformanceTests
         [TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul)]
         [TestCase(SKColorType.Rgba8888, SKAlphaType.Premul)]
         [TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque)]
         public void SetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
             static int Argb(int a, int l) => (a << 24) | (l << 16) | (l << 8) | l;
