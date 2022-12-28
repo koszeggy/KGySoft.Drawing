@@ -176,9 +176,9 @@ namespace KGySoft.Drawing.Imaging
                 return backColor;
             int inverseAlpha = 255 - c.A;
             return new Color32(Byte.MaxValue,
-                (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
-                (byte)((c.G * c.A + backColor.G * inverseAlpha) >> 8),
-                (byte)((c.B * c.A + backColor.B * inverseAlpha) >> 8));
+                (byte)((c.R * c.A + backColor.R * inverseAlpha) / 255),
+                (byte)((c.G * c.A + backColor.G * inverseAlpha) / 255),
+                (byte)((c.B * c.A + backColor.B * inverseAlpha) / 255));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

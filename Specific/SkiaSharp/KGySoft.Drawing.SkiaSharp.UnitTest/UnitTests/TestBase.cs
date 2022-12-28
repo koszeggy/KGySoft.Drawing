@@ -41,7 +41,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
         protected static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
         {
-            var firstRow = bitmapData.FirstRow;
+            var firstRow = new Color32[bitmapData.Width];
             float ratio = 255f / (bitmapData.Width / 6f);
             float limit = bitmapData.Width / 6f;
 
@@ -66,6 +66,9 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 else
                     firstRow[x] = new Color32(255, 0, (255 - (x - limit * 5) * ratio).ClipToByte());
             }
+
+            for (int x = 0; x < bitmapData.Width; x++)
+                bitmapData.SetPixel(x, 0, firstRow[x]);
 
             if (bitmapData.Height < 2)
                 return;

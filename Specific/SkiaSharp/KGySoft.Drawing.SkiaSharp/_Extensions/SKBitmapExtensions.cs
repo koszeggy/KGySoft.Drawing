@@ -40,6 +40,13 @@ namespace KGySoft.Drawing.SkiaSharp
         public static IReadWriteBitmapData GetWritableBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
             => bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="bitmap"></param>
+        /// <param name="backColor"></param>
+        /// <param name="alphaThreshold">Relevant only when another bitmap is drawn into this one and this bitmap has no alpha support. See <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/></param>
+        /// <returns></returns>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
             => bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
 

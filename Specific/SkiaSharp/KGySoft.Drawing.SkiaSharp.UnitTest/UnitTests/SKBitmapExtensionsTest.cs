@@ -41,37 +41,40 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
         private static readonly object[] sourceDirectlySupportedSetGetPixelTest =
         {
-            new object[] { SKColorType.Bgra8888, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Bgra8888, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Bgra8888, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Bgra8888, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.Bgra8888, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.Bgra8888, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Rgba8888, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Rgba8888, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Rgba8888, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Rgba8888, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.Rgba8888, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.Rgba8888, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Rgb888x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Rgb888x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Gray8, SKAlphaType.Opaque, testColorAlpha, testColorAlpha.ToColor32().Blend(Color.Black).ToGray().ToColor() },
+            //new object[] { SKColorType.Gray8, SKAlphaType.Opaque, testColorAlpha, testColorAlpha.ToColor32().Blend(Color.Black).ToGray().ToColor() },
 
-            new object[] { SKColorType.Rgb565, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb((testColorBlended.R & 0b11111000) | (testColorBlended.R >> 5), (testColorBlended.G & 0b11111100) | (testColorBlended.G >> 6), (testColorBlended.B & 0b11111000) | (testColorBlended.B >> 5)) },
+            //new object[] { SKColorType.Rgb565, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb((testColorBlended.R & 0b11111000) | (testColorBlended.R >> 5), (testColorBlended.G & 0b11111100) | (testColorBlended.G >> 6), (testColorBlended.B & 0b11111000) | (testColorBlended.B >> 5)) },
 
-            new object[] { SKColorType.Rgba16161616, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Rgba16161616, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Rgba16161616, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Rgba16161616, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.Rgba16161616, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.Rgba16161616, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Bgra1010102, SKAlphaType.Unpremul, testColorAlpha, new ColorBgra1010102(testColorAlpha, default).ToColor32().ToColor() },
-            new object[] { SKColorType.Bgra1010102, SKAlphaType.Premul, testColorAlpha, new ColorBgra1010102(testColorAlpha, default).ToColor32().ToColor() },
-            new object[] { SKColorType.Bgra1010102, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Bgra1010102, SKAlphaType.Unpremul, testColorAlpha, new ColorBgra1010102(testColorAlpha, default).ToColor32().ToColor() },
+            //new object[] { SKColorType.Bgra1010102, SKAlphaType.Premul, testColorAlpha, new ColorBgra1010102(testColorAlpha, default).ToColor32().ToColor() },
+            //new object[] { SKColorType.Bgra1010102, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Bgr101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Bgr101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Rgba1010102, SKAlphaType.Unpremul, testColorAlpha, new ColorRgba1010102(testColorAlpha, default).ToColor32().ToColor() },
-            new object[] { SKColorType.Rgba1010102, SKAlphaType.Premul, testColorAlpha, new ColorRgba1010102(testColorAlpha, default).ToColor32().ToColor() },
-            new object[] { SKColorType.Rgba1010102, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Rgba1010102, SKAlphaType.Unpremul, testColorAlpha, new ColorRgba1010102(testColorAlpha, default).ToColor32().ToColor() },
+            //new object[] { SKColorType.Rgba1010102, SKAlphaType.Premul, testColorAlpha, new ColorRgba1010102(testColorAlpha, default).ToColor32().ToColor() },
+            //new object[] { SKColorType.Rgba1010102, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Rgb101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Rgb101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            //new object[] { "Argb4444" },
+            new object[] { SKColorType.Argb4444, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
+            new object[] { SKColorType.Argb4444, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
+            new object[] { SKColorType.Argb4444, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+
             //new object[] { "RgbaF16" },
             //new object[] { "RgbaF16Clamped" },
             //new object[] { "RgbaF32" },
@@ -126,13 +129,14 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [Test]
         public void SetGetPixelCompareTest()
         {
-            var colorType = SKColorType.Rgb101010x;
             //foreach (SKColorType colorType in Enum<SKColorType>.GetValues())
+            foreach (SKColorType colorType in new[] { SKColorType.Argb4444 })
             {
-                //if (colorType == SKColorType.Unknown)
-                //    continue;
+                if (colorType == SKColorType.Unknown)
+                    continue;
 
                 foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues())
+                //foreach (SKAlphaType alphaType in new[] { /*SKAlphaType.Opaque, */SKAlphaType.Premul, SKAlphaType.Unpremul })
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -151,14 +155,14 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                     // Pre-blending the color for opaque types because Skia handles alpha for them oddly:
                     // alpha is preserved while color is premultiplied, but when getting the pixel, the raw value is not converted back to straight color.
                     // Pre-blending also for types with discrete alpha because Skia ignores back color for them or uses an arbitrary transformation
-                    if (!info.HasAlpha || colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102)
+                    if (!info.HasAlpha || colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 or SKColorType.Argb4444)
                         testColor = testColor.Blend(Color.Black);
 
                     bitmap.SetPixel(2, 3, testColor.ToSKColor());
                     Color32 expected = bitmap.GetPixel(2, 3).ToColor32();
                     Console.Write($"{colorType}/{alphaType}: {bitmap.Info.AlphaType} ===> {testColor} -> {expected} vs. ");
 
-                    using IReadWriteBitmapData readWriteBitmapData = bitmap.GetReadWriteBitmapData();
+                    using IReadWriteBitmapData readWriteBitmapData = bitmap.GetReadWriteBitmapData(Color.Black.ToSKColor());
                     readWriteBitmapData.SetPixel(3, 4, testColor);
                     Color32 actual = readWriteBitmapData.GetPixel(3, 4).ToColor32();
                     Console.WriteLine(actual);

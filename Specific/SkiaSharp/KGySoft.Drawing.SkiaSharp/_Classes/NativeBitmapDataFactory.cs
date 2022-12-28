@@ -36,13 +36,14 @@ namespace KGySoft.Drawing.SkiaSharp
 
             var size = new Size(info.Width, info.Height);
             KnownPixelFormat knownPixelFormat = info.AsKnownPixelFormat();
-            Color32 backColor32 = backColor.ToColor32().ToOpaque();
+            Color32 backColor32 = backColor.ToColor32();
 
-            // natively supported formats
+            // Natively supported formats
             if (knownPixelFormat != KnownPixelFormat.Undefined)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownPixelFormat, backColor32, alphaThreshold, disposeCallback);
 
-            // supported custom formats
+            // Custom formats
+            // NOTE: Basically never relying on alpha threshold here because Skia does not have single bit alpha or palette supporting format (anymore).
             PixelFormatInfo pixelFormatInfo = info.GetInfo();
             return info switch
             {
@@ -62,13 +63,13 @@ namespace KGySoft.Drawing.SkiaSharp
                 { ColorType: SKColorType.Rgba8888, AlphaType: SKAlphaType.Opaque } or { ColorType: SKColorType.Rgb888x }
                     => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                         (row, x) => row.UnsafeGetRefAs<ColorRgba8888>(x).ToColor32().ToOpaque(),
-                        (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888>(x) = new ColorRgba8888(c.Blend(backColor32)),
+                        (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888>(x) = new ColorRgba8888(c.Blend(row.BitmapData.BackColor)),
                         backColor32, alphaThreshold, disposeCallback),
 
                 // Gray8
                 { ColorType: SKColorType.Gray8 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x)),
-                    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(backColor32).GetBrightness(),
+                    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor).GetBrightness(),
                     backColor32, alphaThreshold, disposeCallback),
 
                 // Rgba16161616/Unpremul
@@ -86,45 +87,65 @@ namespace KGySoft.Drawing.SkiaSharp
                 // Rgba16161616/Opaque
                 { ColorType: SKColorType.Rgba16161616, AlphaType: SKAlphaType.Opaque } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorRgba16161616>(x).ToColor32().ToOpaque(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba16161616>(x) = new ColorRgba16161616(c.Blend(backColor32)),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba16161616>(x) = new ColorRgba16161616(c.Blend(row.BitmapData.BackColor)),
                     backColor32, alphaThreshold, disposeCallback),
 
                 // Bgra1010102/Unpremul
                 { ColorType: SKColorType.Bgra1010102, AlphaType: SKAlphaType.Unpremul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorBgra1010102>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorBgra1010102>(x) = new ColorBgra1010102(c, backColor32),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorBgra1010102>(x) = new ColorBgra1010102(c),
                     backColor32, alphaThreshold, disposeCallback),
 
                 // Bgra1010102/Premul
                 { ColorType: SKColorType.Bgra1010102, AlphaType: SKAlphaType.Premul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorBgra1010102>(x).ToStraight().ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorBgra1010102>(x) = new ColorBgra1010102(c, backColor32).ToPremultiplied(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorBgra1010102>(x) = new ColorBgra1010102(c).ToPremultiplied(),
                     backColor32, alphaThreshold, disposeCallback),
 
                 // Bgra1010102/Opaque, Bgr101010x
                 { ColorType: SKColorType.Bgra1010102, AlphaType: SKAlphaType.Opaque } or { ColorType: SKColorType.Bgr101010x }
                     => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                         (row, x) => row.UnsafeGetRefAs<ColorBgra1010102>(x).ToColor32().ToOpaque(),
-                        (row, x, c) => row.UnsafeGetRefAs<ColorBgra1010102>(x) = new ColorBgra1010102(c.Blend(backColor32)),
+                        (row, x, c) => row.UnsafeGetRefAs<ColorBgra1010102>(x) = new ColorBgra1010102(c.Blend(row.BitmapData.BackColor)),
                         backColor32, alphaThreshold, disposeCallback),
 
                 // Rgba1010102/Unpremul
                 { ColorType: SKColorType.Rgba1010102, AlphaType: SKAlphaType.Unpremul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorRgba1010102>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba1010102>(x) = new ColorRgba1010102(c, backColor32),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba1010102>(x) = new ColorRgba1010102(c),
                     backColor32, alphaThreshold, disposeCallback),
 
                 // Rgba1010102/Premul
                 { ColorType: SKColorType.Rgba1010102, AlphaType: SKAlphaType.Premul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorRgba1010102>(x).ToStraight().ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba1010102>(x) = new ColorRgba1010102(c, backColor32).ToPremultiplied(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba1010102>(x) = new ColorRgba1010102(c).ToPremultiplied(),
                     backColor32, alphaThreshold, disposeCallback),
 
                 // Rgba1010102/Opaque, Rgb101010x
                 { ColorType: SKColorType.Rgba1010102, AlphaType: SKAlphaType.Opaque } or { ColorType: SKColorType.Rgb101010x }
                     => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                         (row, x) => row.UnsafeGetRefAs<ColorRgba1010102>(x).ToColor32().ToOpaque(),
-                        (row, x, c) => row.UnsafeGetRefAs<ColorRgba1010102>(x) = new ColorRgba1010102(c.Blend(backColor32)),
+                        (row, x, c) => row.UnsafeGetRefAs<ColorRgba1010102>(x) = new ColorRgba1010102(c.Blend(row.BitmapData.BackColor)),
+                        backColor32, alphaThreshold, disposeCallback),
+
+                // Argb4444/Unpremul
+                { ColorType: SKColorType.Argb4444, AlphaType: SKAlphaType.Unpremul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => row.UnsafeGetRefAs<ColorArgb4444>(x).ToColor32(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorArgb4444>(x) = new ColorArgb4444(c),
+                    backColor32, alphaThreshold, disposeCallback),
+
+                // Argb4444/Premul
+                // NOTE: Skia premultiplies the color _before_ converting the pixel format, which is optimal only for black background.
+                //       The KGySoft version premultiplies it _after_ converting, which removes finer gradients for black background but is better generally.
+                { ColorType: SKColorType.Argb4444, AlphaType: SKAlphaType.Premul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => row.UnsafeGetRefAs<ColorArgb4444>(x).ToStraight().ToColor32(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorArgb4444>(x) = new ColorArgb4444(c).ToPremultiplied(),
+                    backColor32, alphaThreshold, disposeCallback),
+
+                // Argb4444/Opaque
+                { ColorType: SKColorType.Argb4444, AlphaType: SKAlphaType.Opaque } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                        (row, x) => row.UnsafeGetRefAs<ColorArgb4444>(x).ToColor32().ToOpaque(),
+                        (row, x, c) => row.UnsafeGetRefAs<ColorArgb4444>(x) = new ColorArgb4444(c.Blend(row.BitmapData.BackColor)),
                         backColor32, alphaThreshold, disposeCallback),
 
                 _ => throw new InvalidOperationException(Res.InternalError($"{info.ColorType}/{info.AlphaType} is not supported directly. {nameof(SKBitmapExtensions.GetFallbackBitmapData)} should have been called from the caller."))

@@ -60,20 +60,16 @@ namespace KGySoft.Drawing.SkiaSharp
             | (uint)(((c.G << 2) | (c.G >> 6)) << 10)
             | (uint)((c.B << 2) | (c.B >> 6));
 
-        /// <summary>
-        /// To prevent generating only 4 possible colors for an alpha gradient, this overload considers back color with less and less strength
-        /// for the more and more transparent bands. Thus the completely opaque region will be identical with the AlphaType = Opaque mode.
-        /// </summary>
-        internal ColorBgra1010102(Color32 c, Color32 backColor)
-            : this(c.A switch
-            {
-                255 or < 64 => c,
-                >= 192 => c.Blend(backColor),
-                >= 128 => Color32.FromArgb(c.A, c.Blend(Color32.FromArgb((byte)(c.A >> 1), backColor))),
-                _ => Color32.FromArgb(c.A, c.Blend(Color32.FromArgb((byte)(c.A >> 2), backColor))),
-            })
-        {
-        }
+        //internal ColorBgra1010102(Color32 c, Color32 backColor)
+        //    : this(c.A switch
+        //    {
+        //        255 or < 64 => c,
+        //        >= 192 => c.Blend(backColor),
+        //        >= 128 => Color32.FromArgb(c.A, c.Blend(Color32.FromArgb((byte)(c.A >> 2), backColor))),
+        //        _ => Color32.FromArgb(c.A, c.Blend(Color32.FromArgb((byte)(c.A >> 3), backColor))),
+        //    })
+        //{
+        //}
 
         #endregion
 
