@@ -75,6 +75,15 @@ namespace KGySoft.Drawing.SkiaSharp
             (SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul),
             (SKColorType.RgbaF16Clamped, SKAlphaType.Premul),
             (SKColorType.RgbaF16Clamped, SKAlphaType.Opaque),
+
+            (SKColorType.Alpha8, SKAlphaType.Opaque),
+            (SKColorType.Alpha8, SKAlphaType.Premul),
+
+            (SKColorType.Alpha16, SKAlphaType.Opaque),
+            (SKColorType.Alpha16, SKAlphaType.Premul),
+
+            (SKColorType.AlphaF16, SKAlphaType.Opaque),
+            (SKColorType.AlphaF16, SKAlphaType.Premul),
         };
 
         #endregion
@@ -114,6 +123,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 // These types have alpha even with AlphaType.Opaque.
                 case SKColorType.Alpha8:
                 case SKColorType.Alpha16:
+                case SKColorType.AlphaF16:
                     info.HasAlpha = true;
                     break;
                 case SKColorType.Gray8:

@@ -187,6 +187,24 @@ namespace KGySoft.Drawing.SkiaSharp
                         (row, x, c) => row.UnsafeGetRefAs<ColorRgbaF16>(x) = new ColorRgbaF16(c.Blend(row.BitmapData.BackColor)),
                         backColor32, alphaThreshold, disposeCallback),
 
+                // Alpha8
+                { ColorType: SKColorType.Alpha8 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => new Color32(row.UnsafeGetRefAs<byte>(x), 0, 0, 0),
+                    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.A,
+                    backColor32, alphaThreshold, disposeCallback),
+
+                // Alpha16
+                { ColorType: SKColorType.Alpha16 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => new Color32((byte)(row.UnsafeGetRefAs<ushort>(x) >> 8), 0, 0, 0),
+                    (row, x, c) => row.UnsafeGetRefAs<ushort>(x) = (ushort)(c.A | (c.A << 8)),
+                    backColor32, alphaThreshold, disposeCallback),
+
+                // AlphaF16
+                { ColorType: SKColorType.AlphaF16 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => new Color32(((float)row.UnsafeGetRefAs<Half>(x)).To8Bit(), 0, 0, 0),
+                    (row, x, c) => row.UnsafeGetRefAs<Half>(x) = (Half)(c.A / 255f),
+                    backColor32, alphaThreshold, disposeCallback),
+
                 _ => throw new InvalidOperationException(Res.InternalError($"{info.ColorType}/{info.AlphaType} is not supported directly. {nameof(SKBitmapExtensions.GetFallbackBitmapData)} should have been called from the caller."))
             };
         }
