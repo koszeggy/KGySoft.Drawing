@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 
@@ -57,6 +58,40 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="color">The source color.</param>
         /// <returns>The result of the conversion.</returns>
         public static SKColor ToSKColor(this Color color) => new SKColor((uint)color.ToArgb());
+
+        #endregion
+
+        #region Internal Methods
+
+        internal static byte To8Bit(this float value)
+        {
+            if (Single.IsNaN(value))
+                return 0;
+
+            value = value * 255f + 0.5f;
+            return value < Byte.MinValue ? Byte.MinValue
+                : value > Byte.MaxValue ? Byte.MaxValue
+                : (byte)value;
+        }
+
+        internal static byte ToNonLinear8Bit(this float value) => value switch
+        {
+            <= 0f => 0,
+            <= 0.0031308f => (byte)((255f * value * 12.92f) + 0.5f),
+            < 1f => (byte)((255f * ((1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f)) + 0.5f),
+            >= 1f => 255,
+            _ => 0 // NaN
+        };
+
+        internal static float ToLinear(this float value) => value switch
+        {
+            <= 0f => 0f,
+            <= 0.04045f => value / 12.92f,
+            < 1f => MathF.Pow((value + 0.055f) / 1.055f, 2.4f),
+            >= 1f => 1f,
+            _ => 0 // NaN
+        };
+
 
         #endregion
     }

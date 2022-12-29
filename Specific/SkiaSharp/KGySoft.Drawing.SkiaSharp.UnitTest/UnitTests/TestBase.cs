@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             }
         }
 
-        protected static void SaveBitmap(string imageName, SKBitmap bitmap, [CallerMemberName] string testName = null)
+        protected static void SaveBitmap(string imageName, SKBitmap bitmap, [CallerMemberName]string testName = null!)
         {
             if (!SaveToFile)
                 return;
@@ -142,7 +142,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
             string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.png");
             using var stream = File.Create(fileName);
-            if ((bitmap.ColorType, bitmap.AlphaType) is not (SKColorType.Rgba1010102, SKAlphaType.Opaque) or (SKColorType.RgbaF16Clamped, SKAlphaType.Opaque) or (SKColorType.RgbaF16, SKAlphaType.Opaque)
+            if ((bitmap.ColorType, bitmap.AlphaType) is not ((SKColorType.Rgba1010102, SKAlphaType.Opaque) or (SKColorType.RgbaF16Clamped, SKAlphaType.Opaque) or (SKColorType.RgbaF16, SKAlphaType.Opaque) or (SKColorType.RgbaF32, SKAlphaType.Opaque))
                 && bitmap.Encode(stream, SKEncodedImageFormat.Png, 100))
                 return;
 

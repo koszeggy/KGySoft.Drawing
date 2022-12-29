@@ -71,13 +71,23 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
             //new object[] { SKColorType.Rgb101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
-            new object[] { SKColorType.Argb4444, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Argb4444, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            new object[] { SKColorType.Argb4444, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+            //new object[] { SKColorType.Argb4444, SKAlphaType.Unpremul, testColorAlpha, new ColorArgb4444(testColorAlpha).ToColor32().ToColor() },
+            //new object[] { SKColorType.Argb4444, SKAlphaType.Premul, testColorAlpha, new ColorArgb4444(testColorAlpha).ToPremultiplied().ToStraight().ToColor32().ToColor() },
+            //new object[] { SKColorType.Argb4444, SKAlphaType.Opaque, testColorAlpha, new ColorArgb4444(testColorBlended).ToColor32().ToColor() },
 
-            //new object[] { "RgbaF16" },
+            //new object[] { SKColorType.RgbaF32, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.RgbaF32, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.RgbaF32, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+
+            //new object[] { SKColorType.RgbaF16, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.RgbaF16, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
+            //new object[] { SKColorType.RgbaF16, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+
+            new object[] { SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
+            new object[] { SKColorType.RgbaF16Clamped, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
+            new object[] { SKColorType.RgbaF16Clamped, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
+
             //new object[] { "RgbaF16Clamped" },
-            //new object[] { "RgbaF32" },
             //new object[] { "Alpha8" },
             //new object[] { "Alpha16" },
             //new object[] { "AlphaF16" },
@@ -130,7 +140,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         public void SetGetPixelCompareTest()
         {
             //foreach (SKColorType colorType in Enum<SKColorType>.GetValues())
-            foreach (SKColorType colorType in new[] { SKColorType.Argb4444 })
+            foreach (SKColorType colorType in new[] { SKColorType.RgbaF16Clamped })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
@@ -140,7 +150,6 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
-
                     using var bitmap = new SKBitmap(new SKImageInfo(512, 256, colorType, alphaType));
                     if (bitmap.AlphaType != alphaType)
                         continue;

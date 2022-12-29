@@ -63,6 +63,18 @@ namespace KGySoft.Drawing.SkiaSharp
             (SKColorType.Argb4444, SKAlphaType.Unpremul),
             (SKColorType.Argb4444, SKAlphaType.Premul),
             (SKColorType.Argb4444, SKAlphaType.Opaque),
+
+            (SKColorType.RgbaF32, SKAlphaType.Unpremul),
+            (SKColorType.RgbaF32, SKAlphaType.Premul),
+            (SKColorType.RgbaF32, SKAlphaType.Opaque),
+
+            (SKColorType.RgbaF16, SKAlphaType.Unpremul),
+            (SKColorType.RgbaF16, SKAlphaType.Premul),
+            (SKColorType.RgbaF16, SKAlphaType.Opaque),
+
+            (SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul),
+            (SKColorType.RgbaF16Clamped, SKAlphaType.Premul),
+            (SKColorType.RgbaF16Clamped, SKAlphaType.Opaque),
         };
 
         #endregion
