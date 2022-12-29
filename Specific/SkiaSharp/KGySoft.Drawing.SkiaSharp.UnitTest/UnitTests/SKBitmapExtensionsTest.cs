@@ -95,9 +95,9 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             new object[] { SKColorType.AlphaF16, SKAlphaType.Premul, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
             new object[] { SKColorType.AlphaF16, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
 
-            //new object[] { "Rg88" },
-            //new object[] { "RgF16" },
-            //new object[] { "Rg1616" },
+            new object[] { SKColorType.Rg88, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorBlended.R, testColorBlended.G, 0) },
+            new object[] { SKColorType.Rg1616, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorBlended.R, testColorBlended.G, 0) },
+            new object[] { SKColorType.RgF16, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorBlended.R, testColorBlended.G, 0) },
         };
 
         #endregion
@@ -144,7 +144,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         public void SetGetPixelCompareTest()
         {
             foreach (SKColorType colorType in Enum<SKColorType>.GetValues())
-            //foreach (SKColorType colorType in new[] { SKColorType.AlphaF16 })
+            //foreach (SKColorType colorType in new[] { SKColorType.Rg1616, SKColorType.RgF16 })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;

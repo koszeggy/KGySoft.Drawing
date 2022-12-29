@@ -205,6 +205,24 @@ namespace KGySoft.Drawing.SkiaSharp
                     (row, x, c) => row.UnsafeGetRefAs<Half>(x) = (Half)(c.A / 255f),
                     backColor32, alphaThreshold, disposeCallback),
 
+                // Rg88
+                { ColorType: SKColorType.Rg88 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => row.UnsafeGetRefAs<ColorRg88>(x).ToColor32(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRg88>(x) = new ColorRg88(c.Blend(row.BitmapData.BackColor)),
+                    backColor32, alphaThreshold, disposeCallback),
+
+                // Rg1616
+                { ColorType: SKColorType.Rg1616 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => row.UnsafeGetRefAs<ColorRg1616>(x).ToColor32(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRg1616>(x) = new ColorRg1616(c.Blend(row.BitmapData.BackColor)),
+                    backColor32, alphaThreshold, disposeCallback),
+
+                // Rg16F
+                { ColorType: SKColorType.RgF16 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => row.UnsafeGetRefAs<ColorRgF16>(x).ToColor32(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgF16>(x) = new ColorRgF16(c.Blend(row.BitmapData.BackColor)),
+                    backColor32, alphaThreshold, disposeCallback),
+
                 _ => throw new InvalidOperationException(Res.InternalError($"{info.ColorType}/{info.AlphaType} is not supported directly. {nameof(SKBitmapExtensions.GetFallbackBitmapData)} should have been called from the caller."))
             };
         }
