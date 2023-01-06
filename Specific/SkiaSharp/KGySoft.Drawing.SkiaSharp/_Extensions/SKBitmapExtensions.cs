@@ -31,6 +31,18 @@ namespace KGySoft.Drawing.SkiaSharp
     /// </summary>
     public static class SKBitmapExtensions
     {
+        #region Fields
+
+        private static SKPaint? _copySourcePaint;
+
+        #endregion
+
+        #region Properties
+
+        private static SKPaint CopySourcePaint => _copySourcePaint ??= new SKPaint { BlendMode = SKBlendMode.Src };
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -60,37 +72,58 @@ namespace KGySoft.Drawing.SkiaSharp
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
             SKImageInfo imageInfo = bitmap.Info;
 
-            return imageInfo.IsDirectlySupported()
-                ? NativeBitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), imageInfo, bitmap.RowBytes, backColor, alphaThreshold, disposeCallback)
+            return NativeBitmapDataFactory.TryCreateBitmapData(bitmap.GetPixels(), imageInfo, bitmap.RowBytes, backColor, alphaThreshold, disposeCallback, out IReadWriteBitmapData? result)
+                ? result
                 : bitmap.GetFallbackBitmapData(readOnly, backColor, alphaThreshold, disposeCallback);
         }
 
         internal static IReadWriteBitmapData GetFallbackBitmapData(this SKBitmap bitmap, bool readOnly, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
-            Debug.Assert(!bitmap.Info.IsDirectlySupported());
+            Debug.Assert(!bitmap.Info.IsDirectlySupported() && bitmap.ColorSpace != null);
             SKImageInfo info = bitmap.Info;
 
-            Action<ICustomBitmapDataRow, int, Color32> rowSetColor;
-            if (readOnly)
-                rowSetColor = (_, _, _) => { };
-            else
+            var colorType = info.ColorType switch
             {
-                // Though we could use bitmap.SetPixel, it would be slower as it creates and disposes a canvas for each pixel
-                var canvas = new SKCanvas(bitmap);
-                rowSetColor = (row, x, c) => canvas.DrawPoint(x, row.Index, c.ToSKColor());
-                Action? callerDispose = disposeCallback;
-                disposeCallback = callerDispose == null
-                    ? canvas.Dispose
-                    : () =>
-                    {
-                        canvas.Dispose();
-                        callerDispose.Invoke();
-                    };
-            }
+                // For the fastest native support
+                SKColorType.Rgba8888 => SKColorType.Bgra8888,
+                SKColorType.Rgb888x => SKColorType.Bgra8888,
 
-            return BitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), new Size(info.Width, info.Height), info.RowBytes, info.GetInfo(),
-                (row, x) => bitmap.GetPixel(x, row.Index).ToColor32(), rowSetColor,
-                backColor.ToColor32(), alphaThreshold, disposeCallback);
+                // Supported custom formats
+                > SKColorType.Unknown and <= SKColorType.Bgr101010x => info.ColorType,
+
+                // Unsupported formats
+                _ => info.ColorType.GetBytesPerPixel() switch
+                {
+                    > 8 => SKColorType.RgbaF32,
+                    > 4 => SKColorType.Rgba16161616,
+                    _ => SKColorType.Bgra8888
+                }
+            };
+
+            // TODO: if there will be a native linear pixel format that can be set from ColorF, use this instead as colorSpace:
+            // bitmap.ColorSpace!.GammaIsLinear ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb()
+            var tempBitmapInfo = new SKImageInfo(info.Width, info.Height, colorType, info.AlphaType, SKColorSpace.CreateSrgb());
+
+            // We could use bitmap.SetPixel/GetPixel as custom handling but it has two issues:
+            // - The getter/setter would contain a reference back to the original bitmap, which is not allowed (eg. ruins clone or the fallback quantizer)
+            // - SKBitmap.GetPixel fails to return valid colors for non-sRGB images: https://github.com/mono/SkiaSharp/issues/2354
+            // Therefore we create a new temp bitmap, which can be handled natively.
+            // For non read-only access this is copied back to the original instance in Dispose
+            var tempBitmap = new SKBitmap(tempBitmapInfo);
+            using (var canvas = new SKCanvas(tempBitmap))
+                canvas.DrawBitmap(bitmap, 0, 0, CopySourcePaint);
+
+            return tempBitmap.GetBitmapDataInternal(readOnly, backColor, alphaThreshold, () =>
+            {
+                if (!readOnly)
+                {
+                    using var canvas = new SKCanvas(bitmap);
+                    canvas.DrawBitmap(tempBitmap, 0, 0, CopySourcePaint);
+                }
+
+                tempBitmap.Dispose();
+                disposeCallback?.Invoke();
+            });
         }
 
         #endregion

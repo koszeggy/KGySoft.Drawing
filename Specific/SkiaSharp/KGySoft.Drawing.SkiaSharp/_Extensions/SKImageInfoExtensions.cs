@@ -16,7 +16,7 @@
 #region Usings
 
 using System;
-using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
@@ -29,68 +29,6 @@ namespace KGySoft.Drawing.SkiaSharp
 {
     public static class SKImageInfoExtensions
     {
-        #region Fields
-
-        /// <summary>
-        /// These formats do not have native known support but have custom get/set pixel support
-        /// </summary>
-        private static readonly HashSet<(SKColorType, SKAlphaType)> directlySupportedCustomFormats = new()
-        {
-            (SKColorType.Rgba8888, SKAlphaType.Unpremul),
-            (SKColorType.Rgba8888, SKAlphaType.Premul),
-            (SKColorType.Rgba8888, SKAlphaType.Opaque),
-
-            (SKColorType.Rgb888x, SKAlphaType.Opaque),
-
-            (SKColorType.Gray8, SKAlphaType.Opaque),
-
-            (SKColorType.Rgba16161616, SKAlphaType.Unpremul),
-            (SKColorType.Rgba16161616, SKAlphaType.Premul),
-            (SKColorType.Rgba16161616, SKAlphaType.Opaque),
-
-            (SKColorType.Bgra1010102, SKAlphaType.Unpremul),
-            (SKColorType.Bgra1010102, SKAlphaType.Premul),
-            (SKColorType.Bgra1010102, SKAlphaType.Opaque),
-
-            (SKColorType.Bgr101010x, SKAlphaType.Opaque),
-
-            (SKColorType.Rgba1010102, SKAlphaType.Unpremul),
-            (SKColorType.Rgba1010102, SKAlphaType.Premul),
-            (SKColorType.Rgba1010102, SKAlphaType.Opaque),
-
-            (SKColorType.Rgb101010x, SKAlphaType.Opaque),
-
-            (SKColorType.Argb4444, SKAlphaType.Unpremul),
-            (SKColorType.Argb4444, SKAlphaType.Premul),
-            (SKColorType.Argb4444, SKAlphaType.Opaque),
-
-            (SKColorType.RgbaF32, SKAlphaType.Unpremul),
-            (SKColorType.RgbaF32, SKAlphaType.Premul),
-            (SKColorType.RgbaF32, SKAlphaType.Opaque),
-
-            (SKColorType.RgbaF16, SKAlphaType.Unpremul),
-            (SKColorType.RgbaF16, SKAlphaType.Premul),
-            (SKColorType.RgbaF16, SKAlphaType.Opaque),
-            (SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul),
-            (SKColorType.RgbaF16Clamped, SKAlphaType.Premul),
-            (SKColorType.RgbaF16Clamped, SKAlphaType.Opaque),
-
-            (SKColorType.Alpha8, SKAlphaType.Opaque),
-            (SKColorType.Alpha8, SKAlphaType.Premul),
-
-            (SKColorType.Alpha16, SKAlphaType.Opaque),
-            (SKColorType.Alpha16, SKAlphaType.Premul),
-
-            (SKColorType.AlphaF16, SKAlphaType.Opaque),
-            (SKColorType.AlphaF16, SKAlphaType.Premul),
-
-            (SKColorType.Rg88, SKAlphaType.Opaque),
-            (SKColorType.Rg1616, SKAlphaType.Opaque),
-            (SKColorType.RgF16, SKAlphaType.Opaque),
-        };
-
-        #endregion
-
         #region Methods
 
         #region Public Methods
@@ -143,7 +81,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal static KnownPixelFormat AsKnownPixelFormat(this SKImageInfo imageInfo)
         {
-            if (imageInfo.ColorSpace != null || imageInfo.AlphaType == SKAlphaType.Unknown)
+            if (imageInfo.ColorSpace?.IsDefaultSrgb() == false)
                 return KnownPixelFormat.Undefined;
 
             return imageInfo.ColorType switch
@@ -155,14 +93,33 @@ namespace KGySoft.Drawing.SkiaSharp
                     SKAlphaType.Opaque => KnownPixelFormat.Format32bppRgb,
                     _ => KnownPixelFormat.Undefined
                 },
-                SKColorType.Rgb565 => KnownPixelFormat.Format16bppRgb565,
+                SKColorType.Rgb565 => imageInfo.AlphaType == SKAlphaType.Opaque ? KnownPixelFormat.Format16bppRgb565 : KnownPixelFormat.Undefined,
                 _ => KnownPixelFormat.Undefined
             };
         }
 
+        [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
+        internal static void GetDirectlySupportedColorSpace(this SKImageInfo imageInfo, out bool srgb, out bool linear)
+        {
+            srgb = false;
+            linear = false;
+
+            if (imageInfo.ColorType is <= SKColorType.Unknown or > SKColorType.Bgr101010x
+                || imageInfo.AlphaType is <= SKAlphaType.Unknown or > SKAlphaType.Unpremul)
+            {
+                return;
+            }
+
+            if (srgb = imageInfo.ColorSpace.IsDefaultSrgb())
+                return;
+
+            linear = imageInfo.ColorSpace.IsDefaultLinear();
+        }
+
         internal static bool IsDirectlySupported(this SKImageInfo imageInfo)
-            => imageInfo.ColorSpace == null
-                && (imageInfo.AsKnownPixelFormat() != KnownPixelFormat.Undefined || directlySupportedCustomFormats.Contains((imageInfo.ColorType, imageInfo.AlphaType)));
+            => imageInfo.ColorType is > SKColorType.Unknown and <= SKColorType.Bgr101010x
+                && imageInfo.AlphaType is > SKAlphaType.Unknown and <= SKAlphaType.Unpremul
+                && (imageInfo.ColorSpace.IsDefaultSrgb() || imageInfo.ColorSpace.IsDefaultLinear());
 
         #endregion
 

@@ -16,24 +16,25 @@ namespace KGySoft.Drawing.SkiaSharp.PerformanceTests
     [TestFixture]
     public class SKBitmapExtensionsPerformanceTest
     {
-        [TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul)]
-        [TestCase(SKColorType.Bgra8888, SKAlphaType.Premul)]
-        [TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque)]
-        [TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul)]
-        [TestCase(SKColorType.Rgba8888, SKAlphaType.Premul)]
-        [TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque)]
-        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul)]
-        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul)]
-        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque)]
-        [TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque)]
-        public void SetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul, true)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul, false)]
+        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Premul, true)]
+        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque, true)]
+        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul, true)]
+        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Premul, true)]
+        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque, true)]
+        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul, true)]
+        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul, true)]
+        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque, true)]
+        //[TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque, true)]
+        public void SetGetPixelTest(SKColorType colorType, SKAlphaType alphaType, bool srgb)
         {
             static int Argb(int a, int l) => (a << 24) | (l << 16) | (l << 8) | l;
 
             var size = new Size(256, 256);
-            using var bmp = new SKBitmap(size.Width, size.Height, colorType, alphaType);
+            using var bmp = new SKBitmap(size.Width, size.Height, colorType, alphaType, srgb ? SKColorSpace.CreateSrgb() : SKColorSpace.CreateSrgbLinear());
 
-            new PerformanceTest { TestName = $"{colorType}/{alphaType}", Iterations = 10 }
+            new PerformanceTest { TestName = $"{colorType}/{alphaType}/{(srgb ? "Srgb" : "Linear")}", Iterations = 10 }
                 .AddCase(() =>
                 {
                     for (int y = 0; y < size.Height; y++)

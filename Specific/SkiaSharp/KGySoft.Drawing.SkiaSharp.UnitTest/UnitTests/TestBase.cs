@@ -142,12 +142,17 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
             string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}.png");
             using var stream = File.Create(fileName);
-            if ((bitmap.ColorType, bitmap.AlphaType) is not ((SKColorType.Rgba1010102, SKAlphaType.Opaque) or (SKColorType.RgbaF16Clamped, SKAlphaType.Opaque) or (SKColorType.RgbaF16, SKAlphaType.Opaque) or (SKColorType.RgbaF32, SKAlphaType.Opaque))
-                && bitmap.Encode(stream, SKEncodedImageFormat.Png, 100))
-                return;
+
+            //using SKData data = bitmap.Encode(SKEncodedImageFormat.Png, 100);
+            //data.SaveTo(stream);
+
+
+            //if ((bitmap.ColorType, bitmap.AlphaType) is not ((SKColorType.Rgba1010102, SKAlphaType.Opaque) or (SKColorType.RgbaF16Clamped, SKAlphaType.Opaque) or (SKColorType.RgbaF16, SKAlphaType.Opaque) or (SKColorType.RgbaF32, SKAlphaType.Opaque))
+            //    && bitmap.Encode(stream, SKEncodedImageFormat.Png, 100))
+            //    return;
 
             // failed to save: converting pixel format
-            using var surface = SKSurface.Create(new SKImageInfo(bitmap.Width, bitmap.Height));
+            using var surface = SKSurface.Create(new SKImageInfo(bitmap.Width, bitmap.Height, SKColorType.Bgra8888, bitmap.AlphaType, SKColorSpace.CreateSrgb()));
             surface.Canvas.DrawBitmap(bitmap, 0, 0);
             using var pixels = surface.PeekPixels();
             pixels.Encode(stream, SKEncodedImageFormat.Png, 100);

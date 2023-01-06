@@ -55,8 +55,8 @@ namespace KGySoft.Drawing.SkiaSharp
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(pixels));
 
             // shortcut: if pixel format is directly supported, then we can simply create a bitmap data for its back buffer
-            if (imageInfo.IsDirectlySupported())
-                return NativeBitmapDataFactory.CreateBitmapData(pixels.GetPixels(), imageInfo, pixels.RowBytes, backColor, alphaThreshold, disposeCallback);
+            if (NativeBitmapDataFactory.TryCreateBitmapData(pixels.GetPixels(), imageInfo, pixels.RowBytes, backColor, alphaThreshold, disposeCallback, out IReadWriteBitmapData? bitmapData))
+                return bitmapData;
 
             // otherwise, we create an SKBitmap for it, so the fallback manipulation can be used
             var bitmap = new SKBitmap();
