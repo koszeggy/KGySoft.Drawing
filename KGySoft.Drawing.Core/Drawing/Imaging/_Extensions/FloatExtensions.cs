@@ -27,10 +27,19 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static byte ClipToByte(this float value)
-            => value < Byte.MinValue ? Byte.MinValue
-                : value > Byte.MaxValue ? Byte.MaxValue
-                : (byte)value;
+        internal static byte ClipToByte(this float value) => value switch
+        {
+            >= Byte.MaxValue => Byte.MaxValue,
+            >= Byte.MinValue  => (byte)value,
+            _ => Byte.MinValue
+        };
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float Clip(this float value, float min, float max)
+            // Unlike Math.Clamp/Min/Max this returns min for NaN
+            => value >= max ? max
+                : value >= min ? value
+                : min;
 
         #endregion
     }

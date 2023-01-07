@@ -30,7 +30,7 @@ using KGySoft.Threading;
 namespace KGySoft.Drawing.Imaging
 {
     // This partial class contains GDI-independent resizing logic
-    // Credit to ImageSharp resize, on which this code partially based on (see https://github.com/SixLabors/ImageSharp/tree/master/src/ImageSharp/Processing/Processors/Transforms/Resize)
+    // Credit to ImageSharp resize, on which this code partially based on (see https://github.com/SixLabors/ImageSharp/tree/6183dd8c13a9fd044a1a045bafb30bab4f2d6049/src/ImageSharp/Processing/Processors/Transforms/Resize)
     // ImageSharp is under the GNU Affero General Public License v3.0, which is available here: https://www.gnu.org/licenses/agpl-3.0.html
     partial class BitmapDataExtensions
     {
@@ -414,7 +414,7 @@ namespace KGySoft.Drawing.Imaging
 
             private Rectangle sourceRectangle;
             private Rectangle targetRectangle;
-            private Array2D<ColorF> transposedFirstPassBuffer;
+            private Array2D<PColorF> transposedFirstPassBuffer;
             private (int Top, int Bottom) currentWindow;
 
             #endregion
@@ -436,7 +436,7 @@ namespace KGySoft.Drawing.Imaging
                 verticalKernelMap = KernelMap.Create(radius, interpolation, sourceRectangle.Height, targetRectangle.Height);
 
                 // Flipping height/width is intended (hence transposed). It contains target width and source height dimensions, which is also intended.
-                transposedFirstPassBuffer = new Array2D<ColorF>(height: targetRectangle.Width, width: sourceRectangle.Height);
+                transposedFirstPassBuffer = new Array2D<PColorF>(height: targetRectangle.Width, width: sourceRectangle.Height);
                 currentWindow = (0, sourceRectangle.Height);
 
                 CalculateFirstPassValues(currentWindow.Top, currentWindow.Bottom, true);
@@ -545,9 +545,10 @@ namespace KGySoft.Drawing.Imaging
             [MethodImpl(MethodImpl.AggressiveInlining)]
             internal void PerformResizeDirect()
             {
-                if (target.IsFastPremultiplied())
-                    PerformResizePremultiplied();
-                else
+                // TODO: if sRGB blending is allowed 
+                //if (target.IsFastPremultipliedP32()) // && !target.PrefersLinearBlending
+                //    PerformResizePremultiplied();
+                //else
                     PerformResizeDirectStraight();
             }
 
@@ -561,11 +562,11 @@ namespace KGySoft.Drawing.Imaging
 
                 void ProcessRow(int y)
                 {
-                    var sourceRowBuffer = new ArraySection<ColorF>(sourceRectangle.Width);
+                    var sourceRowBuffer = new ArraySection<PColorF>(sourceRectangle.Width);
                     IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
 
                     for (int x = 0; x < sourceRectangle.Width; x++)
-                        sourceRowBuffer.GetElementReference(x) = new ColorF(sourceRow.DoGetColor32Premultiplied(x + sourceRectangle.Left));
+                        sourceRowBuffer.GetElementReference(x) = sourceRow.DoGetColor32(x + sourceRectangle.Left).ToPColorF();
 
                     int firstPassBaseIndex = y - currentWindow.Top;
                     for (int x = 0; x < targetRectangle.Width; x++)
@@ -610,7 +611,7 @@ namespace KGySoft.Drawing.Imaging
 
             private void PerformResizeDirectStraight()
             {
-                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+                ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
@@ -625,7 +626,7 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
-                        ColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+                        PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
 
                         // fully transparent source: skip
                         if (colorF.A <= 0f)
@@ -668,58 +669,59 @@ namespace KGySoft.Drawing.Imaging
                 });
             }
 
-            private void PerformResizePremultiplied()
-            {
-                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                {
-                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                        Slide();
+            // TODO: make it work again for sRGB premultiplied blending is allowed (with public PColor32)
+            //private void PerformResizePremultiplied()
+            //{
+            //    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
+            //    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+            //    {
+            //        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+            //        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+            //            Slide();
 
-                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                    int topLine = kernel.StartIndex - currentWindow.Top;
-                    int targetWidth = targetRectangle.Width;
-                    int targetLeft = targetRectangle.Left;
-                    for (int x = 0; x < targetWidth; x++)
-                    {
-                        // Destination color components
-                        ColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+            //        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+            //        int topLine = kernel.StartIndex - currentWindow.Top;
+            //        int targetWidth = targetRectangle.Width;
+            //        int targetLeft = targetRectangle.Left;
+            //        for (int x = 0; x < targetWidth; x++)
+            //        {
+            //            // Destination color components
+            //            PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
 
-                        // fully transparent source: skip
-                        if (colorF.A <= 0f)
-                            continue;
+            //            // fully transparent source: skip
+            //            if (colorF.A <= 0f)
+            //                continue;
 
-                        Color32 colorSrc = colorF.ToColor32();
+            //            Color32 colorSrc = colorF.ToColor32();
 
-                        // fully solid source: overwrite
-                        if (colorSrc.A == Byte.MaxValue)
-                        {
-                            row.DoSetColor32Premultiplied(x + targetLeft, colorSrc);
-                            continue;
-                        }
+            //            // fully solid source: overwrite
+            //            if (colorSrc.A == Byte.MaxValue)
+            //            {
+            //                row.DoSetColor32Premultiplied(x + targetLeft, colorSrc);
+            //                continue;
+            //            }
 
-                        // checking full transparency again (means almost zero colorF.A)
-                        if (colorSrc.A == 0)
-                            continue;
+            //            // checking full transparency again (means almost zero colorF.A)
+            //            if (colorSrc.A == 0)
+            //                continue;
 
-                        // source here has a partial transparency: we need to read the target color
-                        colorSrc = colorSrc.AsValidPremultiplied();
-                        int targetX = x + targetLeft;
-                        Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
+            //            // source here has a partial transparency: we need to read the target color
+            //            colorSrc = colorSrc.AsValidPremultiplied();
+            //            int targetX = x + targetLeft;
+            //            Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
 
-                        // non-transparent target: blending
-                        if (colorDst.A != 0)
-                            colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
+            //            // non-transparent target: blending
+            //            if (colorDst.A != 0)
+            //                colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
 
-                        row.DoSetColor32Premultiplied(targetX, colorSrc);
-                    }
-                });
-            }
+            //            row.DoSetColor32Premultiplied(targetX, colorSrc);
+            //        }
+            //    });
+            //}
 
             private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
             {
-                ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+                ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
                 ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
                 {
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
@@ -735,7 +737,7 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
-                        ColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+                        PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
 
                         // fully transparent source: skip
                         if (colorF.A <= 0f)
@@ -795,7 +797,7 @@ namespace KGySoft.Drawing.Imaging
 
                 void ProcessRow(int y)
                 {
-                    ArraySection<ColorF> buffer = transposedFirstPassBuffer.Buffer;
+                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
                     ResizeKernel kernel = verticalKernelMap.GetKernel(y);
                     while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
                         Slide();
@@ -809,7 +811,7 @@ namespace KGySoft.Drawing.Imaging
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
-                        ColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+                        PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
 
                         // fully transparent source: skip
                         if (colorF.A <= 0f)
@@ -1159,14 +1161,14 @@ namespace KGySoft.Drawing.Imaging
             /// <summary>
             /// Computes the sum of colors weighted by weight values, pointed by this <see cref="ResizeKernel"/> instance.
             /// </summary>
-            internal ColorF ConvolveWith(ref ArraySection<ColorF> colors, int startIndex)
+            internal PColorF ConvolveWith(ref ArraySection<PColorF> colors, int startIndex)
             {
-                ColorF result = default;
+                PColorF result = default;
 
                 for (int i = 0; i < Length; i++)
                 {
                     float weight = kernelBuffer[i];
-                    ref ColorF c = ref colors.GetElementReference(startIndex + i);
+                    ref PColorF c = ref colors.GetElementReference(startIndex + i);
                     result += c * weight;
                 }
 

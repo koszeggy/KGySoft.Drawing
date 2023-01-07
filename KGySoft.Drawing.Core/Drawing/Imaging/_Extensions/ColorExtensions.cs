@@ -18,6 +18,9 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
 
 #endregion
@@ -29,6 +32,32 @@ namespace KGySoft.Drawing.Imaging
     /// </summary>
     public static class ColorExtensions
     {
+        #region Color32Cache class
+
+        private static class Color32ToLinearCache
+        {
+            #region Fields
+
+            internal static readonly float[] LookupTable = InitLookupTable();
+
+            #endregion
+
+            #region Methods
+
+            private static float[] InitLookupTable()
+            {
+                var result = new float[1 << 8];
+                for (int i = 0; i <= Byte.MaxValue; i++)
+                    result[i] = SrgbToLinear(i / (float)Byte.MaxValue);
+
+                return result;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #region Constants
 
         internal const float RLum = 0.299f;
@@ -60,19 +89,38 @@ namespace KGySoft.Drawing.Imaging
                 ? c.R
                 : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
 
+        // TODO: undelete
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color32 Blend(this Color32 foreColor, Color32 backColor)
+            => foreColor.A == Byte.MaxValue ? foreColor
+                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
+                : foreColor.BlendWithSrgb(backColor);
+
         /// <summary>
         /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/>.
         /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
         /// </summary>
         /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
         /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <param name="useLinearColorSpace"><see langword="true"/> to perform the blending in the linear color space, which is more accurate;
+        /// <br/><see langword="false"/> to perform the blending in the sRGB color space, which is faster and compatible with many image processing APIs but is not quite correct.</param>
         /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
-        public static Color32 Blend(this Color32 foreColor, Color32 backColor)
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color32 Blend(this Color32 foreColor, Color32 backColor, bool useLinearColorSpace)
             => foreColor.A == Byte.MaxValue ? foreColor
-                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor)
+                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor, useLinearColorSpace)
                 : foreColor.A == 0 ? backColor
                 : backColor.A == 0 ? foreColor
-                : foreColor.BlendWith(backColor);
+                : foreColor.BlendWith(backColor, useLinearColorSpace);
 
         /// <summary>
         /// Gets whether two <see cref="Color32"/> instances are equal using a specified <paramref name="tolerance"/>.
@@ -96,9 +144,54 @@ namespace KGySoft.Drawing.Imaging
             return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
         }
 
+        public static float ToFloat(byte value) => (float)value / Byte.MaxValue;
+
+        public static byte ToByte(float value)
+        {
+            value = value * Byte.MaxValue + 0.5f;
+            return value < Byte.MinValue ? Byte.MinValue
+                : value > Byte.MaxValue ? Byte.MaxValue
+                : (byte)value; // including NaN, which will be 0
+        }
+
+        public static float SrgbToLinear(byte value) => Color32ToLinearCache.LookupTable[value];
+        
+        public static float SrgbToLinear(float value) => value switch
+        {
+            // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
+            <= 0f => 0f,
+            <= 0.04045f => value / 12.92f,
+            < 1f => MathF.Pow((value + 0.055f) / 1.055f, 2.4f),
+            >= 1f => 1f,
+            _ => 0 // NaN
+        };
+
+        internal static float LinearToSrgb(float value) => value switch
+        {
+            // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
+            <= 0f => 0,
+            <= 0.0031308f => value * 12.92f,
+            < 1f => (1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f,
+            >= 1f => 255,
+            _ => 0 // NaN
+        };
+
+        internal static byte LinearToSrgb8Bit(float value) => value switch
+        {
+            // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
+            <= 0f => 0,
+            <= 0.0031308f => (byte)((Byte.MaxValue * value * 12.92f) + 0.5f),
+            < 1f => (byte)((Byte.MaxValue * ((1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f)) + 0.5f),
+            >= 1f => 255,
+            _ => 0 // NaN
+        };
+
         #endregion
 
         #region Internal Methods
+
+        internal static ColorF ToColorF(this Color32 c) => new ColorF(c);
+        internal static PColorF ToPColorF(this Color32 c) => new PColorF(c);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToPremultiplied(this Color32 c) => c.A switch
@@ -165,8 +258,11 @@ namespace KGySoft.Drawing.Imaging
                 (ushort)((uint)c.B * UInt16.MaxValue / c.A))
         };
 
+        internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor, bool linear)
+            => linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor)
+        internal static Color32 BlendWithBackgroundSrgb(this Color32 c, Color32 backColor)
         {
             Debug.Assert(c.A != 255, "Partially transparent fore color is expected. Call Blend for better performance.");
             Debug.Assert(backColor.A == 255, "Totally opaque back color is expected.");
@@ -181,8 +277,14 @@ namespace KGySoft.Drawing.Imaging
                 (byte)((c.B * c.A + backColor.B * inverseAlpha) >> 8));
         }
 
+        internal static Color32 BlendWithBackgroundLinear(this Color32 c, Color32 backColor)
+            => c.ToColorF().BlendWithBackground(backColor.ToColorF()).ToColor32();
+
+        internal static Color32 BlendWith(this Color32 src, Color32 dst, bool linear)
+            => linear ? src.BlendWithLinear(dst) : dst.BlendWithSrgb(dst);
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 BlendWith(this Color32 src, Color32 dst)
+        internal static Color32 BlendWithSrgb(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
 
@@ -207,7 +309,13 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst)
+        internal static Color32 BlendWithLinear(this Color32 src, Color32 dst)
+        {
+            throw null;
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst, bool linear)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
             int inverseAlphaSrc = 255 - src.A;
@@ -215,6 +323,52 @@ namespace KGySoft.Drawing.Imaging
                 (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
                 (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
                 (byte)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ColorF BlendWithBackground(this ColorF c, ColorF backColor)
+        {
+            if (c.A <= 0)
+                return backColor;
+            float inverseAlpha = 1f - c.A;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new ColorF(new Vector4(c.Rgb * c.A + backColor.Rgb * inverseAlpha, 1f));
+#else
+            return new ColorF(1f,
+                c.R * c.A + backColor.R * inverseAlpha,
+                c.G * c.A + backColor.G * inverseAlpha,
+                c.B * c.A + backColor.B * inverseAlpha);
+#endif
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ColorF BlendWith(this ColorF src, ColorF dst)
+        {
+            float inverseAlphaSrc = 1f - src.A;
+            float alphaOut = src.A + dst.A * inverseAlphaSrc;
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * inverseAlphaSrc) / alphaOut, alphaOut));
+#else
+            return new ColorF(alphaOut,
+                (src.R * src.A + dst.R * dst.A * inverseAlphaSrc) / alphaOut,
+                (src.G * src.A + dst.G * dst.A * inverseAlphaSrc) / alphaOut,
+                (src.B * src.A + dst.B * dst.A * inverseAlphaSrc) / alphaOut);
+#endif
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColorF BlendWith(this PColorF src, PColorF dst)
+        {
+            float inverseAlphaSrc = 1f - src.A;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new PColorF(new Vector4(src.Rgb + dst.Rgb * inverseAlphaSrc, dst.A >= 1f ? 1f : src.A + dst.A * inverseAlphaSrc));
+#else
+            return new PColorF(dst.A >= 1f ? 1f : src.A + dst.A * inverseAlphaSrc,
+                src.R + dst.R * inverseAlphaSrc,
+                src.G + dst.G * inverseAlphaSrc,
+                src.B + dst.B * inverseAlphaSrc);
+#endif
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -227,10 +381,10 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor)
+        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor, bool linear)
         {
             Debug.Assert(c1.A == 255 && backColor.A == 255);
-            return TolerantEquals(c1, c2.Blend(backColor), tolerance);
+            return TolerantEquals(c1, c2.Blend(backColor, linear), tolerance);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -278,5 +432,12 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #endregion
+
+        // TODO: delete. These are just for compatibility
+        internal static Color32 BlendWith(this Color32 src, Color32 dst) => BlendWithSrgb(src, dst);
+        internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor) => BlendWithBackgroundSrgb(c, backColor);
+        internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst) => BlendWithPremultiplied(src, dst, default);
+        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor) => TolerantEquals(c1, c2, tolerance, backColor, default);
+
     }
 }

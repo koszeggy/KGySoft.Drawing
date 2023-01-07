@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents the same 32-bit ARGB color as the <see cref="Color"/> structure does but in a more optimized way
+    /// Represents the same 32-bit sRGB color as the <see cref="Color"/> structure does but in a more optimized way
     /// for better performance and smaller memory consumption.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]

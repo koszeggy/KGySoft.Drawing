@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorF.cs
+//  File: PColorF.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Numerics;
 #endif
@@ -26,7 +27,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal readonly struct ColorF
+    internal readonly struct PColorF
     {
         #region Fields
 
@@ -66,12 +67,48 @@ namespace KGySoft.Drawing.Imaging
 
         //#endregion
 
+        #region Operators
+
+        /// <summary>
+        /// Multiplies a <see cref="PColorF"/> by the given scalar.
+        /// </summary>
+        /// <param name="left">The source color.</param>
+        /// <param name="right">The scalar value.</param>
+        /// <returns>The scaled color.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColorF operator *(PColorF left, float right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new PColorF(left.Rgba * new Vector4(right));
+#else
+            return new PColorF(left.A * right, left.R * right, left.G * right, left.B * right);
+#endif
+        }
+
+        /// <summary>
+        /// Adds two colors together.
+        /// </summary>
+        /// <param name="left">The first source color.</param>
+        /// <param name="right">The second source color.</param>
+        /// <returns>The summed color.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColorF operator +(PColorF left, PColorF right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new PColorF(left.Rgba + right.Rgba);
+#else
+            return new PColorF(left.A + right.A, left.R + right.R, left.G + right.G, left.B + right.B);
+#endif
+        }
+
+        #endregion
+
         #region Constructors
 
         #region Public Constructors
 
         // does not validate values for performance reasons but you can call IsValid or Clip
-        public ColorF(float a, float r, float g, float b)
+        public PColorF(float a, float r, float g, float b)
 #if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing the vector fields
 #endif
@@ -85,26 +122,14 @@ namespace KGySoft.Drawing.Imaging
             A = a;
         }
 
-        public ColorF(Color32 c)
-#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
-            : this() // so the compiler does not complain about not initializing value field
-#endif
-        {
-#if NET5_0_OR_GREATER
-            Unsafe.SkipInit(out this);
-#endif
-            R = ColorExtensions.SrgbToLinear(c.R);
-            G = ColorExtensions.SrgbToLinear(c.G);
-            B = ColorExtensions.SrgbToLinear(c.B);
-            A = ColorExtensions.ToFloat(c.A);
-        }
+        public PColorF(Color32 c) => this = c.ToColorF().ToPremultiplied();
 
         #endregion
 
         #region Internal Constructors
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-        internal ColorF(Vector4 vector)
+        internal PColorF(Vector4 vector)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing ARGB fields
 #endif
@@ -123,29 +148,30 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-        public ColorF Clip() => new ColorF(Vector4.Clamp(Rgba, Vector4.Zero, Vector4.One));
+        public PColorF Clip() => new PColorF(Vector4.Clamp(Rgba, Vector4.Zero, new Vector4(A.Clip(0f, 1f))));
 #else
-        public ColorF Clip() => new ColorF(A.Clip(0f, 1f), R.Clip(0f, 1f), G.Clip(0f, 1f), B.Clip(0f, 1f));
+        public PColorF Clip()
+        {
+            float a = A.Clip(0f, 1f);
+            return new PColorF(a, R.Clip(0f, a), G.Clip(0f, a), B.Clip(0f, a));
+        }
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public Color32 ToColor32() => new Color32(ColorExtensions.ToByte(A),
-            ColorExtensions.LinearToSrgb8Bit(R),
-            ColorExtensions.LinearToSrgb8Bit(G),
-            ColorExtensions.LinearToSrgb8Bit(B));
+        public Color32 ToColor32() => ToStraight().ToColor32();
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public PColorF ToPremultiplied() => new PColorF(new Vector4(Rgb * A, A));
+        public ColorF ToStraight() => new ColorF(new Vector4(Rgb / A, A));
 #else
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public PColorF ToPremultiplied() => new PColorF(A, R * A, G * A, B * A);
+        public ColorF ToStraight() => new ColorF(A, R / A, G / A, B / A);
 #endif
 
         /// <summary>
-        /// Gets the string representation of this <see cref="ColorF"/> instance.
+        /// Gets the string representation of this <see cref="PColorF"/> instance.
         /// </summary>
-        /// <returns>A <see cref="string"/> that represents this <see cref="ColorF"/> instance.</returns>
+        /// <returns>A <see cref="string"/> that represents this <see cref="PColorF"/> instance.</returns>
         public override string ToString() => $"[A={A:N4}; R={R:N4}; G={G:N4}; B={B:N4}]";
 
         #endregion
