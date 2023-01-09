@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Imaging
                     ? quantizingFunction.Invoke(c)
                     : c.A < AlphaThreshold
                         ? default
-                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor));
+                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.linearBlending));
 
             #endregion
         }
@@ -238,9 +238,10 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly Func<Color32, Color32>? quantizingFunction;
+        private readonly Func<Size, IBitmapDataInternal>? compatibleBitmapDataFactory;
         private readonly bool blendAlphaBeforeQuantize;
         private readonly bool isGrayscale;
-        private readonly Func<Size, IBitmapDataInternal>? compatibleBitmapDataFactory;
+        private readonly bool linearBlending;
 
         #endregion
 
@@ -327,6 +328,21 @@ namespace KGySoft.Drawing.Imaging
             PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
             BackColor = customBitmapData.BackColor;
             AlphaThreshold = customBitmapData.AlphaThreshold;
+        }
+
+        private PredefinedColorsQuantizer(PredefinedColorsQuantizer original, bool useLinearBlending)
+        {
+            quantizingFunction = original.quantizingFunction;
+            compatibleBitmapDataFactory = original.compatibleBitmapDataFactory;
+            blendAlphaBeforeQuantize = original.blendAlphaBeforeQuantize;
+            isGrayscale = original.isGrayscale;
+            PixelFormatHint = original.PixelFormatHint;
+            BackColor = original.BackColor;
+            AlphaThreshold = original.AlphaThreshold;
+            Palette = original.Palette == null ? null
+                : original.Palette.UseLinearBlending == useLinearBlending ? original.Palette
+                : new Palette(original.Palette, useLinearBlending);
+            linearBlending = useLinearBlending;
         }
 
         #endregion
@@ -797,7 +813,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="Palette.Rgb332"/>
+        /// <seealso cref="o:Palette.Rgb332"/>
         public static PredefinedColorsQuantizer Rgb332(Color backColor = default, bool directMapping = false)
             => new PredefinedColorsQuantizer(Palette.Rgb332(new Color32(backColor), directMapping));
 
@@ -855,7 +871,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="Palette.Grayscale256"/>
+        /// <seealso cref="o:Palette.Grayscale256"/>
         public static PredefinedColorsQuantizer Grayscale(Color backColor = default) => new PredefinedColorsQuantizer(Palette.Grayscale256(new Color32(backColor)));
 
         /// <summary>
@@ -939,7 +955,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="Palette.Grayscale16"/>
+        /// <seealso cref="o:Palette.Grayscale16"/>
         public static PredefinedColorsQuantizer Grayscale16(Color backColor = default, bool directMapping = false)
             => new PredefinedColorsQuantizer(Palette.Grayscale16(new Color32(backColor), directMapping));
 
@@ -1037,7 +1053,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="Palette.Grayscale4"/>
+        /// <seealso cref="o:Palette.Grayscale4"/>
         public static PredefinedColorsQuantizer Grayscale4(Color backColor = default, bool directMapping = false)
             => new PredefinedColorsQuantizer(Palette.Grayscale4(new Color32(backColor), directMapping));
 
@@ -1134,7 +1150,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="Palette.BlackAndWhite"/>
+        /// <seealso cref="o:Palette.BlackAndWhite"/>
         public static PredefinedColorsQuantizer BlackAndWhite(Color backColor = default, byte whiteThreshold = 128)
             => new PredefinedColorsQuantizer(Palette.BlackAndWhite(new Color32(backColor), whiteThreshold));
 
@@ -1233,7 +1249,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="Palette.SystemDefault8BppPalette"/>
+        /// <seealso cref="o:Palette.SystemDefault8BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault8BppPalette(Color backColor = default, byte alphaThreshold = 128)
             => new PredefinedColorsQuantizer(Palette.SystemDefault8BppPalette(new Color32(backColor), alphaThreshold));
 
@@ -1315,7 +1331,7 @@ namespace KGySoft.Drawing.Imaging
         /// </item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="Palette.SystemDefault4BppPalette"/>
+        /// <seealso cref="o:Palette.SystemDefault4BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault4BppPalette(Color backColor = default)
             => new PredefinedColorsQuantizer(Palette.SystemDefault4BppPalette(new Color32(backColor)));
 
@@ -1334,7 +1350,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>For more details and examples see the <strong>Examples</strong> section of the <see cref="BlackAndWhite">BlackAndWhite</see> method.</note></para>
         /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
         /// </remarks>
-        /// <seealso cref="Palette.SystemDefault1BppPalette"/>
+        /// <seealso cref="o:Palette.SystemDefault1BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault1BppPalette(Color backColor = default)
             => new PredefinedColorsQuantizer(Palette.SystemDefault1BppPalette(new Color32(backColor)));
 
@@ -1355,7 +1371,7 @@ namespace KGySoft.Drawing.Imaging
         /// the colors specified in the <paramref name="palette"/> parameter. When quantizing, best matching colors might be looked up sequentially and results
         /// might be cached.</para>
         /// <para>If a color to be quantized can be mapped to a color index directly, then create a <see cref="Palette"/> instance explicitly,
-        /// specifying the custom mapping logic and use the <see cref="FromCustomPalette(Palette)"/> overload instead.</para>
+        /// specifying the custom mapping logic and use the <see cref="o:FromCustomPalette"/> overload instead.</para>
         /// <para>If a color to be quantized can be transformed to a result color directly, and the quantized result is not needed to be an indexed image,
         /// then use the <see cref="O:KGySoft.Drawing.Imaging.PredefinedColorsQuantizer.FromCustomFunction">FromCustomFunction</see> overloads instead.</para>
         /// </remarks>
@@ -1466,7 +1482,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
         /// <para>The quantizer returned by this method does not have a palette. If you need to create an indexed result using a custom mapping function that
-        /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Palette)"/> method instead.</para>
+        /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="o:FromCustomPalette"/> method instead.</para>
         /// <para>This overload never calls the <paramref name="quantizingFunction"/> delegate with a color with alpha. Depending on <paramref name="alphaThreshold"/> either a completely
         /// transparent color will be returned or the color will be blended with <paramref name="backColor"/> before invoking the delegate.
         /// In order to allow invoking <paramref name="quantizingFunction"/> with alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32},KnownPixelFormat)"/> overload instead.</para>
@@ -1524,7 +1540,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
         /// <para>The quantizer returned by this method does not have a palette. If you need to create an indexed result using a custom mapping function that
-        /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Palette)"/> method instead.</para>
+        /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="o:FromCustomPalette"/> method instead.</para>
         /// <para>This overload always calls the <paramref name="quantizingFunction"/> delegate without preprocessing the input colors.
         /// In order to pass only opaque colors to the <paramref name="quantizingFunction"/> delegate use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, KnownPixelFormat, byte)"/> overload instead.</para>
         /// </remarks>
@@ -1585,7 +1601,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppGrayScale"/>,
         /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is an indexed format,
-        /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Palette)"/> method using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
+        /// then this method returns the same quantizer as the <see cref="o:FromCustomPalette"/> method using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
         /// <para>If none of above and the <paramref name="bitmapData"/> has been created by one of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods
         /// that create bitmap data with custom pixel format, then a special quantizer is returned that produces exactly the same colors as the specified <paramref name="bitmapData"/>.</para>
         /// <para>Otherwise, this method returns either the same quantizer as the <see cref="Argb8888">Argb8888</see> method (if the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> supports alpha);
@@ -1684,12 +1700,30 @@ namespace KGySoft.Drawing.Imaging
 
         #region Instance Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.PrefersLinearBlending">IBitmapData.PrefersLinearBlending</see> property for details.
+        /// </summary>
+        /// <param name="preferLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.
+        /// <br/>It may have no effect if this <see cref="OptimizedPaletteQuantizer"/> was created from a custom function or from a <see cref="Imaging.Palette"/> that uses a custom function.</param>
+        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>
+        public PredefinedColorsQuantizer ConfigureBlendingMode(bool preferLinearBlending)
+            => preferLinearBlending == linearBlending ? this : new PredefinedColorsQuantizer(this, preferLinearBlending);
+
+        #endregion
+
+        #region Explicitly Implemented Interface Methods
+
         IQuantizingSession IQuantizer.Initialize(IReadableBitmapData source, IAsyncContext? context)
             => compatibleBitmapDataFactory == null
                 ? Palette != null
                     ? new QuantizingSessionIndexed(this, Palette)
                     : new QuantizingSessionCustomMapping(this, quantizingFunction!)
                 : new QuantizingSessionByCustomBitmapData(this, compatibleBitmapDataFactory);
+
+        #endregion
 
         #endregion
 

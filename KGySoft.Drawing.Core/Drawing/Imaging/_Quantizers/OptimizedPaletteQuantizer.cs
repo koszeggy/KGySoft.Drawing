@@ -249,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
                 } while (row.MoveNextRow());
 
                 Color32[]? palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.UseLinearBlending, null);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.linearBlending, null);
             }
 
             #endregion
@@ -265,6 +265,7 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly Algorithm algorithm;
         private readonly byte? bitLevel;
+        private readonly bool linearBlending;
 
         #endregion
 
@@ -328,10 +329,11 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
         }
 
-        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel)
+        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel, bool useLinearBlending)
             : this(original.algorithm, original.MaxColors, original.BackColor, original.AlphaThreshold)
         {
             this.bitLevel = bitLevel;
+            linearBlending = useLinearBlending;
         }
 
         #endregion
@@ -485,8 +487,17 @@ namespace KGySoft.Drawing.Imaging
                 return this;
             if (bitLevel is < 1 or > 8)
                 throw new ArgumentOutOfRangeException(nameof(bitLevel), PublicResources.ArgumentMustBeBetween(1, 8));
-            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel);
+            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, linearBlending);
         }
+
+        /// <summary>
+        /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.PrefersLinearBlending">IBitmapData.PrefersLinearBlending</see> property for details.
+        /// </summary>
+        /// <param name="useLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.</param>
+        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>
+        public OptimizedPaletteQuantizer ConfigureBlendingMode(bool useLinearBlending)
+            => useLinearBlending == linearBlending ? this : new OptimizedPaletteQuantizer(this, bitLevel, useLinearBlending);
 
         #endregion
 

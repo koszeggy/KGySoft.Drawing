@@ -390,6 +390,9 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
+        // NOTE: should not be a public constructor because it has no effect if customGetNearestColorIndex is set
+        internal Palette(Palette palette, bool useLinearBlending) : this(palette, palette.BackColor, palette.AlphaThreshold) => UseLinearBlending = useLinearBlending;
+
         internal Palette(Color32[] entries, Color32 backColor, byte alphaThreshold, bool useLinearBlending, Func<Color32, int>? customGetNearestColorIndex)
         {
             Entries = entries ?? throw new ArgumentNullException(nameof(entries), PublicResources.ArgumentNull);

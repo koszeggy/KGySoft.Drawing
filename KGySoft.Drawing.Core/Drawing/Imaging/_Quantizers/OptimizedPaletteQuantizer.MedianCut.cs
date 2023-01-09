@@ -42,7 +42,6 @@ namespace KGySoft.Drawing.Imaging
 
             private sealed class ColorBucket
             {
-
                 #region Nested Classes
 
                 #region RedComparer class
