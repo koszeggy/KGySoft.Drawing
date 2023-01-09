@@ -249,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
                 } while (row.MoveNextRow());
 
                 Color32[]? palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.UseLinearBlending, null);
             }
 
             #endregion
