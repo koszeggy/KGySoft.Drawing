@@ -93,10 +93,10 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
-            R = ColorExtensions.SrgbToLinear(c.R);
-            G = ColorExtensions.SrgbToLinear(c.G);
-            B = ColorExtensions.SrgbToLinear(c.B);
-            A = ColorExtensions.ToFloat(c.A);
+            R = ColorSpaceHelper.SrgbToLinear(c.R);
+            G = ColorSpaceHelper.SrgbToLinear(c.G);
+            B = ColorSpaceHelper.SrgbToLinear(c.B);
+            A = ColorSpaceHelper.ToFloat(c.A);
         }
 
         #endregion
@@ -129,10 +129,10 @@ namespace KGySoft.Drawing.Imaging
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public Color32 ToColor32() => new Color32(ColorExtensions.ToByte(A),
-            ColorExtensions.LinearToSrgb8Bit(R),
-            ColorExtensions.LinearToSrgb8Bit(G),
-            ColorExtensions.LinearToSrgb8Bit(B));
+        public Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(A),
+            ColorSpaceHelper.LinearToSrgb8Bit(R),
+            ColorSpaceHelper.LinearToSrgb8Bit(G),
+            ColorSpaceHelper.LinearToSrgb8Bit(B));
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]
