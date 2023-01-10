@@ -129,6 +129,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly IAsyncContext asyncContext;
             private readonly IQuantizer quantizer;
             private readonly bool reportOverallProgress;
+            private readonly bool useLinearBlending;
 
             private IEnumerator<IReadableBitmapData>? inputFramesEnumerator;
             private IEnumerator<TimeSpan>? delayEnumerator;
@@ -140,6 +141,7 @@ namespace KGySoft.Drawing.Imaging
             private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame, current;
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) deltaBuffer;
 
+            // Items in quantizerProperties are used only when transparency is supported, do not add other items for other cases
             private (bool Initialized, bool SupportsTransparency, Color32 BackColor, byte AlphaThreshold) quantizerProperties;
             private IQuantizer? deltaBufferQuantizer;
             private int count;
@@ -170,7 +172,7 @@ namespace KGySoft.Drawing.Imaging
                     if (!quantizerProperties.Initialized)
                         CanUseDeltaByTransparentMask(null);
 
-                    Debug.Assert(config.Quantizer == null || !quantizerProperties.SupportsTransparency, "Not expected to be called if transparency not supported");
+                    Debug.Assert(config.Quantizer == null || !quantizerProperties.SupportsTransparency, "Not expected to be called if transparency is not supported");
                     return quantizerProperties.BackColor;
                 }
             }
@@ -200,6 +202,7 @@ namespace KGySoft.Drawing.Imaging
                 reportOverallProgress = asyncContext.Progress != null && config.ReportOverallProgress != false;
                 this.asyncContext = asyncContext.Progress != null && config.ReportOverallProgress == true ? new SuppressSubTaskProgressContext(asyncContext) : asyncContext;
                 quantizer = config.Quantizer ?? OptimizedPaletteQuantizer.Wu();
+                useLinearBlending = quantizer.PrefersLinearBlending() ?? false;
             }
 
             #endregion
@@ -942,7 +945,8 @@ namespace KGySoft.Drawing.Imaging
                 if (CanUseDeltaByTransparentMask(null))
                 {
                     Debug.Assert(quantizerProperties.SupportsTransparency);
-                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
+                        default, default, useLinearBlending, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location);
                     if (asyncContext.IsCancellationRequested)
                         return (quantizedFrame, default, default);
@@ -964,8 +968,10 @@ namespace KGySoft.Drawing.Imaging
                 else if (CanUseDeltaByClipping())
                 {
                     Debug.Assert(contentArea.Size == logicalScreenSize);
-                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb);
-                    preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??= PredefinedColorsQuantizer.Rgb888(quantizerProperties.BackColor.ToColor()));
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb,
+                        default, 0, useLinearBlending, null);
+                    preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??=
+                        PredefinedColorsQuantizer.Rgb888(quantizerProperties.BackColor.ToColor()).ConfigureBlendingMode(useLinearBlending));
                 }
                 // if no delta is allowed, then clearing before all frames with transparency
                 else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency())
@@ -1099,7 +1105,8 @@ namespace KGySoft.Drawing.Imaging
 
                             // Here we can't quantize the source: using a 32bpp image data
                             preparedQuantizer = null;
-                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
+                                default, default, useLinearBlending, null);
                             inputFrame.DoCopyTo(asyncContext, preparedFrame, location);
 
                             break;
@@ -1107,7 +1114,9 @@ namespace KGySoft.Drawing.Imaging
                         // Resizing: due to interpolation this is always performed without quantizing
                         case AnimationFramesSizeHandling.Resize:
                             preparedQuantizer = null;
-                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppPArgb);
+                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize,
+                                useLinearBlending ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
+                                default, default, useLinearBlending, null);
                             inputFrame.DoDrawInto(asyncContext, preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
 

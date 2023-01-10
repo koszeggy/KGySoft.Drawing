@@ -106,6 +106,19 @@ namespace KGySoft.Drawing.Imaging
         byte AlphaThreshold { get; }
 
         /// <summary>
+        /// Gets a hint whether this <see cref="IBitmapData"/> instance prefers performing blending in the linear color space,
+        /// even if its pixel format is in the sRGB, or other non-linear color space. Some operations such as setting alpha pixels,
+        /// or drawing into this instance may respect the value of this property.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">GetReadWriteBitmapData</a> extension method for details and examples.
+        /// <br/>Default value: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented)
+        /// </summary>
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
+        bool PrefersLinearBlending { get; }
+#else
+        bool PrefersLinearBlending => false;
+#endif
+
+        /// <summary>
         /// Gets whether this <see cref="IBitmapData"/> instance is disposed.
         /// </summary>
         bool IsDisposed { get; }

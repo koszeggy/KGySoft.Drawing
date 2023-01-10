@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OptimizedPaletteQuantizer.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -249,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
                 } while (row.MoveNextRow());
 
                 Color32[]? palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.linearBlending, null);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.LinearBlending, null);
             }
 
             #endregion
@@ -265,7 +265,6 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly Algorithm algorithm;
         private readonly byte? bitLevel;
-        private readonly bool linearBlending;
 
         #endregion
 
@@ -308,6 +307,12 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Properties
+
+        internal bool LinearBlending { get; }
+
+        #endregion
+
         #region Explicitly Implemented Interface Properties
 
         bool IQuantizer.InitializeReliesOnContent => true;
@@ -333,7 +338,7 @@ namespace KGySoft.Drawing.Imaging
             : this(original.algorithm, original.MaxColors, original.BackColor, original.AlphaThreshold)
         {
             this.bitLevel = bitLevel;
-            linearBlending = useLinearBlending;
+            LinearBlending = useLinearBlending;
         }
 
         #endregion
@@ -487,7 +492,7 @@ namespace KGySoft.Drawing.Imaging
                 return this;
             if (bitLevel is < 1 or > 8)
                 throw new ArgumentOutOfRangeException(nameof(bitLevel), PublicResources.ArgumentMustBeBetween(1, 8));
-            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, linearBlending);
+            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, LinearBlending);
         }
 
         /// <summary>
@@ -497,7 +502,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="useLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.</param>
         /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>
         public OptimizedPaletteQuantizer ConfigureBlendingMode(bool useLinearBlending)
-            => useLinearBlending == linearBlending ? this : new OptimizedPaletteQuantizer(this, bitLevel, useLinearBlending);
+            => useLinearBlending == LinearBlending ? this : new OptimizedPaletteQuantizer(this, bitLevel, useLinearBlending);
 
         #endregion
 

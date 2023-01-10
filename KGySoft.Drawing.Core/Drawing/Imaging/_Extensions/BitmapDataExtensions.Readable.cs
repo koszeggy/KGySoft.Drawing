@@ -2381,7 +2381,8 @@ namespace KGySoft.Drawing.Imaging
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
-                : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(), source.BackColor, source.AlphaThreshold, source.Palette);
+                : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(),
+                    source.BackColor, source.AlphaThreshold, source.PrefersLinearBlending, source.Palette);
             bool canceled = false;
             try
             {
@@ -2416,13 +2417,14 @@ namespace KGySoft.Drawing.Imaging
             {
                 int bpp = pixelFormat.ToBitsPerPixel();
                 if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
-                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold ? source.Palette : new Palette(source.Palette.Entries, backColor, alphaThreshold);
+                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold ? source.Palette : new Palette(source.Palette.Entries, backColor, alphaThreshold, source.Palette.UseLinearBlending, null);
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat.AsKnownPixelFormatInternal == pixelFormat
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
-                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(), backColor, alphaThreshold, palette);
+                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(),
+                    backColor, alphaThreshold, source.PrefersLinearBlending, palette);
             bool canceled = false;
             try
             {
@@ -2485,7 +2487,9 @@ namespace KGySoft.Drawing.Imaging
                         throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
 
                     session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-                    session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
+                    session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat,
+                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizer.PrefersLinearBlending(source),
+                        quantizingSession.Palette);
 
                     // quantizing without dithering
                     if (ditherer == null)
@@ -2670,8 +2674,7 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle,
-                    target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb);
+                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredBlendingPixelFormat(quantizer));
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -2735,8 +2738,6 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
-            Justification = "It would be OK without the frequent context.IsCancellationRequested checks, it's not worth the refactoring")]
         private static void DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
         {
             Debug.Assert(sourceRectangle.Size != targetRectangle.Size || scalingMode == ScalingMode.NoScaling, $"{nameof(DoDrawWithoutResize)} could have been called");
@@ -2762,10 +2763,11 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform resize (with or without blending) before quantizing/dithering
             if (isTwoPass)
             {
+                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredBlendingPixelFormat(quantizer);
                 sessionTarget = source.HasMultiLevelAlpha()
-                    ? DoCloneDirect(context, target, actualTargetRectangle,
-                        target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb)
-                    : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, KnownPixelFormat.Format32bppPArgb);
+                    ? DoCloneDirect(context, target, actualTargetRectangle, sessionTargetPixelFormat)
+                    : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, sessionTargetPixelFormat,
+                        default, default, quantizer.PrefersLinearBlending(target), null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();

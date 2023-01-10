@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: UnmanagedCustomBitmapDataIndexed.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -78,12 +77,11 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [SecurityCritical]
-        internal UnmanagedCustomBitmapDataIndexed(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
-            Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex,
-            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(buffer, size, stride, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, disposeCallback, palette, trySetPaletteCallback)
+        internal UnmanagedCustomBitmapDataIndexed(IntPtr buffer, int stride, in BitmapDataConfig cfg,
+            Func<ICustomBitmapDataRow, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow, int, int> rowSetColorIndex)
+            : base(buffer, stride, cfg)
         {
-            Debug.Assert(pixelFormat.Indexed);
+            Debug.Assert(cfg.PixelFormat.Indexed);
 
             this.rowGetColorIndex = rowGetColorIndex;
             this.rowSetColorIndex = rowSetColorIndex;

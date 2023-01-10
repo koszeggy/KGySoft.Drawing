@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData1DArrayBase`2.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,8 +15,6 @@
 
 #region Usings
 
-using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
@@ -31,14 +29,13 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Constructors
 
-        protected ManagedBitmapData1DArrayBase(Size size, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 0, Palette? palette = null)
-            : base(size, pixelFormat, backColor, alphaThreshold, palette)
+        protected ManagedBitmapData1DArrayBase(in BitmapDataConfig cfg)
+            : base(cfg)
         {
         }
 
-        protected ManagedBitmapData1DArrayBase(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
-            : base(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+        protected ManagedBitmapData1DArrayBase(Array2D<T> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 

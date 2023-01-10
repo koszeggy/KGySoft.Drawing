@@ -582,7 +582,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 stride = pixelFormat.GetByteWidth(size.Width);
 
                 // Creating custom bitmap data with optimized palette
-                palette = optimizedReferenceBitmapData.Palette ?? new Palette(optimizedReferenceBitmapData.GetColors().ToArray());
+                palette = optimizedReferenceBitmapData.Palette ?? new Palette(optimizedReferenceBitmapData.GetColors());
 #if NET35
                 IntPtr bufferOptimized = Marshal.AllocHGlobal(stride * size.Height);
                 using IReadWriteBitmapData bitmapDataOptimizedPalette = BitmapDataFactory.CreateBitmapData(bufferOptimized, size, stride, pixelFormat, getColorIndex, setColorIndex, palette, null, () => Marshal.FreeHGlobal(bufferOptimized));
@@ -599,5 +599,39 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         #endregion
 
         #endregion
+
+        [Test]
+        public void Test()
+        {
+            throw new NotImplementedException();
+            //using (var bitmapData = GenerateAlphaGradientBitmapData(new Size(512, 256)))
+            //{
+            //    var row = bitmapData.FirstRow;
+            //    while (row.MoveNextRow())
+            //    {
+            //        for (int x = 0; x < row.Width; x++)
+            //        {
+            //            row[x] = row[x].BlendWithBackground(Color32.White);
+            //        }
+            //    }
+
+            //    SaveBitmapData("sRGB", bitmapData);
+            //}
+
+            //using (var bitmapData = GenerateAlphaGradientBitmapData(new Size(512, 256)))
+            //{
+            //    var black = Color32.White.ToLinearColorF();
+            //    var row = bitmapData.FirstRow;
+            //    while (row.MoveNextRow())
+            //    {
+            //        for (int x = 0; x < row.Width; x++)
+            //        {
+            //            row[x] = row[x].ToLinearColorF().BlendWithBackground(black).ToSrgbColor32();
+            //        }
+            //    }
+
+            //    SaveBitmapData("Linear", bitmapData);
+            //}
+        }
     }
 }

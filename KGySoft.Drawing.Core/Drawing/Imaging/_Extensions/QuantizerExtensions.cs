@@ -54,6 +54,24 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Methods
+
+        internal static bool? PrefersLinearBlending(this IQuantizer? quantizer) => quantizer switch
+        {
+            PredefinedColorsQuantizer pq => pq.LinearBlending,
+            OptimizedPaletteQuantizer oq => oq.LinearBlending,
+            _ => null
+        };
+
+        internal static bool PrefersLinearBlending(this IQuantizer? quantizer, IBitmapData bitmapData) => quantizer switch
+        {
+            PredefinedColorsQuantizer pq => pq.LinearBlending,
+            OptimizedPaletteQuantizer oq => oq.LinearBlending,
+            _ => bitmapData.PrefersLinearBlending
+        };
+
+        #endregion
+
         #region Private Methods
 
         private static IQuantizingSession? DoInitializeSessionAsync(IAsyncContext context, IReadableBitmapData source, IQuantizer quantizer)

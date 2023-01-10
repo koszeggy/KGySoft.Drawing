@@ -199,7 +199,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal ClippedBitmapData(IBitmapData source, Rectangle clippingRegion, bool disposeSource)
-            : base(clippingRegion.Size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette, null, null)
+            : base(new BitmapDataConfig(clippingRegion.Size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.PrefersLinearBlending, source.Palette))
         {
             disposeBitmapData = disposeSource;
 

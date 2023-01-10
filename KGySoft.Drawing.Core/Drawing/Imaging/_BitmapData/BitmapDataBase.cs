@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -60,6 +60,7 @@ namespace KGySoft.Drawing.Imaging
         public bool IsDisposed { get; private set; }
         public bool CanSetPalette => PixelFormat.Indexed && Palette != null && AllowSetPalette;
         public virtual bool IsCustomPixelFormat => PixelFormat.IsCustomFormat;
+        public bool PrefersLinearBlending { get; }
 
         #endregion
 
@@ -113,8 +114,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        protected BitmapDataBase(Size size, PixelFormatInfo pixelFormat, Color32 backColor = default, byte alphaThreshold = 128,
-            Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
+        protected BitmapDataBase(in BitmapDataConfig cfg)
         {
             #region Local Methods
 
@@ -122,47 +122,49 @@ namespace KGySoft.Drawing.Imaging
             {
                 var entries = new Color32[1 << bpp];
                 palette.Entries.CopyTo(entries, 0);
-                return new Palette(entries, palette.BackColor, palette.AlphaThreshold);
+                return new Palette(entries, palette.BackColor, palette.AlphaThreshold, palette.UseLinearBlending, null);
             }
 
             #endregion
 
-            Debug.Assert(size.Width > 0 && size.Height > 0, "Non-empty size expected");
-            Debug.Assert(pixelFormat.BitsPerPixel is > 0 and <= 128);
-            Debug.Assert(palette == null || palette.BackColor == backColor.ToOpaque() && palette.AlphaThreshold == alphaThreshold);
+            Debug.Assert(cfg.Size.Width > 0 && cfg.Size.Height > 0, "Non-empty size expected");
+            Debug.Assert(cfg.PixelFormat.BitsPerPixel is > 0 and <= 128);
+            Debug.Assert(cfg.Palette == null|| cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
+                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.UseLinearBlending == cfg.PreferLinearBlending);
 
-            this.disposeCallback = disposeCallback;
-            this.trySetPaletteCallback = trySetPaletteCallback;
-            Width = size.Width;
-            Height = size.Height;
-            BackColor = backColor.ToOpaque();
-            AlphaThreshold = alphaThreshold;
-            PixelFormat = pixelFormat;
-            if (!pixelFormat.Indexed)
+            this.disposeCallback = cfg.DisposeCallback;
+            this.trySetPaletteCallback = cfg.TrySetPaletteCallback;
+            Width = cfg.Size.Width;
+            Height = cfg.Size.Height;
+            BackColor = cfg.BackColor.ToOpaque();
+            AlphaThreshold = cfg.AlphaThreshold;
+            PixelFormat = cfg.PixelFormat;
+            PrefersLinearBlending = cfg.PreferLinearBlending;
+            if (!cfg.PixelFormat.Indexed)
                 return;
 
-            int bpp = pixelFormat.BitsPerPixel;
-            if (palette != null)
+            int bpp = cfg.PixelFormat.BitsPerPixel;
+            if (cfg.Palette != null)
             {
-                if (palette.Count > 1 << bpp)
-                    throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), nameof(palette));
-                Palette = palette;
+                if (cfg.Palette.Count > 1 << bpp)
+                    // ReSharper disable once NotResolvedInText
+                    throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), "palette");
+                Palette = cfg.Palette;
                 return;
             }
 
-            Palette = palette ?? bpp switch
+            Palette = cfg.Palette ?? bpp switch
             {
-                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(backColor, alphaThreshold), bpp),
-                8 => Palette.SystemDefault8BppPalette(backColor, alphaThreshold),
-                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(backColor), bpp),
-                4 => Palette.SystemDefault4BppPalette(backColor),
-                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(backColor), bpp),
-                _ => Palette.SystemDefault1BppPalette(backColor)
+                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold), bpp),
+                8 => Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold),
+                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(cfg.BackColor), bpp),
+                4 => Palette.SystemDefault4BppPalette(cfg.BackColor),
+                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(cfg.BackColor), bpp),
+                _ => Palette.SystemDefault1BppPalette(cfg.BackColor)
             };
 
             AlphaThreshold = Palette.AlphaThreshold;
         }
-
 
         #endregion
 
@@ -253,10 +255,11 @@ namespace KGySoft.Drawing.Imaging
             if (trySetPaletteCallback?.Invoke(palette) == false)
                 return false;
 
-            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold)
+            // Inheriting only the color entries from the palette because back color, alpha and blending mode are read-only
+            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold && palette.UseLinearBlending == PrefersLinearBlending)
                 Palette = palette;
             else
-                Palette = new Palette(palette, BackColor, AlphaThreshold);
+                Palette = new Palette(palette, BackColor, AlphaThreshold, PrefersLinearBlending);
 
             return true;
         }

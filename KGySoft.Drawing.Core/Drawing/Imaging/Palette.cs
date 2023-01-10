@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Palette.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -369,8 +369,22 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="palette">The original <see cref="Palette"/> to get the colors from.</param>
         /// <param name="backColor">The desired <see cref="BackColor"/> of the new <see cref="Palette"/>. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored.</param>
         /// <param name="alphaThreshold">The desired <see cref="AlphaThreshold"/> of the new <see cref="Palette"/>.</param>
-        /// <exception cref="ArgumentNullException"></exception>
+        /// <exception cref="ArgumentNullException"><paramref name="palette"/> is <see langword="null"/>.</exception>
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
         public Palette(Palette palette, Color32 backColor, byte alphaThreshold)
+            : this(palette, backColor, alphaThreshold, palette?.UseLinearBlending ?? default)
+        {
+        }
+
+        #endregion
+
+        #region Internal Constructors
+
+        /// <summary>
+        /// Copy constructor with new back color, alpha threshold and blending behavior.
+        /// NOTE: should not be a public constructor because useLinearBlending may have no effect if customGetNearestColorIndex is set
+        /// </summary>
+        internal Palette(Palette palette, Color32 backColor, byte alphaThreshold, bool useLinearBlending)
         {
             if (palette == null)
                 throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
@@ -378,6 +392,7 @@ namespace KGySoft.Drawing.Imaging
             TransparentIndex = palette.TransparentIndex;
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
+            UseLinearBlending = useLinearBlending;
             color32ToIndex = palette.color32ToIndex;
             IsGrayscale = palette.IsGrayscale;
             HasAlpha = palette.HasAlpha;
@@ -385,13 +400,6 @@ namespace KGySoft.Drawing.Imaging
             UseLinearBlending = palette.UseLinearBlending;
             customGetNearestColorIndex = palette.customGetNearestColorIndex;
         }
-
-        #endregion
-
-        #region Internal Constructors
-
-        // NOTE: should not be a public constructor because it has no effect if customGetNearestColorIndex is set
-        internal Palette(Palette palette, bool useLinearBlending) : this(palette, palette.BackColor, palette.AlphaThreshold) => UseLinearBlending = useLinearBlending;
 
         internal Palette(Color32[] entries, Color32 backColor, byte alphaThreshold, bool useLinearBlending, Func<Color32, int>? customGetNearestColorIndex)
         {

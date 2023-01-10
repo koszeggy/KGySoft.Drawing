@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData32PArgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,8 +15,6 @@
 
 #region Usings
 
-using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
@@ -52,13 +50,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData32PArgb(Size size, Color32 backColor, byte alphaThreshold)
-            : base(size, KnownPixelFormat.Format32bppPArgb, backColor, alphaThreshold)
+        internal ManagedBitmapData32PArgb(in BitmapDataConfig cfg)
+            : base(cfg)
         {
         }
 
-        internal ManagedBitmapData32PArgb(Array2D<Color32> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format32bppPArgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData32PArgb(Array2D<Color32> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 

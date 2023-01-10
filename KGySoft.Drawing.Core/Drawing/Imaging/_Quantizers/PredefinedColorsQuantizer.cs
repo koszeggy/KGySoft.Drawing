@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: PredefinedColorsQuantizer.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Imaging
                     ? quantizingFunction.Invoke(c)
                     : c.A < AlphaThreshold
                         ? default
-                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.linearBlending));
+                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.LinearBlending));
 
             #endregion
         }
@@ -241,7 +241,6 @@ namespace KGySoft.Drawing.Imaging
         private readonly Func<Size, IBitmapDataInternal>? compatibleBitmapDataFactory;
         private readonly bool blendAlphaBeforeQuantize;
         private readonly bool isGrayscale;
-        private readonly bool linearBlending;
 
         #endregion
 
@@ -277,6 +276,12 @@ namespace KGySoft.Drawing.Imaging
         /// otherwise, returns <see langword="null"/>.
         /// </summary>
         public Palette? Palette { get; }
+
+        #endregion
+
+        #region Internal Properties
+
+        internal bool LinearBlending { get; }
 
         #endregion
 
@@ -341,8 +346,8 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = original.AlphaThreshold;
             Palette = original.Palette == null ? null
                 : original.Palette.UseLinearBlending == useLinearBlending ? original.Palette
-                : new Palette(original.Palette, useLinearBlending);
-            linearBlending = useLinearBlending;
+                : new Palette(original.Palette, BackColor, AlphaThreshold, useLinearBlending);
+            LinearBlending = useLinearBlending;
         }
 
         #endregion
@@ -1710,7 +1715,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>It may have no effect if this <see cref="OptimizedPaletteQuantizer"/> was created from a custom function or from a <see cref="Imaging.Palette"/> that uses a custom function.</param>
         /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>
         public PredefinedColorsQuantizer ConfigureBlendingMode(bool preferLinearBlending)
-            => preferLinearBlending == linearBlending ? this : new PredefinedColorsQuantizer(this, preferLinearBlending);
+            => preferLinearBlending == LinearBlending ? this : new PredefinedColorsQuantizer(this, preferLinearBlending);
 
         #endregion
 

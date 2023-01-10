@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData48Rgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
@@ -47,13 +46,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData48Rgb(Size size, Color32 backColor, byte alphaThreshold)
-            : base(size, KnownPixelFormat.Format48bppRgb, backColor, alphaThreshold)
+        internal ManagedBitmapData48Rgb(in BitmapDataConfig cfg)
+            : base(cfg)
         {
         }
 
-        internal ManagedBitmapData48Rgb(Array2D<Color48> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format48bppRgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData48Rgb(Array2D<Color48> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 

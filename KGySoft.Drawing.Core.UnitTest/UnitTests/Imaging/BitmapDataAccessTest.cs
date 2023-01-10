@@ -133,7 +133,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             bool AreEqual(Color c1, Color c2) => c1.ToArgb() == c2.ToArgb()
                 || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
 
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat))
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
+                default, 128, false, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel allocating managed accessor: ");
@@ -157,7 +158,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             long[] bufManaged = new long[size.Height * size.Width];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat))
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(
+                new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat,
+                default, 128, false, null, null, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor: ");
@@ -181,7 +184,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
 
             long[,] bufManaged2D = new long[size.Height, size.Width];
-            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat))
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat,
+                default, 128, false, null, null, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor 2D: ");
@@ -207,7 +211,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
             IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
             using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
-               disposeCallback: () => Marshal.FreeHGlobal(bufUnmanaged)))
+               default, 128, false, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel unmanaged accessor: ");

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedCustomBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -103,6 +103,7 @@ namespace KGySoft.Drawing.Imaging
                 Action<ICustomBitmapDataRow<T>, int, Color32> setter = rowSetColor;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
+                bool preferLinearBlending = PrefersLinearBlending;
                 var pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origBufferWidth = Buffer.Width;
@@ -124,7 +125,8 @@ namespace KGySoft.Drawing.Imaging
                         newBuffer = new Array2D<T>(size.Height, stride / sizeof(T));
                     }
 
-                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, () => newBuffer.Dispose());
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter,
+                        backColor, alphaThreshold, preferLinearBlending, () => newBuffer.Dispose());
                 };
             }
         }
@@ -133,12 +135,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        public ManagedCustomBitmapData(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor,
-            Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, disposeCallback)
+        public ManagedCustomBitmapData(Array2D<T> buffer, in BitmapDataConfig cfg,
+            Func<ICustomBitmapDataRow<T>, int, Color32> rowGetColor, Action<ICustomBitmapDataRow<T>, int, Color32> rowSetColor)
+            : base(buffer, cfg)
         {
-            Debug.Assert(!pixelFormat.Indexed);
+            Debug.Assert(!cfg.PixelFormat.Indexed);
 
             this.rowGetColor = rowGetColor;
             this.rowSetColor = rowSetColor;

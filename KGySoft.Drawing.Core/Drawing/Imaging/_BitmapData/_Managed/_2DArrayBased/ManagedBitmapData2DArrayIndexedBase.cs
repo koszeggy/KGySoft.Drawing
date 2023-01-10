@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData2DArrayIndexedBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Runtime.CompilerServices;
 
 #endregion
@@ -28,9 +27,8 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Constructors
 
-        protected ManagedBitmapData2DArrayIndexedBase(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Action? disposeCallback, Palette? palette, Func<Palette, bool>? trySetPaletteCallback)
-            : base(buffer, pixelWidth, pixelFormat, backColor, alphaThreshold, disposeCallback, palette, trySetPaletteCallback)
+        protected ManagedBitmapData2DArrayIndexedBase(T[,] buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 
