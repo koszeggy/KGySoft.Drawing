@@ -243,7 +243,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithLinear(this Color32 src, Color32 dst)
         {
-            throw null;
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
+            return src.ToColorF().BlendWith(dst.ToColorF()).ToColor32();
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
