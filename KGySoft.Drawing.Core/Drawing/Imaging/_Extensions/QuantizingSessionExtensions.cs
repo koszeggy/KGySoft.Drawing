@@ -31,7 +31,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // the color will not be transparent in the end: blending
-            return origColor.BlendWithBackground(session.BackColor);
+            return origColor.BlendWithBackground(session.BackColor, session.LinearBlending);
         }
 
         #endregion

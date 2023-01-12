@@ -64,20 +64,20 @@ namespace KGySoft.Drawing.Imaging
                 : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
 
         // TODO: undelete
-        /// <summary>
-        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
-        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
-        /// </summary>
-        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
-        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
-        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static Color32 Blend(this Color32 foreColor, Color32 backColor)
-            => foreColor.A == Byte.MaxValue ? foreColor
-                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
-                : foreColor.A == 0 ? backColor
-                : backColor.A == 0 ? foreColor
-                : foreColor.BlendWithSrgb(backColor);
+        ///// <summary>
+        ///// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
+        ///// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
+        ///// </summary>
+        ///// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        ///// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        ///// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        //[MethodImpl(MethodImpl.AggressiveInlining)]
+        //public static Color32 Blend(this Color32 foreColor, Color32 backColor)
+        //    => foreColor.A == Byte.MaxValue ? foreColor
+        //        : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
+        //        : foreColor.A == 0 ? backColor
+        //        : backColor.A == 0 ? foreColor
+        //        : foreColor.BlendWithSrgb(backColor);
 
         /// <summary>
         /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/>.
@@ -371,6 +371,5 @@ namespace KGySoft.Drawing.Imaging
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor) => BlendWithBackgroundSrgb(c, backColor);
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst) => BlendWithPremultiplied(src, dst, default);
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor) => TolerantEquals(c1, c2, tolerance, backColor, default);
-
     }
 }

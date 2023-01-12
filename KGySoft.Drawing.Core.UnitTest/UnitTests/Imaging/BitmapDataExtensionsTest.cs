@@ -524,7 +524,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 IReadableBitmapDataRowMovable row = readWriteBitmapData.FirstRow;
                 var expected = color;
                 if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha && expected.A != Byte.MaxValue)
-                    expected = expected.BlendWithBackground(Color32.Black);
+                    expected = expected.BlendWithBackground(Color32.Black, false);
                 do
                 {
                     for (int x = 0; x < readWriteBitmapData.Width; x++)

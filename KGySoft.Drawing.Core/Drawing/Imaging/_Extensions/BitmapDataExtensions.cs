@@ -89,17 +89,6 @@ namespace KGySoft.Drawing.Imaging
             };
         }
 
-        /// <summary>
-        /// Eg. for creating a temp buffer for a multi-session operation when drawing
-        /// </summary>
-        internal static KnownPixelFormat GetPreferredBlendingPixelFormat(this IBitmapData bitmapData, IQuantizer? quantizer)
-            => bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
-            {
-                // TODO: consider preferred used color type (eg. Color64/ColorF) when there will be wide format Get/Set support
-                KnownPixelFormat.Format32bppArgb => KnownPixelFormat.Format32bppArgb,
-                _ => quantizer.PrefersLinearBlending(bitmapData) ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
-            };
-
         #endregion
 
         #region Private Methods
@@ -137,6 +126,15 @@ namespace KGySoft.Drawing.Imaging
             else
                 ditherer = null;
         }
+
+        private static KnownPixelFormat GetPreferredFirstPassPixelFormat(this IBitmapData target, IQuantizer quantizer)
+            // Multi pass processing is only for quantizers or ditherers that require initialization with the actual image.
+            // Therefore it is always enough to use a 32bpp temp 1st pass buffer because a quantizer is based on Color32 colors.
+            // To optimize blending/processing speed we use straight colors if the target is also straight or when blending
+            // will use linear color space; otherwise, we can use the premultiplied sRGB pixel format.
+            => target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb
+                ? KnownPixelFormat.Format32bppArgb
+                : quantizer.PrefersLinearBlending() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
 
         #endregion
 

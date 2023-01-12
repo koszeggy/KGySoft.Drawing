@@ -17,6 +17,7 @@
 #region Usings
 
 using System;
+using System.Drawing;
 using System.Threading.Tasks;
 
 using KGySoft.Threading;
@@ -56,19 +57,20 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static bool? PrefersLinearBlending(this IQuantizer? quantizer) => quantizer switch
+        internal static bool PrefersLinearBlending(this IQuantizer quantizer)
         {
-            PredefinedColorsQuantizer pq => pq.LinearBlending,
-            OptimizedPaletteQuantizer oq => oq.LinearBlending,
-            _ => null
-        };
-
-        internal static bool PrefersLinearBlending(this IQuantizer? quantizer, IBitmapData bitmapData) => quantizer switch
-        {
-            PredefinedColorsQuantizer pq => pq.LinearBlending,
-            OptimizedPaletteQuantizer oq => oq.LinearBlending,
-            _ => bitmapData.PrefersLinearBlending
-        };
+            switch (quantizer)
+            {
+                case PredefinedColorsQuantizer predefined:
+                    return predefined.LinearBlending;
+                case OptimizedPaletteQuantizer optimized:
+                    return optimized.LinearBlending;
+                default:
+                    // non built-in one: testing with a single pixel bitmap
+                    using (var session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))
+                        return session.LinearBlending;
+            }
+        }
 
         #endregion
 

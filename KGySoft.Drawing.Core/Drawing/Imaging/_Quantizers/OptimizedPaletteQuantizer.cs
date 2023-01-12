@@ -194,6 +194,7 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
+            public bool LinearBlending => quantizer.LinearBlending;
             public bool IsGrayscale => Palette?.IsGrayscale ?? false;
 
             #endregion
@@ -240,9 +241,10 @@ namespace KGySoft.Drawing.Imaging
                     {
                         Color32 c = row[x];
 
-                        // handling alpha including full transparency
+                        // Handling alpha including full transparency.
+                        // TODO: Here we could allow alpha pixels if all algorithms supported it in AddColor
                         if (c.A != Byte.MaxValue)
-                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor);
+                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor, quantizer.LinearBlending);
                         alg.AddColor(c);
                     }
                     context.Progress?.Increment();

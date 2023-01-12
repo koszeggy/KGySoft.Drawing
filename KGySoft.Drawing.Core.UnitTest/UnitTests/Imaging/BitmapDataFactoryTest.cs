@@ -18,7 +18,6 @@
 using System;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -43,7 +42,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 #region Local Methods
 
                 static Color32 GetColor8BppGray(ICustomBitmapDataRow row, int x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
-                static void SetColor8BppGray(ICustomBitmapDataRow row, int x, Color32 c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor).GetBrightness();
+                static void SetColor8BppGray(ICustomBitmapDataRow row, int x, Color32 c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor, row.BitmapData.PrefersLinearBlending).GetBrightness();
 
                 static Color32 GetColor4BppArgb1111(ICustomBitmapDataRow row, int x)
                 {
@@ -61,7 +60,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 {
                     ref byte nibbles = ref row.GetRefAs<byte>(x >> 1);
                     if (c.A != 255)
-                        c = c.A >= row.BitmapData.AlphaThreshold ? c.Blend(row.BitmapData.BackColor) : default;
+                        c = c.A >= row.BitmapData.AlphaThreshold ? c.Blend(row.BitmapData.BackColor, row.BitmapData.PrefersLinearBlending) : default;
                     int color = ((c.A & 128) >> 4)
                         | ((c.R & 128) >> 5)
                         | ((c.G & 128) >> 6)
@@ -99,7 +98,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     int offset = bitPos % 8;
                     bits &= ~(511 << offset);
                     if (c.A >= row.BitmapData.AlphaThreshold)
-                        bits |= (256 | c.Blend(row.BitmapData.BackColor).GetBrightness()) << offset;
+                        bits |= (256 | c.Blend(row.BitmapData.BackColor, row.BitmapData.PrefersLinearBlending).GetBrightness()) << offset;
                     row.UnsafeGetRefAs<byte>(bytePos) = (byte)bits;
                     row.UnsafeGetRefAs<byte>(bytePos + 1) = (byte)(bits >> 8);
                 }
@@ -599,39 +598,5 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         #endregion
 
         #endregion
-
-        [Test]
-        public void Test()
-        {
-            throw new NotImplementedException();
-            //using (var bitmapData = GenerateAlphaGradientBitmapData(new Size(512, 256)))
-            //{
-            //    var row = bitmapData.FirstRow;
-            //    while (row.MoveNextRow())
-            //    {
-            //        for (int x = 0; x < row.Width; x++)
-            //        {
-            //            row[x] = row[x].BlendWithBackground(Color32.White);
-            //        }
-            //    }
-
-            //    SaveBitmapData("sRGB", bitmapData);
-            //}
-
-            //using (var bitmapData = GenerateAlphaGradientBitmapData(new Size(512, 256)))
-            //{
-            //    var black = Color32.White.ToLinearColorF();
-            //    var row = bitmapData.FirstRow;
-            //    while (row.MoveNextRow())
-            //    {
-            //        for (int x = 0; x < row.Width; x++)
-            //        {
-            //            row[x] = row[x].ToLinearColorF().BlendWithBackground(black).ToSrgbColor32();
-            //        }
-            //    }
-
-            //    SaveBitmapData("Linear", bitmapData);
-            //}
-        }
     }
 }

@@ -2417,7 +2417,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 int bpp = pixelFormat.ToBitsPerPixel();
                 if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
-                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold ? source.Palette : new Palette(source.Palette.Entries, backColor, alphaThreshold, source.Palette.UseLinearBlending, null);
+                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold ? source.Palette : new Palette(source.Palette.Entries, backColor, alphaThreshold, source.Palette.LinearBlending, null);
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
@@ -2488,7 +2488,7 @@ namespace KGySoft.Drawing.Imaging
 
                     session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
                     session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat,
-                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizer.PrefersLinearBlending(source),
+                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.LinearBlending,
                         quantizingSession.Palette);
 
                     // quantizing without dithering
@@ -2674,7 +2674,7 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredBlendingPixelFormat(quantizer));
+                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredFirstPassPixelFormat(quantizer!));
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -2700,7 +2700,7 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = (IBitmapDataInternal?)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
+                    sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
@@ -2763,11 +2763,11 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform resize (with or without blending) before quantizing/dithering
             if (isTwoPass)
             {
-                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredBlendingPixelFormat(quantizer);
+                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredFirstPassPixelFormat(quantizer!);
                 sessionTarget = source.HasMultiLevelAlpha()
                     ? DoCloneDirect(context, target, actualTargetRectangle, sessionTargetPixelFormat)
                     : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, sessionTargetPixelFormat,
-                        default, default, quantizer.PrefersLinearBlending(target), null);
+                        default, default, target.PrefersLinearBlending, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();

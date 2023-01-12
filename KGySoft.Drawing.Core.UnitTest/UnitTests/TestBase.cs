@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Properties
 
-        private static bool SaveToFile => false;
+        private static bool SaveToFile => true;
 
         #endregion
 
@@ -180,6 +180,13 @@ namespace KGySoft.Drawing.UnitTests
             return result;
         }
 
+        protected static IReadWriteBitmapData GenerateLinearAlphaGradientBitmapData(Size size)
+        {
+            var result = BitmapDataFactory.CreateBitmapData(size);
+            GenerateAlphaGradientLinear(result);
+            return result;
+        }
+
         protected static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
         {
             var firstRow = bitmapData.FirstRow;
@@ -206,6 +213,48 @@ namespace KGySoft.Drawing.UnitTests
                 // magenta -> red
                 else
                     firstRow[x] = new Color32(255, 0, (255 - (x - limit * 5) * ratio).ClipToByte());
+            }
+
+            if (bitmapData.Height < 2)
+                return;
+
+            var row = bitmapData.GetMovableRow(1);
+            ratio = 255f / bitmapData.Height;
+            do
+            {
+                byte a = (255 - row.Index * ratio).ClipToByte();
+                for (int x = 0; x < bitmapData.Width; x++)
+                    row[x] = Color32.FromArgb(a, firstRow[x]);
+
+            } while (row.MoveNextRow());
+        }
+
+        protected static void GenerateAlphaGradientLinear(IReadWriteBitmapData bitmapData)
+        {
+            var firstRow = bitmapData.FirstRow;
+            float ratio = 1f / (bitmapData.Width / 6f);
+            float limit = bitmapData.Width / 6f;
+
+            for (int x = 0; x < bitmapData.Width; x++)
+            {
+                // red -> yellow
+                if (x < limit)
+                    firstRow[x] = new ColorF(1, 1, (x * ratio), 0).ToColor32();
+                // yellow -> green
+                else if (x < limit * 2)
+                    firstRow[x] = new ColorF(1, (1 - (x - limit) * ratio), 1, 0).ToColor32();
+                // green -> cyan
+                else if (x < limit * 3)
+                    firstRow[x] = new ColorF(1, 0, 1, ((x - limit * 2) * ratio)).ToColor32();
+                // cyan -> blue
+                else if (x < limit * 4)
+                    firstRow[x] = new ColorF(1, 0, (1 - (x - limit * 3) * ratio), 1).ToColor32();
+                // blue -> magenta
+                else if (x < limit * 5)
+                    firstRow[x] = new ColorF(1, ((x - limit * 4) * ratio), 0, 1).ToColor32();
+                // magenta -> red
+                else
+                    firstRow[x] = new ColorF(1, 1, 0, (1 - (x - limit * 5) * ratio)).ToColor32();
             }
 
             if (bitmapData.Height < 2)

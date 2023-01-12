@@ -122,7 +122,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 var entries = new Color32[1 << bpp];
                 palette.Entries.CopyTo(entries, 0);
-                return new Palette(entries, palette.BackColor, palette.AlphaThreshold, palette.UseLinearBlending, null);
+                return new Palette(entries, palette.BackColor, palette.AlphaThreshold, palette.LinearBlending, null);
             }
 
             #endregion
@@ -130,7 +130,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(cfg.Size.Width > 0 && cfg.Size.Height > 0, "Non-empty size expected");
             Debug.Assert(cfg.PixelFormat.BitsPerPixel is > 0 and <= 128);
             Debug.Assert(cfg.Palette == null|| cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
-                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.UseLinearBlending == cfg.PreferLinearBlending);
+                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.LinearBlending == cfg.PreferLinearBlending);
 
             this.disposeCallback = cfg.DisposeCallback;
             this.trySetPaletteCallback = cfg.TrySetPaletteCallback;
@@ -256,7 +256,7 @@ namespace KGySoft.Drawing.Imaging
                 return false;
 
             // Inheriting only the color entries from the palette because back color, alpha and blending mode are read-only
-            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold && palette.UseLinearBlending == PrefersLinearBlending)
+            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold && palette.LinearBlending == PrefersLinearBlending)
                 Palette = palette;
             else
                 Palette = new Palette(palette, BackColor, AlphaThreshold, PrefersLinearBlending);

@@ -1681,7 +1681,7 @@ namespace KGySoft.Drawing.Imaging
                 Color32[] newEntries = new Color32[oldEntries.Length];
                 for (int i = 0; i < newEntries.Length; i++)
                     newEntries[i] = transformFunction.Invoke(oldEntries[i]);
-                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.UseLinearBlending, null)))
+                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.LinearBlending, null)))
                 {
                     context.Progress?.Complete();
                     return;

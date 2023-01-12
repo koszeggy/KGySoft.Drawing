@@ -14,6 +14,9 @@
 ! IBitmapData interface:
   ! New PrefersLinearBlending property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard
     2.1 where this property has a default implementation and returns false.
+! IQuantizingSession interface:
+  ! New LinearBlending property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this property has a default implementation and returns false.
 + BitmapDataFactory class:
   + New CreateBitmapData overloads to with preferLinearBlending parameters.
 + ColorExtensions class:

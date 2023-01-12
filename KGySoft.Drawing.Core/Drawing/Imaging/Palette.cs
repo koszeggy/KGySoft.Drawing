@@ -242,7 +242,7 @@ namespace KGySoft.Drawing.Imaging
         internal Color32[] Entries { get; }
         internal int TransparentIndex { get; }
         internal bool HasTransparent => TransparentIndex >= 0;
-        internal bool UseLinearBlending { get; } // not public because might not be relevant if a custom function is used
+        internal bool LinearBlending { get; } // not public because might not be relevant if a custom function is used
 
         #endregion
 
@@ -372,7 +372,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="palette"/> is <see langword="null"/>.</exception>
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
         public Palette(Palette palette, Color32 backColor, byte alphaThreshold)
-            : this(palette, backColor, alphaThreshold, palette?.UseLinearBlending ?? default)
+            : this(palette, backColor, alphaThreshold, palette?.LinearBlending ?? default)
         {
         }
 
@@ -392,12 +392,12 @@ namespace KGySoft.Drawing.Imaging
             TransparentIndex = palette.TransparentIndex;
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
-            UseLinearBlending = useLinearBlending;
+            LinearBlending = useLinearBlending;
             color32ToIndex = palette.color32ToIndex;
             IsGrayscale = palette.IsGrayscale;
             HasAlpha = palette.HasAlpha;
             HasMultiLevelAlpha = palette.HasMultiLevelAlpha;
-            UseLinearBlending = palette.UseLinearBlending;
+            LinearBlending = palette.LinearBlending;
             customGetNearestColorIndex = palette.customGetNearestColorIndex;
         }
 
@@ -410,7 +410,7 @@ namespace KGySoft.Drawing.Imaging
             TransparentIndex = -1;
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
-            UseLinearBlending = useLinearBlending;
+            LinearBlending = useLinearBlending;
 
             // initializing color32ToIndex, which is the 1st level of caching
             color32ToIndex = new Dictionary<Color32, int>(entries.Length);
@@ -866,7 +866,7 @@ namespace KGySoft.Drawing.Imaging
             // blending the color with background and checking if there is an exact match now
             if (color.A != Byte.MaxValue)
             {
-                color = color.BlendWithBackground(BackColor, UseLinearBlending);
+                color = color.BlendWithBackground(BackColor, LinearBlending);
                 if (color32ToIndex.TryGetValue(color, out resultIndex))
                     return resultIndex;
             }
@@ -888,7 +888,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // Blending also the current palette color
-                        current = current.BlendWithBackground(BackColor, UseLinearBlending);
+                        current = current.BlendWithBackground(BackColor, LinearBlending);
 
                         // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
                         if (current == color)
@@ -923,7 +923,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // Blending also the current palette color
-                        current = current.BlendWithBackground(BackColor, UseLinearBlending);
+                        current = current.BlendWithBackground(BackColor, LinearBlending);
 
                         // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
                         if (current == color)

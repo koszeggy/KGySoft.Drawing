@@ -155,7 +155,7 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData CreateBitmapData(Size size, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(size, pixelFormat, palette);
-            return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false, palette);
+            return CreateManagedBitmapData(size, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false, palette);
         }
 
         #endregion
@@ -525,7 +525,7 @@ namespace KGySoft.Drawing.Imaging
         {
             int elementWidth = ValidateArguments(buffer, size, stride, pixelFormat, palette);
             return CreateManagedBitmapData(new Array2D<T>(buffer, size.Height, elementWidth), size.Width, pixelFormat, palette?.BackColor ?? default,
-                palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false, palette, trySetPaletteCallback, disposeCallback);
+                palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false, palette, trySetPaletteCallback, disposeCallback);
         }
 
         /// <summary>
@@ -760,7 +760,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(buffer, pixelWidth, pixelFormat);
             return CreateManagedBitmapData(buffer, pixelWidth, pixelFormat, palette?.BackColor ?? default,
-                palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false, palette, trySetPaletteCallback, disposeCallback);
+                palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false, palette, trySetPaletteCallback, disposeCallback);
         }
 
         /// <summary>
@@ -965,7 +965,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(buffer, pixelWidth, pixelFormat);
             return CreateManagedBitmapData(buffer, pixelWidth, pixelFormat, palette?.BackColor ?? default,
-                palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false, palette, trySetPaletteCallback, disposeCallback);
+                palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false, palette, trySetPaletteCallback, disposeCallback);
         }
 
         /// <summary>
@@ -1198,7 +1198,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(buffer, size, stride, pixelFormat, palette);
             return CreateUnmanagedBitmapData(buffer, size, stride, pixelFormat,
-                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false,
+                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false,
                 palette, trySetPaletteCallback, disposeCallback);
         }
 
@@ -1519,7 +1519,7 @@ namespace KGySoft.Drawing.Imaging
             where T : unmanaged
         {
             var cfg = new BitmapDataConfig(new Size(pixelWidth, buffer.Height), pixelFormat,
-                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false,
+                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false,
                 palette, trySetPaletteCallback, disposeCallback);
             return new ManagedCustomBitmapDataIndexed<T>(buffer, cfg, rowGetColorIndex, rowSetColorIndex);
         }
@@ -1571,7 +1571,7 @@ namespace KGySoft.Drawing.Imaging
             where T : unmanaged
         {
             var cfg = new BitmapDataConfig(new Size(pixelWidth, buffer.GetLength(0)), pixelFormat,
-                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false,
+                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false,
                 palette, trySetPaletteCallback, disposeCallback);
             return new ManagedCustomBitmapDataIndexed2D<T>(buffer, cfg, rowGetColorIndex, rowSetColorIndex);
         }
@@ -1623,7 +1623,7 @@ namespace KGySoft.Drawing.Imaging
             Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
         {
             var cfg = new BitmapDataConfig(size, pixelFormat,
-                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.UseLinearBlending ?? false,
+                palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette?.LinearBlending ?? false,
                 palette, trySetPaletteCallback, disposeCallback);
             return new UnmanagedCustomBitmapDataIndexed(buffer, stride, cfg, rowGetColorIndex, rowSetColorIndex);
         }

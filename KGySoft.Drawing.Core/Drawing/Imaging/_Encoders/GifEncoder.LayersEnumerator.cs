@@ -73,6 +73,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly IReadableBitmapData imageData;
             private readonly Color32 backColor;
             private readonly byte alphaThreshold;
+            private readonly bool linearBlending;
             private readonly bool fullScan;
             private readonly Size size;
             private readonly HashSet<Color32> currentColors;
@@ -103,6 +104,7 @@ namespace KGySoft.Drawing.Imaging
                 this.imageData = imageData;
                 this.backColor = backColor;
                 this.alphaThreshold = alphaThreshold;
+                linearBlending = imageData.PrefersLinearBlending;
                 this.fullScan = fullScan;
                 size = imageData.Size;
                 this.asyncContext.Progress?.New(DrawingOperation.Saving, size.Width * ((size.Height - 1) / 16 + 1));
@@ -204,7 +206,7 @@ namespace KGySoft.Drawing.Imaging
 
             private Color32 GetColor(Color32 color) =>
                 color.A == Byte.MaxValue ? color
-                : color.A >= alphaThreshold ? color.BlendWithBackground(backColor)
+                : color.A >= alphaThreshold ? color.BlendWithBackground(backColor, linearBlending)
                 : default;
 
             private void InitializeCurrentRegion()

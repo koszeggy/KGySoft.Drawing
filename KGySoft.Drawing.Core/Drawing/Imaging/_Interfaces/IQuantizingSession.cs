@@ -41,7 +41,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the background color for this <see cref="IQuantizingSession"/>.
         /// When the <see cref="GetQuantizedColor">GetQuantizedColor</see> is called with a color with alpha,
         /// which is considered opaque, then it will be blended with this color before quantizing.
-        /// <br/>See also the <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
+        /// <br/>See also the <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> and <see cref="LinearBlending"/> properties for details.
         /// </summary>
         Color32 BackColor { get; }
 
@@ -69,6 +69,8 @@ namespace KGySoft.Drawing.Imaging
 #else
         bool IsGrayscale => false;
 #endif
+
+        bool LinearBlending { get; }
 
         #endregion
 

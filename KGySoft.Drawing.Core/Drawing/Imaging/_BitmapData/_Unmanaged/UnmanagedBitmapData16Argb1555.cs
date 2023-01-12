@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -42,7 +41,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (c.A != Byte.MaxValue)
                 {
-                    c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor)
+                    c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor, BitmapData.PrefersLinearBlending)
                         : c.A < 128 ? c
                         : default;
                 }
@@ -76,7 +75,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (c.A != Byte.MaxValue)
             {
-                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor)
+                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor, PrefersLinearBlending)
                     : c.A < 128 ? c
                     : default;
             }
