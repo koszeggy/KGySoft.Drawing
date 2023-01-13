@@ -39,7 +39,17 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
+            #region Protected Properties
+            
             protected override uint MaxIndex => (1u << BitmapData.PixelFormat.BitsPerPixel) - 1u;
+
+            #endregion
+
+            #region Explicitly Implemented Interface Properties
+
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
 
             #endregion
 

@@ -12,8 +12,8 @@
 ! KGySoft.Drawing.Imaging namespace
 ===================================
 ! IBitmapData interface:
-  ! New PrefersLinearBlending property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard
-    2.1 where this property has a default implementation and returns false.
+  ! New BlendingMode property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
+    this property has a default implementation and returns BlendingModeHint.Default.
 ! IQuantizingSession interface:
   ! New LinearBlending property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
     this property has a default implementation and returns false.

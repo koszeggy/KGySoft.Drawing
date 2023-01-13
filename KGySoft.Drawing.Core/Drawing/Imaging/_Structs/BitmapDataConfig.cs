@@ -18,6 +18,8 @@
 using System;
 using System.Drawing;
 
+using KGySoft.CoreLibraries;
+
 #endregion
 
 namespace KGySoft.Drawing.Imaging
@@ -30,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
         internal readonly PixelFormatInfo PixelFormat;
         internal readonly Color32 BackColor;
         internal readonly byte AlphaThreshold;
-        internal readonly bool PreferLinearBlending;
+        internal readonly BlendingModeHint BlendingMode;
         internal readonly Palette? Palette;
         internal readonly Func<Palette, bool>? TrySetPaletteCallback;
         internal readonly Action? DisposeCallback;
@@ -40,14 +42,14 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal BitmapDataConfig(Size size, PixelFormatInfo pixelFormat,
-            Color32 backColor = default, byte alphaThreshold = 128, bool preferLinearBlending = false,
+            Color32 backColor = default, byte alphaThreshold = 128, BlendingModeHint blendingMode = BlendingModeHint.Default,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
         {
             Size = size;
             PixelFormat = pixelFormat;
             BackColor = backColor;
             AlphaThreshold = alphaThreshold;
-            PreferLinearBlending = preferLinearBlending;
+            BlendingMode = blendingMode;
             Palette = palette;
             TrySetPaletteCallback = trySetPaletteCallback;
             DisposeCallback = disposeCallback;

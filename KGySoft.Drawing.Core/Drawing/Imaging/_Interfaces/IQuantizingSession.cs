@@ -70,7 +70,11 @@ namespace KGySoft.Drawing.Imaging
         bool IsGrayscale => false;
 #endif
 
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         bool LinearBlending { get; }
+#else
+        bool LinearBlending => false;
+#endif
 
         #endregion
 

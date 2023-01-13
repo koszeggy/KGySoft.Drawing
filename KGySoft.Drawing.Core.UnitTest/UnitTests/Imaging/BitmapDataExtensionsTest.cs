@@ -58,7 +58,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public IReadableBitmapDataRowMovable FirstRow => wrapped.FirstRow;
             public bool IsDisposed => wrapped.IsDisposed;
             public Size Size => wrapped.Size;
-            public bool PrefersLinearBlending => wrapped.PrefersLinearBlending;
+            public BlendingModeHint BlendingMode => wrapped.BlendingMode;
 
             #endregion
 

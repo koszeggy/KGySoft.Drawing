@@ -42,7 +42,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 #region Local Methods
 
                 static Color32 GetColor8BppGray(ICustomBitmapDataRow row, int x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
-                static void SetColor8BppGray(ICustomBitmapDataRow row, int x, Color32 c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor, row.BitmapData.PrefersLinearBlending).GetBrightness();
+                static void SetColor8BppGray(ICustomBitmapDataRow row, int x, Color32 c) => row.UnsafeGetRefAs<byte>(x) =
+                    c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingModeHint.Linear).GetBrightness();
 
                 static Color32 GetColor4BppArgb1111(ICustomBitmapDataRow row, int x)
                 {
@@ -60,7 +61,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 {
                     ref byte nibbles = ref row.GetRefAs<byte>(x >> 1);
                     if (c.A != 255)
-                        c = c.A >= row.BitmapData.AlphaThreshold ? c.Blend(row.BitmapData.BackColor, row.BitmapData.PrefersLinearBlending) : default;
+                        c = c.A >= row.BitmapData.AlphaThreshold ? c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingModeHint.Linear) : default;
                     int color = ((c.A & 128) >> 4)
                         | ((c.R & 128) >> 5)
                         | ((c.G & 128) >> 6)
@@ -98,7 +99,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     int offset = bitPos % 8;
                     bits &= ~(511 << offset);
                     if (c.A >= row.BitmapData.AlphaThreshold)
-                        bits |= (256 | c.Blend(row.BitmapData.BackColor, row.BitmapData.PrefersLinearBlending).GetBrightness()) << offset;
+                        bits |= (256 | c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingModeHint.Linear).GetBrightness()) << offset;
                     row.UnsafeGetRefAs<byte>(bytePos) = (byte)bits;
                     row.UnsafeGetRefAs<byte>(bytePos + 1) = (byte)(bits >> 8);
                 }

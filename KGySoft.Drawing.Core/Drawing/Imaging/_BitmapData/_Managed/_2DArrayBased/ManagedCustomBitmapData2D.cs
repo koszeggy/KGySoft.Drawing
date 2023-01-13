@@ -34,9 +34,23 @@ namespace KGySoft.Drawing.Imaging
 
         internal sealed class Row : ManagedBitmapDataRow2DBase<T>, ICustomBitmapDataRow<T>
         {
+            #region Properties and Indexers
+
+            #region Properties
+
+            #region Explicitly Implemented Interface Properties
+
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
+
+            #endregion
+
             #region Indexers
 
             ref T ICustomBitmapDataRow<T>.this[int index] => ref Buffer[Index, index];
+
+            #endregion
 
             #endregion
 
@@ -101,8 +115,8 @@ namespace KGySoft.Drawing.Imaging
                 Action<ICustomBitmapDataRow<T>, int, Color32> setter = rowSetColor;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
-                bool preferLinearBlending = PrefersLinearBlending;
-                var pixelFormat = PixelFormat;
+                BlendingModeHint blendingMode = BlendingMode;
+                PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origBufferWidth = Buffer.GetLength(1);
                 return size =>
@@ -124,7 +138,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter,
-                        backColor, alphaThreshold, preferLinearBlending, null);
+                        backColor, alphaThreshold, blendingMode, null);
                 };
             }
         }

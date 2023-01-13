@@ -40,7 +40,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (c.A != Byte.MaxValue)
                 {
-                    c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor, BitmapData.PrefersLinearBlending)
+                    c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearBlending)
                         : c.A < 128 ? c
                         : default;
                 }
@@ -77,7 +77,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (c.A != Byte.MaxValue)
             {
-                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor, PrefersLinearBlending)
+                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor, LinearBlending)
                     : c.A < 128 ? c
                     : default;
             }

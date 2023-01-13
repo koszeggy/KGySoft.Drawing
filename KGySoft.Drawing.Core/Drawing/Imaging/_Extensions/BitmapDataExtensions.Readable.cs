@@ -2382,7 +2382,7 @@ namespace KGySoft.Drawing.Imaging
             session.Target = source is ICustomBitmapData customBitmapData
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
                 : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(),
-                    source.BackColor, source.AlphaThreshold, source.PrefersLinearBlending, source.Palette);
+                    source.BackColor, source.AlphaThreshold, source.BlendingMode, source.Palette);
             bool canceled = false;
             try
             {
@@ -2424,7 +2424,7 @@ namespace KGySoft.Drawing.Imaging
             session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat.AsKnownPixelFormatInternal == pixelFormat
                 ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
                 : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(),
-                    backColor, alphaThreshold, source.PrefersLinearBlending, palette);
+                    backColor, alphaThreshold, source.BlendingMode, palette);
             bool canceled = false;
             try
             {
@@ -2488,7 +2488,7 @@ namespace KGySoft.Drawing.Imaging
 
                     session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
                     session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat,
-                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.LinearBlending,
+                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.BlendingMode(),
                         quantizingSession.Palette);
 
                     // quantizing without dithering
@@ -2767,7 +2767,7 @@ namespace KGySoft.Drawing.Imaging
                 sessionTarget = source.HasMultiLevelAlpha()
                     ? DoCloneDirect(context, target, actualTargetRectangle, sessionTargetPixelFormat)
                     : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, sessionTargetPixelFormat,
-                        default, default, target.PrefersLinearBlending, null);
+                        default, default, target.BlendingMode, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();

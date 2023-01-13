@@ -60,7 +60,13 @@ namespace KGySoft.Drawing.Imaging
         public bool IsDisposed { get; private set; }
         public bool CanSetPalette => PixelFormat.Indexed && Palette != null && AllowSetPalette;
         public virtual bool IsCustomPixelFormat => PixelFormat.IsCustomFormat;
-        public bool PrefersLinearBlending { get; }
+        public BlendingModeHint BlendingMode { get; }
+
+        #endregion
+
+        #region Internal Properties
+
+        internal bool LinearBlending { get; }
 
         #endregion
 
@@ -129,8 +135,8 @@ namespace KGySoft.Drawing.Imaging
 
             Debug.Assert(cfg.Size.Width > 0 && cfg.Size.Height > 0, "Non-empty size expected");
             Debug.Assert(cfg.PixelFormat.BitsPerPixel is > 0 and <= 128);
-            Debug.Assert(cfg.Palette == null|| cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
-                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.LinearBlending == cfg.PreferLinearBlending);
+            Debug.Assert(cfg.Palette == null || cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
+                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.LinearBlending == (cfg.BlendingMode == BlendingModeHint.Linear));
 
             this.disposeCallback = cfg.DisposeCallback;
             this.trySetPaletteCallback = cfg.TrySetPaletteCallback;
@@ -139,7 +145,8 @@ namespace KGySoft.Drawing.Imaging
             BackColor = cfg.BackColor.ToOpaque();
             AlphaThreshold = cfg.AlphaThreshold;
             PixelFormat = cfg.PixelFormat;
-            PrefersLinearBlending = cfg.PreferLinearBlending;
+            BlendingMode = cfg.BlendingMode;
+            LinearBlending = BlendingMode == BlendingModeHint.Linear;
             if (!cfg.PixelFormat.Indexed)
                 return;
 
@@ -256,10 +263,10 @@ namespace KGySoft.Drawing.Imaging
                 return false;
 
             // Inheriting only the color entries from the palette because back color, alpha and blending mode are read-only
-            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold && palette.LinearBlending == PrefersLinearBlending)
+            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold && palette.LinearBlending == LinearBlending)
                 Palette = palette;
             else
-                Palette = new Palette(palette, BackColor, AlphaThreshold, PrefersLinearBlending);
+                Palette = new Palette(palette, BackColor, AlphaThreshold, LinearBlending);
 
             return true;
         }

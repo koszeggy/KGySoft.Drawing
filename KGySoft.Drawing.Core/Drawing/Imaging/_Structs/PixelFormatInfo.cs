@@ -72,6 +72,8 @@ namespace KGySoft.Drawing.Imaging
         private const int isCustomFormat = 1 << 24;
         private const int isGrayscale = 1 << 25;
         private const int hasSingleBitAlpha = 1 << 26;
+        //private const int prefersColorF = 1 << 27;
+        //private const int isLinear = 1 << 28;
 
         #endregion
 

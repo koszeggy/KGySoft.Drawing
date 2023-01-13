@@ -199,6 +199,8 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
+            private BlendingModeHint BlendingMode => QuantizerLinearBlending ? BlendingModeHint.Linear : BlendingModeHint.Srgb;
+
             #endregion
 
             #endregion
@@ -962,7 +964,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(quantizerProperties.SupportsTransparency);
                     deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
-                        default, default, QuantizerLinearBlending, null);
+                        default, default, BlendingMode, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location);
                     if (asyncContext.IsCancellationRequested)
                         return (quantizedFrame, default, default);
@@ -985,7 +987,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(contentArea.Size == logicalScreenSize);
                     deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb,
-                        default, 0, QuantizerLinearBlending, null);
+                        default, 0, BlendingMode, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??=
                         PredefinedColorsQuantizer.Rgb888(QuantizerBackColor.ToColor()).ConfigureBlendingMode(QuantizerLinearBlending));
                 }
@@ -1105,7 +1107,7 @@ namespace KGySoft.Drawing.Imaging
                             // because we cannot create a new bitmap data with a palette that is created while quantizing
                             if (preparedPixelFormat.HasAlpha() || preparedQuantizer == null && inputFrame.Palette?.HasTransparent == true)
                             {
-                                preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, preparedPixelFormat, QuantizerBackColor, QuantizerAlphaThreshold, QuantizerLinearBlending, inputFrame.Palette);
+                                preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, preparedPixelFormat, QuantizerBackColor, QuantizerAlphaThreshold, BlendingMode, inputFrame.Palette);
 
                                 // if the source is indexed and transparent index is not 0, then we must clear the indexed image to be transparent
                                 if (inputFrame.Palette?.TransparentIndex > 0)
@@ -1122,7 +1124,7 @@ namespace KGySoft.Drawing.Imaging
                             // Here we can't quantize the source: using a 32bpp image data
                             preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
-                                default, default, QuantizerLinearBlending, null);
+                                default, default, BlendingMode, null);
                             inputFrame.DoCopyTo(asyncContext, preparedFrame, location);
 
                             break;
@@ -1132,7 +1134,7 @@ namespace KGySoft.Drawing.Imaging
                             preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize,
                                 QuantizerLinearBlending ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
-                                default, default, QuantizerLinearBlending, null);
+                                default, default, BlendingMode, null);
                             inputFrame.DoDrawInto(asyncContext, preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
 

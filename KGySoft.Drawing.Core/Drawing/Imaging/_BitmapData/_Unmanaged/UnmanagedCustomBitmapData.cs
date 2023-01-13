@@ -37,6 +37,12 @@ namespace KGySoft.Drawing.Imaging
 
         internal sealed class Row : UnmanagedBitmapDataRowBase, ICustomBitmapDataRow
         {
+            #region Properties
+            
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
+
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -86,8 +92,8 @@ namespace KGySoft.Drawing.Imaging
                 Action<ICustomBitmapDataRow, int, Color32> setter = rowSetColor;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
-                bool preferLinearBlending = PrefersLinearBlending;
-                var pixelFormat = PixelFormat;
+                BlendingModeHint blendingMode = BlendingMode;
+                PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origStride = RowSize;
                 return size =>
@@ -109,7 +115,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     IntPtr newBuffer = Marshal.AllocHGlobal(stride * size.Height);
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, () => Marshal.FreeHGlobal(newBuffer));
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, blendingMode, () => Marshal.FreeHGlobal(newBuffer));
 #else
                     Array2D<byte> newBuffer;
 
@@ -124,7 +130,7 @@ namespace KGySoft.Drawing.Imaging
                         newBuffer = new Array2D<byte>(size.Height, stride);
                     }
 
-                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, preferLinearBlending, () => newBuffer.Dispose());
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, blendingMode, () => newBuffer.Dispose());
 #endif
                 };
             }

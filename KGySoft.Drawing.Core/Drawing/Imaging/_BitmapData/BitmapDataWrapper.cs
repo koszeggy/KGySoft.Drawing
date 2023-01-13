@@ -130,7 +130,7 @@ namespace KGySoft.Drawing.Imaging
         public bool IsDisposed => BitmapData.IsDisposed;
         public bool CanSetPalette => false;
         public bool IsCustomPixelFormat => BitmapData.PixelFormat.IsCustomFormat;
-        public bool PrefersLinearBlending => BitmapData.PrefersLinearBlending;
+        public BlendingModeHint BlendingMode => BitmapData.BlendingMode;
 
         #endregion
 

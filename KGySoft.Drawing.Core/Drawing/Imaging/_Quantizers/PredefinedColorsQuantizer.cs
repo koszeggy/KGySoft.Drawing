@@ -337,7 +337,7 @@ namespace KGySoft.Drawing.Imaging
             PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
             BackColor = customBitmapData.BackColor;
             AlphaThreshold = customBitmapData.AlphaThreshold;
-            LinearBlending = customBitmapData.PrefersLinearBlending;
+            LinearBlending = customBitmapData.BlendingMode == BlendingModeHint.Linear;
         }
 
         private PredefinedColorsQuantizer(PredefinedColorsQuantizer original, bool useLinearBlending)
@@ -1622,38 +1622,20 @@ namespace KGySoft.Drawing.Imaging
         {
             if (bitmapData == null)
                 throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
-            switch (bitmapData.PixelFormat.AsKnownPixelFormatInternal)
+            return (bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
             {
-                case KnownPixelFormat.Format8bppIndexed:
-                case KnownPixelFormat.Format4bppIndexed:
-                case KnownPixelFormat.Format1bppIndexed:
-                    return FromCustomPalette(bitmapData.Palette!); // if palette is null, the exception will be thrown from PredefinedColorsQuantizer
-                case KnownPixelFormat.Format16bppArgb1555:
-                    return Argb1555(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold).ConfigureBlendingMode(bitmapData.PrefersLinearBlending);
-                case KnownPixelFormat.Format16bppRgb565:
-                    return Rgb565(bitmapData.BackColor.ToColor()).ConfigureBlendingMode(bitmapData.PrefersLinearBlending);
-                case KnownPixelFormat.Format16bppRgb555:
-                    return Rgb555(bitmapData.BackColor.ToColor()).ConfigureBlendingMode(bitmapData.PrefersLinearBlending);
-                case KnownPixelFormat.Format16bppGrayScale:
-                    return Grayscale(bitmapData.BackColor.ToColor()).ConfigureBlendingMode(bitmapData.PrefersLinearBlending);
-                case KnownPixelFormat.Format24bppRgb:
-                case KnownPixelFormat.Format48bppRgb:
-                case KnownPixelFormat.Format32bppRgb:
-                    return Rgb888(bitmapData.BackColor.ToColor()).ConfigureBlendingMode(bitmapData.PrefersLinearBlending);
-                default:
-                    // handling custom formats
-                    if (bitmapData is ICustomBitmapData customBitmapData)
-                        return new PredefinedColorsQuantizer(customBitmapData);
-
-                    // handling other custom indexed formats
-                    if (bitmapData.Palette is Palette palette)
-                        return FromCustomPalette(palette);
-
-                    // fallback: 24/32-bit [A]RGB
-                    return (bitmapData.HasAlpha()
-                        ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
-                        : Rgb888(bitmapData.BackColor.ToColor())).ConfigureBlendingMode(bitmapData.PrefersLinearBlending);
-            }
+                // if palette is null, the exception will be thrown from PredefinedColorsQuantizer
+                KnownPixelFormat.Format8bppIndexed or KnownPixelFormat.Format4bppIndexed or KnownPixelFormat.Format1bppIndexed => FromCustomPalette(bitmapData.Palette!),
+                KnownPixelFormat.Format16bppArgb1555 => Argb1555(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold),
+                KnownPixelFormat.Format16bppRgb565 => Rgb565(bitmapData.BackColor.ToColor()),
+                KnownPixelFormat.Format16bppRgb555 => Rgb555(bitmapData.BackColor.ToColor()),
+                KnownPixelFormat.Format16bppGrayScale => Grayscale(bitmapData.BackColor.ToColor()),
+                KnownPixelFormat.Format24bppRgb or KnownPixelFormat.Format32bppRgb or KnownPixelFormat.Format48bppRgb => Rgb888(bitmapData.BackColor.ToColor()),
+                _ => bitmapData is ICustomBitmapData customBitmapData ? new PredefinedColorsQuantizer(customBitmapData)
+                    : bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
+                    : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
+                    : Rgb888(bitmapData.BackColor.ToColor())
+            }).ConfigureBlendingMode(bitmapData.BlendingMode == BlendingModeHint.Linear);
         }
 
         /// <summary>
@@ -1714,7 +1696,6 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.PrefersLinearBlending">IBitmapData.PrefersLinearBlending</see> property for details.
         /// </summary>
         /// <param name="preferLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.
         /// <br/>It may have no effect if this <see cref="OptimizedPaletteQuantizer"/> was created from a custom function or from a <see cref="Imaging.Palette"/> that uses a custom function.</param>
