@@ -136,7 +136,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(cfg.Size.Width > 0 && cfg.Size.Height > 0, "Non-empty size expected");
             Debug.Assert(cfg.PixelFormat.BitsPerPixel is > 0 and <= 128);
             Debug.Assert(cfg.Palette == null || cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
-                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.LinearBlending == (cfg.BlendingMode == BlendingMode.Linear));
+                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.BlendingMode == cfg.BlendingMode);
 
             this.disposeCallback = cfg.DisposeCallback;
             this.trySetPaletteCallback = cfg.TrySetPaletteCallback;

@@ -1,5 +1,4 @@
-﻿#if !NET35
-#region Copyright
+﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: QuantizerExtensions.cs
@@ -16,11 +15,17 @@
 
 #region Usings
 
-using System;
+#if !NET35
+using System; 
+#endif
 using System.Drawing;
+#if !NET35
 using System.Threading.Tasks;
+#endif
 
+#if !NET35
 using KGySoft.Threading;
+#endif
 
 #endregion
 
@@ -34,6 +39,7 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
+#if !NET35
 
         /// <summary>
         /// Gets an <see cref="IQuantizingSession"/> instance potentially asynchronously that can be used to quantize the colors of the specified <see cref="IReadableBitmapData"/> instance.
@@ -53,6 +59,7 @@ namespace KGySoft.Drawing.Imaging
                 ? AsyncHelper.FromResult(quantizer.Initialize(source), asyncConfig)
                 : AsyncHelper.DoOperationAsync(ctx => DoInitializeSessionAsync(ctx, source, quantizer), asyncConfig);
 
+#endif
         #endregion
 
         #region Internal Methods
@@ -75,7 +82,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Private Methods
-
+#if !NET35
+        
         private static IQuantizingSession? DoInitializeSessionAsync(IAsyncContext context, IReadableBitmapData source, IQuantizer quantizer)
         {
             if (context.IsCancellationRequested)
@@ -88,9 +96,9 @@ namespace KGySoft.Drawing.Imaging
             return result;
         }
 
+#endif
         #endregion
 
         #endregion
     }
 }
-#endif
