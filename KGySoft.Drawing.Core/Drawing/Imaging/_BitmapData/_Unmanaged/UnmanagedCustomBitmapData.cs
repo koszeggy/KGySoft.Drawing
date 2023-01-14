@@ -92,7 +92,7 @@ namespace KGySoft.Drawing.Imaging
                 Action<ICustomBitmapDataRow, int, Color32> setter = rowSetColor;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
-                BlendingModeHint blendingMode = BlendingMode;
+                BlendingMode blendingMode = BlendingMode;
                 PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origStride = RowSize;

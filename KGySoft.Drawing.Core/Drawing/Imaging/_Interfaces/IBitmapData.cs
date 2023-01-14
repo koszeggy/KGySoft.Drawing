@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -108,13 +108,13 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a hint indicating the preferred blending mode of this <see cref="IBitmapData"/> instance.
         /// Some operations, such as setting pixels, drawing another bitmap data into this instance and performing other operations
-        /// consider the value of this property. Operations that use an <see cref="IQuantizer"/> instance may overrule the value of this property.
-        /// <br/>Default value: <see cref="BlendingModeHint.Default"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented)
+        /// consider the value of this property. Operations that use an <see cref="IQuantizer"/> instance may override the value of this property.
+        /// <br/>Default value if not implemented: <see cref="Imaging.BlendingMode.Default"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
         /// </summary>
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
-        BlendingModeHint BlendingMode { get; }
+        BlendingMode BlendingMode { get; }
 #else
-        BlendingModeHint BlendingMode => BlendingModeHint.Default;
+        BlendingMode BlendingMode => BlendingMode.Default;
 #endif
 
         /// <summary>

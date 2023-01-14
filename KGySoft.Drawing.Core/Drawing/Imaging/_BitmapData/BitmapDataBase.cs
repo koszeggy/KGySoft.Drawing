@@ -60,7 +60,7 @@ namespace KGySoft.Drawing.Imaging
         public bool IsDisposed { get; private set; }
         public bool CanSetPalette => PixelFormat.Indexed && Palette != null && AllowSetPalette;
         public virtual bool IsCustomPixelFormat => PixelFormat.IsCustomFormat;
-        public BlendingModeHint BlendingMode { get; }
+        public BlendingMode BlendingMode { get; }
 
         #endregion
 
@@ -136,7 +136,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(cfg.Size.Width > 0 && cfg.Size.Height > 0, "Non-empty size expected");
             Debug.Assert(cfg.PixelFormat.BitsPerPixel is > 0 and <= 128);
             Debug.Assert(cfg.Palette == null || cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
-                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.LinearBlending == (cfg.BlendingMode == BlendingModeHint.Linear));
+                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.LinearBlending == (cfg.BlendingMode == BlendingMode.Linear));
 
             this.disposeCallback = cfg.DisposeCallback;
             this.trySetPaletteCallback = cfg.TrySetPaletteCallback;
@@ -146,7 +146,7 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = cfg.AlphaThreshold;
             PixelFormat = cfg.PixelFormat;
             BlendingMode = cfg.BlendingMode;
-            LinearBlending = BlendingMode == BlendingModeHint.Linear;
+            LinearBlending = BlendingMode == BlendingMode.Linear;
             if (!cfg.PixelFormat.Indexed)
                 return;
 

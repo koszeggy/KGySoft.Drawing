@@ -199,7 +199,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            private BlendingModeHint BlendingMode => QuantizerLinearBlending ? BlendingModeHint.Linear : BlendingModeHint.Srgb;
+            private BlendingMode BlendingMode => QuantizerLinearBlending ? BlendingMode.Linear : BlendingMode.Srgb;
 
             #endregion
 

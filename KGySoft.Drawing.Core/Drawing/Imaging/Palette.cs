@@ -243,7 +243,7 @@ namespace KGySoft.Drawing.Imaging
         internal int TransparentIndex { get; }
         internal bool HasTransparent => TransparentIndex >= 0;
         internal bool LinearBlending { get; } // not public because might not be relevant if a custom function is used
-        internal BlendingModeHint BlendingMode => LinearBlending ? BlendingModeHint.Linear : BlendingModeHint.Srgb;
+        internal BlendingMode BlendingMode => LinearBlending ? BlendingMode.Linear : BlendingMode.Srgb;
 
         #endregion
 

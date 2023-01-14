@@ -32,7 +32,7 @@ namespace KGySoft.Drawing.Imaging
         internal readonly PixelFormatInfo PixelFormat;
         internal readonly Color32 BackColor;
         internal readonly byte AlphaThreshold;
-        internal readonly BlendingModeHint BlendingMode;
+        internal readonly BlendingMode BlendingMode;
         internal readonly Palette? Palette;
         internal readonly Func<Palette, bool>? TrySetPaletteCallback;
         internal readonly Action? DisposeCallback;
@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal BitmapDataConfig(Size size, PixelFormatInfo pixelFormat,
-            Color32 backColor = default, byte alphaThreshold = 128, BlendingModeHint blendingMode = BlendingModeHint.Default,
+            Color32 backColor = default, byte alphaThreshold = 128, BlendingMode blendingMode = BlendingMode.Default,
             Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null, Action? disposeCallback = null)
         {
             Size = size;

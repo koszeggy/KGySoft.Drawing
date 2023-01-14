@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IQuantizingSession.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets whether this <see cref="IQuantizingSession"/> works with grayscale colors.
         /// Its value may help to optimize the processing in some cases but it is allowed to return always <see langword="false"/>.
-        /// <br/>Default value: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented)
+        /// <br/>Default value is not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
         /// </summary>
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         bool IsGrayscale { get; }
@@ -70,6 +70,10 @@ namespace KGySoft.Drawing.Imaging
         bool IsGrayscale => false;
 #endif
 
+        /// <summary>
+        /// Gets whether this <see cref="IQuantizingSession"/> performs blending in the linear color space.
+        /// <br/>Default value is not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
+        /// </summary>
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         bool LinearBlending { get; }
 #else

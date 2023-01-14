@@ -34,7 +34,7 @@ namespace KGySoft.Drawing.Imaging
             return origColor.BlendWithBackground(session.BackColor, session.LinearBlending);
         }
 
-        internal static BlendingModeHint BlendingMode(this IQuantizingSession session) => session.LinearBlending ? BlendingModeHint.Linear : BlendingModeHint.Srgb;
+        internal static BlendingMode BlendingMode(this IQuantizingSession session) => session.LinearBlending ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
 
         #endregion
     }

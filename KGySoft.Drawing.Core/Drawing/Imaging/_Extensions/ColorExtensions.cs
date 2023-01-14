@@ -370,6 +370,5 @@ namespace KGySoft.Drawing.Imaging
         internal static Color32 BlendWith(this Color32 src, Color32 dst) => BlendWithSrgb(src, dst);
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor) => BlendWithBackgroundSrgb(c, backColor);
         internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst) => BlendWithPremultiplied(src, dst, default);
-        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor) => TolerantEquals(c1, c2, tolerance, backColor, default);
     }
 }
