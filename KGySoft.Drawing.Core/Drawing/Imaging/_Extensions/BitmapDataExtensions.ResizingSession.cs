@@ -18,7 +18,6 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
-using System.Runtime.CompilerServices;
 using System.Security;
 
 using KGySoft.Collections;
@@ -121,8 +120,8 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                Action<int> processRow = target.IsFastPremultiplied()
-                    ? ProcessRowPremultiplied
+                Action<int> processRow = target.IsFastPremultiplied() && target.BlendingMode != BlendingMode.Linear
+                    ? ProcessRowPremultipliedSrgb
                     : ProcessRowStraight;
 
                 // Sequential processing
@@ -158,6 +157,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
+                    bool linearBlending = target.BlendingMode == BlendingMode.Linear;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -182,9 +182,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst)
+                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst);
+                                : colorSrc.BlendWith(colorDst, linearBlending);
                         }
 
                         // overwriting target color only if blended color has high enough alpha
@@ -195,7 +195,7 @@ namespace KGySoft.Drawing.Imaging
                     }
                 }
 
-                void ProcessRowPremultiplied(int y)
+                void ProcessRowPremultipliedSrgb(int y)
                 {
                     // Scaling factors
                     float widthFactor = sourceRectangle.Width / (float)targetRectangle.Width;
@@ -228,7 +228,7 @@ namespace KGySoft.Drawing.Imaging
 
                         // non-transparent target: blending
                         if (colorDst.A != 0)
-                            colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
+                            colorSrc = colorSrc.BlendWithPremultipliedSrgb(colorDst);
 
                         rowDst.DoSetColor32Premultiplied(pos, colorSrc);
                     }
@@ -277,6 +277,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = session.AlphaThreshold;
+                    bool linearBlending = session.LinearBlending;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -301,9 +302,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst)
+                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst);
+                                : colorSrc.BlendWith(colorDst, linearBlending);
                         }
 
                         // overwriting target color only if blended color has high enough alpha
@@ -353,6 +354,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = quantizingSession.AlphaThreshold;
+                    bool lienarBlending = quantizingSession.LinearBlending;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -377,9 +379,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst)
+                                ? colorSrc.BlendWithBackground(colorDst, lienarBlending)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst);
+                                : colorSrc.BlendWith(colorDst, lienarBlending);
                         }
 
                         // overwriting target color only if blended color has high enough alpha
@@ -542,14 +544,126 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            [MethodImpl(MethodImpl.AggressiveInlining)]
             internal void PerformResizeDirect()
             {
-                // TODO: if sRGB blending is allowed 
-                //if (target.IsFastPremultipliedP32()) // && !target.PrefersLinearBlending
-                //    PerformResizePremultiplied();
-                //else
+                if (target.IsFastPremultiplied() && target.BlendingMode != BlendingMode.Linear)
+                    PerformResizePremultipliedSrgb();
+                else
                     PerformResizeDirectStraight();
+
+                #region Local Methods
+
+                void PerformResizeDirectStraight()
+                {
+                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                    {
+                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                            Slide();
+
+                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                        int topLine = kernel.StartIndex - currentWindow.Top;
+                        int targetWidth = targetRectangle.Width;
+                        int targetLeft = targetRectangle.Left;
+                        byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
+                        bool linearBlending = target.BlendingMode == BlendingMode.Linear;
+                        for (int x = 0; x < targetWidth; x++)
+                        {
+                            // Destination color components
+                            PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                            // fully transparent source: skip
+                            if (colorF.A <= 0f)
+                                continue;
+
+                            Color32 colorSrc = colorF.ToColor32();
+
+                            // fully solid source: overwrite
+                            if (colorSrc.A == Byte.MaxValue)
+                            {
+                                row.DoSetColor32(x + targetLeft, colorSrc);
+                                continue;
+                            }
+
+                            // checking full transparency again (means almost zero colorF.A)
+                            if (colorSrc.A == 0)
+                                continue;
+
+                            // source here has a partial transparency: we need to read the target color
+                            colorSrc = colorSrc.ToStraightSafe();
+                            int targetX = x + targetLeft;
+                            Color32 colorDst = row.DoGetColor32(targetX);
+
+                            // non-transparent target: blending
+                            if (colorDst.A != 0)
+                            {
+                                colorSrc = colorDst.A == Byte.MaxValue
+                                    // target pixel is fully solid: simple blending
+                                    ? colorSrc.BlendWithBackground(colorDst, linearBlending)
+                                    // both source and target pixels are partially transparent: complex blending
+                                    : colorSrc.BlendWith(colorDst, linearBlending);
+                            }
+
+                            // overwriting target color only if blended color has high enough alpha
+                            if (colorSrc.A < alphaThreshold)
+                                continue;
+
+                            row.DoSetColor32(targetX, colorSrc);
+                        }
+                    });
+                }
+
+                void PerformResizePremultipliedSrgb()
+                {
+                    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
+                    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
+                    {
+                        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
+                        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
+                            Slide();
+
+                        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
+                        int topLine = kernel.StartIndex - currentWindow.Top;
+                        int targetWidth = targetRectangle.Width;
+                        int targetLeft = targetRectangle.Left;
+                        for (int x = 0; x < targetWidth; x++)
+                        {
+                            // Destination color components
+                            PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
+
+                            // fully transparent source: skip
+                            if (colorF.A <= 0f)
+                                continue;
+
+                            Color32 colorSrc = colorF.ToColor32();
+
+                            // fully solid source: overwrite
+                            if (colorSrc.A == Byte.MaxValue)
+                            {
+                                row.DoSetColor32Premultiplied(x + targetLeft, colorSrc);
+                                continue;
+                            }
+
+                            // checking full transparency again (means almost zero colorF.A)
+                            if (colorSrc.A == 0)
+                                continue;
+
+                            // source here has a partial transparency: we need to read the target color
+                            colorSrc = colorSrc.AsValidPremultiplied();
+                            int targetX = x + targetLeft;
+                            Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
+
+                            // non-transparent target: blending
+                            if (colorDst.A != 0)
+                                colorSrc = colorSrc.BlendWithPremultipliedSrgb(colorDst);
+
+                            row.DoSetColor32Premultiplied(targetX, colorSrc);
+                        }
+                    });
+                }
+
+                #endregion
             }
 
             #endregion
@@ -609,116 +723,6 @@ namespace KGySoft.Drawing.Imaging
                 CalculateFirstPassValues(currentWindow.Top + windowBandHeight, currentWindow.Bottom, false);
             }
 
-            private void PerformResizeDirectStraight()
-            {
-                ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-                ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-                {
-                    ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-                    while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-                        Slide();
-
-                    IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-                    int topLine = kernel.StartIndex - currentWindow.Top;
-                    int targetWidth = targetRectangle.Width;
-                    int targetLeft = targetRectangle.Left;
-                    byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
-                    for (int x = 0; x < targetWidth; x++)
-                    {
-                        // Destination color components
-                        PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-                        // fully transparent source: skip
-                        if (colorF.A <= 0f)
-                            continue;
-
-                        Color32 colorSrc = colorF.ToColor32();
-
-                        // fully solid source: overwrite
-                        if (colorSrc.A == Byte.MaxValue)
-                        {
-                            row.DoSetColor32(x + targetLeft, colorSrc);
-                            continue;
-                        }
-
-                        // checking full transparency again (means almost zero colorF.A)
-                        if (colorSrc.A == 0)
-                            continue;
-
-                        // source here has a partial transparency: we need to read the target color
-                        colorSrc = colorSrc.ToStraightSafe();
-                        int targetX = x + targetLeft;
-                        Color32 colorDst = row.DoGetColor32(targetX);
-
-                        // non-transparent target: blending
-                        if (colorDst.A != 0)
-                        {
-                            colorSrc = colorDst.A == Byte.MaxValue
-                                // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst)
-                                // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst);
-                        }
-
-                        // overwriting target color only if blended color has high enough alpha
-                        if (colorSrc.A < alphaThreshold)
-                            continue;
-
-                        row.DoSetColor32(targetX, colorSrc);
-                    }
-                });
-            }
-
-            // TODO: make it work again for sRGB premultiplied blending is allowed (with public PColor32)
-            //private void PerformResizePremultiplied()
-            //{
-            //    ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
-            //    ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, targetRectangle.Height, y =>
-            //    {
-            //        ResizeKernel kernel = verticalKernelMap.GetKernel(y);
-            //        while (kernel.StartIndex + kernel.Length > currentWindow.Bottom)
-            //            Slide();
-
-            //        IBitmapDataRowInternal row = target.GetRowCached(y + targetRectangle.Y);
-            //        int topLine = kernel.StartIndex - currentWindow.Top;
-            //        int targetWidth = targetRectangle.Width;
-            //        int targetLeft = targetRectangle.Left;
-            //        for (int x = 0; x < targetWidth; x++)
-            //        {
-            //            // Destination color components
-            //            PColorF colorF = kernel.ConvolveWith(ref buffer, topLine + x * sourceRectangle.Height);
-
-            //            // fully transparent source: skip
-            //            if (colorF.A <= 0f)
-            //                continue;
-
-            //            Color32 colorSrc = colorF.ToColor32();
-
-            //            // fully solid source: overwrite
-            //            if (colorSrc.A == Byte.MaxValue)
-            //            {
-            //                row.DoSetColor32Premultiplied(x + targetLeft, colorSrc);
-            //                continue;
-            //            }
-
-            //            // checking full transparency again (means almost zero colorF.A)
-            //            if (colorSrc.A == 0)
-            //                continue;
-
-            //            // source here has a partial transparency: we need to read the target color
-            //            colorSrc = colorSrc.AsValidPremultiplied();
-            //            int targetX = x + targetLeft;
-            //            Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
-
-            //            // non-transparent target: blending
-            //            if (colorDst.A != 0)
-            //                colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
-
-            //            row.DoSetColor32Premultiplied(targetX, colorSrc);
-            //        }
-            //    });
-            //}
-
             private void PerformResizeWithQuantizer(IQuantizingSession quantizingSession)
             {
                 ArraySection<PColorF> buffer = transposedFirstPassBuffer.Buffer;
@@ -734,6 +738,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
                     byte alphaThreshold = session.AlphaThreshold;
+                    bool linearBlending = session.LinearBlending;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
@@ -766,9 +771,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst)
+                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst);
+                                : colorSrc.BlendWith(colorDst, linearBlending);
                         }
 
                         // overwriting target color only if blended color has high enough alpha
@@ -808,6 +813,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
                     byte alphaThreshold = quantizingSession.AlphaThreshold;
+                    bool linearBlending = quantizingSession.LinearBlending;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
@@ -840,9 +846,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst)
+                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst);
+                                : colorSrc.BlendWith(colorDst, linearBlending);
                         }
 
                         // overwriting target color only if blended color has high enough alpha

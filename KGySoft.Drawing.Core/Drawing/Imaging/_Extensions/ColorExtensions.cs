@@ -63,21 +63,20 @@ namespace KGySoft.Drawing.Imaging
                 ? c.R
                 : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
 
-        // TODO: undelete
-        ///// <summary>
-        ///// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
-        ///// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
-        ///// </summary>
-        ///// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
-        ///// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
-        ///// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
-        //[MethodImpl(MethodImpl.AggressiveInlining)]
-        //public static Color32 Blend(this Color32 foreColor, Color32 backColor)
-        //    => foreColor.A == Byte.MaxValue ? foreColor
-        //        : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
-        //        : foreColor.A == 0 ? backColor
-        //        : backColor.A == 0 ? foreColor
-        //        : foreColor.BlendWithSrgb(backColor);
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color32 Blend(this Color32 foreColor, Color32 backColor)
+            => foreColor.A == Byte.MaxValue ? foreColor
+                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
+                : foreColor.BlendWithSrgb(backColor);
 
         /// <summary>
         /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/>.
@@ -190,6 +189,7 @@ namespace KGySoft.Drawing.Imaging
                 (ushort)((uint)c.B * UInt16.MaxValue / c.A))
         };
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor, bool linear)
             => linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
 
@@ -210,8 +210,9 @@ namespace KGySoft.Drawing.Imaging
         }
 
         internal static Color32 BlendWithBackgroundLinear(this Color32 c, Color32 backColor)
-            => c.ToColorF().BlendWithBackground(backColor.ToColorF()).ToColor32();
+            => c.A == 0 ? backColor : c.ToColorF().BlendWithBackground(backColor.ToColorF()).ToColor32();
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWith(this Color32 src, Color32 dst, bool linear)
             => linear ? src.BlendWithLinear(dst) : dst.BlendWithSrgb(dst);
 
@@ -248,7 +249,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst, bool linear)
+        internal static Color32 BlendWithPremultipliedSrgb(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
             int inverseAlphaSrc = 255 - src.A;
@@ -365,10 +366,5 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #endregion
-
-        // TODO: delete. These are just for compatibility
-        internal static Color32 BlendWith(this Color32 src, Color32 dst) => BlendWithSrgb(src, dst);
-        internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor) => BlendWithBackgroundSrgb(c, backColor);
-        internal static Color32 BlendWithPremultiplied(this Color32 src, Color32 dst) => BlendWithPremultiplied(src, dst, default);
     }
 }

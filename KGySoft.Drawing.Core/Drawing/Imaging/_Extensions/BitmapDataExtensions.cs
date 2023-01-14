@@ -45,6 +45,7 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasMultiLevelAlpha || pixelFormat.Indexed && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
 
+        // TODO: IsFastPremultiplied32: current implementation OR: custom pixel format and has a direct P32 setter
         internal static bool IsFastPremultiplied(this IBitmapData bitmapData)
             => bitmapData.PixelFormat.HasPremultipliedAlpha
                 && bitmapData is ManagedBitmapDataBase { IsCustomPixelFormat: false } or UnmanagedBitmapDataBase { IsCustomPixelFormat: false };

@@ -1817,7 +1817,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static Color32 TransformInvert(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
 
-        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor);
+        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
 
         private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
 

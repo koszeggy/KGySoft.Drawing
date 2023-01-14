@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -41,8 +40,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Fields
         
-        [AllowNull]internal IBitmapDataInternal Source;
-        [AllowNull]internal IBitmapDataInternal Target;
+        internal IBitmapDataInternal Source = null!;
+        internal IBitmapDataInternal Target = null!;
         internal Rectangle SourceRectangle;
         internal Rectangle TargetRectangle;
 
@@ -257,6 +256,9 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        /// <summary>
+        /// Drawing without a quantizer in 32bpp color space.
+        /// </summary>
         internal void PerformDrawDirect()
         {
             IBitmapDataInternal source = Source;
@@ -268,25 +270,34 @@ namespace KGySoft.Drawing.Imaging
             // Sequential processing
             if (SourceRectangle.Width < parallelThreshold)
             {
-                if (Target.IsFastPremultiplied())
+                context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
+                if (target.BlendingMode == BlendingMode.Linear)
                 {
-                    context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
                     for (int y = 0; y < SourceRectangle.Height; y++)
                     {
                         if (context.IsCancellationRequested)
                             return;
-                        ProcessRowPremultiplied(y);
+                        ProcessRowLinear(y);
+                        context.Progress?.Increment();
+                    }
+                }
+                else if (target.IsFastPremultiplied())
+                {
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        ProcessRowPremultipliedSrgb(y);
                         context.Progress?.Increment();
                     }
                 }
                 else
                 {
-                    context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
                     for (int y = 0; y < SourceRectangle.Height; y++)
                     {
                         if (context.IsCancellationRequested)
                             return;
-                        ProcessRowStraight(y);
+                        ProcessRowStraightSrgb(y);
                         context.Progress?.Increment();
                     }
                 }
@@ -295,15 +306,15 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // Parallel processing
-            Action<int> processRow = Target.IsFastPremultiplied()
-                ? ProcessRowPremultiplied
-                : (Action<int>)ProcessRowStraight;
+            Action<int> processRow = target.BlendingMode == BlendingMode.Linear ? ProcessRowLinear
+                : target.IsFastPremultiplied() ? ProcessRowPremultipliedSrgb
+                : ProcessRowStraightSrgb;
 
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, processRow);
 
             #region Local Methods
 
-            void ProcessRowStraight(int y)
+            void ProcessRowStraightSrgb(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -336,9 +347,9 @@ namespace KGySoft.Drawing.Imaging
                     {
                         colorSrc = colorDst.A == Byte.MaxValue
                             // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackground(colorDst)
+                            ? colorSrc.BlendWithBackgroundSrgb(colorDst)
                             // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWith(colorDst);
+                            : colorSrc.BlendWithSrgb(colorDst);
                     }
 
                     // overwriting target color only if blended color has high enough alpha
@@ -349,7 +360,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            void ProcessRowPremultiplied(int y)
+            void ProcessRowPremultipliedSrgb(int y)
             {
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
                 IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
@@ -378,9 +389,55 @@ namespace KGySoft.Drawing.Imaging
 
                     // non-transparent target: blending
                     if (colorDst.A != 0)
-                        colorSrc = colorSrc.BlendWithPremultiplied(colorDst);
+                        colorSrc = colorSrc.BlendWithPremultipliedSrgb(colorDst);
 
                     rowDst.DoSetColor32Premultiplied(pos, colorSrc);
+                }
+            }
+
+            void ProcessRowLinear(int y)
+            {
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
+                int width = sourceWidth;
+
+                for (int x = 0; x < width; x++)
+                {
+                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoSetColor32(x + offsetDst, colorSrc);
+                        continue;
+                    }
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = x + offsetDst;
+                    Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                    // non-transparent target: blending
+                    if (colorDst.A != 0)
+                    {
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackgroundLinear(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWithLinear(colorDst);
+                    }
+
+                    // overwriting target color only if blended color has high enough alpha
+                    if (colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColor32(pos, colorSrc);
                 }
             }
 
@@ -618,23 +675,38 @@ namespace KGySoft.Drawing.Imaging
             if (SourceRectangle.Width < parallelThreshold >> quantizingScale)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                for (int y = 0; y < SourceRectangle.Height; y++)
+
+                if (quantizingSession.LinearBlending)
                 {
-                    if (context.IsCancellationRequested)
-                        return;
-                    ProcessRow(y);
-                    context.Progress?.Increment();
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        ProcessRowLinear(y);
+                        context.Progress?.Increment();
+                    }
+                }
+                else
+                {
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        ProcessRowSrgb(y);
+                        context.Progress?.Increment();
+                    }
                 }
 
                 return;
             }
 
             // Parallel processing
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+            Action<int> processRow = quantizingSession.LinearBlending ? ProcessRowLinear : ProcessRowSrgb;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, processRow);
 
             #region Local Methods
 
-            void ProcessRow(int y)
+            void ProcessRowSrgb(int y)
             {
                 IQuantizingSession session = quantizingSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -668,9 +740,56 @@ namespace KGySoft.Drawing.Imaging
                     {
                         colorSrc = colorDst.A == Byte.MaxValue
                             // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackground(colorDst)
+                            ? colorSrc.BlendWithBackgroundSrgb(colorDst)
                             // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWith(colorDst);
+                            : colorSrc.BlendWithSrgb(colorDst);
+                    }
+
+                    // overwriting target color only if blended color has high enough alpha
+                    if (colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColor32(pos, session.GetQuantizedColor(colorSrc));
+                }
+            }
+
+            void ProcessRowLinear(int y)
+            {
+                IQuantizingSession session = quantizingSession;
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                byte alphaThreshold = session.AlphaThreshold;
+                int width = sourceWidth;
+
+                for (int x = 0; x < width; x++)
+                {
+                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoSetColor32(x + offsetDst, session.GetQuantizedColor(colorSrc));
+                        continue;
+                    }
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = x + offsetDst;
+                    Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                    // non-transparent target: blending
+                    if (colorDst.A != 0)
+                    {
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackgroundLinear(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWithLinear(colorDst);
                     }
 
                     // overwriting target color only if blended color has high enough alpha
@@ -696,23 +815,37 @@ namespace KGySoft.Drawing.Imaging
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                for (int y = 0; y < SourceRectangle.Height; y++)
+                if (quantizingSession.LinearBlending)
                 {
-                    if (context.IsCancellationRequested)
-                        return;
-                    ProcessRow(y);
-                    context.Progress?.Increment();
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        ProcessRowLinear(y);
+                        context.Progress?.Increment();
+                    } 
+                }
+                else
+                {
+                    for (int y = 0; y < SourceRectangle.Height; y++)
+                    {
+                        if (context.IsCancellationRequested)
+                            return;
+                        ProcessRowSrgb(y);
+                        context.Progress?.Increment();
+                    }
                 }
 
                 return;
             }
 
             // Parallel processing
-            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, ProcessRow);
+            Action<int> processRow = quantizingSession.LinearBlending ? ProcessRowLinear : ProcessRowSrgb;
+            ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, processRow);
 
             #region Local Methods
 
-            void ProcessRow(int y)
+            void ProcessRowSrgb(int y)
             {
                 IDitheringSession session = ditheringSession;
                 IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
@@ -746,9 +879,56 @@ namespace KGySoft.Drawing.Imaging
                     {
                         colorSrc = colorDst.A == Byte.MaxValue
                             // target pixel is fully solid: simple blending
-                            ? colorSrc.BlendWithBackground(colorDst)
+                            ? colorSrc.BlendWithBackgroundSrgb(colorDst)
                             // both source and target pixels are partially transparent: complex blending
-                            : colorSrc.BlendWith(colorDst);
+                            : colorSrc.BlendWithSrgb(colorDst);
+                    }
+
+                    // overwriting target color only if blended color has high enough alpha
+                    if (colorSrc.A < alphaThreshold)
+                        continue;
+
+                    rowDst.DoSetColor32(pos, session.GetDitheredColor(colorSrc, x, y));
+                }
+            }
+
+            void ProcessRowLinear(int y)
+            {
+                IDitheringSession session = ditheringSession;
+                IBitmapDataRowInternal rowSrc = source.GetRowCached(sourceLocation.Y + y);
+                IBitmapDataRowInternal rowDst = target.GetRowCached(targetLocation.Y + y);
+                int offsetSrc = sourceLocation.X;
+                int offsetDst = targetLocation.X;
+                byte alphaThreshold = quantizingSession.AlphaThreshold;
+                int width = sourceWidth;
+
+                for (int x = 0; x < width; x++)
+                {
+                    Color32 colorSrc = rowSrc.DoGetColor32(x + offsetSrc);
+
+                    // fully solid source: overwrite
+                    if (colorSrc.A == Byte.MaxValue)
+                    {
+                        rowDst.DoSetColor32(x + offsetDst, session.GetDitheredColor(colorSrc, x, y));
+                        continue;
+                    }
+
+                    // fully transparent source: skip
+                    if (colorSrc.A == 0)
+                        continue;
+
+                    // source here has a partial transparency: we need to read the target color
+                    int pos = x + offsetDst;
+                    Color32 colorDst = rowDst.DoGetColor32(pos);
+
+                    // non-transparent target: blending
+                    if (colorDst.A != 0)
+                    {
+                        colorSrc = colorDst.A == Byte.MaxValue
+                            // target pixel is fully solid: simple blending
+                            ? colorSrc.BlendWithBackgroundLinear(colorDst)
+                            // both source and target pixels are partially transparent: complex blending
+                            : colorSrc.BlendWithLinear(colorDst);
                     }
 
                     // overwriting target color only if blended color has high enough alpha
