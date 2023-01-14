@@ -17,8 +17,11 @@
 ! IQuantizingSession interface:
   ! New LinearBlending property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
     this property has a default implementation and returns false.
++ New BlendingMode enumeration
++ BitmapDataExtensions class:
+  + New Clone/BeginClone/CloneAsync overloads with blendingMode parameter.
 + BitmapDataFactory class:
-  + New CreateBitmapData overloads to with preferLinearBlending parameters.
+  + New CreateBitmapData overloads with blendingMode parameter.
 + ColorExtensions class:
   + New Blend overload
 + New ColorSpaceHelper class

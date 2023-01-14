@@ -1039,7 +1039,7 @@ namespace KGySoft.Drawing.Imaging
                         // and if this is the last input frame, it is not added to the stack
                         if (MoveNextInputFrame())
                         {
-                            IReadWriteBitmapData? clone = preparedFrame.DoClone(asyncContext);
+                            IReadWriteBitmapData? clone = preparedFrame.DoClone(asyncContext, BlendingMode);
                             if (clone != null)
                                 reversedFramesStack.Push((clone, nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
                         }

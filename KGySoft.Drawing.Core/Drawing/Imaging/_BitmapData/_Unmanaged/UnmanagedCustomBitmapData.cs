@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
 
         public override bool IsCustomPixelFormat => true;
 
-        public Func<Size, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
+        public Func<Size, BlendingMode, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
         {
             get
             {
@@ -92,11 +92,10 @@ namespace KGySoft.Drawing.Imaging
                 Action<ICustomBitmapDataRow, int, Color32> setter = rowSetColor;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
-                BlendingMode blendingMode = BlendingMode;
                 PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origStride = RowSize;
-                return size =>
+                return (size, blendingMode) =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
 

@@ -29,7 +29,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets a factory to create a compatible bitmap data of the specified size that can be used by quantizers.
         /// </summary>
-        Func<Size, IBitmapDataInternal>  CreateCompatibleBitmapDataFactory { get; }
+        Func<Size, BlendingMode, IBitmapDataInternal>  CreateCompatibleBitmapDataFactory { get; }
 
         #endregion
     }

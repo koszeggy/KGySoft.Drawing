@@ -21,9 +21,7 @@ namespace KGySoft.Drawing.Imaging
     public enum BlendingMode
     {
         /// <summary>
-        /// Represents the default blending mode most optimal for the current operation.
-        /// When setting pixels it may depend on the color type, or when performing other operations
-        /// such as drawing or performing other transformations it may depend on the pixel format.
+        /// Represents the default blending mode most optimal for the current operation or actual color space.
         /// </summary>
         Default,
 

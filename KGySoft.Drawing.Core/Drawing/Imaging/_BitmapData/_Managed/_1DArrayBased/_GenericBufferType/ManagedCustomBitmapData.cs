@@ -100,7 +100,7 @@ namespace KGySoft.Drawing.Imaging
 
         public override bool IsCustomPixelFormat => true;
 
-        public unsafe Func<Size, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
+        public unsafe Func<Size, BlendingMode, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
         {
             [SecuritySafeCritical]
             get
@@ -113,11 +113,10 @@ namespace KGySoft.Drawing.Imaging
                 Action<ICustomBitmapDataRow<T>, int, Color32> setter = rowSetColor;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
-                BlendingMode blendingMode = BlendingMode;
                 PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origBufferWidth = Buffer.Width;
-                return size =>
+                return (size, blendingMode) =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
                     Array2D<T> newBuffer;

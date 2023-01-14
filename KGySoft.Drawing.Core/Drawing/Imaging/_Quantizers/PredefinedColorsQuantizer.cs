@@ -186,21 +186,23 @@ namespace KGySoft.Drawing.Imaging
             [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
             [SuppressMessage("ReSharper", "ConvertToLocalFunction", Justification = "False alarm, it would be converted to a delegate anyway.")]
 #endif
-            internal QuantizingSessionByCustomBitmapData(PredefinedColorsQuantizer quantizer, Func<Size, IBitmapDataInternal> compatibleBitmapDataFactory)
+            internal QuantizingSessionByCustomBitmapData(PredefinedColorsQuantizer quantizer, Func<Size, BlendingMode, IBitmapDataInternal> compatibleBitmapDataFactory)
             {
                 this.quantizer = quantizer;
 #if NET35 || NET40
                 bitmapDataList = new List<IBitmapData>(Environment.ProcessorCount);
                 Func<int, IBitmapDataRowInternal> createRowFactory = _ =>
                 {
-                    var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1)).GetRowUncached(0);
+                    var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1), LinearBlending ? BlendingMode.Linear : BlendingMode.Srgb).GetRowUncached(0);
                     lock (bitmapDataList)
                         bitmapDataList.Add(result.BitmapData);
                     return result;
                 };
                 rowsCache = ThreadSafeCacheFactory.Create(createRowFactory, cacheOptions);
 #else
-                rowsCache = new ThreadLocal<IBitmapDataRowInternal>(() => compatibleBitmapDataFactory.Invoke(new Size(1, 1)).GetRowUncached(0), true);
+                rowsCache = new ThreadLocal<IBitmapDataRowInternal>(
+                    () => compatibleBitmapDataFactory.Invoke(new Size(1, 1), LinearBlending ? BlendingMode.Linear : BlendingMode.Srgb)
+                        .GetRowUncached(0), true);
 #endif
             }
 
@@ -241,7 +243,7 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly Func<Color32, Color32>? quantizingFunction;
-        private readonly Func<Size, IBitmapDataInternal>? compatibleBitmapDataFactory;
+        private readonly Func<Size, BlendingMode, IBitmapDataInternal>? compatibleBitmapDataFactory;
         private readonly bool blendAlphaBeforeQuantize;
         private readonly bool isGrayscale;
 
