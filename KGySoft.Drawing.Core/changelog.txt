@@ -29,6 +29,8 @@
   + New ConfigureBlendingMode method
 + OptimizedColorsQuantizer class:
   + New ConfigureBlendingMode method
++ PixelFormatInfo struct:
+  + New LinearGamma property.
 * Palette class:
   + New constructor overloads with IEnumerable<Color32> parameter instead of an array.
   + New constructor and factory method overloads with useLinearBlending parameters.

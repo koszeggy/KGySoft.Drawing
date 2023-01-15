@@ -110,7 +110,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 {
                     new object[] { "8bpp Gray", new PixelFormatInfo(8) { Grayscale = true }, new Func<ICustomBitmapDataRow, int, Color32>(GetColor8BppGray), new Action<ICustomBitmapDataRow, int, Color32>(SetColor8BppGray) },
                     new object[] { "4bpp ARGB1111", new PixelFormatInfo(4) { HasSingleBitAlpha = true }, new Func<ICustomBitmapDataRow, int, Color32>(GetColor4BppArgb1111), new Action<ICustomBitmapDataRow, int, Color32>(SetColor4BppArgb1111) },
-                    new object[] { "128bpp ColorF", new PixelFormatInfo(128) { HasAlpha = true }, new Func<ICustomBitmapDataRow, int, Color32>(GetColor128Bpp), new Action<ICustomBitmapDataRow, int, Color32>(SetColor128Bpp) },
+                    new object[] { "128bpp ColorF", new PixelFormatInfo(128) { HasAlpha = true, LinearGamma = true }, new Func<ICustomBitmapDataRow, int, Color32>(GetColor128Bpp), new Action<ICustomBitmapDataRow, int, Color32>(SetColor128Bpp) },
                     new object[] { "9bpp Gray", new PixelFormatInfo(9) { Grayscale = true, HasSingleBitAlpha = true }, new Func<ICustomBitmapDataRow, int, Color32>(GetColor9BppGray), new Action<ICustomBitmapDataRow, int, Color32>(SetColor9BppGray) },
                 };
             }
@@ -245,7 +245,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         private static void DoCommonCustomBitmapDataTests(string caseName, Size size, IReadWriteBitmapData bitmapDataNonDithered, IReadWriteBitmapData bitmapDataDitheredContentIndependent, IReadWriteBitmapData bitmapDataDitheredContentDependent, [CallerMemberName] string testName = null)
         {
-            using IReadWriteBitmapData referenceBitmapData = BitmapDataFactory.CreateBitmapData(size);
+            using IReadWriteBitmapData referenceBitmapData = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, bitmapDataNonDithered.PixelFormat.LinearGamma ? BlendingMode.Linear : BlendingMode.Srgb);
 
             OrderedDitherer contentIndependentDitherer = OrderedDitherer.Bayer8x8;
             ErrorDiffusionDitherer contentDependentDitherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true);

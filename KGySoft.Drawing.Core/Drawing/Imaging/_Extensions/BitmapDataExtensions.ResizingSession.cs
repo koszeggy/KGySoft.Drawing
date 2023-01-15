@@ -120,7 +120,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                Action<int> processRow = target.IsFastPremultiplied() && target.BlendingMode != BlendingMode.Linear
+                Action<int> processRow = target.IsFastPremultiplied() && !target.LinearBlending()
                     ? ProcessRowPremultipliedSrgb
                     : ProcessRowStraight;
 
@@ -157,7 +157,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
-                    bool linearBlending = target.BlendingMode == BlendingMode.Linear;
+                    bool linearBlending = target.LinearBlending();
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -546,7 +546,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                if (target.IsFastPremultiplied() && target.BlendingMode != BlendingMode.Linear)
+                if (target.IsFastPremultiplied() && !target.LinearBlending())
                     PerformResizePremultipliedSrgb();
                 else
                     PerformResizeDirectStraight();
@@ -567,7 +567,7 @@ namespace KGySoft.Drawing.Imaging
                         int targetWidth = targetRectangle.Width;
                         int targetLeft = targetRectangle.Left;
                         byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
-                        bool linearBlending = target.BlendingMode == BlendingMode.Linear;
+                        bool linearBlending = target.LinearBlending();
                         for (int x = 0; x < targetWidth; x++)
                         {
                             // Destination color components

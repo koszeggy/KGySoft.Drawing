@@ -146,7 +146,7 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = cfg.AlphaThreshold;
             PixelFormat = cfg.PixelFormat;
             BlendingMode = cfg.BlendingMode;
-            LinearBlending = BlendingMode == BlendingMode.Linear;
+            LinearBlending = BlendingMode == BlendingMode.Linear || BlendingMode == BlendingMode.Default && PixelFormat.LinearGamma;
             if (!cfg.PixelFormat.Indexed)
                 return;
 

@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.Imaging
         private const int isGrayscale = 1 << 25;
         private const int hasSingleBitAlpha = 1 << 26;
         //private const int prefersColorF = 1 << 27;
-        //private const int isLinear = 1 << 28;
+        private const int isLinear = 1 << 28;
 
         #endregion
 
@@ -215,6 +215,28 @@ namespace KGySoft.Drawing.Imaging
                     this.value &= ~hasSingleBitAlpha;
 
                 this.value |= isCustomFormat;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the represented pixel format has linear gamma.
+        /// For <see cref="Indexed"/> formats this property should be <see langword="false"/> because it can be configured
+        /// at <see cref="Palette"/> constructors and factory methods whether to blend colors in the linear color space.
+        /// Setting this property may effect the blending strategy if the <see cref="IBitmapData.BlendingMode">IBitmapData.BlendingMode</see>
+        /// property returns <see cref="BlendingMode.Default"/>.
+        /// </summary>
+        public bool LinearGamma
+        {
+            readonly get => (value & isLinear) != 0;
+            set
+            {
+                if (value == LinearGamma)
+                    return;
+                if (value)
+                    this.value |= isLinear;
+                else
+                    this.value &= ~isLinear;
+                this.value |= isLinear;
             }
         }
 

@@ -294,7 +294,7 @@ namespace KGySoft.Drawing.Imaging
                     Color32 rawColor = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
                     {
                         KnownPixelFormat.Format32bppPArgb => color.ToPremultiplied(),
-                        KnownPixelFormat.Format32bppRgb => color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.BlendingMode == BlendingMode.Linear),
+                        KnownPixelFormat.Format32bppRgb => color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.LinearBlending()),
                         _ => color,
                     };
 

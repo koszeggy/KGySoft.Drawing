@@ -65,6 +65,9 @@ namespace KGySoft.Drawing.Imaging
         internal static bool IsGrayscale(this IBitmapData bitmapData)
             => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.Grayscale;
 
+        internal static bool LinearBlending(this IBitmapData bitmapData)
+            => bitmapData.BlendingMode == BlendingMode.Linear || bitmapData.BlendingMode == BlendingMode.Default && bitmapData.PixelFormat.LinearGamma;
+
         internal static KnownPixelFormat GetKnownPixelFormat(this IBitmapData bitmapData)
         {
             PixelFormatInfo info = bitmapData.PixelFormat;

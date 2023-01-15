@@ -104,7 +104,7 @@ namespace KGySoft.Drawing.Imaging
                 this.imageData = imageData;
                 this.backColor = backColor;
                 this.alphaThreshold = alphaThreshold;
-                linearBlending = imageData.BlendingMode == BlendingMode.Linear;
+                linearBlending = imageData.LinearBlending();
                 this.fullScan = fullScan;
                 size = imageData.Size;
                 this.asyncContext.Progress?.New(DrawingOperation.Saving, size.Width * ((size.Height - 1) / 16 + 1));

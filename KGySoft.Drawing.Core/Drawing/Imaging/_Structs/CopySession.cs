@@ -272,7 +272,7 @@ namespace KGySoft.Drawing.Imaging
             if (SourceRectangle.Width < parallelThreshold)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                if (target.BlendingMode == BlendingMode.Linear)
+                if (target.LinearBlending())
                 {
                     for (int y = 0; y < SourceRectangle.Height; y++)
                     {
@@ -307,7 +307,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // Parallel processing
-            Action<int> processRow = target.BlendingMode == BlendingMode.Linear ? ProcessRowLinear
+            Action<int> processRow = target.LinearBlending() ? ProcessRowLinear
                 : target.IsFastPremultiplied() ? ProcessRowPremultipliedSrgb
                 : ProcessRowStraightSrgb;
 

@@ -339,7 +339,7 @@ namespace KGySoft.Drawing.Imaging
             PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
             BackColor = customBitmapData.BackColor;
             AlphaThreshold = customBitmapData.AlphaThreshold;
-            LinearBlending = customBitmapData.BlendingMode == BlendingMode.Linear;
+            LinearBlending = customBitmapData.LinearBlending();
         }
 
         private PredefinedColorsQuantizer(PredefinedColorsQuantizer original, bool useLinearBlending)
@@ -1637,7 +1637,7 @@ namespace KGySoft.Drawing.Imaging
                     : bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
                     : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
                     : Rgb888(bitmapData.BackColor.ToColor())
-            }).ConfigureBlendingMode(bitmapData.BlendingMode == BlendingMode.Linear);
+            }).ConfigureBlendingMode(bitmapData.LinearBlending());
         }
 
         /// <summary>
