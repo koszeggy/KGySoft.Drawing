@@ -398,7 +398,6 @@ namespace KGySoft.Drawing.Imaging
             IsGrayscale = palette.IsGrayscale;
             HasAlpha = palette.HasAlpha;
             HasMultiLevelAlpha = palette.HasMultiLevelAlpha;
-            LinearBlending = palette.LinearBlending;
             customGetNearestColorIndex = palette.customGetNearestColorIndex;
         }
 

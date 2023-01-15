@@ -136,7 +136,7 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(cfg.Size.Width > 0 && cfg.Size.Height > 0, "Non-empty size expected");
             Debug.Assert(cfg.PixelFormat.BitsPerPixel is > 0 and <= 128);
             Debug.Assert(cfg.Palette == null || cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
-                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && cfg.Palette.BlendingMode == cfg.BlendingMode);
+                && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && (cfg.Palette.BlendingMode == cfg.BlendingMode || cfg.BlendingMode == BlendingMode.Default));
 
             this.disposeCallback = cfg.DisposeCallback;
             this.trySetPaletteCallback = cfg.TrySetPaletteCallback;
@@ -157,17 +157,18 @@ namespace KGySoft.Drawing.Imaging
                     // ReSharper disable once NotResolvedInText
                     throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), "palette");
                 Palette = cfg.Palette;
+                LinearBlending = Palette.LinearBlending;
                 return;
             }
 
             Palette = cfg.Palette ?? bpp switch
             {
-                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold), bpp),
-                8 => Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold),
-                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(cfg.BackColor), bpp),
-                4 => Palette.SystemDefault4BppPalette(cfg.BackColor),
-                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(cfg.BackColor), bpp),
-                _ => Palette.SystemDefault1BppPalette(cfg.BackColor)
+                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold, LinearBlending), bpp),
+                8 => Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold, LinearBlending),
+                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(cfg.BackColor, LinearBlending), bpp),
+                4 => Palette.SystemDefault4BppPalette(cfg.BackColor, LinearBlending),
+                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(cfg.BackColor, LinearBlending), bpp),
+                _ => Palette.SystemDefault1BppPalette(cfg.BackColor, LinearBlending)
             };
 
             AlphaThreshold = Palette.AlphaThreshold;

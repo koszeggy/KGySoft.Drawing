@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Properties
 
-        private static bool SaveToFile => false;
+        private static bool SaveToFile => true;
 
         #endregion
 
@@ -61,21 +61,14 @@ namespace KGySoft.Drawing.UnitTests
             if (!SaveToFile)
                 return;
 
-            using var bmp = new Bitmap(source.Width, source.Height,
-                source.PixelFormat.BitsPerPixel <= 8 && source.PixelFormat.Indexed ? PixelFormat.Format8bppIndexed
-                : source.PixelFormat.HasAlpha ? PixelFormat.Format32bppArgb
-                : PixelFormat.Format24bppRgb);
-
-            // setting palette
             if (source.PixelFormat.Indexed && source.PixelFormat.BitsPerPixel <= 8)
             {
-                ColorPalette palette = bmp.Palette;
-                Color32[] src = source.Palette!.Entries;
-                Color[] dst = palette.Entries;
-                for (int i = 0; i < source.Palette!.Count; i++)
-                    dst[i] = src[i].ToColor();
-                bmp.Palette = palette;
+                SaveGif(imageName, source, testName);
+                return;
             }
+
+            using var bmp = new Bitmap(source.Width, source.Height,
+                source.PixelFormat.HasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
 
             // copying content
             BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.WriteOnly, bmp.PixelFormat);
@@ -86,6 +79,19 @@ namespace KGySoft.Drawing.UnitTests
             }
 
             SaveBitmap(imageName, bmp, testName);
+        }
+
+        protected static void SaveGif(string imageName, IReadWriteBitmapData source, [CallerMemberName]string testName = null)
+        {
+            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
+
+            Assert.IsTrue(source.PixelFormat.BitsPerPixel <= 8 && source.Palette != null);
+            using var stream = File.Create($"{fileName}.gif");
+            GifEncoder.EncodeImage(source, stream);
         }
 
         protected static void EncodeAnimatedGif(AnimatedGifConfiguration config, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)

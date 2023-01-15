@@ -591,7 +591,6 @@ namespace KGySoft.Drawing.Imaging
                                 continue;
 
                             // source here has a partial transparency: we need to read the target color
-                            colorSrc = colorSrc.ToStraightSafe();
                             int targetX = x + targetLeft;
                             Color32 colorDst = row.DoGetColor32(targetX);
 
@@ -636,7 +635,7 @@ namespace KGySoft.Drawing.Imaging
                             if (colorF.A <= 0f)
                                 continue;
 
-                            Color32 colorSrc = colorF.ToColor32();
+                            Color32 colorSrc = colorF.ToColor32().ToPremultiplied();
 
                             // fully solid source: overwrite
                             if (colorSrc.A == Byte.MaxValue)
@@ -650,7 +649,6 @@ namespace KGySoft.Drawing.Imaging
                                 continue;
 
                             // source here has a partial transparency: we need to read the target color
-                            colorSrc = colorSrc.AsValidPremultiplied();
                             int targetX = x + targetLeft;
                             Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
 
@@ -762,7 +760,6 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // source here has a partial transparency: we need to read the target color
-                        colorSrc = colorSrc.ToStraightSafe();
                         int targetX = x + targetLeft;
                         Color32 colorDst = row.DoGetColor32(targetX);
 
@@ -837,7 +834,6 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // source here has a partial transparency: we need to read the target color
-                        colorSrc = colorSrc.ToStraightSafe();
                         int targetX = x + targetLeft;
                         Color32 colorDst = row.DoGetColor32(targetX);
 

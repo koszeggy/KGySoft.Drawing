@@ -1699,11 +1699,11 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
         /// </summary>
-        /// <param name="preferLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.
+        /// <param name="useLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.
         /// <br/>It may have no effect if this <see cref="OptimizedPaletteQuantizer"/> was created from a custom function or from a <see cref="Imaging.Palette"/> that uses a custom function.</param>
         /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>
-        public PredefinedColorsQuantizer ConfigureBlendingMode(bool preferLinearBlending)
-            => preferLinearBlending == LinearBlending ? this : new PredefinedColorsQuantizer(this, preferLinearBlending);
+        public PredefinedColorsQuantizer ConfigureBlendingMode(bool useLinearBlending)
+            => useLinearBlending == LinearBlending ? this : new PredefinedColorsQuantizer(this, useLinearBlending);
 
         #endregion
 

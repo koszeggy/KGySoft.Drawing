@@ -214,7 +214,7 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWith(this Color32 src, Color32 dst, bool linear)
-            => linear ? src.BlendWithLinear(dst) : dst.BlendWithSrgb(dst);
+            => linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithSrgb(this Color32 src, Color32 dst)

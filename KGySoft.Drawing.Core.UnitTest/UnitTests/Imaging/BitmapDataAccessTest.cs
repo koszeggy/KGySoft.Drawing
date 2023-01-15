@@ -44,7 +44,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "32 bit PARGB Alpha 254", KnownPixelFormat.Format32bppPArgb, Color.FromArgb(254, Color.Blue), Color.FromArgb(254, Color.Blue), 0xFE_00_00_FE },
             new object[] { "32 bit PARGB Transparent", KnownPixelFormat.Format32bppPArgb, Color.Transparent, Color.Empty, 0x00_00_00_00 },
             new object[] { "32 bit RGB Blue", KnownPixelFormat.Format32bppRgb, Color.Blue, Color.Blue, 0xFF_00_00_FF },
-            new object[] { "32 bit RGB Alpha 50%", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), 0xFF_00_00_7F },
             new object[] { "32 bit RGB Transparent", KnownPixelFormat.Format32bppRgb, Color.Transparent, Color.Black, 0xFF_00_00_00 },
             new object[] { "24 bit RGB Blue", KnownPixelFormat.Format24bppRgb, Color.Blue, Color.Blue, 0x00_00_FF },
             new object[] { "24 bit RGB Transparent", KnownPixelFormat.Format24bppRgb, Color.Transparent, Color.Black, 0x00_00_00 },
@@ -86,6 +85,30 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "1 bit Indexed Transparent", KnownPixelFormat.Format1bppIndexed, Color.Transparent, Color.Black, 0 },
         };
 
+        private static readonly object[][] blendingSetGetPixelTestSource =
+        {
+            new object[] { "48 bit RGB sRGB", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), BlendingMode.Srgb, 0x0000_0000_7F7F },
+            new object[] { "48 bit RGB Linear", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), BlendingMode.Linear, 0x0000_0000_BCBC },
+            new object[] { "32 bit RGB sRGB", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), BlendingMode.Srgb, 0xFF_00_00_7F },
+            new object[] { "32 bit RGB Linear", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), BlendingMode.Linear, 0xFF_00_00_BC },
+            new object[] { "24 bit RGB sRGB", KnownPixelFormat.Format24bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), BlendingMode.Srgb, 0x00_00_7F },
+            new object[] { "24 bit RGB Linear", KnownPixelFormat.Format24bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), BlendingMode.Linear, 0x00_00_BC },
+            new object[] { "16 bit RGB555 sRGB", KnownPixelFormat.Format16bppRgb555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), BlendingMode.Srgb, 0b00000_00000_01111 },
+            new object[] { "16 bit RGB555 Linear", KnownPixelFormat.Format16bppRgb555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), BlendingMode.Linear, 0b00000_00000_10111 },
+            new object[] { "16 bit RGB565 sRGB", KnownPixelFormat.Format16bppRgb565, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), BlendingMode.Srgb, 0b00000_000000_01111 },
+            new object[] { "16 bit RGB565 Linear", KnownPixelFormat.Format16bppRgb565, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), BlendingMode.Linear, 0b00000_000000_10111 },
+            new object[] { "16 bit ARGB1555 sRGB", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), BlendingMode.Srgb, 0b1_00000_00000_01111 },
+            new object[] { "16 bit ARGB1555 Linear", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), BlendingMode.Linear, 0b1_00000_00000_10111 },
+            new object[] { "16 bit Gray sRGB", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(14, 14, 14), BlendingMode.Srgb, 0x0E88 },
+            new object[] { "16 bit Gray Linear", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(21, 21, 21), BlendingMode.Linear, 0x1584 },
+            new object[] { "8 bit Indexed sRGB", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), BlendingMode.Srgb, 4 },
+            new object[] { "8 bit Indexed Linear", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 204), BlendingMode.Linear, 44 },
+            new object[] { "4 bit Indexed sRGB", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), BlendingMode.Srgb, 4 },
+            new object[] { "4 bit Indexed Linear", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), BlendingMode.Linear, 4 },
+            new object[] { "1 bit Indexed sRGB", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), BlendingMode.Srgb, 0 },
+            new object[] { "1 bit Indexed Linear", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), BlendingMode.Linear, 0 },
+        };
+
         #endregion
 
         #region Methods
@@ -122,7 +145,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         #region Instance Methods
 
         [TestCaseSource(nameof(setGetPixelTestSource))]
-        public unsafe void SetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValue)
+        public void SetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, long expectedRawValue)
         {
             Size size = new Size(3, 2);
             Color actualColor;
@@ -212,6 +235,120 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
             using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
                default, 128, BlendingMode.Default, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
+            {
+                // by Accessor Set/GetPixel
+                Console.Write("SetPixel/GetPixel unmanaged accessor: ");
+                unmanagedBitmapData.SetPixel(0, 0, testColor);
+                actualColor = unmanagedBitmapData.GetPixel(0, 0);
+                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
+                Assert.IsTrue(AreEqual(expectedResult, actualColor));
+
+                actualRawValue = GetRawValue(pixelFormat, unmanagedBitmapData);
+                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
+                Assert.AreEqual(expectedRawValue, actualRawValue);
+
+                // by indexer
+                unmanagedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, unmanagedBitmapData.GetRowCached(0)[0].ToColor()));
+                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, unmanagedBitmapData));
+
+                // nonzero coordinates
+                unmanagedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, unmanagedBitmapData.GetPixel(2, 1)));
+            }
+        }
+
+        [TestCaseSource(nameof(blendingSetGetPixelTestSource))]
+        public void BlendingSetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, BlendingMode blendingMode, long expectedRawValue)
+        {
+            Size size = new Size(3, 2);
+            Color actualColor;
+            long actualRawValue;
+
+            Console.WriteLine($"{testName}: {pixelFormat} + {testColor}{Environment.NewLine}");
+
+            bool AreEqual(Color c1, Color c2) => c1.ToArgb() == c2.ToArgb()
+                || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
+
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
+                default, 128, blendingMode, null))
+            {
+                // by Accessor Set/GetPixel
+                Console.Write("SetPixel/GetPixel allocating managed accessor: ");
+                managedBitmapData.SetPixel(0, 0, testColor);
+                actualColor = managedBitmapData.GetPixel(0, 0);
+                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
+                Assert.IsTrue(AreEqual(expectedResult, actualColor));
+
+                actualRawValue = GetRawValue(pixelFormat, managedBitmapData);
+                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
+                Assert.AreEqual(expectedRawValue, actualRawValue);
+
+                // by indexer
+                managedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetRowCached(0)[0].ToColor()));
+                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
+
+                // nonzero coordinates
+                managedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
+            }
+
+            long[] bufManaged = new long[size.Height * size.Width];
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(
+                new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat,
+                default, 128, blendingMode, null, null, null))
+            {
+                // by Accessor Set/GetPixel
+                Console.Write("SetPixel/GetPixel wrapping managed accessor: ");
+                managedBitmapData.SetPixel(0, 0, testColor);
+                actualColor = managedBitmapData.GetPixel(0, 0);
+                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
+                Assert.IsTrue(AreEqual(expectedResult, actualColor));
+
+                actualRawValue = GetRawValue(pixelFormat, managedBitmapData);
+                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
+                Assert.AreEqual(expectedRawValue, actualRawValue);
+
+                // by indexer
+                managedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetRowCached(0)[0].ToColor()));
+                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
+
+                // nonzero coordinates
+                managedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
+            }
+
+            long[,] bufManaged2D = new long[size.Height, size.Width];
+            using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat,
+                default, 128, blendingMode, null, null, null))
+            {
+                // by Accessor Set/GetPixel
+                Console.Write("SetPixel/GetPixel wrapping managed accessor 2D: ");
+                managedBitmapData.SetPixel(0, 0, testColor);
+                actualColor = managedBitmapData.GetPixel(0, 0);
+                Console.WriteLine($"{expectedResult} vs. {actualColor} ({(AreEqual(expectedResult, actualColor) ? "OK" : "Fail")})");
+                Assert.IsTrue(AreEqual(expectedResult, actualColor));
+
+                actualRawValue = GetRawValue(pixelFormat, managedBitmapData);
+                Console.WriteLine($"  Expected vs. actual raw value: {expectedRawValue:X8} vs. {actualRawValue:X8} ({(expectedRawValue == actualRawValue ? "OK" : "Fail")})");
+                Assert.AreEqual(expectedRawValue, actualRawValue);
+
+                // by indexer
+                managedBitmapData.GetRowCached(0)[0] = new Color32(testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetRowCached(0)[0].ToColor()));
+                Assert.AreEqual(expectedRawValue, GetRawValue(pixelFormat, managedBitmapData));
+
+                // nonzero coordinates
+                managedBitmapData.SetPixel(2, 1, testColor);
+                Assert.IsTrue(AreEqual(expectedResult, managedBitmapData.GetPixel(2, 1)));
+            }
+
+            int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
+            IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
+            using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
+               default, 128, blendingMode, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel unmanaged accessor: ");

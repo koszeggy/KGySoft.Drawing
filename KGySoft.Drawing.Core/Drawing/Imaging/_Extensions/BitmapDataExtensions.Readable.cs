@@ -2981,8 +2981,9 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredFirstPassPixelFormat(quantizer!),
-                    target.BackColor, target.AlphaThreshold, target.BlendingMode, null);
+                var blendingMode = quantizer.BlendingMode();
+                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredFirstPassPixelFormat(blendingMode),
+                    target.BackColor, target.AlphaThreshold, blendingMode, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -3073,12 +3074,13 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform resize (with or without blending) before quantizing/dithering
             if (isTwoPass)
             {
-                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredFirstPassPixelFormat(quantizer!);
+                BlendingMode blendingMode = quantizer.BlendingMode();
+                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredFirstPassPixelFormat(blendingMode);
                 sessionTarget = source.HasMultiLevelAlpha()
                     ? DoCloneDirect(context, target, actualTargetRectangle, sessionTargetPixelFormat,
-                        target.BackColor, target.AlphaThreshold, target.BlendingMode, null)
+                        target.BackColor, target.AlphaThreshold, blendingMode, null)
                     : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, sessionTargetPixelFormat,
-                        target.BackColor, target.AlphaThreshold, target.BlendingMode, null);
+                        target.BackColor, target.AlphaThreshold, blendingMode, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();

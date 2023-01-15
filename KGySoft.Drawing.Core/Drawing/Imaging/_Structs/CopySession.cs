@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
@@ -40,8 +41,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Fields
         
-        internal IBitmapDataInternal Source = null!;
-        internal IBitmapDataInternal Target = null!;
+        [AllowNull]internal IBitmapDataInternal Source = null!;
+        [AllowNull]internal IBitmapDataInternal Target = null!;
         internal Rectangle SourceRectangle;
         internal Rectangle TargetRectangle;
 
