@@ -186,10 +186,13 @@ namespace KGySoft.Drawing.UnitTests
             return result;
         }
 
-        protected static IReadWriteBitmapData GenerateLinearAlphaGradientBitmapData(Size size)
+        protected static IReadWriteBitmapData GenerateAlphaGradientBitmapData(Size size, bool linear)
         {
-            var result = BitmapDataFactory.CreateBitmapData(size);
-            GenerateAlphaGradientLinear(result);
+            var result = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, linear ? BlendingMode.Linear : BlendingMode.Srgb);
+            if (linear)
+                GenerateAlphaGradientLinear(result);
+            else
+                GenerateAlphaGradient(result);
             return result;
         }
 

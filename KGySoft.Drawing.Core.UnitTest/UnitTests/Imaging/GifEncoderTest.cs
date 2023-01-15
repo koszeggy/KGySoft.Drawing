@@ -660,7 +660,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", false, false)]
         [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", true, true)]
         [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", false, true)]
-        public void ApngToGifTest(string dir, bool allowDelta, bool prequantize)
+        public void ApngToGifPrequantizeVsQuantizeTest(string dir, bool allowDelta, bool prequantize)
         {
             IEnumerable<IReadableBitmapData> FramesIterator()
             {
@@ -678,6 +678,30 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             };
 
             EncodeAnimatedGif(config, false, $"{Path.GetFileName(dir)} {(allowDelta ? "delta" : "no delta")} {(prequantize ? "quantized" : "original")}");
+        }
+
+        [Explicit]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", false)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", true)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Cube", false)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Cube", true)]
+        public void ApngToGifTest(string dir, bool linear)
+        {
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                foreach (string file in Directory.GetFiles(dir, "*.png"))
+                {
+                    using IReadableBitmapData bitmapData = GetBitmapData(file);
+                    yield return bitmapData;
+                }
+            }
+
+            var config = new AnimatedGifConfiguration(FramesIterator())
+            {
+                Quantizer = OptimizedPaletteQuantizer.Wu(256, Color.Black, 0).ConfigureBlendingMode(linear)
+            };
+
+            EncodeAnimatedGif(config, false, $"{Path.GetFileName(dir)} linear={linear}");
         }
 
         [TestCase(1, true)]
@@ -758,23 +782,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [Test]
-        public void EncodeAnimationTrueColor()
+        [TestCase(false)]
+        [TestCase(true)]
+        public void EncodeAnimationTrueColor(bool linear)
         {
-            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 64));
+            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 64), linear);
 
             IEnumerable<IReadableBitmapData> FramesIterator()
             {
                 using IReadWriteBitmapData currentFrame = BitmapDataFactory.CreateBitmapData(new Size(bitmapData.Width, bitmapData.Height * 2));
 
-                IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(Color.White);
+                IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(Color.White).ConfigureBlendingMode(linear);
                 for (int y = bitmapData.Height - 1; y >= 0; y--)
                 {
                     bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, bitmapData.Height - y), quantizer);
                     yield return currentFrame;
                 }
 
-                quantizer = PredefinedColorsQuantizer.Rgb888(Color.Black);
+                quantizer = PredefinedColorsQuantizer.Rgb888(Color.Black).ConfigureBlendingMode(linear);
                 for (int y = 0; y < bitmapData.Height; y++)
                 {
                     bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, y + bitmapData.Height), quantizer);
@@ -795,7 +820,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Quantizer = OptimizedPaletteQuantizer.Octree()
             };
 
-            EncodeAnimatedGif(config, false);
+            EncodeAnimatedGif(config, false, $"linear={linear}");
         }
 
         [Test]
