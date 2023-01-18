@@ -499,6 +499,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.
         /// </summary>
         /// <param name="useLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.</param>
         /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>

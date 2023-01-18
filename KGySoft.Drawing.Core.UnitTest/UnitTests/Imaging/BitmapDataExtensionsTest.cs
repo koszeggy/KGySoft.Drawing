@@ -767,6 +767,53 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveBitmapData($"{pixelFormat}", clone);
         }
 
+        [Explicit]
+        [TestCase(BlendingMode.Srgb)]
+        [TestCase(BlendingMode.Linear)]
+        public void LinearVsSrgbBlendingBars(BlendingMode blendingMode)
+        {
+            using var target = BitmapDataFactory.CreateBitmapData(new Size(512, 512), KnownPixelFormat.Format24bppRgb, blendingMode);
+            target.Clear(Color32.White);
+            var colors = new[] { Color.Red, Color.Lime, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow, Color.Black, Color.Gray };
+            Point point = new Point(16, 0);
+            Size offset = new Size(64, 0);
+            for (int i = 0; i < colors.Length; i++)
+            {
+                using (var vertical = new SolidBitmapData(new Size(32, 512), colors[i]))
+                    vertical.DrawInto(target, point + offset * i);
+            }
+
+            point = new Point(0, 16);
+            offset = new Size(0, 64);
+            for (int i = 0; i < colors.Length; i++)
+            {
+                using (var horizontal = new SolidBitmapData(new Size(512, 32), Color.FromArgb(128, colors[i])))
+                    horizontal.DrawInto(target, point + offset * i);
+            }
+
+            SaveBitmapData($"{blendingMode}", target);
+        }
+
+        [Explicit]
+        [TestCase(BlendingMode.Srgb)]
+        [TestCase(BlendingMode.Linear)]
+        public void LinearVsSrgbBlendingAlphaGradient(BlendingMode blendingMode)
+        {
+            using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), KnownPixelFormat.Format24bppRgb, blendingMode))
+            {
+                GenerateAlphaGradient(target);
+
+                SaveBitmapData($"{blendingMode} Black", target);
+            }
+
+            using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), KnownPixelFormat.Format24bppRgb, blendingMode, Color.White))
+            {
+                GenerateAlphaGradient(target);
+
+                SaveBitmapData($"{blendingMode} White", target);
+            }
+        }
+
         #endregion
     }
 }

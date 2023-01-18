@@ -269,7 +269,7 @@ namespace KGySoft.Drawing.Imaging
 
                 if (canceled = context.IsCancellationRequested)
                     return null;
-                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold))
+                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.BlendingMode))
                     source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }
@@ -369,7 +369,7 @@ namespace KGySoft.Drawing.Imaging
                 if (pixelFormat.IsIndexed())
                     result.TrySetPalette(GetTargetPalette(pixelFormat, source, sourcePaletteToApply ?? paletteByQuantizer));
 
-                using IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold);
+                using IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold, source.BlendingMode);
                 return (canceled = !source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer)) ? null : result;
             }
             catch (Exception)

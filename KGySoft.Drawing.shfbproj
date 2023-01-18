@@ -520,6 +520,10 @@
       <ImageId>AlphaGradientRgb888Black</ImageId>
       <AlternateText>Alpha Gradient Rgb 888 Black</AlternateText>
     </Content>
+    <Content Include="Help\Images\AlphaGradientRgb888White.png">
+      <ImageId>AlphaGradientRgb888White</ImageId>
+      <AlternateText>Alpha Gradient Rgb 888 White</AlternateText>
+    </Content>
     <Content Include="Help\Images\AlphaGradientRgb888Silver.png">
       <ImageId>AlphaGradientRgb888Silver</ImageId>
       <AlternateText>Alpha Gradient Rgb 888 Silver</AlternateText>
@@ -1299,6 +1303,18 @@
     </Content>
     <Content Include="Help\Images\Information4A16_WPF.png">
       <ImageId>Information4A16_WPF</ImageId>
+    </Content>
+    <Content Include="Help\Images\BlendingExampleSrgb.png">
+      <ImageId>BlendingExampleSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\BlendingExampleLinear.png">
+      <ImageId>BlendingExampleLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientRgb888BlackLinear.png">
+      <ImageId>AlphaGradientRgb888BlackLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientRgb888WhiteLinear.png">
+      <ImageId>AlphaGradientRgb888WhiteLinear</ImageId>
     </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.

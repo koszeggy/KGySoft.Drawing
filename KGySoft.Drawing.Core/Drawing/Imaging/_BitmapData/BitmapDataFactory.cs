@@ -91,7 +91,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="size">The size of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The desired pixel format of the bitmap data to create.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section for details. The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -114,9 +114,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If a pixel of a bitmap data without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
-        /// <para>The <paramref name="blendingMode"/> parameter indicated what is the preferred blending mode when working with the result bitmap data.
+        /// <para>The <paramref name="blendingMode"/> parameter indicates the preferred blending mode when working with the result bitmap data.
         /// Blending operations performed by this library (eg. by <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see> when blending in necessary as described above,
-        /// or by the <see cref="o:BitmapDataExtensions.DrawInto">DrawInto</see> extension methods) respect the value of this parameter.
+        /// or by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods) respect the value of this parameter.
         /// Blending in the linear color space produces natural results but the operation is a bit slower if the actual
         /// pixel format is not in the linear color space and is different from the result of most applications including popular image processors and web browsers.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</para>
@@ -214,7 +214,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -334,7 +334,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -473,7 +473,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="stride">The size of a row in bytes. It allows to have some padding at the end of each row.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -592,7 +592,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -726,7 +726,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -825,7 +825,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -939,7 +939,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="pixelWidth">The width of the bitmap data to create in pixels.</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -1040,7 +1040,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -1170,7 +1170,7 @@ namespace KGySoft.Drawing.Imaging
         /// It can be negative for bottom-up layout (ie. when <paramref name="buffer"/> points to the first pixel of the bottom row).</param>
         /// <param name="pixelFormat">The pixel format in <paramref name="buffer"/> and the bitmap data to create.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.
@@ -1290,7 +1290,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rowGetColor">A delegate that can get the color of a pixel in a row of the bitmap data.</param>
         /// <param name="rowSetColor">A delegate that can set the color of a pixel in a row of the bitmap data.</param>
         /// <param name="blendingMode">Specifies the desired blending mode that should be used when working with the result bitmap data.
-        /// This parameter sets the <see cref="IBitmapData.BlendingMode"/> property.</param>
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.</param>
         /// <param name="backColor">For pixel formats without alpha gradient support specifies the <see cref="IBitmapData.BackColor"/> value of the returned <see cref="IReadWriteBitmapData"/> instance. It does not affect the actual returned bitmap content.
         /// See the <strong>Remarks</strong> section of the <see cref="CreateBitmapData(Size, KnownPixelFormat, BlendingMode, Color32, byte)"/> overload for details.
         /// The alpha value (<see cref="Color32.A">Color32.A</see> field) of the specified background color is ignored. This parameter is optional.

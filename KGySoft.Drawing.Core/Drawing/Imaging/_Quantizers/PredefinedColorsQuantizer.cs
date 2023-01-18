@@ -1379,11 +1379,11 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the colors in the specified <paramref name="palette"/>.</returns>
         /// <remarks>
-        /// <para>The <see cref="PredefinedColorsQuantizer"/> instance returned by this method will use a <see cref="Palette"/> internally, created from
+        /// <para>The <see cref="PredefinedColorsQuantizer"/> instance returned by this method will use a <see cref="Imaging.Palette"/> internally, created from
         /// the colors specified in the <paramref name="palette"/> parameter. When quantizing, best matching colors might be looked up sequentially and results
         /// might be cached.</para>
-        /// <para>If a color to be quantized can be mapped to a color index directly, then create a <see cref="Palette"/> instance explicitly,
-        /// specifying the custom mapping logic and use the <see cref="o:FromCustomPalette"/> overload instead.</para>
+        /// <para>If a color to be quantized can be mapped to a color index directly, then create a <see cref="Imaging.Palette"/> instance explicitly,
+        /// specifying the custom mapping logic and use the <see cref="FromCustomPalette(Imaging.Palette)"/> overload instead.</para>
         /// <para>If a color to be quantized can be transformed to a result color directly, and the quantized result is not needed to be an indexed image,
         /// then use the <see cref="O:KGySoft.Drawing.Imaging.PredefinedColorsQuantizer.FromCustomFunction">FromCustomFunction</see> overloads instead.</para>
         /// </remarks>
@@ -1494,7 +1494,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
         /// <para>The quantizer returned by this method does not have a palette. If you need to create an indexed result using a custom mapping function that
-        /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="o:FromCustomPalette"/> method instead.</para>
+        /// uses up to 256 different colors, then create a <see cref="Imaging.Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Imaging.Palette)"/> method instead.</para>
         /// <para>This overload never calls the <paramref name="quantizingFunction"/> delegate with a color with alpha. Depending on <paramref name="alphaThreshold"/> either a completely
         /// transparent color will be returned or the color will be blended with <paramref name="backColor"/> before invoking the delegate.
         /// In order to allow invoking <paramref name="quantizingFunction"/> with alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32},KnownPixelFormat)"/> overload instead.</para>
@@ -1552,7 +1552,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
         /// <remarks>
         /// <para>The quantizer returned by this method does not have a palette. If you need to create an indexed result using a custom mapping function that
-        /// uses up to 256 different colors, then create a <see cref="Palette"/> instance specifying a custom function and call the <see cref="o:FromCustomPalette"/> method instead.</para>
+        /// uses up to 256 different colors, then create a <see cref="Imaging.Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Imaging.Palette)"/> method instead.</para>
         /// <para>This overload always calls the <paramref name="quantizingFunction"/> delegate without preprocessing the input colors.
         /// In order to pass only opaque colors to the <paramref name="quantizingFunction"/> delegate use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, KnownPixelFormat, byte)"/> overload instead.</para>
         /// </remarks>
@@ -1613,7 +1613,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is <see cref="KnownPixelFormat.Format16bppGrayScale"/>,
         /// then this method returns the same quantizer as the <see cref="Grayscale">Grayscale</see> method.</para>
         /// <para>If the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> is an indexed format,
-        /// then this method returns the same quantizer as the <see cref="o:FromCustomPalette"/> method using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
+        /// then this method returns the same quantizer as the <see cref="FromCustomPalette(Imaging.Palette)"/> method using the <see cref="IBitmapData.Palette"/> of the specified <paramref name="bitmapData"/>.</para>
         /// <para>If none of above and the <paramref name="bitmapData"/> has been created by one of the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods
         /// that create bitmap data with custom pixel format, then a special quantizer is returned that produces exactly the same colors as the specified <paramref name="bitmapData"/>.</para>
         /// <para>Otherwise, this method returns either the same quantizer as the <see cref="Argb8888">Argb8888</see> method (if the <see cref="IBitmapData.PixelFormat"/> of <paramref name="bitmapData"/> supports alpha);
@@ -1698,6 +1698,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.
         /// </summary>
         /// <param name="useLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.
         /// <br/>It may have no effect if this <see cref="OptimizedPaletteQuantizer"/> was created from a custom function or from a <see cref="Imaging.Palette"/> that uses a custom function.</param>

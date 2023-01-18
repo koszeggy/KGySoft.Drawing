@@ -470,14 +470,14 @@ namespace KGySoft.Drawing.UnitTests
             const int size = 17;
             Color color = Color.FromArgb((int)argb);
 
-            using var bmp = CreateBitmap(size, pixelFormat);
+            using Bitmap bmp = CreateBitmap(size, pixelFormat);
             bmp.Clear(color);
             using (IReadableBitmapData bitmapData = bmp.GetReadableBitmapData())
             {
                 IReadableBitmapDataRowMovable row = bitmapData.FirstRow;
                 var c32 = new Color32(color);
                 if (!pixelFormat.HasAlpha())
-                    c32 = c32.Blend(Color32.FromGray(0));
+                    c32 = c32.Blend(Color32.FromGray(0), false);
                 do
                 {
                     for (int x = 0; x < bitmapData.Width; x++)

@@ -186,7 +186,8 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then black and white colors will be used.</para>
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
         /// <note type="tip">To convert an image to any <see cref="PixelFormat"/> on any platform obtain an <see cref="IReadWriteBitmapData"/> from a <see cref="Bitmap"/> by
-        /// the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
+        /// the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)">GetReadWriteBitmapData</see> extension method and use
+        /// the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates the possible results of this method:
@@ -324,8 +325,9 @@ namespace KGySoft.Drawing
         /// <item>A bitmap with this pixel format cannot be rendered by the <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> methods 
         /// (instead, you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods).</item>
         /// <item>The <see cref="Bitmap.LockBits(Rectangle, ImageLockMode, PixelFormat)">Bitmap.LockBits</see> method cannot be called with <see cref="PixelFormat.Format16bppRgb555"/> format (24 and 32 BPP formats are supported though).
-        /// Therefore, <see cref="BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>, <see cref="BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> and <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see>
-        /// methods will also obtain a 24 BPP <see cref="IBitmapData"/> as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property returns <see cref="PixelFormat.Format24bppRgb"/>).</item>
+        /// Therefore, <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>, <see cref="O:KGySoft.Drawing.BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see>
+        /// and <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> methods will obtain a 24 BPP <see cref="IBitmapData"/>
+        /// as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property returns <see cref="PixelFormat.Format24bppRgb"/>).</item>
         /// <item>The <c>SaveAs...</c> members of the <see cref="ImageExtensions"/> class support saving into any popular format but pixel format will not be preserved.</item>
         /// </list></term></item>
         /// <item><term><see cref="PixelFormat.Format16bppRgb565"/></term>
@@ -338,8 +340,9 @@ namespace KGySoft.Drawing
         /// <item>A bitmap with this pixel format cannot be rendered by the <see cref="Graphics.DrawImage(Image,Point)">Graphics.DrawImage</see> methods 
         /// (instead, you can use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods).</item>
         /// <item>The <see cref="Bitmap.LockBits(Rectangle, ImageLockMode, PixelFormat)">Bitmap.LockBits</see> method cannot be called with <see cref="PixelFormat.Format16bppRgb565"/> format (24 and 32 BPP formats are supported though).
-        /// Therefore, <see cref="BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>, <see cref="BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> and <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see>
-        /// methods will also obtain a 24 BPP <see cref="IBitmapData"/> as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property returns <see cref="PixelFormat.Format24bppRgb"/>).</item>
+        /// Therefore, <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>, <see cref="O:KGySoft.Drawing.BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see>
+        /// and <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> methods will obtain a 24 BPP <see cref="IBitmapData"/>
+        /// as well (the <see cref="IBitmapData.PixelFormat">IBitmapData.PixelFormat</see> property returns <see cref="PixelFormat.Format24bppRgb"/>).</item>
         /// <item>The <c>SaveAs...</c> members of the <see cref="ImageExtensions"/> class support saving into any popular format but pixel format will not be preserved.</item>
         /// </list></term></item>
         /// <item><term><see cref="PixelFormat.Format16bppArgb1555"/></term>
@@ -428,7 +431,8 @@ namespace KGySoft.Drawing
         /// the 8 and 16 bit shades on every platform that supports this format.</item>
         /// </list></note>
         /// <note type="tip">To convert an image to any <see cref="PixelFormat"/> on any platform obtain an <see cref="IReadWriteBitmapData"/> from a <see cref="Bitmap"/> by
-        /// the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
+        /// the <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method and use
+        /// the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates the possible results of this method:
@@ -502,7 +506,8 @@ namespace KGySoft.Drawing
         /// <para>To dither a <see cref="Bitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapExtensions.Dither">BitmapExtensions.Dither</see> method.</para>
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
         /// <note type="tip">To convert an image to any <see cref="PixelFormat"/> on any platform obtain an <see cref="IReadWriteBitmapData"/> from a <see cref="Bitmap"/> by
-        /// the <see cref="BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method and use the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
+        /// the <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method and use
+        /// the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
         /// </remarks>
         /// <example>
         /// The following example demonstrates the possible results of this method:
@@ -2202,7 +2207,7 @@ namespace KGySoft.Drawing
             Bitmap bmp = image.AsBitmap();
             try
             {
-                using var source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly, backColor, alphaThreshold);
+                using var source = bmp.GetReadableBitmapData(backColor, alphaThreshold);
                 return source.ToBitmap(context, newPixelFormat, palette == null ? null : PredefinedColorsQuantizer.FromCustomPalette(palette, backColor, alphaThreshold), null);
             }
             finally
@@ -2220,7 +2225,7 @@ namespace KGySoft.Drawing
 
             try
             {
-                using var source = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadOnly);
+                using IReadableBitmapData source = bmp.GetReadableBitmapData();
                 return source.ToBitmap(context, newPixelFormat, quantizer, ditherer);
             }
             finally
