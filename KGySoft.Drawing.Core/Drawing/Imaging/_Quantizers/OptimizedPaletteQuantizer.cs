@@ -100,26 +100,24 @@ namespace KGySoft.Drawing.Imaging
     /// <note>For better comparison none of the images are dithered in the examples, though the visual quality can be improved by using dithering.
     /// See the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/> and <see cref="InterleavedGradientNoiseDitherer"/>
     /// classes for some built-in <see cref="IDitherer"/> implementations.</note>
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-    /// <br/>Color hues with alpha gradient</para></div></term>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Color hues with alpha gradient</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientOctree256Silver.gif" alt="Color hues quantized by Octree algorithm using 256 colors, silver background, zero alpha threshold"/>
     /// <br/><see cref="Octree">Octree</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/AlphaGradientMedianCut256Silver.gif" alt="Color hues quantized by Median Cut algorithm using 256 colors, silver background, zero alpha threshold"/>
     /// <br/><see cref="MedianCut">MedianCut</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/AlphaGradientWu256Silver.gif" alt="Color hues quantized by Wu's algorithm using 256 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, silver background, zero alpha threshold</para>
-    /// </div></term>
-    /// </item>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, silver background, zero alpha threshold</para></div></td>
+    /// </tr>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/Information256.png" alt="Information icon with transparent background"/>
-    /// <br/>Information icon with transparency</para></div></term>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Information icon with transparency</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/InformationOctree4Silver.gif" alt="Information icon quantized by Octree algorithm using 4 colors, silver background, zero alpha threshold"/>
     /// <br/><see cref="Octree">Octree</see> algorithm, 4 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/InformationMedianCut4Silver.gif" alt="Information icon quantized by Median Cut algorithm using 4 colors, silver background, zero alpha threshold"/>
@@ -134,10 +132,9 @@ namespace KGySoft.Drawing.Imaging
     /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, black background, alpha threshold = 128. A slight banding can be observed,
     /// as if the source image had been prequantized by the <see cref="PredefinedColorsQuantizer.Argb1555">PredefinedColorsQuantizer.Argb1555</see> quantizer first.
     /// You get this result if you use the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method with 5 bits (which is the default for Wu with 256 colors).
-    /// The banding can be reduced by using higher bit levels, which increases also memory usage and processing time.</para>
-    /// </div></term>
-    /// </item>
-    /// </list>
+    /// The banding can be reduced by using higher bit levels, which increases also memory usage and processing time.</para></div></td>
+    /// </tr>
+    /// </tbody></table>
     /// </para>
     /// </remarks>
     /// <seealso cref="IQuantizer"/>

@@ -37,14 +37,12 @@ namespace KGySoft.Drawing.Imaging
     /// <para>As the dithered result of a pixel depends on the already processed pixels, the <see cref="ErrorDiffusionDitherer"/> does not support parallel processing, which makes
     /// it slower than most of the other dithering methods.</para>
     /// <para>The following table demonstrates the effect of the dithering:
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody><tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-    /// <br/>Color hues with alpha gradient</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Color hues with alpha gradient</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilver.gif" alt="Color hues with system default 8 BPP palette and silver background"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFS.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering"/>
@@ -52,14 +50,12 @@ namespace KGySoft.Drawing.Imaging
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredS3.gif" alt="Color hues with system default 8 BPP palette, using silver background and Sierra 3 dithering"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="Sierra3">Sierra 3</see> dithering</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredSA.gif" alt="Color hues with system default 8 BPP palette, using silver background and Stevenson-Arce dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="StevensonArce">Stevenson-Arce</see> dithering</para></div></term>
-    /// </item>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="StevensonArce">Stevenson-Arce</see> dithering</para></div></td>
+    /// </tr>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-    /// <br/>Grayscale color shades</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Grayscale color shades</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/GrayShadesBWDitheredFS.gif" alt="Grayscale color shades with black and white palette, using Floyd-Steinberg dithering"/>
@@ -67,9 +63,9 @@ namespace KGySoft.Drawing.Imaging
     /// <para><img src="../Help/Images/GrayShadesBWDitheredS3.gif" alt="Grayscale color shades with black and white palette using Sierra 3 dithering"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="Sierra3">Sierra 3</see> dithering</para>
     /// <para><img src="../Help/Images/GrayShadesBWDitheredSA.gif" alt="Grayscale color shades with black and white palette using Stevenson-Arce dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="StevensonArce">Stevenson-Arce</see> dithering</para></div></term>
-    /// </item>
-    /// </list></para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="StevensonArce">Stevenson-Arce</see> dithering</para></div></td>
+    /// </tr>
+    /// </tbody></table></para>
     /// <para>Calculation of the quantization error may happen in two ways. The publicly available algorithms usually calculate the error for each color channels,
     /// which usually provides good results with color palettes. However, when quantizing color images with a black and white or grayscale palette,
     /// this approach may fail. For example, if the quantizer returns black for a fully saturated blue pixel, the quantization error is zero on the red and green channels and
@@ -79,50 +75,44 @@ namespace KGySoft.Drawing.Imaging
     /// The <see cref="ErrorDiffusionDitherer"/> tries to auto detect the strategy for each dithering session but this can be overridden by
     /// the <see cref="ConfigureErrorDiffusionMode">ConfigureErrorDiffusionMode</see> method.</para>
     /// <para>The following table demonstrates the effect of different strategies:
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody><tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-    /// <br/>Color hues with alpha gradient</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Color hues with alpha gradient</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFS.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering, using error diffusion by RGB channels"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using error diffusion by RGB channels (the default strategy for non-grayscale palettes)</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFSByBr.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering, using error diffusion by brightness"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using error diffusion by brightness</para></div></term>
-    /// </item>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using error diffusion by brightness</para></div></td>
+    /// </tr>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/ColorWheel.png" alt="Color wheel"/>
-    /// <br/>Color wheel</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Color wheel</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/ColorWheelBWBlueDitheredFSByBr.gif" alt="Color wheel with black and white palette, blue background and Floyd-Steinberg dithering, using error diffusion by brightness (the default strategy for grayscale palettes)"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using blue background and error diffusion by brightness (the default strategy for grayscale palettes). All colors appear in the result with different patterns.</para>
     /// <para><img src="../Help/Images/ColorWheelBWBlueDitheredFSByRgb.gif" alt="Color wheel with black and white palette, blue background and Floyd-Steinberg dithering, using error diffusion by RGB channels"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using blue background and error diffusion by RGB channels. The fully saturated colors turned completely black or white.</para></div></term>
-    /// </item>
-    /// </list></para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using blue background and error diffusion by RGB channels. The fully saturated colors turned completely black or white.</para></div></td>
+    /// </tr>
+    /// </tbody></table></para>
     /// <para>A typical artifact of error diffusion dithering is a ripple effect, which often appears in homogeneous areas of the dithered image. This is due to the fact that most filters propagate quantization errors mostly to right and down,
     /// whereas pixels are processed left-to-right in each line while lines are scanned top-down (raster processing). The ripple effect can be reduced if every second line is processed in the opposite direction (serpentine processing).
     /// You can use the <see cref="ConfigureProcessingDirection">ConfigureProcessingDirection</see> method to obtain an <see cref="ErrorDiffusionDitherer"/> with serpentine processing mode,
     /// which processes even lines left-to-right and odd lines right-to-left.</para>
     /// <para>The following table demonstrates the effect of different processing directions:
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody><tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/Cameraman.png" alt="Test image &quot;Cameraman&quot;"/>
-    /// <br/>Original test image "Cameraman"</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Original test image "Cameraman"</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/CameramanBWDitheredFS.gif" alt="Test image &quot;Cameraman&quot; with black and white palette, using Floyd-Steinberg dithering with raster processing"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using raster processing. The ripple effect is clearly visible on the coat.</para>
     /// <para><img src="../Help/Images/CameramanBWDitheredFSSerpentine.gif" alt="Test image &quot;Cameraman&quot; with black and white palette, using Floyd-Steinberg dithering with serpentine processing"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using serpentine processing. The ripple effect is gone.</para></div></term>
-    /// </item>
-    /// </list></para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using serpentine processing. The ripple effect is gone.</para></div></td>
+    /// </tr>
+    /// </tbody></table></para>
     /// <note type="tip">See the <strong>Examples</strong> section of the static properties for more examples.</note>
     /// </remarks>
     /// <seealso cref="IDitherer" />
@@ -185,59 +175,50 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody><tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFS.gif" alt="Color hues with system default 8 BPP palette, using silver background and Floyd-Steinberg dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredFS.gif" alt="Grayscale color shades with black and white palette using Floyd-Steinberg dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldDefault8bppSilverA1DitheredFS.gif" alt="Shield icon with system default 8 BPP palette using silver background, alpha threshold = 1 and Floyd-Steinberg dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para>
         /// <para><img src="../Help/Images/ShieldBWSilverDitheredFS.gif" alt="Shield icon with black and white palette, silver background, using Floyd-Steinberg dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Cameraman.png" alt="Test image &quot;Cameraman&quot;"/>
-        /// <br/>Original test image "Cameraman"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Cameraman"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Cameraman2bppDirectDitheredFS.gif" alt="Test image &quot;Cameraman&quot; with 2 BPP grayscale palette using Floyd-Steinberg dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.Grayscale4">grayscale 4 color palette</see></para>
         /// <para><img src="../Help/Images/CameramanBWDitheredFS.gif" alt="Test image &quot;Cameraman&quot; with black and white palette using Floyd-Steinberg dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Lena"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/LenaRgb332DMFloydSteinberg.gif" alt="Test image &quot;Lena&quot; with RGB332 palette using direct color mapping and Floyd-Steinberg dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.Rgb332">RGB 332 palette</see></para>
         /// <para><img src="../Help/Images/LenaRgb111DitheredFS.gif" alt="Test image &quot;Lena&quot; with RGB111 palette and Floyd-Steinberg dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">custom 8-color palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">custom 8-color palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer FloydSteinberg => floydSteinberg ??=
@@ -266,27 +247,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredJJN.gif" alt="Color hues with system default 8 BPP palette, using silver background and Jarvis-Judice-Ninke dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredJJN.gif" alt="Grayscale color shades with black and white palette using Jarvis-Judice-Ninke dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer JarvisJudiceNinke => jarvisJudiceNinke ??=
@@ -316,27 +294,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredSt.gif" alt="Color hues with system default 8 BPP palette, using silver background and Stucki dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredSt.gif" alt="Grayscale color shades with black and white palette using Stucki dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer Stucki => stucki ??=
@@ -366,27 +341,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredBrk.gif" alt="Color hues with system default 8 BPP palette, using silver background and Burkes dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredBrk.gif" alt="Grayscale color shades with black and white palette using Burkes dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer Burkes => burkes ??=
@@ -415,27 +387,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredS3.gif" alt="Color hues with system default 8 BPP palette, using silver background and Sierra 3 dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredS3.gif" alt="Grayscale color shades with black and white palette using Sierra 3 dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer Sierra3 => sierra3 ??=
@@ -465,27 +434,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredS2.gif" alt="Color hues with system default 8 BPP palette, using silver background and Sierra 2 dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredS2.gif" alt="Grayscale color shades with black and white palette using Sierra 2 dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer Sierra2 => sierra2 ??=
@@ -514,27 +480,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredSL.gif" alt="Color hues with system default 8 BPP palette, using silver background and Sierra Lite dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredSL.gif" alt="Grayscale color shades with black and white palette using Sierra Lite dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer SierraLite => sierraLite ??=
@@ -563,27 +526,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredSA.gif" alt="Color hues with system default 8 BPP palette, using silver background and Stevenson-Arce dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredSA.gif" alt="Grayscale color shades with black and white palette using Stevenson-Arce dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer StevensonArce => stevensonArce ??=
@@ -616,27 +576,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredAtk.gif" alt="Color hues with system default 8 BPP palette, using silver background and Atkinson dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredAtk.gif" alt="Grayscale color shades with black and white palette using Atkinson dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and examples.</note>
         /// </example>
         public static ErrorDiffusionDitherer Atkinson => atkinson ??=
@@ -712,27 +669,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFan.gif" alt="Color hues with system default 8 BPP palette, using silver background and Fan dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredFan.gif" alt="Grayscale color shades with black and white palette using Fan dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip"><list type="bullet">
         /// <item>Use the static properties to perform dithering with predefined filters.</item>
         /// <item>See the <strong>Remarks</strong> section of the <see cref="ErrorDiffusionDitherer"/> class for more details and image examples.</item>
@@ -808,31 +762,28 @@ namespace KGySoft.Drawing.Imaging
         /// to already fully saturated blue pixels will not change anything. Therefore, the <see cref="ErrorDiffusionDitherer"/> can propagate quantization error
         /// by brightness based on human perception, which is more appropriate for palettes with grayscale colors.</para>
         /// <para>The following table demonstrates the effect of different strategies:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFS.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering, using error diffusion by RGB channels"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using error diffusion by RGB channels (the default strategy for non-grayscale palettes)</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredFSByBr.gif" alt="Color hues with system default 8 BPP palette, silver background and Floyd-Steinberg dithering, using error diffusion by brightness"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using error diffusion by brightness</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using error diffusion by brightness</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ColorWheel.png" alt="Color wheel"/>
-        /// <br/>Color wheel</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color wheel</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ColorWheelBWBlueDitheredFSByBr.gif" alt="Color wheel with black and white palette, blue background and Floyd-Steinberg dithering, using error diffusion by brightness (the default strategy for grayscale palettes)"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using blue background and error diffusion by brightness (the default strategy for grayscale palettes). All colors appear in the result with different patterns.</para>
         /// <para><img src="../Help/Images/ColorWheelBWBlueDitheredFSByRgb.gif" alt="Color wheel with black and white palette, blue background and Floyd-Steinberg dithering, using error diffusion by RGB channels"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using blue background and error diffusion by RGB channels. The fully saturated colors turned completely black or white.</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using blue background and error diffusion by RGB channels. The fully saturated colors turned completely black or white.</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to specify the error diffusion mode for a predefined filter:
@@ -856,20 +807,19 @@ namespace KGySoft.Drawing.Imaging
         /// <para>A typical artifact of error diffusion dithering is a ripple effect, which often appears in homogeneous areas of the dithered image. This is due to the fact that most filters propagate quantization errors mostly to right and down,
         /// whereas pixels are processed left-to-right in each line while lines are scanned top-down (raster processing). The ripple effect can be reduced if every second line is processed in the opposite direction (serpentine processing).</para>
         /// <para>The following table demonstrates the effect of different processing directions:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Cameraman.png" alt="Test image &quot;Cameraman&quot;"/>
-        /// <br/>Original test image "Cameraman"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Cameraman"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/CameramanBWDitheredFS.gif" alt="Test image &quot;Cameraman&quot; with black and white palette, using Floyd-Steinberg dithering with raster processing"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using raster processing. The ripple effect is clearly visible on the coat.</para>
         /// <para><img src="../Help/Images/CameramanBWDitheredFSSerpentine.gif" alt="Test image &quot;Cameraman&quot; with black and white palette, using Floyd-Steinberg dithering with serpentine processing"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using serpentine processing. The ripple effect is gone.</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="FloydSteinberg">Floyd-Steinberg</see> dithering, using serpentine processing. The ripple effect is gone.</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to specify the processing direction for a predefined filter:

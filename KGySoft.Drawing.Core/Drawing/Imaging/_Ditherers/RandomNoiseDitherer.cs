@@ -35,31 +35,28 @@ namespace KGySoft.Drawing.Imaging
     /// <para>To get always the same result for the same source image and quantizer you can specify a <em>seed</em> when initializing a <see cref="RandomNoiseDitherer"/> instance.
     /// Please note though that specifying a seed prevents parallel processing, which makes performance worse on multi-core systems.</para>
     /// <para>The following table demonstrates the effect of the dithering:
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-    /// <br/>Color hues with alpha gradient</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Color hues with alpha gradient</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilver.gif" alt="Color hues with system default 8 BPP palette and silver background"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredRN.gif" alt="Color hues with system default 8 BPP palette, using silver background and random noise dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and random noise dithering</para></div></term>
-    /// </item>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and random noise dithering</para></div></td>
+    /// </tr>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-    /// <br/>Grayscale color shades</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Grayscale color shades</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/GrayShadesBWDitheredRN.gif" alt="Grayscale color shades with black and white palette using random noise dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and random noise dithering</para></div></term>
-    /// </item>
-    /// </list></para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and random noise dithering</para></div></td>
+    /// </tr>
+    /// </tbody></table></para>
     /// </remarks>
     /// <seealso cref="IDitherer" />
     /// <seealso cref="OrderedDitherer" />
@@ -160,27 +157,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredRN.gif" alt="Color hues with system default 8 BPP palette, using silver background and random noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredRN.gif" alt="Grayscale color shades with black and white palette using random noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public RandomNoiseDitherer(float strength = 0f, int? seed = null)
         {

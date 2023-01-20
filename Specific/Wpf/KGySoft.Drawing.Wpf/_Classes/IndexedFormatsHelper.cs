@@ -83,7 +83,7 @@ namespace KGySoft.Drawing.Wpf
         internal static void SetColorBlackWhite(ICustomBitmapDataRow row, int x, Color32 c)
         {
             int pos = x >> 3;
-            byte brightness = c.Blend(row.BitmapData.BackColor).GetBrightness();
+            byte brightness = c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingMode.Linear).GetBrightness();
             int mask = 128 >> (x & 7);
             if (brightness < 128)
                 row.UnsafeGetRefAs<byte>(pos) &= (byte)~mask;

@@ -255,35 +255,32 @@ namespace KGySoft.Drawing.Wpf
         ///     static BitmapPalette ToBitmapPalette(Palette palette)
         ///         => new BitmapPalette(palette.GetEntries().Select(c => Color.FromArgb(c.A, c.R, c.G, c.B)).ToList());
         /// }]]></code>
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Converted image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Converted image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppWhiteA16.png" alt="Alpha gradient converted to indexed 8 bit format by KGy SOFT conversion using default palette, white background, alpha threshold is 16"/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed8"/> format, white background, alpha threshold = 16.
         /// This overload does not use dithering, the bottom 16 rows are transparent, the alpha pixels above were blended with white.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppA16_WPF.png" alt="Alpha gradient converted to indexed 8 bit format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The result is forcibly dithered and the alpha pixels above the threshold
-        /// were not blended with any back color so the vertical gradient has been just disappeared.</para>
-        /// </div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// were not blended with any back color so the vertical gradient has been just disappeared.</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldRgb888Silver.png" alt="Shield icon with silver background"/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, Color, byte)">ConvertPixelFormat</see> with <see cref="PixelFormats.Rgb24"/> format, silver background.
         /// The alpha pixels were blended with the silver color (alpha threshold is ignored because this format does not support alpha).</para>
         /// <para><img src="../Help/Images/ShieldRgb24_WPF.png" alt="Shield icon converted to RGB24 format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The alpha pixels were just turned opaque
-        /// without blending them with any color. Some light pixels appeared where RGB values of the alpha pixels were not completely black.</para>
-        /// </div></term>
-        /// </item>
-        /// </list>
+        /// without blending them with any color. Some light pixels appeared where RGB values of the alpha pixels were not completely black.</para></div></td>
+        /// </tr>
+        /// </tbody></table>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>
@@ -385,27 +382,25 @@ namespace KGySoft.Drawing.Wpf
         ///         alphaThreshold = session.AlphaThreshold / 255d * 100d;
         ///     }
         /// }]]></code>
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Converted image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Converted image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppWhiteA16DitheredFS.png" alt="Alpha gradient converted to indexed 8 bit format by KGy SOFT conversion using default palette, white background and Floyd-Steinberg dithering. Alpha threshold is 16."/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed8"/>
         /// format, <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">SystemDefault8BppPalette</see> quantizer (white background, alpha threshold = 16)
         /// and <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering. The bottom 16 rows are transparent, the alpha pixels above were blended with white.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppA16_WPF.png" alt="Alpha gradient converted to indexed 8 bit format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with the same parameters as above. The result is forcibly dithered and the alpha pixels above the threshold
-        /// were not blended with any back color so the vertical gradient has been just disappeared.</para>
-        /// </div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// were not blended with any back color so the vertical gradient has been just disappeared.</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldBgr555BlackDitheredFS.png" alt="Shield icon converted to BGR555 format with black background and Floyd-Steinber dithering"/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Bgr555"/>
         /// format, <see cref="PredefinedColorsQuantizer.Rgb555">Rgb555</see> quantizer with default parameters (so the background is black)
@@ -413,24 +408,21 @@ namespace KGySoft.Drawing.Wpf
         /// <para><img src="../Help/Images/ShieldBgr555_WPF.png" alt="Shield icon converted to BGR555 format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with <see cref="PixelFormats.Bgr555"/> format. The alpha pixels were just turned opaque
         /// without blending them with any color so some light pixels appeared where RGB values of the alpha pixels were not completely black.
-        /// As <see cref="FormatConvertedBitmap"/> does not use dithering for this pixel format, the result has a quite noticeable banding.</para>
-        /// </div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// As <see cref="FormatConvertedBitmap"/> does not use dithering for this pixel format, the result has a quite noticeable banding.</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Information256.png" alt="Information icon with transparent background"/>
-        /// <br/>Information icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Information icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/InformationWu4SilverA16DitheredB8.png" alt="Information icon converted to Indexed2 format with Wu quantizer using silver background and Bayer 8x8 dithering"/>
         /// <br/>Using <see cref="ConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer?, IDitherer?)">ConvertPixelFormat</see> with <see cref="PixelFormats.Indexed2"/>
         /// format, <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer (with 4 colors, silver background, alpha threshold = 16)
         /// and <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.</para>
         /// <para><img src="../Help/Images/Information4A16_WPF.png" alt="Information icon converted to Indexed2 format by FormatConvertedBitmap"/>
         /// <br/>Using WPF's <see cref="FormatConvertedBitmap"/> with <see cref="PixelFormats.Indexed2"/> format without specifying a palette so it was optimized by <see cref="FormatConvertedBitmap"/>.
-        /// The alpha pixels above the threshold were not blended by any back color so the black shadow just consists of the original pixels after removing alpha. A default dithering was automatically applied.</para>
-        /// </div></term>
-        /// </item>
-        /// </list>
+        /// The alpha pixels above the threshold were not blended by any back color so the black shadow just consists of the original pixels after removing alpha. A default dithering was automatically applied.</para></div></td>
+        /// </tr>
+        /// </tbody></table>
         /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="newPixelFormat"/> does not specify a valid format.</exception>

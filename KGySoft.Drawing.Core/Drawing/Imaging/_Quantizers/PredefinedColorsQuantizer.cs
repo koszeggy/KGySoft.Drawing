@@ -405,14 +405,13 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientArgb8888BlackA128.png" alt="Color hues with ARGB8888 pixel format, black background and default alpha threshold"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128). The top-half of the image preserved the original transparency,
         /// while bottom half turned completely transparent. Without dithering the back color is irrelevant.</para>
@@ -423,13 +422,12 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Silver background, alpha threshold = 1, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering.
         /// As dithering does not support partial transparency only the bottom line is transparent, otherwise the image was blended with back color.
         /// No dithering pattern appeared in the result due to the auto <see cref="OrderedDitherer.ConfigureStrength">strength</see> calibration.
-        /// This also demonstrates why dithering is practically useless for true color results.</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// This also demonstrates why dithering is practically useless for true color results.</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldArgb8888lackA128.png" alt="Shield icon with ARGB8888 pixel format, black background and default alpha threshold"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128). Without dithering the back color is irrelevant but pixels with alpha &lt; 128 turned completely transparent.</para>
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with ARGB8888 pixel format, silver background and alpha threshold = 1"/>
@@ -437,9 +435,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/ShieldArgb8888SilverA1Dithered.png" alt="Shield icon with ARGB8888 pixel format, silver background, alpha threshold = 1, using Floyd-Steinberg dithering"/>
         /// <br/>Silver background, alpha threshold = 1, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering.
         /// As dithering does not support partial transparency alpha pixels were blended with back color. No dithering pattern appeared in the result as there was no quantization error during the process.
-        /// This also demonstrates why dithering is practically useless for true color results.</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// This also demonstrates why dithering is practically useless for true color results.</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer Argb8888(Color backColor = default, byte alphaThreshold = 128)
         {
@@ -478,30 +476,28 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientRgb888Black.png" alt="Color hues with black background"/>
         /// <br/>Default (black) background</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb888Silver.png" alt="Color hues with silver background"/>
-        /// <br/>Silver background</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldRgb888Black.png" alt="Shield icon with black background"/>
         /// <br/>Default (black) background</para>
         /// <para><img src="../Help/Images/ShieldRgb888Silver.png" alt="Shield icon with silver background"/>
-        /// <br/>Silver background</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer Rgb888(Color backColor = default)
         {
@@ -546,34 +542,32 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientRgb565Black.png" alt="Color hues with RGB565 pixel format and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb565Silver.png" alt="Color hues with RGB565 pixel format and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb565SilverDithered.png" alt="Color hues with RGB565 pixel format, silver background and Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldRgb565Black.png" alt="Shield icon with RGB565 pixel format and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/ShieldRgb565Silver.png" alt="Shield icon with RGB565 pixel format and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/ShieldRgb565SilverDithered.png" alt="Shield icon with RGB565 pixel format, silver background and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer Rgb565(Color backColor = default)
         {
@@ -615,34 +609,32 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientRgb555Black.png" alt="Color hues with RGB555 pixel format and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb555Silver.png" alt="Color hues with RGB555 pixel format and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb555SilverDithered.png" alt="Color hues with RGB555 pixel format, silver background and Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldRgb555Black.png" alt="Shield icon with RGB555 pixel format and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/ShieldRgb555Silver.png" alt="Shield icon with RGB555 pixel format and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/ShieldRgb555SilverDithered.png" alt="Shield icon with RGB555 pixel format, silver background and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer Rgb555(Color backColor = default)
         {
@@ -690,34 +682,32 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientArgb1555BlackA128.png" alt="Color hues with ARGB1555 pixel format, black background and default alpha threshold"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128). The bottom half of the image is transparent.</para>
         /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverA1.png" alt="Color hues with ARGB1555 pixel format, silver background and alpha threshold = 1"/>
         /// <br/>Silver background, alpha threshold = 1. Only the bottom line is transparent.</para>
         /// <para><img src="../Help/Images/AlphaGradientArgb1555SilverDithered.png" alt="Color hues with ARGB1555 pixel format, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, default alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The bottom half of the image is transparent.</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, default alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The bottom half of the image is transparent.</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldArgb1555BlackA128.png" alt="Shield icon with ARGB1555 pixel format, black background and default alpha threshold"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128)</para>
         /// <para><img src="../Help/Images/ShieldArgb1555SilverA1.png" alt="Shield icon with ARGB1555 pixel format, silver background and alpha threshold = 1"/>
         /// <br/>Silver background, alpha threshold = 1</para>
         /// <para><img src="../Help/Images/ShieldArgb1555SilverA128Dithered.png" alt="Shield icon with ARGB1555 pixel format, silver background, default alpha threshold and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, default alpha threshold, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background, default alpha threshold, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer Argb1555(Color backColor = default, byte alphaThreshold = 128)
         {
@@ -764,14 +754,13 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientRgb332Black.gif" alt="Color hues with RGB332 palette and black background using nearest color lookup"/>
         /// <br/>Default optional parameter values (black background, nearest color lookup)</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb332Silver.gif" alt="Color hues with RGB332 palette and silver background using nearest color lookup"/>
@@ -779,14 +768,12 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/AlphaGradientRgb332SilverDM.gif" alt="Color hues with RGB332 palette and silver background using direct color mapping"/>
         /// <br/>Silver background, direct color mapping</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb332SilverDMDitheredB8.gif" alt="Color hues with RGB332 palette, silver background, using direct color mapping and Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, direct color mapping, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, direct color mapping, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesRgb332.gif" alt="Grayscale color shades with RGB332 palette using nearest color lookup"/>
         /// <br/>Nearest color lookup</para>
         /// <para><img src="../Help/Images/GrayShadesRgb332Direct.gif" alt="Grayscale color shades with RGB332 palette using direct color mapping"/>
@@ -794,13 +781,12 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/GrayShadesRgb332DitheredB8.gif" alt="Grayscale color shades with RGB332 palette, using nearest color lookup and Bayer 8x8 ordered dithering"/>
         /// <br/>Nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para>
         /// <para><img src="../Help/Images/GrayShadesRgb332DirectDitheredB8.gif" alt="Grayscale color shades with RGB332 palette, using direct color mapping and Bayer 8x8 ordered dithering"/>
-        /// <br/>Direct color mapping, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Direct color mapping, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldRgb332Black.gif" alt="Shield icon with RGB332 palette and black background using nearest color lookup"/>
         /// <br/>Default optional parameter values (nearest color lookup)</para>
         /// <para><img src="../Help/Images/ShieldRgb332Silver.gif" alt="Shield icon with RGB332 palette and silver background using nearest color lookup"/>
@@ -808,22 +794,20 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/ShieldRgb332SilverDM.gif" alt="Shield icon with RGB332 palette and silver background using direct color mapping"/>
         /// <br/>Silver background, direct color mapping</para>
         /// <para><img src="../Help/Images/ShieldRgb332SilverDMDithered.gif" alt="Shield icon with RGB332 palette, silver background, using direct color mapping and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Lena"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/LenaRgb332.gif" alt="Test image &quot;Lena&quot; with RGB332 palette using nearest color lookup"/>
         /// <br/>Nearest color lookup</para>
         /// <para><img src="../Help/Images/LenaRgb332DM.gif" alt="Test image &quot;Lena&quot; with RGB332 palette using direct color mapping"/>
         /// <br/>Direct color mapping</para>
         /// <para><img src="../Help/Images/LenaRgb332DMFloydSteinberg.gif" alt="Test image &quot;Lena&quot; with RGB332 palette using direct color mapping and Floyd-Steinberg dithering"/>
-        /// <br/>Direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         /// <seealso cref="o:Palette.Rgb332"/>
         public static PredefinedColorsQuantizer Rgb332(Color backColor = default, bool directMapping = false)
@@ -858,30 +842,28 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientGray8bppBlack.gif" alt="Grayscale color hues with 8 BPP grayscale palette and black background"/>
         /// <br/>Default (black) background</para>
         /// <para><img src="../Help/Images/AlphaGradientGray8bppSilver.gif" alt="Graayscale color hues with 8 BPP grayscale palette and silver background"/>
-        /// <br/>Silver background</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldGray8bppBlack.gif" alt="Shield icon with 8 BPP grayscale palette and black background"/>
         /// <br/>Default (black) background</para>
         /// <para><img src="../Help/Images/ShieldGray8bppSilver.gif" alt="Shield icon with 8 BPP grayscale palette and silver background"/>
-        /// <br/>Silver background</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         /// <seealso cref="o:Palette.Grayscale256"/>
         public static PredefinedColorsQuantizer Grayscale(Color backColor = default) => new PredefinedColorsQuantizer(Palette.Grayscale256(new Color32(backColor)));
@@ -921,14 +903,13 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientGray4bppBlack.gif" alt="Color hues with 4 BPP grayscale palette and black background using nearest color lookup"/>
         /// <br/>Default optional parameter values (black background, nearest color lookup)</para>
         /// <para><img src="../Help/Images/AlphaGradientGray4bppSilver.gif" alt="Color hues with 4 BPP grayscale palette and silver background using nearest color lookup"/>
@@ -936,26 +917,23 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/AlphaGradientGray4bppSilverDirect.gif" alt="Color hues with 4 BPP grayscale palette and silver background using direct color mapping"/>
         /// <br/>Silver background, direct color mapping</para>
         /// <para><img src="../Help/Images/AlphaGradientGray4bppSilverDitheredB8.gif" alt="Color hues with 4 BPP grayscale palette, silver background, using nearest color lookup and Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades4bpp.gif" alt="Grayscale color shades with 4 BPP grayscale palette using nearest color lookup"/>
         /// <br/>Nearest color lookup</para>
         /// <para><img src="../Help/Images/GrayShades4bppDirect.gif" alt="Grayscale color shades with 2 BPP grayscale palette using direct color mapping"/>
         /// <br/>Direct color mapping</para>
         /// <para><img src="../Help/Images/GrayShades4bppDitheredB8.gif" alt="Grayscale color shades with 4 BPP grayscale palette, using nearest color lookup and Bayer 8x8 ordered dithering"/>
-        /// <br/>Nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldGray4bppBlack.gif" alt="Shield icon with 4 BPP grayscale palette and black background using nearest color lookup"/>
         /// <br/>Default optional parameter values (nearest color lookup)</para>
         /// <para><img src="../Help/Images/ShieldGray4bppSilver.gif" alt="Shield icon with 4 BPP grayscale palette and silver background using nearest color lookup"/>
@@ -963,9 +941,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/ShieldGray4bppSilverDirect.gif" alt="Shield icon with 4 BPP grayscale palette and silver background using direct color mapping"/>
         /// <br/>Silver background, direct color mapping</para>
         /// <para><img src="../Help/Images/ShieldGray4bppSilverDirectDitheredFS.gif" alt="Shield icon with 4 BPP grayscale palette, silver background, using direct color mapping and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background, direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         /// <seealso cref="o:Palette.Grayscale16"/>
         public static PredefinedColorsQuantizer Grayscale16(Color backColor = default, bool directMapping = false)
@@ -1006,14 +984,13 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientGray2bppBlack.gif" alt="Color hues with 2 BPP grayscale palette and black background using nearest color lookup"/>
         /// <br/>Default optional parameter values (black background, nearest color lookup)</para>
         /// <para><img src="../Help/Images/AlphaGradientGray2bppSilver.gif" alt="Color hues with 2 BPP grayscale palette and silver background using nearest color lookup"/>
@@ -1021,26 +998,23 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/AlphaGradientGray2bppSilverDirect.gif" alt="Color hues with 2 BPP grayscale palette and silver background using direct color mapping"/>
         /// <br/>Silver background, direct color mapping</para>
         /// <para><img src="../Help/Images/AlphaGradientGray2bppSilverDitheredB8.gif" alt="Color hues with 2 BPP grayscale palette, silver background, using nearest color lookup and Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades2bpp.gif" alt="Grayscale color shades with 2 BPP grayscale palette using nearest color lookup"/>
         /// <br/>Nearest color lookup</para>
         /// <para><img src="../Help/Images/GrayShades2bppDirect.gif" alt="Grayscale color shades with 2 BPP grayscale palette using direct color mapping"/>
         /// <br/>Direct color mapping</para>
         /// <para><img src="../Help/Images/GrayShades2bppDitheredB8.gif" alt="Grayscale color shades with 2 BPP grayscale palette, using nearest color lookup and Bayer 8x8 ordered dithering"/>
-        /// <br/>Nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Nearest color lookup, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldGray2bppBlack.gif" alt="Shield icon with 2 BPP grayscale palette and black background using nearest color lookup"/>
         /// <br/>Default optional parameter values (nearest color lookup)</para>
         /// <para><img src="../Help/Images/ShieldGray2bppSilver.gif" alt="Shield icon with 2 BPP grayscale palette and silver background using nearest color lookup"/>
@@ -1048,22 +1022,20 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/ShieldGray2bppSilverDirect.gif" alt="Shield icon with 2 BPP grayscale palette and silver background using direct color mapping"/>
         /// <br/>Silver background, direct color mapping</para>
         /// <para><img src="../Help/Images/ShieldGray2bppSilverDirectDitheredFS.gif" alt="Shield icon with 2 BPP grayscale palette, silver background, using direct color mapping and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Cameraman.png" alt="Test image &quot;Cameraman&quot;"/>
-        /// <br/>Original test image "Cameraman"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Cameraman"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Cameraman2bpp.gif" alt="Test image &quot;Cameraman&quot; with 2 BPP grayscale palette using nearest color lookup"/>
         /// <br/>Nearest color lookup</para>
         /// <para><img src="../Help/Images/Cameraman2bppDirect.gif" alt="Test image &quot;Cameraman&quot; with 2 BPP grayscale palette using direct color mapping"/>
         /// <br/>Direct color mapping</para>
         /// <para><img src="../Help/Images/Cameraman2bppDirectDitheredFS.gif" alt="Test image &quot;Cameraman&quot; with 2 BPP grayscale palette using direct color mapping and Floyd-Steinberg dithering"/>
-        /// <br/>Direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Direct color mapping, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         /// <seealso cref="o:Palette.Grayscale4"/>
         public static PredefinedColorsQuantizer Grayscale4(Color backColor = default, bool directMapping = false)
@@ -1103,27 +1075,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientBWBlack.gif" alt="Color hues with black and white palette and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/AlphaGradientBWSilver.gif" alt="Color hues with black and white palette and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/AlphaGradientBWSilverDitheredB8.gif" alt="Color hues with black and white palette, silver background, using Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
         /// <br/>Default optional parameter values</para>
         /// <para><img src="../Help/Images/GrayShadesBWThr32.gif" alt="Grayscale color shades with black and white palette, white threshold = 32"/>
@@ -1131,26 +1100,23 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/GrayShadesBWThr224.gif" alt="Grayscale color shades with black and white palette, white threshold = 224"/>
         /// <br/>White threshold = 224</para>
         /// <para><img src="../Help/Images/GrayShadesBWDitheredB8.gif" alt="Grayscale color shades with black and white palette, using Bayer 8x8 ordered dithering"/>
-        /// <br/>Default white threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Default white threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldBWBlack.gif" alt="Shield icon with black and white palette and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/ShieldBWSilver.gif" alt="Shield icon with black and white palette and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/ShieldBWSilverDitheredFS.gif" alt="Shield icon with black and white palette, silver background, using Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Cameraman.png" alt="Test image &quot;Cameraman&quot;"/>
-        /// <br/>Original test image "Cameraman"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Cameraman"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/CameramanBW.gif" alt="Test image &quot;Cameraman&quot; with black and white palette"/>
         /// <br/>Default optional parameter values</para>
         /// <para><img src="../Help/Images/CameramanBWThr96.gif" alt="Test image &quot;Cameraman&quot; with black and white palette, white threshold = 96"/>
@@ -1158,9 +1124,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/CameramanBWThr96DitheredB8.gif" alt="Test image &quot;Cameraman&quot; with black and white palette, using Bayer 8x8 dithering and white threshold = 96"/>
         /// <br/>White threshold = 96, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The ordered dithering preserves the white threshold value.</para>
         /// <para><img src="../Help/Images/CameramanBWThr96DitheredFS.gif" alt="Test image &quot;Cameraman&quot; with black and white palette, using Floyd-Steinberg dithering and white threshold = 96"/>
-        /// <br/>White threshold = 96, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering. The error diffusion dithering compensates the white threshold value.</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>White threshold = 96, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering. The error diffusion dithering compensates the white threshold value.</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         /// <seealso cref="o:Palette.BlackAndWhite"/>
         public static PredefinedColorsQuantizer BlackAndWhite(Color backColor = default, byte whiteThreshold = 128)
@@ -1208,58 +1174,52 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppBlackA128.gif" alt="Color hues with system default 8 BPP palette, black background and default alpha threshold"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128). The bottom half of the image is transparent.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverA1.gif" alt="Color hues with system default 8 BPP palette, silver background and alpha threshold = 1"/>
         /// <br/>Silver background, alpha threshold = 1. Only the bottom line is transparent.</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverA128DitheredB8.gif" alt="Color hues with system default 8 BPP palette, silver background, default alpha threshold and Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, default alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The bottom half of the image is transparent.</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, default alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. The bottom half of the image is transparent.</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesDefault8bpp.gif" alt="Grayscale color shades with system default 8 BPP palette"/>
         /// <br/>Default optional parameter values</para>
         /// <para><img src="../Help/Images/GrayShadesDefault8bppDitheredB8.gif" alt="Grayscale color shades with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
-        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldDefault8bppBlack.gif" alt="Shield icon with system default 8 BPP palette"/>
         /// <br/>Default optional parameter values (black background, alpha threshold = 128)</para>
         /// <para><img src="../Help/Images/ShieldDefault8bppBlackDitheredB8.gif" alt="Shield icon with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
         /// <br/>Default background and alpha threshold, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para>
         /// <para><img src="../Help/Images/ShieldDefault8bppSilverA1DitheredFS.gif" alt="Shield icon with system default 8 BPP palette using silver background, alpha threshold = 1 and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, alpha threshold = 1, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, alpha threshold = 1, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Lena"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/LenaDefault8bpp.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette"/>
         /// <br/>Default optional parameter values</para>
         /// <para><img src="../Help/Images/LenaDefault8bppDitheredB8.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
         /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para>
         /// <para><img src="../Help/Images/LenaDefault8bppDitheredFS.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Floyd-Steinberg dithering"/>
-        /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         /// <seealso cref="o:Palette.SystemDefault8BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault8BppPalette(Color backColor = default, byte alphaThreshold = 128)
@@ -1301,47 +1261,43 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// } ]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault4bppBlack.gif" alt="Color hues with system default 4 BPP palette and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault4bppSilver.gif" alt="Color hues with system default 4 BPP palette and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/AlphaGradientDefault4bppSilverDitheredB8.gif" alt="Color hues with system default 4 BPP palette, using silver background and a stronger Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering with strength = 0.5</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering with strength = 0.5</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesDefault4bpp.gif" alt="Grayscale color shades with system default 4 BPP palette"/>
         /// <br/>Default optional parameter values. The asymmetry is due to the uneven distribution of gray shades of this palette.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
         /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
-        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldDefault4bppBlack.gif" alt="Shield icon with system default 4 BPP palette and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/ShieldDefault4bppSilver.gif" alt="Shield icon with system default 4 BPP palette and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/ShieldDefault4bppSilverDitheredFS.gif" alt="Shield icon with system default 4 BPP palette using silver background and Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         /// <seealso cref="o:Palette.SystemDefault4BppPalette"/>
         public static PredefinedColorsQuantizer SystemDefault4BppPalette(Color backColor = default)
@@ -1412,56 +1368,50 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientRgb111Black.gif" alt="Color hues with RGB111 palette and black background"/>
         /// <br/>Default optional parameter values (black background). The bottom half of the result is black.</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb111Silver.gif" alt="Color hues with RGB111 palette and silver background"/>
         /// <br/>Silver background. The bottom part of the result is white.</para>
         /// <para><img src="../Help/Images/AlphaGradientRgb111SilverDitheredB8.gif" alt="Color hues with RGB111 palette and silver background, using Bayer 8x8 ordered dithering"/>
-        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with RGB111 palette"/>
         /// <br/>Default optional parameter values</para>
         /// <para><img src="../Help/Images/GrayShadesBWDitheredB8.gif" alt="Grayscale color shades with RGB111 palette, using Bayer 8x8 ordered dithering"/>
-        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldRgb111Black.gif" alt="Shield icon with RGB111 palette and black background"/>
         /// <br/>Default optional parameter values (black background)</para>
         /// <para><img src="../Help/Images/ShieldRgb111Silver.gif" alt="Shield icon with RGB111 palette and silver background"/>
         /// <br/>Silver background</para>
         /// <para><img src="../Help/Images/ShieldRgb111SilverDitheredFS.gif" alt="Shield icon with RGB111 palette, silver background, using Floyd-Steinberg dithering"/>
-        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Original test image "Lena"</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/LenaRgb111.gif" alt="Test image &quot;Lena&quot; with RGB111 palette"/>
         /// <br/>Default optional parameter values</para>
         /// <para><img src="../Help/Images/LenaRgb111DitheredFS.gif" alt="Test image &quot;Lena&quot; with RGB111 palette and Floyd-Steinberg dithering"/>
-        /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer FromCustomPalette(Color[] palette, Color backColor = default, byte alphaThreshold = 128)
             => new PredefinedColorsQuantizer(new Palette(palette, backColor, alphaThreshold));
@@ -1514,30 +1464,28 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientGray8bppBlack.gif" alt="Grayscale color hues with black background"/>
         /// <br/>Default (black) background</para>
         /// <para><img src="../Help/Images/AlphaGradientGray8bppSilver.gif" alt="Graayscale color hues with silver background"/>
-        /// <br/>Silver background</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Silver background</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldGray8bppBlack.gif" alt="Grayscale shield icon with black background"/>
         /// <br/>Default (black) background</para>
         /// <para><img src="../Help/Images/ShieldGray8bppSilver.gif" alt="Grayscale shield icon with silver background"/>
-        /// <br/>Silver background</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Silver background</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format24bppRgb, byte alphaThreshold = 0)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, new Color32(backColor), alphaThreshold);
@@ -1571,26 +1519,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientGrayscale.png" alt="Grayscale color hues with alpha preserved"/>
-        /// <br/>Alpha has been preserved</para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Alpha has been preserved</para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldGrayscale.png" alt="Grayscale shield icon with alpha preserved"/>
-        /// <br/>Alpha has been preserved</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Alpha has been preserved</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format32bppArgb)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint);
