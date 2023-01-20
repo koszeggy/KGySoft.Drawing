@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: GdiPColor64.cs
+//  File: GdiPlusColor64.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    internal readonly struct GdiPColor64
+    internal readonly struct GdiPlusColor64
     {
         #region Fields
 
@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal GdiPColor64(ushort a, ushort r, ushort g, ushort b)
+        internal GdiPlusColor64(ushort a, ushort r, ushort g, ushort b)
         {
             this.b = b;
             this.g = g;
@@ -46,7 +46,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal GdiPColor64(Color32 c)
+        internal GdiPlusColor64(Color32 c)
         {
             ushort[]? lookupTable = ColorsHelper.GetLookupTable8To16Bpp();
             if (lookupTable == null)
@@ -88,26 +88,26 @@ namespace KGySoft.Drawing.Imaging
                 lookupTable[b]);
         }
 
-        internal GdiPColor64 ToStraight()
+        internal GdiPlusColor64 ToStraight()
         {
             if (a == 0)
                 return default;
 
             ushort max = ColorsHelper.Max16BppValue;
-            return new GdiPColor64(a,
+            return new GdiPlusColor64(a,
                 a == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)r * max / a),
                 a == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)g * max / a),
                 a == 0 ? (ushort)0 : (ushort)Math.Min(max, (uint)b * max / a));
         }
 
-        internal GdiPColor64 ToPremultiplied()
+        internal GdiPlusColor64 ToPremultiplied()
         {
             if (a == 0)
                 return default;
             ushort max = ColorsHelper.Max16BppValue;
             if (a == max)
                 return this;
-            return new GdiPColor64(a,
+            return new GdiPlusColor64(a,
                 (ushort)(r * a / max),
                 (ushort)(g * a / max),
                 (ushort)(b * a / max));

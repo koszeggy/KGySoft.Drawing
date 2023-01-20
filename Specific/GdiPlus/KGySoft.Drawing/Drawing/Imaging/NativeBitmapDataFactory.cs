@@ -45,7 +45,7 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "Very straightforward switch with many conditions. Would be OK without the libgdiplus special handling for 16bpp RGB555/565 formats.")]
         [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
-        internal static IReadWriteBitmapData CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor = default, byte alphaThreshold = 128)
+        internal static IReadWriteBitmapData CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, BlendingMode blendingMode)
         {
             PixelFormat pixelFormat = bitmap.PixelFormat;
 
@@ -75,47 +75,61 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format16bppArgb1555:
                 case PixelFormat.Format16bppGrayScale:
                 case PixelFormatExtensions.Format32bppCmyk:
-                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose);
+                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, blendingMode, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
-                    var palette = new Palette(bitmap.Palette.Entries, backColor.ToColor(), alphaThreshold);
+                    var palette = new Palette(bitmap.Palette.Entries.Select(c => c.ToColor32()), backColor, alphaThreshold, blendingMode == BlendingMode.Linear);
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, palette, bitmap.TrySetPalette, dispose);
 
                 case PixelFormat.Format64bppArgb:
-                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasAlpha = true },
-                        (row, x) => row.UnsafeGetRefAs<GdiPColor64>(x).ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPColor64>(x) = new GdiPColor64(c),
-                        backColor, alphaThreshold, dispose);
+                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
+                        {
+                            HasAlpha = true,
+                            LinearGamma = ColorsHelper.GetLookupTable16To8Bpp() != null
+                        },
+                        (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
+                        blendingMode, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format64bppPArgb:
-                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
-                        (row, x) => row.UnsafeGetRefAs<GdiPColor64>(x).ToStraight().ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPColor64>(x) = new GdiPColor64(c).ToPremultiplied(),
-                        backColor, alphaThreshold, dispose);
+                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
+                        {
+                            HasPremultipliedAlpha = true,
+                            LinearGamma = ColorsHelper.GetLookupTable16To8Bpp() != null
+                        },
+                        (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToStraight().ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c).ToPremultiplied(),
+                        blendingMode, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format48bppRgb:
-                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48),
-                        (row, x) => row.UnsafeGetRefAs<GdiPColor48>(x).ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPColor48>(x) = new GdiPColor48(c.Blend(row.BitmapData.BackColor)),
-                        backColor, alphaThreshold, dispose);
+                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48)
+                        {
+                            LinearGamma = ColorsHelper.GetLookupTable16To8Bpp() != null
+                        },
+                        (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) =
+                            new GdiPlusColor48(c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode != BlendingMode.Srgb)),
+                        blendingMode, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb565:
                     return pixelFormat == bitmapDataPixelFormat
                         ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
                         : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo((byte)bitmapDataPixelFormat.ToBitsPerPixel()),
                             (row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
-                            (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) = new Color16As24(c.Blend(row.BitmapData.BackColor), true),
-                            backColor, alphaThreshold, dispose);
+                            (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) =
+                                new Color16As24(c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingMode.Linear), true),
+                            blendingMode, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb555:
                     return pixelFormat == bitmapDataPixelFormat
                         ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
                         : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo((byte)bitmapDataPixelFormat.ToBitsPerPixel()),
                             (row, x) => row.UnsafeGetRefAs<Color16As24>(x).ToColor32(),
-                            (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) = new Color16As24(c.Blend(row.BitmapData.BackColor), false),
-                            backColor, alphaThreshold, dispose);
+                            (row, x, c) => row.UnsafeGetRefAs<Color16As24>(x) =
+                                new Color16As24(c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingMode.Linear), false),
+                            blendingMode, backColor, alphaThreshold, dispose);
 
                 default:
                     throw new InvalidOperationException(Res.InternalError($"Unexpected pixel format {pixelFormat}"));
