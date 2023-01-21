@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Grayscale color shades. The difference of RGB values between the neighboring shades is constant in the sRGB color space,
         /// resulting an apparently linear gradient with half-gray tones at the middle.</div>
         /// </term></item></list>
-        /// <para>Blending partially transparent (alpha) colors in the sRGB ends up in incorrect results, though it is not always obvious.
+        /// <para>Blending partially transparent (alpha) colors in the sRGB color space ends up in incorrect results, though it is not always obvious.
         /// The most apparent incorrect results are for colors that have distinct RGB values, for which the result is typically too dark.</para>
         /// <table class="table is-hoverable">
         /// <thead><tr><th width="50%"><div style="text-align:center;">Blending in the sRGB color space</div></th>
@@ -177,7 +177,7 @@ namespace KGySoft.Drawing.Imaging
         /// methods choose the blending strategy based on the <see cref="BlendingMode"/> of the target bitmap data.</para>
         /// <para>If this bitmap data has an indexed format and its <see cref="Palette"/> is set, then the strategy is determined by the <see cref="Imaging.Palette"/>
         /// instance. The default strategy is <see cref="Imaging.BlendingMode.Srgb"/> because <see cref="Imaging.Palette"/> uses sRGB color values but you can
-        /// create an instance by the appropriate <see cref="Imaging.Palette"/> constructors or factory methods that uses linear blending.</para>
+        /// create an instance that uses linear blending by the appropriate <see cref="Imaging.Palette"/> constructors or factory methods.</para>
         /// <para>When you use a quantizer for some operations, it may also suppress the value of this property. As quantizers are limited to the 32 bit ARGB color space,
         /// the predefined <see cref="IQuantizer"/> implementations in this library also use sRGB blending by default but you can override it by
         /// the <see cref="PredefinedColorsQuantizer.ConfigureBlendingMode">PredefinedColorsQuantizer.ConfigureBlendingMode</see>
