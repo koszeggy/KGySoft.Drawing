@@ -873,6 +873,17 @@ namespace KGySoft.Drawing.UnitTests
             SaveImage($"{pixelFormat}", bmp, true);
         }
 
+        [Explicit]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        public void LinearVsSrgbBlendingAlphaGradient(PixelFormat pixelFormat)
+        {
+            using var source = GenerateAlphaGradientBitmap(new Size(512, 256));
+            using var target = new Bitmap(source.Width, source.Height, pixelFormat);
+            source.DrawInto(target);
+            SaveImage($"{target.PixelFormat}", target);
+        }
+
         #endregion
     }
 }
