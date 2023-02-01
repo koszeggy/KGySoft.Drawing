@@ -677,7 +677,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
 
-                if (quantizingSession.LinearBlending)
+                if (quantizingSession.PrefersLinearColorSpace)
                 {
                     for (int y = 0; y < SourceRectangle.Height; y++)
                     {
@@ -702,7 +702,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // Parallel processing
-            Action<int> processRow = quantizingSession.LinearBlending ? ProcessRowLinear : ProcessRowSrgb;
+            Action<int> processRow = quantizingSession.PrefersLinearColorSpace ? ProcessRowLinear : ProcessRowSrgb;
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, processRow);
 
             #region Local Methods
@@ -816,7 +816,7 @@ namespace KGySoft.Drawing.Imaging
             if (ditheringSession.IsSequential || SourceRectangle.Width < parallelThreshold >> ditheringScale)
             {
                 context.Progress?.New(DrawingOperation.ProcessingPixels, SourceRectangle.Height);
-                if (quantizingSession.LinearBlending)
+                if (quantizingSession.PrefersLinearColorSpace)
                 {
                     for (int y = 0; y < SourceRectangle.Height; y++)
                     {
@@ -841,7 +841,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // Parallel processing
-            Action<int> processRow = quantizingSession.LinearBlending ? ProcessRowLinear : ProcessRowSrgb;
+            Action<int> processRow = quantizingSession.PrefersLinearColorSpace ? ProcessRowLinear : ProcessRowSrgb;
             ParallelHelper.For(context, DrawingOperation.ProcessingPixels, 0, SourceRectangle.Height, processRow);
 
             #region Local Methods

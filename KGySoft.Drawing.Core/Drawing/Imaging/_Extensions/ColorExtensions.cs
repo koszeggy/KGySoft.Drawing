@@ -306,6 +306,12 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float GetBrightness(this ColorF c)
+            => c.R.Equals(c.G) && c.R.Equals(c.B)
+                ? c.R
+                : c.R * RLum + c.G * GLum + c.B * BLum;
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance)
         {
             Debug.Assert(c1.A == 255 && c2.A == 255);

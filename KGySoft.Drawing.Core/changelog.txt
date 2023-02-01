@@ -15,14 +15,15 @@
   ! New BlendingMode property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
     this property has a default implementation and returns BlendingModeHint.Default.
 ! IQuantizingSession interface:
-  ! New LinearBlending property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard 2.1 where
-    this property has a default implementation and returns false.
+  ! New PrefersLinearColorSpace property. Not a breaking change when targeting at least .NET Core 3.0/.NET Standard
+    2.1 where this property has a default implementation and returns false.
 ! Palette class:
   ! The constructors with Func<Color32, int> parameters are now obsolete. These overloads have no default parameters
     anymore so if you didn't use the old customGetNearestColorIndex parameter, then automatically the new overloads
     are called if you recompile your code.
   + New constructor overloads with IEnumerable<Color32> parameter instead of an array.
   + New constructor and factory method overloads with useLinearBlending parameters.
+  + New PrefersLinearColorSpace property.
   - The constructor with Color32[] parameter just used to store the specified array. This made possible to corrupt
     the palette if the array elements were changed after creating the palette. From now on the elements are copied
     into a new storage.

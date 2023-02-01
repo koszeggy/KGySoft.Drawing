@@ -277,7 +277,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = session.AlphaThreshold;
-                    bool linearBlending = session.LinearBlending;
+                    bool linearBlending = session.PrefersLinearColorSpace;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -354,7 +354,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = quantizingSession.AlphaThreshold;
-                    bool lienarBlending = quantizingSession.LinearBlending;
+                    bool lienarBlending = quantizingSession.PrefersLinearColorSpace;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -736,7 +736,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
                     byte alphaThreshold = session.AlphaThreshold;
-                    bool linearBlending = session.LinearBlending;
+                    bool linearBlending = session.PrefersLinearColorSpace;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
@@ -810,7 +810,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
                     byte alphaThreshold = quantizingSession.AlphaThreshold;
-                    bool linearBlending = quantizingSession.LinearBlending;
+                    bool linearBlending = quantizingSession.PrefersLinearColorSpace;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components

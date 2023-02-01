@@ -21,6 +21,7 @@ using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 #endif
 using System.Drawing;
+using System.Linq;
 using System.Threading;
 
 #if NET35 || NET40
@@ -61,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette? Palette => null;
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool LinearBlending => quantizer.LinearBlending;
+            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
             public bool IsGrayscale => quantizer.PixelFormatHint.IsGrayscale();
 
             #endregion
@@ -87,7 +88,7 @@ namespace KGySoft.Drawing.Imaging
                     ? quantizingFunction.Invoke(c)
                     : c.A < AlphaThreshold
                         ? default
-                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.LinearBlending));
+                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.LinearColorSpace));
 
             #endregion
         }
@@ -109,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette Palette { get; }
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool LinearBlending => quantizer.LinearBlending;
+            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
             public bool IsGrayscale => Palette.IsGrayscale;
 
             #endregion
@@ -175,7 +176,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette? Palette => null;
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool LinearBlending => quantizer.LinearBlending;
+            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
             public bool IsGrayscale => quantizer.isGrayscale;
 
             #endregion
@@ -201,7 +202,7 @@ namespace KGySoft.Drawing.Imaging
                 rowsCache = ThreadSafeCacheFactory.Create(createRowFactory, cacheOptions);
 #else
                 rowsCache = new ThreadLocal<IBitmapDataRowInternal>(
-                    () => compatibleBitmapDataFactory.Invoke(new Size(1, 1), LinearBlending ? BlendingMode.Linear : BlendingMode.Srgb)
+                    () => compatibleBitmapDataFactory.Invoke(new Size(1, 1), PrefersLinearColorSpace ? BlendingMode.Linear : BlendingMode.Srgb)
                         .GetRowUncached(0), true);
 #endif
             }
@@ -286,7 +287,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Properties
 
-        internal bool LinearBlending { get; }
+        internal bool LinearColorSpace { get; }
 
         #endregion
 
@@ -305,7 +306,7 @@ namespace KGySoft.Drawing.Imaging
             Palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
             BackColor = palette.BackColor;
             AlphaThreshold = palette.AlphaThreshold;
-            LinearBlending = palette.LinearBlending;
+            LinearColorSpace = palette.PrefersLinearColorSpace;
             isGrayscale = palette.IsGrayscale;
             PixelFormatHint = palette.Count switch
             {
@@ -339,7 +340,7 @@ namespace KGySoft.Drawing.Imaging
             PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
             BackColor = customBitmapData.BackColor;
             AlphaThreshold = customBitmapData.AlphaThreshold;
-            LinearBlending = customBitmapData.LinearBlending();
+            LinearColorSpace = customBitmapData.LinearBlending();
         }
 
         private PredefinedColorsQuantizer(PredefinedColorsQuantizer original, bool useLinearBlending)
@@ -352,9 +353,9 @@ namespace KGySoft.Drawing.Imaging
             BackColor = original.BackColor;
             AlphaThreshold = original.AlphaThreshold;
             Palette = original.Palette == null ? null
-                : original.Palette.LinearBlending == useLinearBlending ? original.Palette
-                : new Palette(original.Palette, BackColor, AlphaThreshold, useLinearBlending);
-            LinearBlending = useLinearBlending;
+                : original.Palette.PrefersLinearColorSpace == useLinearBlending ? original.Palette
+                : new Palette(original.Palette, useLinearBlending, BackColor, AlphaThreshold);
+            LinearColorSpace = useLinearBlending;
         }
 
         #endregion
@@ -1414,7 +1415,8 @@ namespace KGySoft.Drawing.Imaging
         /// </tbody></table></para>
         /// </example>
         public static PredefinedColorsQuantizer FromCustomPalette(Color[] palette, Color backColor = default, byte alphaThreshold = 128)
-            => new PredefinedColorsQuantizer(new Palette(palette, backColor, alphaThreshold));
+            => new PredefinedColorsQuantizer(new Palette((palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull))
+                .Select(c => c.ToColor32()), backColor.ToColor32(), alphaThreshold));
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the specified <paramref name="palette"/>.
@@ -1583,7 +1585,7 @@ namespace KGySoft.Drawing.Imaging
                     : bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
                     : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
                     : Rgb888(bitmapData.BackColor.ToColor())
-            }).ConfigureBlendingMode(bitmapData.LinearBlending());
+            }).ConfigureColorSpace(bitmapData.LinearBlending());
         }
 
         /// <summary>
@@ -1643,14 +1645,14 @@ namespace KGySoft.Drawing.Imaging
         #region Public Methods
 
         /// <summary>
-        /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.
+        /// Configures whether the quantizer should prefer the linear color space rather than the sRGB color space when quantizing colors.
+        /// The configuration might be ignored if this instance was created from a custom function.
+        /// The configuration may affect alpha blending, nearest color lookup if this quantizer has a <see cref="Imaging.Palette"/>, and also the behavior of ditherers that use this quantizer.
         /// </summary>
-        /// <param name="useLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.
-        /// <br/>It may have no effect if this <see cref="OptimizedPaletteQuantizer"/> was created from a custom function or from a <see cref="Imaging.Palette"/> that uses a custom function.</param>
-        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>
-        public PredefinedColorsQuantizer ConfigureBlendingMode(bool useLinearBlending)
-            => useLinearBlending == LinearBlending ? this : new PredefinedColorsQuantizer(this, useLinearBlending);
+        /// <param name="preferLinearColorSpace"><see langword="true"/> to prefer using the linear color space for the quantizing rather than the sRGB color space; otherwise, <see langword="false"/>.</param>
+        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that uses the specified color space.</returns>
+        public PredefinedColorsQuantizer ConfigureColorSpace(bool preferLinearColorSpace)
+            => preferLinearColorSpace == LinearColorSpace ? this : new PredefinedColorsQuantizer(this, preferLinearColorSpace);
 
         #endregion
 

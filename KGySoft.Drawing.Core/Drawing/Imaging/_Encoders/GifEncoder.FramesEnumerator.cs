@@ -711,7 +711,7 @@ namespace KGySoft.Drawing.Imaging
                         quantizerProperties.BackColor = palette.BackColor;
                         quantizerProperties.SupportsTransparency = palette.HasTransparent && palette.AlphaThreshold > 0;
                         quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? palette.AlphaThreshold : (byte)0;
-                        quantizerProperties.UseLinearBlending = palette.LinearBlending;
+                        quantizerProperties.UseLinearBlending = palette.PrefersLinearColorSpace;
                         return;
 
                     case OptimizedPaletteQuantizer optimized:
@@ -719,7 +719,7 @@ namespace KGySoft.Drawing.Imaging
                         quantizerProperties.BackColor = optimized.BackColor;
                         quantizerProperties.AlphaThreshold = optimized.AlphaThreshold;
                         quantizerProperties.SupportsTransparency = optimized.AlphaThreshold > 0;
-                        quantizerProperties.UseLinearBlending = optimized.LinearBlending;
+                        quantizerProperties.UseLinearBlending = optimized.LinearColorSpace;
                         return;
 
                     default:
@@ -729,7 +729,7 @@ namespace KGySoft.Drawing.Imaging
                             quantizerProperties.BackColor = session.BackColor;
                             quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
                             quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
-                            quantizerProperties.UseLinearBlending = session.LinearBlending;
+                            quantizerProperties.UseLinearBlending = session.PrefersLinearColorSpace;
                             return;
                         }
                 }
@@ -989,7 +989,7 @@ namespace KGySoft.Drawing.Imaging
                     deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb,
                         default, 0, BlendingMode, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??=
-                        PredefinedColorsQuantizer.Rgb888(QuantizerBackColor.ToColor()).ConfigureBlendingMode(QuantizerLinearBlending));
+                        PredefinedColorsQuantizer.Rgb888(QuantizerBackColor.ToColor()).ConfigureColorSpace(QuantizerLinearBlending));
                 }
                 // if no delta is allowed, then clearing before all frames with transparency
                 else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency())

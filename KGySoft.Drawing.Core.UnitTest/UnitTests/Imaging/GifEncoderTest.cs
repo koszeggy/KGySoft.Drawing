@@ -698,7 +698,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             var config = new AnimatedGifConfiguration(FramesIterator())
             {
-                Quantizer = OptimizedPaletteQuantizer.Wu(256, Color.Black, 0).ConfigureBlendingMode(linear)
+                Quantizer = OptimizedPaletteQuantizer.Wu(256, Color.Black, 0).ConfigureColorSpace(linear)
             };
 
             EncodeAnimatedGif(config, false, $"{Path.GetFileName(dir)} linear={linear}");
@@ -792,14 +792,14 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 using IReadWriteBitmapData currentFrame = BitmapDataFactory.CreateBitmapData(new Size(bitmapData.Width, bitmapData.Height * 2));
 
-                IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(Color.White).ConfigureBlendingMode(linear);
+                IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(Color.White).ConfigureColorSpace(linear);
                 for (int y = bitmapData.Height - 1; y >= 0; y--)
                 {
                     bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, bitmapData.Height - y), quantizer);
                     yield return currentFrame;
                 }
 
-                quantizer = PredefinedColorsQuantizer.Rgb888(Color.Black).ConfigureBlendingMode(linear);
+                quantizer = PredefinedColorsQuantizer.Rgb888(Color.Black).ConfigureColorSpace(linear);
                 for (int y = 0; y < bitmapData.Height; y++)
                 {
                     bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, y + bitmapData.Height), quantizer);

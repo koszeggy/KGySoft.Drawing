@@ -131,7 +131,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var source = GetInfoIcon256();
             using (var clone = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat)))
                 SaveBitmapData($"{pixelFormat} - sRGB blending", clone);
-            using (var clone = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureBlendingMode(true)))
+            using (var clone = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(true)))
                 SaveBitmapData($"{pixelFormat} - Linear blending", clone);
         }
 
@@ -143,7 +143,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var source = GetInfoIcon256();
             using (var clone = source.Clone(pixelFormat, OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel())))
                 SaveBitmapData($"{pixelFormat} - sRGB blending", clone);
-            using (var clone = source.Clone(pixelFormat, OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel()).ConfigureBlendingMode(true)))
+            using (var clone = source.Clone(pixelFormat, OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel()).ConfigureColorSpace(true)))
                 SaveBitmapData($"{pixelFormat} - Linear blending", clone);
         }
 
@@ -165,8 +165,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             {
                 foreach (bool isLinear in new[] { false, true })
                 {
-                    using var cloneIndexed = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureBlendingMode(isLinear), ditherer.Value);
-                    using var cloneTrueColor = source.Clone(KnownPixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureBlendingMode(isLinear), ditherer.Value);
+                    using var cloneIndexed = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(isLinear), ditherer.Value);
+                    using var cloneTrueColor = source.Clone(KnownPixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(isLinear), ditherer.Value);
                     AssertAreEqual(cloneIndexed, cloneTrueColor, true);
                     SaveBitmapData($"{pixelFormat} {ditherer.Key} {(isLinear ? "Linear" : "sRGB")}", cloneIndexed);
                 }
@@ -283,7 +283,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 var rect = new Rectangle(128, 128, 128, 128);
                 using var source = GetInfoIcon256();
                 using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size);
-                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureBlendingMode(blendingMode == BlendingMode.Linear);
+                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(blendingMode == BlendingMode.Linear);
                 source.CopyTo(targetFull, Point.Empty, quantizer);
 
                 using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
@@ -364,7 +364,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             foreach (var blendingMode in new[] { BlendingMode.Srgb, BlendingMode.Linear })
             {
-                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureBlendingMode(blendingMode == BlendingMode.Linear);
+                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(blendingMode == BlendingMode.Linear);
 
                 var ditherers = new Dictionary<string, IDitherer>
                 {
@@ -475,7 +475,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             foreach (var blendingMode in new[] { BlendingMode.Srgb, BlendingMode.Linear })
             {
-                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat, Color.Silver).ConfigureBlendingMode(blendingMode == BlendingMode.Linear);
+                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat, Color.Silver).ConfigureColorSpace(blendingMode == BlendingMode.Linear);
 
                 var ditherers = new Dictionary<string, IDitherer>
                 {

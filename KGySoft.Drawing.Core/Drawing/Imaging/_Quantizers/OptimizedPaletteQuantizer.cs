@@ -191,7 +191,7 @@ namespace KGySoft.Drawing.Imaging
 
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool LinearBlending => quantizer.LinearBlending;
+            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
             public bool IsGrayscale => Palette?.IsGrayscale ?? false;
 
             #endregion
@@ -241,14 +241,14 @@ namespace KGySoft.Drawing.Imaging
                         // Handling alpha including full transparency.
                         // TODO: Here we could allow alpha pixels if all algorithms supported it in AddColor
                         if (c.A != Byte.MaxValue)
-                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor, quantizer.LinearBlending);
+                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor, quantizer.LinearColorSpace);
                         alg.AddColor(c);
                     }
                     context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
                 Color32[]? palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.LinearBlending, null);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.LinearColorSpace, null);
             }
 
             #endregion
@@ -308,7 +308,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Properties
 
-        internal bool LinearBlending { get; }
+        internal bool LinearColorSpace { get; }
 
         #endregion
 
@@ -333,11 +333,11 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
         }
 
-        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel, bool useLinearBlending)
+        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel, bool useLinearColorSpace)
             : this(original.algorithm, original.MaxColors, original.BackColor, original.AlphaThreshold)
         {
             this.bitLevel = bitLevel;
-            LinearBlending = useLinearBlending;
+            LinearColorSpace = useLinearColorSpace;
         }
 
         #endregion
@@ -491,17 +491,17 @@ namespace KGySoft.Drawing.Imaging
                 return this;
             if (bitLevel is < 1 or > 8)
                 throw new ArgumentOutOfRangeException(nameof(bitLevel), PublicResources.ArgumentMustBeBetween(1, 8));
-            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, LinearBlending);
+            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, LinearColorSpace);
         }
 
         /// <summary>
-        /// Configures whether the generated <see cref="Palette"/> should perform blending in the linear color space instead of the sRGB color space when looking up nearest colors with alpha.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="IBitmapData.BlendingMode"/> property for more details.
+        /// Configures whether the generated <see cref="Palette"/> should perform blending and nearest color search in the linear color space rather than the sRGB color space.
+        /// The configuration may also affect the behavior of ditherers that use this quantizer.
         /// </summary>
-        /// <param name="useLinearBlending"><see langword="true"/> to perform blending in the linear color space; otherwise, <see langword="false"/>.</param>
-        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that has the specified blending mode.</returns>
-        public OptimizedPaletteQuantizer ConfigureBlendingMode(bool useLinearBlending)
-            => useLinearBlending == LinearBlending ? this : new OptimizedPaletteQuantizer(this, bitLevel, useLinearBlending);
+        /// <param name="useLinearColorSpace"><see langword="true"/> to generate a <see cref="Palette"/> that performs blending and nearest color lookup in the linear color space; otherwise, <see langword="false"/>.</param>
+        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that uses the specified color space.</returns>
+        public OptimizedPaletteQuantizer ConfigureColorSpace(bool useLinearColorSpace)
+            => useLinearColorSpace == LinearColorSpace ? this : new OptimizedPaletteQuantizer(this, bitLevel, useLinearColorSpace);
 
         #endregion
 

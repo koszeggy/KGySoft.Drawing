@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets whether this <see cref="IQuantizingSession"/> works with grayscale colors.
         /// Its value may help to optimize the processing in some cases but it is allowed to return always <see langword="false"/>.
-        /// <br/>Default value is not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
+        /// <br/>Default value if not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
         /// </summary>
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         bool IsGrayscale { get; }
@@ -71,13 +71,14 @@ namespace KGySoft.Drawing.Imaging
 #endif
 
         /// <summary>
-        /// Gets whether this <see cref="IQuantizingSession"/> performs blending in the linear color space.
-        /// <br/>Default value is not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
+        /// Gets whether this <see cref="IQuantizingSession"/> prefers blending and quantizing in the linear color space.
+        /// If this quantizer is used with a ditherer, then <see cref="IDitheringSession"/> implementations may also respect the value of this property.
+        /// <br/>Default value if not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
         /// </summary>
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
-        bool LinearBlending { get; }
+        bool PrefersLinearColorSpace { get; }
 #else
-        bool LinearBlending => false;
+        bool PrefersLinearColorSpace => false;
 #endif
 
         #endregion

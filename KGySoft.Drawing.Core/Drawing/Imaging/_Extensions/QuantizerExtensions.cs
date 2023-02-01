@@ -71,9 +71,9 @@ namespace KGySoft.Drawing.Imaging
                 case null:
                     return Imaging.BlendingMode.Default;
                 case PredefinedColorsQuantizer predefined:
-                    return predefined.LinearBlending ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
+                    return predefined.LinearColorSpace ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
                 case OptimizedPaletteQuantizer optimized:
-                    return optimized.LinearBlending ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
+                    return optimized.LinearColorSpace ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
                 default:
                     // non built-in one: testing with a single pixel bitmap
                     using (var session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))

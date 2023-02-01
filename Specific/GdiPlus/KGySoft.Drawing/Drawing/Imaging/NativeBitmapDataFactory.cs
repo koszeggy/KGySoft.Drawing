@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format8bppIndexed:
                 case PixelFormat.Format4bppIndexed:
                 case PixelFormat.Format1bppIndexed:
-                    var palette = new Palette(bitmap.Palette.Entries.Select(c => c.ToColor32()), backColor, alphaThreshold, blendingMode == BlendingMode.Linear);
+                    var palette = new Palette(bitmap.Palette.Entries.Select(c => c.ToColor32()), blendingMode == BlendingMode.Linear, backColor, alphaThreshold);
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, palette, bitmap.TrySetPalette, dispose);
 
                 case PixelFormat.Format64bppArgb:

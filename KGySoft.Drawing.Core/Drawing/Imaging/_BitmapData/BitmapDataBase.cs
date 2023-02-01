@@ -128,7 +128,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 var entries = new Color32[1 << bpp];
                 palette.Entries.CopyTo(entries, 0);
-                return new Palette(entries, palette.BackColor, palette.AlphaThreshold, palette.LinearBlending, null);
+                return new Palette(entries, palette.BackColor, palette.AlphaThreshold, palette.PrefersLinearColorSpace, null);
             }
 
             #endregion
@@ -138,8 +138,8 @@ namespace KGySoft.Drawing.Imaging
             Debug.Assert(cfg.Palette == null || cfg.Palette.BackColor == cfg.BackColor.ToOpaque()
                 && cfg.Palette.AlphaThreshold == cfg.AlphaThreshold && (cfg.Palette.BlendingMode == cfg.BlendingMode || cfg.BlendingMode == BlendingMode.Default));
 
-            this.disposeCallback = cfg.DisposeCallback;
-            this.trySetPaletteCallback = cfg.TrySetPaletteCallback;
+            disposeCallback = cfg.DisposeCallback;
+            trySetPaletteCallback = cfg.TrySetPaletteCallback;
             Width = cfg.Size.Width;
             Height = cfg.Size.Height;
             BackColor = cfg.BackColor.ToOpaque();
@@ -157,18 +157,18 @@ namespace KGySoft.Drawing.Imaging
                     // ReSharper disable once NotResolvedInText
                     throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), "palette");
                 Palette = cfg.Palette;
-                LinearBlending = Palette.LinearBlending;
+                LinearBlending = Palette.PrefersLinearColorSpace;
                 return;
             }
 
             Palette = cfg.Palette ?? bpp switch
             {
-                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold, LinearBlending), bpp),
-                8 => Palette.SystemDefault8BppPalette(cfg.BackColor, cfg.AlphaThreshold, LinearBlending),
-                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(cfg.BackColor, LinearBlending), bpp),
-                4 => Palette.SystemDefault4BppPalette(cfg.BackColor, LinearBlending),
-                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(cfg.BackColor, LinearBlending), bpp),
-                _ => Palette.SystemDefault1BppPalette(cfg.BackColor, LinearBlending)
+                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(LinearBlending, cfg.BackColor, cfg.AlphaThreshold), bpp),
+                8 => Palette.SystemDefault8BppPalette(LinearBlending, cfg.BackColor, cfg.AlphaThreshold),
+                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(LinearBlending, cfg.BackColor), bpp),
+                4 => Palette.SystemDefault4BppPalette(LinearBlending, cfg.BackColor),
+                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(LinearBlending, cfg.BackColor), bpp),
+                _ => Palette.SystemDefault1BppPalette(LinearBlending, cfg.BackColor)
             };
 
             AlphaThreshold = Palette.AlphaThreshold;
@@ -264,10 +264,10 @@ namespace KGySoft.Drawing.Imaging
                 return false;
 
             // Inheriting only the color entries from the palette because back color, alpha and blending mode are read-only
-            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold && palette.LinearBlending == LinearBlending)
+            if (palette.BackColor == BackColor && palette.AlphaThreshold == AlphaThreshold && palette.PrefersLinearColorSpace == LinearBlending)
                 Palette = palette;
             else
-                Palette = new Palette(palette, BackColor, AlphaThreshold, LinearBlending);
+                Palette = new Palette(palette, LinearBlending, BackColor, AlphaThreshold);
 
             return true;
         }
