@@ -28,9 +28,9 @@ namespace KGySoft.Drawing.UnitTests
     [TestFixture]
     public class IconsTest : TestBase
     {
-        #region Fields
+        #region Properties
 
-        private static readonly object[] sourceKnownIconsTest =
+        private static object[][] SourceKnownIconsTest => new[]
         {
             new object[] { nameof(Icons.SystemInformation), Icons.SystemInformation },
             new object[] { nameof(Icons.SystemWarning), Icons.SystemWarning },
@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Methods
 
-        [TestCaseSource(nameof(sourceKnownIconsTest))]
+        [TestCaseSource(nameof(SourceKnownIconsTest))]
         public void KnownIconsTest(string iconName, Icon icon)
         {
             Assert.IsNotNull(icon);

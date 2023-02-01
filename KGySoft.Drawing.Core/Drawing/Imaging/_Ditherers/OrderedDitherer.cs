@@ -16,8 +16,10 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
+using KGySoft.Collections;
 using KGySoft.Threading;
 
 #endregion
@@ -100,13 +102,61 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/>
     public sealed class OrderedDitherer : IDitherer
     {
-        #region OrderedDitheringSession class
+        #region Nested Classes
+        
+        #region OrderedDitheringSessionSrgb class
 
-        private sealed class OrderedDitheringSession : VariableStrengthDitheringSessionBase
+        private sealed class OrderedDitheringSessionSrgb : VariableStrengthDitheringSessionSrgbBase
         {
             #region Fields
 
             private readonly OrderedDitherer ditherer;
+
+            #endregion
+
+            #region Properties
+
+#if DEBUG
+            public override bool IsSequential => true;
+#else
+            public override bool IsSequential => false; 
+#endif
+
+            #endregion
+
+            #region Constructors
+
+            internal OrderedDitheringSessionSrgb(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
+                : base(quantizingSession)
+            {
+                this.ditherer = ditherer;
+                if (ditherer.strength > 0f)
+                {
+                    Strength = ditherer.strength;
+                    return;
+                }
+
+                Strength = CalibrateStrength(ditherer.matrixMinValue, ditherer.matrixMaxValue, ditherer.dynamicStrengthCalibration ?? false);
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override sbyte GetOffset(int x, int y) => ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
+
+            #endregion
+        }
+
+        #endregion
+
+        #region OrderedDitheringSessionLinear class
+
+        private sealed class OrderedDitheringSessionLinear : VariableStrengthDitheringSessionLinearBase
+        {
+            #region Fields
+
+            private Array2D<float> offsets;
 
             #endregion
 
@@ -118,28 +168,42 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal OrderedDitheringSession(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
+            internal OrderedDitheringSessionLinear(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
                 : base(quantizingSession)
             {
-                this.ditherer = ditherer;
+                const float norm = 256f;
+                offsets = new Array2D<float>(ditherer.matrixHeight, ditherer.matrixWidth);
+                for (int y = 0; y < offsets.Height; y++)
+                {
+                    for (int x = 0; x < offsets.Width; x++)
+                        offsets[y, x] = ditherer.premultipliedMatrix[y, x] / norm;
+                }
+
                 if (ditherer.strength > 0f)
                 {
                     Strength = ditherer.strength;
                     return;
                 }
 
-                CalibrateStrength(ditherer.matrixMinValue, ditherer.matrixMaxValue);
+                Strength = CalibrateStrength(ditherer.matrixMinValue / norm, ditherer.matrixMaxValue / norm, ditherer.dynamicStrengthCalibration ?? true);
             }
 
             #endregion
 
             #region Methods
 
-            protected override sbyte GetOffset(int x, int y)
-                => ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
+            protected override float GetOffset(int x, int y) => offsets[y % offsets.Height, x % offsets.Width];
+
+            protected override void Dispose(bool disposing)
+            {
+                offsets.Dispose();
+                base.Dispose(disposing);
+            }
 
             #endregion
         }
+
+        #endregion
 
         #endregion
 
@@ -166,6 +230,8 @@ namespace KGySoft.Drawing.Imaging
         private readonly sbyte matrixMinValue;
         private readonly sbyte matrixMaxValue;
         private readonly float strength;
+        private readonly bool? linearColorSpace;
+        private readonly bool? dynamicStrengthCalibration;
 
         #endregion
 
@@ -678,11 +744,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Constructors
 
-        private OrderedDitherer(OrderedDitherer original, float strength)
+        private OrderedDitherer(OrderedDitherer original, float strength, bool? linear, bool? dynamicStrengthCalibration)
         {
             if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
                 throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
             this.strength = strength;
+            this.linearColorSpace = linear;
+            this.dynamicStrengthCalibration = dynamicStrengthCalibration;
             premultipliedMatrix = original.premultipliedMatrix;
             matrixWidth = original.matrixWidth;
             matrixHeight = original.matrixHeight;
@@ -737,14 +805,30 @@ namespace KGySoft.Drawing.Imaging
         /// ]]></code>
         /// </example>
         // ReSharper disable once ParameterHidesMember - No conflict, a new instance is created
-        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength);
+        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength, linearColorSpace, dynamicStrengthCalibration);
+
+        /// <summary>
+        /// Gets a new <see cref="OrderedDitherer"/> instance that has the specified color space configuration.
+        /// </summary>
+        /// <param name="useLinearColorSpace"><see langword="true"/> perform the dithering in the linear color space,
+        /// <br/><see langword="false"/> to perform the dithering in the sRGB color space,
+        /// <br/><see langword="null"/> to select the color in each session space based on the <see cref="IQuantizingSession.PrefersLinearColorSpace">IQuantizingSession.PrefersLinearColorSpace</see> property.</param>
+        /// <returns>A new <see cref="OrderedDitherer"/> instance using the specified color space configuration.</returns>
+        public OrderedDitherer ConfigureColorSpace(bool? useLinearColorSpace) => new OrderedDitherer(this, strength, useLinearColorSpace, dynamicStrengthCalibration);
+
+        // if null: dynamic for linear, constant for sRGB
+        public OrderedDitherer ConfigureAutoStrength(bool? dynamicStrengthCalibration) => new OrderedDitherer(this, 0f, linearColorSpace, dynamicStrengthCalibration);
 
         #endregion
 
         #region Explicitly Implemented Interface Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
-            => new OrderedDitheringSession(quantizer, this);
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? context)
+            => quantizingSession?.PrefersLinearColorSpace == true
+                ? new OrderedDitheringSessionLinear(quantizingSession, this)
+                : new OrderedDitheringSessionSrgb(quantizingSession!, this);
 
         #endregion
 

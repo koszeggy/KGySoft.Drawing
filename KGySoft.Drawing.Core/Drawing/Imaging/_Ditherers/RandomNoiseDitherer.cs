@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.CoreLibraries;
 using KGySoft.Threading;
@@ -64,30 +65,31 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="InterleavedGradientNoiseDitherer" />
     public sealed class RandomNoiseDitherer : IDitherer
     {
-        #region RandomNoiseDitheringSession class
+        #region Nested Classes
+        
+        #region RandomNoiseDitheringSessionSrgb class
 
-        private sealed class RandomNoiseDitheringSession : VariableStrengthDitheringSessionBase
+        private sealed class RandomNoiseDitheringSessionSrgb : VariableStrengthDitheringSessionSrgbBase
         {
             #region Fields
 
-            private readonly RandomNoiseDitherer ditherer;
             private readonly Random random;
 
             #endregion
 
             #region Properties
 
-            // if we have a seed we need to produce a consistent result
-            public override bool IsSequential => ditherer.seed.HasValue;
+            public override bool IsSequential { get; }
 
             #endregion
 
             #region Constructors
 
-            internal RandomNoiseDitheringSession(IQuantizingSession quantizingSession, RandomNoiseDitherer ditherer)
+            internal RandomNoiseDitheringSessionSrgb(IQuantizingSession quantizingSession, RandomNoiseDitherer ditherer)
                 : base(quantizingSession)
             {
-                this.ditherer = ditherer;
+                // if we have a seed we need to produce a consistent result
+                IsSequential = ditherer.seed.HasValue;
 
                 // If we have don't have a seed, we must use a thread safe random generator because pixels can be queried in any order
                 random = ditherer.seed == null ? ThreadSafeRandom.Instance : new FastRandom(ditherer.seed.Value);
@@ -98,7 +100,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                CalibrateStrength(-127, 127);
+                Strength = CalibrateStrength(-127, 127, false);
             }
 
             #endregion
@@ -116,10 +118,64 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region RandomNoiseDitheringSessionLinear class
+
+        private sealed class RandomNoiseDitheringSessionLinear : VariableStrengthDitheringSessionLinearBase
+        {
+            #region Fields
+
+            private readonly Random random;
+
+            #endregion
+
+            #region Properties
+
+            public override bool IsSequential { get; }
+
+            #endregion
+
+            #region Constructors
+
+            internal RandomNoiseDitheringSessionLinear(IQuantizingSession quantizingSession, RandomNoiseDitherer ditherer)
+                : base(quantizingSession)
+            {
+                // if we have a seed we need to produce a consistent result
+                IsSequential = ditherer.seed.HasValue;
+
+                // If we have don't have a seed, we must use a thread safe random generator because pixels can be queried in any order
+                random = ditherer.seed == null ? ThreadSafeRandom.Instance : new FastRandom(ditherer.seed.Value);
+
+                if (ditherer.strength > 0f)
+                {
+                    Strength = ditherer.strength;
+                    return;
+                }
+
+                Strength = CalibrateStrength(MinOffset, MaxOffset, true);
+            }
+
+            #endregion
+
+            #region Methods
+
+#if NET6_0_OR_GREATER
+            protected override float GetOffset(int x, int y) => random.NextSingle() * (MaxOffset - MinOffset) + MinOffset;
+#else
+            protected override float GetOffset(int x, int y) => (float)random.NextDouble() * (MaxOffset - MinOffset) + MinOffset;
+#endif
+
+            #endregion
+        }
+
+        #endregion
+
+        #endregion
+
         #region Fields
 
         private readonly int? seed;
         private readonly float strength;
+        private readonly bool? dynamicStrengthCalibration;
 
         #endregion
 
@@ -188,8 +244,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
         IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
-            => new RandomNoiseDitheringSession(quantizer, this);
+            => quantizer?.PrefersLinearColorSpace == true
+                ? new RandomNoiseDitheringSessionLinear(quantizer, this)
+                : new RandomNoiseDitheringSessionSrgb(quantizer!, this);
 
         #endregion
     }

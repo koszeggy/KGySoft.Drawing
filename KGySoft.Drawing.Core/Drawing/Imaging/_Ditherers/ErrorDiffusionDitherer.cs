@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 using KGySoft.Threading;
@@ -722,7 +723,7 @@ namespace KGySoft.Drawing.Imaging
                     coefficientsMatrix[y, x] = matrix[y, x] / (float)divisor;
             }
         }
-
+        
         #endregion
 
         #region Private Constructors
@@ -834,10 +835,16 @@ namespace KGySoft.Drawing.Imaging
 
         #region Explicitly Implemented Interface Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
-            => isSerpentineProcessing
-                ? new DitheringSessionSerpentine(quantizer, this, source)
-                : new DitheringSessionRaster(quantizer, this, source);
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? context)
+            => quantizingSession?.PrefersLinearColorSpace == true
+                ? isSerpentineProcessing
+                    ? new DitheringSessionSerpentineLinear(quantizingSession, this, source)
+                    : new DitheringSessionRasterLinear(quantizingSession, this, source)
+                : isSerpentineProcessing
+                    ? new DitheringSessionSerpentineSrgb(quantizingSession!, this, source)
+                    : new DitheringSessionRasterSrgb(quantizingSession!, this, source);
 
         #endregion
 

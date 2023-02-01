@@ -18,6 +18,7 @@
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Numerics;
 #endif
+using System;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -26,7 +27,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal readonly struct ColorF
+    internal readonly struct ColorF : IEquatable<ColorF>
     {
         #region Fields
 
@@ -60,11 +61,55 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        //#region Properties
+        #region Properties
 
         //public bool IsValid => Clip().Rgba == Rgba; // Clip() == this;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal RgbF RgbF => new RgbF(Rgb);
+#else
+        internal RgbF RgbF => new RgbF(R, G, B);
+#endif
 
-        //#endregion
+        #endregion
+
+        #region Operators
+
+        public static bool operator ==(ColorF left, ColorF right) => Equals(left, right);
+        public static bool operator !=(ColorF left, ColorF right) => !(left == right);
+
+        /// <summary>
+        /// Multiplies a <see cref="ColorF"/> by the given scalar.
+        /// </summary>
+        /// <param name="left">The source color.</param>
+        /// <param name="right">The scalar value.</param>
+        /// <returns>The scaled color.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static ColorF operator *(ColorF left, float right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new ColorF(left.Rgba * new Vector4(right));
+#else
+            return new ColorF(left.A * right, left.R * right, left.G * right, left.B * right);
+#endif
+        }
+
+        /// <summary>
+        /// Adds two colors together.
+        /// </summary>
+        /// <param name="left">The first source color.</param>
+        /// <param name="right">The second source color.</param>
+        /// <returns>The summed color.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static ColorF operator +(ColorF left, ColorF right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new ColorF(left.Rgba + right.Rgba);
+#else
+            return new ColorF(left.A + right.A, left.R + right.R, left.G + right.G, left.B + right.B);
+#endif
+        }
+
+        #endregion
 
         #region Constructors
 
@@ -147,6 +192,12 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="ColorF"/> instance.</returns>
         public override string ToString() => $"[A={A:N4}; R={R:N4}; G={G:N4}; B={B:N4}]";
+
+        public bool Equals(ColorF other) => other.Rgba == Rgba;
+
+        public override bool Equals(object? obj) => obj is ColorF other && Equals(other);
+
+        public override int GetHashCode() => Rgba.GetHashCode();
 
         #endregion
     }

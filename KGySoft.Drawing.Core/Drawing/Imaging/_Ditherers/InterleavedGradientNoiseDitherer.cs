@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
 using KGySoft.Threading;
 
@@ -62,9 +63,11 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="InterleavedGradientNoiseDitherer" />
     public sealed class InterleavedGradientNoiseDitherer : IDitherer
     {
-        #region InterleavedGradientNoiseDitheringSession class
+        #region Nested Classes
 
-        private sealed class InterleavedGradientNoiseDitheringSession : VariableStrengthDitheringSessionBase
+        #region InterleavedGradientNoiseDitheringSessionSrgb class
+
+        private sealed class InterleavedGradientNoiseDitheringSessionSrgb : VariableStrengthDitheringSessionSrgbBase
         {
             #region Properties
 
@@ -74,7 +77,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal InterleavedGradientNoiseDitheringSession(IQuantizingSession quantizingSession, InterleavedGradientNoiseDitherer ditherer)
+            internal InterleavedGradientNoiseDitheringSessionSrgb(IQuantizingSession quantizingSession, InterleavedGradientNoiseDitherer ditherer)
                 : base(quantizingSession)
             {
                 if (ditherer.strength > 0f)
@@ -83,7 +86,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                CalibrateStrength(-127, 127);
+                Strength = CalibrateStrength(-127, 127, false);
             }
 
             #endregion
@@ -101,6 +104,49 @@ namespace KGySoft.Drawing.Imaging
 
             #endregion
         }
+
+        #endregion
+
+        #region InterleavedGradientNoiseDitheringSessionLinear class
+
+        private sealed class InterleavedGradientNoiseDitheringSessionLinear : VariableStrengthDitheringSessionLinearBase
+        {
+            #region Properties
+
+            public override bool IsSequential => false;
+
+            #endregion
+
+            #region Constructors
+
+            internal InterleavedGradientNoiseDitheringSessionLinear(IQuantizingSession quantizingSession, InterleavedGradientNoiseDitherer ditherer)
+                : base(quantizingSession)
+            {
+                if (ditherer.strength > 0f)
+                {
+                    Strength = ditherer.strength;
+                    return;
+                }
+
+                Strength = CalibrateStrength(MinOffset, MaxOffset, true);
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override float GetOffset(int x, int y)
+            {
+                static double Frac(double value) => value - Math.Floor(value);
+
+                // The formula is taken from here: https://bartwronski.com/2016/10/30/dithering-part-three-real-world-2d-quantization-dithering/
+                return (float)(Frac(52.9829189 * Frac(0.06711056 * x + 0.00583715 * y)) * (MaxOffset - MinOffset) + MinOffset);
+            }
+
+            #endregion
+        }
+
+        #endregion
 
         #endregion
 
@@ -175,8 +221,12 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
-            => new InterleavedGradientNoiseDitheringSession(quantizer, this);
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? context)
+            => quantizingSession?.PrefersLinearColorSpace == true
+                ? new InterleavedGradientNoiseDitheringSessionLinear(quantizingSession, this)
+                : new InterleavedGradientNoiseDitheringSessionSrgb(quantizingSession!, this);
 
         #endregion
     }
