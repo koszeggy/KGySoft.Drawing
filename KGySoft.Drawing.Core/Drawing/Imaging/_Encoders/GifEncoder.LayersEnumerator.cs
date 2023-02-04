@@ -116,7 +116,7 @@ namespace KGySoft.Drawing.Imaging
                 additionalColors = new HashSet<Color32>();
                 sourceRows = new IReadableBitmapDataRow[16];
                 maskRows = new IReadableBitmapDataRow[16];
-                mask = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }, default, 0, false, null));
+                mask = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }, default, 0, default, null));
             }
 
             #endregion

@@ -105,7 +105,7 @@ namespace KGySoft.Drawing.UnitTests
             ////new object[] { "ARGB1555 Black 1", PredefinedColorsQuantizer.Argb1555(default, 1), (1 << 15) + 1 },
             ////new object[] { "ARGB1555 Black 254", PredefinedColorsQuantizer.Argb1555(default, 254), (1 << 15) + 1 },
             new object[] { "RGB332 Black sRGB", PredefinedColorsQuantizer.Rgb332(), 256 },
-            new object[] { "RGB332 Black Linear", PredefinedColorsQuantizer.Rgb332().ConfigureColorSpace(true), 256 },
+            new object[] { "RGB332 Black Linear", PredefinedColorsQuantizer.Rgb332().ConfigureColorSpace(WorkingColorSpace.Linear), 256 },
             new object[] { "RGB332 Black Direct", PredefinedColorsQuantizer.Rgb332(directMapping: true), 256 },
             ////new object[] { "RGB332 White Slow", PredefinedColorsQuantizer.Rgb332(Color.White), 256 },
             ////new object[] { "Grayscale256 Black", PredefinedColorsQuantizer.Grayscale(), 256 },
@@ -117,26 +117,26 @@ namespace KGySoft.Drawing.UnitTests
             ////new object[] { "Grayscale4 Black Fast", PredefinedColorsQuantizer.Grayscale4(directMapping: true), 4 },
             ////new object[] { "Grayscale3 Black", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.Gray, Color.White }), 3 },
             new object[] { "BW Black sRGB", PredefinedColorsQuantizer.BlackAndWhite(), 2 },
-            new object[] { "BW Black Linear", PredefinedColorsQuantizer.BlackAndWhite().ConfigureColorSpace(true), 2 },
+            new object[] { "BW Black Linear", PredefinedColorsQuantizer.BlackAndWhite().ConfigureColorSpace(WorkingColorSpace.Linear), 2 },
             ////new object[] { "BW White", PredefinedColorsQuantizer.BlackAndWhite(Color.White), 2 },
             ////new object[] { "BW Lime", PredefinedColorsQuantizer.BlackAndWhite(Color.Lime), 2 },
             ////new object[] { "BW Blue", PredefinedColorsQuantizer.BlackAndWhite(Color.Blue), 2 },
             new object[] { "Default8Bpp Black sRGB", PredefinedColorsQuantizer.SystemDefault8BppPalette(), 256 },
-            new object[] { "Default8Bpp Black Linear", PredefinedColorsQuantizer.SystemDefault8BppPalette().ConfigureColorSpace(true), 256 },
+            new object[] { "Default8Bpp Black Linear", PredefinedColorsQuantizer.SystemDefault8BppPalette().ConfigureColorSpace(WorkingColorSpace.Linear), 256 },
             ////new object[] { "Default8Bpp White", PredefinedColorsQuantizer.SystemDefault8BppPalette(Color.White), 256 },
             new object[] { "Default4Bpp Black sRGB", PredefinedColorsQuantizer.SystemDefault4BppPalette(), 16 },
-            new object[] { "Default4Bpp Black Linear", PredefinedColorsQuantizer.SystemDefault4BppPalette().ConfigureColorSpace(true), 16 },
+            new object[] { "Default4Bpp Black Linear", PredefinedColorsQuantizer.SystemDefault4BppPalette().ConfigureColorSpace(WorkingColorSpace.Linear), 16 },
             ////new object[] { "Default4Bpp White", PredefinedColorsQuantizer.SystemDefault4BppPalette(Color.White), 16 },
             //new object[] { "Default1Bpp Black sRGB", PredefinedColorsQuantizer.SystemDefault1BppPalette(), 2 },
-            //new object[] { "Default1Bpp Black Linear", PredefinedColorsQuantizer.SystemDefault1BppPalette().ConfigureColorSpace(true), 2 },
+            //new object[] { "Default1Bpp Black Linear", PredefinedColorsQuantizer.SystemDefault1BppPalette().ConfigureColorSpace(WorkingColorSpace.Linear), 2 },
             ////new object[] { "Default1Bpp White", PredefinedColorsQuantizer.SystemDefault1BppPalette(Color.White), 2 },
             new object[] { "Custom Black sRGB", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Lime, Color.Magenta, Color.Yellow, Color.Cyan }), 8 },
-            new object[] { "Custom Black Linear", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Lime, Color.Magenta, Color.Yellow, Color.Cyan }).ConfigureColorSpace(true), 8 },
+            new object[] { "Custom Black Linear", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Lime, Color.Magenta, Color.Yellow, Color.Cyan }).ConfigureColorSpace(WorkingColorSpace.Linear), 8 },
             ////new object[] { "Custom White", PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Blue, Color.Green, Color.Magenta, Color.Yellow, Color.Cyan }, Color.White), 8 },
 
             ////new object[] { "Octree 256 Black", OptimizedPaletteQuantizer.Octree(256, Color.Black, 0), 256 },
             //new object[] { "Octree 16 Black sRGB", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0), 16 },
-            //new object[] { "Octree 16 Black Linear", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0).ConfigureColorSpace(true), 16 },
+            //new object[] { "Octree 16 Black Linear", OptimizedPaletteQuantizer.Octree(16, Color.Black, 0).ConfigureColorSpace(WorkingColorSpace.Linear), 16 },
             ////new object[] { "Octree 2 Black", OptimizedPaletteQuantizer.Octree(2, Color.Black, 0), 2 },
             ////new object[] { "Octree 256 Silver", OptimizedPaletteQuantizer.Octree(256, Color.Silver, 0), 256 },
             ////new object[] { "Octree 16 Silver", OptimizedPaletteQuantizer.Octree(16, Color.Silver, 0), 16 },
@@ -147,7 +147,7 @@ namespace KGySoft.Drawing.UnitTests
 
             ////new object[] { "MedianCut 256 Black", OptimizedPaletteQuantizer.MedianCut(256, Color.Black, 0), 256 },
             //new object[] { "MedianCut 16 Black sRGB", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0), 16 },
-            //new object[] { "MedianCut 16 Black Linear", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0).ConfigureColorSpace(true), 16 },
+            //new object[] { "MedianCut 16 Black Linear", OptimizedPaletteQuantizer.MedianCut(16, Color.Black, 0).ConfigureColorSpace(WorkingColorSpace.Linear), 16 },
             ////new object[] { "MedianCut 2 Black", OptimizedPaletteQuantizer.MedianCut(2, Color.Black, 0), 2 },
             ////new object[] { "MedianCut 256 Silver", OptimizedPaletteQuantizer.MedianCut(256, Color.Silver, 0), 256 },
             ////new object[] { "MedianCut 16 Silver", OptimizedPaletteQuantizer.MedianCut(16, Color.Silver, 0), 16 },
@@ -158,7 +158,7 @@ namespace KGySoft.Drawing.UnitTests
 
             ////new object[] { "Wu 256 Black", OptimizedPaletteQuantizer.Wu(256, Color.Black, 0), 256 },
             new object[] { "Wu 16 Black sRGB", OptimizedPaletteQuantizer.Wu(16, Color.Black, 0), 16 },
-            new object[] { "Wu 16 Black Linear", OptimizedPaletteQuantizer.Wu(16, Color.Black, 0).ConfigureColorSpace(true), 16 },
+            new object[] { "Wu 16 Black Linear", OptimizedPaletteQuantizer.Wu(16, Color.Black, 0).ConfigureColorSpace(WorkingColorSpace.Linear), 16 },
             ////new object[] { "Wu 2 Black", OptimizedPaletteQuantizer.Wu(2, Color.Black, 0), 2 },
             ////new object[] { "Wu 256 Silver", OptimizedPaletteQuantizer.Wu(256, Color.Silver, 0), 256 },
             ////new object[] { "Wu 16 Silver", OptimizedPaletteQuantizer.Wu(16, Color.Silver, 0), 16 },
@@ -489,7 +489,7 @@ namespace KGySoft.Drawing.UnitTests
                 IReadableBitmapDataRowMovable row = bitmapData.FirstRow;
                 var c32 = new Color32(color);
                 if (!pixelFormat.HasAlpha())
-                    c32 = c32.Blend(Color32.FromGray(0), false);
+                    c32 = c32.Blend(Color32.FromGray(0));
                 do
                 {
                     for (int x = 0; x < bitmapData.Width; x++)

@@ -190,8 +190,8 @@ namespace KGySoft.Drawing.Imaging
             public Palette? Palette { get; }
 
             public Color32 BackColor => quantizer.BackColor;
+            public WorkingColorSpace WorkingColorSpace => quantizer.WorkingColorSpace;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
             public bool IsGrayscale => Palette?.IsGrayscale ?? false;
 
             #endregion
@@ -241,14 +241,14 @@ namespace KGySoft.Drawing.Imaging
                         // Handling alpha including full transparency.
                         // TODO: Here we could allow alpha pixels if all algorithms supported it in AddColor
                         if (c.A != Byte.MaxValue)
-                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor, quantizer.LinearColorSpace);
+                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor, quantizer.WorkingColorSpace);
                         alg.AddColor(c);
                     }
                     context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
                 Color32[]? palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.LinearColorSpace, null);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.WorkingColorSpace, null);
             }
 
             #endregion
@@ -304,11 +304,19 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         public int MaxColors { get; }
 
-        #endregion
-
-        #region Internal Properties
-
-        internal bool LinearColorSpace { get; }
+        /// <summary>
+        /// Gets the color space of this <see cref="OptimizedPaletteQuantizer"/> instance for quantizing. This value will be returned also by
+        /// the <see cref="IQuantizingSession.WorkingColorSpace"/> property once an <see cref="IQuantizingSession"/> is created from this instance.
+        /// You can use the <see cref="ConfigureColorSpace">ConfigureColorSpace</see> method to create a clone of this <see cref="OptimizedPaletteQuantizer"/>
+        /// using a different working color space.
+        /// </summary>
+        /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// <para>If the value of this property is <see cref="Imaging.WorkingColorSpace.Default"/>, then the sRGB color space is used
+        /// because the <see cref="IQuantizingSession.GetQuantizedColor">IQuantizingSession.GetQuantizedColor</see> method works with sRGB colors anyway.</para>
+        /// </remarks>
+        public WorkingColorSpace WorkingColorSpace { get; }
 
         #endregion
 
@@ -333,11 +341,13 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
         }
 
-        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel, bool useLinearColorSpace)
+        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel, WorkingColorSpace workingColorSpace)
             : this(original.algorithm, original.MaxColors, original.BackColor, original.AlphaThreshold)
         {
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             this.bitLevel = bitLevel;
-            LinearColorSpace = useLinearColorSpace;
+            WorkingColorSpace = workingColorSpace;
         }
 
         #endregion
@@ -491,17 +501,20 @@ namespace KGySoft.Drawing.Imaging
                 return this;
             if (bitLevel is < 1 or > 8)
                 throw new ArgumentOutOfRangeException(nameof(bitLevel), PublicResources.ArgumentMustBeBetween(1, 8));
-            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, LinearColorSpace);
+            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, WorkingColorSpace);
         }
 
         /// <summary>
-        /// Configures whether the generated <see cref="Palette"/> should perform blending and nearest color search in the linear color space rather than the sRGB color space.
+        /// Configures the working color space of the generated <see cref="Palette"/> to be used for blending and performing nearest color search.
         /// The configuration may also affect the behavior of ditherers that use this quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to generate a <see cref="Palette"/> that performs blending and nearest color lookup in the linear color space; otherwise, <see langword="false"/>.</param>
+        /// <param name="workingColorSpace">Specifies the working color space for the generated <see cref="Palette"/>.</param>
         /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that uses the specified color space.</returns>
-        public OptimizedPaletteQuantizer ConfigureColorSpace(bool useLinearColorSpace)
-            => useLinearColorSpace == LinearColorSpace ? this : new OptimizedPaletteQuantizer(this, bitLevel, useLinearColorSpace);
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        public OptimizedPaletteQuantizer ConfigureColorSpace(WorkingColorSpace workingColorSpace)
+            => workingColorSpace == WorkingColorSpace ? this : new OptimizedPaletteQuantizer(this, bitLevel, workingColorSpace);
 
         #endregion
 

@@ -64,20 +64,20 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static BlendingMode BlendingMode(this IQuantizer? quantizer)
+        internal static WorkingColorSpace WorkingColorSpace(this IQuantizer? quantizer)
         {
             switch (quantizer)
             {
                 case null:
-                    return Imaging.BlendingMode.Default;
+                    return Imaging.WorkingColorSpace.Default;
                 case PredefinedColorsQuantizer predefined:
-                    return predefined.LinearColorSpace ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
+                    return predefined.WorkingColorSpace;
                 case OptimizedPaletteQuantizer optimized:
-                    return optimized.LinearColorSpace ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
+                    return optimized.WorkingColorSpace;
                 default:
                     // non built-in one: testing with a single pixel bitmap
                     using (var session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))
-                        return session.BlendingMode();
+                        return session.WorkingColorSpace;
             }
         }
 

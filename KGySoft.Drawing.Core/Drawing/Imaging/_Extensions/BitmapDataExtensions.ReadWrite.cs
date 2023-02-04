@@ -1681,7 +1681,7 @@ namespace KGySoft.Drawing.Imaging
                 Color32[] newEntries = new Color32[oldEntries.Length];
                 for (int i = 0; i < newEntries.Length; i++)
                     newEntries[i] = transformFunction.Invoke(oldEntries[i]);
-                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.PrefersLinearColorSpace, null)))
+                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.WorkingColorSpace, null)))
                 {
                     context.Progress?.Complete();
                     return;
@@ -1743,7 +1743,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 // not using premultiplied format because transformation is faster on simple ARGB32
                 using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size),
-                    KnownPixelFormat.Format32bppArgb, default, 128, BlendingMode.Default, null);
+                    KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
                 if (context.IsCancellationRequested)
                     return;
 

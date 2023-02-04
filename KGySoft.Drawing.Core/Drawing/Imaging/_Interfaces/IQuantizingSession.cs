@@ -41,7 +41,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the background color for this <see cref="IQuantizingSession"/>.
         /// When the <see cref="GetQuantizedColor">GetQuantizedColor</see> is called with a color with alpha,
         /// which is considered opaque, then it will be blended with this color before quantizing.
-        /// <br/>See also the <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> and <see cref="LinearBlending"/> properties for details.
+        /// <br/>See also the <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
         /// </summary>
         Color32 BackColor { get; }
 
@@ -71,14 +71,18 @@ namespace KGySoft.Drawing.Imaging
 #endif
 
         /// <summary>
-        /// Gets whether this <see cref="IQuantizingSession"/> prefers blending and quantizing in the linear color space.
-        /// If this quantizer is used with a ditherer, then <see cref="IDitheringSession"/> implementations may also respect the value of this property.
-        /// <br/>Default value if not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
+        /// Gets the preferred working color space of this <see cref="IQuantizingSession"/> instance.
+        /// If this quantizing session is used by a ditherer, then <see cref="IDitheringSession"/> implementations may also respect the value of this property.
+        /// <br/>Default value if not implemented: <see cref="Imaging.WorkingColorSpace.Default"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
         /// </summary>
+        /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// </remarks>
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
-        bool PrefersLinearColorSpace { get; }
+        WorkingColorSpace WorkingColorSpace { get; }
 #else
-        bool PrefersLinearColorSpace => false;
+        WorkingColorSpace WorkingColorSpace => default;
 #endif
 
         #endregion

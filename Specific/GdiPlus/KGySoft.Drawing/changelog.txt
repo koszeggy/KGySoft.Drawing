@@ -6,6 +6,16 @@
 ===============================================================================
 
 ~~~~~~~~~
++ v7.1.0:
+~~~~~~~~~
+
+! KGySoft.Drawing namespace
+===========================
++ BitmapExtensions class:
+  + New GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData overloads.
+
+
+~~~~~~~~~
 ! v7.0.0:
 ~~~~~~~~~
 

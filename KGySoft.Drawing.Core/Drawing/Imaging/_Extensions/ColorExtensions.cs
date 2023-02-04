@@ -79,21 +79,21 @@ namespace KGySoft.Drawing.Imaging
                 : foreColor.BlendWithSrgb(backColor);
 
         /// <summary>
-        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/>.
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the specified <paramref name="colorSpace"/>.
         /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
         /// </summary>
         /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
         /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to perform the blending in the linear color space, which is more accurate;
-        /// <br/><see langword="false"/> to perform the blending in the sRGB color space, which is faster and compatible with many image processing APIs but is not quite correct.</param>
+        /// <param name="colorSpace">The color space to be used for the blending. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
         /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static Color32 Blend(this Color32 foreColor, Color32 backColor, bool useLinearColorSpace)
+        public static Color32 Blend(this Color32 foreColor, Color32 backColor, WorkingColorSpace colorSpace)
             => foreColor.A == Byte.MaxValue ? foreColor
-                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor, useLinearColorSpace)
+                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor, colorSpace)
                 : foreColor.A == 0 ? backColor
                 : backColor.A == 0 ? foreColor
-                : foreColor.BlendWith(backColor, useLinearColorSpace);
+                : foreColor.BlendWith(backColor, colorSpace);
 
         /// <summary>
         /// Gets whether two <see cref="Color32"/> instances are equal using a specified <paramref name="tolerance"/>.
@@ -194,6 +194,10 @@ namespace KGySoft.Drawing.Imaging
             => linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor, WorkingColorSpace colorSpace)
+            => colorSpace == WorkingColorSpace.Linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackgroundSrgb(this Color32 c, Color32 backColor)
         {
             Debug.Assert(c.A != 255, "Partially transparent fore color is expected. Call Blend for better performance.");
@@ -215,6 +219,10 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWith(this Color32 src, Color32 dst, bool linear)
             => linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color32 BlendWith(this Color32 src, Color32 dst, WorkingColorSpace colorSpace)
+            => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithSrgb(this Color32 src, Color32 dst)
@@ -321,10 +329,10 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor, bool linear)
+        internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance, Color32 backColor, WorkingColorSpace colorSpace)
         {
             Debug.Assert(c1.A == 255 && backColor.A == 255);
-            return TolerantEquals(c1, c2.Blend(backColor, linear), tolerance);
+            return TolerantEquals(c1, c2.Blend(backColor, colorSpace), tolerance);
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]

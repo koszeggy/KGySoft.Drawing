@@ -60,24 +60,24 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source)
         {
             ValidateArguments(source);
-            return DoCloneExact(AsyncHelper.DefaultContext, source, source.BlendingMode)!;
+            return DoCloneExact(AsyncHelper.DefaultContext, source, source.WorkingColorSpace)!;
         }
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
         /// <remarks>
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, AsyncConfig)"/>
         /// or <see cref="CloneAsync(IReadableBitmapData,TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, BlendingMode blendingMode)
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, WorkingColorSpace workingColorSpace)
         {
-            ValidateArguments(source, blendingMode);
-            return DoCloneExact(AsyncHelper.DefaultContext, source, blendingMode)!;
+            ValidateArguments(source, workingColorSpace);
+            return DoCloneExact(AsyncHelper.DefaultContext, source, workingColorSpace)!;
         }
 
         /// <summary>
@@ -96,7 +96,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source);
             return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                source.BackColor, source.AlphaThreshold, source.BlendingMode, null)!;
+                source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null)!;
         }
 
         /// <summary>
@@ -132,7 +132,7 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, source.BlendingMode, null)!;
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null)!;
         }
 
         /// <summary>
@@ -140,7 +140,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
         /// <param name="pixelFormat">The desired pixel format of the result.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance and also the possible blending operations during the cloning.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
         /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
@@ -166,11 +167,11 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, BlendingMode blendingMode,
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
             Color32 backColor = default, byte alphaThreshold = 128)
         {
-            ValidateArguments(source, pixelFormat, blendingMode);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, blendingMode, null)!;
+            ValidateArguments(source, pixelFormat, workingColorSpace);
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, workingColorSpace, null)!;
         }
 
         /// <summary>
@@ -202,7 +203,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat,
-                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.BlendingMode ?? source.BlendingMode, palette)!;
+                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette)!;
         }
 
         /// <summary>
@@ -242,7 +243,7 @@ namespace KGySoft.Drawing.Imaging
             Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, backColor, alphaThreshold, source.BlendingMode, null)!;
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null)!;
         }
 
         /// <summary>
@@ -251,7 +252,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
         /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be cloned.</param>
         /// <param name="pixelFormat">The desired pixel format of the result.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance and also the possible blending operations during the cloning.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
         /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
@@ -280,10 +282,10 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat,
-            BlendingMode blendingMode, Color32 backColor = default, byte alphaThreshold = 128)
+            WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
         {
-            ValidateArguments(source, pixelFormat, blendingMode);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, backColor, alphaThreshold, blendingMode, null)!;
+            ValidateArguments(source, pixelFormat, workingColorSpace);
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, backColor, alphaThreshold, workingColorSpace, null)!;
         }
 
         /// <summary>
@@ -318,7 +320,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat,
-                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.BlendingMode ?? source.BlendingMode, palette)!;
+                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette)!;
         }
 
         /// <summary>
@@ -473,8 +475,8 @@ namespace KGySoft.Drawing.Imaging
             ValidateArguments(source);
             context ??= AsyncHelper.DefaultContext;
             return sourceRectangle == null
-                ? DoCloneExact(context, source, source.BlendingMode)
-                : DoCloneDirect(context, source, sourceRectangle.Value, source.PixelFormat.AsKnownPixelFormatInternal, source.BackColor, source.AlphaThreshold, source.BlendingMode, null);
+                ? DoCloneExact(context, source, source.WorkingColorSpace)
+                : DoCloneDirect(context, source, sourceRectangle.Value, source.PixelFormat.AsKnownPixelFormatInternal, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
         }
 
         /// <summary>
@@ -515,7 +517,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
-                pixelFormat, backColor, alphaThreshold, source.BlendingMode, null);
+                pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null);
         }
 
         /// <summary>
@@ -526,7 +528,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
         /// that contains information for asynchronous processing about the current operation.</param>
         /// <param name="pixelFormat">The desired pixel format of the result.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance and also the possible blending operations during the cloning.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
         /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
@@ -552,12 +555,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat, BlendingMode blendingMode,
+        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
             Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null)
         {
-            ValidateArguments(source, pixelFormat, blendingMode);
+            ValidateArguments(source, pixelFormat, workingColorSpace);
             return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
-                pixelFormat, backColor, alphaThreshold, blendingMode, null);
+                pixelFormat, backColor, alphaThreshold, workingColorSpace, null);
         }
 
         /// <summary>
@@ -595,7 +598,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
-                pixelFormat, palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.BlendingMode ?? source.BlendingMode, palette);
+                pixelFormat, palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette);
         }
 
         /// <summary>
@@ -659,14 +662,14 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginClone(this IReadableBitmapData source, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.BeginOperation(ctx => DoCloneExact(ctx, source, source.BlendingMode), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoCloneExact(ctx, source, source.WorkingColorSpace), asyncConfig);
         }
 
         /// <summary>
         /// Begins to clone the specified <paramref name="source"/> with identical size asynchronously.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
@@ -679,10 +682,10 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, BlendingMode blendingMode, AsyncConfig? asyncConfig = null)
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, WorkingColorSpace workingColorSpace, AsyncConfig? asyncConfig = null)
         {
-            ValidateArguments(source, blendingMode);
-            return AsyncHelper.BeginOperation(ctx => DoCloneExact(ctx, source, blendingMode), asyncConfig);
+            ValidateArguments(source, workingColorSpace);
+            return AsyncHelper.BeginOperation(ctx => DoCloneExact(ctx, source, workingColorSpace), asyncConfig);
         }
 
         /// <summary>
@@ -707,7 +710,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source);
             return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                source.BackColor, source.AlphaThreshold, source.BlendingMode, null), asyncConfig);
+                source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -746,7 +749,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, pixelFormat);
             return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
-                pixelFormat, backColor, alphaThreshold, source.BlendingMode, null), asyncConfig);
+                pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -754,7 +757,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
         /// <param name="pixelFormat">The desired pixel format of the result.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance and also the possible blending operations during the cloning.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
         /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
@@ -781,12 +785,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, BlendingMode blendingMode,
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
             Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
-            ValidateArguments(source, pixelFormat, blendingMode);
+            ValidateArguments(source, pixelFormat, workingColorSpace);
             return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
-                pixelFormat, backColor, alphaThreshold, blendingMode, null), asyncConfig);
+                pixelFormat, backColor, alphaThreshold, workingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -822,7 +826,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, pixelFormat);
             return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
-                pixelFormat, palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.BlendingMode ?? source.BlendingMode, palette), asyncConfig);
+                pixelFormat, palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette), asyncConfig);
         }
 
         /// <summary>
@@ -894,14 +898,14 @@ namespace KGySoft.Drawing.Imaging
         public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.DoOperationAsync(ctx => DoCloneExact(ctx, source, source.BlendingMode), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoCloneExact(ctx, source, source.WorkingColorSpace), asyncConfig);
         }
 
         /// <summary>
         /// Gets the clone of the specified <paramref name="source"/> with identical size asynchronously.
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance.</param>
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
         /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
         /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
@@ -914,10 +918,10 @@ namespace KGySoft.Drawing.Imaging
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, BlendingMode blendingMode, TaskConfig? asyncConfig = null)
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, WorkingColorSpace workingColorSpace, TaskConfig? asyncConfig = null)
         {
-            ValidateArguments(source, blendingMode);
-            return AsyncHelper.DoOperationAsync(ctx => DoCloneExact(ctx, source, blendingMode), asyncConfig);
+            ValidateArguments(source, workingColorSpace);
+            return AsyncHelper.DoOperationAsync(ctx => DoCloneExact(ctx, source, workingColorSpace), asyncConfig);
         }
 
         /// <summary>
@@ -942,7 +946,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source);
             return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source, sourceRectangle,
-                source.PixelFormat.AsKnownPixelFormatInternal, source.BackColor, source.AlphaThreshold, source.BlendingMode, null), asyncConfig);
+                source.PixelFormat.AsKnownPixelFormatInternal, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -950,7 +954,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
         /// <param name="pixelFormat">The desired pixel format of the result.</param>
-        /// <param name="blendingMode">Specifies the blending mode of the cloned instance and also the possible blending operations during the cloning.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
         /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
         /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
         /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
@@ -976,12 +981,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, BlendingMode blendingMode,
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
             Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
-            ValidateArguments(source, pixelFormat, blendingMode);
+            ValidateArguments(source, pixelFormat, workingColorSpace);
             return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source,
-                sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, blendingMode, null), asyncConfig);
+                sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, workingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -1019,7 +1024,7 @@ namespace KGySoft.Drawing.Imaging
         {
             ValidateArguments(source, pixelFormat);
             return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source,
-                sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, source.BlendingMode, null), asyncConfig);
+                sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -1055,7 +1060,7 @@ namespace KGySoft.Drawing.Imaging
             ValidateArguments(source, pixelFormat);
             return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source,
                 sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat,
-                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.BlendingMode ?? source.BlendingMode, palette), asyncConfig);
+                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette), asyncConfig);
         }
 
         /// <summary>
@@ -2564,7 +2569,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, BlendingMode blendingMode) => DoCloneExact(context, source, blendingMode);
+        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, WorkingColorSpace workingColorSpace) => DoCloneExact(context, source, workingColorSpace);
 
         internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
             => DoCloneWithQuantizer(context, source, new Rectangle(Point.Empty, source.Size), pixelFormat, quantizer, ditherer);
@@ -2573,7 +2578,7 @@ namespace KGySoft.Drawing.Imaging
             => DoCloneWithQuantizer(context, source, sourceRectangle, pixelFormat, quantizer, ditherer);
 
         internal static IReadWriteBitmapData DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Palette palette)
-            => DoCloneDirect(context, source, sourceRectangle, pixelFormat, palette.BackColor, palette.AlphaThreshold, palette.BlendingMode, palette)!;
+            => DoCloneDirect(context, source, sourceRectangle, pixelFormat, palette.BackColor, palette.AlphaThreshold, palette.WorkingColorSpace, palette)!;
 
         internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => DoCopy(context, source, target, new Rectangle(Point.Empty, source.Size), targetLocation, quantizer, ditherer);
@@ -2591,14 +2596,14 @@ namespace KGySoft.Drawing.Imaging
         #region Validation
         // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local - all of these methods are validations
 
-        private static void ValidateArguments(IReadableBitmapData source, BlendingMode blendingMode = BlendingMode.Default)
+        private static void ValidateArguments(IReadableBitmapData source, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (source.Width <= 0 || source.Height <= 0)
                 throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
-            if (blendingMode < BlendingMode.Default || blendingMode > BlendingMode.Srgb)
-                throw new ArgumentOutOfRangeException(nameof(blendingMode), PublicResources.EnumOutOfRange(blendingMode));
+            if (workingColorSpace < WorkingColorSpace.Default || workingColorSpace > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, string paramName)
@@ -2609,7 +2614,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, paramName);
         }
 
-        private static void ValidateArguments(IReadableBitmapData source, KnownPixelFormat pixelFormat, BlendingMode blendingMode = BlendingMode.Default)
+        private static void ValidateArguments(IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
@@ -2617,8 +2622,8 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
-            if (blendingMode < BlendingMode.Default || blendingMode > BlendingMode.Srgb)
-                throw new ArgumentOutOfRangeException(nameof(blendingMode), PublicResources.EnumOutOfRange(blendingMode));
+            if (workingColorSpace < WorkingColorSpace.Default || workingColorSpace > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, IWritableBitmapData target)
@@ -2666,7 +2671,7 @@ namespace KGySoft.Drawing.Imaging
         /// Cloning without changing pixel format if possible. Pixel format is changed only for indexed custom formats.
         /// </summary>
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static IReadWriteBitmapData? DoCloneExact(IAsyncContext context, IReadableBitmapData source, BlendingMode blendingMode)
+        private static IReadWriteBitmapData? DoCloneExact(IAsyncContext context, IReadableBitmapData source, WorkingColorSpace workingColorSpace)
         {
             Size size = source.Size;
             var session = new CopySession(context) { SourceRectangle = new Rectangle(Point.Empty, size) };
@@ -2675,9 +2680,9 @@ namespace KGySoft.Drawing.Imaging
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData
-                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, blendingMode)
+                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, workingColorSpace)
                 : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(),
-                    source.BackColor, source.AlphaThreshold, blendingMode, source.Palette);
+                    source.BackColor, source.AlphaThreshold, workingColorSpace, source.Palette);
             bool canceled = false;
             try
             {
@@ -2703,7 +2708,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
         private static IBitmapDataInternal? DoCloneDirect(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle,
-            KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, BlendingMode blendingMode, Palette? palette)
+            KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, WorkingColorSpace workingColorSpace, Palette? palette)
         {
             var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.Size);
@@ -2716,16 +2721,16 @@ namespace KGySoft.Drawing.Imaging
             {
                 int bpp = pixelFormat.ToBitsPerPixel();
                 if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
-                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold && blendingMode == source.Palette.BlendingMode
+                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold && workingColorSpace == source.Palette.WorkingColorSpace
                         ? source.Palette
-                        : new Palette(source.Palette.Entries, backColor, alphaThreshold, blendingMode == BlendingMode.Linear, null);
+                        : new Palette(source.Palette.Entries, backColor, alphaThreshold, workingColorSpace, null);
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat.AsKnownPixelFormatInternal == pixelFormat
-                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, blendingMode)
+                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, workingColorSpace)
                 : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(),
-                    backColor, alphaThreshold, blendingMode, palette);
+                    backColor, alphaThreshold, workingColorSpace, palette);
             bool canceled = false;
             try
             {
@@ -2755,7 +2760,7 @@ namespace KGySoft.Drawing.Imaging
                 // Note: Not using source.BackColor/AlphaThreshold/Palette so the behavior will be compatible with the other Clone overloads with default parameters
                 //       and even with ImageExtensions.ConvertPixelFormat where there are no BackColor/AlphaThreshold for source image
                 if (ditherer == null || !pixelFormat.CanBeDithered())
-                    return DoCloneDirect(context, source, sourceRectangle, pixelFormat, source.BackColor, source.AlphaThreshold, source.BlendingMode, null);
+                    return DoCloneDirect(context, source, sourceRectangle, pixelFormat, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
 
                 // here we need to pick a quantizer for the dithering
                 int bpp = pixelFormat.ToBitsPerPixel();
@@ -2790,7 +2795,7 @@ namespace KGySoft.Drawing.Imaging
 
                     session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
                     session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat,
-                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.BlendingMode(),
+                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.WorkingColorSpace,
                         quantizingSession.Palette);
 
                     // quantizing without dithering
@@ -2852,7 +2857,7 @@ namespace KGySoft.Drawing.Imaging
                 if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
                 {
                     session.Source = DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                        source.BackColor, source.AlphaThreshold, source.BlendingMode, null);
+                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
                     if (context.IsCancellationRequested)
                     {
                         session.Source?.Dispose();
@@ -2981,9 +2986,9 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                var blendingMode = quantizer.BlendingMode();
-                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredFirstPassPixelFormat(blendingMode),
-                    target.BackColor, target.AlphaThreshold, blendingMode, null);
+                var workingColorSpace = quantizer.WorkingColorSpace();
+                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredFirstPassPixelFormat(workingColorSpace),
+                    target.BackColor, target.AlphaThreshold, workingColorSpace, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -3010,7 +3015,7 @@ namespace KGySoft.Drawing.Imaging
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
                     sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                        source.BackColor, source.AlphaThreshold, source.BlendingMode, null);
+                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
@@ -3074,13 +3079,13 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform resize (with or without blending) before quantizing/dithering
             if (isTwoPass)
             {
-                BlendingMode blendingMode = quantizer.BlendingMode();
-                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredFirstPassPixelFormat(blendingMode);
+                WorkingColorSpace workingColorSpace = quantizer.WorkingColorSpace();
+                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredFirstPassPixelFormat(workingColorSpace);
                 sessionTarget = source.HasMultiLevelAlpha()
                     ? DoCloneDirect(context, target, actualTargetRectangle, sessionTargetPixelFormat,
-                        target.BackColor, target.AlphaThreshold, blendingMode, null)
+                        target.BackColor, target.AlphaThreshold, workingColorSpace, null)
                     : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, sessionTargetPixelFormat,
-                        target.BackColor, target.AlphaThreshold, blendingMode, null);
+                        target.BackColor, target.AlphaThreshold, workingColorSpace, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -3107,7 +3112,7 @@ namespace KGySoft.Drawing.Imaging
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
                     sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
-                        source.BackColor, source.AlphaThreshold, source.BlendingMode, null);
+                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
@@ -3353,7 +3358,7 @@ namespace KGySoft.Drawing.Imaging
             var srcRect = new Rectangle(Point.Empty, bitmapData.Size);
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
-                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, BlendingMode.Default, null);
+                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
             return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
         }
@@ -3362,7 +3367,7 @@ namespace KGySoft.Drawing.Imaging
         {
             var srcRect = new Rectangle(Point.Empty, bitmapData.Size);
             if (transparentColor.A == 0)
-                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, BlendingMode.Default, null);
+                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
             return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
         }

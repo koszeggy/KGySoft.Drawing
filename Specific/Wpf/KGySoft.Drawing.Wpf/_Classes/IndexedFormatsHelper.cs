@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Windows.Shapes;
 
 using KGySoft.Drawing.Imaging;
 
@@ -82,10 +83,17 @@ namespace KGySoft.Drawing.Wpf
 
         internal static void SetColorBlackWhite(ICustomBitmapDataRow row, int x, Color32 c)
         {
+            WorkingColorSpace colorSpace = row.BitmapData.WorkingColorSpace;
+            if (c.A < Byte.MaxValue)
+                c = c.Blend(row.BitmapData.BackColor, colorSpace);
+
+            bool isBlack = c == black ? true
+                : c == white ? false
+                : colorSpace == WorkingColorSpace.Linear ? c.GetBrightnessLinear() < 0.5f
+                : c.GetBrightness() < 128;
             int pos = x >> 3;
-            byte brightness = c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingMode.Linear).GetBrightness();
             int mask = 128 >> (x & 7);
-            if (brightness < 128)
+            if (isBlack)
                 row.UnsafeGetRefAs<byte>(pos) &= (byte)~mask;
             else
                 row.UnsafeGetRefAs<byte>(pos) |= (byte)mask;

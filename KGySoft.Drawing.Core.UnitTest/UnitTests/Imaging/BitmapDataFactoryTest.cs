@@ -43,7 +43,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
                 static Color32 GetColor8BppGray(ICustomBitmapDataRow row, int x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x));
                 static void SetColor8BppGray(ICustomBitmapDataRow row, int x, Color32 c) => row.UnsafeGetRefAs<byte>(x) =
-                    c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingMode.Linear).GetBrightness();
+                    c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace).GetBrightness();
 
                 static Color32 GetColor4BppArgb1111(ICustomBitmapDataRow row, int x)
                 {
@@ -61,7 +61,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 {
                     ref byte nibbles = ref row.GetRefAs<byte>(x >> 1);
                     if (c.A != 255)
-                        c = c.A >= row.BitmapData.AlphaThreshold ? c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingMode.Linear) : default;
+                        c = c.A >= row.BitmapData.AlphaThreshold ? c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace) : default;
                     int color = ((c.A & 128) >> 4)
                         | ((c.R & 128) >> 5)
                         | ((c.G & 128) >> 6)
@@ -99,7 +99,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                     int offset = bitPos % 8;
                     bits &= ~(511 << offset);
                     if (c.A >= row.BitmapData.AlphaThreshold)
-                        bits |= (256 | c.Blend(row.BitmapData.BackColor, row.BitmapData.BlendingMode == BlendingMode.Linear).GetBrightness()) << offset;
+                        bits |= (256 | c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace).GetBrightness()) << offset;
                     row.UnsafeGetRefAs<byte>(bytePos) = (byte)bits;
                     row.UnsafeGetRefAs<byte>(bytePos + 1) = (byte)(bits >> 8);
                 }
@@ -245,7 +245,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         private static void DoCommonCustomBitmapDataTests(string caseName, Size size, IReadWriteBitmapData bitmapDataNonDithered, IReadWriteBitmapData bitmapDataDitheredContentIndependent, IReadWriteBitmapData bitmapDataDitheredContentDependent, [CallerMemberName] string testName = null)
         {
-            using IReadWriteBitmapData referenceBitmapData = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, bitmapDataNonDithered.PixelFormat.LinearGamma ? BlendingMode.Linear : BlendingMode.Srgb);
+            using IReadWriteBitmapData referenceBitmapData = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, bitmapDataNonDithered.PixelFormat.LinearGamma ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb);
 
             OrderedDitherer contentIndependentDitherer = OrderedDitherer.Bayer8x8;
             ErrorDiffusionDitherer contentDependentDitherer = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true);

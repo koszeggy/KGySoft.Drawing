@@ -57,13 +57,16 @@ namespace KGySoft.Drawing.Imaging
         bool HasAlpha { get; }
 
         /// <summary>
-        /// Gets whether this <see cref="IPalette"/> prefers blending and measuring distance in the linear color space when looking for a nearest color.
+        /// Gets the preferred color space when this <see cref="IPalette"/> instance performs blending and measuring distance when looking for a nearest color.
         /// </summary>
         /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// <para>If the value of this property is <see cref="Imaging.WorkingColorSpace.Default"/>, then the sRGB color space is used.</para>
         /// <para>If this palette uses a custom nearest color lookup, then it depends on the custom function whether it considers the value of this property.</para>
         /// <para>Please note that palette entries themselves always represent sRGB color values, regardless the value of this property.</para>
         /// </remarks>
-        bool PrefersLinearColorSpace { get; }
+        WorkingColorSpace WorkingColorSpace { get; }
 
         #endregion
 

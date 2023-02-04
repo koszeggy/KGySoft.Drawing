@@ -19,6 +19,9 @@
 using System.Numerics;
 #endif
 using System;
+#if !(NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+using System.Diagnostics.CodeAnalysis; 
+#endif
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
 
@@ -193,11 +196,20 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="string"/> that represents this <see cref="ColorF"/> instance.</returns>
         public override string ToString() => $"[A={A:N4}; R={R:N4}; G={G:N4}; B={B:N4}]";
 
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public bool Equals(ColorF other) => other.Rgba == Rgba;
+#else
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "It is intended in Equals")]
+        public bool Equals(ColorF other) => other.R == R && other.G == G && other.B == B && other.A == A;
+#endif
 
         public override bool Equals(object? obj) => obj is ColorF other && Equals(other);
 
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public override int GetHashCode() => Rgba.GetHashCode();
+#else
+        public override int GetHashCode() => (R, G, B, A).GetHashCode();
+#endif
 
         #endregion
     }

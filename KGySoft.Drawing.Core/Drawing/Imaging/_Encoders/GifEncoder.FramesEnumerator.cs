@@ -141,7 +141,7 @@ namespace KGySoft.Drawing.Imaging
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) deltaBuffer;
 
             // Items in quantizerProperties are used only when transparency is supported, do not add other items for other cases
-            private (bool Initialized, bool SupportsTransparency, Color32 BackColor, byte AlphaThreshold, bool UseLinearBlending) quantizerProperties;
+            private (bool Initialized, bool SupportsTransparency, Color32 BackColor, byte AlphaThreshold, WorkingColorSpace WorkingColorSpace) quantizerProperties;
             private IQuantizer? deltaBufferQuantizer;
             private int count;
             private int currentIndex;
@@ -190,16 +190,14 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            private bool QuantizerLinearBlending
+            private WorkingColorSpace WorkingColorSpace
             {
                 get
                 {
                     EnsureQuantizerProperties();
-                    return quantizerProperties.UseLinearBlending;
+                    return quantizerProperties.WorkingColorSpace;
                 }
             }
-
-            private BlendingMode BlendingMode => QuantizerLinearBlending ? BlendingMode.Linear : BlendingMode.Srgb;
 
             #endregion
 
@@ -392,7 +390,8 @@ namespace KGySoft.Drawing.Imaging
 
             [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                 Justification = "False alarm, the new analyzer includes the complexity of local methods")]
-            private static Rectangle GetDifferentRegion(IReadableBitmapData previousFrame, IReadableBitmapData currentFrame, byte tolerance, Color32 backColor, bool linearBlending)
+            private static Rectangle GetDifferentRegion(IReadableBitmapData previousFrame, IReadableBitmapData currentFrame,
+                byte tolerance, Color32 backColor, WorkingColorSpace workingColorSpace)
             {
                 #region Local Methods
 
@@ -419,14 +418,15 @@ namespace KGySoft.Drawing.Imaging
                     return true;
                 }
 
-                static bool RowEqualsWithAlpha(IReadableBitmapDataRow rowPrev, IReadableBitmapDataRow rowCurrent, byte tolerance, Color32 backColor, bool linear)
+                static bool RowEqualsWithAlpha(IReadableBitmapDataRow rowPrev, IReadableBitmapDataRow rowCurrent,
+                    byte tolerance, Color32 backColor, WorkingColorSpace colorSpace)
                 {
                     int width = rowCurrent.Width;
                     if (tolerance == 0)
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            if (rowPrev[x] != rowCurrent[x].Blend(backColor, linear))
+                            if (rowPrev[x] != rowCurrent[x].Blend(backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -434,7 +434,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            if (!rowPrev[x].TolerantEquals(rowCurrent[x], tolerance, backColor, linear))
+                            if (!rowPrev[x].TolerantEquals(rowCurrent[x], tolerance, backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -464,13 +464,14 @@ namespace KGySoft.Drawing.Imaging
                     return true;
                 }
 
-                static bool ColumnEqualsWithAlpha(IReadableBitmapData bitmapDataPrev, IReadableBitmapData bitmapDataCurrent, int x, int top, int bottom, byte tolerance, Color32 backColor, bool linear)
+                static bool ColumnEqualsWithAlpha(IReadableBitmapData bitmapDataPrev, IReadableBitmapData bitmapDataCurrent,
+                    int x, int top, int bottom, byte tolerance, Color32 backColor, WorkingColorSpace colorSpace)
                 {
                     if (tolerance == 0)
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).Blend(backColor, linear))
+                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).Blend(backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -478,7 +479,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance, backColor, linear))
+                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance, backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -500,7 +501,7 @@ namespace KGySoft.Drawing.Imaging
                 do
                 {
                     if (!hasAlpha && !RowEquals(rowPrev, rowCurrent, tolerance)
-                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor, linearBlending))
+                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor, workingColorSpace))
                     {
                         break;
                     }
@@ -519,7 +520,7 @@ namespace KGySoft.Drawing.Imaging
                     rowPrev.MoveToRow(y);
                     rowCurrent.MoveToRow(y);
                     if (!hasAlpha && !RowEquals(rowPrev, rowCurrent, tolerance)
-                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor, linearBlending))
+                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor, workingColorSpace))
                     {
                         break;
                     }
@@ -532,7 +533,7 @@ namespace KGySoft.Drawing.Imaging
                 for (int x = 0; x < region.Width; x++)
                 {
                     if (!hasAlpha && !ColumnEquals(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance)
-                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor, linearBlending))
+                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor, workingColorSpace))
                     {
                         break;
                     }
@@ -546,7 +547,7 @@ namespace KGySoft.Drawing.Imaging
                 for (int x = region.Right - 1; x >= region.Left; x--)
                 {
                     if (!hasAlpha && !ColumnEquals(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance)
-                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor, linearBlending))
+                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor, workingColorSpace))
                     {
                         return region;
                     }
@@ -703,7 +704,7 @@ namespace KGySoft.Drawing.Imaging
                         quantizerProperties.SupportsTransparency = true;
                         quantizerProperties.BackColor = Color32.Black;
                         quantizerProperties.AlphaThreshold = 128;
-                        quantizerProperties.UseLinearBlending = false;
+                        quantizerProperties.WorkingColorSpace = default;
                         return;
 
                     case PredefinedColorsQuantizer { Palette: Palette palette }:
@@ -711,7 +712,7 @@ namespace KGySoft.Drawing.Imaging
                         quantizerProperties.BackColor = palette.BackColor;
                         quantizerProperties.SupportsTransparency = palette.HasTransparent && palette.AlphaThreshold > 0;
                         quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? palette.AlphaThreshold : (byte)0;
-                        quantizerProperties.UseLinearBlending = palette.PrefersLinearColorSpace;
+                        quantizerProperties.WorkingColorSpace = palette.WorkingColorSpace;
                         return;
 
                     case OptimizedPaletteQuantizer optimized:
@@ -719,7 +720,7 @@ namespace KGySoft.Drawing.Imaging
                         quantizerProperties.BackColor = optimized.BackColor;
                         quantizerProperties.AlphaThreshold = optimized.AlphaThreshold;
                         quantizerProperties.SupportsTransparency = optimized.AlphaThreshold > 0;
-                        quantizerProperties.UseLinearBlending = optimized.LinearColorSpace;
+                        quantizerProperties.WorkingColorSpace = optimized.WorkingColorSpace;
                         return;
 
                     default:
@@ -729,7 +730,7 @@ namespace KGySoft.Drawing.Imaging
                             quantizerProperties.BackColor = session.BackColor;
                             quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
                             quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
-                            quantizerProperties.UseLinearBlending = session.PrefersLinearColorSpace;
+                            quantizerProperties.WorkingColorSpace = session.WorkingColorSpace;
                             return;
                         }
                 }
@@ -877,7 +878,8 @@ namespace KGySoft.Drawing.Imaging
                 Debug.Assert(config.Quantizer == null || !deltaBuffer.BitmapData!.SupportsTransparency());
 
                 // 1.) Determining smallest changed rectangle
-                Rectangle contentArea = GetDifferentRegion(deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance, QuantizerBackColor, QuantizerLinearBlending);
+                Rectangle contentArea = GetDifferentRegion(deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance,
+                    QuantizerBackColor, WorkingColorSpace);
 
                 // 2.) Maintaining the delta buffer: as this frame has no alpha just copying the changed part of the prepared frame.
                 preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData!, contentArea, contentArea.Location, deltaBufferQuantizer);
@@ -964,7 +966,7 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(quantizerProperties.SupportsTransparency);
                     deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
-                        default, default, BlendingMode, null);
+                        default, default, WorkingColorSpace, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location);
                     if (asyncContext.IsCancellationRequested)
                         return (quantizedFrame, default, default);
@@ -987,9 +989,9 @@ namespace KGySoft.Drawing.Imaging
                 {
                     Debug.Assert(contentArea.Size == logicalScreenSize);
                     deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb,
-                        default, 0, BlendingMode, null);
+                        default, 0, WorkingColorSpace, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??=
-                        PredefinedColorsQuantizer.Rgb888(QuantizerBackColor.ToColor()).ConfigureColorSpace(QuantizerLinearBlending));
+                        PredefinedColorsQuantizer.Rgb888(QuantizerBackColor.ToColor()).ConfigureColorSpace(WorkingColorSpace));
                 }
                 // if no delta is allowed, then clearing before all frames with transparency
                 else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency())
@@ -1039,7 +1041,7 @@ namespace KGySoft.Drawing.Imaging
                         // and if this is the last input frame, it is not added to the stack
                         if (MoveNextInputFrame())
                         {
-                            IReadWriteBitmapData? clone = preparedFrame.DoClone(asyncContext, BlendingMode);
+                            IReadWriteBitmapData? clone = preparedFrame.DoClone(asyncContext, WorkingColorSpace);
                             if (clone != null)
                                 reversedFramesStack.Push((clone, nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
                         }
@@ -1107,7 +1109,7 @@ namespace KGySoft.Drawing.Imaging
                             // because we cannot create a new bitmap data with a palette that is created while quantizing
                             if (preparedPixelFormat.HasAlpha() || preparedQuantizer == null && inputFrame.Palette?.HasTransparent == true)
                             {
-                                preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, preparedPixelFormat, QuantizerBackColor, QuantizerAlphaThreshold, BlendingMode, inputFrame.Palette);
+                                preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, preparedPixelFormat, QuantizerBackColor, QuantizerAlphaThreshold, WorkingColorSpace, inputFrame.Palette);
 
                                 // if the source is indexed and transparent index is not 0, then we must clear the indexed image to be transparent
                                 if (inputFrame.Palette?.TransparentIndex > 0)
@@ -1124,7 +1126,7 @@ namespace KGySoft.Drawing.Imaging
                             // Here we can't quantize the source: using a 32bpp image data
                             preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
-                                default, default, BlendingMode, null);
+                                default, default, WorkingColorSpace, null);
                             inputFrame.DoCopyTo(asyncContext, preparedFrame, location);
 
                             break;
@@ -1133,8 +1135,8 @@ namespace KGySoft.Drawing.Imaging
                         case AnimationFramesSizeHandling.Resize:
                             preparedQuantizer = null;
                             preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize,
-                                QuantizerLinearBlending ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
-                                default, default, BlendingMode, null);
+                                WorkingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
+                                default, default, WorkingColorSpace, null);
                             inputFrame.DoDrawInto(asyncContext, preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
 

@@ -224,7 +224,7 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
             Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
         IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? context)
-            => quantizingSession?.PrefersLinearColorSpace == true
+            => quantizingSession?.WorkingColorSpace == WorkingColorSpace.Linear
                 ? new InterleavedGradientNoiseDitheringSessionLinear(quantizingSession, this)
                 : new InterleavedGradientNoiseDitheringSessionSrgb(quantizingSession!, this);
 

@@ -87,26 +87,26 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
         private static readonly object[][] blendingSetGetPixelTestSource =
         {
-            new object[] { "48 bit RGB sRGB", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), BlendingMode.Srgb, 0x0000_0000_7F7F },
-            new object[] { "48 bit RGB Linear", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), BlendingMode.Linear, 0x0000_0000_BCBC },
-            new object[] { "32 bit RGB sRGB", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), BlendingMode.Srgb, 0xFF_00_00_7F },
-            new object[] { "32 bit RGB Linear", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), BlendingMode.Linear, 0xFF_00_00_BC },
-            new object[] { "24 bit RGB sRGB", KnownPixelFormat.Format24bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), BlendingMode.Srgb, 0x00_00_7F },
-            new object[] { "24 bit RGB Linear", KnownPixelFormat.Format24bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), BlendingMode.Linear, 0x00_00_BC },
-            new object[] { "16 bit RGB555 sRGB", KnownPixelFormat.Format16bppRgb555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), BlendingMode.Srgb, 0b00000_00000_01111 },
-            new object[] { "16 bit RGB555 Linear", KnownPixelFormat.Format16bppRgb555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), BlendingMode.Linear, 0b00000_00000_10111 },
-            new object[] { "16 bit RGB565 sRGB", KnownPixelFormat.Format16bppRgb565, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), BlendingMode.Srgb, 0b00000_000000_01111 },
-            new object[] { "16 bit RGB565 Linear", KnownPixelFormat.Format16bppRgb565, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), BlendingMode.Linear, 0b00000_000000_10111 },
-            new object[] { "16 bit ARGB1555 sRGB", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), BlendingMode.Srgb, 0b1_00000_00000_01111 },
-            new object[] { "16 bit ARGB1555 Linear", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), BlendingMode.Linear, 0b1_00000_00000_10111 },
-            new object[] { "16 bit Gray sRGB", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(14, 14, 14), BlendingMode.Srgb, 0x0E88 },
-            new object[] { "16 bit Gray Linear", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(21, 21, 21), BlendingMode.Linear, 0x1584 },
-            new object[] { "8 bit Indexed sRGB", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), BlendingMode.Srgb, 4 },
-            new object[] { "8 bit Indexed Linear", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 204), BlendingMode.Linear, 44 },
-            new object[] { "4 bit Indexed sRGB", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), BlendingMode.Srgb, 4 },
-            new object[] { "4 bit Indexed Linear", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), BlendingMode.Linear, 4 },
-            new object[] { "1 bit Indexed sRGB", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), BlendingMode.Srgb, 0 },
-            new object[] { "1 bit Indexed Linear", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), BlendingMode.Linear, 0 },
+            new object[] { "48 bit RGB sRGB", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), WorkingColorSpace.Srgb, 0x0000_0000_7F7F },
+            new object[] { "48 bit RGB Linear", KnownPixelFormat.Format48bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), WorkingColorSpace.Linear, 0x0000_0000_BCBC },
+            new object[] { "32 bit RGB sRGB", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), WorkingColorSpace.Srgb, 0xFF_00_00_7F },
+            new object[] { "32 bit RGB Linear", KnownPixelFormat.Format32bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), WorkingColorSpace.Linear, 0xFF_00_00_BC },
+            new object[] { "24 bit RGB sRGB", KnownPixelFormat.Format24bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 127), WorkingColorSpace.Srgb, 0x00_00_7F },
+            new object[] { "24 bit RGB Linear", KnownPixelFormat.Format24bppRgb, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 188), WorkingColorSpace.Linear, 0x00_00_BC },
+            new object[] { "16 bit RGB555 sRGB", KnownPixelFormat.Format16bppRgb555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), WorkingColorSpace.Srgb, 0b00000_00000_01111 },
+            new object[] { "16 bit RGB555 Linear", KnownPixelFormat.Format16bppRgb555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), WorkingColorSpace.Linear, 0b00000_00000_10111 },
+            new object[] { "16 bit RGB565 sRGB", KnownPixelFormat.Format16bppRgb565, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), WorkingColorSpace.Srgb, 0b00000_000000_01111 },
+            new object[] { "16 bit RGB565 Linear", KnownPixelFormat.Format16bppRgb565, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), WorkingColorSpace.Linear, 0b00000_000000_10111 },
+            new object[] { "16 bit ARGB1555 sRGB", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), WorkingColorSpace.Srgb, 0b1_00000_00000_01111 },
+            new object[] { "16 bit ARGB1555 Linear", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), WorkingColorSpace.Linear, 0b1_00000_00000_10111 },
+            new object[] { "16 bit Gray sRGB", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(14, 14, 14), WorkingColorSpace.Srgb, 0x0E88 },
+            new object[] { "16 bit Gray Linear", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(21, 21, 21), WorkingColorSpace.Linear, 0x1584 },
+            new object[] { "8 bit Indexed sRGB", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), WorkingColorSpace.Srgb, 4 },
+            new object[] { "8 bit Indexed Linear", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 204), WorkingColorSpace.Linear, 44 },
+            new object[] { "4 bit Indexed sRGB", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), WorkingColorSpace.Srgb, 4 },
+            new object[] { "4 bit Indexed Linear", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), WorkingColorSpace.Linear, 4 },
+            new object[] { "1 bit Indexed sRGB", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), WorkingColorSpace.Srgb, 0 },
+            new object[] { "1 bit Indexed Linear", KnownPixelFormat.Format1bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 0), WorkingColorSpace.Linear, 0 },
         };
 
         #endregion
@@ -157,7 +157,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
 
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
-                default, 128, BlendingMode.Default, null))
+                default, 128, WorkingColorSpace.Default, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel allocating managed accessor: ");
@@ -183,7 +183,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             long[] bufManaged = new long[size.Height * size.Width];
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(
                 new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat,
-                default, 128, BlendingMode.Default, null, null, null))
+                default, 128, WorkingColorSpace.Default, null, null, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor: ");
@@ -208,7 +208,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             long[,] bufManaged2D = new long[size.Height, size.Width];
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat,
-                default, 128, BlendingMode.Default, null, null, null))
+                default, 128, WorkingColorSpace.Default, null, null, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor 2D: ");
@@ -234,7 +234,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
             IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
             using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
-               default, 128, BlendingMode.Default, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
+               default, 128, WorkingColorSpace.Default, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel unmanaged accessor: ");
@@ -259,7 +259,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [TestCaseSource(nameof(blendingSetGetPixelTestSource))]
-        public void BlendingSetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, BlendingMode blendingMode, long expectedRawValue)
+        public void BlendingSetGetPixelTest(string testName, KnownPixelFormat pixelFormat, Color testColor, Color expectedResult, WorkingColorSpace workingColorSpace, long expectedRawValue)
         {
             Size size = new Size(3, 2);
             Color actualColor;
@@ -271,7 +271,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 || pixelFormat.ToInfoInternal().HasPremultipliedAlpha && c1.A == 0 && c2.A == 0;
 
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(size, pixelFormat,
-                default, 128, blendingMode, null))
+                default, 128, workingColorSpace, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel allocating managed accessor: ");
@@ -297,7 +297,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             long[] bufManaged = new long[size.Height * size.Width];
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(
                 new Array2D<long>(bufManaged, size.Height, size.Width), size.Width, pixelFormat,
-                default, 128, blendingMode, null, null, null))
+                default, 128, workingColorSpace, null, null, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor: ");
@@ -322,7 +322,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             long[,] bufManaged2D = new long[size.Height, size.Width];
             using (IBitmapDataInternal managedBitmapData = BitmapDataFactory.CreateManagedBitmapData(bufManaged2D, size.Width, pixelFormat,
-                default, 128, blendingMode, null, null, null))
+                default, 128, workingColorSpace, null, null, null))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel wrapping managed accessor 2D: ");
@@ -348,7 +348,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             int stride = Math.Max(8, pixelFormat.GetByteWidth(size.Width));
             IntPtr bufUnmanaged = Marshal.AllocHGlobal(stride * size.Height);
             using (IBitmapDataInternal unmanagedBitmapData = BitmapDataFactory.CreateUnmanagedBitmapData(bufUnmanaged, size, stride, pixelFormat,
-               default, 128, blendingMode, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
+               default, 128, workingColorSpace, null, null, () => Marshal.FreeHGlobal(bufUnmanaged)))
             {
                 // by Accessor Set/GetPixel
                 Console.Write("SetPixel/GetPixel unmanaged accessor: ");

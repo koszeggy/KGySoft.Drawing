@@ -230,7 +230,6 @@ namespace KGySoft.Drawing.Imaging
         private readonly sbyte matrixMinValue;
         private readonly sbyte matrixMaxValue;
         private readonly float strength;
-        private readonly bool? linearColorSpace;
         private readonly bool? dynamicStrengthCalibration;
 
         #endregion
@@ -744,12 +743,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Constructors
 
-        private OrderedDitherer(OrderedDitherer original, float strength, bool? linear, bool? dynamicStrengthCalibration)
+        private OrderedDitherer(OrderedDitherer original, float strength, bool? dynamicStrengthCalibration)
         {
             if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
                 throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
             this.strength = strength;
-            this.linearColorSpace = linear;
             this.dynamicStrengthCalibration = dynamicStrengthCalibration;
             premultipliedMatrix = original.premultipliedMatrix;
             matrixWidth = original.matrixWidth;
@@ -805,19 +803,10 @@ namespace KGySoft.Drawing.Imaging
         /// ]]></code>
         /// </example>
         // ReSharper disable once ParameterHidesMember - No conflict, a new instance is created
-        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength, linearColorSpace, dynamicStrengthCalibration);
-
-        /// <summary>
-        /// Gets a new <see cref="OrderedDitherer"/> instance that has the specified color space configuration.
-        /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> perform the dithering in the linear color space,
-        /// <br/><see langword="false"/> to perform the dithering in the sRGB color space,
-        /// <br/><see langword="null"/> to select the color in each session space based on the <see cref="IQuantizingSession.PrefersLinearColorSpace">IQuantizingSession.PrefersLinearColorSpace</see> property.</param>
-        /// <returns>A new <see cref="OrderedDitherer"/> instance using the specified color space configuration.</returns>
-        public OrderedDitherer ConfigureColorSpace(bool? useLinearColorSpace) => new OrderedDitherer(this, strength, useLinearColorSpace, dynamicStrengthCalibration);
+        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength, dynamicStrengthCalibration);
 
         // if null: dynamic for linear, constant for sRGB
-        public OrderedDitherer ConfigureAutoStrength(bool? dynamicStrengthCalibration) => new OrderedDitherer(this, 0f, linearColorSpace, dynamicStrengthCalibration);
+        public OrderedDitherer ConfigureAutoStrength(bool? dynamicStrengthCalibration) => new OrderedDitherer(this, 0f, dynamicStrengthCalibration);
 
         #endregion
 
@@ -826,7 +815,7 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
             Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
         IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? context)
-            => quantizingSession?.PrefersLinearColorSpace == true
+            => quantizingSession?.WorkingColorSpace == WorkingColorSpace.Linear
                 ? new OrderedDitheringSessionLinear(quantizingSession, this)
                 : new OrderedDitheringSessionSrgb(quantizingSession!, this);
 

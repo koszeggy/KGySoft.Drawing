@@ -188,7 +188,7 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static IReadWriteBitmapData GenerateAlphaGradientBitmapData(Size size, bool linear)
         {
-            var result = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, linear ? BlendingMode.Linear : BlendingMode.Srgb);
+            var result = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, linear ? WorkingColorSpace.Linear: WorkingColorSpace.Srgb);
             if (linear)
                 GenerateAlphaGradientLinear(result);
             else

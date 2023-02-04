@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 
 #endregion
@@ -36,6 +37,24 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+
+        #region Public Methods
+
+        /// <summary>
+        /// Gets a non-default <see cref="WorkingColorSpace"/> that can be used when working with the specified <paramref name="bitmapData"/>.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IBitmapData"/> to determine the result. If <see langword="null"/>, then <see cref="WorkingColorSpace.Srgb"/> is returned.</param>
+        /// <returns>A non-default <see cref="WorkingColorSpace"/> that can be used when working with the specified <paramref name="bitmapData"/>.</returns>
+        public static WorkingColorSpace GetPreferredColorSpace(this IBitmapData? bitmapData)
+            => bitmapData?.WorkingColorSpace switch
+            {
+                WorkingColorSpace.Linear => WorkingColorSpace.Linear,
+                WorkingColorSpace.Srgb => WorkingColorSpace.Srgb,
+                null => WorkingColorSpace.Srgb,
+                _ => bitmapData.PixelFormat.LinearGamma ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb
+            };
+
+        #endregion
 
         #region Internal Methods
 
@@ -66,7 +85,7 @@ namespace KGySoft.Drawing.Imaging
             => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.Grayscale;
 
         internal static bool LinearBlending(this IBitmapData bitmapData)
-            => bitmapData.BlendingMode == BlendingMode.Linear || bitmapData.BlendingMode == BlendingMode.Default && bitmapData.PixelFormat.LinearGamma;
+            => bitmapData.WorkingColorSpace == WorkingColorSpace.Linear || bitmapData.WorkingColorSpace == WorkingColorSpace.Default && bitmapData.PixelFormat.LinearGamma;
 
         internal static KnownPixelFormat GetKnownPixelFormat(this IBitmapData bitmapData)
         {
@@ -131,14 +150,14 @@ namespace KGySoft.Drawing.Imaging
                 ditherer = null;
         }
 
-        private static KnownPixelFormat GetPreferredFirstPassPixelFormat(this IBitmapData target, BlendingMode blendingMode)
+        private static KnownPixelFormat GetPreferredFirstPassPixelFormat(this IBitmapData target, WorkingColorSpace workingColorSpace)
             // Multi pass processing is only for quantizers or ditherers that require initialization with the actual image.
             // Therefore it is always enough to use a 32bpp temp 1st pass buffer because a quantizer is based on Color32 colors.
             // To optimize blending/processing speed we use straight colors if the target is also straight or when blending
             // will use linear color space; otherwise, we can use the premultiplied sRGB pixel format.
             => target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb
                 ? KnownPixelFormat.Format32bppArgb
-                : blendingMode == BlendingMode.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
+                : workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
 
         #endregion
 

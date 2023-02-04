@@ -36,8 +36,15 @@ namespace KGySoft.Drawing.Imaging
     /// To create an instance use the static methods or the constructors.
     /// </summary>
     /// <remarks>
-    /// <para>The <see cref="Palette"/> class can be used to perform quick lookup operations (see <see cref="GetNearestColor">GetNearestColor</see>
+    /// <para>The <see cref="Palette"/> class represents an indexed set of colors that can be accessed by the <see cref="this">indexer</see> or
+    /// the <see cref="GetEntries">GetEntries</see> method.</para>
+    /// <para>The <see cref="Palette"/> class supports performing quick lookup operations (see <see cref="GetNearestColor">GetNearestColor</see>
     /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods) to find the closest matching palette entry to any color.</para>
+    /// <note>The palette entries represent colors in the sRGB color space and nearest color lookup is also performed in the sRGB color space by default
+    /// but you can create a <see cref="Palette"/> instance that perform looking up for nearest colors in the linear color space
+    /// by the <see cref="Palette(Palette, Imaging.WorkingColorSpace, Color32, byte)"/> constructor or the factory methods that have <see cref="Imaging.WorkingColorSpace"/> parameter.
+    /// <br/>>See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/>
+    /// enumeration for details and image examples about using the different color spaces in various operations.</note>
     /// <para>By default the lookup is performed by a slightly modified euclidean-like search but if the <see cref="Palette"/> contains grayscale entries only,
     /// then it is optimized for finding the best matching gray shade based on human perception. To override this logic a custom lookup routine can be passed to the constructors.</para>
     /// <para>If the <see cref="Palette"/> instance is created without a custom lookup logic, then the search results for non-palette-entry colors are cached.
@@ -236,13 +243,19 @@ namespace KGySoft.Drawing.Imaging
         public bool HasAlpha { get; }
 
         /// <summary>
-        /// Gets whether this <see cref="Palette"/> prefers blending and measuring distance in the linear color space when looking for a nearest color.
+        /// Gets the preferred color space of this <see cref="Palette"/> instance for performing blending and measuring distance when looking for a nearest color.
+        /// You can use the <see cref="Palette(Palette, Imaging.WorkingColorSpace, Color32, byte)"/> constructor to create a clone of this <see cref="Palette"/> using
+        /// a different working color space.
         /// </summary>
         /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// <para>If the value of this property is <see cref="Imaging.WorkingColorSpace.Default"/>, then the sRGB color space is used
+        /// because palette <see cref="GetEntries">entries</see> represent sRGB colors anyway.</para>
         /// <para>If this palette uses a custom nearest color lookup, then it depends on the custom function whether it considers the value of this property.</para>
-        /// <para>Please note that palette entries themselves always represent sRGB color values, regardless the value of this property.</para>
+        /// <note>Please note that palette entries themselves always represent sRGB color values, regardless the value of this property.</note>
         /// </remarks>
-        public bool PrefersLinearColorSpace { get; }
+        public WorkingColorSpace WorkingColorSpace { get; }
 
         #endregion
 
@@ -252,7 +265,6 @@ namespace KGySoft.Drawing.Imaging
         internal Color32[] Entries { get; }
         internal int TransparentIndex { get; }
         internal bool HasTransparent => TransparentIndex >= 0;
-        internal BlendingMode BlendingMode => PrefersLinearColorSpace ? BlendingMode.Linear : BlendingMode.Srgb;
 
         #endregion
 
@@ -296,7 +308,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentException"><paramref name="entries"/> is empty.</exception>
         [Obsolete("This constructor overload is obsolete. Use the overload with (IEnumerable<Color32>, Color32, byte, Func<Color32, IPalette, int>?) parameters instead.")]
         public Palette(Color32[] entries, Color32 backColor, byte alphaThreshold, Func<Color32, int>? customGetNearestColorIndex)
-            : this((Color32[]?)entries.Clone()!, backColor, alphaThreshold, false,
+            : this((Color32[]?)entries.Clone()!, backColor, alphaThreshold, default,
                 customGetNearestColorIndex == null ? null : (c, _) => customGetNearestColorIndex.Invoke(c))
         {
         }
@@ -317,8 +329,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/>
         /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe and it is expected to be fast.
         /// The results returned by the specified delegate are not cached. Make sure you always obtain the palette properties such as <see cref="IPalette.BackColor"/>,
-        /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.PrefersLinearColorSpace"/> from the <see cref="IPalette"/> argument
-        /// as these may change when creating a new <see cref="Palette"/> instance by the <see cref="Palette(Palette,bool,Color32,byte)"/> constructor.
+        /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.WorkingColorSpace"/> from the <see cref="IPalette"/> argument
+        /// as these may change when creating a new <see cref="Palette"/> instance by the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.
         /// If <see langword="null"/>, then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will
         /// perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -327,7 +339,7 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
             Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
         public Palette(IEnumerable<Color32> entries, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, IPalette, int>? customGetNearestColorIndex = null)
-            : this(entries?.ToArray()!, backColor, alphaThreshold, false, customGetNearestColorIndex)
+            : this(entries?.ToArray()!, backColor, alphaThreshold, default, customGetNearestColorIndex)
         {
         }
 
@@ -336,10 +348,9 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
         /// </summary>
         /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance.</param>
-        /// <param name="preferLinearColorSpace"><see langword="true"/> to indicate that <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods should perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>. If <paramref name="customGetNearestColorIndex"/> is not <see langword="null"/>, then this is just
-        /// a preference hint that can be respected by the custom function.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
+        /// If <paramref name="customGetNearestColorIndex"/> is set, then it depends on the custom lookup function whether it respects the value of this parameter.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -351,17 +362,18 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/>
         /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe and it is expected to be fast.
         /// The results returned by the specified delegate are not cached. Make sure you always obtain the palette properties such as <see cref="IPalette.BackColor"/>,
-        /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.PrefersLinearColorSpace"/> from the <see cref="IPalette"/> argument
-        /// as these may change when creating a new <see cref="Palette"/> instance by the <see cref="Palette(Palette,bool,Color32,byte)"/> constructor.
+        /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.WorkingColorSpace"/> from the <see cref="IPalette"/> argument
+        /// as these may change when creating a new <see cref="Palette"/> instance by the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.
         /// If <see langword="null"/>, then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will
         /// perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
         /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
             Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
-        public Palette(IEnumerable<Color32> entries, bool preferLinearColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, IPalette, int>? customGetNearestColorIndex = null)
-            : this(entries?.ToArray()!, backColor, alphaThreshold, preferLinearColorSpace, customGetNearestColorIndex)
+        public Palette(IEnumerable<Color32> entries, WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Func<Color32, IPalette, int>? customGetNearestColorIndex = null)
+            : this(entries?.ToArray()!, backColor, alphaThreshold, workingColorSpace, customGetNearestColorIndex)
         {
         }
 
@@ -388,7 +400,7 @@ namespace KGySoft.Drawing.Imaging
             Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
         [Obsolete("This constructor overload is obsolete. Use the overload with (IEnumerable<Color32>, Color32, byte, Func<Color32, IPalette, int>?) parameters instead.")]
         public Palette(Color[] entries, Color backColor = default, byte alphaThreshold = 128, Func<Color32, int>? customGetNearestColorIndex = null)
-            : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, false,
+            : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, default,
                 customGetNearestColorIndex == null ? null : (c, _) => customGetNearestColorIndex.Invoke(c))
         {
         }
@@ -403,7 +415,7 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentNullException"><paramref name="palette"/> is <see langword="null"/>.</exception>
         [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract", Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
         public Palette(Palette palette, Color32 backColor, byte alphaThreshold)
-            : this(palette, palette?.PrefersLinearColorSpace ?? default, backColor, alphaThreshold)
+            : this(palette, palette?.WorkingColorSpace ?? default, backColor, alphaThreshold)
         {
         }
 
@@ -412,22 +424,28 @@ namespace KGySoft.Drawing.Imaging
         /// new <paramref name="backColor"/> and <paramref name="alphaThreshold"/> values and color space preference.
         /// </summary>
         /// <param name="palette">The original <see cref="Palette"/> to get the colors from.</param>
-        /// <param name="preferLinearColorSpace"><see langword="true"/> to indicate that <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods should perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>. If the original <paramref name="palette"/> uses a custom lookup function,
-        /// then the value of this parameter might be ignored.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
+        /// If the original <paramref name="palette"/> uses a custom lookup function, then the value of this parameter might be ignored.</param>
         /// <param name="backColor">The desired <see cref="BackColor"/> of the new <see cref="Palette"/>. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored.</param>
         /// <param name="alphaThreshold">The desired <see cref="AlphaThreshold"/> of the new <see cref="Palette"/>.</param>
         /// <exception cref="ArgumentNullException"><paramref name="palette"/> is <see langword="null"/>.</exception>
-        public Palette(Palette palette, bool preferLinearColorSpace, Color32 backColor, byte alphaThreshold)
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// </remarks>
+        public Palette(Palette palette, WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold)
         {
             if (palette == null)
                 throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             Entries = palette.Entries;
             TransparentIndex = palette.TransparentIndex;
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
-            PrefersLinearColorSpace = preferLinearColorSpace;
+            WorkingColorSpace = workingColorSpace;
             color32ToIndex = palette.color32ToIndex;
             IsGrayscale = palette.IsGrayscale;
             HasAlpha = palette.HasAlpha;
@@ -439,16 +457,18 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
-        internal Palette(Color32[] entries, Color32 backColor, byte alphaThreshold, bool useLinearColorSpace, Func<Color32, IPalette, int>? customGetNearestColorIndex)
+        internal Palette(Color32[] entries, Color32 backColor, byte alphaThreshold, WorkingColorSpace workingColorSpace, Func<Color32, IPalette, int>? customGetNearestColorIndex)
         {
             Entries = entries ?? throw new ArgumentNullException(nameof(entries), PublicResources.ArgumentNull);
             if (entries.Length == 0)
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(entries));
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
 
             TransparentIndex = -1;
             BackColor = backColor.ToOpaque();
             AlphaThreshold = alphaThreshold;
-            PrefersLinearColorSpace = useLinearColorSpace;
+            WorkingColorSpace = workingColorSpace;
 
             // initializing color32ToIndex, which is the 1st level of caching
             color32ToIndex = new Dictionary<Color32, int>(entries.Length);
@@ -504,7 +524,7 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Palette"/> instance that uses the system default 8-bit palette.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/>
         public static Palette SystemDefault8BppPalette(Color32 backColor = default, byte alphaThreshold = 128)
-            => SystemDefault8BppPalette(false, backColor, alphaThreshold);
+            => SystemDefault8BppPalette(default, backColor, alphaThreshold);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 8-bit palette.
@@ -512,9 +532,8 @@ namespace KGySoft.Drawing.Imaging
         /// the "web-safe" palette of 216 colors as well as 24 transparent entries.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">PredefinedColorsQuantizer.SystemDefault8BppPalette</see> method for details and some examples.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the palette entries,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -523,9 +542,10 @@ namespace KGySoft.Drawing.Imaging
         /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 8-bit palette.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/>
-        public static Palette SystemDefault8BppPalette(bool useLinearColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
-            => new Palette(System8BppPalette, backColor, alphaThreshold, useLinearColorSpace, null);
+        public static Palette SystemDefault8BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
+            => new Palette(System8BppPalette, backColor, alphaThreshold, workingColorSpace, null);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 4-bit palette.
@@ -539,24 +559,24 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Palette"/> instance that uses the system default 4-bit palette.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.SystemDefault4BppPalette"/>
         public static Palette SystemDefault4BppPalette(Color32 backColor = default)
-            => SystemDefault4BppPalette(false, backColor);
+            => SystemDefault4BppPalette(default, backColor);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 4-bit palette.
         /// This palette consists of the 16 standard <a href="https://www.w3.org/TR/REC-html40/types.html#h-6.5" target="_blank">basic sRGB colors</a>.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">PredefinedColorsQuantizer.SystemDefault4BppPalette</see> method for details and some examples.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 4-bit palette.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.SystemDefault4BppPalette"/>
-        public static Palette SystemDefault4BppPalette(bool useLinearColorSpace, Color32 backColor = default)
-            => new Palette(System4BppPalette, backColor, 128, useLinearColorSpace, null);
+        public static Palette SystemDefault4BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default)
+            => new Palette(System4BppPalette, backColor, 128, workingColorSpace, null);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 1-bit palette.
@@ -570,24 +590,24 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="Palette"/> instance that uses the system default 1-bit palette.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette"/>
         public static Palette SystemDefault1BppPalette(Color32 backColor = default)
-            => SystemDefault1BppPalette(false, backColor);
+            => SystemDefault1BppPalette(default, backColor);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the system default 1-bit palette.
         /// This palette consists of the black and white colors.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.SystemDefault1BppPalette">PredefinedColorsQuantizer.SystemDefault1BppPalette</see> method for details.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the system default 1-bit palette.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.SystemDefault1BppPalette"/>
-        public static Palette SystemDefault1BppPalette(bool useLinearColorSpace, Color32 backColor = default)
-            => new Palette(BlackAndWhitePalette, backColor, 128, useLinearColorSpace, null);
+        public static Palette SystemDefault1BppPalette(WorkingColorSpace workingColorSpace, Color32 backColor = default)
+            => new Palette(BlackAndWhitePalette, backColor, 128, workingColorSpace, null);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
@@ -603,16 +623,15 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.Rgb332"/>
-        public static Palette Rgb332(Color32 backColor = default, bool directMapping = false) => Rgb332(false, backColor, directMapping);
+        public static Palette Rgb332(Color32 backColor = default, bool directMapping = false) => Rgb332(default, backColor, directMapping);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Rgb332">PredefinedColorsQuantizer.Rgb332</see> method for details and some examples.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>. If <paramref name="directMapping"/> is <see langword="true"/>,
-        /// then only affects blending possibly partially transparent source colors.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
+        /// If <paramref name="directMapping"/> is <see langword="true"/>, then only affects blending with possibly partially transparent source colors.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -622,18 +641,19 @@ namespace KGySoft.Drawing.Imaging
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 8-bit palette where red, green and blue components are encoded in 3, 3 and 2 bits, respectively.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.Rgb332"/>
-        public static Palette Rgb332(bool useLinearColorSpace, Color32 backColor = default, bool directMapping = false)
+        public static Palette Rgb332(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(palette.BackColor, palette.PrefersLinearColorSpace);
+                    c = c.BlendWithBackground(palette.BackColor, palette.WorkingColorSpace);
 
                 return (c.R & 0b11100000) | ((c.G & 0b11100000) >> 3) | ((c.B & 0b11000000) >> 6);
             }
 
-            return new Palette(Rgb332Palette, useLinearColorSpace, backColor, 0, directMapping ? GetNearestColorIndex : default);
+            return new Palette(Rgb332Palette, workingColorSpace, backColor, 0, directMapping ? GetNearestColorIndex : default);
         }
 
         /// <summary>
@@ -646,31 +666,31 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale"/>
-        public static Palette Grayscale256(Color32 backColor = default) => Grayscale256(false, backColor);
+        public static Palette Grayscale256(Color32 backColor = default) => Grayscale256(default, backColor);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale">PredefinedColorsQuantizer.Grayscale</see> method for details and some examples.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
         /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 8-bit grayscale palette of 256 shades.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale"/>
-        public static Palette Grayscale256(bool useLinearColorSpace, Color32 backColor = default)
+        public static Palette Grayscale256(WorkingColorSpace workingColorSpace, Color32 backColor = default)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(palette.BackColor, palette.PrefersLinearColorSpace);
+                    c = c.BlendWithBackground(palette.BackColor, palette.WorkingColorSpace);
                 return c.GetBrightness();
             }
 
-            return new Palette(Grayscale256Palette, backColor, 0, useLinearColorSpace, GetNearestColorIndex);
+            return new Palette(Grayscale256Palette, backColor, 0, workingColorSpace, GetNearestColorIndex);
         }
 
         /// <summary>
@@ -687,16 +707,15 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale16"/>
-        public static Palette Grayscale16(Color32 backColor = default, bool directMapping = false) => Grayscale16(false, backColor, directMapping);
+        public static Palette Grayscale16(Color32 backColor = default, bool directMapping = false) => Grayscale16(default, backColor, directMapping);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale16">PredefinedColorsQuantizer.Grayscale16</see> method for details and some examples.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>. If <paramref name="directMapping"/> is <see langword="true"/>,
-        /// then only affects blending possibly partially transparent source colors.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
+        /// If <paramref name="directMapping"/> is <see langword="true"/>, then only affects blending with possibly partially transparent source colors.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -706,17 +725,18 @@ namespace KGySoft.Drawing.Imaging
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a 4-bit grayscale palette of 16 shades.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale16"/>
-        public static Palette Grayscale16(bool useLinearColorSpace, Color32 backColor = default, bool directMapping = false)
+        public static Palette Grayscale16(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(palette.BackColor, palette.PrefersLinearColorSpace);
+                    c = c.BlendWithBackground(palette.BackColor, palette.WorkingColorSpace);
                 return c.GetBrightness() >> 4;
             }
 
-            return new Palette(Grayscale16Palette, backColor, 0, useLinearColorSpace, directMapping ? GetNearestColorIndex : default);
+            return new Palette(Grayscale16Palette, backColor, 0, workingColorSpace, directMapping ? GetNearestColorIndex : default);
         }
 
         /// <summary>
@@ -733,16 +753,15 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale4"/>
-        public static Palette Grayscale4(Color32 backColor = default, bool directMapping = false) => Grayscale4(false, backColor, directMapping);
+        public static Palette Grayscale4(Color32 backColor = default, bool directMapping = false) => Grayscale4(default, backColor, directMapping);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale4">PredefinedColorsQuantizer.Grayscale4</see> method for details and some examples.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>. If <paramref name="directMapping"/> is <see langword="true"/>,
-        /// then only affects blending possibly partially transparent source colors.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
+        /// If <paramref name="directMapping"/> is <see langword="true"/>, then only affects blending with possibly partially transparent source colors.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -752,17 +771,18 @@ namespace KGySoft.Drawing.Imaging
         /// <see langword="false"/> to perform a lookup to determine nearest colors, which may be slower but more accurate. This parameter is optional.
         /// <br/>Default value: <see langword="false"/>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses a grayscale palette of 4 shades.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.Grayscale4"/>
-        public static Palette Grayscale4(bool useLinearColorSpace, Color32 backColor = default, bool directMapping = false)
+        public static Palette Grayscale4(WorkingColorSpace workingColorSpace, Color32 backColor = default, bool directMapping = false)
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
                 if (c.A < Byte.MaxValue)
-                    c = c.BlendWithBackground(palette.BackColor, palette.PrefersLinearColorSpace);
+                    c = c.BlendWithBackground(palette.BackColor, palette.WorkingColorSpace);
                 return c.GetBrightness() >> 6;
             }
 
-            return new Palette(Grayscale4Palette, backColor, 0, useLinearColorSpace, directMapping ? GetNearestColorIndex : default);
+            return new Palette(Grayscale4Palette, backColor, 0, workingColorSpace, directMapping ? GetNearestColorIndex : default);
         }
 
         /// <summary>
@@ -778,15 +798,14 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the black and white colors.</returns>
         /// <seealso cref="PredefinedColorsQuantizer.BlackAndWhite"/>
-        public static Palette BlackAndWhite(Color32 backColor = default, byte whiteThreshold = 128) => BlackAndWhite(false, backColor, whiteThreshold);
+        public static Palette BlackAndWhite(Color32 backColor = default, byte whiteThreshold = 128) => BlackAndWhite(default, backColor, whiteThreshold);
 
         /// <summary>
         /// Gets a <see cref="Palette"/> instance that uses the black and white colors.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.BlackAndWhite">PredefinedColorsQuantizer.BlackAndWhite</see> method for details and some examples.
         /// </summary>
-        /// <param name="useLinearColorSpace"><see langword="true"/> to make <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods perform blending and the nearest color lookup using the
-        /// linear color space; otherwise, <see langword="false"/>.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -795,14 +814,15 @@ namespace KGySoft.Drawing.Imaging
         /// If 0, then all colors are mapped to white. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="Palette"/> instance that uses the black and white colors.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
         /// <seealso cref="PredefinedColorsQuantizer.BlackAndWhite"/>
-        public static Palette BlackAndWhite(bool useLinearColorSpace, Color32 backColor = default, byte whiteThreshold = 128)
+        public static Palette BlackAndWhite(WorkingColorSpace workingColorSpace, Color32 backColor = default, byte whiteThreshold = 128)
         {
             // NOTE: unlike the other custom functions this one captures a parameter, whiteThreshold,
             //       which is not a problem as long as it cannot be modified by the copy constructors
             int GetNearestColorIndex(Color32 c, IPalette palette)
             {
-                bool linear = palette.PrefersLinearColorSpace;
+                bool linear = palette.WorkingColorSpace == WorkingColorSpace.Linear;
                 if (c.A < Byte.MaxValue)
                     c = c.BlendWithBackground(palette.BackColor, linear);
 
@@ -812,7 +832,7 @@ namespace KGySoft.Drawing.Imaging
                     : c.GetBrightness() >= whiteThreshold ? 1 : 0;
             }
 
-            return new Palette(BlackAndWhitePalette, backColor, 0, useLinearColorSpace, GetNearestColorIndex);
+            return new Palette(BlackAndWhitePalette, backColor, 0, workingColorSpace, GetNearestColorIndex);
         }
 
         #endregion
@@ -857,7 +877,8 @@ namespace KGySoft.Drawing.Imaging
 
             // from the lock-free cache
             if (cache == null)
-                Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create<Color32, int>(PrefersLinearColorSpace ? FindNearestColorIndexLinear : FindNearestColorIndexSrgb, cacheOptions), null);
+                Interlocked.CompareExchange(ref cache, ThreadSafeCacheFactory.Create<Color32, int>(
+                    WorkingColorSpace == WorkingColorSpace.Linear ? FindNearestColorIndexLinear : FindNearestColorIndexSrgb, cacheOptions), null);
             return cache[c];
         }
 

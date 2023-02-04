@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Numerics;
 
 using KGySoft.Collections;
 using KGySoft.CoreLibraries;
@@ -296,8 +295,7 @@ namespace KGySoft.Drawing.Imaging
                 //    (currentColor.G + (int)error.G).ClipToByte(),
                 //    (currentColor.B + (int)error.B).ClipToByte());
                 var currentF = new ColorF(currentColor);
-                var errorRgb = new Vector3(error.R, error.G, error.B);
-                currentF = new ColorF(new Vector4(currentF.Rgb + errorRgb, 1f)).Clip();
+                currentF = (currentF + new RgbF(error.R, error.G, error.B)).Clip();
                 currentColor = currentF.ToColor32();
 
                 // getting the quantized result for the current pixel + errors

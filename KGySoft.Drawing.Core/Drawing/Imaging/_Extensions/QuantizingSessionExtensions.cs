@@ -31,10 +31,8 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // the color will not be transparent in the end: blending
-            return origColor.BlendWithBackground(session.BackColor, session.PrefersLinearColorSpace);
+            return origColor.BlendWithBackground(session.BackColor, session.WorkingColorSpace);
         }
-
-        internal static BlendingMode BlendingMode(this IQuantizingSession session) => session.PrefersLinearColorSpace ? Imaging.BlendingMode.Linear : Imaging.BlendingMode.Srgb;
 
         #endregion
     }

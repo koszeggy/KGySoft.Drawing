@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
 
         public override bool IsCustomPixelFormat => true;
 
-        public Func<Size, BlendingMode, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
+        public Func<Size, WorkingColorSpace, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
         {
             get
             {
@@ -95,7 +95,7 @@ namespace KGySoft.Drawing.Imaging
                 PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origStride = RowSize;
-                return (size, blendingMode) =>
+                return (size, workingColorSpace) =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
 
@@ -114,7 +114,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     IntPtr newBuffer = Marshal.AllocHGlobal(stride * size.Height);
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, blendingMode, () => Marshal.FreeHGlobal(newBuffer));
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, workingColorSpace, () => Marshal.FreeHGlobal(newBuffer));
 #else
                     Array2D<byte> newBuffer;
 
@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.Imaging
                         newBuffer = new Array2D<byte>(size.Height, stride);
                     }
 
-                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, blendingMode, () => newBuffer.Dispose());
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, workingColorSpace, () => newBuffer.Dispose());
 #endif
                 };
             }

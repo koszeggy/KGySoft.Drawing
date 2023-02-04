@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette? Palette => null;
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
+            public WorkingColorSpace WorkingColorSpace => quantizer.WorkingColorSpace;
             public bool IsGrayscale => quantizer.PixelFormatHint.IsGrayscale();
 
             #endregion
@@ -88,7 +88,7 @@ namespace KGySoft.Drawing.Imaging
                     ? quantizingFunction.Invoke(c)
                     : c.A < AlphaThreshold
                         ? default
-                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.LinearColorSpace));
+                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.WorkingColorSpace));
 
             #endregion
         }
@@ -110,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette Palette { get; }
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
+            public WorkingColorSpace WorkingColorSpace => quantizer.WorkingColorSpace;
             public bool IsGrayscale => Palette.IsGrayscale;
 
             #endregion
@@ -176,7 +176,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette? Palette => null;
             public Color32 BackColor => quantizer.BackColor;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
-            public bool PrefersLinearColorSpace => quantizer.LinearColorSpace;
+            public WorkingColorSpace WorkingColorSpace => quantizer.WorkingColorSpace;
             public bool IsGrayscale => quantizer.isGrayscale;
 
             #endregion
@@ -187,14 +187,14 @@ namespace KGySoft.Drawing.Imaging
             [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
             [SuppressMessage("ReSharper", "ConvertToLocalFunction", Justification = "False alarm, it would be converted to a delegate anyway.")]
 #endif
-            internal QuantizingSessionByCustomBitmapData(PredefinedColorsQuantizer quantizer, Func<Size, BlendingMode, IBitmapDataInternal> compatibleBitmapDataFactory)
+            internal QuantizingSessionByCustomBitmapData(PredefinedColorsQuantizer quantizer, Func<Size, WorkingColorSpace, IBitmapDataInternal> compatibleBitmapDataFactory)
             {
                 this.quantizer = quantizer;
 #if NET35 || NET40
                 bitmapDataList = new List<IBitmapData>(Environment.ProcessorCount);
                 Func<int, IBitmapDataRowInternal> createRowFactory = _ =>
                 {
-                    var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1), LinearBlending ? BlendingMode.Linear : BlendingMode.Srgb).GetRowUncached(0);
+                    var result = compatibleBitmapDataFactory.Invoke(new Size(1, 1), WorkingColorSpace).GetRowUncached(0);
                     lock (bitmapDataList)
                         bitmapDataList.Add(result.BitmapData);
                     return result;
@@ -202,8 +202,7 @@ namespace KGySoft.Drawing.Imaging
                 rowsCache = ThreadSafeCacheFactory.Create(createRowFactory, cacheOptions);
 #else
                 rowsCache = new ThreadLocal<IBitmapDataRowInternal>(
-                    () => compatibleBitmapDataFactory.Invoke(new Size(1, 1), PrefersLinearColorSpace ? BlendingMode.Linear : BlendingMode.Srgb)
-                        .GetRowUncached(0), true);
+                    () => compatibleBitmapDataFactory.Invoke(new Size(1, 1), WorkingColorSpace).GetRowUncached(0), true);
 #endif
             }
 
@@ -244,7 +243,7 @@ namespace KGySoft.Drawing.Imaging
         #region Fields
 
         private readonly Func<Color32, Color32>? quantizingFunction;
-        private readonly Func<Size, BlendingMode, IBitmapDataInternal>? compatibleBitmapDataFactory;
+        private readonly Func<Size, WorkingColorSpace, IBitmapDataInternal>? compatibleBitmapDataFactory;
         private readonly bool blendAlphaBeforeQuantize;
         private readonly bool isGrayscale;
 
@@ -283,11 +282,22 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         public Palette? Palette { get; }
 
-        #endregion
-
-        #region Internal Properties
-
-        internal bool LinearColorSpace { get; }
+        /// <summary>
+        /// Gets the preferred color space of this <see cref="PredefinedColorsQuantizer"/> instance for quantizing. This value will be returned also by
+        /// the <see cref="IQuantizingSession.WorkingColorSpace"/> property once an <see cref="IQuantizingSession"/> is created from this instance.
+        /// You can use the <see cref="ConfigureColorSpace">ConfigureColorSpace</see> method to create a clone of this <see cref="PredefinedColorsQuantizer"/>
+        /// using a different working color space.
+        /// </summary>
+        /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// <para>If the value of this property is <see cref="Imaging.WorkingColorSpace.Default"/>, then the sRGB color space is used
+        /// because the <see cref="IQuantizingSession.GetQuantizedColor">IQuantizingSession.GetQuantizedColor</see> method works with sRGB colors anyway.</para>
+        /// <para>If this <see cref="PredefinedColorsQuantizer"/> instance uses a custom quantizing functions, then it depends on the function whether it
+        /// considers the value of this property. When using a high color quantizer, then the value of this property may only affect possible alpha blending
+        /// with the <see cref="BackColor"/> property.</para>
+        /// </remarks>
+        public WorkingColorSpace WorkingColorSpace { get; }
 
         #endregion
 
@@ -306,7 +316,7 @@ namespace KGySoft.Drawing.Imaging
             Palette = palette ?? throw new ArgumentNullException(nameof(palette), PublicResources.ArgumentNull);
             BackColor = palette.BackColor;
             AlphaThreshold = palette.AlphaThreshold;
-            LinearColorSpace = palette.PrefersLinearColorSpace;
+            WorkingColorSpace = palette.WorkingColorSpace;
             isGrayscale = palette.IsGrayscale;
             PixelFormatHint = palette.Count switch
             {
@@ -340,11 +350,13 @@ namespace KGySoft.Drawing.Imaging
             PixelFormatHint = customBitmapData.HasAlpha() ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format24bppRgb;
             BackColor = customBitmapData.BackColor;
             AlphaThreshold = customBitmapData.AlphaThreshold;
-            LinearColorSpace = customBitmapData.LinearBlending();
+            WorkingColorSpace = customBitmapData.WorkingColorSpace;
         }
 
-        private PredefinedColorsQuantizer(PredefinedColorsQuantizer original, bool useLinearBlending)
+        private PredefinedColorsQuantizer(PredefinedColorsQuantizer original, WorkingColorSpace workingColorSpace)
         {
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             quantizingFunction = original.quantizingFunction;
             compatibleBitmapDataFactory = original.compatibleBitmapDataFactory;
             blendAlphaBeforeQuantize = original.blendAlphaBeforeQuantize;
@@ -353,9 +365,9 @@ namespace KGySoft.Drawing.Imaging
             BackColor = original.BackColor;
             AlphaThreshold = original.AlphaThreshold;
             Palette = original.Palette == null ? null
-                : original.Palette.PrefersLinearColorSpace == useLinearBlending ? original.Palette
-                : new Palette(original.Palette, useLinearBlending, BackColor, AlphaThreshold);
-            LinearColorSpace = useLinearBlending;
+                : original.Palette.WorkingColorSpace == workingColorSpace ? original.Palette
+                : new Palette(original.Palette, workingColorSpace, BackColor, AlphaThreshold);
+            WorkingColorSpace = workingColorSpace;
         }
 
         #endregion
@@ -1585,7 +1597,7 @@ namespace KGySoft.Drawing.Imaging
                     : bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
                     : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
                     : Rgb888(bitmapData.BackColor.ToColor())
-            }).ConfigureColorSpace(bitmapData.LinearBlending());
+            }).ConfigureColorSpace(bitmapData.WorkingColorSpace);
         }
 
         /// <summary>
@@ -1645,14 +1657,17 @@ namespace KGySoft.Drawing.Imaging
         #region Public Methods
 
         /// <summary>
-        /// Configures whether the quantizer should prefer the linear color space rather than the sRGB color space when quantizing colors.
+        /// Configures the preferred working color space for this <see cref="PredefinedColorsQuantizer"/>.
         /// The configuration might be ignored if this instance was created from a custom function.
         /// The configuration may affect alpha blending, nearest color lookup if this quantizer has a <see cref="Imaging.Palette"/>, and also the behavior of ditherers that use this quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.
         /// </summary>
-        /// <param name="preferLinearColorSpace"><see langword="true"/> to prefer using the linear color space for the quantizing rather than the sRGB color space; otherwise, <see langword="false"/>.</param>
-        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that uses the specified color space.</returns>
-        public PredefinedColorsQuantizer ConfigureColorSpace(bool preferLinearColorSpace)
-            => preferLinearColorSpace == LinearColorSpace ? this : new PredefinedColorsQuantizer(this, preferLinearColorSpace);
+        /// <param name="workingColorSpace">Specifies the working color space for the generated <see cref="Palette"/>.</param>
+        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that uses the specified color space.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        public PredefinedColorsQuantizer ConfigureColorSpace(WorkingColorSpace workingColorSpace)
+            => workingColorSpace == WorkingColorSpace ? this : new PredefinedColorsQuantizer(this, workingColorSpace);
 
         #endregion
 
