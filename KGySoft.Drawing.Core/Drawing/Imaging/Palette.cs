@@ -384,28 +384,6 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance. They will be converted to <see cref="Color32"/> instances internally.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
-        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
-        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="alphaThreshold">If there is at least one completely transparent color among <paramref name="entries"/>,
-        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
-        /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
-        /// <br/>Default value: <c>128</c>.</param>
-        /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
-        /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
-        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
-            Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
-        public Palette(Color[] entries, Color backColor = default, byte alphaThreshold = 128)
-            : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, default, null)
-        {
-        }
-
-        /// <summary>
-        /// Initializes a new instance of the <see cref="Palette"/> class.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
-        /// </summary>
-        /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance. They will be converted to <see cref="Color32"/> instances internally.</param>
-        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
-        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
         /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color.A">Color.A</see> property of the background color is ignored.</param>
         /// <param name="alphaThreshold">If there is at least one completely transparent color among <paramref name="entries"/>,
         /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
@@ -421,6 +399,59 @@ namespace KGySoft.Drawing.Imaging
         public Palette(Color[] entries, Color backColor, byte alphaThreshold, Func<Color32, int>? customGetNearestColorIndex)
             : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, default,
                 customGetNearestColorIndex == null ? null : (c, _) => customGetNearestColorIndex.Invoke(c))
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Palette"/> class.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
+        /// </summary>
+        /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance. They will be converted to <see cref="Color32"/> instances internally.</param>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If there is at least one completely transparent color among <paramref name="entries"/>,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
+        /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/> by a <see cref="Color32"/> instance.
+        /// If specified, it must be thread-safe and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
+        /// then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will perform a sequential lookup by using a default logic and results will be cached.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
+        public Palette(IEnumerable<Color> entries, Color backColor = default, byte alphaThreshold = 128, Func<Color32, IPalette, int>? customGetNearestColorIndex = null)
+            : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, default, customGetNearestColorIndex)
+        {
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="Palette"/> class.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Palette"/> class for details.
+        /// </summary>
+        /// <param name="entries">The color entries to be stored by this <see cref="Palette"/> instance. They will be converted to <see cref="Color32"/> instances internally.</param>
+        /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
+        /// If <paramref name="customGetNearestColorIndex"/> is set, then it depends on the custom lookup function whether it respects the value of this parameter.</param>
+        /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
+        /// When a lookup is performed with a color, whose <see cref="Color32.A">Color32.A</see> field is equal to or greater than <paramref name="alphaThreshold"/>, and there is no exact match among the <paramref name="entries"/>,
+        /// then the color to be found will be blended with this color before performing the lookup. The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If there is at least one completely transparent color among <paramref name="entries"/>,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> field, under which lookup operations will return the first transparent color (<see cref="GetNearestColor">GetNearestColor</see>)
+        /// or the index of the first transparent color (<see cref="GetNearestColorIndex">GetNearestColorIndex</see>). This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="customGetNearestColorIndex">A delegate specifying an optional custom lookup logic to obtain an index from <paramref name="entries"/> by a <see cref="Color32"/> instance.
+        /// If specified, it must be thread-safe and it is expected to be fast. The results returned by the specified delegate are not cached. If <see langword="null"/>,
+        /// then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will perform a sequential lookup by using a default logic and results will be cached.</param>
+        /// <exception cref="ArgumentNullException"><paramref name="entries"/> must not be <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentException"><paramref name="entries"/> must not be empty.</exception>
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must not be. Null check is in the called ctor.")]
+        public Palette(IEnumerable<Color> entries, WorkingColorSpace workingColorSpace, Color backColor = default, byte alphaThreshold = 128, Func<Color32, IPalette, int>? customGetNearestColorIndex = null)
+            : this(entries?.Select(c => new Color32(c)).ToArray()!, new Color32(backColor), alphaThreshold, workingColorSpace, customGetNearestColorIndex)
         {
         }
 

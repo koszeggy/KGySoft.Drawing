@@ -822,7 +822,7 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
-        /// <seealso cref="o:Palette.Rgb332"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.Rgb332">Palette.Rgb332 Methods</seealso>
         public static PredefinedColorsQuantizer Rgb332(Color backColor = default, bool directMapping = false)
             => new PredefinedColorsQuantizer(Palette.Rgb332(new Color32(backColor), directMapping));
 
@@ -878,7 +878,7 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
-        /// <seealso cref="o:Palette.Grayscale256"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.Grayscale256">Palette.Grayscale256 Methods</seealso>
         public static PredefinedColorsQuantizer Grayscale(Color backColor = default) => new PredefinedColorsQuantizer(Palette.Grayscale256(new Color32(backColor)));
 
         /// <summary>
@@ -958,7 +958,7 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
-        /// <seealso cref="o:Palette.Grayscale16"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.Grayscale16">Palette.Grayscale16 Methods</seealso>
         public static PredefinedColorsQuantizer Grayscale16(Color backColor = default, bool directMapping = false)
             => new PredefinedColorsQuantizer(Palette.Grayscale16(new Color32(backColor), directMapping));
 
@@ -1050,7 +1050,7 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
-        /// <seealso cref="o:Palette.Grayscale4"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.Grayscale4">Palette.Grayscale4 Methods</seealso>
         public static PredefinedColorsQuantizer Grayscale4(Color backColor = default, bool directMapping = false)
             => new PredefinedColorsQuantizer(Palette.Grayscale4(new Color32(backColor), directMapping));
 
@@ -1141,7 +1141,7 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
-        /// <seealso cref="o:Palette.BlackAndWhite"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.BlackAndWhite">Palette.BlackAndWhite Methods</seealso>
         public static PredefinedColorsQuantizer BlackAndWhite(Color backColor = default, byte whiteThreshold = 128)
             => new PredefinedColorsQuantizer(Palette.BlackAndWhite(new Color32(backColor), whiteThreshold));
 
@@ -1222,19 +1222,19 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Silver background, alpha threshold = 1, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
-        /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></td>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarring.png" alt="Test image &quot;Girl with a Pearl Earring&quot;"/>
+        /// <br/>Original test image "Girl with a Pearl Earring"</para></div></td>
         /// <td><div style="text-align:center;">
-        /// <para><img src="../Help/Images/LenaDefault8bpp.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette"/>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringDefault8bppSrgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP palette, quantized in the sRGB color space"/>
         /// <br/>Default optional parameter values</para>
-        /// <para><img src="../Help/Images/LenaDefault8bppDitheredB8.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringDefault8bppDitheredB8Srgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP palette, quantized in the sRGB color space using Bayer 8x8 ordered dithering"/>
         /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering</para>
-        /// <para><img src="../Help/Images/LenaDefault8bppDitheredFS.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Floyd-Steinberg dithering"/>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringDefault8bppDitheredFSSrgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP palette, quantized in the sRGB color space using Floyd-Steinberg dithering"/>
         /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
         /// </tr>
         /// </tbody></table></para>
         /// </example>
-        /// <seealso cref="o:Palette.SystemDefault8BppPalette"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.SystemDefault8BppPalette">Palette.SystemDefault8BppPalette Methods</seealso>
         public static PredefinedColorsQuantizer SystemDefault8BppPalette(Color backColor = default, byte alphaThreshold = 128)
             => new PredefinedColorsQuantizer(Palette.SystemDefault8BppPalette(new Color32(backColor), alphaThreshold));
 
@@ -1312,7 +1312,7 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
-        /// <seealso cref="o:Palette.SystemDefault4BppPalette"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.SystemDefault4BppPalette">Palette.SystemDefault4BppPalette Methods</seealso>
         public static PredefinedColorsQuantizer SystemDefault4BppPalette(Color backColor = default)
             => new PredefinedColorsQuantizer(Palette.SystemDefault4BppPalette(new Color32(backColor)));
 
@@ -1331,7 +1331,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>For more details and examples see the <strong>Examples</strong> section of the <see cref="BlackAndWhite">BlackAndWhite</see> method.</note></para>
         /// <para>This quantizer fits well for the <see cref="KnownPixelFormat.Format1bppIndexed"/> pixel format.</para>
         /// </remarks>
-        /// <seealso cref="o:Palette.SystemDefault1BppPalette"/>
+        /// <seealso cref="O:KGySoft.Drawing.Imaging.Palette.SystemDefault1BppPalette">Palette.SystemDefault1BppPalette Methods</seealso>
         public static PredefinedColorsQuantizer SystemDefault1BppPalette(Color backColor = default)
             => new PredefinedColorsQuantizer(Palette.SystemDefault1BppPalette(new Color32(backColor)));
 
@@ -1359,7 +1359,8 @@ namespace KGySoft.Drawing.Imaging
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
         /// <code lang="C#"><![CDATA[
-        /// public static IReadWriteBitmapData ToRgb111(IReadWriteBitmapData source, Color backColor = default, IDitherer ditherer = null)
+        /// public static IReadWriteBitmapData ToRgb111(IReadWriteBitmapData source,
+        ///     Color backColor = default, IDitherer ditherer = null, WorkingColorSpace colorSpace = default)
         /// {
         ///     Color[] colors =
         ///     {
@@ -1367,8 +1368,7 @@ namespace KGySoft.Drawing.Imaging
         ///         Color.Magenta, Color.Yellow, Color.Cyan, Color.White
         ///     };
         ///
-        ///     IQuantizer quantizer = PredefinedColorsQuantizer.FromCustomPalette(colors, backColor);
-        ///     // or: quantizer = PredefinedColorsQuantizer.FromCustomPalette(new Palette(colors, backColor));
+        ///     IQuantizer quantizer = PredefinedColorsQuantizer.FromCustomPalette(new Palette(colors, colorSpace, backColor));
         ///
         ///     // a.) this solution returns a new bitmap data and does not change the original one:
         ///     return source.Clone(KnownPixelFormat.Format4bppIndexed, quantizer, ditherer);
@@ -1416,13 +1416,17 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Silver background, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
-        /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></td>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarring.png" alt="Test image &quot;Girl with a Pearl Earring&quot;"/>
+        /// <br/>Original test image "Girl with a Pearl Earring"</para></div></td>
         /// <td><div style="text-align:center;">
-        /// <para><img src="../Help/Images/LenaRgb111.gif" alt="Test image &quot;Lena&quot; with RGB111 palette"/>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringRgb111Srgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the sRGB color space"/>
         /// <br/>Default optional parameter values</para>
-        /// <para><img src="../Help/Images/LenaRgb111DitheredFS.gif" alt="Test image &quot;Lena&quot; with RGB111 palette and Floyd-Steinberg dithering"/>
-        /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringRgb111DitheredFSSrgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the sRGB color space using Floyd-Steinberg dithering"/>
+        /// <br/><see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringRgb111Linear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the linear color space"/>
+        /// <br/><see cref="Imaging.WorkingColorSpace.Linear"/> color space</para>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringRgb111DitheredFSLinear.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with RGB111 palette, quantized in the linear color space using Floyd-Steinberg dithering"/>
+        /// <br/><see cref="Imaging.WorkingColorSpace.Linear"/> color space, <see cref="ErrorDiffusionDitherer.FloydSteinberg">Floyd-Steinberg</see> dithering</para></div></td>
         /// </tr>
         /// </tbody></table></para>
         /// </example>

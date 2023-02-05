@@ -426,10 +426,10 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
-        /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></td>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarring.png" alt="Test image &quot;Girl with a Pearl Earring&quot;"/>
+        /// <br/>Original test image "Girl with a Pearl Earring"</para></div></td>
         /// <td><div style="text-align:center;">
-        /// <para><img src="../Help/Images/LenaDefault8bppDitheredB8.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringDefault8bppDitheredB8Srgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP palette, quantized in the sRGB color space using Bayer 8x8 ordered dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
         /// </tr>
         /// </tbody></table></para>

@@ -876,14 +876,6 @@
       <ImageId>GrayShadesDefault8bppDitheredB8</ImageId>
       <AlternateText>Gray Shades Default 8bpp Dithered B 8</AlternateText>
     </Content>
-    <Content Include="Help\Images\LenaDefault8bpp.gif">
-      <ImageId>LenaDefault8bpp</ImageId>
-      <AlternateText>Lena Default 8bpp</AlternateText>
-    </Content>
-    <Content Include="Help\Images\LenaDefault8bppDitheredFS.gif">
-      <ImageId>LenaDefault8bppDitheredFS</ImageId>
-      <AlternateText>Lena Default 8bpp DitheredFS</AlternateText>
-    </Content>
     <Content Include="Help\Images\ShieldDefault8bppBlack.gif">
       <ImageId>ShieldDefault8bppBlack</ImageId>
       <AlternateText>Shield Default 8bpp Black</AlternateText>
@@ -943,10 +935,6 @@
     <Content Include="Help\Images\AlphaGradientRgb111SilverDitheredB8.gif">
       <ImageId>AlphaGradientRgb111SilverDitheredB8</ImageId>
       <AlternateText>Alpha Gradient Rgb 111 Silver Dithered B 8</AlternateText>
-    </Content>
-    <Content Include="Help\Images\LenaRgb111.gif">
-      <ImageId>LenaRgb111</ImageId>
-      <AlternateText>Lena Rgb 111</AlternateText>
     </Content>
     <Content Include="Help\Images\LenaRgb111DitheredFS.gif">
       <ImageId>LenaRgb111DitheredFS</ImageId>
@@ -1055,10 +1043,6 @@
     <Content Include="Help\Images\GrayShadesBWDitheredB4.gif">
       <ImageId>GrayShadesBWDitheredB4</ImageId>
       <AlternateText>Gray ShadesBWDithered B 4</AlternateText>
-    </Content>
-    <Content Include="Help\Images\LenaDefault8bppDitheredB8.gif">
-      <ImageId>LenaDefault8bppDitheredB8</ImageId>
-      <AlternateText>Lena Default 8bpp Dithered B 8</AlternateText>
     </Content>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredBN.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredBN</ImageId>
@@ -1363,6 +1347,9 @@
     </Content>
     <Content Include="Help\Images\GirlWithAPearlEarringRgb111ResizedSrgb.png">
       <ImageId>GirlWithAPearlEarringRgb111ResizedSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppDitheredB8Srgb.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppDitheredB8Srgb</ImageId>
     </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
