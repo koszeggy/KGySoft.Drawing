@@ -1316,6 +1316,54 @@
     <Content Include="Help\Images\AlphaGradientRgb888WhiteLinear.png">
       <ImageId>AlphaGradientRgb888WhiteLinear</ImageId>
     </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarring.png">
+      <ImageId>GirlWithAPearlEarring</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWLinear.gif">
+      <ImageId>GirlWithAPearlEarringBWLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWSrgb.gif">
+      <ImageId>GirlWithAPearlEarringBWSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111Srgb.gif">
+      <ImageId>GirlWithAPearlEarringRgb111Srgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111Linear.gif">
+      <ImageId>GirlWithAPearlEarringRgb111Linear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppSrgb.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppLinear.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWDitheredB8Linear.gif">
+      <ImageId>GirlWithAPearlEarringBWDitheredB8Linear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWDitheredB8Srgb.gif">
+      <ImageId>GirlWithAPearlEarringBWDitheredB8Srgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111DitheredFSLinear.gif">
+      <ImageId>GirlWithAPearlEarringRgb111DitheredFSLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111DitheredFSSrgb.gif">
+      <ImageId>GirlWithAPearlEarringRgb111DitheredFSSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppDitheredFSLinear.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppDitheredFSLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppDitheredFSSrgb.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppDitheredFSSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111DitheredB8Linear.gif">
+      <ImageId>GirlWithAPearlEarringRgb111DitheredB8Linear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111ResizedLinear.png">
+      <ImageId>GirlWithAPearlEarringRgb111ResizedLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111ResizedSrgb.png">
+      <ImageId>GirlWithAPearlEarringRgb111ResizedSrgb</ImageId>
+    </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.
