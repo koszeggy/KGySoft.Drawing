@@ -130,9 +130,10 @@ namespace KGySoft.Drawing
         /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/>&#160;<see cref="PixelFormat"/>. To resize an image
         /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
         /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods.</para>
-        /// <para>Generally, the best quality result can be achieved by the <see cref="Resize(Bitmap, Size, bool)"/> overload, which
-        /// uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally. On Windows some <see cref="Graphics"/>
-        /// members use process-wide locks, which prevent them to be called concurrently without blocking. If that can be an issue you should use this overload.</para>
+        /// <para>This method always performs resizing in the sRGB color space. To perform resizing in the linear color space obtain a readable bitmap data
+        /// by the <see cref="GetReadableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> method specifying the <see cref="WorkingColorSpace.Linear"/> color space
+        /// and use the <see cref="BitmapDataExtensions.Resize">BitmapDataExtensions.Resize</see> method instead. You can convert the result back to a <see cref="Bitmap"/>
+        /// instance by the <see cref="ReadableBitmapDataExtensions.ToBitmap(IReadableBitmapData)">ToBitmap</see> extension method.</para>
         /// </remarks>
         public static Bitmap Resize(this Bitmap image, Size newSize, ScalingMode scalingMode, bool keepAspectRatio = false)
         {
@@ -402,11 +403,8 @@ namespace KGySoft.Drawing
         /// method for details and examples.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
-        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data.
-        /// For an <see cref="IReadableBitmapData"/> instance the <paramref name="workingColorSpace"/> is relevant only in a few cases such as cloning while converting
-        /// the pixel format, creating a quantizer from the bitmap data or when calling the <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see>
-        /// and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods of the <see cref="IBitmapData.Palette"/> property of an indexed bitmap
-        /// with partially transparent (alpha) colors.
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data. Determines the behavior
+        /// of some operations such as resizing or looking up for nearest colors if <paramref name="bitmap"/> has an indexed pixel format.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
         /// <param name="backColor">Just like <paramref name="workingColorSpace"/>, for an <see cref="IReadableBitmapData"/> instance the <paramref name="backColor"/>
         /// is relevant only for indexed bitmaps when <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see>
