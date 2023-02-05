@@ -34,6 +34,17 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Fields
 
+        #region Static Fields
+
+#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
+        private static readonly Vector4 max8Bpp = new Vector4(Byte.MaxValue);
+        private static readonly Vector4 half = new Vector4(0.5f);
+#endif
+
+        #endregion
+
+        #region Instance Fields
+
         #region Public Fields
 
         [FieldOffset(0)]
@@ -59,6 +70,8 @@ namespace KGySoft.Drawing.Imaging
         [FieldOffset(0)]
         internal readonly Vector3 Rgb;
 #endif
+
+        #endregion
 
         #endregion
 
@@ -112,6 +125,22 @@ namespace KGySoft.Drawing.Imaging
 #endif
         }
 
+        /// <summary>
+        /// Adds a given scalar to a <see cref="ColorF"/>.
+        /// </summary>
+        /// <param name="left">The source color.</param>
+        /// <param name="right">The scalar value.</param>
+        /// <returns>The result color.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static ColorF operator +(ColorF left, float right)
+        {
+#if NET35 || NET40 || NET45 || NETSTANDARD2_0
+            return new ColorF(left.A + right, left.R + right, left.G + right, left.B + right);
+#else
+            return new ColorF(left.Rgba * new Vector4(right));
+#endif
+        }
+
         #endregion
 
         #region Constructors
@@ -151,6 +180,31 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
+//        internal ColorF(Color32 c, bool adjustGamma)
+//#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+//            : this() // so the compiler does not complain about not initializing value field
+//#endif
+//        {
+//#if NET5_0_OR_GREATER
+//            Unsafe.SkipInit(out this);
+//#endif
+//            if (adjustGamma)
+//            {
+//                this = new ColorF(c);
+//                return;
+//            }
+
+//#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+//            Rgba = new Vector4(c.R, c.G, c.B, c.A) / max8Bpp;
+//#else
+//            R = ColorSpaceHelper.ToFloat(c.R);
+//            G = ColorSpaceHelper.ToFloat(c.G);
+//            B = ColorSpaceHelper.ToFloat(c.B);
+//            A = ColorSpaceHelper.ToFloat(c.A);
+//#endif
+//        }
+
+
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         internal ColorF(Vector4 vector)
 #if !NET5_0_OR_GREATER
@@ -169,6 +223,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+        
+        #region Public Methods
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public ColorF Clip() => new ColorF(Vector4.Clamp(Rgba, Vector4.Zero, Vector4.One));
@@ -210,6 +266,30 @@ namespace KGySoft.Drawing.Imaging
 #else
         public override int GetHashCode() => (R, G, B, A).GetHashCode();
 #endif
+
+        #endregion
+
+        #region Internal Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal Color32 ToColor32(bool adjustGamma)
+        {
+            if (adjustGamma)
+                return ToColor32();
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Vector4 result = Vector4.Clamp(Rgba * max8Bpp + half, Vector4.Zero, max8Bpp);
+            return new Color32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
+#else
+            ColorF result = this * Byte.MaxValue + 0.5f;
+            return new Color32(result.A.ClipToByte(),
+                result.R.ClipToByte(),
+                result.G.ClipToByte(),
+                result.B.ClipToByte());
+#endif
+        }
+
+        #endregion
 
         #endregion
     }

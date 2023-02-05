@@ -124,6 +124,8 @@ namespace KGySoft.Drawing.Imaging
         internal static ColorF ToColorF(this Color32 c) => new ColorF(c);
         internal static PColorF ToPColorF(this Color32 c) => new PColorF(c);
 
+        //internal static Color32 ToColor32(this PColorF c, bool adjustColorSpaceToSrgb) => c.ToStraight().ToColor32(adjustColorSpaceToSrgb);
+
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 ToPremultiplied(this Color32 c) => c.A switch
         {

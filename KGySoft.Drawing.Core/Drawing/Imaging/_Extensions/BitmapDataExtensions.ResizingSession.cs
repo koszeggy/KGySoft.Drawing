@@ -46,6 +46,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly IAsyncContext context;
             private readonly IBitmapDataInternal source;
             private readonly IBitmapDataInternal target;
+            private readonly bool useLinearColorSpace;
 
             private Rectangle sourceRectangle;
             private Rectangle targetRectangle;
@@ -54,13 +55,15 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal ResizingSessionNearestNeighbor(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle)
+            internal ResizingSessionNearestNeighbor(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
+                Rectangle sourceRectangle, Rectangle targetRectangle, bool useLinearColorSpace)
             {
                 this.context = context;
                 this.source = source;
                 this.target = target;
                 this.sourceRectangle = sourceRectangle;
                 this.targetRectangle = targetRectangle;
+                this.useLinearColorSpace = useLinearColorSpace;
             }
 
             #endregion
@@ -120,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                Action<int> processRow = target.IsFastPremultiplied() && !target.LinearBlending()
+                Action<int> processRow = target.IsFastPremultiplied() && !useLinearColorSpace
                     ? ProcessRowPremultipliedSrgb
                     : ProcessRowStraight;
 
@@ -157,7 +160,7 @@ namespace KGySoft.Drawing.Imaging
                     int sourceLeft = sourceRectangle.Left;
                     int targetWidth = targetRectangle.Width;
                     byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
-                    bool linearBlending = target.LinearBlending();
+                    bool linearBlending = useLinearColorSpace;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         Color32 colorSrc = rowSrc.DoGetColor32((int)(x * widthFactor + sourceLeft));
@@ -404,6 +407,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region ResizingSessionInterpolated class
 
+        [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local",
+            Justification = "Rectangles are not read-only to prevent creating defensive copies on older platform targets where getters are not read-only.")]
         private sealed class ResizingSessionInterpolated : IDisposable
         {
             #region Fields
@@ -413,6 +418,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly IBitmapDataInternal target;
             private readonly KernelMap horizontalKernelMap;
             private readonly KernelMap verticalKernelMap;
+            private readonly bool useLinearColorSpace;
 
             private Rectangle sourceRectangle;
             private Rectangle targetRectangle;
@@ -423,13 +429,15 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal ResizingSessionInterpolated(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target, Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode)
+            internal ResizingSessionInterpolated(IAsyncContext context, IBitmapDataInternal source, IBitmapDataInternal target,
+                Rectangle sourceRectangle, Rectangle targetRectangle, ScalingMode scalingMode, bool useLinearColorSpace)
             {
                 this.context = context;
                 this.source = source;
                 this.target = target;
                 this.sourceRectangle = sourceRectangle;
                 this.targetRectangle = targetRectangle;
+                this.useLinearColorSpace = useLinearColorSpace;
                 if (scalingMode == ScalingMode.Auto)
                     scalingMode = GetAutoScalingMode(sourceRectangle.Size, targetRectangle.Size);
 
@@ -546,7 +554,7 @@ namespace KGySoft.Drawing.Imaging
 
             internal void PerformResizeDirect()
             {
-                if (target.IsFastPremultiplied() && !target.LinearBlending())
+                if (target.IsFastPremultiplied() && !useLinearColorSpace)
                     PerformResizePremultipliedSrgb();
                 else
                     PerformResizeDirectStraight();
@@ -567,7 +575,7 @@ namespace KGySoft.Drawing.Imaging
                         int targetWidth = targetRectangle.Width;
                         int targetLeft = targetRectangle.Left;
                         byte alphaThreshold = target.PixelFormat.HasMultiLevelAlpha ? (byte)0 : target.AlphaThreshold;
-                        bool linearBlending = target.LinearBlending();
+                        bool linear = useLinearColorSpace;
                         for (int x = 0; x < targetWidth; x++)
                         {
                             // Destination color components
@@ -577,7 +585,7 @@ namespace KGySoft.Drawing.Imaging
                             if (colorF.A <= 0f)
                                 continue;
 
-                            Color32 colorSrc = colorF.ToColor32();
+                            Color32 colorSrc = colorF.ToStraight().ToColor32(linear);
 
                             // fully solid source: overwrite
                             if (colorSrc.A == Byte.MaxValue)
@@ -599,9 +607,9 @@ namespace KGySoft.Drawing.Imaging
                             {
                                 colorSrc = colorDst.A == Byte.MaxValue
                                     // target pixel is fully solid: simple blending
-                                    ? colorSrc.BlendWithBackground(colorDst, linearBlending)
+                                    ? colorSrc.BlendWithBackground(colorDst, linear)
                                     // both source and target pixels are partially transparent: complex blending
-                                    : colorSrc.BlendWith(colorDst, linearBlending);
+                                    : colorSrc.BlendWith(colorDst, linear);
                             }
 
                             // overwriting target color only if blended color has high enough alpha
@@ -635,7 +643,7 @@ namespace KGySoft.Drawing.Imaging
                             if (colorF.A <= 0f)
                                 continue;
 
-                            Color32 colorSrc = colorF.ToColor32().ToPremultiplied();
+                            Color32 colorSrc = colorF.ToPColor32(false);
 
                             // fully solid source: overwrite
                             if (colorSrc.A == Byte.MaxValue)
@@ -676,9 +684,17 @@ namespace KGySoft.Drawing.Imaging
                 {
                     var sourceRowBuffer = new ArraySection<PColorF>(sourceRectangle.Width);
                     IBitmapDataRowInternal sourceRow = source.GetRowCached(y + sourceRectangle.Top);
-
-                    for (int x = 0; x < sourceRectangle.Width; x++)
-                        sourceRowBuffer.GetElementReference(x) = sourceRow.DoGetColor32(x + sourceRectangle.Left).ToPColorF();
+                    
+                    if (useLinearColorSpace)
+                    {
+                        for (int x = 0; x < sourceRectangle.Width; x++)
+                            sourceRowBuffer.GetElementReference(x) = sourceRow.DoGetColor32(x + sourceRectangle.Left).ToPColorF();
+                    }
+                    else
+                    {
+                        for (int x = 0; x < sourceRectangle.Width; x++)
+                            sourceRowBuffer.GetElementReference(x) = new PColorF(sourceRow.DoGetColor32Premultiplied(x + sourceRectangle.Left), false);
+                    }
 
                     int firstPassBaseIndex = y - currentWindow.Top;
                     for (int x = 0; x < targetRectangle.Width; x++)
@@ -736,7 +752,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
                     byte alphaThreshold = session.AlphaThreshold;
-                    bool linearBlending = session.WorkingColorSpace == WorkingColorSpace.Linear;
+                    bool linear = useLinearColorSpace;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
@@ -746,7 +762,7 @@ namespace KGySoft.Drawing.Imaging
                         if (colorF.A <= 0f)
                             continue;
 
-                        Color32 colorSrc = colorF.ToColor32();
+                        Color32 colorSrc = colorF.ToStraight().ToColor32(linear);
 
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
@@ -768,9 +784,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
+                                ? colorSrc.BlendWithBackground(colorDst, linear)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst, linearBlending);
+                                : colorSrc.BlendWith(colorDst, linear);
                         }
 
                         // overwriting target color only if blended color has high enough alpha
@@ -810,7 +826,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetWidth = targetRectangle.Width;
                     int targetLeft = targetRectangle.Left;
                     byte alphaThreshold = quantizingSession.AlphaThreshold;
-                    bool linearBlending = quantizingSession.WorkingColorSpace == WorkingColorSpace.Linear;
+                    bool linear = useLinearColorSpace;
                     for (int x = 0; x < targetWidth; x++)
                     {
                         // Destination color components
@@ -820,7 +836,7 @@ namespace KGySoft.Drawing.Imaging
                         if (colorF.A <= 0f)
                             continue;
 
-                        Color32 colorSrc = colorF.ToColor32();
+                        Color32 colorSrc = colorF.ToStraight().ToColor32(linear);
 
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
@@ -842,9 +858,9 @@ namespace KGySoft.Drawing.Imaging
                         {
                             colorSrc = colorDst.A == Byte.MaxValue
                                 // target pixel is fully solid: simple blending
-                                ? colorSrc.BlendWithBackground(colorDst, linearBlending)
+                                ? colorSrc.BlendWithBackground(colorDst, linear)
                                 // both source and target pixels are partially transparent: complex blending
-                                : colorSrc.BlendWith(colorDst, linearBlending);
+                                : colorSrc.BlendWith(colorDst, linear);
                         }
 
                         // overwriting target color only if blended color has high enough alpha
@@ -1136,6 +1152,7 @@ namespace KGySoft.Drawing.Imaging
 
             [SuppressMessage("Style", "IDE0044:Add readonly modifier",
                 Justification = "False alarm, dispose mutates instance, and if it was read-only, a defensive copy would be created")]
+            [SuppressMessage("ReSharper", "FieldCanBeMadeReadOnly.Local")]
             private ArraySection<float> kernelBuffer;
 
             #endregion

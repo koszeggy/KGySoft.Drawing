@@ -19,8 +19,8 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Runtime.CompilerServices;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
@@ -675,8 +675,20 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             AssertAreEqual(transparentAuto, transparentDirect);
         }
 
+        [TestCase(WorkingColorSpace.Srgb)]
+        [TestCase(WorkingColorSpace.Linear)]
+        public void ResizeTest(WorkingColorSpace colorSpace)
+        {
+            using var refBmpData = GetBitmapData(@"..\..\..\..\Help\Images\GirlWithAPearlEarringRgb111DitheredB8Linear.gif", colorSpace);
+            var newSize = new Size(256, 256);
+            using var resized = refBmpData.Resize(newSize);
+            Assert.AreEqual(newSize, resized.Size);
+            Assert.AreEqual(colorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb, resized.PixelFormat.ToKnownPixelFormat());
+            SaveBitmapData($"{colorSpace}", resized);
+        }
+
         [Test]
-        public void ResizeTest()
+        public void ResizeAspectRatioTest()
         {
             using var refBmpData = GetInfoIcon256();
             var newSize = new Size(256, 128);
@@ -812,6 +824,52 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 GenerateAlphaGradient(target);
 
                 SaveBitmapData($"{colorSpace} White", target);
+            }
+        }
+
+        [Test]
+        [Explicit]
+        public void GenerateImageForHelp()
+        {
+            string[] files =
+            {
+                @"..\..\..\..\Help\Images\GirlWithAPearlEarring.png",
+                //@"..\..\..\..\Help\Images\Shield256.png",
+            };
+
+            (PredefinedColorsQuantizer Quantizer, string Name)[] quantizers =
+            {
+                (PredefinedColorsQuantizer.BlackAndWhite(), "BW"),
+                (PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Lime, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow }), "Rgb111"),
+                (PredefinedColorsQuantizer.SystemDefault4BppPalette(), "Default4bpp"),
+                (PredefinedColorsQuantizer.SystemDefault8BppPalette(), "Default8bpp"),
+            };
+
+            (IDitherer Ditherer, string Name)[] ditherers =
+            {
+                (null, String.Empty),
+                (OrderedDitherer.Bayer8x8, "DitheredB8"),
+                (ErrorDiffusionDitherer.FloydSteinberg, "DitheredFS"),
+                //(new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
+                //(new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
+            };
+
+            foreach (string file in files)
+            {
+                string fileName = Path.IsPathRooted(file) ? file : Path.Combine(Files.GetExecutingPath(), file);
+                using var bitmap = new Bitmap(fileName);
+                using var src = ToBitmapData(bitmap);
+                foreach (var (quantizer, quantizerName) in quantizers)
+                {
+                    foreach (var (ditherer, dithererName) in ditherers)
+                    {
+                        foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+                        {
+                            using var result = src.Clone(quantizer.PixelFormatHint, quantizer.ConfigureColorSpace(colorSpace), ditherer);
+                            SaveBitmapData($"{Path.GetFileNameWithoutExtension(file)}{quantizerName}{dithererName}{colorSpace}", result);
+                        }
+                    }
+                }
             }
         }
 

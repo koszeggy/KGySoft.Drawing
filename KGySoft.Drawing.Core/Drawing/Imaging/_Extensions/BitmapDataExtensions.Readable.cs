@@ -2391,7 +2391,7 @@ namespace KGySoft.Drawing.Imaging
         #region Resize
 
         /// <summary>
-        /// Resizes the specified <paramref name="source"/>. The result always has a <see cref="KnownPixelFormat.Format32bppPArgb"/> pixel format.
+        /// Resizes the specified <paramref name="source"/>.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to resize.</param>
         /// <param name="newSize">The requested new size.</param>
@@ -2404,8 +2404,9 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
         /// Use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method always produces a result with <see cref="KnownPixelFormat.Format32bppPArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>. To resize a bitmap data
-        /// with a custom pixel format you can create a new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
+        /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
+        /// bitmap data but is always at least a 32 BPP format. To resize a bitmap data with a custom pixel format you can create a
+        /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
         /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods, which has several overloads that also allow quantizing and dithering.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
@@ -3123,14 +3124,13 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            if (sessionSource == null)
-                sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-
+            sessionSource ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             try
             {
+                bool linear = (quantizer?.WorkingColorSpace() ?? target.GetPreferredColorSpace()) == WorkingColorSpace.Linear;
                 if (scalingMode == ScalingMode.NearestNeighbor)
                 {
-                    var session = new ResizingSessionNearestNeighbor(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle);
+                    var session = new ResizingSessionNearestNeighbor(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, linear);
                     if (!isTwoPass)
                     {
                         session.PerformResize(quantizer, ditherer);
@@ -3142,7 +3142,7 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                 {
-                    using var session = new ResizingSessionInterpolated(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode);
+                    using var session = new ResizingSessionInterpolated(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode, linear);
                     if (context.IsCancellationRequested)
                         return;
 
@@ -3395,7 +3395,8 @@ namespace KGySoft.Drawing.Imaging
                 return null;
 
             bool canceled = false;
-            IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, KnownPixelFormat.Format32bppPArgb);
+            var pixelFormat = bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
+            IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, pixelFormat, bitmapData.WorkingColorSpace);
             try
             {
                 DoDrawInto(context, bitmapData, result, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode);
