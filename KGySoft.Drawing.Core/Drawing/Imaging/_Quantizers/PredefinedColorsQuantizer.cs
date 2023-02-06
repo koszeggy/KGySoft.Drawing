@@ -1297,7 +1297,9 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
         /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
-        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></td>
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para>
+        /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Interpolated.gif" alt="Grayscale color shades with system default 4 BPP palette using 8x8 ordered dithering with interpolated ato strength"/>
+        /// <br/><see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering using <see cref="AutoStrengthMode.Interpolated"/> auto strength strategy. Now there is neither banding nor overdithering for black or white colors.</para></div></td>
         /// </tr>
         /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>

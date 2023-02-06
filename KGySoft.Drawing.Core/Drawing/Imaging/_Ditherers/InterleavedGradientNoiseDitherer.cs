@@ -18,6 +18,7 @@
 using System;
 using System.Diagnostics.CodeAnalysis;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Threading;
 
 #endregion
@@ -86,7 +87,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                Strength = CalibrateStrength(-127, 127, false);
+                Strength = CalibrateStrength(-127, 127, ditherer.autoStrengthMode == AutoStrengthMode.Interpolated);
             }
 
             #endregion
@@ -128,7 +129,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                Strength = CalibrateStrength(MinOffset, MaxOffset, true);
+                Strength = CalibrateStrength(MinOffset, MaxOffset, ditherer.autoStrengthMode != AutoStrengthMode.Constant);
             }
 
             #endregion
@@ -155,6 +156,7 @@ namespace KGySoft.Drawing.Imaging
         #region Instance Fields
 
         private readonly float strength;
+        private readonly AutoStrengthMode autoStrengthMode;
 
         #endregion
 
@@ -173,7 +175,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
         /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and some examples regarding dithering strength.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer.ConfigureStrength">OrderedDitherer.ConfigureStrength</see> method
+        /// for more details and some examples regarding dithering strength.
         /// The same applies also for the <see cref="InterleavedGradientNoiseDitherer"/> class. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <example>
@@ -210,11 +213,26 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         public InterleavedGradientNoiseDitherer(float strength = 0f)
         {
             if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
                 throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
             this.strength = strength;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RandomNoiseDitherer"/> class with a specific auto strength strategy.
+        /// </summary>
+        /// <param name="autoStrengthMode">An <see cref="AutoStrengthMode"/> value specifying the desired behavior for calibrating auto strength.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer.ConfigureStrength">OrderedDitherer.ConfigureStrength</see> method
+        /// for more details and some examples regarding dithering strength. The same applies also for the <see cref="InterleavedGradientNoiseDitherer"/> class.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="autoStrengthMode"/> is not one of the defined values.</exception>
+        public InterleavedGradientNoiseDitherer(AutoStrengthMode autoStrengthMode)
+        {
+            if (!autoStrengthMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(autoStrengthMode), PublicResources.EnumOutOfRange(autoStrengthMode));
+            this.autoStrengthMode = autoStrengthMode;
         }
 
         #endregion

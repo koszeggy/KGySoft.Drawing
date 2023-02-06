@@ -438,8 +438,8 @@ namespace KGySoft.Drawing.UnitTests
                 ////(ErrorDiffusionDitherer.Sierra2, nameof(ErrorDiffusionDitherer.Sierra2)),
                 ////(ErrorDiffusionDitherer.SierraLite, nameof(ErrorDiffusionDitherer.SierraLite)),
                 //(ErrorDiffusionDitherer.StevensonArce, nameof(ErrorDiffusionDitherer.StevensonArce)),
-                (new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
-                (new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
+                (new RandomNoiseDitherer(0f, 0), nameof(RandomNoiseDitherer)),
+                (new InterleavedGradientNoiseDitherer(), nameof(InterleavedGradientNoiseDitherer)),
             };
 
             foreach (string file in files)

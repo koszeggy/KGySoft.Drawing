@@ -20,6 +20,7 @@ using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 using KGySoft.Threading;
 
 #endregion
@@ -74,9 +75,12 @@ namespace KGySoft.Drawing.Imaging
     /// whose ideal value depends on the colors that a quantizer can return. If the strength is too low, then banding may appear in the result in place of gradients in the original image;
     /// whereas if the strength is too high, then dithering patterns may appear even in colors without quantization error (overdithering).</para>
     /// <para>Every static property in the <see cref="OrderedDitherer"/> returns an instance with auto strength, meaning that
-    /// strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
-    /// The auto value is usually correct if the quantizer returns evenly distributed colors. To obtain an <see cref="OrderedDitherer"/> instance with custom strength
-    /// use the <see cref="ConfigureStrength">ConfigureStrength</see> method.</para>
+    /// strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.</para>
+    /// <para>Auto strength can use different calibration strategies. The default strategy is usually correct if the quantizer returns evenly distributed colors.
+    /// Otherwise, you can apply the <see cref="AutoStrengthMode.Interpolated"/> auto strength mode by the <see cref="ConfigureAutoStrengthMode">ConfigureAutoStrengthMode</see>
+    /// method that calibrates the strength both for the black and white colors and uses a dynamic strength to each pixel based on its brightness.
+    /// If none of the auto strength modes provide the desired result you can obtain an <see cref="OrderedDitherer"/> instance with custom strength
+    /// by the <see cref="ConfigureStrength">ConfigureStrength</see> method.</para>
     /// <para>The following table demonstrates the effect of different strengths:
     /// <table class="table is-hoverable">
     /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
@@ -90,7 +94,10 @@ namespace KGySoft.Drawing.Imaging
     /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
     /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></td>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para>
+    /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Interpolated.gif" alt="Grayscale color shades with system default 4 BPP palette using 8x8 ordered dithering with interpolated ato strength"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using <see cref="AutoStrengthMode.Interpolated"/> auto strength strategy.
+    /// Now there is neither banding nor overdithering for black or white colors.</para></div></td>
     /// </tr></tbody></table></para>
     /// <note type="tip">See the <strong>Examples</strong> section of the static properties for more examples.</note>
     /// </remarks>
@@ -136,7 +143,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                Strength = CalibrateStrength(ditherer.matrixMinValue, ditherer.matrixMaxValue, ditherer.dynamicStrengthCalibration ?? false);
+                Strength = CalibrateStrength(ditherer.matrixMinValue, ditherer.matrixMaxValue, ditherer.autoStrengthMode == AutoStrengthMode.Interpolated);
             }
 
             #endregion
@@ -185,7 +192,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                Strength = CalibrateStrength(ditherer.matrixMinValue / norm, ditherer.matrixMaxValue / norm, ditherer.dynamicStrengthCalibration ?? true);
+                Strength = CalibrateStrength(ditherer.matrixMinValue / norm, ditherer.matrixMaxValue / norm, ditherer.autoStrengthMode != AutoStrengthMode.Constant);
             }
 
             #endregion
@@ -230,7 +237,7 @@ namespace KGySoft.Drawing.Imaging
         private readonly sbyte matrixMinValue;
         private readonly sbyte matrixMaxValue;
         private readonly float strength;
-        private readonly bool? dynamicStrengthCalibration;
+        private readonly AutoStrengthMode autoStrengthMode;
 
         #endregion
 
@@ -743,12 +750,14 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Constructors
 
-        private OrderedDitherer(OrderedDitherer original, float strength, bool? dynamicStrengthCalibration)
+        private OrderedDitherer(OrderedDitherer original, float strength, AutoStrengthMode autoStrengthMode)
         {
             if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
                 throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
+            if (!autoStrengthMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(autoStrengthMode), PublicResources.EnumOutOfRange(autoStrengthMode));
             this.strength = strength;
-            this.dynamicStrengthCalibration = dynamicStrengthCalibration;
+            this.autoStrengthMode = autoStrengthMode;
             premultipliedMatrix = original.premultipliedMatrix;
             matrixWidth = original.matrixWidth;
             matrixHeight = original.matrixHeight;
@@ -768,9 +777,9 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a new <see cref="OrderedDitherer"/> instance that has the specified dithering <paramref name="strength"/>.
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
-        /// Specify 0 to use an auto value for each dithering session based on the used quantizer.</param>
+        /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
+        /// The auto strength strategy can be specified by the <see cref="ConfigureAutoStrengthMode">ConfigureAutoStrengthMode</see> method.</param>
         /// <returns>A new <see cref="OrderedDitherer"/> instance that has the specified dithering <paramref name="strength"/>.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         /// <remarks>
         /// <note>This method always returns a new <see cref="OrderedDitherer"/> instance instead of changing the strength of the original one.
         /// This is required for the static properties so they can return a cached instance.</note>
@@ -778,6 +787,7 @@ namespace KGySoft.Drawing.Imaging
         /// whereas if <paramref name="strength"/> is too high, then dithering patterns may appear even in colors without quantization error (overdithering).</para>
         /// <para>If <paramref name="strength"/> is 0, then strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
         /// This is the default for <see cref="OrderedDitherer"/> instances returned by the static properties.</para>
+        /// <para>The auto strength strategy itself can be specified by the <see cref="ConfigureAutoStrengthMode">ConfigureAutoStrengthMode</see> method.</para>
         /// <para>The following table demonstrates the effect of different strengths:
         /// <table class="table is-hoverable">
         /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
@@ -791,7 +801,10 @@ namespace KGySoft.Drawing.Imaging
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></td>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para>
+        /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Interpolated.gif" alt="Grayscale color shades with system default 4 BPP palette using 8x8 ordered dithering with interpolated ato strength"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using <see cref="AutoStrengthMode.Interpolated"/> auto strength strategy.
+        /// Now there is neither banding nor overdithering for black or white colors.</para></div></td>
         /// </tr>
         /// </tbody></table></para>
         /// </remarks>
@@ -800,13 +813,24 @@ namespace KGySoft.Drawing.Imaging
         /// <code lang="C#"><![CDATA[
         /// // getting a predefined ditherer with custom strength:
         /// IDitherer ditherer = OrderedDitherer.Bayer8x8.ConfigureStrength(0.5f);
+        /// 
+        /// // getting a predefined ditherer with custom auto strength strategy:
+        /// ditherer = OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Interpolated);
         /// ]]></code>
         /// </example>
-        // ReSharper disable once ParameterHidesMember - No conflict, a new instance is created
-        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength, dynamicStrengthCalibration);
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = "No conflict, a new instance is created")]
+        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength, autoStrengthMode);
 
-        // if null: dynamic for linear, constant for sRGB
-        public OrderedDitherer ConfigureAutoStrength(bool? dynamicStrengthCalibration) => new OrderedDitherer(this, 0f, dynamicStrengthCalibration);
+        /// <summary>
+        /// Gets a new <see cref="OrderedDitherer"/> instance that uses auto strength using the specified <paramref name="autoStrengthMode"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ConfigureStrength">ConfigureStrength</see> method for details and image examples.
+        /// </summary>
+        /// <param name="autoStrengthMode">An <see cref="AutoStrengthMode"/> value specifying the desired behavior for calibrating auto strength.</param>
+        /// <returns>A new <see cref="OrderedDitherer"/> instance that has the specified <paramref name="autoStrengthMode"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="autoStrengthMode"/> is not one of the defined values.</exception>
+        [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = "No conflict, a new instance is created")]
+        public OrderedDitherer ConfigureAutoStrengthMode(AutoStrengthMode autoStrengthMode) => new OrderedDitherer(this, 0f, autoStrengthMode);
 
         #endregion
 

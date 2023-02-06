@@ -27,8 +27,15 @@
   - The constructor with Color32[] parameter just used to store the specified array. This made possible to corrupt
     the palette if the array elements were changed after creating the palette. From now on the elements are copied
     into a new storage.
+! RandomNoiseDitherer:
+  ! New constructor overload. Marked as a breaking change because if an integer constant literal was passed to the
+    strength parameter the compiler may say the call is ambiguous between float and AutoStrengthMode enum.
+! InterleavedGradientNoiseDitherer:
+  ! New constructor overload. Marked as a breaking change because if an integer constant literal was passed to the
+    strength parameter the compiler may say the call is ambiguous between float and AutoStrengthMode enum.
 + New IPalette interface
 + New WorkingColorSpace enumeration
++ New AutoStrengthMode enumeration
 + BitmapDataExtensions class:
   + New Clone/BeginClone/CloneAsync overloads with workingColorSpace parameter.
 + BitmapDataFactory class:

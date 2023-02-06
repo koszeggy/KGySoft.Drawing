@@ -912,6 +912,9 @@
       <ImageId>GrayShadesDefault4bppDitheredB8Str-5</ImageId>
       <AlternateText>Gray Shades Default 4bpp Dithered B 8 Str-5</AlternateText>
     </Content>
+    <Content Include="Help\Images\GrayShadesDefault4bppDitheredB8Interpolated.gif">
+      <ImageId>GrayShadesDefault4bppDitheredB8Interpolated</ImageId>
+    </Content>
     <Content Include="Help\Images\ShieldDefault4bppBlack.gif">
       <ImageId>ShieldDefault4bppBlack</ImageId>
       <AlternateText>Shield Default 4bpp Black</AlternateText>

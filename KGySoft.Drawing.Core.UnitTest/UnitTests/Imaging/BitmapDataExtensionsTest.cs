@@ -833,23 +833,26 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         {
             string[] files =
             {
-                @"..\..\..\..\Help\Images\GirlWithAPearlEarring.png",
                 //@"..\..\..\..\Help\Images\Shield256.png",
+                @"..\..\..\..\Help\Images\GrayShades.gif",
+                //@"..\..\..\..\Help\Images\GirlWithAPearlEarring.png",
             };
 
             (PredefinedColorsQuantizer Quantizer, string Name)[] quantizers =
             {
-                (PredefinedColorsQuantizer.BlackAndWhite(), "BW"),
-                (PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Lime, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow }), "Rgb111"),
+                //(PredefinedColorsQuantizer.BlackAndWhite(), "BW"),
+                //(PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Lime, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow }), "Rgb111"),
                 (PredefinedColorsQuantizer.SystemDefault4BppPalette(), "Default4bpp"),
-                (PredefinedColorsQuantizer.SystemDefault8BppPalette(), "Default8bpp"),
+                //(PredefinedColorsQuantizer.SystemDefault8BppPalette(), "Default8bpp"),
             };
 
             (IDitherer Ditherer, string Name)[] ditherers =
             {
-                (null, String.Empty),
-                (OrderedDitherer.Bayer8x8, "DitheredB8"),
-                (ErrorDiffusionDitherer.FloydSteinberg, "DitheredFS"),
+                //(null, String.Empty),
+                //(OrderedDitherer.Bayer8x8, "DitheredB8"),
+                (OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Constant), "DitheredB8Constant"),
+                (OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Interpolated), "DitheredB8Interpolated"),
+                //(ErrorDiffusionDitherer.FloydSteinberg, "DitheredFS"),
                 //(new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
                 //(new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
             };

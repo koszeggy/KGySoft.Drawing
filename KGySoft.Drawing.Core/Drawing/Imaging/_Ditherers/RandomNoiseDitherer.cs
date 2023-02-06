@@ -100,7 +100,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                Strength = CalibrateStrength(-127, 127, false);
+                Strength = CalibrateStrength(-127, 127, ditherer.autoStrengthMode == AutoStrengthMode.Interpolated);
             }
 
             #endregion
@@ -151,7 +151,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                Strength = CalibrateStrength(MinOffset, MaxOffset, true);
+                Strength = CalibrateStrength(MinOffset, MaxOffset, ditherer.autoStrengthMode != AutoStrengthMode.Constant);
             }
 
             #endregion
@@ -175,7 +175,7 @@ namespace KGySoft.Drawing.Imaging
 
         private readonly int? seed;
         private readonly float strength;
-        private readonly bool? dynamicStrengthCalibration;
+        private readonly AutoStrengthMode autoStrengthMode;
 
         #endregion
 
@@ -192,7 +192,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
         /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and some examples regarding dithering strength.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer.ConfigureStrength">OrderedDitherer.ConfigureStrength</see> method
+        /// for more details and some examples regarding dithering strength.
         /// The same applies also for the <see cref="RandomNoiseDitherer"/> class. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <param name="seed">If <see langword="null"/>, then a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_CoreLibraries_ThreadSafeRandom.htm">ThreadSafeRandom</a>
@@ -232,11 +233,30 @@ namespace KGySoft.Drawing.Imaging
         /// </tr>
         /// </tbody></table></para>
         /// </example>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         public RandomNoiseDitherer(float strength = 0f, int? seed = null)
         {
             if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
                 throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
             this.strength = strength;
+            this.seed = seed;
+        }
+
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RandomNoiseDitherer"/> class with a specific auto strength strategy.
+        /// </summary>
+        /// <param name="autoStrengthMode">An <see cref="AutoStrengthMode"/> value specifying the desired behavior for calibrating auto strength.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer.ConfigureStrength">OrderedDitherer.ConfigureStrength</see> method
+        /// for more details and some examples regarding dithering strength. The same applies also for the <see cref="RandomNoiseDitherer"/> class.</param>
+        /// <param name="seed">If <see langword="null"/>, then a <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_CoreLibraries_ThreadSafeRandom.htm">ThreadSafeRandom</a>
+        /// instance will be used internally with a time-dependent seed value, and the dithering session will allow parallel processing.
+        /// If not <see langword="null"/>, then a <see cref="Random"/> instance will be created for each dithering session with the specified <paramref name="seed"/>, and the dithering session will not allow parallel processing.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="autoStrengthMode"/> is not one of the defined values.</exception>
+        public RandomNoiseDitherer(AutoStrengthMode autoStrengthMode, int? seed = null)
+        {
+            if (!autoStrengthMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(autoStrengthMode), PublicResources.EnumOutOfRange(autoStrengthMode));
+            this.autoStrengthMode = autoStrengthMode;
             this.seed = seed;
         }
 
