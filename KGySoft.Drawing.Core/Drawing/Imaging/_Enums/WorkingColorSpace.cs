@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Imaging
     /// </term></item></list>
     /// <h2>Alpha Blending</h2>
     /// <para>Blending partially transparent (alpha) colors in the sRGB color space ends up in incorrect results, though it is not always obvious.
-    /// The most apparent incorrect results are for colors that have distinct RGB values, for which the result is typically too dark.</para>
+    /// The most apparent incorrect results are for colors that have disjunct RGB values, for which the result is typically too dark.</para>
     /// <table class="table is-hoverable">
     /// <thead><tr><th width="50%"><div style="text-align:center;">Blending in the sRGB color space</div></th>
     /// <th width="50%"><div style="text-align:center;">Blending in the linear color space</div></th></tr></thead>
@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.Imaging
     /// <tr><td><div style="text-align:center;">
     /// <img src="../Help/Images/BlendingExampleSrgb.png" alt="Blending colored stripes in the sRGB color space"/>
     /// <br/>Result of blending colors in the sRGB color space. The vertical bars are opaque, whereas the horizontal ones have 50% transparency.
-    /// Blending distinct colors often produce too dark results.</div></td>
+    /// Blending colors with disjunct RGB components often produce too dark results.</div></td>
     /// <td><div style="text-align:center;">
     /// <img src="../Help/Images/BlendingExampleLinear.png" alt="Blending colored stripes in the linear color space"/>
     /// <br/>Result of blending colors in the linear color space. The result seems much more natural.

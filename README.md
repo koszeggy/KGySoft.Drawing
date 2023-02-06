@@ -24,6 +24,7 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
    - [Managed Bitmap Data Manipulation](#managed-bitmap-data-manipulation)
    - [3rd Party Bitmap Types Support](#3rd-party-bitmap-types-support)
    - [Supporting Custom Pixel Formats](#supporting-custom-pixel-formats)
+   - [Color Correct Alpha Blending](#color-correct-alpha-blending)
    - [Quantizing and Dithering](#quantizing-and-dithering)
    - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
 6. [License](#license)
@@ -288,6 +289,19 @@ return BitmapDataFactory.CreateBitmapData(
 > 💡 _Tip:_ See also the [Xamarin](Examples/Xamarin) and [MAUI](Examples/Maui) examples that demonstrate [how](https://github.com/koszeggy/KGySoft.Drawing/blob/2f769973dff4c702dd496873f77ddcc4e728a994/Examples/Maui/Extensions/SKBitmapExtensions.cs#L99) to create a bitmap data for SkiaSharp's `SKBitmap` type.
 
 Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB8888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you can always access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
+
+### Color Correct Alpha Blending
+
+Most pixel formats use the sRGB color space, in which alpha blending (and also other operations) may provide incorrect results.
+
+|Description|Image Example|
+|--|--|
+| Result of blending colors in the sRGB color space. The vertical bars are opaque, whereas the horizontal ones have 50% transparency. Blending colors with disjunct RGB components often produce too dark results. | ![Blending colored stripes in the sRGB color space](Help/Images/BlendingExampleSrgb.png) |
+| Result of blending colors in the linear color space. The result seems much more natural. Note that horizontal bars still have 50% transparency, though they seem brighter now. | ![Blending colored stripes in the linear color space](Help/Images/BlendingExampleLinear.png) |
+
+By default it depends on the used pixel format which color space is used in KGy SOFT Drawing Libraries. The default pixel format in most rendering engines use some sRGB format (usually a premultiplied one), which is optimized for blending in the sRGB color space. When creating a managed bitmap data by the [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads or by the `GetReadable/Writable/ReadWriteBitmapData` methods of the specific libraries you can use the overloads that have a [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) parameter.
+
+> 💡 _Tip:_ See the [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) enumeration for more information and image examples about working in the sRGB and linear color spaces.
 
 ### Quantizing and Dithering
 
