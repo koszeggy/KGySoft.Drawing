@@ -6,13 +6,23 @@
 ===============================================================================
 
 ~~~~~~~~~
-+ v7.1.0:
+! v7.1.0:
 ~~~~~~~~~
 
-! KGySoft.Drawing namespace
+! Common changes
+================
+! From now on alpha blending operations on Bitmap instances (eg. DrawInto extensions) are performed in the linear
+  color space for 48/64 bpp pixel formats on Windows. To use a specific color space regardless of the pixel format
+  obtain a managed bitmap data by the new GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData
+  extension method overloads with WorkingColorSpace parameters and use the platform independent extension methods
+  (eg. BitmapDataExtensions from the KGySoft.Drawing.Core package) instead.
+
++ KGySoft.Drawing namespace
 ===========================
 + BitmapExtensions class:
-  + New GetReadableBitmapData/GetWritableBitmapData/GetReadWriteBitmapData overloads.
+  + New GetReadableBitmapData overload with WorkingColorSpace parameter.
+  + New GetWritableBitmapData overload with WorkingColorSpace parameter.
+  + New GetReadWriteBitmapData overload with WorkingColorSpace parameter.
 
 
 ~~~~~~~~~

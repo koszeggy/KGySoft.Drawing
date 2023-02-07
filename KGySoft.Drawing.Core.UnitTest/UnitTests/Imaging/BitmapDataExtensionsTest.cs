@@ -565,7 +565,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                             Assert.AreEqual(expected, row[x]);
                     } while (row.MoveNextRow());
 
-                    SaveBitmapData($"{pixelFormat} {name} {colorSpace}", target);
+                    //SaveBitmapData($"{pixelFormat} {name} {colorSpace}", target);
                 }
             }
         }

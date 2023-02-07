@@ -178,8 +178,8 @@ namespace KGySoft.Drawing
         /// <note><list type="bullet">
         /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
         /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the blending mode automatically.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadableBitmapData(Bitmap, BlendingMode, Color, byte)"/> on
+        /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the working color space automatically.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> on
         /// a <see cref="Bitmap"/> instance, and then call the <see cref="ReadableBitmapDataExtensions.ToBitmap(IReadableBitmapData, PixelFormat, IQuantizer?, IDitherer?)">ToBitmap</see> extension method.</item>
         /// </list></note>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
@@ -191,7 +191,7 @@ namespace KGySoft.Drawing
         /// <para>If <paramref name="newPixelFormat"/> is <see cref="PixelFormat.Format1bppIndexed"/>, <paramref name="image"/> has no palette and <paramref name="palette"/> is <see langword="null"/>, then black and white colors will be used.</para>
         /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(Image,PixelFormat,Color,byte)"/> overload.</note>
         /// <note type="tip">To convert an image to any <see cref="PixelFormat"/> on any platform obtain an <see cref="IReadWriteBitmapData"/> from a <see cref="Bitmap"/> by
-        /// the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)">GetReadWriteBitmapData</see> extension method and use
+        /// the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see> extension method and use
         /// the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extension methods.</note>
         /// </remarks>
         /// <example>
@@ -262,8 +262,8 @@ namespace KGySoft.Drawing
         /// <note><list type="bullet">
         /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, Color, byte, AsyncConfig)"/>
         /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the blending mode automatically.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadableBitmapData(Bitmap, BlendingMode, Color, byte)"/> on
+        /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the working color space automatically.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> on
         /// a <see cref="Bitmap"/> instance, and then call the <see cref="ReadableBitmapDataExtensions.ToBitmap(IReadableBitmapData, PixelFormat, IQuantizer?, IDitherer?)">ToBitmap</see> extension method.</item>
         /// </list></note>
         /// <para>If <paramref name="newPixelFormat"/> is an indexed format, then this overload will either use the palette of the source <paramref name="image"/> if applicable,
@@ -510,8 +510,8 @@ namespace KGySoft.Drawing
         /// <note><list type="bullet">
         /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
         /// or <see cref="ConvertPixelFormatAsync(Image, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>If <paramref name="quantizer"/> is <see langword="null"/> and <paramref name="newPixelFormat"/> requires blending, then this method selects the blending mode automatically.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadableBitmapData(Bitmap, BlendingMode, Color, byte)"/> on
+        /// <item>If <paramref name="quantizer"/> is <see langword="null"/> and <paramref name="newPixelFormat"/> requires blending, then this method selects the working color space automatically.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> on
         /// a <see cref="Bitmap"/> instance, and then call the <see cref="ReadableBitmapDataExtensions.ToBitmap(IReadableBitmapData, PixelFormat, IQuantizer?, IDitherer?)">ToBitmap</see> extension method.</item>
         /// </list></note>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
@@ -858,8 +858,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the blending mode automatically based on the pixel format of
-        /// the <paramref name="target"/> bitmap. To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the working color space automatically based on the pixel format of
+        /// the <paramref name="target"/> bitmap. To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -890,8 +890,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>This method selects the blending mode automatically based on the pixel format of the <paramref name="target"/> bitmap.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>This method selects the working color space automatically based on the pixel format of the <paramref name="target"/> bitmap.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -921,8 +921,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>This method selects the blending mode automatically based on the pixel format of the <paramref name="target"/> bitmap.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>This method selects the working color space automatically based on the pixel format of the <paramref name="target"/> bitmap.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -956,8 +956,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle?, Point?, IQuantizer, IDitherer, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the blending mode automatically based on the pixel format of
-        /// the <paramref name="target"/> bitmap. To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the working color space automatically based on the pixel format of
+        /// the <paramref name="target"/> bitmap. To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The image to be drawn is automatically clipped if its size or <paramref name="targetLocation"/> makes it impossible to completely fit in the <paramref name="target"/>.</para>
@@ -1031,8 +1031,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the blending mode automatically based on the pixel format of
-        /// the <paramref name="target"/> bitmap. To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the working color space automatically based on the pixel format of
+        /// the <paramref name="target"/> bitmap. To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
@@ -1066,8 +1066,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>This method selects the blending mode automatically based on the pixel format of the <paramref name="target"/> bitmap.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>This method selects the working color space automatically based on the pixel format of the <paramref name="target"/> bitmap.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
@@ -1097,8 +1097,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>This method selects the blending mode automatically based on the pixel format of the <paramref name="target"/> bitmap.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>This method selects the working color space automatically based on the pixel format of the <paramref name="target"/> bitmap.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The method has the best performance if <paramref name="source"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
@@ -1128,8 +1128,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>This method selects the blending mode automatically based on the pixel format of the <paramref name="target"/> bitmap.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>This method selects the working color space automatically based on the pixel format of the <paramref name="target"/> bitmap.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
@@ -1160,8 +1160,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>This method selects the blending mode automatically based on the pixel format of the <paramref name="target"/> bitmap.
-        /// To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>This method selects the working color space automatically based on the pixel format of the <paramref name="target"/> bitmap.
+        /// To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
@@ -1198,8 +1198,8 @@ namespace KGySoft.Drawing
         /// Use the <see cref="BitmapDataExtensions.BeginDrawInto(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, AsyncConfig)">BitmapDataExtensions.BeginDrawInto</see>
         /// or <see cref="BitmapDataExtensions.DrawIntoAsync(IReadableBitmapData, IReadWriteBitmapData, Rectangle, Rectangle, IQuantizer, IDitherer, ScalingMode, TaskConfig)">BitmapDataExtensions.DrawIntoAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
-        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the blending mode automatically based on the pixel format of
-        /// the <paramref name="target"/> bitmap. To apply a specific blending mode use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, BlendingMode, Color, byte)"/>
+        /// <item>If <paramref name="quantizer"/> is <see langword="null"/>, then this method selects the working color space automatically based on the pixel format of
+        /// the <paramref name="target"/> bitmap. To apply a specific color space use the <see cref="BitmapExtensions.GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// method on the <paramref name="target"/> bitmap and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">BitmapDataExtensions.DrawInto</see> methods.</item>
         /// </list></note>
         /// <para>The method has the best performance if <paramref name="sourceRectangle"/> and <paramref name="targetRectangle"/> have the same size, or when <paramref name="scalingMode"/> is <see cref="ScalingMode.NoScaling"/>.</para>
