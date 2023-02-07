@@ -551,8 +551,8 @@ namespace KGySoft.Drawing
         /// <para>The <paramref name="workingColorSpace"/> parameter indicates the preferred color space mode when working with the result bitmap data.
         /// Blending operations performed by this library (eg. by <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see> when blending in necessary as described above,
         /// or by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods) respect the value of this parameter.
-        /// Blending in the linear color space produces natural results but the operation is a bit slower if the actual
-        /// pixel format is not in the linear color space and is different from the result of most applications including popular image processors and web browsers.
+        /// Blending in the linear color space produces natural results but the operation is a bit slower if the actual pixel format is not in the linear color space
+        /// and the result is different from the results of most applications including popular image processors and web browsers.
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</para>
         /// <note type="tip">To create a managed <see cref="IReadWriteBitmapData"/> instance that supports every <see cref="PixelFormat"/>s on any platform
         /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)">BitmapDataFactory.CreateBitmapData</see> method.</note>

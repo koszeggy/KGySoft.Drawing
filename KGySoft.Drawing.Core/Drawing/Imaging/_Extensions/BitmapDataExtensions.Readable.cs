@@ -3054,6 +3054,8 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "It would be OK without the frequent context.IsCancellationRequested checks, it's not worth the refactoring")]
         private static void DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
             Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
         {

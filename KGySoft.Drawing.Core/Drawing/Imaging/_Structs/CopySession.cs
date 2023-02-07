@@ -260,6 +260,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Drawing without a quantizer in 32bpp color space.
         /// </summary>
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
+            Justification = "False alarm, the new analyzer includes the complexity of local methods")]
         internal void PerformDrawDirect()
         {
             IBitmapDataInternal source = Source;

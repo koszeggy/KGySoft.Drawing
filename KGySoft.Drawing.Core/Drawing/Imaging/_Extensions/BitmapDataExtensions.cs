@@ -49,8 +49,7 @@ namespace KGySoft.Drawing.Imaging
             => bitmapData?.WorkingColorSpace switch
             {
                 WorkingColorSpace.Linear => WorkingColorSpace.Linear,
-                WorkingColorSpace.Srgb => WorkingColorSpace.Srgb,
-                null => WorkingColorSpace.Srgb,
+                WorkingColorSpace.Srgb or null => WorkingColorSpace.Srgb,
                 _ => bitmapData.PixelFormat.LinearGamma ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb
             };
 

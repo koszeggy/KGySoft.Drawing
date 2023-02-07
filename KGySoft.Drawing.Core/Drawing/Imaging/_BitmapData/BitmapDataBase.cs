@@ -154,8 +154,7 @@ namespace KGySoft.Drawing.Imaging
             if (cfg.Palette != null)
             {
                 if (cfg.Palette.Count > 1 << bpp)
-                    // ReSharper disable once NotResolvedInText
-                    throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), "palette");
+                    throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), nameof(cfg.Palette).ToLowerInvariant());
                 Palette = cfg.Palette;
                 LinearBlending = Palette.WorkingColorSpace == WorkingColorSpace.Linear;
                 return;

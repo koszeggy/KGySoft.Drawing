@@ -110,7 +110,7 @@ namespace KGySoft.Drawing.Imaging
                         },
                         (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
                         (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) =
-                            new GdiPlusColor48(c.Blend(row.BitmapData.BackColor, row.BitmapData.GetPreferredColorSpace())),
+                            new GdiPlusColor48(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.GetPreferredColorSpace())),
                         workingColorSpace, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb565:

@@ -13,7 +13,11 @@
 
 #endregion
 
+#region Usings
+
 using System.Drawing;
+
+#endregion
 
 namespace KGySoft.Drawing.Imaging
 {

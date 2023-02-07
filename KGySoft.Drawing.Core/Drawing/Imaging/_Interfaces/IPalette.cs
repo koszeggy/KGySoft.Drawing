@@ -21,6 +21,9 @@ using System;
 
 namespace KGySoft.Drawing.Imaging
 {
+    /// <summary>
+    /// Represents the properties of a <see cref="Palette"/> instance that can be accessed from custom color lookup functions.
+    /// </summary>
     public interface IPalette
     {
         #region Properties and Indexers
