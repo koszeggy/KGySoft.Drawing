@@ -156,6 +156,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             internal Bitmap? Overlay { get; private init; }
             internal bool ShowOverlay { get; private init; }
             internal PixelFormat SelectedFormat { get; private init; }
+            internal bool ForceLinearColorSpace { get; private init; }
             internal Color BackColor { get; private init; }
             internal byte AlphaThreshold { get; private init; }
             internal bool OptimizePalette { get; private init; }
@@ -183,6 +184,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 Overlay = viewModel.overlayBitmap,
                 ShowOverlay = viewModel.ShowOverlay,
                 SelectedFormat = viewModel.SelectedFormat,
+                ForceLinearColorSpace = viewModel.ForceLinearColorSpace,
                 BackColor = viewModel.BackColor,
                 AlphaThreshold = viewModel.AlphaThreshold,
                 OptimizePalette = viewModel.OptimizePalette,
@@ -207,6 +209,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
             nameof(OverlayFile),
             nameof(ShowOverlay),
             nameof(SelectedFormat),
+            nameof(ForceLinearColorSpace),
             nameof(BackColor),
             nameof(AlphaThreshold),
             nameof(OptimizePalette),
@@ -248,6 +251,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
         public string? OverlayFile { get => Get<string?>(); set => Set(value); }
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
         public PixelFormat SelectedFormat { get => Get<PixelFormat>(); set => Set(value); }
+        public bool ForceLinearColorSpace { get => Get<bool>(); set => Set(value); }
         public Color BackColor { get => Get(Color.Silver); set => Set(value); }
         public bool BackColorEnabled { get => Get<bool>(); set => Set(value); }
         public byte AlphaThreshold { get => Get<byte>(128); set => Set(value); }
@@ -464,56 +468,69 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 generateTaskCompletion = new TaskCompletionSource();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
                 generateResultTask = generateTaskCompletion.Task;
-                PixelFormat selectedFormat = cfg.SelectedFormat;
                 CancellationToken token = tokenSource.Token;
 
-                // Ditherer: feel free to try the other properties in OrderedDitherer and ErrorDiffusionDitherer
+                // Ditherer: feel free to try the properties in OrderedDitherer and ErrorDiffusionDitherer
                 IDitherer? ditherer = !cfg.UseDithering
                     ? null
                     : cfg.SelectedDitherer!.Create(cfg);
 
-                // Quantizer: effectively using only when palette optimization is requested.
-                // Otherwise, if ditherer is set, then picking a quantizer that matches the selected pixel format.
-                IQuantizer? quantizer = cfg.OptimizePalette && selectedFormat.IsIndexed()
-                    ? OptimizedPaletteQuantizer.Wu(1 << selectedFormat.ToBitsPerPixel(), cfg.BackColor, cfg.AlphaThreshold)
-                    : ditherer == null
+                // Color space can be specified for creating IBitmapData, Palette and IQuantizer instances.
+                WorkingColorSpace workingColorSpace = cfg.ForceLinearColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
+
+                // Quantizer: for this demo, effectively using only when palette optimization is requested.
+                //            Otherwise, using a non-null quantizer only if a ditherer is selected or when forcing linear color space.
+                IQuantizer? quantizer = cfg.OptimizePalette && cfg.SelectedFormat.IsIndexed()
+                    ? OptimizedPaletteQuantizer.Wu(1 << cfg.SelectedFormat.ToBitsPerPixel(), cfg.BackColor, cfg.AlphaThreshold)
+                        .ConfigureColorSpace(workingColorSpace)
+                    : ditherer == null && !cfg.ForceLinearColorSpace
                         ? null
-                        : selectedFormat.GetMatchingQuantizer(cfg.BackColor, cfg.AlphaThreshold);
+                        : cfg.SelectedFormat.GetMatchingQuantizer(cfg.BackColor, AlphaThresholdEnabled ? cfg.AlphaThreshold : (byte)0).ConfigureColorSpace(workingColorSpace);
 
                 var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false, Progress = progressUpdater };
 
                 // ===== a.) No overlay: ConvertPixelFormat does everything in a single step for us. =====
                 if (!cfg.ShowOverlay || cfg.Overlay == null)
                 {
+                    // ConvertPixelFormatAsync does not support selecting the working color space directly, so if linear color space is selected
+                    // we have a non-null quantizer here. If quantizer is null, the linear color is space is used only for 48/64 bpp formats,
+                    // but please note that the transparency of a 64 bpp result will be blended with the view's background by the rendering engine.
+                    // See the option b.) for the low-level solutions with more flexibility.
                     result = await (quantizer == null && ditherer == null
-                        ? cfg.Source.ConvertPixelFormatAsync(selectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
-                        : cfg.Source.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
+                        ? cfg.Source.ConvertPixelFormatAsync(cfg.SelectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
+                        : cfg.Source.ConvertPixelFormatAsync(cfg.SelectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
                     return;
                 }
 
                 // ===== b.) There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in System.Drawing =====
-                using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source.Width, cfg.Source.Height),
-                    KnownPixelFormat.Format32bppPArgb, cfg.BackColor, cfg.AlphaThreshold);
 
-                // b.1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any Bitmap.
+                // Creating the temp 32 bpp bitmap data to work with. Will be converted back to Bitmap in the end.
+                // The Format32bppPArgb format is optimized for alpha blending in the sRGB color space but if linear color space is selected
+                // it would just cause an unnecessary overhead. So for working in the linear color space we use a non-premultiplied format.
+                using IReadWriteBitmapData tempBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source.Width, cfg.Source.Height),
+                    workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
+                    workingColorSpace, cfg.BackColor, cfg.AlphaThreshold);
+
+                // b.1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any Bitmap with any actual pixel format.
+                //       Note that we don't need to specify working color space here because CopyTo/DrawInto respects the target's color space.
                 using (IReadableBitmapData bmpSourceData = cfg.Source.GetReadableBitmapData())
-                    await bmpSourceData.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig);
+                    await bmpSourceData.CopyToAsync(tempBitmapData, asyncConfig: asyncConfig);
 
                 if (token.IsCancellationRequested)
                     return;
 
                 // b.2.) Drawing the overlay. This time using DrawInto instead of CopyTo, which supports alpha blending
                 IReadableBitmapData overlayBitmapData = CachedOverlay;
-                var targetRectangle = new Rectangle(resultBitmapData.Width / 2 - overlayBitmapData.Width / 2,
-                    resultBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
-                await overlayBitmapData.DrawIntoAsync(resultBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
+                var targetRectangle = new Rectangle(tempBitmapData.Width / 2 - overlayBitmapData.Width / 2,
+                    tempBitmapData.Height / 2 - overlayBitmapData.Height / 2, overlayBitmapData.Width, overlayBitmapData.Height);
+                await overlayBitmapData.DrawIntoAsync(tempBitmapData, new Rectangle(Point.Empty, overlayBitmapData.Size),
                     targetRectangle, asyncConfig: asyncConfig);
 
                 if (token.IsCancellationRequested)
                     return;
 
                 // b.3.) Converting to a Bitmap of the desired pixel format
-                result = await resultBitmapData.ToBitmapAsync(selectedFormat, quantizer, ditherer, asyncConfig);
+                result = await tempBitmapData.ToBitmapAsync(cfg.SelectedFormat, quantizer, ditherer, asyncConfig);
             }
             finally
             {

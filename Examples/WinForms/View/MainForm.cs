@@ -105,6 +105,9 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             // VM.SelectedFormat <- cmbPixelFormat.SelectedValue (cannot use two-way for SelectedValue because ValueMember is not set)
             commandBindings.AddPropertyBinding(cmbPixelFormat, nameof(cmbPixelFormat.SelectedValue), nameof(viewModel.SelectedFormat), viewModel);
 
+            // chbForceLinear.Checked -> VM.ForceLinearColorSpace
+            commandBindings.AddPropertyBinding(chbForceLinear, nameof(chbForceLinear.Checked), nameof(viewModel.ForceLinearColorSpace), viewModel);
+
             // chbOptimizePalette.Checked -> VM.OptimizePalette
             commandBindings.AddPropertyBinding(chbOptimizePalette, nameof(chbOptimizePalette.Checked), nameof(viewModel.OptimizePalette), viewModel);
 
