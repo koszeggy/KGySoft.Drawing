@@ -1846,7 +1846,7 @@ namespace KGySoft.Drawing
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
         /// Use the <see cref="GifEncoder.BeginEncodeHighColorImage">GifEncoder.BeginEncodeHighColorImage</see> or <see cref="GifEncoder.EncodeHighColorImageAsync">GifEncoder.EncodeHighColorImageAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to set up cancellation or for reporting progress.</note>
-        /// <note type="caution">This method produces a GIF image that may have compatibility issues. Though the <see cref="Image"/> and <see cref="Bitmap"/> types (at least in Windows)
+        /// <note type="caution">This method produces a GIF image that may have compatibility issues. Though the <see cref="Image"/> and <see cref="Bitmap"/> types (at least on Windows)
         /// support them as expected as well as applications built on GDI+ (such as Windows Paint), many decoders may treat the result as an animation (including browsers).</note>
         /// <para>If <paramref name="allowFullScan"/> is <see langword="true"/>, then both the processing time and memory usage is higher.
         /// It helps to minimize the number of layers of the final image; however, the final image size will not be necessarily smaller, especially for true color images.</para>

@@ -428,6 +428,12 @@
       <ImageId>Warning16W10</ImageId>
       <AlternateText>Warning 16 W 10</AlternateText>
     </Content>
+    <Content Include="Help\Images\Warning16W11.png">
+      <ImageId>Warning16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Warning32W11.png">
+      <ImageId>Warning32W11</ImageId>
+    </Content>
     <Content Include="Help\Images\Shield32W10.png">
       <ImageId>Shield32W10</ImageId>
       <AlternateText>Shield 32 W 10</AlternateText>
@@ -435,6 +441,12 @@
     <Content Include="Help\Images\Shield16W10.png">
       <ImageId>Shield16W10</ImageId>
       <AlternateText>Shield 16 W 10</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Shield16W11.png">
+      <ImageId>Shield16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Shield32W11.png">
+      <ImageId>Shield32W11</ImageId>
     </Content>
     <Content Include="Help\Images\Question32W10.png">
       <ImageId>Question32W10</ImageId>
@@ -451,6 +463,12 @@
     <Content Include="Help\Images\Question16W10.png">
       <ImageId>Question16W10</ImageId>
       <AlternateText>Question 16 W 10</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Question16W11.png">
+      <ImageId>Question16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Question32W11.png">
+      <ImageId>Question32W11</ImageId>
     </Content>
     <Content Include="Help\Images\Information64.png">
       <ImageId>Information64</ImageId>
@@ -472,6 +490,12 @@
       <ImageId>Information16W10</ImageId>
       <AlternateText>Information 16 W 10</AlternateText>
     </Content>
+    <Content Include="Help\Images\Information16W11.png">
+      <ImageId>Information16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Information32W11.png">
+      <ImageId>Information32W11</ImageId>
+    </Content>
     <Content Include="Help\Images\Error64.png">
       <ImageId>Error64</ImageId>
       <AlternateText>Error 64</AlternateText>
@@ -488,6 +512,12 @@
       <ImageId>Error16W10</ImageId>
       <AlternateText>Error 16 W 10</AlternateText>
     </Content>
+    <Content Include="Help\Images\Error16W11.png">
+      <ImageId>Error16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Error32W11.png">
+      <ImageId>Error32W11</ImageId>
+    </Content>
     <Content Include="Help\Images\Application64.png">
       <ImageId>Application64</ImageId>
       <AlternateText>Application 64</AlternateText>
@@ -499,6 +529,12 @@
     <Content Include="Help\Images\Application16W10.png">
       <ImageId>Application16W10</ImageId>
       <AlternateText>Application 16 W 10</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Application32W11.png">
+      <ImageId>Application32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Application16W11.png">
+      <ImageId>Application16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Shield24bppCyan.png">
       <ImageId>ConvertPixelFormat24bppCyan</ImageId>

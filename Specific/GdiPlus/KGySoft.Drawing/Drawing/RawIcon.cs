@@ -523,7 +523,7 @@ namespace KGySoft.Drawing
                     bmp = new Bitmap(new MemoryStream(rawColor!));
                     if (bmp.GetBitsPerPixel().In(invalidIconFormats))
                     {
-                        // not very likely that we reach this point, at least in Windows PNG decoder does not return 16/48/64 BPP formats...
+                        // not very likely that we reach this point, at least on Windows PNG decoder does not return 16/48/64 BPP formats...
                         bmpColor = bmp.ConvertPixelFormat(PixelFormat.Format32bppArgb);
                         bmp.Dispose();
                     }

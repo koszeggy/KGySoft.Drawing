@@ -48,7 +48,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length);
 
-            // 128x128 PNG compressed icons are problematic even in Windows
+            // 128x128 PNG compressed icons are problematic even on Windows
             var reqSize = new Size(128, 128);
             Icon origIcon = Icons.Information;
             Icon combined = origIcon.Combine(origIcon.ExtractBitmap(new Size(256, 256)).Resize(reqSize));

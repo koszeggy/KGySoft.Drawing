@@ -17,7 +17,7 @@ namespace KGySoft.Drawing
 {
     // ReSharper disable InconsistentNaming
     /// <summary>
-    /// Represents the Windows stock icons can be retrieved by the <see cref="Icons.GetStockIcon">Icons.GetStockIcon</see> method in Windows Vista and above.
+    /// Represents the Windows stock icons can be retrieved by the <see cref="Icons.GetStockIcon">Icons.GetStockIcon</see> method on Windows Vista and above.
     /// <br/>See also the <a href="https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ne-shellapi-shstockiconid" target="_blank">SHSTOCKICONID Enumeration</a> at the Microsoft Docs site.
     /// </summary>
     public enum StockIcon

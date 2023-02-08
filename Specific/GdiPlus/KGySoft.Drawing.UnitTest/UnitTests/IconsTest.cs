@@ -69,6 +69,27 @@ namespace KGySoft.Drawing.UnitTests
             SaveIcon(stockIcon.ToString(), icon);
         }
 
+        [Test, Explicit]
+        public void SaveSystemIconsInCurrentOS()
+        {
+            var icons = new[]
+            {
+                (nameof(Icons.SystemApplication), Icons.SystemApplication),
+                (nameof(Icons.SystemError), Icons.SystemError),
+                (nameof(Icons.SystemWarning), Icons.SystemWarning),
+                (nameof(Icons.SystemInformation), Icons.SystemInformation),
+                (nameof(Icons.SystemQuestion), Icons.SystemQuestion),
+                (nameof(Icons.SystemShield), Icons.SystemShield),
+            };
+            foreach (var (name, icon) in icons)
+            {
+                foreach (Bitmap bitmap in icon.ExtractBitmaps())
+                {
+                    SaveImage($"{name}{bitmap.Width}W11", bitmap);
+                }
+            }
+        }
+
         #endregion
     }
 }
