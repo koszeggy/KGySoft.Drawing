@@ -404,7 +404,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 AlphaThresholdEnabled = pixelFormatInfo.HasSingleBitAlpha 
                     || pixelFormatInfo.HasAlpha && UseDithering
                     || (pixelFormatInfo.Indexed && (OptimizePalette || pixelFormatInfo.BitsPerPixel == 8));
-                BackColorEnabled = !pixelFormatInfo.HasAlpha || UseDithering;
+                BackColorEnabled = !pixelFormatInfo.HasAlpha || pixelFormatInfo.HasSingleBitAlpha || UseDithering;
             }
 
             if (affectsPreview.Contains(e.PropertyName!))
