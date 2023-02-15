@@ -15,20 +15,40 @@
 
 #region Usings
 
+using System;
+#if !(NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+using System.Diagnostics.CodeAnalysis;
+#endif
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Numerics;
 #endif
+#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
+#endif
 using System.Runtime.InteropServices;
+
+#if !(NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+using KGySoft.CoreLibraries;
+#endif
 
 #endregion
 
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal struct RgbF
+    internal readonly struct RgbF : IEquatable<RgbF>
     {
         #region Fields
+
+        #region Static Fields
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        private static readonly Vector3 tolerance = new Vector3(1e-6f);
+#endif
+
+        #endregion
+
+        #region Instance Fields
 
         [FieldOffset(0)]
         internal readonly float R;
@@ -44,7 +64,31 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #endregion
+
+        #region Properties
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal bool TolerantIsZero => Vector3.Max(tolerance, Vector3.Abs(Rgb)) == tolerance;
+#else
+        internal bool TolerantIsZero => R.TolerantIsZero() && G.TolerantIsZero() && B.TolerantIsZero();
+#endif
+
+        #endregion
+
         #region Operators
+
+        public static bool operator ==(RgbF left, RgbF right) => Equals(left, right);
+        public static bool operator !=(RgbF left, RgbF right) => !(left == right);
+
+        public static RgbF operator +(RgbF left, RgbF right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new RgbF(left.Rgb + right.Rgb);
+#else
+            return new RgbF(left.R + right.R, left.G + right.G, left.B + right.B);
+#endif
+        }
 
         public static ColorF operator +(ColorF left, RgbF right)
         {
@@ -52,6 +96,24 @@ namespace KGySoft.Drawing.Imaging
             return new ColorF(new Vector4(left.Rgb + right.Rgb, left.A));
 #else
             return new ColorF(left.A, left.R + right.R, left.G + right.G, left.B + right.B);
+#endif
+        }
+
+        public static RgbF operator -(RgbF left, RgbF right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new RgbF(left.Rgb - right.Rgb);
+#else
+            return new RgbF(left.R - right.R, left.G - right.G, left.B - right.B);
+#endif
+        }
+
+        public static RgbF operator *(RgbF left, float right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new RgbF(left.Rgb * new Vector3(right));
+#else
+            return new RgbF(left.R * right, left.G * right, left.B * right);
 #endif
         }
 
@@ -99,6 +161,27 @@ namespace KGySoft.Drawing.Imaging
 #endif
             Rgb = vector;
         }
+#endif
+
+        #endregion
+
+        #region Methods
+
+        public override string ToString() => $"[R={R:N4}; G={G:N4}; B={B:N4}]";
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        public bool Equals(RgbF other) => other.Rgb == Rgb;
+#else
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "It is intended in Equals")]
+        public bool Equals(RgbF other) => other.R == R && other.G == G && other.B == B;
+#endif
+
+        public override bool Equals(object? obj) => obj is ColorF other && Equals(other);
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        public override int GetHashCode() => Rgb.GetHashCode();
+#else
+        public override int GetHashCode() => (R, G, B).GetHashCode();
 #endif
 
         #endregion

@@ -18,7 +18,6 @@
 using System;
 
 using KGySoft.Collections;
-using KGySoft.CoreLibraries;
 
 #endregion
 
@@ -36,7 +35,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly ErrorDiffusionDitherer ditherer;
             private readonly int imageHeight;
             private readonly bool byBrightness;
-            private readonly CircularList<(float R, float G, float B)[]> errorsBuffer;
+            private readonly CircularList<RgbF[]> errorsBuffer;
 
             #endregion
 
@@ -74,9 +73,9 @@ namespace KGySoft.Drawing.Imaging
                 // entries would be clipped not just in the end but in every iteration, and small errors would be lost
                 // that could stack up otherwise.
                 // See also the ErrorDiffusionDitherer constructor for more comments on why using floats.
-                errorsBuffer = new CircularList<(float, float, float)[]>(ditherer.matrixHeight);
+                errorsBuffer = new CircularList<RgbF[]>(ditherer.matrixHeight);
                 for (int i = 0; i < ditherer.matrixHeight; i++)
-                    errorsBuffer.Add(new (float, float, float)[ImageWidth]);
+                    errorsBuffer.Add(new RgbF[ImageWidth]);
             }
 
             #endregion
@@ -105,7 +104,7 @@ namespace KGySoft.Drawing.Imaging
                 errorsBuffer.RemoveFirst();
 
                 if (y + ditherer.matrixHeight <= imageHeight)
-                    errorsBuffer.AddLast(new (float, float, float)[ImageWidth]);
+                    errorsBuffer.AddLast(new RgbF[ImageWidth]);
 
                 LastRow = y;
             }
@@ -125,30 +124,22 @@ namespace KGySoft.Drawing.Imaging
                     currentColor = origColor;
 
                 // applying propagated errors to the current pixel
-                ref var error = ref errorsBuffer[0][x];
-                currentColor = new Color32((currentColor.R + (int)error.R).ClipToByte(),
-                    (currentColor.G + (int)error.G).ClipToByte(),
-                    (currentColor.B + (int)error.B).ClipToByte());
+                ref RgbF errorPropagated = ref errorsBuffer[0][x];
+                currentColor = new Color32((currentColor.R + errorPropagated.R).ClipToByte(),
+                    (currentColor.G + errorPropagated.G).ClipToByte(),
+                    (currentColor.B + errorPropagated.B).ClipToByte());
 
                 // getting the quantized result for the current pixel + errors
                 Color32 quantizedColor = quantizer.GetQuantizedColor(currentColor);
 
-                // determining the quantization error for the current pixel
-                int errR;
-                int errG;
-                int errB;
+                // Determining the quantization error for the current pixel.
+                // The error values are not 0..1 values in the sRGB color space so using RgbF only for possible vectorization if supported.
+                RgbF errorCurrent = byBrightness
+                    ? new RgbF(currentColor.GetBrightness() - quantizedColor.GetBrightness())
+                    : new RgbF(currentColor.R - quantizedColor.R, currentColor.G - quantizedColor.G, currentColor.B - quantizedColor.B);
 
-                if (byBrightness)
-                    errR = errG = errB = currentColor.GetBrightness() - quantizedColor.GetBrightness();
-                else
-                {
-                    errR = currentColor.R - quantizedColor.R;
-                    errG = currentColor.G - quantizedColor.G;
-                    errB = currentColor.B - quantizedColor.B;
-                }
-
-                // no error, nothing to propagate further
-                if (errR == 0 && errG == 0 && errB == 0)
+                // no error, nothing to propagate further (errorCurrent always consists of int values so no tolerant zero check is needed)
+                if (errorCurrent == default)
                     return quantizedColor;
 
                 // processing the whole matrix and propagating the current error to neighbors
@@ -174,10 +165,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // applying the error in our buffer
-                        error = ref errorsBuffer[my][targetX];
-                        error.R += errR * coefficient;
-                        error.G += errG * coefficient;
-                        error.B += errB * coefficient;
+                        errorsBuffer[my][targetX] += errorCurrent * coefficient;
                     }
                 }
 
@@ -201,7 +189,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly ErrorDiffusionDitherer ditherer;
             private readonly int imageHeight;
             private readonly bool byBrightness;
-            private readonly CircularList<(float R, float G, float B)[]> errorsBuffer;
+            private readonly CircularList<RgbF[]> errorsBuffer;
 
             #endregion
 
@@ -239,9 +227,9 @@ namespace KGySoft.Drawing.Imaging
                 // entries would be clipped not just in the end but in every iteration, and small errors would be lost
                 // that could stack up otherwise.
                 // See also the ErrorDiffusionDitherer constructor for more comments on why using floats.
-                errorsBuffer = new CircularList<(float, float, float)[]>(ditherer.matrixHeight);
+                errorsBuffer = new CircularList<RgbF[]>(ditherer.matrixHeight);
                 for (int i = 0; i < ditherer.matrixHeight; i++)
-                    errorsBuffer.Add(new (float, float, float)[ImageWidth]);
+                    errorsBuffer.Add(new RgbF[ImageWidth]);
             }
 
             #endregion
@@ -270,7 +258,7 @@ namespace KGySoft.Drawing.Imaging
                 errorsBuffer.RemoveFirst();
 
                 if (y + ditherer.matrixHeight <= imageHeight)
-                    errorsBuffer.AddLast(new (float, float, float)[ImageWidth]);
+                    errorsBuffer.AddLast(new RgbF[ImageWidth]);
 
                 LastRow = y;
             }
@@ -290,40 +278,23 @@ namespace KGySoft.Drawing.Imaging
                     currentColor = origColor;
 
                 // applying propagated errors to the current pixel
-                ref var error = ref errorsBuffer[0][x];
-                //currentColor = new Color32((currentColor.R + (int)error.R).ClipToByte(),
-                //    (currentColor.G + (int)error.G).ClipToByte(),
-                //    (currentColor.B + (int)error.B).ClipToByte());
-                var currentF = new ColorF(currentColor);
-                currentF = (currentF + new RgbF(error.R, error.G, error.B)).Clip();
-                currentColor = currentF.ToColor32();
+                ref RgbF errorPropagated = ref errorsBuffer[0][x];
+                var currentColorF = new ColorF(currentColor);
+                currentColorF = (currentColorF + errorPropagated).Clip();
+                currentColor = currentColorF.ToColor32();
 
                 // getting the quantized result for the current pixel + errors
                 Color32 quantizedColor = quantizer.GetQuantizedColor(currentColor);
-                var quantizedF = quantizedColor.ToColorF();
+                ColorF quantizedColorF = quantizedColor.ToColorF();
 
                 // determining the quantization error for the current pixel
-                float errR;
-                float errG;
-                float errB;
 
-                if (byBrightness)
-                    //errR = errG = errB = ColorSpaceHelper.SrgbToLinear(currentColor.GetBrightness()) - ColorSpaceHelper.SrgbToLinear(quantizedColor.GetBrightness());
-                    errR = errG = errB = currentF.GetBrightness() - quantizedF.GetBrightness();
-                else
-                {
-                    //errR = currentColor.R - quantizedColor.R;
-                    //errG = currentColor.G - quantizedColor.G;
-                    //errB = currentColor.B - quantizedColor.B;
-                    errR = currentF.R - quantizedF.R;
-                    errG = currentF.G - quantizedF.G;
-                    errB = currentF.B - quantizedF.B;
-                }
+                RgbF errorCurrent = byBrightness
+                    ? new RgbF(currentColorF.GetBrightness() - quantizedColorF.GetBrightness())
+                    : currentColorF.RgbF - quantizedColorF.RgbF;
 
                 // no error, nothing to propagate further
-                //if (errR == 0 && errG == 0 && errB == 0)
-                //    return quantizedColor;
-                if (errR.TolerantIsZero() && errG.TolerantIsZero()&& errB.TolerantIsZero())
+                if (errorCurrent.TolerantIsZero)
                     return quantizedColor;
 
                 // processing the whole matrix and propagating the current error to neighbors
@@ -349,10 +320,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // applying the error in our buffer
-                        error = ref errorsBuffer[my][targetX];
-                        error.R += errR * coefficient;
-                        error.G += errG * coefficient;
-                        error.B += errB * coefficient;
+                        errorsBuffer[my][targetX] += errorCurrent * coefficient;
                     }
                 }
 
