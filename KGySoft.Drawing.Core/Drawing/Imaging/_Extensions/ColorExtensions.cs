@@ -376,7 +376,6 @@ namespace KGySoft.Drawing.Imaging
                 bits &= (byte)~mask;
             else
                 bits |= (byte)mask;
-
         }
 
         #endregion

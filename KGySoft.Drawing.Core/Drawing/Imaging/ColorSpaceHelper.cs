@@ -86,7 +86,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A floating-point value between 0 and 1 representing an sRGB color component.</returns>
-        internal static float LinearToSrgb(float value) => value switch
+        public static float LinearToSrgb(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
             <= 0f => 0,
@@ -102,7 +102,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A <see cref="byte">byte</see> value representing an sRGB color component.</returns>
-        internal static byte LinearToSrgb8Bit(float value) => value switch
+        public static byte LinearToSrgb8Bit(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
             <= 0f => 0,

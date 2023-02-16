@@ -92,7 +92,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets the quantized color of the specified <paramref name="origColor"/>. If <see cref="Palette"/> property has non-<see langword="null"/> return value,
         /// then the result color must be a valid <see cref="Imaging.Palette"/> entry.
-        /// <br/>See the also <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
+        /// <br/>See also the <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
         /// </summary>
         /// <param name="origColor">The original color to be quantized.</param>
         /// <returns>The quantized color.</returns>
