@@ -47,6 +47,8 @@ namespace KGySoft.Drawing.Imaging
         [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
         internal static IReadWriteBitmapData CreateBitmapData(Bitmap bitmap, ImageLockMode lockMode, Color32 backColor, byte alphaThreshold, WorkingColorSpace workingColorSpace)
         {
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             PixelFormat pixelFormat = bitmap.PixelFormat;
 
             // - On Windows Vista and above 8207 is used for CMYK images by JPEG/TIFF decoders but when accessing as its actual format
