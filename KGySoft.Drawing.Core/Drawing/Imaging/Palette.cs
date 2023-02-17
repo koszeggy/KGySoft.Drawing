@@ -878,7 +878,7 @@ namespace KGySoft.Drawing.Imaging
 
                 return c == Color32.Black ? 0
                     : c == Color32.White ? 1
-                    : linear ? c.ToColorF().GetBrightness() * 255f >= whiteThreshold ? 1 : 0
+                    : linear ? ColorSpaceHelper.ToByte(c.ToColorF().GetBrightness()) >= whiteThreshold ? 1 : 0
                     : c.GetBrightness() >= whiteThreshold ? 1 : 0;
             }
 
