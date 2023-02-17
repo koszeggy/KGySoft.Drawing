@@ -67,6 +67,9 @@ namespace KGySoft.Drawing.Wpf
             else if (pixelFormat.In(PixelFormats.Prgba64, PixelFormats.Prgba128Float))
                 result.HasPremultipliedAlpha = true;
 
+            if (pixelFormat.In(PixelFormats.Gray32Float, PixelFormats.Rgb128Float, PixelFormats.Rgba128Float, PixelFormats.Rgba128Float))
+                result.LinearGamma = true;
+
             return result;
         }
 

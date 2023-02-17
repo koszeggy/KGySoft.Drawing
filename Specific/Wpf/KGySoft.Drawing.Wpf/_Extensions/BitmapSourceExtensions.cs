@@ -79,13 +79,42 @@ namespace KGySoft.Drawing.Wpf
         /// which should not be considered as transparent. If 0, then a color lookup will never return a transparent color. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
-        /// <seealso cref="WriteableBitmapExtensions.GetWritableBitmapData"/>
-        /// <seealso cref="WriteableBitmapExtensions.GetReadWriteBitmapData"/>
-        [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
+        /// <seealso cref="WriteableBitmapExtensions.GetWritableBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
         public static IReadableBitmapData GetReadableBitmapData(this BitmapSource bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => GetReadableBitmapData(bitmap, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets a managed read-only accessor for a <see cref="BitmapSource"/> instance.
+        /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
+        /// method for details and code samples. That method is for the GDI+ <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing.bitmap" target="_blank">Bitmap</a> type but the main principles apply for this method, too.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="BitmapSource"/> instance, whose data is about to be accessed.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data. Determines the behavior
+        /// of some operations such as resizing or looking up for nearest colors if <paramref name="bitmap"/> has an indexed pixel format.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <param name="backColor">For an <see cref="IReadableBitmapData"/> instance the <paramref name="backColor"/> is relevant only for indexed bitmaps
+        /// when <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see> and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods
+        /// are called with an alpha color on the <see cref="IBitmapData.Palette"/> property. Queried colors with alpha, which are considered opaque will be blended
+        /// with this color before performing a lookup. The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="Color"/>, which has the same RGB values as <see cref="Colors.Black"/>.</param>
+        /// <param name="alphaThreshold">Similarly to <paramref name="backColor"/>, for an <see cref="IReadableBitmapData"/> instance the <paramref name="alphaThreshold"/> is relevant
+        /// only for indexed bitmaps when <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see> and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods
+        /// are called with an alpha color on the <see cref="IBitmapData.Palette"/> property. In such case determines the lowest alpha value of a color,
+        /// which should not be considered as transparent. If 0, then a color lookup will never return a transparent color. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <seealso cref="WriteableBitmapExtensions.GetWritableBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
+        [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
+        public static IReadableBitmapData GetReadableBitmapData(this BitmapSource bitmap, WorkingColorSpace workingColorSpace, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
 
             PixelFormat sourceFormat = bitmap.Format;
             KnownPixelFormat knownFormat = sourceFormat.AsKnownPixelFormat();
@@ -102,101 +131,115 @@ namespace KGySoft.Drawing.Wpf
             // Known pixel formats
             if (knownFormat != KnownPixelFormat.Undefined)
                 return knownFormat.IsIndexed()
-                    ? BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownFormat, bitmap.GetPalette(backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose)
-                    : BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownFormat, backColor32, alphaThreshold, dispose);
+                    ? BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownFormat,
+                        bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose)
+                    : BitmapDataFactory.CreateBitmapData(buffer, size, stride, knownFormat, workingColorSpace, backColor32, alphaThreshold, dispose);
 
             // Custom pixel formats
             if (sourceFormat == PixelFormats.Rgb24)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(24),
                     (row, x) => row.UnsafeGetRefAs<ColorRgb24>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgb24>(x) = new ColorRgb24(c.Blend(row.BitmapData.BackColor)),
-                    backColor32, alphaThreshold, dispose);
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgb24>(x) =
+                        new ColorRgb24(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Indexed2)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(2) { Indexed = true },
-                    IndexedFormatsHelper.GetColorIndexI2, IndexedFormatsHelper.SetColorIndexI2, bitmap.GetPalette(backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose);
+                    IndexedFormatsHelper.GetColorIndexI2, IndexedFormatsHelper.SetColorIndexI2, 
+                    bitmap.GetPalette(workingColorSpace, backColor, alphaThreshold), IndexedFormatsHelper.TrySetPalette, dispose);
 
             if (sourceFormat == PixelFormats.BlackWhite)
+            {
+                Palette colors = Palette.BlackAndWhite(workingColorSpace, backColor32);
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(1) { Grayscale = true },
-                    IndexedFormatsHelper.GetColorBlackWhite, IndexedFormatsHelper.SetColorBlackWhite, backColor32, alphaThreshold, dispose);
+                    (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI1(row, x)),
+                    (row, x, c) => IndexedFormatsHelper.SetColorIndexI1(row, x, colors.GetNearestColorIndex(c)),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
+            }
 
             if (sourceFormat == PixelFormats.Gray2)
             {
-                Palette colors = Palette.Grayscale4(backColor32);
+                Palette colors = Palette.Grayscale4(workingColorSpace, backColor32);
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(2) { Grayscale = true },
                     (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI2(row, x)),
                     (row, x, c) => IndexedFormatsHelper.SetColorIndexI2(row, x, colors.GetNearestColorIndex(c)),
-                    backColor32, alphaThreshold, dispose);
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
             }
 
             if (sourceFormat == PixelFormats.Gray4)
             {
-                Palette colors = Palette.Grayscale16(backColor32);
+                Palette colors = Palette.Grayscale16(workingColorSpace, backColor32);
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(4) { Grayscale = true },
                     (row, x) => colors.GetColor(IndexedFormatsHelper.GetColorIndexI4(row, x)),
                     (row, x, c) => IndexedFormatsHelper.SetColorIndexI4(row, x, colors.GetNearestColorIndex(c)),
-                    backColor32, alphaThreshold, dispose);
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
             }
 
             if (sourceFormat == PixelFormats.Gray8)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(8) { Grayscale = true },
                     (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x)),
-                    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = c.Blend(row.BitmapData.BackColor).GetBrightness(),
-                    backColor32, alphaThreshold, dispose);
+                    (row, x, c) => row.UnsafeGetRefAs<byte>(x) =
+                        (c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)).GetBrightness(),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Gray32Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32) { Grayscale = true },
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32) { Grayscale = true, LinearGamma = true },
                     (row, x) => row.UnsafeGetRefAs<ColorGrayF>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorGrayF>(x) = new ColorGrayF(c.Blend(row.BitmapData.BackColor)),
-                    backColor32, alphaThreshold, dispose);
+                    (row, x, c) => row.UnsafeGetRefAs<ColorGrayF>(x) =
+                        new ColorGrayF(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.GetPreferredColorSpace())),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Bgr101010)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32),
                     (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010>(x) = new ColorBgr101010(c.Blend(row.BitmapData.BackColor)),
-                    backColor32, alphaThreshold, dispose);
+                    (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010>(x) =
+                        new ColorBgr101010(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Rgb48)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32),
                     (row, x) => row.UnsafeGetRefAs<ColorRgb48>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgb48>(x) = new ColorRgb48(c.Blend(row.BitmapData.BackColor)),
-                    backColor32, alphaThreshold, dispose);
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgb48>(x) =
+                        new ColorRgb48(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Rgba64)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(64) { HasAlpha = true },
                     (row, x) => row.UnsafeGetRefAs<ColorRgba64>(x).ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorRgba64>(x) = new ColorRgba64(c),
-                    backColor32, alphaThreshold, dispose);
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Prgba64)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
                     (row, x) => row.UnsafeGetRefAs<ColorRgba64>(x).ToStraight().ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorRgba64>(x) = new ColorRgba64(c).ToPremultiplied(),
-                    backColor32, alphaThreshold, dispose);
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Rgba128Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { HasAlpha = true },
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { HasAlpha = true, LinearGamma = true },
                     (row, x) => row.UnsafeGetRefAs<ColorRgba128>(x).ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorRgba128>(x) = new ColorRgba128(c),
-                    backColor32, alphaThreshold, dispose);
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Prgba128Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { HasPremultipliedAlpha = true },
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { HasPremultipliedAlpha = true, LinearGamma = true },
                     (row, x) => row.UnsafeGetRefAs<ColorRgba128>(x).ToStraight().ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorRgba128>(x) = new ColorRgba128(c).ToPremultiplied(),
-                    backColor32, alphaThreshold, dispose);
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Rgb128Float)
-                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128),
+                return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(128) { LinearGamma = true },
                     (row, x) => row.UnsafeGetRefAs<ColorRgba128>(x).ToColor32().ToOpaque(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba128>(x) = new ColorRgba128(c.Blend(row.BitmapData.BackColor)),
-                    backColor32, alphaThreshold, dispose);
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgba128>(x) =
+                        new ColorRgba128(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.GetPreferredColorSpace())),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Cmyk32)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32),
                     (row, x) => row.UnsafeGetRefAs<ColorCmyk32>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorCmyk32>(x) = new ColorCmyk32(c.Blend(row.BitmapData.BackColor)),
-                    backColor32, alphaThreshold, dispose);
+                    (row, x, c) => row.UnsafeGetRefAs<ColorCmyk32>(x) =
+                        new ColorCmyk32(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
+                    workingColorSpace, backColor32, alphaThreshold, dispose);
 
             throw new InvalidOperationException(Res.InternalError($"Unexpected PixelFormat {sourceFormat}"));
         }
@@ -222,8 +265,13 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="WriteableBitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, Color, byte, AsyncConfig)"/>
-        /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note><list type="bullet">
+        /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
+        /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the working color space automatically.
+        /// To apply a specific color space use the <see cref="GetReadableBitmapData(BitmapSource, WorkingColorSpace, Color, byte)"/> on a <see cref="BitmapSource"/> instance,
+        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToBitmap</see> extension method.</item>
+        /// </list></note>
         /// <para>If <paramref name="newPixelFormat"/> is an indexed format, then this overload will either use the palette of the source <paramref name="bitmap"/> if applicable,
         /// or a default palette. To apply a custom palette use the of the <see cref="ConvertPixelFormat(BitmapSource,PixelFormat,Color[],Color,byte)"/> overload.</para>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
@@ -308,8 +356,13 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A new <see cref="WriteableBitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
-        /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note><list type="bullet">
+        /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, Color[], Color, byte, AsyncConfig)"/>
+        /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
+        /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the working color space automatically.
+        /// To apply a specific color space use the <see cref="GetReadableBitmapData(BitmapSource, WorkingColorSpace, Color, byte)"/> on a <see cref="BitmapSource"/> instance,
+        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToBitmap</see> extension method.</item>
+        /// </list></note>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(BitmapSource,PixelFormat,IQuantizer,IDitherer)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
@@ -347,15 +400,20 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A new <see cref="WriteableBitmap"/> instance with the desired pixel format.</returns>
         /// <remarks>
-        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer, IDitherer, AsyncConfig)"/>
-        /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, IQuantizer, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <note><list type="bullet">
+        /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginConvertPixelFormat(BitmapSource, PixelFormat, IQuantizer, IDitherer, AsyncConfig?)"/>
+        /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, IQuantizer?, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
+        /// <item>If <paramref name="quantizer"/> is <see langword="null"/> and <paramref name="newPixelFormat"/> requires blending, then this method selects the working color space automatically.
+        /// To apply a specific color space use the <see cref="GetReadableBitmapData(BitmapSource, WorkingColorSpace, Color, byte)"/> on a <see cref="BitmapSource"/> instance,
+        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToBitmap</see> extension method.</item>
+        /// </list></note>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>
         /// <para>To produce a result with up to 256 colors best optimized for the source <paramref name="bitmap"/> you can use the <see cref="OptimizedPaletteQuantizer"/> class.</para>
         /// <para>To quantize a <see cref="WriteableBitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapDataExtensions.Quantize(IReadWriteBitmapData, IQuantizer)">BitmapDataExtensions.Quantize</see> method.
-        /// You can use the <see cref="WriteableBitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method to obtain an <see cref="IReadWriteBitmapData"/> for a <see cref="WriteableBitmap"/>.</para>
+        /// You can use the <see cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see> extension method to obtain an <see cref="IReadWriteBitmapData"/> for a <see cref="WriteableBitmap"/>.</para>
         /// <para>To dither a <see cref="WriteableBitmap"/> in place, without changing the pixel format you can use the <see cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)">BitmapDataExtensions.Dither</see> method.
-        /// You can use the <see cref="WriteableBitmapExtensions.GetReadWriteBitmapData">GetReadWriteBitmapData</see> extension method to obtain an <see cref="IReadWriteBitmapData"/> for a <see cref="WriteableBitmap"/>.</para>
+        /// You can use the <see cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see> extension method to obtain an <see cref="IReadWriteBitmapData"/> for a <see cref="WriteableBitmap"/>.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates the possible results of this method compared to using WPF's <see cref="FormatConvertedBitmap"/> class:
@@ -719,10 +777,12 @@ namespace KGySoft.Drawing.Wpf
 
         #region Internal Methods
 
-        internal static Palette? GetPalette(this BitmapSource bitmap, Color backColor, byte alphaThreshold)
+        internal static Palette? GetPalette(this BitmapSource bitmap, WorkingColorSpace workingColorSpace, Color backColor, byte alphaThreshold)
         {
             BitmapPalette? palette = bitmap.Palette;
-            return palette == null ? null : new Palette(palette.Colors.Select(c => c.ToColor32()).ToArray(), backColor.ToColor32(), alphaThreshold);
+            return palette == null
+                ? null
+                : new Palette(palette.Colors.Select(c => c.ToColor32()), workingColorSpace, backColor.ToColor32(), alphaThreshold);
         }
 
         #endregion

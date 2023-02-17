@@ -6,6 +6,19 @@
 ===============================================================================
 
 ~~~~~~~~~
++ v7.1.0:
+~~~~~~~~~
+
++ KGySoft.Drawing.Wpf namespace
+===============================
++ BitmapSourceExtensions class:
+  + New GetReadableBitmapData overload with WorkingColorSpace parameter.
++ WriteableBitmapExtensions class:
+  + New GetWritableBitmapData overload with WorkingColorSpace parameter.
+  + New GetReadWriteBitmapData overload with WorkingColorSpace parameter.
+
+
+~~~~~~~~~
 + v7.0.0:
 ~~~~~~~~~
 

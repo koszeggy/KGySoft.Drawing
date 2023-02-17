@@ -31,13 +31,14 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorGrayF(Color32 c) => value = c.GetBrightnessLinear();
+        // TODO when ColorF will be public: c.ToColorF.GetBrightness()
+        internal ColorGrayF(Color32 c) => value = ColorSpaceHelper.SrgbToLinear(c.GetBrightness());
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => Color32.FromGray(value.ToNonLinear8Bit());
+        internal Color32 ToColor32() => Color32.FromGray(ColorSpaceHelper.LinearToSrgb8Bit(value));
 
         #endregion
     }
