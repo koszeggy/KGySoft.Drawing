@@ -89,7 +89,7 @@ namespace KGySoft.Drawing.Imaging
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
                         {
                             HasAlpha = true,
-                            LinearGamma = ColorsHelper.GetLookupTable16To8Bpp() != null
+                            LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null
                         },
                         (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor32(),
                         (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
@@ -99,7 +99,7 @@ namespace KGySoft.Drawing.Imaging
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
                         {
                             HasPremultipliedAlpha = true,
-                            LinearGamma = ColorsHelper.GetLookupTable16To8Bpp() != null
+                            LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null
                         },
                         (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToStraight().ToColor32(),
                         (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c).ToPremultiplied(),
@@ -108,7 +108,7 @@ namespace KGySoft.Drawing.Imaging
                 case PixelFormat.Format48bppRgb:
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48)
                         {
-                            LinearGamma = ColorsHelper.GetLookupTable16To8Bpp() != null
+                            LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null
                         },
                         (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
                         (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) =

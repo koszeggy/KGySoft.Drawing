@@ -166,9 +166,9 @@ namespace KGySoft.Drawing
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> must be a valid format.</exception>
         public static PixelFormatInfo GetInfo(this PixelFormat pixelFormat) => pixelFormat switch
         {
-            PixelFormat.Format48bppRgb => new PixelFormatInfo(48),
-            PixelFormat.Format64bppArgb => new PixelFormatInfo(64) { HasAlpha = true },
-            PixelFormat.Format64bppPArgb => new PixelFormatInfo(64) { HasPremultipliedAlpha = true },
+            PixelFormat.Format48bppRgb => new PixelFormatInfo(48) { LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null },
+            PixelFormat.Format64bppArgb => new PixelFormatInfo(64) { HasAlpha = true, LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null },
+            PixelFormat.Format64bppPArgb => new PixelFormatInfo(64) { HasPremultipliedAlpha = true, LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null },
             Format32bppCmyk => new PixelFormatInfo(32),
             _ => pixelFormat.IsValidFormat() ? pixelFormat.ToKnownPixelFormatInternal().GetInfo() : throw new ArgumentOutOfRangeException(Res.PixelFormatInvalid(pixelFormat))
         };
