@@ -468,6 +468,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                 generateTaskCompletion = new TaskCompletionSource();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
                 generateResultTask = generateTaskCompletion.Task;
+                PixelFormat selectedFormat = cfg.SelectedFormat;
                 CancellationToken token = tokenSource.Token;
 
                 // Ditherer: feel free to try the properties in OrderedDitherer and ErrorDiffusionDitherer
@@ -476,16 +477,16 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                     : cfg.SelectedDitherer!.Create(cfg);
 
                 // Color space can be specified for creating IBitmapData, Palette and IQuantizer instances.
-                WorkingColorSpace workingColorSpace = cfg.ForceLinearColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
+                WorkingColorSpace workingColorSpace = cfg.ForceLinearColorSpace || selectedFormat.GetInfo().LinearGamma ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
 
                 // Quantizer: for this demo, effectively using only when palette optimization is requested.
                 //            Otherwise, using a non-null quantizer only if a ditherer is selected or when forcing linear color space.
-                IQuantizer? quantizer = cfg.OptimizePalette && cfg.SelectedFormat.IsIndexed()
-                    ? OptimizedPaletteQuantizer.Wu(1 << cfg.SelectedFormat.ToBitsPerPixel(), cfg.BackColor, cfg.AlphaThreshold)
+                IQuantizer? quantizer = cfg.OptimizePalette && selectedFormat.IsIndexed()
+                    ? OptimizedPaletteQuantizer.Wu(1 << selectedFormat.ToBitsPerPixel(), cfg.BackColor, cfg.AlphaThreshold)
                         .ConfigureColorSpace(workingColorSpace)
                     : ditherer == null && !cfg.ForceLinearColorSpace
                         ? null
-                        : cfg.SelectedFormat.GetMatchingQuantizer(cfg.BackColor, AlphaThresholdEnabled ? cfg.AlphaThreshold : (byte)0).ConfigureColorSpace(workingColorSpace);
+                        : selectedFormat.GetMatchingQuantizer(cfg.BackColor, AlphaThresholdEnabled ? cfg.AlphaThreshold : (byte)0).ConfigureColorSpace(workingColorSpace);
 
                 var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false, Progress = progressUpdater };
 
@@ -497,8 +498,8 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                     // but please note that the transparency of a 64 bpp result will be blended with the view's background by the rendering engine.
                     // See the option b.) for the low-level solutions with more flexibility.
                     result = await (quantizer == null && ditherer == null
-                        ? cfg.Source.ConvertPixelFormatAsync(cfg.SelectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
-                        : cfg.Source.ConvertPixelFormatAsync(cfg.SelectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
+                        ? cfg.Source.ConvertPixelFormatAsync(selectedFormat, cfg.BackColor, cfg.AlphaThreshold, asyncConfig) // without quantizing and dithering
+                        : cfg.Source.ConvertPixelFormatAsync(selectedFormat, quantizer, ditherer, asyncConfig)); // with quantizing and/or dithering
                     return;
                 }
 
@@ -530,7 +531,7 @@ namespace KGySoft.Drawing.Examples.WinForms.ViewModel
                     return;
 
                 // b.3.) Converting to a Bitmap of the desired pixel format
-                result = await tempBitmapData.ToBitmapAsync(cfg.SelectedFormat, quantizer, ditherer, asyncConfig);
+                result = await tempBitmapData.ToBitmapAsync(selectedFormat, quantizer, ditherer, asyncConfig);
             }
             finally
             {
