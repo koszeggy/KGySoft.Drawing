@@ -85,7 +85,7 @@ namespace KGySoft
         #region GraphicsExtensions
 
         /// <summary>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</summary>
-        internal static string GraphicsExtensionsToBitmapMetafileNotSupported => Get("GraphicsExtensions_MetafileGraphicsNotSupported");
+        internal static string GraphicsExtensionsToBitmapMetafileNotSupported => Get("GraphicsExtensions_ToBitmapMetafileNotSupported");
 
         #endregion
 
@@ -112,7 +112,7 @@ namespace KGySoft
         #region MetafileExtensions
 
         /// <summary>The specified metafile can only be saved as WMF.</summary>
-        internal static string MetafileExtensionsCannotBeSavedAsEmf => Get("MetafileExtensions_CannotBeSavesAsEmf");
+        internal static string MetafileExtensionsCannotBeSavedAsEmf => Get("MetafileExtensions_CannotBeSavedAsEmf");
 
         #endregion
 
@@ -125,7 +125,7 @@ namespace KGySoft
         internal static string RawIconBadIconFormat => Get("RawIcon_BadIconFormat");
 
         /// <summary>On this platform this icon cannot be instantiated with the current size or compression.</summary>
-        internal static string RawIconCannotBeInstantiatedAsIcon  => Get("RawIcon_CannotBeInstantiatedAsIcon");
+        internal static string RawIconCannotBeInstantiatedAsIcon => Get("RawIcon_CannotBeInstantiatedAsIcon");
 
         /// <summary>On this platform this icon cannot be instantiated as a bitmap with the current size or compression.</summary>
         internal static string RawIconCannotBeInstantiatedAsBitmap => Get("RawIcon_CannotBeInstantiatedAsBitmap");

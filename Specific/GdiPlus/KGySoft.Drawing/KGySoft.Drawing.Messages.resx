@@ -141,7 +141,7 @@
   <data name="Gdi32_InvalidWmfHandle" xml:space="preserve">
     <value>Invalid Windows Metafile handle.</value>
   </data>
-  <data name="GraphicsExtensions_MetafileGraphicsNotSupported" xml:space="preserve">
+  <data name="GraphicsExtensions_ToBitmapMetafileNotSupported" xml:space="preserve">
     <value>A Graphics from Metafile is not supported. Once the Graphics is disposed you can use the MetafileExtensions.ToBitmap methods to convert the Metafile to a Bitmap.</value>
   </data>
   <data name="Imaging_InvalidBitmapDataSize" xml:space="preserve">
@@ -186,7 +186,7 @@
   <data name="General_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>
-  <data name="MetafileExtensions_CannotBeSavesAsEmf" xml:space="preserve">
+  <data name="MetafileExtensions_CannotBeSavedAsEmf" xml:space="preserve">
     <value>The specified metafile can only be saved as WMF.</value>
   </data>
   <data name="ImageExtensions_MultipageTiffSaveNotSupported" xml:space="preserve">
