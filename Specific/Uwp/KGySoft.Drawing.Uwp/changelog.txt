@@ -6,6 +6,18 @@
 ===============================================================================
 
 ~~~~~~~~~
++ v7.1.0:
+~~~~~~~~~
+
++ KGySoft.Drawing.Uwp namespace
+===============================
++ WriteableBitmapExtensions class:
+  + New GetReadableBitmapData overload to specify the working color space.
+  + New GetWritableBitmapData overload to specify the working color space.
+  + New GetReadWriteBitmapData overload to specify the working color space.
+
+
+~~~~~~~~~
 + v7.0.0:
 ~~~~~~~~~
 
