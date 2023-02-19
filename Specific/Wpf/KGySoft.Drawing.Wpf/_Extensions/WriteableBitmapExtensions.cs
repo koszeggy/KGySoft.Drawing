@@ -18,6 +18,7 @@
 #region Used Namespaces
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Windows;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
@@ -150,6 +151,9 @@ namespace KGySoft.Drawing.Wpf
 
         #region Internal Methods
 
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Long but straightforward cases for the possible pixel formats.")]
+        [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
+        [SuppressMessage("ReSharper", "ConvertToLocalFunction", Justification = "False alarm, it would be converted to a delegate anyway.")]
         internal static IReadWriteBitmapData GetBitmapDataInternal(this WriteableBitmap bitmap, bool readOnly,
             WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Color backColor = default, byte alphaThreshold = 128)
         {

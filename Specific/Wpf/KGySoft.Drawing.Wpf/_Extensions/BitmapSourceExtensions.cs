@@ -109,6 +109,7 @@ namespace KGySoft.Drawing.Wpf
         /// <seealso cref="WriteableBitmapExtensions.GetReadWriteBitmapData(WriteableBitmap, WorkingColorSpace, Color, byte)"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
         [SuppressMessage("VisualStudio.Style", "IDE0039: Use local function instead of lambda", Justification = "False alarm, it would be converted to a delegate anyway.")]
+        [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity", Justification = "Long but straightforward cases for the possible pixel formats.")]
         public static IReadableBitmapData GetReadableBitmapData(this BitmapSource bitmap, WorkingColorSpace workingColorSpace, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
