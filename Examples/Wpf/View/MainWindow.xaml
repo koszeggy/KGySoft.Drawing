@@ -74,7 +74,7 @@
         <!-- a.) Force Linear Color Space -->
         <CheckBox Grid.Row="3" Grid.Column="1"
                   IsChecked="{Binding ForceLinearColorSpace}"
-                  ToolTip="Forces to use linear color space regardless of the selected pixel format. Affects color blending, quantizing and dithering.&#x0a;&#x0a;Please note though that if the generated result has transparency, the blending with the background is performed by the rendering engine.&#x0a;Use pixel formats without alpha or ser alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0a;&#x0a;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."
+                  ToolTip="Forces to use the linear color space regardless of the selected pixel format. Affects color blending, quantizing and dithering.&#x0a;&#x0a;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0a;Use pixel formats without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0a;&#x0a;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."
                   Content="Force Linear Color Space"/>
 
         <!-- b.) Optimize Palette -->
