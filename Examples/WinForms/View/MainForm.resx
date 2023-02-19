@@ -61,10 +61,10 @@
     <value>17, 17</value>
   </metadata>
   <data name="chbForceLinear.ToolTip" xml:space="preserve">
-    <value>Forces to use linear color space regardless of the selected pixel format. Affects color blending, quantizing and dithering.
+    <value>Forces to use the linear color space regardless of the selected pixel format. Affects color blending, quantizing and dithering.
 
-Please note though that if the generated result has transparency, the blending with the background is performed by the rendering engine.
-Use pixel formats without alpha or ser alpha threshold to zero to avoid mixing sRGB and linear blending.
+Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.
+Use pixel formats without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.
 
 Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option.</value>
   </data>

@@ -178,7 +178,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
 
             static void UpdateProgressValue(int value, ProgressBar progressBar)
             {
-                // Workaround for progress bar with visual styles enabled in which case it advances very slow
+                // Workaround for progress bar with visual styles enabled in which case it advances very slowly
                 if (visualStyles && value > progressBar.Value && value < progressBar.Maximum)
                     progressBar.Value = value + 1;
                 progressBar.Value = value;
