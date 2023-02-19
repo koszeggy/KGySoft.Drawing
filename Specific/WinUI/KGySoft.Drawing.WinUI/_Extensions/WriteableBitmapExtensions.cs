@@ -148,7 +148,7 @@ namespace KGySoft.Drawing.WinUI
                 nativeBuffer.CopyTo(managedBuffer.UnderlyingArray);
 
                 // WinUI's WriteableBitmap is really simple: it always uses the premultiplied ARGB32 format
-                return BitmapDataFactory.CreateBitmapData(managedBuffer, size, size.Width << 2, KnownPixelFormat.Format32bppPArgb,
+                return BitmapDataFactory.CreateBitmapData(managedBuffer, size, size.Width << 2, KnownPixelFormat.Format32bppPArgb, workingColorSpace,
                     disposeCallback: () =>
                     {
                         if (!readOnly)

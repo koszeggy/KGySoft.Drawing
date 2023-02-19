@@ -9,8 +9,8 @@
 + v7.1.0:
 ~~~~~~~~~
 
-+ KGySoft.Drawing.Uwp namespace
-===============================
++ KGySoft.Drawing.WinUI namespace
+=================================
 + WriteableBitmapExtensions class:
   + New GetReadableBitmapData overload to specify the working color space.
   + New GetWritableBitmapData overload to specify the working color space.

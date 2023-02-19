@@ -36,7 +36,7 @@ namespace KGySoft.Drawing.UnitTests
     {
         #region Properties
 
-        private static bool SaveToFile => true;
+        private static bool SaveToFile => false;
 
         #endregion
 

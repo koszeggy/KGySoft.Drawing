@@ -2,13 +2,13 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>7.0.0</version>
+    <version>7.1.0</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
     <license type="file">LICENSE</license>
     <projectUrl>https://kgysoft.net/drawing</projectUrl>
-    <!--<iconUrl>https://kgysoft.net/images/Icon64.png</iconUrl>-->
+    <readme>readme.md</readme>
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Advanced drawing features for completely managed and technology-agnostic bitmap data on multiple platforms. Among others: fast bitmap manipulation, quantizing and dithering, creating animated GIFs in high color, etc.</summary>
@@ -18,6 +18,7 @@ Among others:
 - Creating managed bitmap data of any pixel format on every platform
 - Creating bitmap data for any managed or unmanaged buffer
 - Supporting custom pixel formats
+- Supporting color correct alpha blending
 - Quantizing and dithering
 - Creating GIF animations
 
@@ -37,34 +38,34 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/<
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework=".NETFramework4.5">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework=".NETFramework4.6">
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework="netstandard2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework="netstandard2.1" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework="netcoreapp2.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework="net5.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
       <group targetFramework="net6.0" >
-        <dependency id="KGySoft.CoreLibraries" version="7.0.0" />
+        <dependency id="KGySoft.CoreLibraries" version="7.1.0" />
       </group>
     </dependencies>
   </metadata>
@@ -72,6 +73,7 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/<
     <file src="..\..\LICENSE" />
     <!--<file src="..\..\Help\KGySoft.Drawing.chm" target="Help" />-->
     <file src="readme.txt"/>
+    <file src="readme.md"/>
     <file src="Icon64.png" target="" />
     <file src="..\bin\Release\net35\KGySoft.Drawing.Core.dll" target="lib\net35" />
     <file src="..\bin\Release\net35\KGySoft.Drawing.Core.xml" target="lib\net35" />

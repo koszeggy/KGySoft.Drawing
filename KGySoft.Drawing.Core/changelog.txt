@@ -38,6 +38,7 @@
 + New AutoStrengthMode enumeration
 + BitmapDataExtensions class:
   + New Clone/BeginClone/CloneAsync overloads with workingColorSpace parameter.
+  + New GetPreferredColorSpace method.
 + BitmapDataFactory class:
   + New CreateBitmapData overloads with workingColorSpace parameter.
 + ColorExtensions class:
@@ -46,7 +47,7 @@
 + PredefinedColorsQuantizer class:
   + New WorkingColorSpace property.
   + New ConfigureColorSpace method
-+ OptimizedColorsQuantizer class:
++ OptimizedPaletteQuantizer class:
   + New WorkingColorSpace property.
   + New ConfigureColorSpace method
 + PixelFormatInfo struct:
