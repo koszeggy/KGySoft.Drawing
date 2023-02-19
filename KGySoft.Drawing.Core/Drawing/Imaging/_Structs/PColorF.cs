@@ -244,12 +244,14 @@ namespace KGySoft.Drawing.Imaging
             
 #if NET35 || NET40 || NET45 || NETSTANDARD2_0
             PColorF result = this * Byte.MaxValue + 0.5f;
-            return new Color32(result.A.ClipToByte(),
-                result.R.ClipToByte(),
-                result.G.ClipToByte(),
-                result.B.ClipToByte());
+            byte a = result.A.ClipToByte();
+            return new Color32(a,
+                result.R.ClipToByte(a),
+                result.G.ClipToByte(a),
+                result.B.ClipToByte(a));
 #else
-            Vector4 result = Vector4.Clamp(Rgba * max8Bpp + half, Vector4.Zero, max8Bpp);
+            Vector4 result = Rgba * max8Bpp + half;
+            result = Vector4.Clamp(result, Vector4.Zero, new Vector4(Math.Min(result.W, Byte.MaxValue)));
             return new Color32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
 #endif
         }

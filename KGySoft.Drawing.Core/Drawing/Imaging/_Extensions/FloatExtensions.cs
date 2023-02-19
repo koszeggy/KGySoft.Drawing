@@ -30,9 +30,17 @@ namespace KGySoft.Drawing.Imaging
         internal static byte ClipToByte(this float value) => value switch
         {
             >= Byte.MaxValue => Byte.MaxValue,
-            >= Byte.MinValue  => (byte)value,
+            >= Byte.MinValue => (byte)value,
             _ => Byte.MinValue
         };
+
+#if NET35 || NET40 || NET45 || NETSTANDARD2_0
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static byte ClipToByte(this float value, byte max)
+            => value >= max ? max
+                : value >= 0 ? (byte)value
+                : (byte)0;
+#endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static float Clip(this float value, float min, float max)

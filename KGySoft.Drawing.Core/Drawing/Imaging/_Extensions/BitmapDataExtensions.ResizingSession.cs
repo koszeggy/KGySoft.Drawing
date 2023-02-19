@@ -657,6 +657,7 @@ namespace KGySoft.Drawing.Imaging
                                 continue;
 
                             // source here has a partial transparency: we need to read the target color
+                            Debug.Assert(colorSrc == colorSrc.AsValidPremultiplied());
                             int targetX = x + targetLeft;
                             Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
 
