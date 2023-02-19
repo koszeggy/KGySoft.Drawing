@@ -120,8 +120,8 @@ namespace KGySoft.Drawing.Imaging
         /// Blending operations performed by this library (eg. by <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see> when blending is necessary as described above,
         /// or by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods) respect the value of this parameter.
         /// Blending in the linear color space produces natural results but the operation is a bit slower if the actual
-        /// pixel format is not in the linear color space and the result is different from the results of most applications including popular image processors and web browsers.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</para>
+        /// pixel format is not in the linear color space, and the result is different from the results of most applications including popular image processors and web browsers.
+        /// See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</para>
         /// <note type="tip">
         /// <list type="bullet">
         /// <item>If <paramref name="pixelFormat"/> represents an indexed format you can use the <see cref="CreateBitmapData(Size, KnownPixelFormat, Palette)"/> overload to specify the desired palette of the result.</item>

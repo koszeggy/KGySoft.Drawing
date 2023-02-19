@@ -31,7 +31,7 @@ namespace KGySoft.Drawing.Imaging
     /// <list type="bullet">
     /// <item>At the lowest level, you can specify it when blending colors manually, for example by
     /// the <see cref="ColorExtensions.Blend(Color32, Color32, WorkingColorSpace)">ColorExtensions.Blend</see> method.</item>
-    /// <item><see cref="IBitmapData"/> instances have a <see cref="IBitmapData.WorkingColorSpace"/> property, which can set by the factory methods
+    /// <item><see cref="IBitmapData"/> instances have a <see cref="IBitmapData.WorkingColorSpace"/> property, which can be set by the factory methods
     /// such as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataFactory.CreateBitmapData">BitmapDataFactory.CreateBitmapData</see> methods
     /// or by the <c>GetReadWriteBitmapData</c> methods for the technology-specific bitmap types.
     /// The <see cref="IBitmapData.WorkingColorSpace">IBitmapData.WorkingColorSpace</see> property is considered when setting pixels with transparency

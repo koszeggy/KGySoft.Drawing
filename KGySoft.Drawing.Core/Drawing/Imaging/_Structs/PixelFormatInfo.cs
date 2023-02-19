@@ -221,9 +221,9 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets or sets whether the represented pixel format has linear gamma.
         /// For <see cref="Indexed"/> formats this property should be <see langword="false"/> because it can be configured
-        /// at <see cref="Palette"/> constructors and factory methods whether to blend colors in the linear color space.
-        /// Setting this property may effect the blending strategy if the <see cref="IBitmapData.WorkingColorSpace">IBitmapData.WorkingColorSpace</see>
-        /// property returns <see cref="WorkingColorSpace.Default"/>.
+        /// at the <see cref="Palette"/> constructors and factory methods whether the palette should work in the linear color space.
+        /// If the <see cref="IBitmapData.WorkingColorSpace">IBitmapData.WorkingColorSpace</see> property returns <see cref="WorkingColorSpace.Default"/>,
+        /// then the value of this property may affect the selected color space of some operations.
         /// </summary>
         public bool LinearGamma
         {

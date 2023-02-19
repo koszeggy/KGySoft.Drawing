@@ -50,7 +50,7 @@ namespace KGySoft.Drawing.Imaging
         byte AlphaThreshold { get; }
 
         /// <summary>
-        /// Gets whether the palette consists only of grayscale entries.
+        /// Gets whether the palette consists of grayscale entries only.
         /// </summary>
         bool IsGrayscale { get; }
 
@@ -67,7 +67,7 @@ namespace KGySoft.Drawing.Imaging
         /// image examples about using the different color spaces in various operations.</note>
         /// <para>If the value of this property is <see cref="Imaging.WorkingColorSpace.Default"/>, then the sRGB color space is used.</para>
         /// <para>If this palette uses a custom nearest color lookup, then it depends on the custom function whether it considers the value of this property.</para>
-        /// <para>Please note that palette entries themselves always represent sRGB color values, regardless the value of this property.</para>
+        /// <note>Please note that palette entries themselves always represent sRGB color values, regardless the value of this property.</note>
         /// </remarks>
         WorkingColorSpace WorkingColorSpace { get; }
 

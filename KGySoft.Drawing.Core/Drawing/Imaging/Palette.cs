@@ -41,9 +41,9 @@ namespace KGySoft.Drawing.Imaging
     /// <para>The <see cref="Palette"/> class supports performing quick lookup operations (see <see cref="GetNearestColor">GetNearestColor</see>
     /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods) to find the closest matching palette entry to any color.</para>
     /// <note>The palette entries represent colors in the sRGB color space and nearest color lookup is also performed in the sRGB color space by default
-    /// but you can create a <see cref="Palette"/> instance that perform looking up for nearest colors in the linear color space
+    /// but you can create a <see cref="Palette"/> instance that performs looking up for nearest colors in the linear color space
     /// by the <see cref="Palette(Palette, Imaging.WorkingColorSpace, Color32, byte)"/> constructor or the factory methods that have <see cref="Imaging.WorkingColorSpace"/> parameter.
-    /// <br/>>See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/>
+    /// See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/>
     /// enumeration for details and image examples about using the different color spaces in various operations.</note>
     /// <para>By default the lookup is performed by a slightly modified euclidean-like search but if the <see cref="Palette"/> contains grayscale entries only,
     /// then it is optimized for finding the best matching gray shade based on human perception. To override this logic a custom lookup routine can be passed to the constructors.</para>
@@ -233,7 +233,7 @@ namespace KGySoft.Drawing.Imaging
         public byte AlphaThreshold { get; }
 
         /// <summary>
-        /// Gets whether the palette consists only of grayscale entries.
+        /// Gets whether the palette consists of grayscale entries only.
         /// </summary>
         public bool IsGrayscale { get; }
 
@@ -330,7 +330,7 @@ namespace KGySoft.Drawing.Imaging
         /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe and it is expected to be fast.
         /// The results returned by the specified delegate are not cached. Make sure you always obtain the palette properties such as <see cref="IPalette.BackColor"/>,
         /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.WorkingColorSpace"/> from the <see cref="IPalette"/> argument
-        /// as these may change when creating a new <see cref="Palette"/> instance by the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.
+        /// as this delegate can be re-used in another <see cref="Palette"/> instance when calling the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.
         /// If <see langword="null"/>, then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will
         /// perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -363,7 +363,7 @@ namespace KGySoft.Drawing.Imaging
         /// by a <see cref="Color32"/> and an <see cref="IPalette"/> instance. If specified, it must be thread-safe and it is expected to be fast.
         /// The results returned by the specified delegate are not cached. Make sure you always obtain the palette properties such as <see cref="IPalette.BackColor"/>,
         /// <see cref="IPalette.AlphaThreshold"/> and <see cref="IPalette.WorkingColorSpace"/> from the <see cref="IPalette"/> argument
-        /// as these may change when creating a new <see cref="Palette"/> instance by the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.
+        /// as this delegate can be re-used in another <see cref="Palette"/> instance when calling the <see cref="Palette(Palette,Imaging.WorkingColorSpace,Color32,byte)"/> constructor.
         /// If <see langword="null"/>, then <see cref="GetNearestColor">GetNearestColor</see> and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods will
         /// perform a sequential lookup by using a default logic and results will be cached. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>

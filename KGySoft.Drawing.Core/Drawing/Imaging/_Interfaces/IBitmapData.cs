@@ -107,7 +107,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Gets the preferred working color space when dealing with the pixels of this <see cref="IBitmapData"/> instance.
-        /// Some operations, such as setting pixels, drawing another bitmap data into this instance consider the value of this property.
+        /// Some operations, such as setting pixels or drawing another bitmap data into this instance consider the value of this property.
         /// Operations that use an <see cref="IQuantizer"/> instance may override the value of this property.
         /// <br/>Default value if not implemented: <see cref="Imaging.WorkingColorSpace.Default"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
         /// </summary>
@@ -123,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
         /// For example, when setting a pixel using the <see cref="Color32"/> type, the sRGB blending will be picked (unless <see cref="PixelFormat"/>
         /// has the <see cref="PixelFormatInfo.LinearGamma"/> flag enabled) because it is faster, and it is the default behavior for most applications.</para>
         /// <para>For some operations, such as drawing a bitmap data into another one by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see>
-        /// methods choose the blending strategy based on the <see cref="WorkingColorSpace"/> of the target bitmap data.</para>
+        /// methods the working color space is determined by the <see cref="WorkingColorSpace"/> of the target bitmap data.</para>
         /// <para>When using a quantizer for some operations, it may override the value of this property. As quantizers are limited to the 32 bit ARGB color space,
         /// the built-in <see cref="IQuantizer"/> implementations in this library also use sRGB blending by default but you can override it by
         /// the <see cref="PredefinedColorsQuantizer.ConfigureColorSpace">PredefinedColorsQuantizer.ConfigureColorSpace</see>
