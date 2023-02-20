@@ -17,6 +17,8 @@
 
 using System.Drawing;
 
+using KGySoft.Drawing.Imaging;
+
 #endregion
 
 namespace KGySoft.Drawing.Examples.Shared.Interfaces
@@ -31,6 +33,7 @@ namespace KGySoft.Drawing.Examples.Shared.Interfaces
         bool DirectMapping { get; }
         int PaletteSize { get; }
         byte? BitLevel { get; }
+        WorkingColorSpace WorkingColorSpace { get; }
 
         #endregion
     }
