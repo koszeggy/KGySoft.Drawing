@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ImageExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -871,6 +871,17 @@ namespace KGySoft.Drawing.UnitTests
             Assert.AreEqual(ImageFormat.Icon, bmp.RawFormat);
             Assert.AreEqual(PixelFormat.Format32bppArgb, bmp.PixelFormat);
             SaveImage($"{pixelFormat}", bmp, true);
+        }
+
+        [Explicit]
+        [TestCase(PixelFormat.Format24bppRgb)]
+        [TestCase(PixelFormat.Format48bppRgb)]
+        public void LinearVsSrgbBlendingAlphaGradient(PixelFormat pixelFormat)
+        {
+            using var source = GenerateAlphaGradientBitmap(new Size(512, 256));
+            using var target = new Bitmap(source.Width, source.Height, pixelFormat);
+            source.DrawInto(target);
+            SaveImage($"{target.PixelFormat}", target);
         }
 
         #endregion

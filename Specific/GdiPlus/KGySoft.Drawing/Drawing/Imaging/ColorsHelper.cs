@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ColorsHelper.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -98,23 +98,23 @@ namespace KGySoft.Drawing.Imaging
                 {
                     // Initializing the lookup table from the result of native SetPixel if that is supported on current operating system.
                     // It will be quite slow but it is executed only once and since it is OS dependent there is no other reliable way.
-                    // On Windows it transforms color channels into a 13 bit range with gamma correction 1/2.2 (with some cheating for darker shades).
+                    // On Windows it transforms color channels into a 13 bit range with linear gamma.
                     using var bmp64 = new Bitmap(256, 1, PixelFormat.Format64bppArgb);
                     for (int i = 0; i < 256; i++)
                         bmp64.SetPixel(i, 0, Color.FromArgb(i, i, i));
                     BitmapData data = bmp64.LockBits(new Rectangle(0, 0, 256, 1), ImageLockMode.ReadOnly, PixelFormat.Format64bppArgb);
-                    bool isLinear = true;
+                    bool isSrgb = true;
                     try
                     {
-                        GdiPColor64* row = (GdiPColor64*)data.Scan0;
+                        GdiPlusColor64* row = (GdiPlusColor64*)data.Scan0;
                         lookupTable8To16Bpp = new ushort[256];
                         for (int i = 0; i < 256; i++)
                         {
                             lookupTable8To16Bpp[i] = *(ushort*)&row[i]; // row[i].B
-                            isLinear = isLinear && lookupTable8To16Bpp[i] == ((i << 8) | i);
+                            isSrgb = isSrgb && lookupTable8To16Bpp[i] == ((i << 8) | i);
                         }
 
-                        if (isLinear)
+                        if (isSrgb)
                             lookupTable8To16Bpp = null;
                     }
                     finally
@@ -169,17 +169,17 @@ namespace KGySoft.Drawing.Imaging
                     BitmapData data = bmp64.LockBits(new Rectangle(Point.Empty, size), ImageLockMode.WriteOnly, PixelFormat.Format64bppArgb);
                     try
                     {
-                        GdiPColor64* row = (GdiPColor64*)data.Scan0;
+                        GdiPlusColor64* row = (GdiPlusColor64*)data.Scan0;
                         for (int i = 0, x = 0; i <= max16BppValue; i++, x++)
                         {
                             if (x == size.Width)
                             {
                                 x = 0;
-                                row = (GdiPColor64*)((byte*)row + data.Stride);
+                                row = (GdiPlusColor64*)((byte*)row + data.Stride);
                             }
 
                             // ReSharper disable once PossibleNullReferenceException - row is not null
-                            row[x] = new GdiPColor64(max16BppValue, (ushort)i, (ushort)i, (ushort)i);
+                            row[x] = new GdiPlusColor64(max16BppValue, (ushort)i, (ushort)i, (ushort)i);
                         }
                     }
                     finally

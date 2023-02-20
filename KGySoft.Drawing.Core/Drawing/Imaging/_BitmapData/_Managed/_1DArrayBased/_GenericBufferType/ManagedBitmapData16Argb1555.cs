@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData16Argb1555.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -41,7 +41,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (c.A != Byte.MaxValue)
                 {
-                    c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor)
+                    c = c.A >= BitmapData.AlphaThreshold ? c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearBlending)
                         : c.A < 128 ? c
                         : default;
                 }
@@ -56,8 +56,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData16Argb1555(Array2D<T> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format16bppArgb1555.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData16Argb1555(Array2D<T> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 
@@ -73,7 +73,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (c.A != Byte.MaxValue)
             {
-                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor)
+                c = c.A >= AlphaThreshold ? c.BlendWithBackground(BackColor, LinearBlending)
                     : c.A < 128 ? c
                     : default;
             }

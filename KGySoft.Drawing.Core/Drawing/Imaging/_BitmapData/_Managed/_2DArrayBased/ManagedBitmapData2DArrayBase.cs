@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData2DArrayBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,8 +15,6 @@
 
 #region Usings
 
-using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 #if NET6_0_OR_GREATER
 using System.Runtime.InteropServices;
@@ -40,9 +38,8 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [SecuritySafeCritical]
-        protected unsafe ManagedBitmapData2DArrayBase(T[,] buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
-            : base(new Size(pixelWidth, buffer.GetLength(0)), pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+        protected unsafe ManagedBitmapData2DArrayBase(T[,] buffer, in BitmapDataConfig cfg)
+            : base(cfg)
         {
             Buffer = buffer;
             RowSize = buffer.GetLength(1) * sizeof(T);

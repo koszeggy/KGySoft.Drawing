@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IconsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -28,9 +28,9 @@ namespace KGySoft.Drawing.UnitTests
     [TestFixture]
     public class IconsTest : TestBase
     {
-        #region Fields
+        #region Properties
 
-        private static readonly object[] sourceKnownIconsTest =
+        private static object[][] SourceKnownIconsTest => new[]
         {
             new object[] { nameof(Icons.SystemInformation), Icons.SystemInformation },
             new object[] { nameof(Icons.SystemWarning), Icons.SystemWarning },
@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.UnitTests
 
         #region Methods
 
-        [TestCaseSource(nameof(sourceKnownIconsTest))]
+        [TestCaseSource(nameof(SourceKnownIconsTest))]
         public void KnownIconsTest(string iconName, Icon icon)
         {
             Assert.IsNotNull(icon);
@@ -67,6 +67,27 @@ namespace KGySoft.Drawing.UnitTests
             var icon = Icons.GetStockIcon(stockIcon);
             Assert.IsTrue(!OSUtils.IsWindows || icon != null);
             SaveIcon(stockIcon.ToString(), icon);
+        }
+
+        [Test, Explicit]
+        public void SaveSystemIconsInCurrentOS()
+        {
+            var icons = new[]
+            {
+                (nameof(Icons.SystemApplication), Icons.SystemApplication),
+                (nameof(Icons.SystemError), Icons.SystemError),
+                (nameof(Icons.SystemWarning), Icons.SystemWarning),
+                (nameof(Icons.SystemInformation), Icons.SystemInformation),
+                (nameof(Icons.SystemQuestion), Icons.SystemQuestion),
+                (nameof(Icons.SystemShield), Icons.SystemShield),
+            };
+            foreach (var (name, icon) in icons)
+            {
+                foreach (Bitmap bitmap in icon.ExtractBitmaps())
+                {
+                    SaveImage($"{name}{bitmap.Width}W11", bitmap);
+                }
+            }
         }
 
         #endregion

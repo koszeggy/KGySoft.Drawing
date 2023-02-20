@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: GdiPColor48.cs
+//  File: GdiPlusColor48.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit, Size = 6)]
-    internal readonly struct GdiPColor48
+    internal readonly struct GdiPlusColor48
     {
         #region Fields
 
@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal GdiPColor48(Color32 c)
+        internal GdiPlusColor48(Color32 c)
         {
             ushort[]? lookupTable = ColorsHelper.GetLookupTable8To16Bpp();
             if (lookupTable == null)

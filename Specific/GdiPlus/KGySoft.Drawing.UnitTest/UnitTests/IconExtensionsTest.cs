@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IconExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -48,7 +48,7 @@ namespace KGySoft.Drawing.UnitTests
         {
             Assert.AreEqual(OSUtils.IsWindows ? 7 : 1, Icons.Information.ToMultiResBitmap().ExtractBitmaps().Length);
 
-            // 128x128 PNG compressed icons are problematic even in Windows
+            // 128x128 PNG compressed icons are problematic even on Windows
             var reqSize = new Size(128, 128);
             Icon origIcon = Icons.Information;
             Icon combined = origIcon.Combine(origIcon.ExtractBitmap(new Size(256, 256)).Resize(reqSize));

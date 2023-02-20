@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Icons.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -66,24 +66,29 @@ namespace KGySoft.Drawing
         #region Public Properties
 
         /// <summary>
-        /// <img src="../Help/Images/Information16W10.png" alt="Information (small version for the summary)"/>
+        /// <img src="../Help/Images/Information16W11.png" alt="Information (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Information icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Information32W10.png" alt="Information 32x32"/>
-        /// <img src="../Help/Images/Information16W10.png" alt="Information 16x16"/>
+        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Information32W11.png" alt="Information 32x32 Windows 11"/>
+        /// <img src="../Help/Images/Information16W11.png" alt="Information 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Information32.png" alt="Information 32x32"/>
-        /// <img src="../Help/Images/Information16.png" alt="Information 16x16"/>
+        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Information32W10.png" alt="Information 32x32 Windows 10"/>
+        /// <img src="../Help/Images/Information16W10.png" alt="Information 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// In Windows XP the icon contains the following images:<br/>
+        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Information32.png" alt="Information 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/Information16.png" alt="Information 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>
+        /// On Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/InformationXP32.png" alt="Information Windows XP 32x32"/>
         /// <img src="../Help/Images/InformationXP16.png" alt="Information Windows XP 16x16"/>
         /// </para>
@@ -91,30 +96,35 @@ namespace KGySoft.Drawing
         /// On Linux/Mono the icon contains the following images:<br/>
         /// <img src="../Help/Images/Information32Mono.png" alt="Information Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Information16Mono.png" alt="Information Linux/Mono 16x16"/>
-        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
         public static Icon SystemInformation => GetSystemIcon(StockIcon.Information, () => SystemIcons.Information);
 
         /// <summary>
-        /// <img src="../Help/Images/Warning16W10.png" alt="Warning (small version for the summary)"/>
+        /// <img src="../Help/Images/Warning16W11.png" alt="Warning (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Warning icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Warning32W10.png" alt="Warning 32x32"/>
-        /// <img src="../Help/Images/Warning16W10.png" alt="Warning 16x16"/>
+        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Warning32W11.png" alt="Warning 32x32 Windows 11"/>
+        /// <img src="../Help/Images/Warning16W11.png" alt="Warning 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32"/>
-        /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16"/>
+        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Warning32W10.png" alt="Warning 32x32 Windows 10"/>
+        /// <img src="../Help/Images/Warning16W10.png" alt="Warning 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// In Windows XP the icon contains the following images:<br/>
+        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Warning32.png" alt="Warning 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/Warning16.png" alt="Warning 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>
+        /// On Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/WarningXP32.png" alt="Warning Windows XP 32x32"/>
         /// <img src="../Help/Images/WarningXP16.png" alt="Warning Windows XP 16x16"/>
         /// </para>
@@ -122,30 +132,35 @@ namespace KGySoft.Drawing
         /// On Linux/Mono the icon contains the following images:<br/>
         /// <img src="../Help/Images/Warning32Mono.png" alt="Warning Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Warning16Mono.png" alt="Warning Linux/Mono 16x16"/>
-        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
         public static Icon SystemWarning => GetSystemIcon(StockIcon.Warning, () => SystemIcons.Warning);
 
         /// <summary>
-        /// <img src="../Help/Images/Error16W10.png" alt="Error (small version for the summary)"/>
+        /// <img src="../Help/Images/Error16W11.png" alt="Error (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Error icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Error32W10.png" alt="Error 32x32"/>
-        /// <img src="../Help/Images/Error16W10.png" alt="Error 16x16"/>
+        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Error32W11.png" alt="Error 32x32 Windows 11"/>
+        /// <img src="../Help/Images/Error16W11.png" alt="Error 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Error32.png" alt="Error 32x32"/>
-        /// <img src="../Help/Images/Error16.png" alt="Error 16x16"/>
+        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Error32W10.png" alt="Error 32x32 Windows 10"/>
+        /// <img src="../Help/Images/Error16W10.png" alt="Error 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// In Windows XP the icon contains the following images:<br/>
+        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Error32.png" alt="Error 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/Error16.png" alt="Error 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>
+        /// On Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/ErrorXP32.png" alt="Error Windows XP 32x32"/>
         /// <img src="../Help/Images/ErrorXP16.png" alt="Error Windows XP 16x16"/>
         /// </para>
@@ -158,24 +173,29 @@ namespace KGySoft.Drawing
         public static Icon SystemError => GetSystemIcon(StockIcon.Error, () => SystemIcons.Error);
 
         /// <summary>
-        /// <img src="../Help/Images/Question16W10.png" alt="Question (small version for the summary)"/>
+        /// <img src="../Help/Images/Question16W11.png" alt="Question (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Question icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Question32W10.png" alt="Question 32x32"/>
-        /// <img src="../Help/Images/Question16W10.png" alt="Question 16x16"/>
+        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Question32W11.png" alt="Question 32x32 Windows 11"/>
+        /// <img src="../Help/Images/Question16W11.png" alt="Question 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Question32.png" alt="Question 32x32"/>
-        /// <img src="../Help/Images/Question16.png" alt="Question 16x16"/>
+        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Question32W10.png" alt="Question 32x32 Windows 10"/>
+        /// <img src="../Help/Images/Question16W10.png" alt="Question 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// In Windows XP the icon contains the following images:<br/>
+        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Question32.png" alt="Question 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/Question16.png" alt="Question 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>
+        /// On Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/QuestionXP32.png" alt="Question Windows XP 32x32"/>
         /// <img src="../Help/Images/QuestionXP16.png" alt="Question Windows XP 16x16"/>
         /// </para>
@@ -183,30 +203,35 @@ namespace KGySoft.Drawing
         /// On Linux/Mono the icon contains the following images:<br/>
         /// <img src="../Help/Images/Question32Mono.png" alt="Question Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Question16Mono.png" alt="Question Linux/Mono 16x16"/>
-        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
         public static Icon SystemQuestion => GetSystemIcon(StockIcon.Help, () => SystemIcons.Question);
 
         /// <summary>
-        /// <img src="../Help/Images/Application16W10.png" alt="Application (small version for the summary)"/>
+        /// <img src="../Help/Images/Application16W11.png" alt="Application (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains a large and a small
         /// Application icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
+        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP and Linux the icon has always 32x32 and 16x16 image sizes.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Application32W10.png" alt="Application 32x32"/>
-        /// <img src="../Help/Images/Application16W10.png" alt="Application 16x16"/>
+        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Application32W11.png" alt="Application 32x32 Windows 11"/>
+        /// <img src="../Help/Images/Application16W11.png" alt="Application 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// In Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Application32.png" alt="Application 32x32"/>
-        /// <img src="../Help/Images/Application16.png" alt="Application 16x16"/>
+        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Application32W10.png" alt="Application 32x32 Windows 10"/>
+        /// <img src="../Help/Images/Application16W10.png" alt="Application 16x16 Windows 10"/>
         /// </para>
         /// <para>
-        /// In Windows XP the icon contains the following images:<br/>
+        /// On Windows Vista and Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Application32.png" alt="Application 32x32 Windows Vista"/>
+        /// <img src="../Help/Images/Application16.png" alt="Application 16x16 Windows Vista"/>
+        /// </para>
+        /// <para>
+        /// On Windows XP the icon contains the following images:<br/>
         /// <img src="../Help/Images/ApplicationXP32.png" alt="Application Windows XP 32x32"/>
         /// <img src="../Help/Images/ApplicationXP16.png" alt="Application Windows XP 16x16"/>
         /// </para>
@@ -214,36 +239,41 @@ namespace KGySoft.Drawing
         /// On Linux/Mono the icon contains the following images:<br/>
         /// <img src="../Help/Images/Application32Mono.png" alt="Application Linux/Mono 32x32"/>
         /// <img src="../Help/Images/Application16Mono.png" alt="Application Linux/Mono 16x16"/>
-        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
         public static Icon SystemApplication => GetSystemIcon(StockIcon.Application, () => SystemIcons.Application);
 
         /// <summary>
-        /// <img src="../Help/Images/Shield16W10.png" alt="Shield (small version for the summary)"/>
+        /// <img src="../Help/Images/Shield16W11.png" alt="Shield (small version for the summary)"/>
         /// Gets an <see cref="Icon"/> instance that contains the
         /// Shield icon as it is displayed by the current operating system.
-        /// <br/>In Windows Vista and above sizes are depending on current DPI settings, in Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths
+        /// <br/>On Windows Vista and above sizes are depending on current DPI settings, on Windows XP the icon has always 48x48, 32x32 and 16x16 image sizes in three different color depths
         /// and in Linux (Mono) the icon contains a 29x32 and a 16x16 image.
         /// </summary>
         /// <remarks>
         /// <para>
-        /// In Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
-        /// <img src="../Help/Images/Shield32W10.png" alt="Shield Windows 8/10 32x32"/>
-        /// <img src="../Help/Images/Shield16W10.png" alt="Shield Windows 8/10 16x16"/>
+        /// On Windows 11 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Shield32W11.png" alt="Shield Windows 8/10 32x32 Windows 11"/>
+        /// <img src="../Help/Images/Shield16W11.png" alt="Shield Windows 8/10 16x16 Windows 11"/>
         /// </para>
         /// <para>
-        /// In Windows 7 at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows 8 and Windows 10 at 100% DPI settings the icon contains the following images:<br/>
+        /// <img src="../Help/Images/Shield32W10.png" alt="Shield Windows 8/10 32x32 Windows 10"/>
+        /// <img src="../Help/Images/Shield16W10.png" alt="Shield Windows 8/10 16x16 Windows 10"/>
+        /// </para>
+        /// <para>
+        /// On Windows 7 at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/SecurityShield32.png" alt="Shield Windows 7 32x32"/>
         /// <img src="../Help/Images/SecurityShield16.png" alt="Shield Windows 7 16x16"/>
         /// </para>
         /// <para>
-        /// In Windows Vista at 100% DPI settings the icon contains the following images:<br/>
+        /// On Windows Vista at 100% DPI settings the icon contains the following images:<br/>
         /// <img src="../Help/Images/Shield32.png" alt="Shield Windows Vista 32x32"/>
         /// <img src="../Help/Images/Shield16.png" alt="Shield Windows Vista 16x16"/>
         /// </para>
         /// <para>
-        /// In Windows XP the icon contains three different color depth version of the following images:<br/>
+        /// On Windows XP the icon contains three different color depth version of the following images:<br/>
         /// <img src="../Help/Images/ShieldXP48.png" alt="Shield Windows XP 48x48"/>
         /// <img src="../Help/Images/ShieldXP32.png" alt="Shield Windows XP 32x32"/>
         /// <img src="../Help/Images/ShieldXP16.png" alt="Shield Windows XP 16x16"/>
@@ -252,7 +282,7 @@ namespace KGySoft.Drawing
         /// On Linux/Mono the icon contains the following images:<br/>
         /// <img src="../Help/Images/Shield32Mono.png" alt="Shield Linux/Mono 29x32"/>
         /// <img src="../Help/Images/Shield16Mono.png" alt="Shield Linux/Mono 16x16"/>
-        /// <note>In Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
+        /// <note>On Linux the .NET Core build mistakenly returns the <see cref="SystemError"/> icon, which is an issue in the <see cref="SystemIcons"/> implementation of .NET Core.</note>
         /// </para>
         /// </remarks>
         public static Icon SystemShield => GetSystemIcon(StockIcon.Shield, () => SystemIcons.Shield);
@@ -491,7 +521,7 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Tries to get a system stock icon. When there is no icon defined for provided <paramref name="id"/>,
         /// or Windows version is below Vista, this method returns <see langword="null"/>.
-        /// In Windows XP use the predefined property members to retrieve system icons.
+        /// On Windows XP use the predefined property members to retrieve system icons.
         /// </summary>
         /// <param name="id">Id of the icon to retrieve. For future compatibility reasons non-defined <see cref="StockIcon"/> values are also allowed.</param>
         /// <returns>An <see cref="Icon"/> instance containing a small and large icon when an icon belongs to <paramref name="id"/>, or <see langword="null"/>,

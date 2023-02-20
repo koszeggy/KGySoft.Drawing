@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: InterleavedGradientNoiseDitherer.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,7 +16,9 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Threading;
 
 #endregion
@@ -33,31 +35,28 @@ namespace KGySoft.Drawing.Imaging
     /// which is based on <see cref="OrderedDitherer">ordered dithering</see>).
     /// To dither images with real random noise use the <see cref="RandomNoiseDitherer"/>, which applies white noise to the quantized source.</note>
     /// <para>The following table demonstrates the effect of the dithering:
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-    /// <br/>Color hues with alpha gradient</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Color hues with alpha gradient</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilver.gif" alt="Color hues with system default 8 BPP palette and silver background"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredIGN.gif" alt="Color hues with system default 8 BPP palette, using silver background and interleaved gradient noise dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and interleaved gradient noise dithering</para></div></term>
-    /// </item>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and interleaved gradient noise dithering</para></div></td>
+    /// </tr>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-    /// <br/>Grayscale color shades</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Grayscale color shades</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/GrayShadesBWDitheredIGN.gif" alt="Grayscale color shades with black and white palette using interleaved gradient noise dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and interleaved gradient noise dithering</para></div></term>
-    /// </item>
-    /// </list></para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and interleaved gradient noise dithering</para></div></td>
+    /// </tr>
+    /// </tbody></table></para>
     /// </remarks>
     /// <seealso cref="IDitherer" />
     /// <seealso cref="OrderedDitherer" />
@@ -65,9 +64,11 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="InterleavedGradientNoiseDitherer" />
     public sealed class InterleavedGradientNoiseDitherer : IDitherer
     {
-        #region InterleavedGradientNoiseDitheringSession class
+        #region Nested Classes
 
-        private sealed class InterleavedGradientNoiseDitheringSession : VariableStrengthDitheringSessionBase
+        #region InterleavedGradientNoiseDitheringSessionSrgb class
+
+        private sealed class InterleavedGradientNoiseDitheringSessionSrgb : VariableStrengthDitheringSessionSrgbBase
         {
             #region Properties
 
@@ -77,7 +78,7 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal InterleavedGradientNoiseDitheringSession(IQuantizingSession quantizingSession, InterleavedGradientNoiseDitherer ditherer)
+            internal InterleavedGradientNoiseDitheringSessionSrgb(IQuantizingSession quantizingSession, InterleavedGradientNoiseDitherer ditherer)
                 : base(quantizingSession)
             {
                 if (ditherer.strength > 0f)
@@ -86,7 +87,7 @@ namespace KGySoft.Drawing.Imaging
                     return;
                 }
 
-                CalibrateStrength(-127, 127);
+                Strength = CalibrateStrength(-127, 127, ditherer.autoStrengthMode == AutoStrengthMode.Interpolated);
             }
 
             #endregion
@@ -107,11 +108,55 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region InterleavedGradientNoiseDitheringSessionLinear class
+
+        private sealed class InterleavedGradientNoiseDitheringSessionLinear : VariableStrengthDitheringSessionLinearBase
+        {
+            #region Properties
+
+            public override bool IsSequential => false;
+
+            #endregion
+
+            #region Constructors
+
+            internal InterleavedGradientNoiseDitheringSessionLinear(IQuantizingSession quantizingSession, InterleavedGradientNoiseDitherer ditherer)
+                : base(quantizingSession)
+            {
+                if (ditherer.strength > 0f)
+                {
+                    Strength = ditherer.strength;
+                    return;
+                }
+
+                Strength = CalibrateStrength(MinOffset, MaxOffset, ditherer.autoStrengthMode != AutoStrengthMode.Constant);
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override float GetOffset(int x, int y)
+            {
+                static double Frac(double value) => value - Math.Floor(value);
+
+                // The formula is taken from here: https://bartwronski.com/2016/10/30/dithering-part-three-real-world-2d-quantization-dithering/
+                return (float)(Frac(52.9829189 * Frac(0.06711056 * x + 0.00583715 * y)) * (MaxOffset - MinOffset) + MinOffset);
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #endregion
+
         #region Fields
 
         #region Instance Fields
 
         private readonly float strength;
+        private readonly AutoStrengthMode autoStrengthMode;
 
         #endregion
 
@@ -130,7 +175,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
         /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and some examples regarding dithering strength.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer.ConfigureStrength">OrderedDitherer.ConfigureStrength</see> method
+        /// for more details and some examples regarding dithering strength.
         /// The same applies also for the <see cref="InterleavedGradientNoiseDitherer"/> class. This parameter is optional.
         /// <br/>Default value: <c>0</c>.</param>
         /// <example>
@@ -148,28 +194,26 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredIGN.gif" alt="Color hues with system default 8 BPP palette, using silver background and interleaved gradient noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredIGN.gif" alt="Grayscale color shades with black and white palette using interleaved gradient noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </example>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         public InterleavedGradientNoiseDitherer(float strength = 0f)
         {
             if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
@@ -177,12 +221,30 @@ namespace KGySoft.Drawing.Imaging
             this.strength = strength;
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="RandomNoiseDitherer"/> class with a specific auto strength strategy.
+        /// </summary>
+        /// <param name="autoStrengthMode">An <see cref="AutoStrengthMode"/> value specifying the desired behavior for calibrating auto strength.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer.ConfigureStrength">OrderedDitherer.ConfigureStrength</see> method
+        /// for more details and some examples regarding dithering strength. The same applies also for the <see cref="InterleavedGradientNoiseDitherer"/> class.</param>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="autoStrengthMode"/> is not one of the defined values.</exception>
+        public InterleavedGradientNoiseDitherer(AutoStrengthMode autoStrengthMode)
+        {
+            if (!autoStrengthMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(autoStrengthMode), PublicResources.EnumOutOfRange(autoStrengthMode));
+            this.autoStrengthMode = autoStrengthMode;
+        }
+
         #endregion
 
         #region Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
-            => new InterleavedGradientNoiseDitheringSession(quantizer, this);
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? context)
+            => quantizingSession?.WorkingColorSpace == WorkingColorSpace.Linear
+                ? new InterleavedGradientNoiseDitheringSessionLinear(quantizingSession, this)
+                : new InterleavedGradientNoiseDitheringSessionSrgb(quantizingSession!, this);
 
         #endregion
     }

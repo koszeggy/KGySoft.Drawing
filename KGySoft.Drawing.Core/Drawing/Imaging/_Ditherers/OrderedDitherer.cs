@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OrderedDitherer.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,8 +16,11 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
+using KGySoft.Collections;
+using KGySoft.CoreLibraries;
 using KGySoft.Threading;
 
 #endregion
@@ -36,14 +39,13 @@ namespace KGySoft.Drawing.Imaging
     /// The more different values the matrix has the more number of different patterns can be mapped to the shades of the original pixels.
     /// While quantizing lighter and lighter colors, the different patterns appear in the order of the values in the specified matrix.</para>
     /// <para>The following table demonstrates the effect of the dithering:
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-    /// <br/>Color hues with alpha gradient</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Color hues with alpha gradient</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilver.gif" alt="Color hues with system default 8 BPP palette and silver background"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB8.gif" alt="Color hues with system default 8 BPP palette, silver background and Bayer 8x8 ordered dithering"/>
@@ -51,14 +53,12 @@ namespace KGySoft.Drawing.Imaging
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredBN.gif" alt="Color hues with system default 8 BPP palette, using silver background and blue noise dithering"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="BlueNoise">blue noise</see> dithering</para>
     /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH.gif" alt="Color hues with system default 8 BPP palette, using silver background and rectangular 7x7 dotted halftone pattern dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="DottedHalftone">dotted halftone pattern</see> dithering</para></div></term>
-    /// </item>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see> and <see cref="DottedHalftone">dotted halftone pattern</see> dithering</para></div></td>
+    /// </tr>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-    /// <br/>Grayscale color shades</para></div></term>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <br/>Grayscale color shades</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShadesBW.gif" alt="Grayscale color shades with black and white palette"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see>, no dithering</para>
     /// <para><img src="../Help/Images/GrayShadesBWDitheredB8.gif" alt="Grayscale color shades with black and white palette, using Bayer 8x8 ordered dithering"/>
@@ -66,35 +66,39 @@ namespace KGySoft.Drawing.Imaging
     /// <para><img src="../Help/Images/GrayShadesBWDitheredBN.gif" alt="Grayscale color shades with black and white palette using blue noise dithering"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="BlueNoise">blue noise</see> dithering</para>
     /// <para><img src="../Help/Images/GrayShadesBWDitheredDH.gif" alt="Grayscale color shades with black and white palette using rectangular 7x7 dotted halftone pattern dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="DottedHalftone">dotted halftone pattern</see> dithering</para></div></term>
-    /// </item>
-    /// </list></para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see> and <see cref="DottedHalftone">dotted halftone pattern</see> dithering</para></div></td>
+    /// </tr>
+    /// </tbody></table></para>
     /// <para>Unlike in case of the <see cref="ErrorDiffusionDitherer"/>, ordered dithering does not adjust strength to the quantization error of a pixel
     /// but simply uses the specified matrix values based on pixel coordinates to determine the quantized result.
     /// Therefore, a strength can be specified (see the <see cref="OrderedDitherer(byte[,],float)">constructor</see> and the <see cref="ConfigureStrength">ConfigureStrength</see> method),
     /// whose ideal value depends on the colors that a quantizer can return. If the strength is too low, then banding may appear in the result in place of gradients in the original image;
     /// whereas if the strength is too high, then dithering patterns may appear even in colors without quantization error (overdithering).</para>
     /// <para>Every static property in the <see cref="OrderedDitherer"/> returns an instance with auto strength, meaning that
-    /// strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
-    /// The auto value is usually correct if the quantizer returns evenly distributed colors. To obtain an <see cref="OrderedDitherer"/> instance with custom strength
-    /// use the <see cref="ConfigureStrength">ConfigureStrength</see> method.</para>
+    /// strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.</para>
+    /// <para>Auto strength can use different calibration strategies. The default strategy is usually correct if the quantizer returns evenly distributed colors.
+    /// Otherwise, you can apply the <see cref="AutoStrengthMode.Interpolated"/> auto strength mode by the <see cref="ConfigureAutoStrengthMode">ConfigureAutoStrengthMode</see>
+    /// method that calibrates the strength both for the black and white colors and uses a dynamic strength to each pixel based on its brightness.
+    /// If none of the auto strength modes provide the desired result you can obtain an <see cref="OrderedDitherer"/> instance with custom strength
+    /// by the <see cref="ConfigureStrength">ConfigureStrength</see> method.</para>
     /// <para>The following table demonstrates the effect of different strengths:
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term>
-    /// <div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-    /// <br/>Grayscale color shades</para></div></term>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Grayscale color shades</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/GrayShadesDefault4bpp.gif" alt="Grayscale color shades with system default 4 BPP palette"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see>, no dithering. The asymmetry is due to the uneven distribution of gray shades of this palette.</para>
     /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
     /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
     /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
-    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></term>
-    /// </item>
-    /// </list></para>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para>
+    /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Interpolated.gif" alt="Grayscale color shades with system default 4 BPP palette using 8x8 ordered dithering with interpolated ato strength"/>
+    /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using <see cref="AutoStrengthMode.Interpolated"/> auto strength strategy.
+    /// Now there is neither banding nor overdithering for black or white colors.</para></div></td>
+    /// </tr></tbody></table></para>
     /// <note type="tip">See the <strong>Examples</strong> section of the static properties for more examples.</note>
     /// </remarks>
     /// <seealso cref="IDitherer" />
@@ -105,13 +109,61 @@ namespace KGySoft.Drawing.Imaging
     /// <seealso cref="BitmapDataExtensions.Dither(IReadWriteBitmapData, IQuantizer, IDitherer)"/>
     public sealed class OrderedDitherer : IDitherer
     {
-        #region OrderedDitheringSession class
+        #region Nested Classes
+        
+        #region OrderedDitheringSessionSrgb class
 
-        private sealed class OrderedDitheringSession : VariableStrengthDitheringSessionBase
+        private sealed class OrderedDitheringSessionSrgb : VariableStrengthDitheringSessionSrgbBase
         {
             #region Fields
 
             private readonly OrderedDitherer ditherer;
+
+            #endregion
+
+            #region Properties
+
+#if DEBUG
+            public override bool IsSequential => true;
+#else
+            public override bool IsSequential => false; 
+#endif
+
+            #endregion
+
+            #region Constructors
+
+            internal OrderedDitheringSessionSrgb(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
+                : base(quantizingSession)
+            {
+                this.ditherer = ditherer;
+                if (ditherer.strength > 0f)
+                {
+                    Strength = ditherer.strength;
+                    return;
+                }
+
+                Strength = CalibrateStrength(ditherer.matrixMinValue, ditherer.matrixMaxValue, ditherer.autoStrengthMode == AutoStrengthMode.Interpolated);
+            }
+
+            #endregion
+
+            #region Methods
+
+            protected override sbyte GetOffset(int x, int y) => ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
+
+            #endregion
+        }
+
+        #endregion
+
+        #region OrderedDitheringSessionLinear class
+
+        private sealed class OrderedDitheringSessionLinear : VariableStrengthDitheringSessionLinearBase
+        {
+            #region Fields
+
+            private Array2D<float> offsets;
 
             #endregion
 
@@ -123,28 +175,42 @@ namespace KGySoft.Drawing.Imaging
 
             #region Constructors
 
-            internal OrderedDitheringSession(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
+            internal OrderedDitheringSessionLinear(IQuantizingSession quantizingSession, OrderedDitherer ditherer)
                 : base(quantizingSession)
             {
-                this.ditherer = ditherer;
+                const float norm = 256f;
+                offsets = new Array2D<float>(ditherer.matrixHeight, ditherer.matrixWidth);
+                for (int y = 0; y < offsets.Height; y++)
+                {
+                    for (int x = 0; x < offsets.Width; x++)
+                        offsets[y, x] = ditherer.premultipliedMatrix[y, x] / norm;
+                }
+
                 if (ditherer.strength > 0f)
                 {
                     Strength = ditherer.strength;
                     return;
                 }
 
-                CalibrateStrength(ditherer.matrixMinValue, ditherer.matrixMaxValue);
+                Strength = CalibrateStrength(ditherer.matrixMinValue / norm, ditherer.matrixMaxValue / norm, ditherer.autoStrengthMode != AutoStrengthMode.Constant);
             }
 
             #endregion
 
             #region Methods
 
-            protected override sbyte GetOffset(int x, int y)
-                => ditherer.premultipliedMatrix[y % ditherer.matrixHeight, x % ditherer.matrixWidth];
+            protected override float GetOffset(int x, int y) => offsets[y % offsets.Height, x % offsets.Width];
+
+            protected override void Dispose(bool disposing)
+            {
+                offsets.Dispose();
+                base.Dispose(disposing);
+            }
 
             #endregion
         }
+
+        #endregion
 
         #endregion
 
@@ -171,6 +237,7 @@ namespace KGySoft.Drawing.Imaging
         private readonly sbyte matrixMinValue;
         private readonly sbyte matrixMaxValue;
         private readonly float strength;
+        private readonly AutoStrengthMode autoStrengthMode;
 
         #endregion
 
@@ -199,27 +266,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB2.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 2x2 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredB2.gif" alt="Grayscale color shades with black and white palette using Bayer 2x2 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
         /// </example>
         public static OrderedDitherer Bayer2x2 => bayer2x2 ??=
@@ -247,27 +311,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB3.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 3x3 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredB3.gif" alt="Grayscale color shades with black and white palette using Bayer 3x3 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
         /// </example>
         public static OrderedDitherer Bayer3x3 => bayer3x3 ??=
@@ -296,27 +357,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB4.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 4x4 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredB4.gif" alt="Grayscale color shades with black and white palette using Bayer 4x4 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
         /// </example>
         public static OrderedDitherer Bayer4x4 => bayer4x4 ??=
@@ -346,49 +404,42 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredB8.gif" alt="Color hues with system default 8 BPP palette, using silver background and Bayer 8x8 ordered dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para>
         /// <para><img src="../Help/Images/AlphaGradientRgb111SilverDitheredB8.gif" alt="Color hues with RGB111 palette and silver background, using Bayer 8x8 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">custom 8-color palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.FromCustomPalette(Color[],Color,byte)">custom 8-color palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredB8.gif" alt="Grayscale color shades with black and white palette using Bayer 8x8 ordered dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para>
         /// <para><img src="../Help/Images/GrayShades2bppDitheredB8.gif" alt="Grayscale color shades with 2 BPP grayscale palette, using nearest color lookup and Bayer 8x8 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.Grayscale4">4-color grayscale palette</see></para>
-        /// </div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.Grayscale4">4-color grayscale palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/Shield256.png" alt="Shield icon with transparent background"/>
-        /// <br/>Shield icon with transparency</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Shield icon with transparency</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/ShieldDefault8bppBlackDitheredB8.gif" alt="Shield icon with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
-        /// <para><img src="../Help/Images/Lena.png" alt="Test image &quot;Lena&quot;"/>
-        /// <br/>Original test image "Lena"</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
-        /// <para><img src="../Help/Images/LenaDefault8bppDitheredB8.gif" alt="Test image &quot;Lena&quot; with system default 8 BPP palette using Bayer 8x8 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
+        /// <para><img src="../Help/Images/GirlWithAPearlEarring.png" alt="Test image &quot;Girl with a Pearl Earring&quot;"/>
+        /// <br/>Original test image "Girl with a Pearl Earring"</para></div></td>
+        /// <td><div style="text-align:center;">
+        /// <para><img src="../Help/Images/GirlWithAPearlEarringDefault8bppDitheredB8Srgb.gif" alt="Test image &quot;Girl with a Pearl Earring&quot; with system default 8 BPP palette, quantized in the sRGB color space using Bayer 8x8 ordered dithering"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
         /// </example>
         public static OrderedDitherer Bayer8x8 => bayer8x8 ??=
@@ -422,27 +473,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredDH.gif" alt="Color hues with system default 8 BPP palette, using silver background and dotted halftone dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredDH.gif" alt="Grayscale color shades with black and white palette using dotted halftone dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
         /// </example>
         public static OrderedDitherer DottedHalftone => dottedHalftone ??=
@@ -481,27 +529,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredBN.gif" alt="Color hues with system default 8 BPP palette, using silver background and blue noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredBN.gif" alt="Grayscale color shades with black and white palette using blue noise dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and examples.</note>
         /// </example>
         public static OrderedDitherer BlueNoise => blueNoise64 ??=
@@ -632,27 +677,24 @@ namespace KGySoft.Drawing.Imaging
         ///     return source;
         /// }]]></code>
         /// <para>The example above may produce the following results:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized and dithered image</term></listheader>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized and dithered image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-        /// <br/>Color hues with alpha gradient</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/AlphaGradientDefault8bppSilverDitheredOC.gif" alt="Color hues with system default 8 BPP palette, using silver background and a custom dotted halftone dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></term>
-        /// </item>
-        /// <item>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette">system default 8 BPP palette</see></para></div></td>
+        /// </tr>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesBWDitheredOC.gif" alt="Grayscale color shades with black and white palette using a custom dotted halftone dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.BlackAndWhite">black and white palette</see></para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// <note type="tip"><list type="bullet">
         /// <item>Use the static properties to perform dithering with predefined patterns.</item>
         /// <item>See the <strong>Remarks</strong> section of the <see cref="OrderedDitherer"/> class for more details and image examples.</item>
@@ -708,11 +750,14 @@ namespace KGySoft.Drawing.Imaging
 
         #region Private Constructors
 
-        private OrderedDitherer(OrderedDitherer original, float strength)
+        private OrderedDitherer(OrderedDitherer original, float strength, AutoStrengthMode autoStrengthMode)
         {
             if (Single.IsNaN(strength) || strength < 0f || strength > 1f)
                 throw new ArgumentOutOfRangeException(nameof(strength), PublicResources.ArgumentMustBeBetween(0, 1));
+            if (!autoStrengthMode.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(autoStrengthMode), PublicResources.EnumOutOfRange(autoStrengthMode));
             this.strength = strength;
+            this.autoStrengthMode = autoStrengthMode;
             premultipliedMatrix = original.premultipliedMatrix;
             matrixWidth = original.matrixWidth;
             matrixHeight = original.matrixHeight;
@@ -732,9 +777,9 @@ namespace KGySoft.Drawing.Imaging
         /// Gets a new <see cref="OrderedDitherer"/> instance that has the specified dithering <paramref name="strength"/>.
         /// </summary>
         /// <param name="strength">The strength of the dithering effect between 0 and 1 (inclusive bounds).
-        /// Specify 0 to use an auto value for each dithering session based on the used quantizer.</param>
+        /// Specify 0 to use an auto value for each dithering session based on the used quantizer.
+        /// The auto strength strategy can be specified by the <see cref="ConfigureAutoStrengthMode">ConfigureAutoStrengthMode</see> method.</param>
         /// <returns>A new <see cref="OrderedDitherer"/> instance that has the specified dithering <paramref name="strength"/>.</returns>
-        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
         /// <remarks>
         /// <note>This method always returns a new <see cref="OrderedDitherer"/> instance instead of changing the strength of the original one.
         /// This is required for the static properties so they can return a cached instance.</note>
@@ -742,40 +787,61 @@ namespace KGySoft.Drawing.Imaging
         /// whereas if <paramref name="strength"/> is too high, then dithering patterns may appear even in colors without quantization error (overdithering).</para>
         /// <para>If <paramref name="strength"/> is 0, then strength will be calibrated for each dithering session so that neither the black, nor the white colors will suffer from overdithering in the result.
         /// This is the default for <see cref="OrderedDitherer"/> instances returned by the static properties.</para>
+        /// <para>The auto strength strategy itself can be specified by the <see cref="ConfigureAutoStrengthMode">ConfigureAutoStrengthMode</see> method.</para>
         /// <para>The following table demonstrates the effect of different strengths:
-        /// <list type="table">
-        /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-        /// <item>
-        /// <term>
-        /// <div style="text-align:center;width:512px">
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShades.gif" alt="Grayscale color shades with different bit depths"/>
-        /// <br/>Grayscale color shades</para></div></term>
-        /// <term><div style="text-align:center;width:512px">
+        /// <br/>Grayscale color shades</para></div></td>
+        /// <td><div style="text-align:center;">
         /// <para><img src="../Help/Images/GrayShadesDefault4bpp.gif" alt="Grayscale color shades with system default 4 BPP palette"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see>, no dithering. The asymmetry is due to the uneven distribution of gray shades of this palette.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8.gif" alt="Grayscale color shades with system default 4 BPP palette using Bayer 8x8 ordered dithering"/>
         /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using auto strength. Darker shades have banding.</para>
         /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Str-5.gif" alt="Grayscale color shades with system default 4 BPP palette using a stronger Bayer 8x8 ordered dithering"/>
-        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para></div></term>
-        /// </item>
-        /// </list></para>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using strength = 0.5. Now there is no banding but white suffers from overdithering.</para>
+        /// <para><img src="../Help/Images/GrayShadesDefault4bppDitheredB8Interpolated.gif" alt="Grayscale color shades with system default 4 BPP palette using 8x8 ordered dithering with interpolated ato strength"/>
+        /// <br/>Quantizing with <see cref="PredefinedColorsQuantizer.SystemDefault4BppPalette">system default 4 BPP palette</see> and <see cref="Bayer8x8">Bayer 8x8</see> dithering using <see cref="AutoStrengthMode.Interpolated"/> auto strength strategy.
+        /// Now there is neither banding nor overdithering for black or white colors.</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to specify the strength for a predefined ordered ditherer:
         /// <code lang="C#"><![CDATA[
         /// // getting a predefined ditherer with custom strength:
         /// IDitherer ditherer = OrderedDitherer.Bayer8x8.ConfigureStrength(0.5f);
+        /// 
+        /// // getting a predefined ditherer with custom auto strength strategy:
+        /// ditherer = OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Interpolated);
         /// ]]></code>
         /// </example>
-        // ReSharper disable once ParameterHidesMember - No conflict, a new instance is created
-        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength);
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="strength"/> must be between 0 and 1, inclusive bounds.</exception>
+        [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = "No conflict, a new instance is created")]
+        public OrderedDitherer ConfigureStrength(float strength) => new OrderedDitherer(this, strength, autoStrengthMode);
+
+        /// <summary>
+        /// Gets a new <see cref="OrderedDitherer"/> instance that uses auto strength using the specified <paramref name="autoStrengthMode"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ConfigureStrength">ConfigureStrength</see> method for details and image examples.
+        /// </summary>
+        /// <param name="autoStrengthMode">An <see cref="AutoStrengthMode"/> value specifying the desired behavior for calibrating auto strength.</param>
+        /// <returns>A new <see cref="OrderedDitherer"/> instance that has the specified <paramref name="autoStrengthMode"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="autoStrengthMode"/> is not one of the defined values.</exception>
+        [SuppressMessage("ReSharper", "ParameterHidesMember", Justification = "No conflict, a new instance is created")]
+        public OrderedDitherer ConfigureAutoStrengthMode(AutoStrengthMode autoStrengthMode) => new OrderedDitherer(this, 0f, autoStrengthMode);
 
         #endregion
 
         #region Explicitly Implemented Interface Methods
 
-        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizer, IAsyncContext? context)
-            => new OrderedDitheringSession(quantizer, this);
+        [SuppressMessage("ReSharper", "ConditionalAccessQualifierIsNonNullableAccordingToAPIContract",
+            Justification = "It CAN be null, just must no be. Null check is in the called ctor.")]
+        IDitheringSession IDitherer.Initialize(IReadableBitmapData source, IQuantizingSession quantizingSession, IAsyncContext? context)
+            => quantizingSession?.WorkingColorSpace == WorkingColorSpace.Linear
+                ? new OrderedDitheringSessionLinear(quantizingSession, this)
+                : new OrderedDitheringSessionSrgb(quantizingSession!, this);
 
         #endregion
 

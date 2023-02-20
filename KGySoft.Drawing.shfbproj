@@ -34,7 +34,7 @@
       <DocumentationSource sourceFile="Specific\Wpf\KGySoft.Drawing.Wpf\KGySoft.Drawing.Wpf.csproj" />
     </DocumentationSources>
     <HelpTitle>KGy SOFT Drawing Libraries Help</HelpTitle>
-    <HelpFileVersion>7.0.0</HelpFileVersion>
+    <HelpFileVersion>7.1.0</HelpFileVersion>
     <NamingMethod>MemberName</NamingMethod>
     <ContentPlacement>AboveNamespaces</ContentPlacement>
     <RootNamespaceContainer>False</RootNamespaceContainer>
@@ -428,6 +428,12 @@
       <ImageId>Warning16W10</ImageId>
       <AlternateText>Warning 16 W 10</AlternateText>
     </Content>
+    <Content Include="Help\Images\Warning16W11.png">
+      <ImageId>Warning16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Warning32W11.png">
+      <ImageId>Warning32W11</ImageId>
+    </Content>
     <Content Include="Help\Images\Shield32W10.png">
       <ImageId>Shield32W10</ImageId>
       <AlternateText>Shield 32 W 10</AlternateText>
@@ -435,6 +441,12 @@
     <Content Include="Help\Images\Shield16W10.png">
       <ImageId>Shield16W10</ImageId>
       <AlternateText>Shield 16 W 10</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Shield16W11.png">
+      <ImageId>Shield16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Shield32W11.png">
+      <ImageId>Shield32W11</ImageId>
     </Content>
     <Content Include="Help\Images\Question32W10.png">
       <ImageId>Question32W10</ImageId>
@@ -451,6 +463,12 @@
     <Content Include="Help\Images\Question16W10.png">
       <ImageId>Question16W10</ImageId>
       <AlternateText>Question 16 W 10</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Question16W11.png">
+      <ImageId>Question16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Question32W11.png">
+      <ImageId>Question32W11</ImageId>
     </Content>
     <Content Include="Help\Images\Information64.png">
       <ImageId>Information64</ImageId>
@@ -472,6 +490,12 @@
       <ImageId>Information16W10</ImageId>
       <AlternateText>Information 16 W 10</AlternateText>
     </Content>
+    <Content Include="Help\Images\Information16W11.png">
+      <ImageId>Information16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Information32W11.png">
+      <ImageId>Information32W11</ImageId>
+    </Content>
     <Content Include="Help\Images\Error64.png">
       <ImageId>Error64</ImageId>
       <AlternateText>Error 64</AlternateText>
@@ -488,6 +512,12 @@
       <ImageId>Error16W10</ImageId>
       <AlternateText>Error 16 W 10</AlternateText>
     </Content>
+    <Content Include="Help\Images\Error16W11.png">
+      <ImageId>Error16W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Error32W11.png">
+      <ImageId>Error32W11</ImageId>
+    </Content>
     <Content Include="Help\Images\Application64.png">
       <ImageId>Application64</ImageId>
       <AlternateText>Application 64</AlternateText>
@@ -499,6 +529,12 @@
     <Content Include="Help\Images\Application16W10.png">
       <ImageId>Application16W10</ImageId>
       <AlternateText>Application 16 W 10</AlternateText>
+    </Content>
+    <Content Include="Help\Images\Application32W11.png">
+      <ImageId>Application32W11</ImageId>
+    </Content>
+    <Content Include="Help\Images\Application16W11.png">
+      <ImageId>Application16W11</ImageId>
     </Content>
     <Content Include="Help\Images\Shield24bppCyan.png">
       <ImageId>ConvertPixelFormat24bppCyan</ImageId>
@@ -519,6 +555,10 @@
     <Content Include="Help\Images\AlphaGradientRgb888Black.png">
       <ImageId>AlphaGradientRgb888Black</ImageId>
       <AlternateText>Alpha Gradient Rgb 888 Black</AlternateText>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientRgb888White.png">
+      <ImageId>AlphaGradientRgb888White</ImageId>
+      <AlternateText>Alpha Gradient Rgb 888 White</AlternateText>
     </Content>
     <Content Include="Help\Images\AlphaGradientRgb888Silver.png">
       <ImageId>AlphaGradientRgb888Silver</ImageId>
@@ -872,14 +912,6 @@
       <ImageId>GrayShadesDefault8bppDitheredB8</ImageId>
       <AlternateText>Gray Shades Default 8bpp Dithered B 8</AlternateText>
     </Content>
-    <Content Include="Help\Images\LenaDefault8bpp.gif">
-      <ImageId>LenaDefault8bpp</ImageId>
-      <AlternateText>Lena Default 8bpp</AlternateText>
-    </Content>
-    <Content Include="Help\Images\LenaDefault8bppDitheredFS.gif">
-      <ImageId>LenaDefault8bppDitheredFS</ImageId>
-      <AlternateText>Lena Default 8bpp DitheredFS</AlternateText>
-    </Content>
     <Content Include="Help\Images\ShieldDefault8bppBlack.gif">
       <ImageId>ShieldDefault8bppBlack</ImageId>
       <AlternateText>Shield Default 8bpp Black</AlternateText>
@@ -916,6 +948,9 @@
       <ImageId>GrayShadesDefault4bppDitheredB8Str-5</ImageId>
       <AlternateText>Gray Shades Default 4bpp Dithered B 8 Str-5</AlternateText>
     </Content>
+    <Content Include="Help\Images\GrayShadesDefault4bppDitheredB8Interpolated.gif">
+      <ImageId>GrayShadesDefault4bppDitheredB8Interpolated</ImageId>
+    </Content>
     <Content Include="Help\Images\ShieldDefault4bppBlack.gif">
       <ImageId>ShieldDefault4bppBlack</ImageId>
       <AlternateText>Shield Default 4bpp Black</AlternateText>
@@ -939,10 +974,6 @@
     <Content Include="Help\Images\AlphaGradientRgb111SilverDitheredB8.gif">
       <ImageId>AlphaGradientRgb111SilverDitheredB8</ImageId>
       <AlternateText>Alpha Gradient Rgb 111 Silver Dithered B 8</AlternateText>
-    </Content>
-    <Content Include="Help\Images\LenaRgb111.gif">
-      <ImageId>LenaRgb111</ImageId>
-      <AlternateText>Lena Rgb 111</AlternateText>
     </Content>
     <Content Include="Help\Images\LenaRgb111DitheredFS.gif">
       <ImageId>LenaRgb111DitheredFS</ImageId>
@@ -1051,10 +1082,6 @@
     <Content Include="Help\Images\GrayShadesBWDitheredB4.gif">
       <ImageId>GrayShadesBWDitheredB4</ImageId>
       <AlternateText>Gray ShadesBWDithered B 4</AlternateText>
-    </Content>
-    <Content Include="Help\Images\LenaDefault8bppDitheredB8.gif">
-      <ImageId>LenaDefault8bppDitheredB8</ImageId>
-      <AlternateText>Lena Default 8bpp Dithered B 8</AlternateText>
     </Content>
     <Content Include="Help\Images\AlphaGradientDefault8bppSilverDitheredBN.gif">
       <ImageId>AlphaGradientDefault8bppSilverDitheredBN</ImageId>
@@ -1299,6 +1326,69 @@
     </Content>
     <Content Include="Help\Images\Information4A16_WPF.png">
       <ImageId>Information4A16_WPF</ImageId>
+    </Content>
+    <Content Include="Help\Images\BlendingExampleSrgb.png">
+      <ImageId>BlendingExampleSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\BlendingExampleLinear.png">
+      <ImageId>BlendingExampleLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientRgb888BlackLinear.png">
+      <ImageId>AlphaGradientRgb888BlackLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientRgb888WhiteLinear.png">
+      <ImageId>AlphaGradientRgb888WhiteLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarring.png">
+      <ImageId>GirlWithAPearlEarring</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWLinear.gif">
+      <ImageId>GirlWithAPearlEarringBWLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWSrgb.gif">
+      <ImageId>GirlWithAPearlEarringBWSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111Srgb.gif">
+      <ImageId>GirlWithAPearlEarringRgb111Srgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111Linear.gif">
+      <ImageId>GirlWithAPearlEarringRgb111Linear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppSrgb.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppLinear.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWDitheredB8Linear.gif">
+      <ImageId>GirlWithAPearlEarringBWDitheredB8Linear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringBWDitheredB8Srgb.gif">
+      <ImageId>GirlWithAPearlEarringBWDitheredB8Srgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111DitheredFSLinear.gif">
+      <ImageId>GirlWithAPearlEarringRgb111DitheredFSLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111DitheredFSSrgb.gif">
+      <ImageId>GirlWithAPearlEarringRgb111DitheredFSSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppDitheredFSLinear.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppDitheredFSLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppDitheredFSSrgb.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppDitheredFSSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111DitheredB8Linear.gif">
+      <ImageId>GirlWithAPearlEarringRgb111DitheredB8Linear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111ResizedLinear.png">
+      <ImageId>GirlWithAPearlEarringRgb111ResizedLinear</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringRgb111ResizedSrgb.png">
+      <ImageId>GirlWithAPearlEarringRgb111ResizedSrgb</ImageId>
+    </Content>
+    <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppDitheredB8Srgb.gif">
+      <ImageId>GirlWithAPearlEarringDefault8bppDitheredB8Srgb</ImageId>
     </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.

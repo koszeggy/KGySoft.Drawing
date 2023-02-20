@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Examples.Maui.Extensions
             var result = new SKBitmap(new SKImageInfo(source.Width, source.Height));
             try
             {
-                using IReadWriteBitmapData target = result.GetReadWriteBitmapData();
+                using IReadWriteBitmapData target = result.GetReadWriteBitmapData(source.WorkingColorSpace);
                 source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer);
             }
             finally

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: PixelFormatExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -66,6 +66,9 @@ namespace KGySoft.Drawing.Wpf
                 result.HasAlpha = true;
             else if (pixelFormat.In(PixelFormats.Prgba64, PixelFormats.Prgba128Float))
                 result.HasPremultipliedAlpha = true;
+
+            if (pixelFormat.In(PixelFormats.Gray32Float, PixelFormats.Rgb128Float, PixelFormats.Rgba128Float, PixelFormats.Rgba128Float))
+                result.LinearGamma = true;
 
             return result;
         }

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ColorF.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,9 +15,12 @@
 
 #region Usings
 
-using System;
-#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Numerics;
+#endif
+using System;
+#if !(NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER)
+using System.Diagnostics.CodeAnalysis; 
 #endif
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
@@ -27,7 +30,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal readonly struct ColorF
+    internal readonly struct ColorF : IEquatable<ColorF>
     {
         #region Fields
 
@@ -58,11 +61,14 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
-        #region Private Fields
+        #region Internal Fields
 
-#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         [FieldOffset(0)]
-        private readonly Vector4 value;
+        internal readonly Vector4 Rgba;
+
+        [FieldOffset(0)]
+        internal readonly Vector3 Rgb;
 #endif
 
         #endregion
@@ -71,7 +77,21 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        //public bool IsValid => Clip().Rgba == Rgba; // Clip() == this;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal RgbF RgbF => new RgbF(Rgb);
+#else
+        internal RgbF RgbF => new RgbF(R, G, B);
+#endif
+
+        #endregion
+
         #region Operators
+
+        public static bool operator ==(ColorF left, ColorF right) => Equals(left, right);
+        public static bool operator !=(ColorF left, ColorF right) => !(left == right);
 
         /// <summary>
         /// Multiplies a <see cref="ColorF"/> by the given scalar.
@@ -82,10 +102,26 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ColorF operator *(ColorF left, float right)
         {
-#if NET35 || NET40 || NET45 || NETSTANDARD2_0
-            return new ColorF(left.A * right, left.R * right, left.G * right, left.B * right);
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new ColorF(left.Rgba * new Vector4(right));
 #else
-            return new ColorF(left.value * new Vector4(right));
+            return new ColorF(left.A * right, left.R * right, left.G * right, left.B * right);
+#endif
+        }
+
+        /// <summary>
+        /// Adds two colors together.
+        /// </summary>
+        /// <param name="left">The first source color.</param>
+        /// <param name="right">The second source color.</param>
+        /// <returns>The summed color.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static ColorF operator +(ColorF left, ColorF right)
+        {
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            return new ColorF(left.Rgba + right.Rgba);
+#else
+            return new ColorF(left.A + right.A, left.R + right.R, left.G + right.G, left.B + right.B);
 #endif
         }
 
@@ -101,23 +137,7 @@ namespace KGySoft.Drawing.Imaging
 #if NET35 || NET40 || NET45 || NETSTANDARD2_0
             return new ColorF(left.A + right, left.R + right, left.G + right, left.B + right);
 #else
-            return new ColorF(left.value * new Vector4(right));
-#endif
-        }
-
-        /// <summary>
-        /// Adds two colors together.
-        /// </summary>
-        /// <param name="left">The first source color.</param>
-        /// <param name="right">The second source color.</param>
-        /// <returns>The summed color.</returns>
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static ColorF operator +(ColorF left, ColorF right)
-        {
-#if NET35 || NET40 || NET45 || NETSTANDARD2_0
-            return new ColorF(left.A + right.A, left.R + right.R, left.G + right.G, left.B + right.B);
-#else
-            return new ColorF(left.value + right.value);
+            return new ColorF(left.Rgba * new Vector4(right));
 #endif
         }
 
@@ -127,9 +147,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Constructors
 
+        // does not validate values for performance reasons but you can call IsValid or Clip
         public ColorF(float a, float r, float g, float b)
-#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0) && !NET5_0_OR_GREATER
-            : this() // so the compiler does not complain about not initializing ARGB fields
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing the vector fields
 #endif
         {
 #if NET5_0_OR_GREATER
@@ -141,33 +162,51 @@ namespace KGySoft.Drawing.Imaging
             A = a;
         }
 
-#if NET35 || NET40 || NET45 || NETSTANDARD2_0
         public ColorF(Color32 c)
-        {
-            R = (float)c.R / Byte.MaxValue;
-            G = (float)c.G / Byte.MaxValue;
-            B = (float)c.B / Byte.MaxValue;
-            A = (float)c.A / Byte.MaxValue;
-        }
-#else
-        public ColorF(Color32 c)
-#if !NET5_0_OR_GREATER
-            : this() // so the compiler does not complain about not initializing ARGB fields
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value field
 #endif
         {
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
-            value = new Vector4(c.R, c.G, c.B, c.A) / max8Bpp;
+            R = ColorSpaceHelper.SrgbToLinear(c.R);
+            G = ColorSpaceHelper.SrgbToLinear(c.G);
+            B = ColorSpaceHelper.SrgbToLinear(c.B);
+            A = ColorSpaceHelper.ToFloat(c.A);
         }
-#endif
 
         #endregion
 
-        #region Private Constructors
+        #region Internal Constructors
 
-#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
-        private ColorF(Vector4 vector)
+//        internal ColorF(Color32 c, bool adjustGamma)
+//#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+//            : this() // so the compiler does not complain about not initializing value field
+//#endif
+//        {
+//#if NET5_0_OR_GREATER
+//            Unsafe.SkipInit(out this);
+//#endif
+//            if (adjustGamma)
+//            {
+//                this = new ColorF(c);
+//                return;
+//            }
+
+//#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+//            Rgba = new Vector4(c.R, c.G, c.B, c.A) / max8Bpp;
+//#else
+//            R = ColorSpaceHelper.ToFloat(c.R);
+//            G = ColorSpaceHelper.ToFloat(c.G);
+//            B = ColorSpaceHelper.ToFloat(c.B);
+//            A = ColorSpaceHelper.ToFloat(c.A);
+//#endif
+//        }
+
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        internal ColorF(Vector4 vector)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing ARGB fields
 #endif
@@ -175,7 +214,7 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
-            value = vector;
+            Rgba = vector;
         }
 #endif
 
@@ -184,41 +223,71 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+        
+        #region Public Methods
 
-        #region Static Methods
-
-#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static Vector4 Clip(Vector4 x, Vector4 min, Vector4 max)
-            => Vector4.Min(Vector4.Max(x, min), max);
-#endif
-
-        #endregion
-
-        #region Instance Methods
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        public Color32 ToColor32()
-        {
-#if NET35 || NET40 || NET45 || NETSTANDARD2_0
-            ColorF result = this * Byte.MaxValue + 0.5f;
-            return new Color32(result.A.ClipToByte(),
-                result.R.ClipToByte(),
-                result.G.ClipToByte(),
-                result.B.ClipToByte());
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        public ColorF Clip() => new ColorF(Vector4.Clamp(Rgba, Vector4.Zero, Vector4.One));
 #else
-            Vector4 result = value * max8Bpp;
-            result += half;
-            result = Clip(result, Vector4.Zero, max8Bpp);
-            return new Color32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
+        public ColorF Clip() => new ColorF(A.Clip(0f, 1f), R.Clip(0f, 1f), G.Clip(0f, 1f), B.Clip(0f, 1f));
 #endif
-        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(A),
+            ColorSpaceHelper.LinearToSrgb8Bit(R),
+            ColorSpaceHelper.LinearToSrgb8Bit(G),
+            ColorSpaceHelper.LinearToSrgb8Bit(B));
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColorF ToPremultiplied() => new PColorF(new Vector4(Rgb * A, A));
+#else
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public PColorF ToPremultiplied() => new PColorF(A, R * A, G * A, B * A);
+#endif
 
         /// <summary>
         /// Gets the string representation of this <see cref="ColorF"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="ColorF"/> instance.</returns>
         public override string ToString() => $"[A={A:N4}; R={R:N4}; G={G:N4}; B={B:N4}]";
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        public bool Equals(ColorF other) => other.Rgba == Rgba;
+#else
+        [SuppressMessage("ReSharper", "CompareOfFloatsByEqualityOperator", Justification = "It is intended in Equals")]
+        public bool Equals(ColorF other) => other.R == R && other.G == G && other.B == B && other.A == A;
+#endif
+
+        public override bool Equals(object? obj) => obj is ColorF other && Equals(other);
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        public override int GetHashCode() => Rgba.GetHashCode();
+#else
+        public override int GetHashCode() => (R, G, B, A).GetHashCode();
+#endif
+
+        #endregion
+
+        #region Internal Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal Color32 ToColor32(bool adjustGamma)
+        {
+            if (adjustGamma)
+                return ToColor32();
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Vector4 result = Vector4.Clamp(Rgba * max8Bpp + half, Vector4.Zero, max8Bpp);
+            return new Color32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
+#else
+            ColorF result = this * Byte.MaxValue + 0.5f;
+            return new Color32(result.A.ClipToByte(),
+                result.R.ClipToByte(),
+                result.G.ClipToByte(),
+                result.B.ClipToByte());
+#endif
+        }
 
         #endregion
 

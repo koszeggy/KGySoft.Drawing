@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapExtensionsPerformanceTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -87,7 +87,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var bmp = new Bitmap(size, size, pixelFormat);
-                    using IReadWriteBitmapData acc = NativeBitmapDataFactory.CreateBitmapData(bmp, ImageLockMode.ReadWrite);
+                    using IReadWriteBitmapData acc = bmp.GetReadWriteBitmapData();
                     IQuantizer quantizer = PredefinedColorsQuantizer.FromBitmapData(acc);
                     var c = new Color32(color);
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(acc))
@@ -125,7 +125,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmpRef.CloneBitmap();
-                    using (IReadWriteBitmapData bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IReadWriteBitmapData bitmapData = result.GetReadWriteBitmapData())
                     using (IQuantizingSession session = quantizer.Initialize(bitmapData))
                     {
                         var row = bitmapData.FirstRow;
@@ -186,7 +186,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmpRef.CloneBitmap();
-                    using (IReadWriteBitmapData bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IReadWriteBitmapData bitmapData = result.GetReadWriteBitmapData())
                     using (IQuantizingSession quantizingSession = quantizer.Initialize(bitmapData))
                     using (IDitheringSession ditheringSession = ditherer.Initialize(bitmapData, quantizingSession))
                     {
@@ -221,7 +221,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 .AddCase(() =>
                 {
                     using var result = bmp.CloneBitmap();
-                    using (IReadWriteBitmapData bitmapData = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.ReadWrite))
+                    using (IReadWriteBitmapData bitmapData = result.GetReadWriteBitmapData())
                     {
                         Color32 from = new Color32(Color.Black);
                         Color32 to = new Color32(Color.Transparent);

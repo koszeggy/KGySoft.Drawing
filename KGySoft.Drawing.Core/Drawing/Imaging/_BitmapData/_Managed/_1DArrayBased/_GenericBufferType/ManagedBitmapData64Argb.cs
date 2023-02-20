@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData64Argb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
@@ -46,8 +45,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData64Argb(Array2D<T> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format64bppArgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData64Argb(Array2D<T> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 

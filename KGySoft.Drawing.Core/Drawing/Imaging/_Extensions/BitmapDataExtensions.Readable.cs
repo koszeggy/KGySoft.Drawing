@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataExtensions.Readable.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -60,7 +60,24 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source)
         {
             ValidateArguments(source);
-            return DoCloneExact(AsyncHelper.DefaultContext, source)!;
+            return DoCloneExact(AsyncHelper.DefaultContext, source, source.WorkingColorSpace)!;
+        }
+
+        /// <summary>
+        /// Gets the clone of the specified <paramref name="source"/> with identical size.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData,TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, WorkingColorSpace workingColorSpace)
+        {
+            ValidateArguments(source, workingColorSpace);
+            return DoCloneExact(AsyncHelper.DefaultContext, source, workingColorSpace)!;
         }
 
         /// <summary>
@@ -78,7 +95,8 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle)
         {
             ValidateArguments(source);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal)!;
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null)!;
         }
 
         /// <summary>
@@ -114,7 +132,46 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold)!;
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null)!;
+        }
+
+        /// <summary>
+        /// Gets the clone of the specified <paramref name="source"/> with identical size and the specified <paramref name="pixelFormat"/> and color settings.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="pixelFormat">The desired pixel format of the result.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
+        /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
+        /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
+        /// can be preserved only between the same pixel formats. If they are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, KnownPixelFormat, Palette)"/> overload.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_1.htm">ConvertPixelFormat(Image, PixelFormat, Color, byte)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
+        /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.</exception>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
+            Color32 backColor = default, byte alphaThreshold = 128)
+        {
+            ValidateArguments(source, pixelFormat, workingColorSpace);
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, workingColorSpace, null)!;
         }
 
         /// <summary>
@@ -145,7 +202,8 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette)!;
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, new Rectangle(Point.Empty, source.Size), pixelFormat,
+                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette)!;
         }
 
         /// <summary>
@@ -181,10 +239,53 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128)
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat,
+            Color32 backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, backColor, alphaThreshold)!;
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null)!;
+        }
+
+        /// <summary>
+        /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be cloned.</param>
+        /// <param name="pixelFormat">The desired pixel format of the result.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
+        /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>.</returns>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use the <see cref="BeginClone(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, AsyncConfig)"/>
+        /// or <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>This overload automatically quantizes colors if <paramref name="pixelFormat"/> represents a narrower set of colors than <paramref name="source"/>&#160;<see cref="IBitmapData.PixelFormat"/>.
+        /// To use a custom quantizer use the overloads with an <see cref="IQuantizer"/> parameter.</para>
+        /// <para>Color depth of wide-color formats (<see cref="KnownPixelFormat.Format16bppGrayScale"/>, <see cref="KnownPixelFormat.Format48bppRgb"/>, <see cref="KnownPixelFormat.Format64bppArgb"/>, <see cref="KnownPixelFormat.Format64bppPArgb"/>)
+        /// can be preserved only between the same pixel formats. If they are different, then colors might be quantized to 32bpp ones during the operation.</para>
+        /// <para>If <paramref name="pixelFormat"/> represents an indexed format, then the target palette is taken from <paramref name="source"/> if it also has a palette of no more entries than the target indexed format can have;
+        /// otherwise, a default palette will be used based on <paramref name="pixelFormat"/>. To specify the desired palette of the result use the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Palette)"/> overload.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat_2.htm">ConvertPixelFormat(Image, PixelFormat, Color[], Color, byte)</a> extension method
+        /// for some examples. The <a href="https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_ImageExtensions_ConvertPixelFormat.htm">ConvertPixelFormat</a> extensions work the same way
+        /// for <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Drawing.Image" target="_blank">Image</a>s
+        /// as the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.Clone">Clone</see> extensions for <see cref="IReadableBitmapData"/> instances.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
+        /// <br/>-or-
+        /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat,
+            WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128)
+        {
+            ValidateArguments(source, pixelFormat, workingColorSpace);
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, backColor, alphaThreshold, workingColorSpace, null)!;
         }
 
         /// <summary>
@@ -218,7 +319,8 @@ namespace KGySoft.Drawing.Imaging
         public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Palette? palette)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette)!;
+            return DoCloneDirect(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat,
+                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette)!;
         }
 
         /// <summary>
@@ -343,7 +445,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
+        public static IReadWriteBitmapData Clone(this IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat,
+            IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneWithQuantizer(AsyncHelper.DefaultContext, source, sourceRectangle, pixelFormat, quantizer, ditherer)!;
@@ -372,8 +475,8 @@ namespace KGySoft.Drawing.Imaging
             ValidateArguments(source);
             context ??= AsyncHelper.DefaultContext;
             return sourceRectangle == null
-                ? DoCloneExact(context, source)
-                : DoCloneDirect(context, source, sourceRectangle.Value, source.PixelFormat.AsKnownPixelFormatInternal);
+                ? DoCloneExact(context, source, source.WorkingColorSpace)
+                : DoCloneDirect(context, source, sourceRectangle.Value, source.PixelFormat.AsKnownPixelFormatInternal, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
         }
 
         /// <summary>
@@ -409,10 +512,55 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null)
+        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat,
+            Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold);
+            return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
+                pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null);
+        }
+
+        /// <summary>
+        /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings
+        /// inside of an already created, possibly asynchronous <paramref name="context"/>.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="context">An <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncContext.htm">IAsyncContext</a> instance
+        /// that contains information for asynchronous processing about the current operation.</param>
+        /// <param name="pixelFormat">The desired pixel format of the result.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
+        /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be cloned,
+        /// or <see langword="null"/> to clone the whole <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>, or <see langword="null"/>, if the operation was canceled.</returns>
+        /// <remarks>
+        /// <para>This method blocks the caller thread but if <paramref name="context"/> belongs to an async top level method, then the execution may already run
+        /// on a pool thread. Degree of parallelism, the ability of cancellation and reporting progress depend on how these were configured at the top level method.</para>
+        /// <para>When reporting progress, this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface.</para>
+        /// <note type="tip">See the <strong>Examples</strong> section of the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_AsyncHelper.htm">AsyncHelper</a>
+        /// class for details about how to create a context for possibly async top level methods.</note>
+        /// <note>See the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Color32, byte)"/> overload for more details about the other parameters.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
+        /// <br/>-or-
+        /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
+        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
+            Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null)
+        {
+            ValidateArguments(source, pixelFormat, workingColorSpace);
+            return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
+                pixelFormat, backColor, alphaThreshold, workingColorSpace, null);
         }
 
         /// <summary>
@@ -445,10 +593,12 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null)
+        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat,
+            Palette? palette, Rectangle? sourceRectangle = null)
         {
             ValidateArguments(source, pixelFormat);
-            return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette);
+            return DoCloneDirect(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
+                pixelFormat, palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette);
         }
 
         /// <summary>
@@ -482,7 +632,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null)
+        public static IReadWriteBitmapData? Clone(this IReadableBitmapData source, IAsyncContext? context, KnownPixelFormat pixelFormat,
+            IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null)
         {
             ValidateArguments(source, pixelFormat);
             return DoCloneWithQuantizer(context ?? AsyncHelper.DefaultContext, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, quantizer, ditherer);
@@ -511,7 +662,30 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginClone(this IReadableBitmapData source, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.BeginOperation(ctx => DoCloneExact(ctx, source), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoCloneExact(ctx, source, source.WorkingColorSpace), asyncConfig);
+        }
+
+        /// <summary>
+        /// Begins to clone the specified <paramref name="source"/> with identical size asynchronously.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndClone">EndClone</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, WorkingColorSpace workingColorSpace, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, workingColorSpace);
+            return AsyncHelper.BeginOperation(ctx => DoCloneExact(ctx, source, workingColorSpace), asyncConfig);
         }
 
         /// <summary>
@@ -535,7 +709,8 @@ namespace KGySoft.Drawing.Imaging
         public static IAsyncResult BeginClone(this IReadableBitmapData source, Rectangle sourceRectangle, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -569,10 +744,53 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat,
+            Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
-            return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
+                pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null), asyncConfig);
+        }
+
+        /// <summary>
+        /// Begins to clone the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings asynchronously.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="pixelFormat">The desired pixel format of the result.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
+        /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be cloned, or <see langword="null"/> to clone the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="IAsyncResult"/> that represents the asynchronous operation, which could still be pending.</returns>
+        /// <remarks>
+        /// <para>In .NET Framework 4.0 and above you can use also the <see cref="CloneAsync(IReadableBitmapData, KnownPixelFormat, Color32, byte, Rectangle?, TaskConfig)"/> method.</para>
+        /// <para>To get the result or the exception that occurred during the operation you have to call the <see cref="EndClone">EndClone</see> method.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Color32, byte)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
+        /// <br/>-or-
+        /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
+            Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat, workingColorSpace);
+            return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
+                pixelFormat, backColor, alphaThreshold, workingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -603,10 +821,12 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat,
+            Palette? palette, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
-            return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette), asyncConfig);
+            return AsyncHelper.BeginOperation(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size),
+                pixelFormat, palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette), asyncConfig);
         }
 
         /// <summary>
@@ -638,7 +858,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
+        public static IAsyncResult BeginClone(this IReadableBitmapData source, KnownPixelFormat pixelFormat,
+            IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, AsyncConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncHelper.BeginOperation(ctx => DoCloneWithQuantizer(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, quantizer, ditherer), asyncConfig);
@@ -650,7 +871,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static IReadWriteBitmapData? EndClone(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<IReadWriteBitmapData?>(asyncResult, nameof(BeginClone));
 
         #endregion
@@ -668,7 +889,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginClone(IReadableBitmapData, AsyncConfig)"/> method, which is available on every platform.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
@@ -677,7 +898,30 @@ namespace KGySoft.Drawing.Imaging
         public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.DoOperationAsync(ctx => DoCloneExact(ctx, source), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoCloneExact(ctx, source, source.WorkingColorSpace), asyncConfig);
+        }
+
+        /// <summary>
+        /// Gets the clone of the specified <paramref name="source"/> with identical size asynchronously.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>Alternatively, you can also use the <see cref="BeginClone(IReadableBitmapData, AsyncConfig)"/> method, which is available on every platform.</para>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, WorkingColorSpace workingColorSpace, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, workingColorSpace);
+            return AsyncHelper.DoOperationAsync(ctx => DoCloneExact(ctx, source, workingColorSpace), asyncConfig);
         }
 
         /// <summary>
@@ -691,7 +935,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>Alternatively, you can also use the <see cref="BeginClone(IReadableBitmapData, Rectangle, AsyncConfig?)"/> method, which is available on every platform.</para>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
@@ -701,7 +945,48 @@ namespace KGySoft.Drawing.Imaging
         public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, Rectangle sourceRectangle, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source, sourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal), asyncConfig);
+            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source, sourceRectangle,
+                source.PixelFormat.AsKnownPixelFormatInternal, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null), asyncConfig);
+        }
+
+        /// <summary>
+        /// Gets the clone of the specified portion of <paramref name="source"/> with the specified <paramref name="pixelFormat"/> and color settings asynchronously.
+        /// </summary>
+        /// <param name="source">An <see cref="IReadableBitmapData"/> instance to be cloned.</param>
+        /// <param name="pixelFormat">The desired pixel format of the result.</param>
+        /// <param name="workingColorSpace">Specifies the value of the <see cref="IBitmapData.WorkingColorSpace"/> property of the cloned instance
+        /// and affects the possible blending operations during the cloning.</param>
+        /// <param name="backColor">If <paramref name="pixelFormat"/> does not support alpha or supports only single-bit alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="Color32.A">Color32.A</see> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The default value of the <see cref="Color32"/> type, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">If <paramref name="pixelFormat"/> can represent only single-bit alpha or <paramref name="pixelFormat"/> is an indexed format and the target palette contains a transparent color,
+        /// then specifies a threshold value for the <see cref="Color32.A">Color32.A</see> property, under which the color is considered transparent. If 0,
+        /// then the result will not have transparent pixels. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="sourceRectangle">A <see cref="Rectangle"/> that specifies the portion of the <paramref name="source"/> to be cloned, or <see langword="null"/> to clone the entire <paramref name="source"/>. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Color32, byte)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
+        /// <br/>-or-
+        /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace,
+            Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
+        {
+            ValidateArguments(source, pixelFormat, workingColorSpace);
+            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source,
+                sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, workingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -725,7 +1010,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Color32, byte)"/> method for more details.</note>
@@ -734,10 +1019,12 @@ namespace KGySoft.Drawing.Imaging
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="pixelFormat"/> does not specify a valid format.
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat,
+            Color32 backColor = default, byte alphaThreshold = 128, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
-            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold), asyncConfig);
+            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source,
+                sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, backColor, alphaThreshold, source.WorkingColorSpace, null), asyncConfig);
         }
 
         /// <summary>
@@ -757,7 +1044,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, Palette)"/> method for more details.</note>
@@ -767,10 +1054,13 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="palette"/> contains too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, Palette? palette, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat,
+            Palette? palette, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
-            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128, palette), asyncConfig);
+            return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneDirect(ctx, source,
+                sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat,
+                palette?.BackColor ?? source.BackColor, palette?.AlphaThreshold ?? source.AlphaThreshold, palette?.WorkingColorSpace ?? source.WorkingColorSpace, palette), asyncConfig);
         }
 
         /// <summary>
@@ -791,7 +1081,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the new <see cref="IReadWriteBitmapData"/> instance that represents the clone of the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Clone(IReadableBitmapData, Rectangle, KnownPixelFormat, IQuantizer, IDitherer)"/> method for more details.</note>
@@ -801,7 +1091,8 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>-or-
         /// <br/><paramref name="sourceRectangle"/> has no overlapping region with source bounds.</exception>
         /// <exception cref="ArgumentException"><paramref name="quantizer"/> uses a palette with too many colors for the specified <paramref name="pixelFormat"/>.</exception>
-        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
+        public static Task<IReadWriteBitmapData?> CloneAsync(this IReadableBitmapData source, KnownPixelFormat pixelFormat,
+            IQuantizer? quantizer, IDitherer? ditherer = null, Rectangle? sourceRectangle = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, pixelFormat);
             return AsyncHelper.DoOperationAsync<IReadWriteBitmapData?>(ctx => DoCloneWithQuantizer(ctx, source, sourceRectangle ?? new Rectangle(Point.Empty, source.Size), pixelFormat, quantizer, ditherer), asyncConfig);
@@ -1732,7 +2023,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="ICollection{T}"/> of <see cref="Color32"/> entries that is the result of the operation.
-        /// If the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>, then an empty collection is returned.</returns>
+        /// If the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <c>asyncConfig</c> parameter was <see langword="false"/>, then an empty collection is returned.</returns>
         public static ICollection<Color32> EndGetColors(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<ICollection<Color32>>(asyncResult, nameof(BeginGetColors));
 
 #if !NET35
@@ -1753,7 +2044,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="ICollection{T}"/> of <see cref="Color32"/> entries.
-        /// If the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>, then the result of the task is an empty collection.</returns>
+        /// If the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>, then the result of the task is an empty collection.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="GetColors">GetColors</see> method for more details.</note>
@@ -1823,7 +2114,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="int">int</see> value that is the result of the operation,
-        /// or <c>0</c>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <c>0</c>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static int EndGetColorCount(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<int>(asyncResult, nameof(BeginGetColorCount));
 
 #if !NET35
@@ -1837,7 +2128,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is the actual number of colors of the specified <paramref name="bitmapData"/>,
-        /// or <c>0</c>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <c>0</c>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call, though the operation is not parallelized and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is ignored.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="GetColorCount">GetColorCount</see> method for more details.</note>
@@ -1907,7 +2198,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static IReadWriteBitmapData? EndToGrayscale(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<IReadWriteBitmapData?>(asyncResult, nameof(BeginToGrayscale));
 
 #if !NET35
@@ -1921,7 +2212,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="IReadWriteBitmapData"/> containing the grayscale version of the original <paramref name="bitmapData"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToGrayscale">ToGrayscale</see> method for more details.</note>
@@ -1960,8 +2251,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque"/>
         public static IReadWriteBitmapData ToTransparent(this IReadableBitmapData bitmapData)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return DoToTransparent(AsyncHelper.DefaultContext, bitmapData)!;
         }
 
@@ -1985,8 +2275,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaque"/>
         public static IReadWriteBitmapData ToTransparent(this IReadableBitmapData bitmapData, Color32 transparentColor)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return DoToTransparent(AsyncHelper.DefaultContext, bitmapData, transparentColor)!;
         }
 
@@ -2010,8 +2299,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BeginMakeOpaque"/>
         public static IAsyncResult BeginToTransparent(this IReadableBitmapData bitmapData, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return AsyncHelper.BeginOperation(ctx => DoToTransparent(ctx, bitmapData), asyncConfig);
         }
 
@@ -2036,8 +2324,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="BeginMakeOpaque"/>
         public static IAsyncResult BeginToTransparent(this IReadableBitmapData bitmapData, Color32 transparentColor, AsyncConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return AsyncHelper.BeginOperation(ctx => DoToTransparent(ctx, bitmapData, transparentColor), asyncConfig);
         }
 
@@ -2047,7 +2334,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static IReadWriteBitmapData? EndToTransparent(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<IReadWriteBitmapData?>(asyncResult, nameof(BeginToTransparent));
 
 #if !NET35
@@ -2061,7 +2348,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToTransparent(IReadableBitmapData)"/> method for more details.</note>
@@ -2070,8 +2357,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaqueAsync"/>
         public static Task<IReadWriteBitmapData?> ToTransparentAsync(this IReadableBitmapData bitmapData, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return AsyncHelper.DoOperationAsync(ctx => DoToTransparent(ctx, bitmapData), asyncConfig);
         }
 
@@ -2086,7 +2372,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="IReadWriteBitmapData"/>, which is the clone of the specified <paramref name="bitmapData"/> with transparent background,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToTransparent(IReadableBitmapData, Color32)"/> method for more details.</note>
@@ -2095,8 +2381,7 @@ namespace KGySoft.Drawing.Imaging
         /// <seealso cref="MakeOpaqueAsync"/>
         public static Task<IReadWriteBitmapData?> ToTransparentAsync(this IReadableBitmapData bitmapData, Color32 transparentColor, TaskConfig? asyncConfig = null)
         {
-            if (bitmapData == null)
-                throw new ArgumentNullException(nameof(bitmapData), PublicResources.ArgumentNull);
+            ValidateArguments(bitmapData, nameof(bitmapData));
             return AsyncHelper.DoOperationAsync(ctx => DoToTransparent(ctx, bitmapData, transparentColor), asyncConfig);
         }
 #endif
@@ -2106,7 +2391,7 @@ namespace KGySoft.Drawing.Imaging
         #region Resize
 
         /// <summary>
-        /// Resizes the specified <paramref name="source"/>. The result always has a <see cref="KnownPixelFormat.Format32bppPArgb"/> pixel format.
+        /// Resizes the specified <paramref name="source"/>.
         /// </summary>
         /// <param name="source">The source <see cref="IReadableBitmapData"/> to resize.</param>
         /// <param name="newSize">The requested new size.</param>
@@ -2119,8 +2404,9 @@ namespace KGySoft.Drawing.Imaging
         /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
         /// Use the <see cref="BeginResize">BeginResize</see> or <see cref="ResizeAsync">ResizeAsync</see>
         /// (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
-        /// <para>This method always produces a result with <see cref="KnownPixelFormat.Format32bppPArgb"/>&#160;<see cref="IBitmapData.PixelFormat"/>. To resize a bitmap data
-        /// with a custom pixel format you can create a new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
+        /// <para>The result <see cref="IBitmapData.PixelFormat"/> depends on the <see cref="IBitmapData.WorkingColorSpace"/> of the <paramref name="source"/>
+        /// bitmap data but is always at least a 32 BPP format. To resize a bitmap data with a custom pixel format you can create a
+        /// new <see cref="IReadWriteBitmapData"/> instance by the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32,byte)"/> method
         /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods, which has several overloads that also allow quantizing and dithering.</para>
         /// </remarks>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
@@ -2164,7 +2450,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static IReadWriteBitmapData? EndResize(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<IReadWriteBitmapData?>(asyncResult, nameof(BeginResize));
 
 #if !NET35
@@ -2284,7 +2570,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context) => DoCloneExact(context, source);
+        internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, WorkingColorSpace workingColorSpace) => DoCloneExact(context, source, workingColorSpace);
 
         internal static IReadWriteBitmapData? DoClone(this IReadableBitmapData source, IAsyncContext context, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer)
             => DoCloneWithQuantizer(context, source, new Rectangle(Point.Empty, source.Size), pixelFormat, quantizer, ditherer);
@@ -2293,7 +2579,7 @@ namespace KGySoft.Drawing.Imaging
             => DoCloneWithQuantizer(context, source, sourceRectangle, pixelFormat, quantizer, ditherer);
 
         internal static IReadWriteBitmapData DoClone(this IReadableBitmapData source, IAsyncContext context, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Palette palette)
-            => DoCloneDirect(context, source, sourceRectangle, pixelFormat, palette.BackColor, palette.AlphaThreshold, palette)!;
+            => DoCloneDirect(context, source, sourceRectangle, pixelFormat, palette.BackColor, palette.AlphaThreshold, palette.WorkingColorSpace, palette)!;
 
         internal static void DoCopyTo(this IReadableBitmapData source, IAsyncContext context, IWritableBitmapData target, Point targetLocation = default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
             => DoCopy(context, source, target, new Rectangle(Point.Empty, source.Size), targetLocation, quantizer, ditherer);
@@ -2311,15 +2597,25 @@ namespace KGySoft.Drawing.Imaging
         #region Validation
         // ReSharper disable ParameterOnlyUsedForPreconditionCheck.Local - all of these methods are validations
 
-        private static void ValidateArguments(IReadableBitmapData source)
+        private static void ValidateArguments(IReadableBitmapData source, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
             if (source.Width <= 0 || source.Height <= 0)
                 throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
+            if (workingColorSpace < WorkingColorSpace.Default || workingColorSpace > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
         }
 
-        private static void ValidateArguments(IReadableBitmapData source, KnownPixelFormat pixelFormat)
+        private static void ValidateArguments(IReadableBitmapData source, string paramName)
+        {
+            if (source == null)
+                throw new ArgumentNullException(paramName, PublicResources.ArgumentNull);
+            if (source.Width <= 0 || source.Height <= 0)
+                throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, paramName);
+        }
+
+        private static void ValidateArguments(IReadableBitmapData source, KnownPixelFormat pixelFormat, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (source == null)
                 throw new ArgumentNullException(nameof(source), PublicResources.ArgumentNull);
@@ -2327,6 +2623,8 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingInvalidBitmapDataSize, nameof(source));
             if (!pixelFormat.IsValidFormat())
                 throw new ArgumentOutOfRangeException(nameof(pixelFormat), Res.PixelFormatInvalid(pixelFormat));
+            if (workingColorSpace < WorkingColorSpace.Default || workingColorSpace > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
         }
 
         private static void ValidateArguments(IReadableBitmapData source, IWritableBitmapData target)
@@ -2370,8 +2668,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Copy
 
+        /// <summary>
+        /// Cloning without changing pixel format if possible. Pixel format is changed only for indexed custom formats.
+        /// </summary>
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static IReadWriteBitmapData? DoCloneExact(IAsyncContext context, IReadableBitmapData source)
+        private static IReadWriteBitmapData? DoCloneExact(IAsyncContext context, IReadableBitmapData source, WorkingColorSpace workingColorSpace)
         {
             Size size = source.Size;
             var session = new CopySession(context) { SourceRectangle = new Rectangle(Point.Empty, size) };
@@ -2380,8 +2681,9 @@ namespace KGySoft.Drawing.Imaging
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData
-                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
-                : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(), source.BackColor, source.AlphaThreshold, source.Palette);
+                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, workingColorSpace)
+                : BitmapDataFactory.CreateManagedBitmapData(size, source.GetKnownPixelFormat(),
+                    source.BackColor, source.AlphaThreshold, workingColorSpace, source.Palette);
             bool canceled = false;
             try
             {
@@ -2401,10 +2703,14 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        /// <summary>
+        /// Cloning with arbitrary pixel format and core settings using direct get/set pixels.
+        /// NOTE: pixelFormat actually can be invalid here for custom pixel formats, in which case CreateCompatibleBitmapDataFactory must create the clone.
+        /// </summary>
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static IBitmapDataInternal? DoCloneDirect(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, Color32 backColor = default, byte alphaThreshold = 128, Palette? palette = null)
+        private static IBitmapDataInternal? DoCloneDirect(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle,
+            KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, WorkingColorSpace workingColorSpace, Palette? palette)
         {
-            // NOTE: pixelFormat actually can be unknown here
             var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.Size);
             Unwrap(ref source, ref sourceRectangle);
@@ -2416,13 +2722,16 @@ namespace KGySoft.Drawing.Imaging
             {
                 int bpp = pixelFormat.ToBitsPerPixel();
                 if (bpp <= 8 && source.Palette?.Entries.Length <= (1 << bpp))
-                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold ? source.Palette : new Palette(source.Palette.Entries, backColor, alphaThreshold);
+                    palette = backColor == source.Palette!.BackColor && alphaThreshold == source.Palette.AlphaThreshold && workingColorSpace == source.Palette.WorkingColorSpace
+                        ? source.Palette
+                        : new Palette(source.Palette.Entries, backColor, alphaThreshold, workingColorSpace, null);
             }
 
             session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = source is ICustomBitmapData customBitmapData && customBitmapData.PixelFormat.AsKnownPixelFormatInternal == pixelFormat
-                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size)
-                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(), backColor, alphaThreshold, palette);
+                ? customBitmapData.CreateCompatibleBitmapDataFactory.Invoke(session.TargetRectangle.Size, workingColorSpace)
+                : BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat.IsValidFormat() ? pixelFormat : source.GetKnownPixelFormat(),
+                    backColor, alphaThreshold, workingColorSpace, palette);
             bool canceled = false;
             try
             {
@@ -2443,7 +2752,8 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static IBitmapDataInternal? DoCloneWithQuantizer(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle, KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
+        private static IBitmapDataInternal? DoCloneWithQuantizer(IAsyncContext context, IReadableBitmapData source, Rectangle sourceRectangle,
+            KnownPixelFormat pixelFormat, IQuantizer? quantizer, IDitherer? ditherer = null)
         {
             if (quantizer == null)
             {
@@ -2451,7 +2761,7 @@ namespace KGySoft.Drawing.Imaging
                 // Note: Not using source.BackColor/AlphaThreshold/Palette so the behavior will be compatible with the other Clone overloads with default parameters
                 //       and even with ImageExtensions.ConvertPixelFormat where there are no BackColor/AlphaThreshold for source image
                 if (ditherer == null || !pixelFormat.CanBeDithered())
-                    return DoCloneDirect(context, source, sourceRectangle, pixelFormat);
+                    return DoCloneDirect(context, source, sourceRectangle, pixelFormat, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
 
                 // here we need to pick a quantizer for the dithering
                 int bpp = pixelFormat.ToBitsPerPixel();
@@ -2485,7 +2795,9 @@ namespace KGySoft.Drawing.Imaging
                         throw new InvalidOperationException(Res.ImagingQuantizerInitializeNull);
 
                     session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-                    session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat, quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.Palette);
+                    session.Target = BitmapDataFactory.CreateManagedBitmapData(session.TargetRectangle.Size, pixelFormat,
+                        quantizingSession.BackColor, quantizingSession.AlphaThreshold, quantizingSession.WorkingColorSpace,
+                        quantizingSession.Palette);
 
                     // quantizing without dithering
                     if (ditherer == null)
@@ -2520,7 +2832,8 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
-        private static void DoCopy(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, bool skipTransparent = false)
+        private static void DoCopy(IAsyncContext context, IReadableBitmapData source, IWritableBitmapData target,
+            Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer, bool skipTransparent = false)
         {
             var session = new CopySession(context);
             var sourceBounds = new Rectangle(default, source.Size);
@@ -2544,7 +2857,8 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (session.SourceRectangle.IntersectsWith(session.TargetRectangle))
                 {
-                    session.Source = DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
+                    session.Source = DoCloneDirect(context, source, session.SourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
                     if (context.IsCancellationRequested)
                     {
                         session.Source?.Dispose();
@@ -2623,7 +2937,8 @@ namespace KGySoft.Drawing.Imaging
         #region Draw
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer)
+        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+            Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer)
         {
             if (source.HasAlpha())
                 DoDrawWithoutResize(context, source, target, sourceRectangle, targetLocation, quantizer, ditherer);
@@ -2632,7 +2947,8 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
+        private static void DoDrawInto(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+            Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
         {
             // no scaling is necessary
             if (sourceRectangle.Size == targetRectangle.Size || scalingMode == ScalingMode.NoScaling)
@@ -2647,7 +2963,8 @@ namespace KGySoft.Drawing.Imaging
             DoDrawWithResize(context, source, target, sourceRectangle, targetRectangle, quantizer, ditherer, scalingMode);
         }
 
-        private static void DoDrawWithoutResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer)
+        private static void DoDrawWithoutResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+            Rectangle sourceRectangle, Point targetLocation, IQuantizer? quantizer, IDitherer? ditherer)
         {
             Debug.Assert(source.HasAlpha(), "DoCopy could have been called");
 
@@ -2670,8 +2987,9 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform blending before quantizing/dithering
             if (isTwoPass)
             {
-                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle,
-                    target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb);
+                var workingColorSpace = quantizer.WorkingColorSpace();
+                sessionTarget = DoCloneDirect(context, target, actualTargetRectangle, target.GetPreferredFirstPassPixelFormat(workingColorSpace),
+                    target.BackColor, target.AlphaThreshold, workingColorSpace, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -2697,7 +3015,8 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = (IBitmapDataInternal?)DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
+                    sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
@@ -2737,7 +3056,8 @@ namespace KGySoft.Drawing.Imaging
 
         [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
             Justification = "It would be OK without the frequent context.IsCancellationRequested checks, it's not worth the refactoring")]
-        private static void DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target, Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
+        private static void DoDrawWithResize(IAsyncContext context, IReadableBitmapData source, IReadWriteBitmapData target,
+            Rectangle sourceRectangle, Rectangle targetRectangle, IQuantizer? quantizer, IDitherer? ditherer, ScalingMode scalingMode)
         {
             Debug.Assert(sourceRectangle.Size != targetRectangle.Size || scalingMode == ScalingMode.NoScaling, $"{nameof(DoDrawWithoutResize)} could have been called");
 
@@ -2762,10 +3082,13 @@ namespace KGySoft.Drawing.Imaging
             // if two pass is needed we create a temp result where we perform resize (with or without blending) before quantizing/dithering
             if (isTwoPass)
             {
+                WorkingColorSpace workingColorSpace = quantizer.WorkingColorSpace();
+                KnownPixelFormat sessionTargetPixelFormat = target.GetPreferredFirstPassPixelFormat(workingColorSpace);
                 sessionTarget = source.HasMultiLevelAlpha()
-                    ? DoCloneDirect(context, target, actualTargetRectangle,
-                        target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb)
-                    : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, KnownPixelFormat.Format32bppPArgb);
+                    ? DoCloneDirect(context, target, actualTargetRectangle, sessionTargetPixelFormat,
+                        target.BackColor, target.AlphaThreshold, workingColorSpace, null)
+                    : BitmapDataFactory.CreateManagedBitmapData(sessionTargetRectangle.Size, sessionTargetPixelFormat,
+                        target.BackColor, target.AlphaThreshold, workingColorSpace, null);
                 if (context.IsCancellationRequested)
                 {
                     sessionTarget?.Dispose();
@@ -2791,7 +3114,8 @@ namespace KGySoft.Drawing.Imaging
                 // overlap: clone source
                 if (actualSourceRectangle.IntersectsWith(actualTargetRectangle))
                 {
-                    sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal);
+                    sessionSource = DoCloneDirect(context, source, actualSourceRectangle, source.PixelFormat.AsKnownPixelFormatInternal,
+                        source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, null);
                     if (context.IsCancellationRequested)
                     {
                         sessionSource?.Dispose();
@@ -2802,14 +3126,13 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            if (sessionSource == null)
-                sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
-
+            sessionSource ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             try
             {
+                bool linear = (quantizer?.WorkingColorSpace() ?? target.GetPreferredColorSpace()) == WorkingColorSpace.Linear;
                 if (scalingMode == ScalingMode.NearestNeighbor)
                 {
-                    var session = new ResizingSessionNearestNeighbor(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle);
+                    var session = new ResizingSessionNearestNeighbor(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, linear);
                     if (!isTwoPass)
                     {
                         session.PerformResize(quantizer, ditherer);
@@ -2821,7 +3144,7 @@ namespace KGySoft.Drawing.Imaging
                 }
                 else
                 {
-                    using var session = new ResizingSessionInterpolated(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode);
+                    using var session = new ResizingSessionInterpolated(context, sessionSource, sessionTarget!, actualSourceRectangle, sessionTargetRectangle, scalingMode, linear);
                     if (context.IsCancellationRequested)
                         return;
 
@@ -3035,11 +3358,9 @@ namespace KGySoft.Drawing.Imaging
         private static IReadWriteBitmapData? DoToTransparent(IAsyncContext context, IReadableBitmapData bitmapData)
         {
             var srcRect = new Rectangle(Point.Empty, bitmapData.Size);
-            if (bitmapData.Width < 1 || bitmapData.Height < 1)
-                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb);
             Color32 transparentColor = bitmapData[bitmapData.Height - 1][0];
             if (transparentColor.A < Byte.MaxValue)
-                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb);
+                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
             return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
         }
@@ -3048,7 +3369,7 @@ namespace KGySoft.Drawing.Imaging
         {
             var srcRect = new Rectangle(Point.Empty, bitmapData.Size);
             if (transparentColor.A == 0)
-                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb);
+                return DoCloneDirect(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
             return DoCloneWithQuantizer(context, bitmapData, srcRect, KnownPixelFormat.Format32bppArgb,
                 PredefinedColorsQuantizer.FromCustomFunction(c => TransformReplaceColor(c, transparentColor, default)));
         }
@@ -3076,7 +3397,8 @@ namespace KGySoft.Drawing.Imaging
                 return null;
 
             bool canceled = false;
-            IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, KnownPixelFormat.Format32bppPArgb);
+            var pixelFormat = bitmapData.GetPreferredColorSpace() == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
+            IReadWriteBitmapData? result = BitmapDataFactory.CreateBitmapData(newSize, pixelFormat, bitmapData.WorkingColorSpace);
             try
             {
                 DoDrawInto(context, bitmapData, result, new Rectangle(Point.Empty, sourceSize), targetRectangle, null, null, scalingMode);

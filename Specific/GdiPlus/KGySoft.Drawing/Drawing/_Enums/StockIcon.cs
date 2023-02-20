@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: StockIcon.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -17,7 +17,7 @@ namespace KGySoft.Drawing
 {
     // ReSharper disable InconsistentNaming
     /// <summary>
-    /// Represents the Windows stock icons can be retrieved by the <see cref="Icons.GetStockIcon">Icons.GetStockIcon</see> method in Windows Vista and above.
+    /// Represents the Windows stock icons can be retrieved by the <see cref="Icons.GetStockIcon">Icons.GetStockIcon</see> method on Windows Vista and above.
     /// <br/>See also the <a href="https://docs.microsoft.com/en-us/windows/desktop/api/shellapi/ne-shellapi-shstockiconid" target="_blank">SHSTOCKICONID Enumeration</a> at the Microsoft Docs site.
     /// </summary>
     public enum StockIcon

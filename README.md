@@ -24,6 +24,7 @@ KGy SOFT Drawing Libraries offer advanced bitmap data manipulation and image pro
    - [Managed Bitmap Data Manipulation](#managed-bitmap-data-manipulation)
    - [3rd Party Bitmap Types Support](#3rd-party-bitmap-types-support)
    - [Supporting Custom Pixel Formats](#supporting-custom-pixel-formats)
+   - [Color Correct Alpha Blending](#color-correct-alpha-blending)
    - [Quantizing and Dithering](#quantizing-and-dithering)
    - [Advanced GIF Encoder with High Color Support](#advanced-gif-encoder-with-high-color-support)
 6. [License](#license)
@@ -289,6 +290,19 @@ return BitmapDataFactory.CreateBitmapData(
 
 Note that there are different overloads for indexed formats where you have to specify how to read/write a palette index. Please also note that these delegates work with 32-bit color structures (just like usual `GetPixel`/`SetPixel`) so wider formats will be quantized into the ARGB8888 color space (or BGRA8888, using the alternative terminology) when getting/setting pixels but this is how regular formats work, too. Anyway, you can always access the actual underlying data of whatever format by the aforementioned [`IReadableBitmapDataRow.ReadRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IReadableBitmapDataRow_ReadRaw__1.htm) and [`IWritableBitmapDataRow.WriteRaw`](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_IWritableBitmapDataRow_WriteRaw__1.htm) methods.
 
+### Color Correct Alpha Blending
+
+Most pixel formats use the sRGB color space, in which alpha blending (and also other operations) may provide incorrect results.
+
+|Description|Image Example|
+|--|--|
+| Result of blending colors in the sRGB color space. The vertical bars are opaque, whereas the horizontal ones have 50% transparency. Blending colors with disjunct RGB components often produce too dark results. | ![Blending colored stripes in the sRGB color space](Help/Images/BlendingExampleSrgb.png) |
+| Result of blending colors in the linear color space. The result seems much more natural. Note that horizontal bars still have 50% transparency, though they seem brighter now. | ![Blending colored stripes in the linear color space](Help/Images/BlendingExampleLinear.png) |
+
+By default it depends on the used pixel format which color space is used in KGy SOFT Drawing Libraries. The default pixel format in most rendering engines use some sRGB format (usually a premultiplied one), which is optimized for blending in the sRGB color space. When creating a managed bitmap data by the [`CreateBitmapData`](https://docs.kgysoft.net/drawing/html/Overload_KGySoft_Drawing_Imaging_BitmapDataFactory_CreateBitmapData.htm) overloads or by the `GetReadable/Writable/ReadWriteBitmapData` methods of the specific libraries you can use the overloads that have a [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) parameter.
+
+> 💡 _Tip:_ See the [`WorkingColorSpace`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_WorkingColorSpace.htm) enumeration for more information and image examples about working in the sRGB and linear color spaces.
+
 ### Quantizing and Dithering
 
 KGy SOFT Drawing Libraries offer quantizing (reducing the number of colors of an image) and dithering (techniques for preserving the details of a quantized image) in several ways:
@@ -312,10 +326,10 @@ See the following table for the possible results (click the images for displayin
 | Original image: Grayscale color shades | ![Grayscale color shades with different bit depths](Help/Images/GrayShades.gif) |
 | Grayscale color shades quantized with [black and white palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), no dithering | ![Grayscale color shades quantized with black and white palette](Help/Images/GrayShadesBW.gif) |
 | Grayscale color shades quantized with [black and white palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), using [blue noise dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_BlueNoise.htm) | ![Grayscale color shades quantized with black and white palette using blue noise dithering](Help/Images/GrayShadesBWDitheredBN.gif) |
-| Original test image "Lena" | ![Test image "Lena"](Help/Images/Lena.png) |
-| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm), no dithering | ![Test image "Lena" quantized with system default 8 BPP palette](Help/Images/LenaDefault8bpp.gif) |
-| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Bayer 8x8 dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm) | ![Test image "Lena" quantized with system default 8 BPP palette using Bayer 8x8 dithering](Help/Images/LenaDefault8bppDitheredB8.gif) |
-| Test image "Lena" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Lena" quantized with system default 8 BPP palette using Floyd-Steinberg dithering](Help/Images/LenaDefault8bppDitheredFS.gif) |
+| Original test image "Girl with a Pearl Earring" | ![Test image "Girl with a Pearl Earring"](Help/Images/GirlWithAPearlEarring.png) |
+| Test image "Girl with a Pearl Earring" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm), no dithering | ![Test image "Girl with a Pearl Earring" quantized with system default 8 BPP palette](Help/Images/GirlWithAPearlEarringDefault8bppSrgb.gif) |
+| Test image "Girl with a Pearl Earring" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Bayer 8x8 dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_OrderedDitherer_Bayer8x8.htm) | ![Test image "Girl with a Pearl Earring" quantized with system default 8 BPP palette using Bayer 8x8 dithering](Help/Images/GirlWithAPearlEarringDefault8bppDitheredB8Srgb.gif) |
+| Test image "Girl with a Pearl Earring" quantized with [system default 8 BPP palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_SystemDefault8BppPalette.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Girl with a Pearl Earring" quantized with system default 8 BPP palette using Floyd-Steinberg dithering](Help/Images/GirlWithAPearlEarringDefault8bppDitheredFSSrgb.gif) |
 | Original test image "Cameraman" | ![Test image "Cameraman"](Help/Images/Cameraman.png) |
 | Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm), no dithering | ![Test image "Cameraman" quantized with black and white palette](Help/Images/CameramanBW.gif) |
 | Test image "Cameraman" quantized with [black and white palette](https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_Imaging_PredefinedColorsQuantizer_BlackAndWhite.htm) using [Floyd-Steinberg dithering](https://docs.kgysoft.net/drawing/html/P_KGySoft_Drawing_Imaging_ErrorDiffusionDitherer_FloydSteinberg.htm) | ![Test image "Cameraman" quantized with black and white palette using Floyd-Steinberg dithering](Help/Images/CameramanBWDitheredFS.gif) |

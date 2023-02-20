@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: UnmanagedBitmapDataBase`1.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 #endregion
@@ -28,9 +27,8 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Constructors
 
-        protected UnmanagedBitmapDataBase(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Action? disposeCallback, Palette? palette = null, Func<Palette, bool>? trySetPaletteCallback = null)
-            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+        protected UnmanagedBitmapDataBase(IntPtr buffer, int stride, in BitmapDataConfig cfg)
+            : base(buffer, stride, cfg)
         {
         }
 

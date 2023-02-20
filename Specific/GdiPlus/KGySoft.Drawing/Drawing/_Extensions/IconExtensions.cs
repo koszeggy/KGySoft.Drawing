@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IconExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -141,7 +141,7 @@ namespace KGySoft.Drawing
                     return rawIcon.ToBitmap()!;
             }
 
-            // In Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor and forcing always uncompressed result.
+            // On Windows XP replacing 24 bit icons by 32 bit ones to prevent "Parameter is invalid" error in Bitmap ctor and forcing always uncompressed result.
             using (var result = new RawIcon())
             {
 #pragma warning disable CS8600, CS8604 // Converting null literal or possible null value to non-nullable type. - false alarm, on Windows elements are never null
@@ -787,7 +787,7 @@ namespace KGySoft.Drawing
         /// </summary>
         /// <param name="icon">The icon to convert.</param>
         /// <returns>An <see cref="Icon"/> instance that contains only uncompressed images.</returns>
-        /// <remarks>Compressed icons (which contain PNG images) cannot be displayed by the standard ways in Windows XP.
+        /// <remarks>Compressed icons (which contain PNG images) cannot be displayed by the standard ways on Windows XP.
         /// Calling this method is supported though in any operating system if there is registered built-in PNG decoder.</remarks>
         public static Icon ToUncompressedIcon(this Icon icon) => Icons.Combine(true, icon);
 

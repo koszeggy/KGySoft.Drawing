@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: QuantizingSessionExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -31,7 +31,7 @@ namespace KGySoft.Drawing.Imaging
             }
 
             // the color will not be transparent in the end: blending
-            return origColor.BlendWithBackground(session.BackColor);
+            return origColor.BlendWithBackground(session.BackColor, session.WorkingColorSpace);
         }
 
         #endregion

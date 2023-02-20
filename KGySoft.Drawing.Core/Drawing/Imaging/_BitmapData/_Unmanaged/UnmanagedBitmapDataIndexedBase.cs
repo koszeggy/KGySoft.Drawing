@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: UnmanagedBitmapDataIndexedBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 #endregion
@@ -28,9 +27,8 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Constructors
 
-        protected UnmanagedBitmapDataIndexedBase(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Action? disposeCallback, Palette? palette, Func<Palette, bool>? trySetPaletteCallback)
-            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, disposeCallback, palette, trySetPaletteCallback)
+        protected UnmanagedBitmapDataIndexedBase(IntPtr buffer, int stride, in BitmapDataConfig cfg)
+            : base(buffer, stride, cfg)
         {
         }
 

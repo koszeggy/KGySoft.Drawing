@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Color32.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents the same 32-bit ARGB color as the <see cref="Color"/> structure does but in a more optimized way
+    /// Represents the same 32-bit sRGB color as the <see cref="Color"/> structure does but in a more optimized way
     /// for better performance and smaller memory consumption.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]

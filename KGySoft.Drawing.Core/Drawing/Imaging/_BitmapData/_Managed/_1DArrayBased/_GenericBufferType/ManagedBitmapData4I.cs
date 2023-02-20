@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData4I.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
@@ -53,9 +52,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData4I(Array2D<T> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold,
-            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format4bppIndexed.ToInfoInternal(), backColor, alphaThreshold, disposeCallback, palette, trySetPaletteCallback)
+        internal ManagedBitmapData4I(Array2D<T> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: TestBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -61,21 +61,14 @@ namespace KGySoft.Drawing.UnitTests
             if (!SaveToFile)
                 return;
 
-            using var bmp = new Bitmap(source.Width, source.Height,
-                source.PixelFormat.BitsPerPixel <= 8 && source.PixelFormat.Indexed ? PixelFormat.Format8bppIndexed
-                : source.PixelFormat.HasAlpha ? PixelFormat.Format32bppArgb
-                : PixelFormat.Format24bppRgb);
-
-            // setting palette
             if (source.PixelFormat.Indexed && source.PixelFormat.BitsPerPixel <= 8)
             {
-                ColorPalette palette = bmp.Palette;
-                Color32[] src = source.Palette!.Entries;
-                Color[] dst = palette.Entries;
-                for (int i = 0; i < source.Palette!.Count; i++)
-                    dst[i] = src[i].ToColor();
-                bmp.Palette = palette;
+                SaveGif(imageName, source, testName);
+                return;
             }
+
+            using var bmp = new Bitmap(source.Width, source.Height,
+                source.PixelFormat.HasAlpha ? PixelFormat.Format32bppArgb : PixelFormat.Format24bppRgb);
 
             // copying content
             BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.WriteOnly, bmp.PixelFormat);
@@ -86,6 +79,19 @@ namespace KGySoft.Drawing.UnitTests
             }
 
             SaveBitmap(imageName, bmp, testName);
+        }
+
+        protected static void SaveGif(string imageName, IReadWriteBitmapData source, [CallerMemberName]string testName = null)
+        {
+            string dir = Path.Combine(Files.GetExecutingPath(), "TestResults");
+            if (!Directory.Exists(dir))
+                Directory.CreateDirectory(dir);
+
+            string fileName = Path.Combine(dir, $"{testName}{(imageName == null ? null : $"_{imageName}")}.{DateTime.Now:yyyyMMddHHmmssffff}");
+
+            Assert.IsTrue(source.PixelFormat.BitsPerPixel <= 8 && source.Palette != null);
+            using var stream = File.Create($"{fileName}.gif");
+            GifEncoder.EncodeImage(source, stream);
         }
 
         protected static void EncodeAnimatedGif(AnimatedGifConfiguration config, bool performCompare = true, string streamName = null, [CallerMemberName]string testName = null)
@@ -180,6 +186,16 @@ namespace KGySoft.Drawing.UnitTests
             return result;
         }
 
+        protected static IReadWriteBitmapData GenerateAlphaGradientBitmapData(Size size, bool linear)
+        {
+            var result = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format32bppArgb, linear ? WorkingColorSpace.Linear: WorkingColorSpace.Srgb);
+            if (linear)
+                GenerateAlphaGradientLinear(result);
+            else
+                GenerateAlphaGradient(result);
+            return result;
+        }
+
         protected static void GenerateAlphaGradient(IReadWriteBitmapData bitmapData)
         {
             var firstRow = bitmapData.FirstRow;
@@ -222,6 +238,48 @@ namespace KGySoft.Drawing.UnitTests
             } while (row.MoveNextRow());
         }
 
+        protected static void GenerateAlphaGradientLinear(IReadWriteBitmapData bitmapData)
+        {
+            var firstRow = bitmapData.FirstRow;
+            float ratio = 1f / (bitmapData.Width / 6f);
+            float limit = bitmapData.Width / 6f;
+
+            for (int x = 0; x < bitmapData.Width; x++)
+            {
+                // red -> yellow
+                if (x < limit)
+                    firstRow[x] = new ColorF(1, 1, (x * ratio), 0).ToColor32();
+                // yellow -> green
+                else if (x < limit * 2)
+                    firstRow[x] = new ColorF(1, (1 - (x - limit) * ratio), 1, 0).ToColor32();
+                // green -> cyan
+                else if (x < limit * 3)
+                    firstRow[x] = new ColorF(1, 0, 1, ((x - limit * 2) * ratio)).ToColor32();
+                // cyan -> blue
+                else if (x < limit * 4)
+                    firstRow[x] = new ColorF(1, 0, (1 - (x - limit * 3) * ratio), 1).ToColor32();
+                // blue -> magenta
+                else if (x < limit * 5)
+                    firstRow[x] = new ColorF(1, ((x - limit * 4) * ratio), 0, 1).ToColor32();
+                // magenta -> red
+                else
+                    firstRow[x] = new ColorF(1, 1, 0, (1 - (x - limit * 5) * ratio)).ToColor32();
+            }
+
+            if (bitmapData.Height < 2)
+                return;
+
+            var row = bitmapData.GetMovableRow(1);
+            ratio = 255f / bitmapData.Height;
+            do
+            {
+                byte a = (255 - row.Index * ratio).ClipToByte();
+                for (int x = 0; x < bitmapData.Width; x++)
+                    row[x] = Color32.FromArgb(a, firstRow[x]);
+
+            } while (row.MoveNextRow());
+        }
+
         protected static IReadWriteBitmapData GetInfoIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Information256.png");
         protected static IReadWriteBitmapData GetInfoIcon64() => GetBitmapData(@"..\..\..\..\Help\Images\Information64.png");
         protected static IReadWriteBitmapData GetInfoIcon48() => GetBitmapData(@"..\..\..\..\Help\Images\Information48.png");
@@ -239,25 +297,26 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static IReadWriteBitmapData GetShieldIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Shield256.png");
 
-        protected static IReadWriteBitmapData ToBitmapData(Bitmap bmp)
+        protected static IReadWriteBitmapData ToBitmapData(Bitmap bmp, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             Assert.IsTrue(bmp.PixelFormat.In(PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed, PixelFormat.Format24bppRgb));
             Palette palette = ((int)bmp.PixelFormat & (int)PixelFormat.Indexed) != 0
-                ? new Palette(bmp.Palette.Entries)
+                ? new Palette(bmp.Palette.Entries.Select(c => c.ToColor32()), workingColorSpace)
                 : null;
             BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.ReadOnly, bmp.PixelFormat);
-            using var src = BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat,
-                palette, disposeCallback: () => bmp.UnlockBits(bitmapData));
+            using var src = palette == null
+                ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat, workingColorSpace, disposeCallback: () => bmp.UnlockBits(bitmapData))
+                : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat, palette, disposeCallback: () => bmp.UnlockBits(bitmapData));
             return src.Clone();
         }
 
-        protected static IReadWriteBitmapData GetBitmapData(string fileName)
+        protected static IReadWriteBitmapData GetBitmapData(string fileName, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
 #if !WINDOWS
             fileName = fileName.Replace('\\', Path.DirectorySeparatorChar);
 #endif
             using var bmp = new Bitmap(Path.Combine(Files.GetExecutingPath(), fileName));
-            return ToBitmapData(bmp);
+            return ToBitmapData(bmp, workingColorSpace);
         }
 
         protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default, int tolerance = 0)

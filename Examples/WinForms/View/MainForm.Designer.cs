@@ -20,6 +20,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MainForm));
             this.tblContent = new System.Windows.Forms.TableLayoutPanel();
+            this.chbForceLinear = new System.Windows.Forms.CheckBox();
             this.pbImage = new System.Windows.Forms.PictureBox();
             this.lblImageFile = new System.Windows.Forms.Label();
             this.lblPixelFormat = new System.Windows.Forms.Label();
@@ -59,23 +60,25 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tblContent.ColumnCount = 2;
             this.tblContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Absolute, 120F));
             this.tblContent.ColumnStyles.Add(new System.Windows.Forms.ColumnStyle(System.Windows.Forms.SizeType.Percent, 100F));
-            this.tblContent.Controls.Add(this.pbImage, 0, 7);
+            this.tblContent.Controls.Add(this.chbForceLinear, 1, 3);
+            this.tblContent.Controls.Add(this.pbImage, 0, 8);
             this.tblContent.Controls.Add(this.lblImageFile, 0, 0);
             this.tblContent.Controls.Add(this.lblPixelFormat, 0, 2);
             this.tblContent.Controls.Add(this.chbImageOverlay, 0, 1);
             this.tblContent.Controls.Add(this.txtImageFile, 1, 0);
             this.tblContent.Controls.Add(this.txtImageOverlay, 1, 1);
             this.tblContent.Controls.Add(this.cmbPixelFormat, 1, 2);
-            this.tblContent.Controls.Add(this.chbOptimizePalette, 1, 3);
-            this.tblContent.Controls.Add(this.tblBackColor, 1, 4);
-            this.tblContent.Controls.Add(this.chbDitherer, 0, 6);
-            this.tblContent.Controls.Add(this.cmbDitherer, 1, 6);
-            this.tblContent.Controls.Add(this.tblAlphaThreshold, 1, 5);
+            this.tblContent.Controls.Add(this.chbOptimizePalette, 1, 4);
+            this.tblContent.Controls.Add(this.tblBackColor, 1, 5);
+            this.tblContent.Controls.Add(this.chbDitherer, 0, 7);
+            this.tblContent.Controls.Add(this.cmbDitherer, 1, 7);
+            this.tblContent.Controls.Add(this.tblAlphaThreshold, 1, 6);
             this.tblContent.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tblContent.Location = new System.Drawing.Point(0, 0);
             this.tblContent.Name = "tblContent";
             this.tblContent.Padding = new System.Windows.Forms.Padding(3, 0, 3, 0);
-            this.tblContent.RowCount = 8;
+            this.tblContent.RowCount = 9;
+            this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
@@ -84,16 +87,30 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 28F));
             this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
+            this.tblContent.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Absolute, 20F));
             this.tblContent.Size = new System.Drawing.Size(584, 389);
             this.tblContent.TabIndex = 0;
+            // 
+            // chbForceLinear
+            // 
+            this.chbForceLinear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
+            this.chbForceLinear.AutoSize = true;
+            this.chbForceLinear.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.chbForceLinear.Location = new System.Drawing.Point(126, 88);
+            this.chbForceLinear.Name = "chbForceLinear";
+            this.chbForceLinear.Size = new System.Drawing.Size(452, 20);
+            this.chbForceLinear.TabIndex = 6;
+            this.chbForceLinear.Text = "Force Linear Color Space";
+            this.toolTip.SetToolTip(this.chbForceLinear, resources.GetString("chbForceLinear.ToolTip"));
+            this.chbForceLinear.UseVisualStyleBackColor = true;
             // 
             // pbImage
             // 
             this.tblContent.SetColumnSpan(this.pbImage, 2);
             this.pbImage.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.pbImage.Location = new System.Drawing.Point(6, 199);
+            this.pbImage.Location = new System.Drawing.Point(6, 227);
             this.pbImage.Name = "pbImage";
-            this.pbImage.Size = new System.Drawing.Size(572, 187);
+            this.pbImage.Size = new System.Drawing.Size(572, 159);
             this.pbImage.SizeMode = System.Windows.Forms.PictureBoxSizeMode.Zoom;
             this.pbImage.TabIndex = 11;
             this.pbImage.TabStop = false;
@@ -175,10 +192,10 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.chbOptimizePalette.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Left | System.Windows.Forms.AnchorStyles.Right)));
             this.chbOptimizePalette.AutoSize = true;
             this.chbOptimizePalette.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.chbOptimizePalette.Location = new System.Drawing.Point(126, 88);
+            this.chbOptimizePalette.Location = new System.Drawing.Point(126, 116);
             this.chbOptimizePalette.Name = "chbOptimizePalette";
             this.chbOptimizePalette.Size = new System.Drawing.Size(452, 20);
-            this.chbOptimizePalette.TabIndex = 6;
+            this.chbOptimizePalette.TabIndex = 8;
             this.chbOptimizePalette.Text = "Optimize Palette";
             this.toolTip.SetToolTip(this.chbOptimizePalette, "When an indexed pixel format is selected, check to use an optimized palette inste" +
         "ad of a predefined one.");
@@ -194,11 +211,11 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tblBackColor.Controls.Add(this.lblBackColor);
             this.tblBackColor.Controls.Add(this.btnBackColor, 2, 0);
             this.tblBackColor.Controls.Add(this.pnlBackColor, 1, 0);
-            this.tblBackColor.Location = new System.Drawing.Point(126, 115);
+            this.tblBackColor.Location = new System.Drawing.Point(126, 143);
             this.tblBackColor.Name = "tblBackColor";
             this.tblBackColor.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblBackColor.Size = new System.Drawing.Size(448, 22);
-            this.tblBackColor.TabIndex = 7;
+            this.tblBackColor.TabIndex = 9;
             // 
             // lblBackColor
             // 
@@ -240,10 +257,10 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.chbDitherer.Anchor = System.Windows.Forms.AnchorStyles.Left;
             this.chbDitherer.AutoSize = true;
             this.chbDitherer.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.chbDitherer.Location = new System.Drawing.Point(6, 172);
+            this.chbDitherer.Location = new System.Drawing.Point(6, 200);
             this.chbDitherer.Name = "chbDitherer";
             this.chbDitherer.Size = new System.Drawing.Size(77, 20);
-            this.chbDitherer.TabIndex = 9;
+            this.chbDitherer.TabIndex = 11;
             this.chbDitherer.Text = "Ditherer:";
             this.toolTip.SetToolTip(this.chbDitherer, "Check to use a ditherer. For high bit-per-pixel formats it makes little sense as " +
         "for those its only practical effect is just removing possible partial transparen" +
@@ -256,10 +273,10 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.cmbDitherer.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
             this.cmbDitherer.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.cmbDitherer.FormattingEnabled = true;
-            this.cmbDitherer.Location = new System.Drawing.Point(126, 171);
+            this.cmbDitherer.Location = new System.Drawing.Point(126, 199);
             this.cmbDitherer.Name = "cmbDitherer";
             this.cmbDitherer.Size = new System.Drawing.Size(452, 23);
-            this.cmbDitherer.TabIndex = 10;
+            this.cmbDitherer.TabIndex = 12;
             this.toolTip.SetToolTip(this.cmbDitherer, resources.GetString("cmbDitherer.ToolTip"));
             // 
             // tblAlphaThreshold
@@ -272,12 +289,12 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             this.tblAlphaThreshold.Controls.Add(this.lblAlphaThresholdValue, 2, 0);
             this.tblAlphaThreshold.Controls.Add(this.lblAlphaThreshold, 0, 0);
             this.tblAlphaThreshold.Controls.Add(this.tbAlphaThreshold, 1, 0);
-            this.tblAlphaThreshold.Location = new System.Drawing.Point(126, 143);
+            this.tblAlphaThreshold.Location = new System.Drawing.Point(126, 171);
             this.tblAlphaThreshold.Name = "tblAlphaThreshold";
             this.tblAlphaThreshold.RowCount = 1;
             this.tblAlphaThreshold.RowStyles.Add(new System.Windows.Forms.RowStyle(System.Windows.Forms.SizeType.Percent, 100F));
             this.tblAlphaThreshold.Size = new System.Drawing.Size(452, 22);
-            this.tblAlphaThreshold.TabIndex = 8;
+            this.tblAlphaThreshold.TabIndex = 10;
             // 
             // lblAlphaThresholdValue
             // 
@@ -403,5 +420,6 @@ namespace KGySoft.Drawing.Examples.WinForms.View
         private ToolStripProgressBar pbProgress;
         private System.Windows.Forms.Timer timerProgress;
         private ColorDialog colorDialog;
+        private CheckBox chbForceLinear;
     }
 }

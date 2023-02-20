@@ -111,8 +111,12 @@ namespace KGySoft.Drawing.Examples.Shared.Model
             }
 
             IQuantizer result = (IQuantizer)method.Invoke(null, args)!;
-            if (result is OptimizedPaletteQuantizer optimized)
-                result = optimized.ConfigureBitLevel(settings.BitLevel);
+            result = result switch
+            {
+                OptimizedPaletteQuantizer optimized => optimized.ConfigureBitLevel(settings.BitLevel).ConfigureColorSpace(settings.WorkingColorSpace),
+                PredefinedColorsQuantizer predefined => predefined.ConfigureColorSpace(settings.WorkingColorSpace),
+                _ => result
+            };
             return result;
         }
 

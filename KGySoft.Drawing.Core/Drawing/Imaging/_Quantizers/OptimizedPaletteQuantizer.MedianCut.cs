@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OptimizedPaletteQuantizer.MedianCut.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -42,7 +42,6 @@ namespace KGySoft.Drawing.Imaging
 
             private sealed class ColorBucket
             {
-
                 #region Nested Classes
 
                 #region RedComparer class

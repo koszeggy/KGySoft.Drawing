@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ColorRgba128.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -45,10 +45,10 @@ namespace KGySoft.Drawing.Wpf
         
         internal ColorRgba128(Color32 c)
         {
-            r = (c.R / 255f).ToLinear();
-            g = (c.G / 255f).ToLinear();
-            b = (c.B / 255f).ToLinear();
-            a = c.A / 255f;
+            r = ColorSpaceHelper.SrgbToLinear(c.R);
+            g = ColorSpaceHelper.SrgbToLinear(c.G);
+            b = ColorSpaceHelper.SrgbToLinear(c.B);
+            a = ColorSpaceHelper.ToFloat(c.A);
         }
 
         #endregion
@@ -69,7 +69,10 @@ namespace KGySoft.Drawing.Wpf
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(a.To8Bit(), r.ToNonLinear8Bit(), g.ToNonLinear8Bit(), b.ToNonLinear8Bit());
+        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(a), 
+            ColorSpaceHelper.LinearToSrgb8Bit(r),
+            ColorSpaceHelper.LinearToSrgb8Bit(g),
+            ColorSpaceHelper.LinearToSrgb8Bit(b));
 
         internal ColorRgba128 ToPremultiplied() => a switch
         {

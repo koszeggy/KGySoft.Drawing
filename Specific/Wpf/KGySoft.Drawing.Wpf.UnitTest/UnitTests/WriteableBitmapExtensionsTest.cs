@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: WriteableBitmapExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -35,9 +35,10 @@ namespace KGySoft.Drawing.Wpf.UnitTests
     {
         #region Fields
 
-        private static Color testColor = Color.FromRgb(0x80, 0xFF, 0x40);
-        private static Color testColorAlpha = Color.FromArgb(0x80, 0x80, 0xFF, 0x40);
-        private static Color testColorBlended = Color.FromArgb(0xFF, 0x40, 0x7F, 0x20);
+        private static readonly Color testColor = Color.FromRgb(0x80, 0xFF, 0x40);
+        private static readonly Color testColorAlpha = Color.FromArgb(0x80, 0x80, 0xFF, 0x40);
+        private static readonly Color testColorBlended = testColorAlpha.ToColor32().Blend(Color32.FromGray(0)).ToMediaColor();
+        private static readonly Color testColorBlendedLinear = testColorAlpha.ToColor32().Blend(Color32.FromGray(0), WorkingColorSpace.Linear).ToMediaColor();
 
         private static readonly object[][] setGetPixelTestSource =
         {
@@ -107,8 +108,8 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "Gray16 Alpha", PixelFormats.Gray16, testColorAlpha, Color.FromRgb(0x61, 0x61, 0x61), 0x61B6 },
             new object[] { "Gray16 Transparent", PixelFormats.Gray16, Colors.Transparent, Colors.Black, 0 },
 
-            new object[] { "Gray32", PixelFormats.Gray32Float, testColor, Color.FromRgb(0xC3, 0xC3, 0xC3), 0x3F0C1C96 },
-            new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x61, 0x61, 0x61), 0x3DF694AB },
+            new object[] { "Gray32", PixelFormats.Gray32Float, testColor, Color.FromRgb(0xC3, 0xC3, 0xC3), 0x3F0BB49B },
+            new object[] { "Gray32 Alpha", PixelFormats.Gray32Float, testColorAlpha, Color.FromRgb(0x8F, 0x8F, 0x8F), 0x3E8CA283 },
             new object[] { "Gray32 Transparent", PixelFormats.Gray32Float, Colors.Transparent, Colors.Black, 0 },
 
             new object[] { "BGR101010", PixelFormats.Bgr101010, testColor, testColor, 0b1000000010_1111111111_0100000001 },
@@ -136,7 +137,7 @@ namespace KGySoft.Drawing.Wpf.UnitTests
             new object[] { "PRGBA128 Transparent", PixelFormats.Prgba128Float, Colors.Transparent, default(Color), 0x00000000_00000000 /* only R and G as float */ },
 
             new object[] { "RGB128", PixelFormats.Rgb128Float, testColor, testColor, 0x3F800000_3E5D0A8B /* only R and G as float */ },
-            new object[] { "RGB128 Alpha", PixelFormats.Rgb128Float, testColorAlpha, testColorBlended, 0x3E595303_3D51FFEF /* only R and G as float */ },
+            new object[] { "RGB128 Alpha", PixelFormats.Rgb128Float, testColorAlpha, testColorBlendedLinear, 0x3F00BD2D_3DE02D77 /* only R and G as float */ },
             new object[] { "RGB128 Transparent", PixelFormats.Rgb128Float, Colors.Transparent, Colors.Black, 0x00000000_00000000 /* only R and G as float */ },
 
             new object[] { "CMYK32", PixelFormats.Cmyk32, testColor, testColor, 0x00_BF_00_7E },

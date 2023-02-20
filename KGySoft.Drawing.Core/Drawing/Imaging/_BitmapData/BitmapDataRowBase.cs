@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataRowBase.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -30,11 +30,26 @@ namespace KGySoft.Drawing.Imaging
         #region Properties and Indexers
 
         #region Properties
+        
+        #region Public Properties
 
-        [AllowNull]public IBitmapData BitmapData { get; internal set; }
         public int Index { get; internal set; }
         public int Width => BitmapData.Width;
         public int Size => BitmapData.RowSize;
+
+        #endregion
+
+        #region Internal Properties
+
+        [AllowNull]internal BitmapDataBase BitmapData { get; set; }
+
+        #endregion
+
+        #region Explicitly Implemented Interface Properties
+
+        IBitmapData IBitmapDataRowInternal.BitmapData => BitmapData;
+
+        #endregion
 
         #endregion
 

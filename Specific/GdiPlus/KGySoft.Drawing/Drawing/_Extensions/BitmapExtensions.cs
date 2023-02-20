@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -130,9 +130,10 @@ namespace KGySoft.Drawing
         /// <para>This method always produces a result with <see cref="PixelFormat.Format32bppPArgb"/>&#160;<see cref="PixelFormat"/>. To resize an image
         /// with a custom pixel format you can create a new <see cref="Bitmap"/> with the <see cref="Bitmap(int, int, PixelFormat)"/> constructor
         /// and use the <see cref="O:KGySoft.Drawing.ImageExtensions.DrawInto">DrawInto</see> extension methods.</para>
-        /// <para>Generally, the best quality result can be achieved by the <see cref="Resize(Bitmap, Size, bool)"/> overload, which
-        /// uses <see cref="Graphics.DrawImage(Image, Rectangle, Rectangle, GraphicsUnit)">Graphics.DrawImage</see> internally. On Windows some <see cref="Graphics"/>
-        /// members use process-wide locks, which prevent them to be called concurrently without blocking. If that can be an issue you should use this overload.</para>
+        /// <para>This method always performs resizing in the sRGB color space. To perform resizing in the linear color space obtain a readable bitmap data
+        /// by the <see cref="GetReadableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> method specifying the <see cref="WorkingColorSpace.Linear"/> color space
+        /// and use the <see cref="BitmapDataExtensions.Resize">BitmapDataExtensions.Resize</see> method instead. You can convert the result back to a <see cref="Bitmap"/>
+        /// instance by the <see cref="ReadableBitmapDataExtensions.ToBitmap(IReadableBitmapData)">ToBitmap</see> extension method.</para>
         /// </remarks>
         public static Bitmap Resize(this Bitmap image, Size newSize, ScalingMode scalingMode, bool keepAspectRatio = false)
         {
@@ -374,7 +375,8 @@ namespace KGySoft.Drawing
         /// <summary>
         /// Gets an <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.
         /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see>
+        /// method for details and examples.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">For an <see cref="IReadableBitmapData"/> instance the <paramref name="backColor"/> is relevant only for indexed bitmaps
@@ -388,20 +390,49 @@ namespace KGySoft.Drawing
         /// which should not be considered as transparent. If 0, then a color lookup will never return a transparent color. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
-        /// <seealso cref="GetWritableBitmapData"/>
-        /// <seealso cref="GetReadWriteBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
+        /// <seealso cref="GetWritableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
         public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => GetReadableBitmapData(bitmap, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets an <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.
+        /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see>
+        /// method for details and examples.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data. Determines the behavior
+        /// of some operations such as resizing or looking up for nearest colors if <paramref name="bitmap"/> has an indexed pixel format.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <param name="backColor">Just like <paramref name="workingColorSpace"/>, for an <see cref="IReadableBitmapData"/> instance the <paramref name="backColor"/>
+        /// is relevant only for indexed bitmaps when <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see>
+        /// and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods are called with an alpha color on the <see cref="IBitmapData.Palette"/> property.
+        /// Queried colors with alpha, which are considered opaque will be blended with this color before performing a lookup.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">Similarly to <paramref name="backColor"/>, for an <see cref="IReadableBitmapData"/> instance the <paramref name="alphaThreshold"/> is relevant
+        /// only for indexed bitmaps when <see cref="Palette.GetNearestColorIndex">GetNearestColorIndex</see> and <see cref="Palette.GetNearestColor">GetNearestColor</see> methods
+        /// are called with an alpha color on the <see cref="IBitmapData.Palette"/> property. In such case determines the lowest alpha value of a color,
+        /// which should not be considered as transparent. If 0, then a color lookup will never return a transparent color. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadableBitmapData"/> instance, which provides fast read-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <seealso cref="GetWritableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
+        public static IReadableBitmapData GetReadableBitmapData(this Bitmap bitmap, WorkingColorSpace workingColorSpace, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold);
+            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadOnly, new Color32(backColor), alphaThreshold, workingColorSpace);
         }
 
         /// <summary>
         /// Gets an <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.
         /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
-        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData">GetReadWriteBitmapData</see> method for details and examples.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see>
+        /// method for details and examples.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
@@ -413,22 +444,49 @@ namespace KGySoft.Drawing
         /// then the pixels to be set will never be transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
-        /// <seealso cref="GetReadableBitmapData"/>
-        /// <seealso cref="GetReadWriteBitmapData"/>
-        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
+        /// <seealso cref="GetReadableBitmapData(Bitmap, Color, byte)"/>
+        /// <seealso cref="GetReadWriteBitmapData(Bitmap, Color, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
         public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => GetWritableBitmapData(bitmap, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets an <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.
+        /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see>
+        /// method for details and examples.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data. Determines the behavior
+        /// of some operations such as setting pixels with transparency when the pixel format of the source bitmap does not support transparency or alpha gradient.
+        /// See also the <paramref name="backColor"/> and <paramref name="alphaThreshold"/> parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, specifies the color of the background.
+        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the pixels to be set will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IWritableBitmapData"/> instance, which provides fast write-only access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <seealso cref="GetReadableBitmapData(Bitmap, Color, byte)"/>
+        /// <seealso cref="GetReadWriteBitmapData(Bitmap, Color, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
+        public static IWritableBitmapData GetWritableBitmapData(this Bitmap bitmap, WorkingColorSpace workingColorSpace, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold, workingColorSpace);
         }
 
         /// <summary>
         /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
         /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/> overload for details.
         /// </summary>
         /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
-        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, then specifies the color of the background.
+        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, specifies the color of the background.
         /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
         /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
@@ -451,11 +509,58 @@ namespace KGySoft.Drawing
         /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
         /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
         /// <note type="tip">To create a managed <see cref="IReadWriteBitmapData"/> instance that supports every <see cref="PixelFormat"/>s on any platform
-        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)">BitmapDataFactory.CreateBitmapData</see> method.</note>
+        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)">BitmapDataFactory.CreateBitmapData</see> method.</note>
+        /// </remarks>
+        /// <seealso cref="GetReadableBitmapData(Bitmap, Color, byte)"/>
+        /// <seealso cref="GetWritableBitmapData(Bitmap, Color, byte)"/>
+        /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
+        public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+            => GetReadWriteBitmapData(bitmap, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        /// <summary>
+        /// Gets an <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.
+        /// The <paramref name="bitmap"/> can have any <see cref="PixelFormat"/>.
+        /// </summary>
+        /// <param name="bitmap">A <see cref="Bitmap"/> instance, whose data is about to be accessed.</param>
+        /// <param name="workingColorSpace">Specifies the preferred color space that should be used when working with the result bitmap data. Determines the behavior
+        /// of some operations such as setting pixels with transparency when the pixel format of the source bitmap does not support transparency or alpha gradient.
+        /// See also the <paramref name="backColor"/> and <paramref name="alphaThreshold"/> parameters.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
+        /// <param name="backColor">When setting pixels of indexed bitmaps and bitmaps without alpha support or with single bit alpha, specifies the color of the background.
+        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
+        /// The alpha value (<see cref="Color.A">Color.A</see> property) of the specified background color is ignored. This parameter is optional.
+        /// <br/>Default value: <see cref="Color.Empty">Color.Empty</see>, which has the same RGB values as <see cref="Color.Black"/>.</param>
+        /// <param name="alphaThreshold">When setting pixels of bitmaps with single bit alpha or with a palette that has a transparent color,
+        /// then specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which the color is considered transparent. If 0,
+        /// then the pixels to be set will never be transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>An <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.</returns>
+        /// <remarks>
+        /// <para>All possible <see cref="PixelFormat"/>s are supported, of which a <see cref="Bitmap"/> can be created in the current operating system.
+        /// <note>For information about the possible usable <see cref="PixelFormat"/>s on different platforms see the <strong>Remarks</strong> section of the <see cref="ImageExtensions.ConvertPixelFormat(Image,PixelFormat,Color,byte)">ConvertPixelFormat</see> method.</note>
+        /// </para>
+        /// <para>If <paramref name="alphaThreshold"/> is zero, then setting a fully transparent pixel in a bitmap with indexed or single-bit-alpha pixel format
+        /// will blend the pixel to set with <paramref name="backColor"/> even if the bitmap can handle transparent pixels.</para>
+        /// <para>If <paramref name="alphaThreshold"/> is <c>1</c>, then the result color of setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
+        /// will be transparent only if the color to set is completely transparent (has zero alpha).</para>
+        /// <para>If <paramref name="alphaThreshold"/> is <c>255</c>, then the result color of setting a pixel of a bitmap with indexed or single-bit-alpha pixel format
+        /// will be opaque only if the color to set is completely opaque (its alpha value is <c>255</c>).</para>
+        /// <para>If a pixel of a bitmap without alpha gradient support is set by the <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see>/<see cref="IWritableBitmapDataRow.SetColor">IWritableBitmapDataRow.SetColor</see>
+        /// methods or by the <see cref="IReadWriteBitmapDataRow.this">IReadWriteBitmapDataRow indexer</see>, and the pixel has an alpha value that is greater than <paramref name="alphaThreshold"/>,
+        /// then the pixel to set will be blended with <paramref name="backColor"/>.</para>
+        /// <para>The <paramref name="workingColorSpace"/> parameter indicates the preferred color space mode when working with the result bitmap data.
+        /// Blending operations performed by this library (eg. by <see cref="IWritableBitmapData.SetPixel">IWritableBitmapData.SetPixel</see> when blending in necessary as described above,
+        /// or by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods) respect the value of this parameter.
+        /// Blending in the linear color space produces natural results but the operation is a bit slower if the actual pixel format is not in the linear color space
+        /// and the result is different from the results of most applications including popular image processors and web browsers.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</para>
+        /// <note type="tip">To create a managed <see cref="IReadWriteBitmapData"/> instance that supports every <see cref="PixelFormat"/>s on any platform
+        /// you can use the <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)">BitmapDataFactory.CreateBitmapData</see> method.</note>
         /// </remarks>
         /// <example>
         /// <para>The following example demonstrates how easily you can copy the content of a 32-bit ARGB image into an 8-bit indexed one by
-        /// using the <see cref="GetReadableBitmapData">GetReadableBitmapData</see> and <see cref="GetWritableBitmapData">GetWritableBitmapData</see> methods:</para>
+        /// using the <see cref="O:KGySoft.Drawing.BitmapExtensions.GetReadableBitmapData">GetReadableBitmapData</see>
+        /// and <see cref="O:KGySoft.Drawing.BitmapExtensions.GetWritableBitmapData">GetWritableBitmapData</see> methods:</para>
         /// <code lang="C#"><![CDATA[
         /// var targetFormat = PixelFormat.Format8bppIndexed; // feel free to try other formats as well
         /// using (Bitmap bmpSrc = Icons.Shield.ExtractBitmap(new Size(256, 256)))
@@ -504,9 +609,13 @@ namespace KGySoft.Drawing
         ///     for (int x = 0; x < dataSrc.Width; x++)
         ///         rowDst[x] = rowSrc[x];
         /// });]]></code>
-        /// <note>The examples above are just for demonstration purpose. For the same result use the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see>
-        /// methods for more flexibility and optimized parallel processing. The <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload allows using custom quantizer and ditherer implementations as well.</note>
-        /// <para>The following example demonstrates how to use the read-write <see cref="IReadWriteBitmapData"/> returned by the <see cref="GetReadWriteBitmapData">GetReadWriteBitmapData</see> method
+        /// <note>The examples above are just for demonstration purpose. For the same result use
+        /// the <see cref="O:KGySoft.Drawing.ImageExtensions.ConvertPixelFormat">ConvertPixelFormat</see>
+        /// methods for more flexibility and optimized parallel processing.
+        /// The <see cref="ImageExtensions.ConvertPixelFormat(Image, PixelFormat, IQuantizer, IDitherer)"/> overload
+        /// allows using custom quantizer and ditherer implementations as well.</note>
+        /// <para>The following example demonstrates how to use the read-write <see cref="IReadWriteBitmapData"/> returned by
+        /// the <see cref="GetReadWriteBitmapData(Bitmap, WorkingColorSpace, Color, byte)">GetReadWriteBitmapData</see> method
         /// to manipulate a <see cref="Bitmap"/> in-place:</para>
         /// <code lang="C#"><![CDATA[
         /// // This example produces the same result as the MakeGrayscale extension method without a ditherer:
@@ -532,14 +641,14 @@ namespace KGySoft.Drawing
         /// <item><term><c>after.png</c></term><term><img src="../Help/Images/ShieldGrayscale.png" alt="Grayscale shield icon"/></term></item>
         /// </list></para>
         /// </example>
-        /// <seealso cref="GetReadableBitmapData"/>
-        /// <seealso cref="GetWritableBitmapData"/>
+        /// <seealso cref="GetReadableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
+        /// <seealso cref="GetWritableBitmapData(Bitmap, WorkingColorSpace, Color, byte)"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/>
-        public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, Color backColor = default, byte alphaThreshold = 128)
+        public static IReadWriteBitmapData GetReadWriteBitmapData(this Bitmap bitmap, WorkingColorSpace workingColorSpace, Color backColor = default, byte alphaThreshold = 128)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold);
+            return NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.ReadWrite, new Color32(backColor), alphaThreshold, workingColorSpace);
         }
 
         /// <summary>
@@ -640,7 +749,7 @@ namespace KGySoft.Drawing
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
-            using IWritableBitmapData accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+            using IWritableBitmapData accessor = bitmap.GetWritableBitmapData(backColor, alphaThreshold);
             accessor.Clear(new Color32(color));
         }
 
@@ -670,7 +779,7 @@ namespace KGySoft.Drawing
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
 
-            using IWritableBitmapData accessor = NativeBitmapDataFactory.CreateBitmapData(bitmap, ImageLockMode.WriteOnly, new Color32(backColor), alphaThreshold);
+            using IWritableBitmapData accessor = bitmap.GetWritableBitmapData(backColor, alphaThreshold);
             accessor.Clear(new Color32(color), ditherer);
         }
 

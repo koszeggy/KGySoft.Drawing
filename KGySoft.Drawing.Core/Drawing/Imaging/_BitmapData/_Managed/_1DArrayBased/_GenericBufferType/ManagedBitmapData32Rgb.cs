@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData32Rgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -38,7 +38,7 @@ namespace KGySoft.Drawing.Imaging
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c)
-                => DoWriteRaw(x, c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
+                => DoWriteRaw(x, c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearBlending));
 
             #endregion
         }
@@ -47,8 +47,8 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData32Rgb(Array2D<T> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format32bppRgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData32Rgb(Array2D<T> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 
@@ -60,7 +60,8 @@ namespace KGySoft.Drawing.Imaging
         protected override Color32 DoGetPixel(int x, int y) => GetPixelRef<Color32>(y, x).ToOpaque();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 c) => GetPixelRef<Color32>(y, x) = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor);
+        protected override void DoSetPixel(int x, int y, Color32 c)
+            => GetPixelRef<Color32>(y, x) = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearBlending);
 
         #endregion
     }

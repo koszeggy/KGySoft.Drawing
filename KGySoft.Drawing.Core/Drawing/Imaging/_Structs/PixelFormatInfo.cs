@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: PixelFormatInfo.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -72,6 +72,8 @@ namespace KGySoft.Drawing.Imaging
         private const int isCustomFormat = 1 << 24;
         private const int isGrayscale = 1 << 25;
         private const int hasSingleBitAlpha = 1 << 26;
+        //private const int prefersColorF = 1 << 27;
+        private const int isLinear = 1 << 28;
 
         #endregion
 
@@ -213,6 +215,28 @@ namespace KGySoft.Drawing.Imaging
                     this.value &= ~hasSingleBitAlpha;
 
                 this.value |= isCustomFormat;
+            }
+        }
+
+        /// <summary>
+        /// Gets or sets whether the represented pixel format has linear gamma.
+        /// For <see cref="Indexed"/> formats this property should be <see langword="false"/> because it can be configured
+        /// at the <see cref="Palette"/> constructors and factory methods whether the palette should work in the linear color space.
+        /// If the <see cref="IBitmapData.WorkingColorSpace">IBitmapData.WorkingColorSpace</see> property returns <see cref="WorkingColorSpace.Default"/>,
+        /// then the value of this property may affect the selected color space of some operations.
+        /// </summary>
+        public bool LinearGamma
+        {
+            readonly get => (value & isLinear) != 0;
+            set
+            {
+                if (value == LinearGamma)
+                    return;
+                if (value)
+                    this.value |= isLinear;
+                else
+                    this.value &= ~isLinear;
+                this.value |= isLinear;
             }
         }
 

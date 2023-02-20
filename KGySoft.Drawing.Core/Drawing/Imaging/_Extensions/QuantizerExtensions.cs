@@ -1,10 +1,9 @@
-﻿#if !NET35
-#region Copyright
+﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: QuantizerExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,10 +15,17 @@
 
 #region Usings
 
-using System;
+#if !NET35
+using System; 
+#endif
+using System.Drawing;
+#if !NET35
 using System.Threading.Tasks;
+#endif
 
+#if !NET35
 using KGySoft.Threading;
+#endif
 
 #endregion
 
@@ -33,6 +39,7 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         #region Public Methods
+#if !NET35
 
         /// <summary>
         /// Gets an <see cref="IQuantizingSession"/> instance potentially asynchronously that can be used to quantize the colors of the specified <see cref="IReadableBitmapData"/> instance.
@@ -44,7 +51,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="IQuantizingSession"/> instance that can be used to quantize the colors of the specified <see cref="IReadableBitmapData"/> instance
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="InvalidOperationException">The non-canceled <see cref="IQuantizer.Initialize">IQuantizer.Initialize</see> method returned <see langword="null"/>.</exception>
         public static Task<IQuantizingSession?> InitializeAsync(this IQuantizer quantizer, IReadableBitmapData source, TaskConfig? asyncConfig = null)
             // PredefinedColorsQuantizer is known to be fast so initializing it synchronously
@@ -52,10 +59,33 @@ namespace KGySoft.Drawing.Imaging
                 ? AsyncHelper.FromResult(quantizer.Initialize(source), asyncConfig)
                 : AsyncHelper.DoOperationAsync(ctx => DoInitializeSessionAsync(ctx, source, quantizer), asyncConfig);
 
+#endif
+        #endregion
+
+        #region Internal Methods
+
+        internal static WorkingColorSpace WorkingColorSpace(this IQuantizer? quantizer)
+        {
+            switch (quantizer)
+            {
+                case null:
+                    return Imaging.WorkingColorSpace.Default;
+                case PredefinedColorsQuantizer predefined:
+                    return predefined.WorkingColorSpace;
+                case OptimizedPaletteQuantizer optimized:
+                    return optimized.WorkingColorSpace;
+                default:
+                    // non built-in one: testing with a single pixel bitmap
+                    using (var session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))
+                        return session.WorkingColorSpace;
+            }
+        }
+
         #endregion
 
         #region Private Methods
-
+#if !NET35
+        
         private static IQuantizingSession? DoInitializeSessionAsync(IAsyncContext context, IReadableBitmapData source, IQuantizer quantizer)
         {
             if (context.IsCancellationRequested)
@@ -68,9 +98,9 @@ namespace KGySoft.Drawing.Imaging
             return result;
         }
 
+#endif
         #endregion
 
         #endregion
     }
 }
-#endif

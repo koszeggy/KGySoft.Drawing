@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IQuantizingSession.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -62,12 +62,27 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets whether this <see cref="IQuantizingSession"/> works with grayscale colors.
         /// Its value may help to optimize the processing in some cases but it is allowed to return always <see langword="false"/>.
-        /// <br/>Default value: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented)
+        /// <br/>Default value if not implemented: <see langword="false"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
         /// </summary>
 #if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
         bool IsGrayscale { get; }
 #else
         bool IsGrayscale => false;
+#endif
+
+        /// <summary>
+        /// Gets the preferred working color space of this <see cref="IQuantizingSession"/> instance.
+        /// If this quantizing session is used by a ditherer, then <see cref="IDitheringSession"/> implementations may also respect the value of this property.
+        /// <br/>Default value if not implemented: <see cref="Imaging.WorkingColorSpace.Default"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
+        /// </summary>
+        /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// </remarks>
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
+        WorkingColorSpace WorkingColorSpace { get; }
+#else
+        WorkingColorSpace WorkingColorSpace => default;
 #endif
 
         #endregion
@@ -77,7 +92,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets the quantized color of the specified <paramref name="origColor"/>. If <see cref="Palette"/> property has non-<see langword="null"/> return value,
         /// then the result color must be a valid <see cref="Imaging.Palette"/> entry.
-        /// <br/>See the also <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
+        /// <br/>See also the <strong>Remarks</strong> section of the <see cref="AlphaThreshold"/> property for details.
         /// </summary>
         /// <param name="origColor">The original color to be quantized.</param>
         /// <returns>The quantized color.</returns>

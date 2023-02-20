@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: GifEncoder.Encode.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -73,6 +73,7 @@ namespace KGySoft.Drawing.Imaging
             private readonly IReadableBitmapData imageData;
             private readonly Color32 backColor;
             private readonly byte alphaThreshold;
+            private readonly bool linearBlending;
             private readonly bool fullScan;
             private readonly Size size;
             private readonly HashSet<Color32> currentColors;
@@ -103,6 +104,7 @@ namespace KGySoft.Drawing.Imaging
                 this.imageData = imageData;
                 this.backColor = backColor;
                 this.alphaThreshold = alphaThreshold;
+                linearBlending = imageData.LinearBlending();
                 this.fullScan = fullScan;
                 size = imageData.Size;
                 this.asyncContext.Progress?.New(DrawingOperation.Saving, size.Width * ((size.Height - 1) / 16 + 1));
@@ -114,7 +116,7 @@ namespace KGySoft.Drawing.Imaging
                 additionalColors = new HashSet<Color32>();
                 sourceRows = new IReadableBitmapDataRow[16];
                 maskRows = new IReadableBitmapDataRow[16];
-                mask = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }));
+                mask = BitmapDataFactory.CreateBitmapData(size, KnownPixelFormat.Format1bppIndexed, new Palette(new[] { Color32.Black, default }, default, 0, default, null));
             }
 
             #endregion
@@ -150,7 +152,7 @@ namespace KGySoft.Drawing.Imaging
                     return false;
 
                 // 2.) Generating the layer
-                Palette palette = new Palette(currentColors.ToArray(), backColor, alphaThreshold);
+                Palette palette = new Palette(currentColors, backColor, alphaThreshold);
                 if (palette.HasAlpha)
                 {
                     // There is transparency: masking the complete area and shrink region if possible
@@ -159,7 +161,7 @@ namespace KGySoft.Drawing.Imaging
                 else
                 {
                     // No transparent color: just adding the current region and masking the affected area
-                    Layer = imageData.DoClone(subContext, currentRegion, KnownPixelFormat.Format8bppIndexed, new Palette(currentColors.ToArray(), backColor, alphaThreshold));
+                    Layer = imageData.DoClone(subContext, currentRegion, KnownPixelFormat.Format8bppIndexed, new Palette(currentColors, backColor, alphaThreshold));
                     Location = currentRegion.Location;
                     if (asyncContext.IsCancellationRequested)
                         return false;
@@ -204,7 +206,7 @@ namespace KGySoft.Drawing.Imaging
 
             private Color32 GetColor(Color32 color) =>
                 color.A == Byte.MaxValue ? color
-                : color.A >= alphaThreshold ? color.BlendWithBackground(backColor)
+                : color.A >= alphaThreshold ? color.BlendWithBackground(backColor, linearBlending)
                 : default;
 
             private void InitializeCurrentRegion()

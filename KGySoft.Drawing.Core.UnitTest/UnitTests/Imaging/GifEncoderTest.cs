@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: GifEncoderTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -660,7 +660,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", false, false)]
         [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", true, true)]
         [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", false, true)]
-        public void ApngToGifTest(string dir, bool allowDelta, bool prequantize)
+        public void ApngToGifPrequantizeVsQuantizeTest(string dir, bool allowDelta, bool prequantize)
         {
             IEnumerable<IReadableBitmapData> FramesIterator()
             {
@@ -678,6 +678,30 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             };
 
             EncodeAnimatedGif(config, false, $"{Path.GetFileName(dir)} {(allowDelta ? "delta" : "no delta")} {(prequantize ? "quantized" : "original")}");
+        }
+
+        [Explicit]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", WorkingColorSpace.Srgb)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Balls", WorkingColorSpace.Linear)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Cube", WorkingColorSpace.Srgb)]
+        [TestCase(@"D:\Dokumentumok\Képek\Formats\apng\Cube", WorkingColorSpace.Linear)]
+        public void ApngToGifTest(string dir, WorkingColorSpace workingColorSpace)
+        {
+            IEnumerable<IReadableBitmapData> FramesIterator()
+            {
+                foreach (string file in Directory.GetFiles(dir, "*.png"))
+                {
+                    using IReadableBitmapData bitmapData = GetBitmapData(file);
+                    yield return bitmapData;
+                }
+            }
+
+            var config = new AnimatedGifConfiguration(FramesIterator())
+            {
+                Quantizer = OptimizedPaletteQuantizer.Wu(256, Color.Black, 0).ConfigureColorSpace(workingColorSpace)
+            };
+
+            EncodeAnimatedGif(config, false, $"{Path.GetFileName(dir)} {workingColorSpace}");
         }
 
         [TestCase(1, true)]
@@ -758,23 +782,24 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             }
         }
 
-        [Test]
-        public void EncodeAnimationTrueColor()
+        [TestCase(WorkingColorSpace.Srgb)]
+        [TestCase(WorkingColorSpace.Linear)]
+        public void EncodeAnimationTrueColor(WorkingColorSpace workingColorSpace)
         {
-            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 64));
+            using IReadWriteBitmapData? bitmapData = GenerateAlphaGradientBitmapData(new Size(256, 64), workingColorSpace == WorkingColorSpace.Linear);
 
             IEnumerable<IReadableBitmapData> FramesIterator()
             {
                 using IReadWriteBitmapData currentFrame = BitmapDataFactory.CreateBitmapData(new Size(bitmapData.Width, bitmapData.Height * 2));
 
-                IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(Color.White);
+                IQuantizer quantizer = PredefinedColorsQuantizer.Rgb888(Color.White).ConfigureColorSpace(workingColorSpace);
                 for (int y = bitmapData.Height - 1; y >= 0; y--)
                 {
                     bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, bitmapData.Height - y), quantizer);
                     yield return currentFrame;
                 }
 
-                quantizer = PredefinedColorsQuantizer.Rgb888(Color.Black);
+                quantizer = PredefinedColorsQuantizer.Rgb888(Color.Black).ConfigureColorSpace(workingColorSpace);
                 for (int y = 0; y < bitmapData.Height; y++)
                 {
                     bitmapData.CopyTo(currentFrame, new Rectangle(0, y, bitmapData.Width, 1), new Point(0, y + bitmapData.Height), quantizer);
@@ -795,7 +820,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
                 Quantizer = OptimizedPaletteQuantizer.Octree()
             };
 
-            EncodeAnimatedGif(config, false);
+            EncodeAnimatedGif(config, false, $"linear={workingColorSpace}");
         }
 
         [Test]

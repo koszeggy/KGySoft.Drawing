@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Drawing;
 
 #endregion
@@ -37,6 +38,23 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Gets a non-default <see cref="WorkingColorSpace"/> that can be used when working with the specified <paramref name="bitmapData"/>.
+        /// </summary>
+        /// <param name="bitmapData">An <see cref="IBitmapData"/> to determine the result. If <see langword="null"/>, then <see cref="WorkingColorSpace.Srgb"/> is returned.</param>
+        /// <returns>A non-default <see cref="WorkingColorSpace"/> that can be used when working with the specified <paramref name="bitmapData"/>.</returns>
+        public static WorkingColorSpace GetPreferredColorSpace(this IBitmapData? bitmapData)
+            => bitmapData?.WorkingColorSpace switch
+            {
+                WorkingColorSpace.Linear => WorkingColorSpace.Linear,
+                WorkingColorSpace.Srgb or null => WorkingColorSpace.Srgb,
+                _ => bitmapData.PixelFormat.LinearGamma ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb
+            };
+
+        #endregion
+
         #region Internal Methods
 
         internal static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
@@ -45,6 +63,7 @@ namespace KGySoft.Drawing.Imaging
             return pixelFormat.HasMultiLevelAlpha || pixelFormat.Indexed && bitmapData.Palette?.HasMultiLevelAlpha == true;
         }
 
+        // TODO: IsFastPremultiplied32: current implementation OR: custom pixel format and has a direct P32 setter
         internal static bool IsFastPremultiplied(this IBitmapData bitmapData)
             => bitmapData.PixelFormat.HasPremultipliedAlpha
                 && bitmapData is ManagedBitmapDataBase { IsCustomPixelFormat: false } or UnmanagedBitmapDataBase { IsCustomPixelFormat: false };
@@ -63,6 +82,9 @@ namespace KGySoft.Drawing.Imaging
 
         internal static bool IsGrayscale(this IBitmapData bitmapData)
             => bitmapData.Palette?.IsGrayscale ?? bitmapData.PixelFormat.Grayscale;
+
+        internal static bool LinearBlending(this IBitmapData bitmapData)
+            => bitmapData.WorkingColorSpace == WorkingColorSpace.Linear || bitmapData.WorkingColorSpace == WorkingColorSpace.Default && bitmapData.PixelFormat.LinearGamma;
 
         internal static KnownPixelFormat GetKnownPixelFormat(this IBitmapData bitmapData)
         {
@@ -126,6 +148,15 @@ namespace KGySoft.Drawing.Imaging
             else
                 ditherer = null;
         }
+
+        private static KnownPixelFormat GetPreferredFirstPassPixelFormat(this IBitmapData target, WorkingColorSpace quantizerWorkingColorSpace)
+            // Multi pass processing is only for quantizers or ditherers that require initialization with the actual image.
+            // Therefore it is always enough to use a 32bpp temp 1st pass buffer because a quantizer is based on Color32 colors.
+            // To optimize blending/processing speed we use straight colors if the target is also straight or when blending
+            // will use linear color space; otherwise, we can use the premultiplied sRGB pixel format.
+            => target.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format32bppArgb
+                ? KnownPixelFormat.Format32bppArgb
+                : quantizerWorkingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb;
 
         #endregion
 

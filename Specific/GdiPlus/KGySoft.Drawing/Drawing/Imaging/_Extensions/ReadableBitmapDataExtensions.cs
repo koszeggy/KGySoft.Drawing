@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ReadableBitmapDataExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -166,7 +166,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="asyncResult">The reference to the pending asynchronous request to finish.</param>
         /// <returns>A <see cref="Bitmap"/> instance that is the result of the operation,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <c>asyncConfig</c> parameter was <see langword="false"/>.</returns>
         public static Bitmap? EndToBitmap(this IAsyncResult asyncResult) => AsyncHelper.EndOperation<Bitmap?>(asyncResult, nameof(BeginToBitmap));
 
 #if !NET35
@@ -180,7 +180,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is a <see cref="Bitmap"/> instance that has the same content as the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
@@ -209,7 +209,7 @@ namespace KGySoft.Drawing.Imaging
         /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <returns>A task that represents the asynchronous operation. Its result is a <see cref="Bitmap"/> instance that has the same content as the specified <paramref name="source"/>,
-        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a>property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
         /// <remarks>
         /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
         /// </remarks>
@@ -269,7 +269,7 @@ namespace KGySoft.Drawing.Imaging
 
                 if (canceled = context.IsCancellationRequested)
                     return null;
-                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold))
+                using (IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace))
                     source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }
@@ -369,7 +369,7 @@ namespace KGySoft.Drawing.Imaging
                 if (pixelFormat.IsIndexed())
                     result.TrySetPalette(GetTargetPalette(pixelFormat, source, sourcePaletteToApply ?? paletteByQuantizer));
 
-                using IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold);
+                using IWritableBitmapData target = NativeBitmapDataFactory.CreateBitmapData(result, ImageLockMode.WriteOnly, backColor, alphaThreshold, source.WorkingColorSpace);
                 return (canceled = !source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty, quantizer, ditherer)) ? null : result;
             }
             catch (Exception)

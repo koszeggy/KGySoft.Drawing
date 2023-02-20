@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData24Rgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 
 using KGySoft.Collections;
@@ -38,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c)
-                => Row[x] = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor));
+                => Row[x] = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearBlending));
 
             #endregion
         }
@@ -47,13 +46,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal ManagedBitmapData24Rgb(Size size, Color32 backColor, byte alphaThreshold)
-            : base(size, KnownPixelFormat.Format24bppRgb, backColor, alphaThreshold)
+        internal ManagedBitmapData24Rgb(in BitmapDataConfig cfg)
+            : base(cfg)
         {
         }
 
-        internal ManagedBitmapData24Rgb(Array2D<Color24> buffer, int pixelWidth, Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, pixelWidth, KnownPixelFormat.Format24bppRgb.ToInfoInternal(), backColor, alphaThreshold, disposeCallback)
+        internal ManagedBitmapData24Rgb(Array2D<Color24> buffer, in BitmapDataConfig cfg)
+            : base(buffer, cfg)
         {
         }
 
@@ -65,7 +64,8 @@ namespace KGySoft.Drawing.Imaging
         protected override Color32 DoGetPixel(int x, int y) => Buffer[y, x].ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 c) => Buffer[y, x] = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor));
+        protected override void DoSetPixel(int x, int y, Color32 c)
+            => Buffer[y, x] = new Color24(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearBlending));
 
         #endregion
     }

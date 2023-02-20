@@ -56,6 +56,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
             #region Public Properties
             
             public bool ShowOverlay { get; private init; }
+            public bool UseLinearColorSpace { get; private set; }
             public bool UseQuantizer { get; private init; }
             public QuantizerDescriptor? SelectedQuantizer { get; private init; }
             public System.Drawing.Color BackColor { get; private init; }
@@ -70,6 +71,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
             #region Explicitly Implemented Interface Properties
 
             bool IQuantizerSettings.DirectMapping => false;
+            WorkingColorSpace IQuantizerSettings.WorkingColorSpace => UseLinearColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
             byte? IQuantizerSettings.BitLevel => null;
             float IDithererSettings.Strength => 0f;
             bool? IDithererSettings.ByBrightness => null;
@@ -85,6 +87,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
             internal static Configuration Capture(MainViewModel viewModel) => new Configuration
             {
                 ShowOverlay = viewModel.ShowOverlay,
+                UseLinearColorSpace = viewModel.UseLinearColorSpace,
                 UseQuantizer = viewModel.UseQuantizer,
                 SelectedQuantizer = viewModel.SelectedQuantizer,
                 BackColor = viewModel.BackColor.ToDrawingColor(),
@@ -107,6 +110,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
         private static readonly HashSet<string> affectsDisplayImage = new()
         {
             nameof(ShowOverlay),
+            nameof(UseLinearColorSpace),
             nameof(UseQuantizer),
             nameof(SelectedQuantizer),
             nameof(BackColor),
@@ -138,6 +142,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
         #region Public Properties
 
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
+        public bool UseLinearColorSpace { get => Get<bool>(); set => Set(value); }
         public bool UseQuantizer { get => Get<bool>(); set => Set(value); }
         public QuantizerDescriptor[] Quantizers => QuantizerDescriptor.Quantizers;
         public QuantizerDescriptor SelectedQuantizer { get => Get(Quantizers[0]); set => Set(value); }
@@ -279,6 +284,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
                 bool showOverlay = cfg.ShowOverlay;
                 IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg) : null;
                 IDitherer? ditherer = useQuantizer && cfg.UseDithering ? cfg.SelectedDitherer!.Create(cfg) : null;
+                WorkingColorSpace workingColorSpace = cfg.UseLinearColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
 
                 // Shortcut: displaying the base image only
                 if (!useQuantizer && !showOverlay)
@@ -294,7 +300,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 
                 var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
 
-                using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData();
+                using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData(workingColorSpace);
 
                 // ===== a.) No overlay: just creating a clone bitmap with the specified quantizer/ditherer =====
                 if (!showOverlay)
@@ -305,7 +311,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 
                 // ===== b.) There is an image overlay: working on the bitmap data directly =====
                 // b.1.) Cloning the source bitmap first. blendedResult = BitmapDataFactory.Create and then baseImageBitmapData.CopyTo(blendedResult) would also work
-                using IReadWriteBitmapData? blendedResult = await baseImageBitmapData.CloneAsync(asyncConfig);
+                using IReadWriteBitmapData? blendedResult = await baseImageBitmapData.CloneAsync(workingColorSpace, asyncConfig);
                 
                 if (blendedResult == null || token.IsCancellationRequested)
                     return;

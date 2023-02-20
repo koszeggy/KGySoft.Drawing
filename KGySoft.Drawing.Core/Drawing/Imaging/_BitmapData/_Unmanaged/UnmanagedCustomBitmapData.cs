@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: UnmanagedCustomBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -37,6 +37,12 @@ namespace KGySoft.Drawing.Imaging
 
         internal sealed class Row : UnmanagedBitmapDataRowBase, ICustomBitmapDataRow
         {
+            #region Properties
+            
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
+
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -74,7 +80,7 @@ namespace KGySoft.Drawing.Imaging
 
         public override bool IsCustomPixelFormat => true;
 
-        public Func<Size, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
+        public Func<Size, WorkingColorSpace, IBitmapDataInternal> CreateCompatibleBitmapDataFactory
         {
             get
             {
@@ -86,10 +92,10 @@ namespace KGySoft.Drawing.Imaging
                 Action<ICustomBitmapDataRow, int, Color32> setter = rowSetColor;
                 Color32 backColor = BackColor;
                 byte alphaThreshold = AlphaThreshold;
-                var pixelFormat = PixelFormat;
+                PixelFormatInfo pixelFormat = PixelFormat;
                 int origWidth = Width;
                 int origStride = RowSize;
-                return size =>
+                return (size, workingColorSpace) =>
                 {
                     Debug.Assert(size.Width > 0 && size.Height > 0);
 
@@ -108,7 +114,7 @@ namespace KGySoft.Drawing.Imaging
                     }
 
                     IntPtr newBuffer = Marshal.AllocHGlobal(stride * size.Height);
-                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, () => Marshal.FreeHGlobal(newBuffer));
+                    return BitmapDataFactory.CreateUnmanagedCustomBitmapData(newBuffer, size, stride, pixelFormat, getter, setter, backColor, alphaThreshold, workingColorSpace, () => Marshal.FreeHGlobal(newBuffer));
 #else
                     Array2D<byte> newBuffer;
 
@@ -123,7 +129,7 @@ namespace KGySoft.Drawing.Imaging
                         newBuffer = new Array2D<byte>(size.Height, stride);
                     }
 
-                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, () => newBuffer.Dispose());
+                    return BitmapDataFactory.CreateManagedCustomBitmapData(newBuffer, size.Width, pixelFormat, getter, setter, backColor, alphaThreshold, workingColorSpace, () => newBuffer.Dispose());
 #endif
                 };
             }
@@ -133,12 +139,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal UnmanagedCustomBitmapData(IntPtr buffer, Size size, int stride, PixelFormatInfo pixelFormat,
-            Func<ICustomBitmapDataRow, int, Color32> rowGetColor, Action<ICustomBitmapDataRow, int, Color32> rowSetColor,
-            Color32 backColor, byte alphaThreshold, Action? disposeCallback)
-            : base(buffer, size, stride, pixelFormat, backColor, alphaThreshold, disposeCallback)
+        internal UnmanagedCustomBitmapData(IntPtr buffer, int stride, in BitmapDataConfig cfg,
+            Func<ICustomBitmapDataRow, int, Color32> rowGetColor, Action<ICustomBitmapDataRow, int, Color32> rowSetColor)
+            : base(buffer, stride, cfg)
         {
-            Debug.Assert(!pixelFormat.Indexed);
+            Debug.Assert(!cfg.PixelFormat.Indexed);
             this.rowGetColor = rowGetColor;
             this.rowSetColor = rowSetColor;
         }

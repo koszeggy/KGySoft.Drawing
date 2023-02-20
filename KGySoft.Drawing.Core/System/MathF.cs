@@ -8,6 +8,8 @@ namespace System
 
         public static float Round(float x) => (float)Math.Round(x);
 
+        public static float Pow(float x, float y) => (float)Math.Pow(x, y);
+
         #endregion
     }
 } 

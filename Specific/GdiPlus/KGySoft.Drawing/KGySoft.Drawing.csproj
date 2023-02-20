@@ -37,7 +37,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0-preview1.22464.1">
+    <PackageReference Include="Microsoft.CodeAnalysis.NetAnalyzers" Version="7.0.0">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers</IncludeAssets>
     </PackageReference>
@@ -50,10 +50,10 @@
 
   <!-- Release only package references -->
   <ItemGroup Condition="'$(Configuration)' == 'RELEASE'">
-    <PackageReference Include="KGySoft.Drawing.Core" Version="7.0.0" />
+    <PackageReference Include="KGySoft.Drawing.Core" Version="7.1.0" />
   </ItemGroup>
 
-  <!-- .NET 7.0 or newer references: Unix is no nonger supported -->
+  <!-- .NET 7.0 or newer references: Unix is no longer supported -->
   <ItemGroup Condition="'$(TargetFramework)' == 'net7.0'">
     <PackageReference Include="System.Drawing.Common" Version="7.0.0" />
   </ItemGroup>

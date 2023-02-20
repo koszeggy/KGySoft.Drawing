@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: OptimizedPaletteQuantizer.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -100,26 +100,24 @@ namespace KGySoft.Drawing.Imaging
     /// <note>For better comparison none of the images are dithered in the examples, though the visual quality can be improved by using dithering.
     /// See the <see cref="OrderedDitherer"/>, <see cref="ErrorDiffusionDitherer"/>, <see cref="RandomNoiseDitherer"/> and <see cref="InterleavedGradientNoiseDitherer"/>
     /// classes for some built-in <see cref="IDitherer"/> implementations.</note>
-    /// <list type="table">
-    /// <listheader><term>Original image</term><term>Quantized image</term></listheader>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <table class="table is-hoverable">
+    /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+    /// <tbody>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
-    /// <br/>Color hues with alpha gradient</para></div></term>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Color hues with alpha gradient</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/AlphaGradientOctree256Silver.gif" alt="Color hues quantized by Octree algorithm using 256 colors, silver background, zero alpha threshold"/>
     /// <br/><see cref="Octree">Octree</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/AlphaGradientMedianCut256Silver.gif" alt="Color hues quantized by Median Cut algorithm using 256 colors, silver background, zero alpha threshold"/>
     /// <br/><see cref="MedianCut">MedianCut</see> algorithm, 256 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/AlphaGradientWu256Silver.gif" alt="Color hues quantized by Wu's algorithm using 256 colors, silver background, zero alpha threshold"/>
-    /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, silver background, zero alpha threshold</para>
-    /// </div></term>
-    /// </item>
-    /// <item>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, silver background, zero alpha threshold</para></div></td>
+    /// </tr>
+    /// <tr><td><div style="text-align:center;">
     /// <para><img src="../Help/Images/Information256.png" alt="Information icon with transparent background"/>
-    /// <br/>Information icon with transparency</para></div></term>
-    /// <term><div style="text-align:center;width:512px">
+    /// <br/>Information icon with transparency</para></div></td>
+    /// <td><div style="text-align:center;">
     /// <para><img src="../Help/Images/InformationOctree4Silver.gif" alt="Information icon quantized by Octree algorithm using 4 colors, silver background, zero alpha threshold"/>
     /// <br/><see cref="Octree">Octree</see> algorithm, 4 colors, silver background, zero alpha threshold</para>
     /// <para><img src="../Help/Images/InformationMedianCut4Silver.gif" alt="Information icon quantized by Median Cut algorithm using 4 colors, silver background, zero alpha threshold"/>
@@ -134,10 +132,9 @@ namespace KGySoft.Drawing.Imaging
     /// <br/><see cref="Wu">Wu</see>'s algorithm, 256 colors, black background, alpha threshold = 128. A slight banding can be observed,
     /// as if the source image had been prequantized by the <see cref="PredefinedColorsQuantizer.Argb1555">PredefinedColorsQuantizer.Argb1555</see> quantizer first.
     /// You get this result if you use the <see cref="ConfigureBitLevel">ConfigureBitLevel</see> method with 5 bits (which is the default for Wu with 256 colors).
-    /// The banding can be reduced by using higher bit levels, which increases also memory usage and processing time.</para>
-    /// </div></term>
-    /// </item>
-    /// </list>
+    /// The banding can be reduced by using higher bit levels, which increases also memory usage and processing time.</para></div></td>
+    /// </tr>
+    /// </tbody></table>
     /// </para>
     /// </remarks>
     /// <seealso cref="IQuantizer"/>
@@ -193,6 +190,7 @@ namespace KGySoft.Drawing.Imaging
             public Palette? Palette { get; }
 
             public Color32 BackColor => quantizer.BackColor;
+            public WorkingColorSpace WorkingColorSpace => quantizer.WorkingColorSpace;
             public byte AlphaThreshold => quantizer.AlphaThreshold;
             public bool IsGrayscale => Palette?.IsGrayscale ?? false;
 
@@ -240,16 +238,17 @@ namespace KGySoft.Drawing.Imaging
                     {
                         Color32 c = row[x];
 
-                        // handling alpha including full transparency
+                        // Handling alpha including full transparency.
+                        // TODO: Here we could allow alpha pixels if all algorithms supported it in AddColor
                         if (c.A != Byte.MaxValue)
-                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor);
+                            c = c.A < quantizer.AlphaThreshold ? default : c.BlendWithBackground(quantizer.BackColor, quantizer.WorkingColorSpace);
                         alg.AddColor(c);
                     }
                     context.Progress?.Increment();
                 } while (row.MoveNextRow());
 
                 Color32[]? palette = alg.GeneratePalette(context);
-                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold);
+                return context.IsCancellationRequested ? null : new Palette(palette!, quantizer.BackColor, quantizer.AlphaThreshold, quantizer.WorkingColorSpace, null);
             }
 
             #endregion
@@ -305,6 +304,20 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         public int MaxColors { get; }
 
+        /// <summary>
+        /// Gets the color space of this <see cref="OptimizedPaletteQuantizer"/> instance for quantizing. This value will be returned also by
+        /// the <see cref="IQuantizingSession.WorkingColorSpace"/> property once an <see cref="IQuantizingSession"/> is created from this instance.
+        /// You can use the <see cref="ConfigureColorSpace">ConfigureColorSpace</see> method to create a clone of this <see cref="OptimizedPaletteQuantizer"/>
+        /// using a different working color space.
+        /// </summary>
+        /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// <para>If the value of this property is <see cref="Imaging.WorkingColorSpace.Default"/>, then the sRGB color space is used
+        /// because the <see cref="IQuantizingSession.GetQuantizedColor">IQuantizingSession.GetQuantizedColor</see> method works with sRGB colors anyway.</para>
+        /// </remarks>
+        public WorkingColorSpace WorkingColorSpace { get; }
+
         #endregion
 
         #region Explicitly Implemented Interface Properties
@@ -328,10 +341,13 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = alphaThreshold;
         }
 
-        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel)
+        private OptimizedPaletteQuantizer(OptimizedPaletteQuantizer original, byte? bitLevel, WorkingColorSpace workingColorSpace)
             : this(original.algorithm, original.MaxColors, original.BackColor, original.AlphaThreshold)
         {
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             this.bitLevel = bitLevel;
+            WorkingColorSpace = workingColorSpace;
         }
 
         #endregion
@@ -485,8 +501,20 @@ namespace KGySoft.Drawing.Imaging
                 return this;
             if (bitLevel is < 1 or > 8)
                 throw new ArgumentOutOfRangeException(nameof(bitLevel), PublicResources.ArgumentMustBeBetween(1, 8));
-            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel);
+            return new OptimizedPaletteQuantizer(this, (byte?)bitLevel, WorkingColorSpace);
         }
+
+        /// <summary>
+        /// Configures the working color space of the generated <see cref="Palette"/> to be used for blending and performing nearest color search.
+        /// The configuration may also affect the behavior of ditherers that use this quantizer.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.
+        /// </summary>
+        /// <param name="workingColorSpace">Specifies the working color space for the generated <see cref="Palette"/>.</param>
+        /// <returns>An <see cref="OptimizedPaletteQuantizer"/> instance that uses the specified color space.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="workingColorSpace"/> is not one of the defined values.</exception>
+        public OptimizedPaletteQuantizer ConfigureColorSpace(WorkingColorSpace workingColorSpace)
+            => workingColorSpace == WorkingColorSpace ? this : new OptimizedPaletteQuantizer(this, bitLevel, workingColorSpace);
 
         #endregion
 

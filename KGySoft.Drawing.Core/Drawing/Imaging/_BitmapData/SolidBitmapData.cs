@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: SolidBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -71,7 +71,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal SolidBitmapData(Size size, Color32 color)
-            : base(size, KnownPixelFormat.Format32bppArgb.ToInfoInternal())
+            : base(new BitmapDataConfig(size, KnownPixelFormat.Format32bppArgb.ToInfoInternal()))
         {
             this.color = color;
         }

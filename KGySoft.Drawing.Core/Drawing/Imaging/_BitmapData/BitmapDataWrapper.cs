@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataWrapper.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -130,6 +130,7 @@ namespace KGySoft.Drawing.Imaging
         public bool IsDisposed => BitmapData.IsDisposed;
         public bool CanSetPalette => false;
         public bool IsCustomPixelFormat => BitmapData.PixelFormat.IsCustomFormat;
+        public WorkingColorSpace WorkingColorSpace => BitmapData.WorkingColorSpace;
 
         #endregion
 

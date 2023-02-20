@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ClippedBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -199,7 +199,7 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         internal ClippedBitmapData(IBitmapData source, Rectangle clippingRegion, bool disposeSource)
-            : base(clippingRegion.Size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.Palette, null, null)
+            : base(new BitmapDataConfig(clippingRegion.Size, source.PixelFormat, source.BackColor, source.AlphaThreshold, source.WorkingColorSpace, source.Palette))
         {
             disposeBitmapData = disposeSource;
 

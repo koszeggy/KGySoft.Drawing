@@ -19,6 +19,7 @@ using System;
 using System.Drawing;
 using System.Runtime.InteropServices;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 
 using SkiaSharp;
@@ -94,25 +95,28 @@ namespace KGySoft.Drawing.Examples.Xamarin.Extensions
 
         #region Methods
 
-        internal static IReadableBitmapData GetReadableBitmapData(this SKBitmap bitmap) => GetReadWriteBitmapData(bitmap);
+        internal static IReadableBitmapData GetReadableBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace = default)
+            => GetReadWriteBitmapData(bitmap, workingColorSpace);
 
-        internal static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap)
+        internal static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap));
+            if (!workingColorSpace.IsDefined())
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace));
             var info = bitmap.Info;
             if (info.ColorType is not (SKColorType.Bgra8888 or SKColorType.Rgba8888) || info.AlphaType != SKAlphaType.Premul)
                 throw new ArgumentException($"Unexpected pixel format {info.ColorType}/{info.AlphaType}", nameof(bitmap));
 
             // Same as KnownPixelFormat.Format32bppPArgb
             if (info.ColorType == SKColorType.Bgra8888)
-                return BitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), new Size(info.Width, info.Height), info.RowBytes, KnownPixelFormat.Format32bppPArgb);
+                return BitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), new Size(info.Width, info.Height), info.RowBytes, KnownPixelFormat.Format32bppPArgb, workingColorSpace);
 
             // Rgba8888 is a custom format (eg. on Android)
             return BitmapDataFactory.CreateBitmapData(bitmap.GetPixels(), new Size(info.Width, info.Height), info.RowBytes,
                 new PixelFormatInfo(32) { HasPremultipliedAlpha = true },
                 (row, x) => row.UnsafeGetRefAs<ColorRgba8888>(x).ToStraight().ToColor32(),
-                (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888>(x) = new ColorRgba8888(c).ToPremultiplied());
+                (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888>(x) = new ColorRgba8888(c).ToPremultiplied(), workingColorSpace);
         }
 
         #endregion

@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataExtensions.Writable.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -294,7 +294,7 @@ namespace KGySoft.Drawing.Imaging
                     Color32 rawColor = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
                     {
                         KnownPixelFormat.Format32bppPArgb => color.ToPremultiplied(),
-                        KnownPixelFormat.Format32bppRgb => color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor),
+                        KnownPixelFormat.Format32bppRgb => color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.LinearBlending()),
                         _ => color,
                     };
 

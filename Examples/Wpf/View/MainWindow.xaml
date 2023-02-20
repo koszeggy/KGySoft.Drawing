@@ -38,6 +38,7 @@
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
@@ -70,15 +71,21 @@
                   ToolTip="The desired target pixel format. For lower bit-per-pixel formats it is recommended to enable dithering."/>
 
         <!-- Pixel Format related settings -->
-        <!-- a.) Optimize Palette -->
+        <!-- a.) Force Linear Color Space -->
         <CheckBox Grid.Row="3" Grid.Column="1"
+                  IsChecked="{Binding ForceLinearColorSpace}"
+                  ToolTip="Forces to use the linear color space regardless of the selected pixel format. Affects color blending, quantizing and dithering.&#x0a;&#x0a;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0a;Use pixel formats without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0a;&#x0a;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."
+                  Content="Force Linear Color Space"/>
+
+        <!-- b.) Optimize Palette -->
+        <CheckBox Grid.Row="4" Grid.Column="1"
                   IsChecked="{Binding OptimizePalette}"
                   IsEnabled="{Binding OptimizePaletteEnabled}"
                   ToolTip="When an indexed pixel format is selected, check to use an optimized palette instead of a predefined one."
                   ToolTipService.ShowOnDisabled="True">Optimize Palette</CheckBox>
 
-        <!-- b.) Back Color -->
-        <Grid Grid.Row="4" Grid.Column="1">
+        <!-- c.) Back Color -->
+        <Grid Grid.Row="5" Grid.Column="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="75"/>
@@ -93,8 +100,8 @@
             <Rectangle Grid.Column="2" Fill="{Binding BackColorBrush}" />
         </Grid>
 
-        <!-- c.) Alpha Threshold -->
-        <Grid Grid.Row="5" Grid.Column="1">
+        <!-- d.) Alpha Threshold -->
+        <Grid Grid.Row="6" Grid.Column="1">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="100"/>
                 <ColumnDefinition Width="75"/>
@@ -114,10 +121,10 @@
         </Grid>
 
         <!--Ditherer-->
-        <CheckBox Grid.Row="6" Grid.Column="0"
+        <CheckBox Grid.Row="7" Grid.Column="0"
                   IsChecked="{Binding UseDithering}"
                   ToolTip="Check to use a ditherer. For high bit-per-pixel formats it makes little sense as for those its only practical effect is just removing possible partial transparency.">Ditherer:</CheckBox>
-        <ComboBox Grid.Row="6" Grid.Column="1"
+        <ComboBox Grid.Row="7" Grid.Column="1"
                   ItemsSource="{Binding Ditherers, Mode=OneTime}"
                   SelectedItem="{Binding SelectedDitherer}"
                   IsEnabled="{Binding UseDithering}"
@@ -125,16 +132,16 @@
                   ToolTipService.ShowOnDisabled="True"/>
 
         <!--Image-->
-        <Image Grid.Row="7" Grid.Column="0" Grid.ColumnSpan="2"
+        <Image Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
                Source="{Binding DisplayImage, Mode=OneWay}"
                RenderOptions.BitmapScalingMode="HighQuality"/>
 
 
         <!--Progress Bar-->
-        <TextBlock Grid.Row="8" Grid.Column="0"
+        <TextBlock Grid.Row="9" Grid.Column="0"
                    Text="{Binding ProgressText}"
                    Visibility="{Binding ProgressVisibility}"/>
-        <ProgressBar Grid.Row="8" Grid.Column="1"
+        <ProgressBar Grid.Row="9" Grid.Column="1"
                      IsIndeterminate="{Binding IsProgressIndeterminate}"
                      Maximum="{Binding ProgressMaxValue}"
                      Value="{Binding ProgressValue}"

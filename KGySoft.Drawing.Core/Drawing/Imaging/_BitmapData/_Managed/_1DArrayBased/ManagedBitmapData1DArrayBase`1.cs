@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedBitmapData1DArrayBase`1.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,8 +15,6 @@
 
 #region Usings
 
-using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -51,19 +49,19 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        protected unsafe ManagedBitmapData1DArrayBase(Size size, KnownPixelFormat pixelFormat, Color32 backColor, byte alphaThreshold, Palette? palette)
-            : base(size, pixelFormat.ToInfoInternal(), backColor, alphaThreshold, palette, null, null)
+        protected unsafe ManagedBitmapData1DArrayBase(in BitmapDataConfig cfg)
+            : base(cfg)
         {
-            Debug.Assert(!pixelFormat.IsIndexed() || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
-            Buffer = new Array2D<T>(size.Height, pixelFormat.ToBitsPerPixel() <= 8 ? pixelFormat.GetByteWidth(size.Width) : size.Width);
+            Debug.Assert(!cfg.PixelFormat.IsCustomFormat, "In this overload known pixel format is expected");
+            Debug.Assert(!cfg.PixelFormat.Indexed || typeof(T) == typeof(byte), "For indexed pixel formats byte elements are expected");
+            Buffer = new Array2D<T>(cfg.Size.Height, cfg.PixelFormat.BitsPerPixel <= 8 ? cfg.PixelFormat.GetByteWidth(cfg.Size.Width) : cfg.Size.Width);
             ownsBuffer = true;
             RowSize = Buffer.Width * sizeof(T);
         }
 
         [SecuritySafeCritical]
-        protected unsafe ManagedBitmapData1DArrayBase(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat, Color32 backColor, byte alphaThreshold,
-            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(new Size(pixelWidth, buffer.Height), pixelFormat, backColor, alphaThreshold, palette, trySetPaletteCallback, disposeCallback)
+        protected unsafe ManagedBitmapData1DArrayBase(Array2D<T> buffer, in BitmapDataConfig cfg)
+            : base(cfg)
         {
             Buffer = buffer;
             RowSize = buffer.Width * sizeof(T);

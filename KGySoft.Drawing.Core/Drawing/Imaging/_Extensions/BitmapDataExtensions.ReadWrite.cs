@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: BitmapDataExtensions.ReadWrite.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -1681,7 +1681,7 @@ namespace KGySoft.Drawing.Imaging
                 Color32[] newEntries = new Color32[oldEntries.Length];
                 for (int i = 0; i < newEntries.Length; i++)
                     newEntries[i] = transformFunction.Invoke(oldEntries[i]);
-                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold)))
+                if (bitmapDataInternal.TrySetPalette(new Palette(newEntries, palette.BackColor, palette.AlphaThreshold, palette.WorkingColorSpace, null)))
                 {
                     context.Progress?.Complete();
                     return;
@@ -1742,7 +1742,8 @@ namespace KGySoft.Drawing.Imaging
             if (ditherer.InitializeReliesOnContent)
             {
                 // not using premultiplied format because transformation is faster on simple ARGB32
-                using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size), KnownPixelFormat.Format32bppArgb);
+                using IBitmapDataInternal? tempClone = DoCloneDirect(context, bitmapData, new Rectangle(Point.Empty, bitmapData.Size),
+                    KnownPixelFormat.Format32bppArgb, default, 128, WorkingColorSpace.Default, null);
                 if (context.IsCancellationRequested)
                     return;
 
@@ -1816,7 +1817,7 @@ namespace KGySoft.Drawing.Imaging
 
         private static Color32 TransformInvert(Color32 c) => new Color32(c.A, (byte)(255 - c.R), (byte)(255 - c.G), (byte)(255 - c.B));
 
-        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackground(backColor);
+        private static Color32 TransformMakeOpaque(Color32 c, Color32 backColor) => c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(backColor);
 
         private static Color32 TransformMakeGrayscale(Color32 c) => c.ToGray();
 

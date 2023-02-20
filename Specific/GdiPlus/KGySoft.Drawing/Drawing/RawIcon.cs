@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: RawIcon.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -523,7 +523,7 @@ namespace KGySoft.Drawing
                     bmp = new Bitmap(new MemoryStream(rawColor!));
                     if (bmp.GetBitsPerPixel().In(invalidIconFormats))
                     {
-                        // not very likely that we reach this point, at least in Windows PNG decoder does not return 16/48/64 BPP formats...
+                        // not very likely that we reach this point, at least on Windows PNG decoder does not return 16/48/64 BPP formats...
                         bmpColor = bmp.ConvertPixelFormat(PixelFormat.Format32bppArgb);
                         bmp.Dispose();
                     }

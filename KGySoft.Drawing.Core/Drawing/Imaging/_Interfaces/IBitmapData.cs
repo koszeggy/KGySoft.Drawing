@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: IBitmapData.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -104,6 +104,36 @@ namespace KGySoft.Drawing.Imaging
         /// then the pixels to be set will never be transparent.
         /// </summary>
         byte AlphaThreshold { get; }
+
+        /// <summary>
+        /// Gets the preferred working color space when dealing with the pixels of this <see cref="IBitmapData"/> instance.
+        /// Some operations, such as setting pixels or drawing another bitmap data into this instance consider the value of this property.
+        /// Operations that use an <see cref="IQuantizer"/> instance may override the value of this property.
+        /// <br/>Default value if not implemented: <see cref="Imaging.WorkingColorSpace.Default"/>. (Only in .NET Core 3.0/.NET Standard 2.1 and above. In earlier targeted frameworks this member must be implemented.)
+        /// </summary>
+        /// <remarks>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="Imaging.WorkingColorSpace"/> enumeration for details and
+        /// image examples about using the different color spaces in various operations.</note>
+        /// <para>For <see cref="IBitmapData"/> implementations the <see cref="WorkingColorSpace"/> property primarily determines how to
+        /// blend colors in drawing operations or when this <see cref="IBitmapData"/> does not support transparency and partially transparent
+        /// colors are set by the <see cref="IWritableBitmapData"/> or <see cref="IWritableBitmapDataRow"/> members.
+        /// Custom <see cref="IBitmapData"/> implementations may ignore the value of this property. Some other operations such as
+        /// cloning, resizing, etc. may also respect the value of this property.</para>
+        /// <para>When <see cref="WorkingColorSpace"/> is <see cref="Imaging.WorkingColorSpace.Default"/>, the working color space is chosen based on the context.
+        /// For example, when setting a pixel using the <see cref="Color32"/> type, the sRGB blending will be picked (unless <see cref="PixelFormat"/>
+        /// has the <see cref="PixelFormatInfo.LinearGamma"/> flag enabled) because it is faster, and it is the default behavior for most applications.</para>
+        /// <para>For some operations, such as drawing a bitmap data into another one by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see>
+        /// methods the working color space is determined by the <see cref="WorkingColorSpace"/> of the target bitmap data.</para>
+        /// <para>When using a quantizer for some operations, it may override the value of this property. As quantizers are limited to the 32 bit ARGB color space,
+        /// the built-in <see cref="IQuantizer"/> implementations in this library also use sRGB blending by default but you can override it by
+        /// the <see cref="PredefinedColorsQuantizer.ConfigureColorSpace">PredefinedColorsQuantizer.ConfigureColorSpace</see>
+        /// and <see cref="OptimizedPaletteQuantizer.ConfigureColorSpace">OptimizedPaletteQuantizer.ConfigureColorSpace</see> methods.</para>
+        /// </remarks>
+#if NETFRAMEWORK || NETSTANDARD2_0 || NETCOREAPP2_0
+        WorkingColorSpace WorkingColorSpace { get; }
+#else
+        WorkingColorSpace WorkingColorSpace => WorkingColorSpace.Default;
+#endif
 
         /// <summary>
         /// Gets whether this <see cref="IBitmapData"/> instance is disposed.

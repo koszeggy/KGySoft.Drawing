@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ReadableBitmapDataExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -20,6 +20,7 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Imaging;
 using KGySoft.Reflection;
 
@@ -58,6 +59,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             public IReadableBitmapDataRowMovable FirstRow => wrapped.FirstRow;
             public bool IsDisposed => wrapped.IsDisposed;
             public Size Size => wrapped.Size;
+            public WorkingColorSpace WorkingColorSpace => wrapped.WorkingColorSpace;
 
             #endregion
 
@@ -113,7 +115,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void CloneWithWrappedDataTest()
         {
-            using var bitmapData = GetInfoIcon256();
+            using var bitmapData = new TestReadableBitmapData(GetInfoIcon256());
             using IReadWriteBitmapData clone = bitmapData.Clone();
             AssertAreEqual(bitmapData, clone);
             //SaveBitmapData("Clone", clone);
@@ -128,8 +130,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void CloneWithPredefinedQuantizerTest(KnownPixelFormat pixelFormat)
         {
             using var source = GetInfoIcon256();
-            using var clone = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat));
-            SaveBitmapData($"{pixelFormat}", clone);
+            using (var clone = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat)))
+                SaveBitmapData($"{pixelFormat} - sRGB blending", clone);
+            using (var clone = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(WorkingColorSpace.Linear)))
+                SaveBitmapData($"{pixelFormat} - Linear blending", clone);
         }
 
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
@@ -138,8 +142,10 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         public void CloneWithOptimizedQuantizerTest(KnownPixelFormat pixelFormat)
         {
             using var source = GetInfoIcon256();
-            using var clone = source.Clone(pixelFormat, OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel()));
-            SaveBitmapData($"{pixelFormat}", clone);
+            using (var clone = source.Clone(pixelFormat, OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel())))
+                SaveBitmapData($"{pixelFormat} - sRGB blending", clone);
+            using (var clone = source.Clone(pixelFormat, OptimizedPaletteQuantizer.Wu(1 << pixelFormat.ToBitsPerPixel()).ConfigureColorSpace(WorkingColorSpace.Linear)))
+                SaveBitmapData($"{pixelFormat} - Linear blending", clone);
         }
 
         [TestCase(KnownPixelFormat.Format16bppArgb1555)]
@@ -158,10 +164,13 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             using var source = GetInfoIcon256();
             foreach (var ditherer in ditherers)
             {
-                using var cloneIndexed = source.Clone(pixelFormat, ditherer.Value);
-                using var cloneTrueColor = source.Clone(KnownPixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat), ditherer.Value);
-                AssertAreEqual(cloneIndexed, cloneTrueColor, true);
-                SaveBitmapData($"{pixelFormat} {ditherer.Key}", cloneIndexed);
+                foreach (WorkingColorSpace colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+                {
+                    using var cloneIndexed = source.Clone(pixelFormat, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(colorSpace), ditherer.Value);
+                    using var cloneTrueColor = source.Clone(KnownPixelFormat.Format32bppArgb, PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(colorSpace), ditherer.Value);
+                    AssertAreEqual(cloneIndexed, cloneTrueColor, true);
+                    SaveBitmapData($"{pixelFormat} {ditherer.Key} {colorSpace}", cloneIndexed);
+                }
             }
         }
 
@@ -241,41 +250,49 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveBitmapData($"{pixelFormat} clipped", targetClipped);
         }
 
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
         [TestCase(KnownPixelFormat.Format4bppIndexed)]
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
         public void CopyToDirectTest(KnownPixelFormat pixelFormat)
         {
-            var rect = new Rectangle(128, 128, 128, 128);
-            using var source = GetInfoIcon256();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size, pixelFormat);
-            source.CopyTo(targetFull);
-            SaveBitmapData($"{pixelFormat} target", targetFull); // tODO: remove
+            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear})
+            {
+                var rect = new Rectangle(128, 128, 128, 128);
+                using var source = GetInfoIcon256();
+                using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size, pixelFormat, colorSpace);
+                source.CopyTo(targetFull);
+                //SaveBitmapData($"{pixelFormat} target", targetFull);
 
-            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat);
-            source.CopyTo(targetClipped, rect, Point.Empty);
+                using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size, pixelFormat, colorSpace);
+                source.CopyTo(targetClipped, rect, Point.Empty);
 
-            AssertAreEqual(targetFull, targetClipped, false, rect);
+                AssertAreEqual(targetFull, targetClipped, false, rect);
 
-            SaveBitmapData($"{pixelFormat} clipped", targetClipped);
+                SaveBitmapData($"{pixelFormat} {colorSpace}", targetClipped); 
+            }
         }
 
+        [TestCase(KnownPixelFormat.Format16bppArgb1555)]
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
         [TestCase(KnownPixelFormat.Format4bppIndexed)]
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
         public void CopyToWithQuantizerTest(KnownPixelFormat pixelFormat)
         {
-            var rect = new Rectangle(128, 128, 128, 128);
-            using var source = GetInfoIcon256();
-            using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size);
-            var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
-            source.CopyTo(targetFull, Point.Empty, quantizer);
+            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+            {
+                var rect = new Rectangle(128, 128, 128, 128);
+                using var source = GetInfoIcon256();
+                using var targetFull = BitmapDataFactory.CreateBitmapData(source.Size);
+                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(colorSpace);
+                source.CopyTo(targetFull, Point.Empty, quantizer);
 
-            using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
-            source.CopyTo(targetClipped, rect, Point.Empty, quantizer);
-            AssertAreEqual(targetFull, targetClipped, false, rect);
+                using var targetClipped = BitmapDataFactory.CreateBitmapData(rect.Size);
+                source.CopyTo(targetClipped, rect, Point.Empty, quantizer);
+                AssertAreEqual(targetFull, targetClipped, false, rect);
 
-            SaveBitmapData($"{pixelFormat} clipped", targetClipped);
+                SaveBitmapData($"{pixelFormat} {colorSpace}", targetClipped);
+            }
         }
 
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
@@ -308,7 +325,6 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveBitmapData(null, bitmapData);
         }
 
-
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
         [TestCase(KnownPixelFormat.Format4bppIndexed)]
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
@@ -316,26 +332,29 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format32bppArgb)]
         public void DrawIntoNoResizeDirectTest(KnownPixelFormat pixelFormat)
         {
-            using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat);
-            using var icon64 = GetInfoIcon64();
-            using var icon256 = GetInfoIcon256();
-            using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
+            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+            {
+                using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, colorSpace);
+                using var icon64 = GetInfoIcon64();
+                using var icon256 = GetInfoIcon256();
+                using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
 
-            // solid source
-            icon64.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
-                .DrawInto(target);
+                // solid source
+                icon64.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                    .DrawInto(target);
 
-            // single bit alpha source
-            icon64.Clone(KnownPixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
-                .DrawInto(target, new Point(192, 192));
+                // single bit alpha source
+                icon64.Clone(KnownPixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
+                    .DrawInto(target, new Point(192, 192));
 
-            // alpha source
-            icon256.DrawInto(target);
+                // alpha source
+                icon256.DrawInto(target);
 
-            // alpha gradient source
-            gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32));
+                // alpha gradient source
+                gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32));
 
-            SaveBitmapData($"{pixelFormat}", target);
+                SaveBitmapData($"{pixelFormat} {colorSpace}", target);
+            }
         }
 
         [TestCase(KnownPixelFormat.Format1bppIndexed)]
@@ -344,38 +363,42 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format16bppArgb1555)]
         public void DrawIntoNoResizeWithQuantizingTest(KnownPixelFormat pixelFormat)
         {
-            var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat);
-
-            var ditherers = new Dictionary<string, IDitherer>
+            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
             {
-                ["(not dithered)"] = null,
-                ["Ordered"] = OrderedDitherer.Bayer8x8,
-                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
-                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
-            };
+                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat).ConfigureColorSpace(colorSpace);
 
-            foreach (var ditherer in ditherers)
-            {
-                using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
-                using var icon64 = GetInfoIcon64();
-                using var icon256 = GetInfoIcon256();
-                using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
+                var ditherers = new Dictionary<string, IDitherer>
+                {
+                    ["(not dithered)"] = null,
+                    ["Ordered"] = OrderedDitherer.Bayer8x8,
+                    ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                    ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+                };
 
-                // solid source
-                icon64.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
-                    .DrawInto(target, Point.Empty, quantizer, ditherer.Value);
+                foreach (var ditherer in ditherers)
+                {
+                    using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
+                    using var icon64 = GetInfoIcon64();
+                    using var icon256 = GetInfoIcon256();
+                    using var gradient = GenerateAlphaGradientBitmapData(new Size(300, 300));
 
-                // single bit alpha source
-                icon64.Clone(KnownPixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
-                    .DrawInto(target, new Point(192, 192), quantizer, ditherer.Value);
+                    // solid source
+                    icon64.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                        .DrawInto(target, Point.Empty, quantizer, ditherer.Value);
 
-                // alpha source
-                icon256.DrawInto(target, Point.Empty, quantizer, ditherer.Value);
+                    // single bit alpha source
+                    icon64.Clone(KnownPixelFormat.Format16bppArgb1555, new Color32(Color.Silver))
+                        .DrawInto(target, new Point(192, 192), quantizer, ditherer.Value);
 
-                // alpha gradient source
-                gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32), quantizer, ditherer.Value);
+                    // alpha source
+                    icon256.DrawInto(target, Point.Empty, quantizer, ditherer.Value);
 
-                SaveBitmapData($"{pixelFormat} {ditherer.Key}", target);
+                    // alpha gradient source
+                    gradient.DrawInto(target, new Rectangle(10, 10, 200, 200), new Point(32, 32), quantizer, ditherer.Value);
+
+                    SaveBitmapData($"{pixelFormat} {ditherer.Key} {colorSpace}", target);
+                }
+
             }
         }
 
@@ -396,6 +419,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.Auto)]
         [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
         [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format24bppRgb, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format24bppRgb, ScalingMode.Auto)]
         [TestCase(KnownPixelFormat.Format32bppArgb, ScalingMode.NearestNeighbor)]
         [TestCase(KnownPixelFormat.Format32bppArgb, ScalingMode.Auto)]
         [TestCase(KnownPixelFormat.Format32bppPArgb, ScalingMode.NearestNeighbor)]
@@ -406,32 +431,35 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format64bppPArgb, ScalingMode.Auto)]
         public void DrawIntoWithResizeDirectTest(KnownPixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            // target and sources
-            using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, new Color32(Color.Silver));
-            using var icon16 = GetInfoIcon16();
-            using var icon256 = GetInfoIcon256();
-            using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
+            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+            {
+                // target and sources
+                using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256), pixelFormat, colorSpace, new Color32(Color.Silver));
+                using var icon16 = GetInfoIcon16();
+                using var icon256 = GetInfoIcon256();
+                using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
 
-            // enlarge solid source
-            var targetRect = new Rectangle(0, 0, 100, 100);
-            icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
-                .DrawInto(target, targetRect, scalingMode);
+                // enlarge solid source
+                var targetRect = new Rectangle(0, 0, 100, 100);
+                icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Black))
+                    .DrawInto(target, targetRect, scalingMode);
 
-            // enlarge alpha source
-            targetRect = new Rectangle(160, 160, 100, 100);
-            icon16.DrawInto(target, targetRect, scalingMode);
+                // enlarge alpha source
+                targetRect = new Rectangle(160, 160, 100, 100);
+                icon16.DrawInto(target, targetRect, scalingMode);
 
-            // shrink single bit alpha source
-            targetRect = new Rectangle(Point.Empty, target.Size);
-            targetRect.Inflate(-32, -32);
-            icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
-                .DrawInto(target, targetRect, scalingMode);
+                // shrink single bit alpha source
+                targetRect = new Rectangle(Point.Empty, target.Size);
+                targetRect.Inflate(-32, -32);
+                icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
+                    .DrawInto(target, targetRect, scalingMode);
 
-            // shrink alpha source (gradient overlay)
-            targetRect.Inflate(-10, -10);
-            gradient.DrawInto(target, targetRect, scalingMode);
+                // shrink alpha source (gradient overlay)
+                targetRect.Inflate(-10, -10);
+                gradient.DrawInto(target, targetRect, scalingMode);
 
-            SaveBitmapData($"{pixelFormat} {scalingMode}", target);
+                SaveBitmapData($"{pixelFormat} {scalingMode} {colorSpace}", target); 
+            }
         }
 
         [TestCase(KnownPixelFormat.Format1bppIndexed, ScalingMode.NearestNeighbor)]
@@ -442,46 +470,51 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format8bppIndexed, ScalingMode.Auto)]
         [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.NearestNeighbor)]
         [TestCase(KnownPixelFormat.Format16bppArgb1555, ScalingMode.Auto)]
+        [TestCase(KnownPixelFormat.Format24bppRgb, ScalingMode.NearestNeighbor)]
+        [TestCase(KnownPixelFormat.Format24bppRgb, ScalingMode.Auto)]
         public void DrawIntoResizeWithQuantizingTest(KnownPixelFormat pixelFormat, ScalingMode scalingMode)
         {
-            var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat, Color.Silver);
-
-            var ditherers = new Dictionary<string, IDitherer>
+            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
             {
-                ["(no dithering)"] = null,
-                ["Ordered"] = OrderedDitherer.Bayer8x8,
-                ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
-                ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
-            };
+                var quantizer = PredefinedColorsQuantizer.FromPixelFormat(pixelFormat, Color.Silver).ConfigureColorSpace(colorSpace);
 
-            foreach (KeyValuePair<string, IDitherer> ditherer in ditherers)
-            {
-                // 32bpp argb target and sources
-                using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
-                using var icon16 = GetInfoIcon16();
-                using var icon256 = GetInfoIcon256();
-                using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
+                var ditherers = new Dictionary<string, IDitherer>
+                {
+                    ["(no dithering)"] = null,
+                    ["Ordered"] = OrderedDitherer.Bayer8x8,
+                    ["Error Diffusion (raster)"] = ErrorDiffusionDitherer.FloydSteinberg,
+                    ["Error Diffusion (serpentine)"] = ErrorDiffusionDitherer.FloydSteinberg.ConfigureProcessingDirection(true),
+                };
 
-                // enlarge solid source
-                var targetRect = new Rectangle(-10, -10, 100, 100);
-                icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
-                    .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+                foreach (KeyValuePair<string, IDitherer> ditherer in ditherers)
+                {
+                    // 32bpp argb target and sources
+                    using var target = BitmapDataFactory.CreateBitmapData(new Size(256, 256));
+                    using var icon16 = GetInfoIcon16();
+                    using var icon256 = GetInfoIcon256();
+                    using var gradient = GenerateAlphaGradientBitmapData(new Size(256, 256));
 
-                // enlarge alpha source
-                targetRect = new Rectangle(160, 160, 100, 100);
-                icon16.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+                    // enlarge solid source
+                    var targetRect = new Rectangle(-10, -10, 100, 100);
+                    icon16.Clone(KnownPixelFormat.Format24bppRgb, new Color32(Color.Silver))
+                        .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
-                // shrink single bit alpha source
-                targetRect = new Rectangle(Point.Empty, target.Size);
-                targetRect.Inflate(-32, -32);
-                icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
-                    .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+                    // enlarge alpha source
+                    targetRect = new Rectangle(160, 160, 100, 100);
+                    icon16.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
-                // shrink alpha source (gradient overlay)
-                targetRect.Inflate(-10, -10);
-                gradient.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+                    // shrink single bit alpha source
+                    targetRect = new Rectangle(Point.Empty, target.Size);
+                    targetRect.Inflate(-32, -32);
+                    icon256.Clone(KnownPixelFormat.Format16bppArgb1555)
+                        .DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
 
-                SaveBitmapData($"{pixelFormat} {ditherer.Key} {scalingMode}", target);
+                    // shrink alpha source (gradient overlay)
+                    targetRect.Inflate(-10, -10);
+                    gradient.DrawInto(target, targetRect, quantizer, ditherer.Value, scalingMode);
+
+                    SaveBitmapData($"{pixelFormat} {ditherer.Key} {scalingMode} {colorSpace}", target);
+                } 
             }
         }
 
@@ -507,30 +540,33 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             const int size = 17;
             Color32 color = Color32.FromArgb((int)argb);
 
-            using var bitmapData = BitmapDataFactory.CreateBitmapData(new Size(size, size), pixelFormat);
-            (string Name, IReadWriteBitmapData BitmapData)[] sources = new[]
+            foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
             {
-                ("full", bitmapData),
-                ($"clipped right, width={size - 1}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 1, 1))),
-                ($"clipped right, width={size - 2}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 2, 1))),
-                ("clipped left", bitmapData.Clone().Clip(new Rectangle(1, 0, size - 1, 1))),
-            };
-
-            foreach ((var _, IReadWriteBitmapData readWriteBitmapData) in sources)
-            {
-                readWriteBitmapData.Clear(color);
-
-                IReadableBitmapDataRowMovable row = readWriteBitmapData.FirstRow;
-                var expected = color;
-                if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha && expected.A != Byte.MaxValue)
-                    expected = expected.BlendWithBackground(Color32.Black);
-                do
+                using var bitmapData = BitmapDataFactory.CreateBitmapData(new Size(size, size), pixelFormat, colorSpace);
+                (string Name, IReadWriteBitmapData BitmapData)[] sources = new[]
                 {
-                    for (int x = 0; x < readWriteBitmapData.Width; x++)
-                        Assert.AreEqual(expected, row[x]);
-                } while (row.MoveNextRow());
+                    ("full", bitmapData),
+                    ($"clipped right, width={size - 1}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 1, 1))),
+                    ($"clipped right, width={size - 2}", bitmapData.Clone().Clip(new Rectangle(0, 0, size - 2, 1))),
+                    ("clipped left", bitmapData.Clone().Clip(new Rectangle(1, 0, size - 1, 1))),
+                };
 
-                //SaveImage($"{pixelFormat} {source.Name}", source.BitmapData);
+                foreach ((string name, IReadWriteBitmapData target) in sources)
+                {
+                    target.Clear(color);
+
+                    IReadableBitmapDataRowMovable row = target.FirstRow;
+                    var expected = color;
+                    if (!pixelFormat.ToInfoInternal().HasMultiLevelAlpha && expected.A != Byte.MaxValue)
+                        expected = expected.BlendWithBackground(Color32.Black, colorSpace);
+                    do
+                    {
+                        for (int x = 0; x < target.Width; x++)
+                            Assert.AreEqual(expected, row[x]);
+                    } while (row.MoveNextRow());
+
+                    //SaveBitmapData($"{pixelFormat} {name} {colorSpace}", target);
+                }
             }
         }
 
@@ -639,8 +675,20 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             AssertAreEqual(transparentAuto, transparentDirect);
         }
 
+        [TestCase(WorkingColorSpace.Srgb)]
+        [TestCase(WorkingColorSpace.Linear)]
+        public void ResizeTest(WorkingColorSpace colorSpace)
+        {
+            using var refBmpData = GetBitmapData(@"..\..\..\..\Help\Images\GirlWithAPearlEarringRgb111DitheredB8Linear.gif", colorSpace);
+            var newSize = new Size(256, 256);
+            using var resized = refBmpData.Resize(newSize);
+            Assert.AreEqual(newSize, resized.Size);
+            Assert.AreEqual(colorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb, resized.PixelFormat.ToKnownPixelFormat());
+            SaveBitmapData($"{colorSpace}", resized);
+        }
+
         [Test]
-        public void ResizeTest()
+        public void ResizeAspectRatioTest()
         {
             using var refBmpData = GetInfoIcon256();
             var newSize = new Size(256, 128);
@@ -730,6 +778,102 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             IReadWriteBitmapData clone = BitmapDataFactory.Load(ms);
             AssertAreEqual(orig, clone);
             SaveBitmapData($"{pixelFormat}", clone);
+        }
+
+        [Explicit]
+        [TestCase(WorkingColorSpace.Srgb)]
+        [TestCase(WorkingColorSpace.Linear)]
+        public void LinearVsSrgbBlendingBars(WorkingColorSpace colorSpace)
+        {
+            using var target = BitmapDataFactory.CreateBitmapData(new Size(512, 512), KnownPixelFormat.Format24bppRgb, colorSpace);
+            target.Clear(Color32.White);
+            var colors = new[] { Color.Red, Color.Lime, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow, Color.Black, Color.Gray };
+            Point point = new Point(16, 0);
+            Size offset = new Size(64, 0);
+            for (int i = 0; i < colors.Length; i++)
+            {
+                using (var vertical = new SolidBitmapData(new Size(32, 512), colors[i]))
+                    vertical.DrawInto(target, point + new Size(offset.Width * i, offset.Height * i));
+            }
+
+            point = new Point(0, 16);
+            offset = new Size(0, 64);
+            for (int i = 0; i < colors.Length; i++)
+            {
+                using (var horizontal = new SolidBitmapData(new Size(512, 32), Color.FromArgb(128, colors[i])))
+                    horizontal.DrawInto(target, point + new Size(offset.Width * i, offset.Height * i));
+            }
+
+            SaveBitmapData($"{colorSpace}", target);
+        }
+
+        [Explicit]
+        [TestCase(WorkingColorSpace.Srgb)]
+        [TestCase(WorkingColorSpace.Linear)]
+        public void LinearVsSrgbBlendingAlphaGradient(WorkingColorSpace colorSpace)
+        {
+            using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), KnownPixelFormat.Format24bppRgb, colorSpace))
+            {
+                GenerateAlphaGradient(target);
+
+                SaveBitmapData($"{colorSpace} Black", target);
+            }
+
+            using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), KnownPixelFormat.Format24bppRgb, colorSpace, Color.White))
+            {
+                GenerateAlphaGradient(target);
+
+                SaveBitmapData($"{colorSpace} White", target);
+            }
+        }
+
+        [Test]
+        [Explicit]
+        public void GenerateImageForHelp()
+        {
+            string[] files =
+            {
+                //@"..\..\..\..\Help\Images\Shield256.png",
+                @"..\..\..\..\Help\Images\GrayShades.gif",
+                //@"..\..\..\..\Help\Images\GirlWithAPearlEarring.png",
+            };
+
+            (PredefinedColorsQuantizer Quantizer, string Name)[] quantizers =
+            {
+                //(PredefinedColorsQuantizer.BlackAndWhite(), "BW"),
+                //(PredefinedColorsQuantizer.FromCustomPalette(new[] { Color.Black, Color.White, Color.Red, Color.Lime, Color.Blue, Color.Cyan, Color.Magenta, Color.Yellow }), "Rgb111"),
+                (PredefinedColorsQuantizer.SystemDefault4BppPalette(), "Default4bpp"),
+                //(PredefinedColorsQuantizer.SystemDefault8BppPalette(), "Default8bpp"),
+            };
+
+            (IDitherer Ditherer, string Name)[] ditherers =
+            {
+                //(null, String.Empty),
+                //(OrderedDitherer.Bayer8x8, "DitheredB8"),
+                (OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Constant), "DitheredB8Constant"),
+                (OrderedDitherer.Bayer8x8.ConfigureAutoStrengthMode(AutoStrengthMode.Interpolated), "DitheredB8Interpolated"),
+                //(ErrorDiffusionDitherer.FloydSteinberg, "DitheredFS"),
+                //(new RandomNoiseDitherer(0, 0), nameof(RandomNoiseDitherer)),
+                //(new InterleavedGradientNoiseDitherer(0), nameof(InterleavedGradientNoiseDitherer)),
+            };
+
+            foreach (string file in files)
+            {
+                string fileName = Path.IsPathRooted(file) ? file : Path.Combine(Files.GetExecutingPath(), file);
+                using var bitmap = new Bitmap(fileName);
+                using var src = ToBitmapData(bitmap);
+                foreach (var (quantizer, quantizerName) in quantizers)
+                {
+                    foreach (var (ditherer, dithererName) in ditherers)
+                    {
+                        foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+                        {
+                            using var result = src.Clone(quantizer.PixelFormatHint, quantizer.ConfigureColorSpace(colorSpace), ditherer);
+                            SaveBitmapData($"{Path.GetFileNameWithoutExtension(file)}{quantizerName}{dithererName}{colorSpace}", result);
+                        }
+                    }
+                }
+            }
         }
 
         #endregion

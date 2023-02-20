@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: GifEncoder.FramesEnumerator.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2021 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -140,7 +140,8 @@ namespace KGySoft.Drawing.Imaging
             private (IReadableBitmapData? BitmapData, Point Location, int Delay, GifGraphicDisposalMethod DisposalMethod) nextGeneratedFrame, current;
             private (IReadWriteBitmapData? BitmapData, bool IsCleared) deltaBuffer;
 
-            private (bool Initialized, bool SupportsTransparency, Color32 BackColor, byte AlphaThreshold) quantizerProperties;
+            // Items in quantizerProperties are used only when transparency is supported, do not add other items for other cases
+            private (bool Initialized, bool SupportsTransparency, Color32 BackColor, byte AlphaThreshold, WorkingColorSpace WorkingColorSpace) quantizerProperties;
             private IQuantizer? deltaBufferQuantizer;
             private int count;
             private int currentIndex;
@@ -162,29 +163,39 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Properties
 
-            private Color32 BackColor
+            private bool QuantizerSupportsTransparency
             {
                 get
                 {
-                    Debug.Assert(config.AllowDeltaFrames, "Not expected to be called if delta frames are not allowed");
-                    if (!quantizerProperties.Initialized)
-                        CanUseDeltaByTransparentMask(null);
+                    EnsureQuantizerProperties();
+                    return quantizerProperties.SupportsTransparency;
+                }
+            }
 
-                    Debug.Assert(config.Quantizer == null || !quantizerProperties.SupportsTransparency, "Not expected to be called if transparency not supported");
+            private Color32 QuantizerBackColor
+            {
+                get
+                {
+                    EnsureQuantizerProperties();
                     return quantizerProperties.BackColor;
                 }
             }
 
-            private byte AlphaThreshold
+            private byte QuantizerAlphaThreshold
             {
                 get
                 {
-                    Debug.Assert(config.AllowDeltaFrames, "Not expected to be called if delta frames are not allowed");
-                    if (!quantizerProperties.Initialized)
-                        CanUseDeltaByTransparentMask(null);
-
-                    Debug.Assert(quantizerProperties.SupportsTransparency, "Not expected to be called if transparency is not supported");
+                    EnsureQuantizerProperties();
                     return quantizerProperties.AlphaThreshold;
+                }
+            }
+
+            private WorkingColorSpace WorkingColorSpace
+            {
+                get
+                {
+                    EnsureQuantizerProperties();
+                    return quantizerProperties.WorkingColorSpace;
                 }
             }
 
@@ -379,7 +390,8 @@ namespace KGySoft.Drawing.Imaging
 
             [SuppressMessage("Microsoft.Maintainability", "CA1502: Avoid excessive complexity",
                 Justification = "False alarm, the new analyzer includes the complexity of local methods")]
-            private static Rectangle GetDifferentRegion(IReadableBitmapData previousFrame, IReadableBitmapData currentFrame, byte tolerance, Color32 backColor)
+            private static Rectangle GetDifferentRegion(IReadableBitmapData previousFrame, IReadableBitmapData currentFrame,
+                byte tolerance, Color32 backColor, WorkingColorSpace workingColorSpace)
             {
                 #region Local Methods
 
@@ -406,14 +418,15 @@ namespace KGySoft.Drawing.Imaging
                     return true;
                 }
 
-                static bool RowEqualsWithAlpha(IReadableBitmapDataRow rowPrev, IReadableBitmapDataRow rowCurrent, byte tolerance, Color32 backColor)
+                static bool RowEqualsWithAlpha(IReadableBitmapDataRow rowPrev, IReadableBitmapDataRow rowCurrent,
+                    byte tolerance, Color32 backColor, WorkingColorSpace colorSpace)
                 {
                     int width = rowCurrent.Width;
                     if (tolerance == 0)
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            if (rowPrev[x] != rowCurrent[x].Blend(backColor))
+                            if (rowPrev[x] != rowCurrent[x].Blend(backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -421,7 +434,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int x = 0; x < width; x++)
                         {
-                            if (!rowPrev[x].TolerantEquals(rowCurrent[x], tolerance, backColor))
+                            if (!rowPrev[x].TolerantEquals(rowCurrent[x], tolerance, backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -451,13 +464,14 @@ namespace KGySoft.Drawing.Imaging
                     return true;
                 }
 
-                static bool ColumnEqualsWithAlpha(IReadableBitmapData bitmapDataPrev, IReadableBitmapData bitmapDataCurrent, int x, int top, int bottom, byte tolerance, Color32 backColor)
+                static bool ColumnEqualsWithAlpha(IReadableBitmapData bitmapDataPrev, IReadableBitmapData bitmapDataCurrent,
+                    int x, int top, int bottom, byte tolerance, Color32 backColor, WorkingColorSpace colorSpace)
                 {
                     if (tolerance == 0)
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).Blend(backColor))
+                            if (bitmapDataPrev.GetColor32(x, y) != bitmapDataCurrent.GetColor32(x, y).Blend(backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -465,7 +479,7 @@ namespace KGySoft.Drawing.Imaging
                     {
                         for (int y = top; y < bottom; y++)
                         {
-                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance, backColor))
+                            if (!bitmapDataPrev.GetColor32(x, y).TolerantEquals(bitmapDataCurrent.GetColor32(x, y), tolerance, backColor, colorSpace))
                                 return false;
                         }
                     }
@@ -487,7 +501,7 @@ namespace KGySoft.Drawing.Imaging
                 do
                 {
                     if (!hasAlpha && !RowEquals(rowPrev, rowCurrent, tolerance)
-                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor))
+                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor, workingColorSpace))
                     {
                         break;
                     }
@@ -506,7 +520,7 @@ namespace KGySoft.Drawing.Imaging
                     rowPrev.MoveToRow(y);
                     rowCurrent.MoveToRow(y);
                     if (!hasAlpha && !RowEquals(rowPrev, rowCurrent, tolerance)
-                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor))
+                        || hasAlpha && !RowEqualsWithAlpha(rowPrev, rowCurrent, tolerance, backColor, workingColorSpace))
                     {
                         break;
                     }
@@ -519,7 +533,7 @@ namespace KGySoft.Drawing.Imaging
                 for (int x = 0; x < region.Width; x++)
                 {
                     if (!hasAlpha && !ColumnEquals(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance)
-                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor))
+                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor, workingColorSpace))
                     {
                         break;
                     }
@@ -533,7 +547,7 @@ namespace KGySoft.Drawing.Imaging
                 for (int x = region.Right - 1; x >= region.Left; x--)
                 {
                     if (!hasAlpha && !ColumnEquals(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance)
-                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor))
+                        || hasAlpha && !ColumnEqualsWithAlpha(previousFrame, currentFrame, x, region.Top, region.Bottom, tolerance, backColor, workingColorSpace))
                     {
                         return region;
                     }
@@ -676,6 +690,52 @@ namespace KGySoft.Drawing.Imaging
 
             #region Private Methods
 
+            private void EnsureQuantizerProperties()
+            {
+                if (quantizerProperties.Initialized)
+                    return;
+
+                quantizerProperties.Initialized = true;
+
+                switch (config.Quantizer)
+                {
+                    case null:
+                        // the default Wu quantizer supports transparency and has black back color
+                        quantizerProperties.SupportsTransparency = true;
+                        quantizerProperties.BackColor = Color32.Black;
+                        quantizerProperties.AlphaThreshold = 128;
+                        quantizerProperties.WorkingColorSpace = default;
+                        return;
+
+                    case PredefinedColorsQuantizer { Palette: Palette palette }:
+                        // predefined quantizer: due to possible custom functions relying on it without actual quantizing test only if there is a palette
+                        quantizerProperties.BackColor = palette.BackColor;
+                        quantizerProperties.SupportsTransparency = palette.HasTransparent && palette.AlphaThreshold > 0;
+                        quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? palette.AlphaThreshold : (byte)0;
+                        quantizerProperties.WorkingColorSpace = palette.WorkingColorSpace;
+                        return;
+
+                    case OptimizedPaletteQuantizer optimized:
+                        // optimized quantizer always supports transparency if the threshold is nonzero
+                        quantizerProperties.BackColor = optimized.BackColor;
+                        quantizerProperties.AlphaThreshold = optimized.AlphaThreshold;
+                        quantizerProperties.SupportsTransparency = optimized.AlphaThreshold > 0;
+                        quantizerProperties.WorkingColorSpace = optimized.WorkingColorSpace;
+                        return;
+
+                    default:
+                        // we have to test the quantizer with a single pixel
+                        using (IQuantizingSession session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))
+                        {
+                            quantizerProperties.BackColor = session.BackColor;
+                            quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
+                            quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
+                            quantizerProperties.WorkingColorSpace = session.WorkingColorSpace;
+                            return;
+                        }
+                }
+            }
+
             private bool CanUseDeltaByTransparentMask(IBitmapData? bitmapData)
             {
                 if (!config.AllowDeltaFrames)
@@ -688,45 +748,7 @@ namespace KGySoft.Drawing.Imaging
                     return !HasSupportedIndexedFormat(bitmapData) || bitmapData.SupportsTransparency();
                 }
 
-                if (quantizerProperties.Initialized)
-                    return quantizerProperties.SupportsTransparency;
-
-                quantizerProperties.Initialized = true;
-
-                switch (config.Quantizer)
-                {
-                    case null:
-                        // the default Wu quantizer supports transparency and has black back color
-                        quantizerProperties.SupportsTransparency = true;
-                        quantizerProperties.BackColor = Color32.Black;
-                        quantizerProperties.AlphaThreshold = 128;
-                        return true;
-
-                    case PredefinedColorsQuantizer { Palette: Palette palette }:
-                        // predefined quantizer: due to possible custom functions relying on it without actual quantizing test only if there is a palette
-                        quantizerProperties.BackColor = palette.BackColor;
-                        quantizerProperties.SupportsTransparency = palette.HasTransparent && palette.AlphaThreshold > 0;
-                        quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? palette.AlphaThreshold : (byte)0;
-                        return quantizerProperties.SupportsTransparency;
-
-                    case OptimizedPaletteQuantizer optimized:
-                        // optimized quantizer always supports transparency if the threshold is nonzero
-                        quantizerProperties.BackColor = optimized.BackColor;
-                        quantizerProperties.AlphaThreshold = optimized.AlphaThreshold;
-                        quantizerProperties.SupportsTransparency = optimized.AlphaThreshold > 0;
-                        return quantizerProperties.SupportsTransparency;
-
-                    default:
-                        // we have to test the quantizer with a single pixel
-                        using (IQuantizingSession session = quantizer.Initialize(new SolidBitmapData(new Size(1, 1), default)))
-                        {
-                            quantizerProperties.BackColor = session.BackColor;
-                            quantizerProperties.SupportsTransparency = session.GetQuantizedColor(default).A == 0;
-                            quantizerProperties.AlphaThreshold = quantizerProperties.SupportsTransparency ? session.AlphaThreshold : (byte)0;
-                            return quantizerProperties.SupportsTransparency;
-                        }
-                }
-
+                return QuantizerSupportsTransparency;
             }
 
             private bool CanUseDeltaByClipping() => config.AllowDeltaFrames && config.AllowClippedFrames;
@@ -796,7 +818,7 @@ namespace KGySoft.Drawing.Imaging
                 Debug.Assert(preparedFrame.SupportsTransparency(), "Frame is not prepared correctly for transparency delta image");
 
                 // 1.) Generating delta image
-                ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance, AlphaThreshold);
+                ClearUnchangedPixels(asyncContext, deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance, QuantizerAlphaThreshold);
                 if (asyncContext.IsCancellationRequested)
                     return default;
 
@@ -830,7 +852,7 @@ namespace KGySoft.Drawing.Imaging
                 // 5.) Determining image dispose method and possibly expanding encoded size if clearing is needed
                 GifGraphicDisposalMethod disposeMethod;
                 if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency()
-                    && HasNewTransparentPixel(deltaBuffer.BitmapData!, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
+                    && HasNewTransparentPixel(deltaBuffer.BitmapData!, nextPreparedFrame.BitmapData!, QuantizerAlphaThreshold, out Rectangle toClearRegion))
                 {
                     disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                     contentArea = Rectangle.Union(contentArea, toClearRegion);
@@ -856,7 +878,8 @@ namespace KGySoft.Drawing.Imaging
                 Debug.Assert(config.Quantizer == null || !deltaBuffer.BitmapData!.SupportsTransparency());
 
                 // 1.) Determining smallest changed rectangle
-                Rectangle contentArea = GetDifferentRegion(deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance, BackColor);
+                Rectangle contentArea = GetDifferentRegion(deltaBuffer.BitmapData!, preparedFrame, config.DeltaTolerance,
+                    QuantizerBackColor, WorkingColorSpace);
 
                 // 2.) Maintaining the delta buffer: as this frame has no alpha just copying the changed part of the prepared frame.
                 preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData!, contentArea, contentArea.Location, deltaBufferQuantizer);
@@ -870,7 +893,7 @@ namespace KGySoft.Drawing.Imaging
                 GifGraphicDisposalMethod disposeMethod;
                 if (CanUseDeltaByTransparentMask(null)
                     && MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency()
-                    && HasNewTransparentPixel(deltaBuffer.BitmapData!, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
+                    && HasNewTransparentPixel(deltaBuffer.BitmapData!, nextPreparedFrame.BitmapData!, QuantizerAlphaThreshold, out Rectangle toClearRegion))
                 {
                     disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                     contentArea = Rectangle.Union(contentArea, toClearRegion);
@@ -942,13 +965,14 @@ namespace KGySoft.Drawing.Imaging
                 if (CanUseDeltaByTransparentMask(null))
                 {
                     Debug.Assert(quantizerProperties.SupportsTransparency);
-                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
+                        default, default, WorkingColorSpace, null);
                     preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, contentArea, contentArea.Location);
                     if (asyncContext.IsCancellationRequested)
                         return (quantizedFrame, default, default);
 
                     if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency()
-                        && HasNewTransparentPixel(deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, AlphaThreshold, out Rectangle toClearRegion))
+                        && HasNewTransparentPixel(deltaBuffer.BitmapData, nextPreparedFrame.BitmapData!, QuantizerAlphaThreshold, out Rectangle toClearRegion))
                     {
                         disposeMethod = GifGraphicDisposalMethod.RestoreToBackground;
                         contentArea = Rectangle.Union(contentArea, toClearRegion);
@@ -964,8 +988,10 @@ namespace KGySoft.Drawing.Imaging
                 else if (CanUseDeltaByClipping())
                 {
                     Debug.Assert(contentArea.Size == logicalScreenSize);
-                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb);
-                    preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??= PredefinedColorsQuantizer.Rgb888(quantizerProperties.BackColor.ToColor()));
+                    deltaBuffer.BitmapData ??= BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format24bppRgb,
+                        default, 0, WorkingColorSpace, null);
+                    preparedFrame.DoCopyTo(asyncContext, deltaBuffer.BitmapData, quantizer: deltaBufferQuantizer ??=
+                        PredefinedColorsQuantizer.Rgb888(QuantizerBackColor.ToColor()).ConfigureColorSpace(WorkingColorSpace));
                 }
                 // if no delta is allowed, then clearing before all frames with transparency
                 else if (MoveNextPreparedFrame() && nextPreparedFrame.BitmapData!.SupportsTransparency())
@@ -1015,7 +1041,7 @@ namespace KGySoft.Drawing.Imaging
                         // and if this is the last input frame, it is not added to the stack
                         if (MoveNextInputFrame())
                         {
-                            IReadWriteBitmapData? clone = preparedFrame.DoClone(asyncContext);
+                            IReadWriteBitmapData? clone = preparedFrame.DoClone(asyncContext, WorkingColorSpace);
                             if (clone != null)
                                 reversedFramesStack.Push((clone, nextPreparedFrame.Delay, nextPreparedFrame.IsQuantized));
                         }
@@ -1083,7 +1109,7 @@ namespace KGySoft.Drawing.Imaging
                             // because we cannot create a new bitmap data with a palette that is created while quantizing
                             if (preparedPixelFormat.HasAlpha() || preparedQuantizer == null && inputFrame.Palette?.HasTransparent == true)
                             {
-                                preparedFrame = BitmapDataFactory.CreateBitmapData(logicalScreenSize, preparedPixelFormat, inputFrame.Palette);
+                                preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, preparedPixelFormat, QuantizerBackColor, QuantizerAlphaThreshold, WorkingColorSpace, inputFrame.Palette);
 
                                 // if the source is indexed and transparent index is not 0, then we must clear the indexed image to be transparent
                                 if (inputFrame.Palette?.TransparentIndex > 0)
@@ -1099,7 +1125,8 @@ namespace KGySoft.Drawing.Imaging
 
                             // Here we can't quantize the source: using a 32bpp image data
                             preparedQuantizer = null;
-                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize);
+                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppArgb,
+                                default, default, WorkingColorSpace, null);
                             inputFrame.DoCopyTo(asyncContext, preparedFrame, location);
 
                             break;
@@ -1107,7 +1134,9 @@ namespace KGySoft.Drawing.Imaging
                         // Resizing: due to interpolation this is always performed without quantizing
                         case AnimationFramesSizeHandling.Resize:
                             preparedQuantizer = null;
-                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize, KnownPixelFormat.Format32bppPArgb);
+                            preparedFrame = BitmapDataFactory.CreateManagedBitmapData(logicalScreenSize,
+                                WorkingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
+                                default, default, WorkingColorSpace, null);
                             inputFrame.DoDrawInto(asyncContext, preparedFrame, new Rectangle(Point.Empty, logicalScreenSize));
                             break;
 

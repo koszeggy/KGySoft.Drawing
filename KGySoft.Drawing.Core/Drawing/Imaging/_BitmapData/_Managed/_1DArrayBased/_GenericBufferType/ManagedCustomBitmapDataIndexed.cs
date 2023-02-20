@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: ManagedCustomBitmapDataIndexed.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -16,7 +16,6 @@
 #region Usings
 
 using System;
-using System.Drawing;
 using System.Runtime.CompilerServices;
 using System.Security;
 
@@ -40,7 +39,17 @@ namespace KGySoft.Drawing.Imaging
 
             #region Properties
 
+            #region Protected Properties
+            
             protected override uint MaxIndex => (1u << BitmapData.PixelFormat.BitsPerPixel) - 1u;
+
+            #endregion
+
+            #region Explicitly Implemented Interface Properties
+
+            IBitmapData ICustomBitmapDataRow.BitmapData => BitmapData;
+
+            #endregion
 
             #endregion
 
@@ -104,13 +113,11 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        public ManagedCustomBitmapDataIndexed(Array2D<T> buffer, int pixelWidth, PixelFormatInfo pixelFormat,
-            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex,
-            Palette? palette, Func<Palette, bool>? trySetPaletteCallback, Action? disposeCallback)
-            : base(buffer, pixelWidth, pixelFormat, palette?.BackColor ?? default, palette?.AlphaThreshold ?? 128,
-                disposeCallback, palette, trySetPaletteCallback)
+        public ManagedCustomBitmapDataIndexed(Array2D<T> buffer, in BitmapDataConfig cfg,
+            Func<ICustomBitmapDataRow<T>, int, int> rowGetColorIndex, Action<ICustomBitmapDataRow<T>, int, int> rowSetColorIndex)
+            : base(buffer, cfg)
         {
-            Debug.Assert(pixelFormat.Indexed);
+            Debug.Assert(cfg.PixelFormat.Indexed);
 
             this.rowGetColorIndex = rowGetColorIndex;
             this.rowSetColorIndex = rowSetColorIndex;
