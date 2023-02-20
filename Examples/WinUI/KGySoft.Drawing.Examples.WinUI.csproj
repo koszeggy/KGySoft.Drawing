@@ -35,7 +35,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="KGySoft.Drawing.WinUI" Version="7.0.0" />
+    <PackageReference Include="KGySoft.Drawing.WinUI" Version="7.1.0" />
     <PackageReference Include="Microsoft.WindowsAppSDK" Version="1.1.3" />
     <PackageReference Include="Microsoft.Windows.SDK.BuildTools" Version="10.0.22000.194" />
     <Manifest Include="$(ApplicationManifest)" />
