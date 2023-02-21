@@ -29,7 +29,7 @@
             <ColumnDefinition>
                 <ColumnDefinition.Width>
                     <OnPlatform x:TypeArguments="GridLength" Default="130">
-                        <On Platform="iOS" Value="168" />
+                        <On Platform="iOS" Value="140" />
                     </OnPlatform>
                 </ColumnDefinition.Width>
             </ColumnDefinition>
