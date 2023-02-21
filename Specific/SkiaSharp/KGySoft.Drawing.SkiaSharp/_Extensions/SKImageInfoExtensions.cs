@@ -72,6 +72,9 @@ namespace KGySoft.Drawing.SkiaSharp
                     break;
             }
 
+            if (imageInfo.ColorSpace.IsDefaultLinear())
+                info.LinearGamma = true;
+
             return info;
         }
 
