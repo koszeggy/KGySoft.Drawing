@@ -19,9 +19,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Content Include="..\..\Help\Images\AlphaGradient.png" Link="AlphaGradient.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
     <Content Include="..\..\Help\Images\Information256.png" Link="Information256.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>

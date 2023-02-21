@@ -41,6 +41,8 @@ using Windows.Storage;
 using Windows.Storage.Streams;
 using Windows.UI;
 
+using KGySoft.Drawing.Examples.Shared;
+
 #endregion
 
 namespace KGySoft.Drawing.Examples.WinUI.ViewModel
@@ -129,7 +131,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
 
         private Dictionary<string, Color>? knownColors;
         private WriteableBitmap? baseImage;
-        private WriteableBitmap? overlayImage;
+        private IReadableBitmapData? overlayImageBitmapData;
         private CancellationTokenSource? cancelGeneratingPreview;
         private Task? generateResultTask;
 
@@ -243,6 +245,7 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
             if (disposing)
             {
                 cancelGeneratingPreview?.Dispose();
+                overlayImageBitmapData?.Dispose();
                 syncRoot.Dispose();
             }
 
@@ -258,7 +261,6 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
         private async Task GenerateDisplayImage(Configuration cfg)
         {
             baseImage ??= await LoadResourceBitmap("Information256.png");
-            overlayImage ??= await LoadResourceBitmap("AlphaGradient.png");
 
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
             // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
@@ -317,8 +319,8 @@ namespace KGySoft.Drawing.Examples.WinUI.ViewModel
                     return;
 
                 // b.2.) Drawing the overlay. DrawInto supports alpha blending
-                using (IReadableBitmapData overlayImageBitmapData = overlayImage.GetReadableBitmapData())
-                    await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
+                overlayImageBitmapData ??= BitmapDataHelper.GenerateAlphaGradient(baseImageBitmapData.Size);
+                await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
 
                 if (token.IsCancellationRequested)
                     return;

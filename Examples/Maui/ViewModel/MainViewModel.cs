@@ -22,6 +22,7 @@ using System.Threading.Tasks;
 
 using KGySoft.ComponentModel;
 using KGySoft.Drawing.Examples.Maui.Extensions;
+using KGySoft.Drawing.Examples.Shared;
 using KGySoft.Drawing.Examples.Shared.Interfaces;
 using KGySoft.Drawing.Examples.Shared.Model;
 using KGySoft.Drawing.Imaging;
@@ -120,7 +121,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
         private readonly SemaphoreSlim syncRoot = new SemaphoreSlim(1, 1);
 
         private SKBitmap? baseImage;
-        private SKBitmap? overlayImage;
+        private IReadableBitmapData? overlayImageBitmapData;
         private CancellationTokenSource? cancelGeneratingPreview;
         private Task? generateResultTask;
 
@@ -204,7 +205,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 await WaitForPendingGenerate();
                 syncRoot.Dispose();
                 baseImage?.Dispose();
-                overlayImage?.Dispose();
+                overlayImageBitmapData?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -220,7 +221,6 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
         {
             // Note that Images are regular .resx based resources. Make sure their Build Action is None so MAUI's "resizetizer" will not throw a build error.
             baseImage ??= SKBitmap.Decode(Images.Information256);
-            overlayImage ??= SKBitmap.Decode(Images.AlphaGradient);
 
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
             // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
@@ -279,8 +279,8 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                     return;
 
                 // b.2.) Drawing the overlay. DrawInto supports alpha blending
-                using (IReadableBitmapData overlayImageBitmapData = overlayImage.GetReadableBitmapData())
-                    await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
+                overlayImageBitmapData ??= BitmapDataHelper.GenerateAlphaGradient(baseImageBitmapData.Size);
+                await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
 
                 if (token.IsCancellationRequested)
                     return;

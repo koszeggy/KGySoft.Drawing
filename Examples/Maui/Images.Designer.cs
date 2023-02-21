@@ -63,16 +63,6 @@ namespace KGySoft.Drawing.Examples.Maui {
         /// <summary>
         ///   Looks up a localized resource of type System.Byte[].
         /// </summary>
-        internal static byte[] AlphaGradient {
-            get {
-                object obj = ResourceManager.GetObject("AlphaGradient", resourceCulture);
-                return ((byte[])(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Byte[].
-        /// </summary>
         internal static byte[] Information256 {
             get {
                 object obj = ResourceManager.GetObject("Information256", resourceCulture);
