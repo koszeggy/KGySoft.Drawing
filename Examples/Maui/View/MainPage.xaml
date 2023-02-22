@@ -29,28 +29,32 @@
         <!--Image Overlay-->
         <StackLayout Grid.Row="0" Grid.Column="0" Grid.ColumnSpan="2"
                      Orientation="Horizontal">
-            <Switch IsToggled="{Binding ShowOverlay, Mode=TwoWay}"/>
+            <Switch IsToggled="{Binding ShowOverlay, Mode=TwoWay}"
+                    ToolTipProperties.Text="Turn on to blend an overlay image with the base image"/>
             <Label Text="Image Overlay" VerticalOptions="Center"/>
         </StackLayout>
 
         <!--Linear Color Space-->
         <StackLayout Grid.Row="1" Grid.Column="0" Grid.ColumnSpan="2"
                      Orientation="Horizontal">
-            <Switch IsToggled="{Binding UseLinearColorSpace, Mode=TwoWay}"/>
+            <Switch IsToggled="{Binding UseLinearColorSpace, Mode=TwoWay}"
+                    ToolTipProperties.Text="Forces to use the linear color space. Affects color blending, quantizing and dithering.&#x0d;&#x0d;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0d;Use quantizers without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0d;&#x0d;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."/>
             <Label Text="Linear Color Space" VerticalOptions="Center"/>
         </StackLayout>
 
         <!--Quantizer-->
         <StackLayout Grid.Row="2" Grid.Column="0"
                      Orientation="Horizontal" >
-            <Switch IsToggled="{Binding UseQuantizer, Mode=TwoWay}"/>
+            <Switch IsToggled="{Binding UseQuantizer, Mode=TwoWay}"
+                    ToolTipProperties.Text="Turn on to use a quantizer. For lower bit-per-pixel quantizers it is recommended to enable dithering."/>
             <Label Text="Quantizer:" VerticalOptions="Center"/>
         </StackLayout>
         <Picker Grid.Row="2" Grid.Column="1"
                 VerticalOptions="Center"
                 ItemsSource="{Binding Quantizers, Mode=OneTime}"
                 SelectedItem="{Binding SelectedQuantizer, Mode=TwoWay}"
-                IsEnabled="{Binding UseQuantizer}"/>
+                IsEnabled="{Binding UseQuantizer}"
+                ToolTipProperties.Text="The desired quantizer to use. For lower bit-per-pixel formats it is recommended to enable dithering."/>
 
         <!-- a.) Back Color -->
         <Grid Grid.Row="3" Grid.Column="1"
@@ -62,7 +66,8 @@
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" VerticalOptions="Center">Back Color:</Label>
             <Editor Grid.Column="1"
-                     Text="{Binding BackColorText, Mode=TwoWay}"/>
+                     Text="{Binding BackColorText, Mode=TwoWay}"
+                     ToolTipProperties.Text="Specifies the background color.&#x0d;Alpha pixels that are considered opaque are blended with this color during the processing.&#x0d;Hex #RRGGBB format is also supported."/>
             <Rectangle Grid.Column="2" Fill="{Binding BackColorBrush}" />
         </Grid>
 
@@ -78,7 +83,8 @@
             <Slider Grid.Column="1"
                     VerticalOptions="Center"
                     Maximum="255"
-                    Value="{Binding AlphaThreshold, Mode=TwoWay}"/>
+                    Value="{Binding AlphaThreshold, Mode=TwoWay}"
+                    ToolTipProperties.Text="Specifies the alpha threshold under which the pixel is considered transparent.&#x0d;If 0, then the result will not have any transparent pixels.&#x0d;If 255, then all partially transparent pixels will turn transparent."/>
             <Label Grid.Column="2" Text="{Binding AlphaThreshold}"
                    VerticalOptions="Center"
                    Margin="5,0,0,0"/>
@@ -96,7 +102,8 @@
             <Slider Grid.Column="1"
                     VerticalOptions="Center"
                     Maximum="255"
-                    Value="{Binding WhiteThreshold, Mode=TwoWay}"/>
+                    Value="{Binding WhiteThreshold, Mode=TwoWay}"
+                    ToolTipProperties.Text="Determines the lowest input brightness to consider the result color white."/>
             <Label Grid.Column="2" Text="{Binding WhiteThreshold}"
                    VerticalOptions="Center"
                    Margin="5,0,0,0"/>
@@ -115,7 +122,8 @@
                     VerticalOptions="Center"
                     Maximum="256"
                     Minimum="2"
-                    Value="{Binding PaletteSize, Mode=TwoWay}"/>
+                    Value="{Binding PaletteSize, Mode=TwoWay}"
+                    ToolTipProperties.Text="Determines the maximum number of allowed colors the quantizer can use."/>
             <Label Grid.Column="2"
                    VerticalOptions="Center"
                    Margin="5,0,0,0"
@@ -125,14 +133,17 @@
         <!--Ditherer-->
         <StackLayout Grid.Row="7" Grid.Column="0"
                      Orientation="Horizontal">
-            <Switch IsToggled="{Binding UseDithering, Mode=TwoWay}" IsEnabled="{Binding UseQuantizer}"/>
+            <Switch IsToggled="{Binding UseDithering, Mode=TwoWay}"
+                    IsEnabled="{Binding UseQuantizer}"
+                    ToolTipProperties.Text="Turn on to use a ditherer."/>
             <Label Text="Ditherer:" VerticalOptions="Center"/>
         </StackLayout>
         <Picker Grid.Row="7" Grid.Column="1"
                 VerticalOptions="Center"
                 ItemsSource="{Binding Ditherers, Mode=OneTime}"
                 SelectedItem="{Binding SelectedDitherer, Mode=TwoWay}"
-                IsEnabled="{Binding DitheringEnabled}"/>
+                IsEnabled="{Binding DitheringEnabled}"
+                ToolTipProperties.Text="The selected ditherer.&#x0d;Error diffusion ditherers do not support parallel processing but usually have high quality.&#x0d;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."/>
 
         <!--Image-->
         <Image Grid.Row="8" Grid.Column="0" Grid.ColumnSpan="2"
