@@ -56,12 +56,12 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Encodes the specified <paramref name="imageData"/> as a GIF image and writes it into the specified <paramref name="stream"/>.
         /// </summary>
-        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
-        /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
+        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the specified <paramref name="quantizer"/>, or, if that is not set,
+        /// by the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer, depending on the pixel format.</param>
         /// <param name="stream">The stream to save the encoded image into.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
-        /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the image contains different alpha pixels,
-        /// then <see cref="OptimizedPaletteQuantizer.Wu"/> quantizer will be used. This parameter is optional.
+        /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the palette contains multiple alpha entries,
+        /// then the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -84,12 +84,12 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Begins to encode the specified <paramref name="imageData"/> as a GIF image and to write it into the specified <paramref name="stream"/>.
         /// </summary>
-        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
-        /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
+        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the specified <paramref name="quantizer"/>, or, if that is not set,
+        /// by the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer, depending on the pixel format.</param>
         /// <param name="stream">The stream to save the encoded image into.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
-        /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the image contains different alpha pixels,
-        /// then <see cref="OptimizedPaletteQuantizer.Wu"/> quantizer will be used. This parameter is optional.
+        /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the palette contains multiple alpha entries,
+        /// then the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
@@ -125,12 +125,12 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Encodes the specified <paramref name="imageData"/> as a GIF image asynchronously, and writes it into the specified <paramref name="stream"/>.
         /// </summary>
-        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the <see cref="GlobalPalette"/>, or, if that is not set,
-        /// by <see cref="PredefinedColorsQuantizer.SystemDefault8BppPalette"/> using no dithering.</param>
+        /// <param name="imageData">The image data to write. Non-indexed images will be quantized by using the specified <paramref name="quantizer"/>, or, if that is not set,
+        /// by the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> quantizer or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer, depending on the pixel format.</param>
         /// <param name="stream">The stream to save the encoded image into.</param>
         /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
-        /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the image contains different alpha pixels,
-        /// then <see cref="OptimizedPaletteQuantizer.Wu"/> quantizer will be used. This parameter is optional.
+        /// If <see langword="null"/> and <paramref name="imageData"/> is not an indexed image or the palette contains multiple alpha entries,
+        /// then the <see cref="OptimizedPaletteQuantizer.Wu">Wu</see> or <see cref="PredefinedColorsQuantizer.Grayscale">Grayscale</see> quantizer will be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
         /// <param name="ditherer">The ditherer to be used. This parameter is optional.
         /// <br/>Default value: <see langword="null"/>.</param>
