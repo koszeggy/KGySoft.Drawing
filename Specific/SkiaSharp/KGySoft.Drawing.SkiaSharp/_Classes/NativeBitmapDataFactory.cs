@@ -38,7 +38,7 @@ namespace KGySoft.Drawing.SkiaSharp
         {
             info.GetDirectlySupportedColorSpace(out bool srgb, out bool linear);
             bitmapData = srgb ? CreateBitmapDataSrgb(buffer, info, stride, workingColorSpace, backColor, alphaThreshold, disposeCallback)
-                : linear ? CreateBitmapDataLinear(buffer, info, stride, backColor, alphaThreshold, disposeCallback)
+                : linear ? CreateBitmapDataLinear(buffer, info, stride, workingColorSpace, backColor, alphaThreshold, disposeCallback)
                 : null;
             return bitmapData != null;
         }
@@ -266,23 +266,23 @@ namespace KGySoft.Drawing.SkiaSharp
             PixelFormatInfo pixelFormatInfo = info.GetInfo();
             return info switch
             {
-                // Bgra8888/Unpremul
-                { ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Unpremul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
-                    (row, x) => row.UnsafeGetRefAs<Color32>(x).ToSrgb(),
-                    (row, x, c) => row.UnsafeGetRefAs<Color32>(x) = c.ToLinear(),
-                    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
+                //// Bgra8888/Unpremul
+                //{ ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Unpremul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                //    (row, x) => row.UnsafeGetRefAs<Color32>(x).ToSrgb(),
+                //    (row, x, c) => row.UnsafeGetRefAs<Color32>(x) = c.ToLinear(),
+                //    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
-                // Bgra8888/Premul
-                { ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Premul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
-                    (row, x) => row.UnsafeGetRefAs<Color32>(x).ToStraight().ToSrgb(),
-                    (row, x, c) => row.UnsafeGetRefAs<Color32>(x) = c.ToLinear().ToPremultiplied(),
-                    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
+                //// Bgra8888/Premul
+                //{ ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Premul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                //    (row, x) => row.UnsafeGetRefAs<Color32>(x).ToStraight().ToSrgb(),
+                //    (row, x, c) => row.UnsafeGetRefAs<Color32>(x) = c.ToLinear().ToPremultiplied(),
+                //    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
-                // Bgra8888/Opaque
-                { ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Opaque } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
-                        (row, x) => row.UnsafeGetRefAs<Color32>(x).ToOpaque().ToSrgb(),
-                        (row, x, c) => row.UnsafeGetRefAs<Color32>(x) = c.ToLinear().Blend(row.BitmapData.BackColor),
-                        workingColorSpace, backColor32, alphaThreshold, disposeCallback),
+                //// Bgra8888/Opaque
+                //{ ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Opaque } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                //        (row, x) => row.UnsafeGetRefAs<Color32>(x).ToOpaque().ToSrgb(),
+                //        (row, x, c) => row.UnsafeGetRefAs<Color32>(x) = c.ToLinear().Blend(row.BitmapData.BackColor),
+                //        workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
                 //// Rgba8888/Unpremul
                 //{ ColorType: SKColorType.Rgba8888, AlphaType: SKAlphaType.Unpremul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,

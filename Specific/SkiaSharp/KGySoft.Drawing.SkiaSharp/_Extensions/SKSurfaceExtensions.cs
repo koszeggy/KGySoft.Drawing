@@ -29,26 +29,35 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Methods
 
-        public static IReadableBitmapData GetReadableBitmapData(this SKSurface surface)
+        public static IReadableBitmapData GetReadableBitmapData(this SKSurface surface, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
         {
             if (surface == null)
                 throw new ArgumentNullException(nameof(surface), PublicResources.ArgumentNull);
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
 
             // Raster-based surface: We can simply get a bitmap data for its pixels
             SKPixmap? pixels = surface.PeekPixels();
             if (pixels != null)
-                return pixels.GetReadableBitmapData();
+                return pixels.GetReadableBitmapData(workingColorSpace);
 
             // fallback: taking a snapshot as an SKImage, and obtaining the bitmap data for that
-            // TODO: this will use SKImage.ReadPixels internally, which is another allocation. Instead, use surface.ReadPixels directly if there will be a surface.Info or surface.Canvas.Info so no Snapshot will be needed: https://github.com/mono/SkiaSharp/issues/2281
+            // TODO: This will use SKImage.ReadPixels internally, which is another allocation.
+            //       Instead, use surface.ReadPixels directly if there will be a surface.Info or surface.Canvas.Info so no Snapshot will be needed: https://github.com/mono/SkiaSharp/issues/2281
             SKImage skImage = surface.Snapshot();
-            return skImage.GetBitmapDataInternal(disposeCallback: skImage.Dispose);
+            return skImage.GetBitmapDataInternal(workingColorSpace, skImage.Dispose);
         }
 
         public static IWritableBitmapData GetWritableBitmapData(this SKSurface surface, SKColor backColor = default, byte alphaThreshold = 128)
-            => GetReadWriteBitmapData(surface, backColor, alphaThreshold);
+            => GetReadWriteBitmapData(surface, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        public static IWritableBitmapData GetWritableBitmapData(this SKSurface surface, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => GetReadWriteBitmapData(surface, workingColorSpace, backColor, alphaThreshold);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKSurface surface, SKColor backColor = default, byte alphaThreshold = 128)
+            => GetReadWriteBitmapData(surface, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        public static IReadWriteBitmapData GetReadWriteBitmapData(this SKSurface surface, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
         {
             if (surface == null)
                 throw new ArgumentNullException(nameof(surface), PublicResources.ArgumentNull);
@@ -71,7 +80,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     pixels.Dispose();
                 };
 
-                return pixels.GetBitmapDataInternal(false, backColor, alphaThreshold, disposeCallback);
+                return pixels.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, disposeCallback);
             }
 
             // Not a raster-based surface: taking a snapshot as an image, converting it to bitmap and doing the same as above
@@ -95,7 +104,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 bitmap.Dispose();
             };
 
-            return bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, disposeCallback);
+            return bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, disposeCallback);
         }
 
         #endregion

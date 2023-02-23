@@ -112,7 +112,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 bool linear = colorSpace.GammaIsLinear;
                 var expectedResult = testColor;
                 if (alphaType == SKAlphaType.Opaque)
-                    expectedResult = linear ? expectedResult.ToLinear().Blend(Color.Black).ToSrgb() : expectedResult.Blend(Color.Black);
+                    expectedResult = expectedResult.Blend(Color.Black, linear ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb);
 
                 Assert.IsTrue(info.IsDirectlySupported(), $"Format is not supported directly: {colorType}/{alphaType}/{colorSpace.NamedGamma}");
 
@@ -178,7 +178,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                     // alpha is preserved while color is premultiplied, but when getting the pixel, the raw value is not converted back to straight color.
                     // Pre-blending also for types with discrete alpha because Skia ignores back color for them or uses an arbitrary transformation
                     if (!info.HasAlpha || colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 or SKColorType.Argb4444)
-                        testColor = testColor.Blend(Color.Black);
+                        testColor = testColor.Blend(Color.Black, WorkingColorSpace.Srgb);
 
                     bitmap.SetPixel(2, 3, testColor.ToSKColor());
                     Color32 expected = bitmap.GetPixel(2, 3).ToColor32();
@@ -239,7 +239,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                     // alpha is preserved while color is premultiplied, but when getting the pixel, the raw value is not converted back to straight color.
                     // Pre-blending also for types with discrete alpha because Skia ignores back color for them or uses an arbitrary transformation
                     if (!info.HasAlpha || colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 or SKColorType.Argb4444)
-                        testColor = testColor.Blend(Color.Black);
+                        testColor = testColor.Blend(Color.Black, WorkingColorSpace.Linear);
 
                     bitmap.SetPixel(0, 0, testColor.ToSKColor());
                     

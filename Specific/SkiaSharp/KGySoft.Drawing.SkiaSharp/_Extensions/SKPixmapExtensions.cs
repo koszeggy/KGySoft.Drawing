@@ -34,28 +34,37 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels) => pixels.GetBitmapDataInternal(true);
+        public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            => pixels.GetBitmapDataInternal(true, workingColorSpace);
 
         public static IReadWriteBitmapData GetWritableBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(false, backColor, alphaThreshold);
+            => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        public static IReadWriteBitmapData GetWritableBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => pixels.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(false, backColor, alphaThreshold);
+            => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        public static IReadWriteBitmapData GetReadWriteBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => pixels.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold);
 
         #endregion
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKPixmap pixels, bool readOnly, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKPixmap pixels, bool readOnly, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             if (pixels == null)
                 throw new ArgumentNullException(nameof(pixels), PublicResources.ArgumentNull);
             SKImageInfo imageInfo = pixels.Info;
             if (imageInfo.IsEmpty)
                 throw new ArgumentException(PublicResources.ArgumentEmpty, nameof(pixels));
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
 
             // shortcut: if pixel format is directly supported, then we can simply create a bitmap data for its back buffer
-            if (NativeBitmapDataFactory.TryCreateBitmapData(pixels.GetPixels(), imageInfo, pixels.RowBytes, backColor, alphaThreshold, disposeCallback, out IReadWriteBitmapData? bitmapData))
+            if (NativeBitmapDataFactory.TryCreateBitmapData(pixels.GetPixels(), imageInfo, pixels.RowBytes, backColor, alphaThreshold, workingColorSpace, disposeCallback, out IReadWriteBitmapData? bitmapData))
                 return bitmapData;
 
             // otherwise, we create an SKBitmap for it, so the fallback manipulation can be used
@@ -74,7 +83,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     bitmap.Dispose();
                     disposeCallback();
                 };
-            return bitmap.GetFallbackBitmapData(readOnly, backColor, alphaThreshold, disposeBitmap);
+            return bitmap.GetFallbackBitmapData(readOnly, workingColorSpace, backColor, alphaThreshold, disposeBitmap);
         }
 
         #endregion

@@ -47,37 +47,39 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        public static IReadWriteBitmapData GetReadableBitmapData(this SKBitmap bitmap) => bitmap.GetBitmapDataInternal(true);
+        public static IReadWriteBitmapData GetReadableBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => bitmap.GetBitmapDataInternal(true, workingColorSpace);
 
         public static IReadWriteBitmapData GetWritableBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
 
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="bitmap"></param>
-        /// <param name="backColor"></param>
-        /// <param name="alphaThreshold">Relevant only when another bitmap is drawn into this one and this bitmap has no alpha support. See <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, Color32, byte)"/></param>
-        /// <returns></returns>
+        public static IReadWriteBitmapData GetWritableBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(false, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+
+        /// <param name="alphaThreshold">Relevant only when another bitmap is drawn into this one and this bitmap has no alpha support. See <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/></param>
+        public static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
 
         #endregion
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKBitmap bitmap, bool readOnly, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKBitmap bitmap, bool readOnly, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
             SKImageInfo imageInfo = bitmap.Info;
 
-            return NativeBitmapDataFactory.TryCreateBitmapData(bitmap.GetPixels(), imageInfo, bitmap.RowBytes, backColor, alphaThreshold, disposeCallback, out IReadWriteBitmapData? result)
+            return NativeBitmapDataFactory.TryCreateBitmapData(bitmap.GetPixels(), imageInfo, bitmap.RowBytes, backColor, alphaThreshold, workingColorSpace, disposeCallback, out IReadWriteBitmapData? result)
                 ? result
-                : bitmap.GetFallbackBitmapData(readOnly, backColor, alphaThreshold, disposeCallback);
+                : bitmap.GetFallbackBitmapData(readOnly, workingColorSpace, backColor, alphaThreshold, disposeCallback);
         }
 
-        internal static IReadWriteBitmapData GetFallbackBitmapData(this SKBitmap bitmap, bool readOnly, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetFallbackBitmapData(this SKBitmap bitmap, bool readOnly, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             Debug.Assert(!bitmap.Info.IsDirectlySupported() && bitmap.ColorSpace != null);
             SKImageInfo info = bitmap.Info;
@@ -86,12 +88,11 @@ namespace KGySoft.Drawing.SkiaSharp
             {
                 // For the fastest native support
                 SKColorType.Rgba8888 => SKColorType.Bgra8888,
-                SKColorType.Rgb888x => SKColorType.Bgra8888,
 
                 // Supported custom formats
                 > SKColorType.Unknown and <= SKColorType.Bgr101010x => info.ColorType,
 
-                // Unsupported formats
+                // Unsupported formats (future compatibility)
                 _ => info.ColorType.GetBytesPerPixel() switch
                 {
                     > 8 => SKColorType.RgbaF32,
@@ -100,9 +101,8 @@ namespace KGySoft.Drawing.SkiaSharp
                 }
             };
 
-            // TODO: if there will be a native linear pixel format that can be set from ColorF, use this instead as colorSpace:
-            // bitmap.ColorSpace!.GammaIsLinear ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb()
-            var tempBitmapInfo = new SKImageInfo(info.Width, info.Height, colorType, info.AlphaType, SKColorSpace.CreateSrgb());
+            var tempBitmapInfo = new SKImageInfo(info.Width, info.Height, colorType, info.AlphaType,
+                workingColorSpace == WorkingColorSpace.Linear || workingColorSpace == WorkingColorSpace.Default && bitmap.ColorSpace!.GammaIsLinear ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb());
 
             // We could use bitmap.SetPixel/GetPixel as custom handling but it has two issues:
             // - The getter/setter would contain a reference back to the original bitmap, which is not allowed (eg. ruins clone or the fallback quantizer)
@@ -113,7 +113,7 @@ namespace KGySoft.Drawing.SkiaSharp
             using (var canvas = new SKCanvas(tempBitmap))
                 canvas.DrawBitmap(bitmap, 0, 0, CopySourcePaint);
 
-            return tempBitmap.GetBitmapDataInternal(readOnly, backColor, alphaThreshold, () =>
+            return tempBitmap.GetBitmapDataInternal(readOnly, workingColorSpace, backColor, alphaThreshold, () =>
             {
                 if (!readOnly)
                 {

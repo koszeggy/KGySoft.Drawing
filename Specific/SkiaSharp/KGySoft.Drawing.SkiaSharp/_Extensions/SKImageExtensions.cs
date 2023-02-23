@@ -34,22 +34,25 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        public static IReadableBitmapData GetReadableBitmapData(this SKImage image) => image.GetBitmapDataInternal();
+        public static IReadableBitmapData GetReadableBitmapData(this SKImage image, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+            => image.GetBitmapDataInternal(workingColorSpace);
 
         #endregion
 
         #region Internal Methods
 
-        internal static IReadableBitmapData GetBitmapDataInternal(this SKImage image, Action? disposeCallback = null)
+        internal static IReadableBitmapData GetBitmapDataInternal(this SKImage image, WorkingColorSpace workingColorSpace, Action? disposeCallback = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
+            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
+                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
 
             SKPixmap? pixels = image.PeekPixels();
 
             // Raster-based image: We can simply get a bitmap data for its pixels
             if (pixels != null)
-                return pixels.GetBitmapDataInternal(true, disposeCallback: disposeCallback);
+                return pixels.GetBitmapDataInternal(true, workingColorSpace, disposeCallback: disposeCallback);
 
             // Other image: converting it to a bitmap
             // TODO: test if this works for GPU/vector images
@@ -70,7 +73,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     disposeCallback();
                 };
 
-            return bitmap.GetBitmapDataInternal(true, disposeCallback: disposeBitmap);
+            return bitmap.GetBitmapDataInternal(true, workingColorSpace, disposeCallback: disposeBitmap);
         }
 
         #endregion
