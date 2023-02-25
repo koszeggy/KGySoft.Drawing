@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -57,26 +56,6 @@ namespace KGySoft.Drawing.SkiaSharp
         #endregion
 
         #region Methods
-
-        internal ColorRgba8888 ToStraight() => a switch
-        {
-            Byte.MaxValue => this,
-            0 => default,
-            _ => new ColorRgba8888((byte)(r * Byte.MaxValue / a),
-                (byte)(g * Byte.MaxValue / a),
-                (byte)(b * Byte.MaxValue / a),
-                a)
-        };
-
-        internal ColorRgba8888 ToPremultiplied() => a switch
-        {
-            Byte.MaxValue => this,
-            0 => default,
-            _ => new ColorRgba8888((byte)(r * a / Byte.MaxValue),
-                (byte)(g * a / Byte.MaxValue),
-                (byte)(b * a / Byte.MaxValue),
-                a)
-        };
 
         internal Color32 ToColor32() => new Color32(a, r, g, b);
 

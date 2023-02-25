@@ -80,7 +80,10 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Methods
 
         //internal Color32 ToColor32() => new Color32(a.To8Bit(), r.ToNonLinear8Bit(), g.ToNonLinear8Bit(), b.ToNonLinear8Bit());
-        internal Color32 ToColor32() => new Color32(A.To8Bit(), R.To8Bit(), G.To8Bit(), B.To8Bit());
+        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(A),
+            ColorSpaceHelper.ToByte(R),
+            ColorSpaceHelper.ToByte(G),
+            ColorSpaceHelper.ToByte(B));
 
         internal ColorRgbaF16 ToPremultiplied()
         {

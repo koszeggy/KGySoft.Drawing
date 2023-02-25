@@ -29,6 +29,44 @@ namespace KGySoft.Drawing.SkiaSharp
 {
     public static class ColorExtensions
     {
+        #region Nested Classes
+
+        #region Cache8Bpp class
+
+        private static class Cache8Bpp
+        {
+            #region Fields
+
+            internal static readonly byte[] LookupTableSrgbToLinear = InitLookupTableSrgbToLinear();
+            internal static readonly byte[] LookupTableLinearToSrgb = InitLookupTableLinearToSrgb();
+
+            #endregion
+
+            #region Methods
+
+            private static byte[] InitLookupTableSrgbToLinear()
+            {
+                var result = new byte[1 << 8];
+                for (int i = 0; i <= Byte.MaxValue; i++)
+                    result[i] = ColorSpaceHelper.ToByte(ColorSpaceHelper.SrgbToLinear((byte)i));
+                return result;
+            }
+
+            private static byte[] InitLookupTableLinearToSrgb()
+            {
+                var result = new byte[1 << 8];
+                for (int i = 0; i <= Byte.MaxValue; i++)
+                    result[i] = ColorSpaceHelper.LinearToSrgb8Bit(ColorSpaceHelper.ToFloat((byte)i));
+                return result;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
+        #endregion
+
         #region Methods
 
         /// <summary>
@@ -63,6 +101,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Methods
 
+        // TODO: remove
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Color32 ToStraight(this Color32 c) => c.A switch
         {
@@ -72,11 +111,9 @@ namespace KGySoft.Drawing.SkiaSharp
                 (byte)((c.R << 8) / c.A),
                 (byte)((c.G << 8) / c.A),
                 (byte)((c.B << 8) / c.A))
-                //(byte)(c.R * Byte.MaxValue / c.A),
-                //(byte)(c.G * Byte.MaxValue / c.A),
-                //(byte)(c.B * Byte.MaxValue / c.A))
         };
 
+        // TODO: remove
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         internal static Color32 ToPremultiplied(this Color32 c) => c.A switch
         {
@@ -86,46 +123,20 @@ namespace KGySoft.Drawing.SkiaSharp
                 (byte)((c.R * c.A) >> 8),
                 (byte)((c.G * c.A) >> 8),
                 (byte)((c.B * c.A) >> 8))
-                //(byte)(c.R * c.A / Byte.MaxValue),
-                //(byte)(c.G * c.A / Byte.MaxValue),
-                //(byte)(c.B * c.A / Byte.MaxValue))
         };
 
-        internal static Color32 ToSrgb(this Color32 c) => new Color32(c.A, c.R.ToSrgb(), c.G.ToSrgb(), c.B.ToSrgb());
+        internal static Color32 ToLinear(this Color32 c) => new Color32(c.A,
+            c.R.ToLinear(),
+            c.G.ToLinear(),
+            c.B.ToLinear());
 
-        internal static Color32 ToLinear(this Color32 c) => new Color32(c.A, c.R.ToLinear(), c.G.ToLinear(), c.B.ToLinear());
+        internal static Color32 ToSrgb(this Color32 c) => new Color32(c.A,
+            c.R.ToSrgb(),
+            c.G.ToSrgb(),
+            c.B.ToSrgb());
 
-        internal static byte To8Bit(this float value)
-        {
-            if (Single.IsNaN(value))
-                return 0;
-
-            value = value * 255f + 0.5f;
-            return value < Byte.MinValue ? Byte.MinValue
-                : value > Byte.MaxValue ? Byte.MaxValue
-                : (byte)value;
-        }
-
-        internal static byte ToSrgb(this byte b) => (b / 255f).ToSrgb8Bit();
-        internal static byte ToLinear(this byte b) => (b / 255f).ToLinear().To8Bit();
-
-        internal static byte ToSrgb8Bit(this float value) => value switch
-        {
-            <= 0f => 0,
-            <= 0.0031308f => (byte)((255f * value * 12.92f) + 0.5f),
-            < 1f => (byte)((255f * ((1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f)) + 0.5f),
-            >= 1f => 255,
-            _ => 0 // NaN
-        };
-
-        internal static float ToLinear(this float value) => value switch
-        {
-            <= 0f => 0f,
-            <= 0.04045f => value / 12.92f,
-            < 1f => MathF.Pow((value + 0.055f) / 1.055f, 2.4f),
-            >= 1f => 1f,
-            _ => 0 // NaN
-        };
+        internal static byte ToLinear(this byte b) => Cache8Bpp.LookupTableSrgbToLinear[b];
+        internal static byte ToSrgb(this byte b) => Cache8Bpp.LookupTableLinearToSrgb[b];
 
         #endregion
     }
