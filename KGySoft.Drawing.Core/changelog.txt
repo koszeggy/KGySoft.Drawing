@@ -17,6 +17,9 @@
   + Adding new SrgbToLinear overload from UInt16
   + Adding new LinearToSrgb16Bit method
   - Fixing float-float version of LinearToSrgb for some out-of-bounds values
+* Palette class:
+  * Grayscale256 method: improving grayscale mapping when working in the linear color space
+  + Grayscale16/Grayscale4 methods: special linear color space handling even if directMapping is true
 
 
 ~~~~~~~~~

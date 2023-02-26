@@ -735,9 +735,12 @@ namespace KGySoft.Drawing.Imaging
         {
             static int GetNearestColorIndex(Color32 c, IPalette palette)
             {
+                // Unlike for the BW palette we use GetBrightness(colorSpace) here, which has a gamma corrected result even in the linear color space
+                // (because we want to get the perceived brightness). But as result entries are distributed evenly in the sRGB color space anyway,
+                // this is alright, and this is how we get the same result as without direct mapping.
                 if (c.A < Byte.MaxValue)
                     c = c.BlendWithBackground(palette.BackColor, palette.WorkingColorSpace);
-                return c.GetBrightness();
+                return c.GetBrightness(palette.WorkingColorSpace);
             }
 
             return new Palette(Grayscale256Palette, backColor, 0, workingColorSpace, GetNearestColorIndex);
@@ -764,8 +767,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale16">PredefinedColorsQuantizer.Grayscale16</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
-        /// If <paramref name="directMapping"/> is <see langword="true"/>, then only affects blending with possibly partially transparent source colors.</param>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -783,7 +785,10 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (c.A < Byte.MaxValue)
                     c = c.BlendWithBackground(palette.BackColor, palette.WorkingColorSpace);
-                return c.GetBrightness() >> 4;
+
+                // GetBrightness(palette.WorkingColorSpace) returns gamma corrected brightness of 256 levels, which is not quite correct if we have
+                // only a few evenly distributed sRGB grayscale entries but this is still better than getting a linear brightness like for BW.
+                return c.GetBrightness(palette.WorkingColorSpace) >> 4;
             }
 
             return new Palette(Grayscale16Palette, backColor, 0, workingColorSpace, directMapping ? GetNearestColorIndex : default);
@@ -810,8 +815,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="PredefinedColorsQuantizer.Grayscale4">PredefinedColorsQuantizer.Grayscale4</see> method for details and some examples.
         /// </summary>
         /// <param name="workingColorSpace">Specifies the desired color space to be used by the <see cref="GetNearestColor">GetNearestColor</see>
-        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.
-        /// If <paramref name="directMapping"/> is <see langword="true"/>, then only affects blending with possibly partially transparent source colors.</param>
+        /// and <see cref="GetNearestColorIndex">GetNearestColorIndex</see> methods for blending and measuring color distance.</param>
         /// <param name="backColor">Specifies the background color for lookup operations (<see cref="GetNearestColor">GetNearestColor</see>, <see cref="GetNearestColorIndex">GetNearestColorIndex</see>).
         /// When a lookup is performed with a color with transparency, then the color to be found will be blended with this color before performing the lookup.
         /// The <see cref="Color32.A">Color32.A</see> field of the background color is ignored. This parameter is optional.
@@ -829,7 +833,10 @@ namespace KGySoft.Drawing.Imaging
             {
                 if (c.A < Byte.MaxValue)
                     c = c.BlendWithBackground(palette.BackColor, palette.WorkingColorSpace);
-                return c.GetBrightness() >> 6;
+
+                // GetBrightness(palette.WorkingColorSpace) returns gamma corrected brightness of 256 levels, which is not quite correct if we have
+                // only a few evenly distributed sRGB grayscale entries but this is still better than getting a linear brightness like for BW.
+                return c.GetBrightness(palette.WorkingColorSpace) >> 6;
             }
 
             return new Palette(Grayscale4Palette, backColor, 0, workingColorSpace, directMapping ? GetNearestColorIndex : default);
@@ -875,7 +882,9 @@ namespace KGySoft.Drawing.Imaging
                 bool linear = palette.WorkingColorSpace == WorkingColorSpace.Linear;
                 if (c.A < Byte.MaxValue)
                     c = c.BlendWithBackground(palette.BackColor, linear);
-
+                
+                // Unlike for Grayscale palettes here it is correct to get linear brightness for linear because color space because
+                // we have no mind-range sRGB palette entries. And this provides the same result as non-direct mapping (SystemDefault1BppPalette)
                 return c == Color32.Black ? 0
                     : c == Color32.White ? 1
                     : linear ? ColorSpaceHelper.ToByte(c.ToColorF().GetBrightness()) >= whiteThreshold ? 1 : 0
