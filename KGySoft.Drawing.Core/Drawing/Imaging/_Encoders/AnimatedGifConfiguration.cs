@@ -139,7 +139,7 @@ namespace KGySoft.Drawing.Imaging
         /// <para>If <see cref="Quantizer"/> is set to an <see cref="OptimizedPaletteQuantizer"/> that allows creating a specific palette for each frame,
         /// then setting this property to <see langword="true"/> might also allow producing high color frames.</para>
         /// <para>If <see cref="AllowClippedFrames"/> is <see langword="false"/>, then this property is ignored for quantizers with no transparency support.
-        /// TTherefore make sure that you set also the <see cref="AllowClippedFrames"/> to <see langword="true"/> if you use a quantizer without transparency support.</para>
+        /// Therefore make sure that you set also the <see cref="AllowClippedFrames"/> to <see langword="true"/> if you use a quantizer without transparency support.</para>
         /// </remarks>
         public bool AllowDeltaFrames { get; set; } = true;
 
