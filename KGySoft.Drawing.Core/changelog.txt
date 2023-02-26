@@ -6,6 +6,20 @@
 ===============================================================================
 
 ~~~~~~~~~
+* v7.1.1:
+~~~~~~~~~
+
+* KGySoft.Drawing.Imaging namespace
+===================================
+* ColorSpaceHelper class:
+  + Adding new ToFloat overload from UInt16
+  + Adding new ToUInt16 method
+  + Adding new SrgbToLinear overload from UInt16
+  + Adding new LinearToSrgb16Bit method
+  - Fixing float-float version of LinearToSrgb for some out-of-bounds values
+
+
+~~~~~~~~~
 ! v7.1.0:
 ~~~~~~~~~
 
