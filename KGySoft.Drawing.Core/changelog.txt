@@ -11,6 +11,8 @@
 
 * KGySoft.Drawing.Imaging namespace
 ===================================
++ ColorExtensions class:
+  + New GetBrightness overload
 * ColorSpaceHelper class:
   + Adding new ToFloat overload from UInt16
   + Adding new ToUInt16 method
@@ -20,6 +22,8 @@
 * Palette class:
   * Grayscale256 method: improving grayscale mapping when working in the linear color space
   + Grayscale16/Grayscale4 methods: special linear color space handling even if directMapping is true
+* BitmapDataFactory class:
+  * Improving grayscale conversion for the known grayscale pixel format when working in the linear color space
 
 
 ~~~~~~~~~

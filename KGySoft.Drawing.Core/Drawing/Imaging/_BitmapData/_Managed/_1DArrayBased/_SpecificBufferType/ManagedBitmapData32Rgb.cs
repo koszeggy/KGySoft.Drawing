@@ -37,7 +37,7 @@ namespace KGySoft.Drawing.Imaging
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c)
-                => Row[x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearBlending);
+                => Row[x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearWorkingColorSpace);
 
             #endregion
         }
@@ -65,7 +65,7 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetPixel(int x, int y, Color32 c)
-            => Buffer[y, x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearBlending);
+            => Buffer[y, x] = c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearWorkingColorSpace);
 
         #endregion
     }

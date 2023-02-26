@@ -80,8 +80,8 @@ namespace KGySoft.Drawing.Imaging
         /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
         /// <returns>A <see cref="byte">byte</see> value where 0 represents the darkest and 255 represents the brightest possible value.</returns>
         /// <remarks>
-        /// <para>As this method returns brightness based on human perception the result is always gamma corrected, even if <paramref name="colorSpace"/>
-        /// is <see cref="WorkingColorSpace.Linear"/>.</para>
+        /// <para>As this method returns brightness based on human perception the result is always gamma corrected,
+        /// even if <paramref name="colorSpace"/> is <see cref="WorkingColorSpace.Linear"/>.</para>
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte GetBrightness(this Color32 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
