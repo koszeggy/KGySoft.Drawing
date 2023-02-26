@@ -34,9 +34,17 @@ namespace KGySoft.Drawing.Imaging
     {
         #region Constants
 
-        internal const float RLum = 0.299f;
-        internal const float GLum = 0.587f;
-        internal const float BLum = 0.114f;
+        // In sRGB color space using the coefficients used also by the Y'UV color space (used by PAL/SECAM/NTSC systems)
+        // because for gamma compressed RGB values it approximates perceptual brightness quite well so no linear conversion is needed.
+        private const float RLumSrgb = 0.299f;
+        private const float GLumSrgb = 0.587f;
+        private const float BLumSrgb = 0.114f;
+
+        // In the linear color space using the coefficients recommended by the ITU-R BT.709 standard.
+        // The values were taken from here: https://en.wikipedia.org/wiki/Grayscale
+        private const float RLumLinear = 0.2126f;
+        private const float GLumLinear = 0.7152f;
+        private const float BLumLinear = 0.0722f;
 
         #endregion
 
@@ -61,7 +69,25 @@ namespace KGySoft.Drawing.Imaging
         public static byte GetBrightness(this Color32 c)
             => c.R == c.G && c.R == c.B
                 ? c.R
-                : (byte)(c.R * RLum + c.G * GLum + c.B * BLum);
+                : (byte)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+
+        /// <summary>
+        /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="byte">byte</see> based on human perception.
+        /// The <see cref="Color32.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color32"/> instance to get the brightness of.</param>
+        /// <param name="colorSpace">The color space to be used for determining the brightness. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns>A <see cref="byte">byte</see> value where 0 represents the darkest and 255 represents the brightest possible value.</returns>
+        /// <remarks>
+        /// <para>As this method returns brightness based on human perception the result is always gamma corrected, even if <paramref name="colorSpace"/>
+        /// is <see cref="WorkingColorSpace.Linear"/>.</para>
+        /// </remarks>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static byte GetBrightness(this Color32 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
+            // Note: using gamma correction even for linear color space because we need a result based of human perception
+            ? ColorSpaceHelper.LinearToSrgb8Bit(c.ToColorF().GetBrightness())
+            : GetBrightness(c);
 
         /// <summary>
         /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
@@ -316,10 +342,16 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static ushort GetBrightness(this Color64 c)
+            => c.R == c.G && c.R == c.B
+                ? c.R
+                : (ushort)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static float GetBrightness(this ColorF c)
             => c.R.Equals(c.G) && c.R.Equals(c.B)
                 ? c.R
-                : c.R * RLum + c.G * GLum + c.B * BLum;
+                : c.R * RLumLinear + c.G * GLumLinear + c.B * BLumLinear;
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static bool TolerantEquals(this Color32 c1, Color32 c2, byte tolerance)
