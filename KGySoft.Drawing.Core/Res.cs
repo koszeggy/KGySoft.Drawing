@@ -86,6 +86,9 @@ namespace KGySoft
         /// <summary>An indexed pixel format should not be larger than 16 bits per pixel.</summary>
         internal static string ImagingIndexedPixelFormatTooLarge => Get("Imaging_IndexedPixelFormatTooLarge");
 
+        /// <summary>For a premultiplied color the alpha value should not be smaller than the color components.</summary>
+        internal static string ImagingInvalidPremultipliedValues => Get("Imaging_InvalidPremultipliedValues");
+
         #endregion
 
         #region GifEncoder

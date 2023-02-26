@@ -6,11 +6,12 @@
 ===============================================================================
 
 ~~~~~~~~~
-* v7.1.1:
+* v7.2.0:
 ~~~~~~~~~
 
 * KGySoft.Drawing.Imaging namespace
 ===================================
++ New PColor32 struct
 + ColorExtensions class:
   + New GetBrightness overload
 * ColorSpaceHelper class:
