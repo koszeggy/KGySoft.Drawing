@@ -79,8 +79,8 @@ namespace KGySoft.Drawing.Imaging
             public override void DoWriteRaw<T>(int x, T data) => WrappedRow.DoWriteRaw(x, data);
             public override int DoGetColorIndex(int x) => WrappedRow.DoGetColorIndex(x + Parent.X);
             public override void DoSetColorIndex(int x, int colorIndex) => WrappedRow.DoSetColorIndex(x + Parent.X, colorIndex);
-            public override Color32 DoGetColor32Premultiplied(int x) => WrappedRow.DoGetColor32Premultiplied(x + Parent.X);
-            public override void DoSetColor32Premultiplied(int x, Color32 c) => WrappedRow.DoSetColor32Premultiplied(x + Parent.X, c);
+            public override PColor32 DoGetColor32Premultiplied(int x) => WrappedRow.DoGetColor32Premultiplied(x + Parent.X);
+            public override void DoSetColor32Premultiplied(int x, PColor32 c) => WrappedRow.DoSetColor32Premultiplied(x + Parent.X, c);
 
             #endregion
         }

@@ -1502,7 +1502,7 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format32bppArgb => buffer is Array2D<Color32> buf
                     ? new ManagedBitmapData32Argb(buf, cfg)
                     : new ManagedBitmapData32Argb<T>(buffer, cfg),
-                KnownPixelFormat.Format32bppPArgb => buffer is Array2D<Color32> buf
+                KnownPixelFormat.Format32bppPArgb => buffer is Array2D<PColor32> buf
                     ? new ManagedBitmapData32PArgb(buf, cfg)
                     : new ManagedBitmapData32PArgb<T>(buffer, cfg),
                 KnownPixelFormat.Format32bppRgb => buffer is Array2D<Color32> buf
@@ -1523,7 +1523,7 @@ namespace KGySoft.Drawing.Imaging
                 KnownPixelFormat.Format64bppArgb => buffer is Array2D<Color64> buf
                     ? new ManagedBitmapData64Argb(buf, cfg)
                     : new ManagedBitmapData64Argb<T>(buffer, cfg),
-                KnownPixelFormat.Format64bppPArgb => buffer is Array2D<Color64> buf
+                KnownPixelFormat.Format64bppPArgb => buffer is Array2D<PColor64> buf
                     ? new ManagedBitmapData64PArgb(buf, cfg)
                     : new ManagedBitmapData64PArgb<T>(buffer, cfg),
                 KnownPixelFormat.Format48bppRgb => buffer is Array2D<Color48> buf
@@ -1681,7 +1681,7 @@ namespace KGySoft.Drawing.Imaging
             writer.Write(rect.Width);
             writer.Write(rect.Height);
             writer.Write((int)pixelFormat);
-            writer.Write(bitmapData.BackColor.ToArgb());
+            writer.Write(bitmapData.BackColor.Value);
             writer.Write(bitmapData.AlphaThreshold);
 
             // preventing saving too large palette of custom pixel formats
@@ -1690,7 +1690,7 @@ namespace KGySoft.Drawing.Imaging
             if (palette != null)
             {
                 foreach (Color32 entry in palette.Entries)
-                    writer.Write(entry.ToArgb());
+                    writer.Write(entry.Value);
             }
 
             context.Progress?.Increment();
@@ -2154,7 +2154,7 @@ namespace KGySoft.Drawing.Imaging
                 throw new ArgumentException(Res.ImagingNotBitmapDataStream, nameof(stream));
             var size = new Size(reader.ReadInt32(), reader.ReadInt32());
             var pixelFormat = (KnownPixelFormat)reader.ReadInt32();
-            Color32 backColor = Color32.FromArgb(reader.ReadInt32());
+            Color32 backColor = new Color32(reader.ReadUInt32());
             byte alphaThreshold = reader.ReadByte();
 
             Palette? palette = null;
@@ -2163,7 +2163,7 @@ namespace KGySoft.Drawing.Imaging
             {
                 var entries = new Color32[paletteLength];
                 for (int i = 0; i < paletteLength; i++)
-                    entries[i] = Color32.FromArgb(reader.ReadInt32());
+                    entries[i] = new Color32(reader.ReadUInt32());
 
                 // useLinearBlending: unfortunately, cannot be added to BDAT without breaking compatibility
                 palette = new Palette(entries, backColor, alphaThreshold, default, null);

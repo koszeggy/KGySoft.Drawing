@@ -78,11 +78,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Public Properties
+        
         /// <summary>
         /// Gets whether this <see cref="PColor32"/> instance represents a valid premultiplied color.
         /// That is, when <see cref="A"/> is greater than or equal to <see cref="R"/>, <see cref="G"/> and <see cref="B"/>.
         /// </summary>
         public bool IsValid => A >= R && A >= G && A >= B;
+
+        #endregion
+
+        #region Internal Properties
+
+        internal uint Value => value;
+
+        #endregion
 
         #endregion
 
@@ -172,7 +182,7 @@ namespace KGySoft.Drawing.Imaging
             switch (c.A)
             {
                 case Byte.MaxValue:
-                    value = (uint)c.ToArgb();
+                    value = c.Value;
                     break;
                 case Byte.MinValue:
                     value = 0u;
@@ -214,21 +224,12 @@ namespace KGySoft.Drawing.Imaging
         /// Converts this <see cref="PColor32"/> instance to a <see cref="Color32"/> structure.
         /// </summary>
         /// <returns>A <see cref="Color32"/> structure converted from this <see cref="PColor32"/> instance.</returns>
-        public Color32 ToColor32()
+        public Color32 ToColor32() => A switch
         {
-            switch (A)
-            {
-                case Byte.MaxValue:
-                    return new Color32(value);
-                case Byte.MinValue:
-                    return default;
-                default:
-                    return new Color32(A,
-                        (byte)(R * Byte.MaxValue / A),
-                        (byte)(G * Byte.MaxValue / A),
-                        (byte)(B * Byte.MaxValue / A));
-            }
-        }
+            Byte.MaxValue => new Color32(value),
+            Byte.MinValue => default,
+            _ => new Color32(A, (byte)(R * Byte.MaxValue / A), (byte)(G * Byte.MaxValue / A), (byte)(B * Byte.MaxValue / A))
+        };
 
         /// <summary>
         /// Determines whether the current <see cref="PColor32"/> instance is equal to another one.

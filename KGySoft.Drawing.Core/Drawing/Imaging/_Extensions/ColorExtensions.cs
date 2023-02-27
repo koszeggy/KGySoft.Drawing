@@ -143,6 +143,15 @@ namespace KGySoft.Drawing.Imaging
             return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColor32 ToPremultiplied(this Color32 c) => new PColor32(c);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color32 ToStraight(this PColor32 c) => c.ToColor32();
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color32 ToStraightSafe(this PColor32 c) => c.Clip().ToColor32();
+
         #endregion
 
         #region Internal Methods
@@ -152,70 +161,9 @@ namespace KGySoft.Drawing.Imaging
 
         //internal static Color32 ToColor32(this PColorF c, bool adjustColorSpaceToSrgb) => c.ToStraight().ToColor32(adjustColorSpaceToSrgb);
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToPremultiplied(this Color32 c) => c.A switch
-        {
-            Byte.MaxValue => c,
-            0 => default,
-            _ => new Color32(c.A,
-                (byte)(c.R * c.A / Byte.MaxValue),
-                (byte)(c.G * c.A / Byte.MaxValue),
-                (byte)(c.B * c.A / Byte.MaxValue))
-        };
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 AsValidPremultiplied(this Color32 c)
-        {
-            Debug.Assert(c.A > 0 && c.A < Byte.MaxValue);
-            return new Color32(c.A,
-                Math.Min(c.A, c.R),
-                Math.Min(c.A, c.G),
-                Math.Min(c.A, c.B));
-        }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToPremultiplied(this Color64 c) => c.A switch
-        {
-            UInt16.MaxValue => c,
-            0 => default,
-            _ => new Color64(c.A,
-                (ushort)((uint)c.R * c.A / UInt16.MaxValue),
-                (ushort)((uint)c.G * c.A / UInt16.MaxValue),
-                (ushort)((uint)c.B * c.A / UInt16.MaxValue))
-        };
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToStraight(this Color32 c) => c.A switch
-        {
-            Byte.MaxValue => c,
-            0 => default,
-            _ => new Color32(c.A,
-                (byte)(c.R * Byte.MaxValue / c.A),
-                (byte)(c.G * Byte.MaxValue / c.A),
-                (byte)(c.B * Byte.MaxValue / c.A))
-        };
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 ToStraightSafe(this Color32 c) => c.A switch
-        {
-            Byte.MaxValue => c,
-            0 => default,
-            _ => new Color32(c.A,
-                (byte)(Math.Min(c.A, c.R) * Byte.MaxValue / c.A),
-                (byte)(Math.Min(c.A, c.G) * Byte.MaxValue / c.A),
-                (byte)(Math.Min(c.A, c.B) * Byte.MaxValue / c.A))
-        };
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color64 ToStraight(this Color64 c) => c.A switch
-        {
-            UInt16.MaxValue => c,
-            0 => default,
-            _ => new Color64(c.A,
-                (ushort)((uint)c.R * UInt16.MaxValue / c.A),
-                (ushort)((uint)c.G * UInt16.MaxValue / c.A),
-                (ushort)((uint)c.B * UInt16.MaxValue / c.A))
-        };
+        internal static PColor64 ToPremultiplied(this Color64 c) => new PColor64(c);
+        internal static Color64 ToStraight(this PColor64 c) => c.ToColor64();
+        internal static Color64 ToStraightSafe(this PColor64 c) => c.Clip().ToColor64();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor, bool linear)
@@ -285,11 +233,11 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static Color32 BlendWithPremultipliedSrgb(this Color32 src, Color32 dst)
+        internal static PColor32 BlendWithPremultipliedSrgb(this PColor32 src, PColor32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
             int inverseAlphaSrc = 255 - src.A;
-            return new Color32(dst.A == Byte.MaxValue ? Byte.MaxValue : (byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
+            return new PColor32(dst.A == Byte.MaxValue ? Byte.MaxValue : (byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
                 (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
                 (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
                 (byte)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));

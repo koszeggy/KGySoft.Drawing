@@ -23,25 +23,25 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapData64PArgb : ManagedBitmapData1DArrayBase<Color64, ManagedBitmapData64PArgb.Row>
+    internal sealed class ManagedBitmapData64PArgb : ManagedBitmapData1DArrayBase<PColor64, ManagedBitmapData64PArgb.Row>
     {
         #region Row class
 
-        internal sealed class Row : ManagedBitmapDataRowBase<Color64>
+        internal sealed class Row : ManagedBitmapDataRowBase<PColor64>
         {
             #region Methods
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32(int x) => Row[x].ToStraight().ToColor32();
+            public override Color32 DoGetColor32(int x) => Row[x].ToColor32();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32(int x, Color32 c) => Row[x] = new Color64(c).ToPremultiplied();
+            public override void DoSetColor32(int x, Color32 c) => Row[x] = new PColor64(c);
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32Premultiplied(int x) => Row[x].ToColor32();
+            public override PColor32 DoGetColor32Premultiplied(int x) => Row[x].ToPColor32();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32Premultiplied(int x, Color32 c) => Row[x] = new Color64(c);
+            public override void DoSetColor32Premultiplied(int x, PColor32 c) => Row[x] = new PColor64(c);
 
             #endregion
         }
@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
-        internal ManagedBitmapData64PArgb(Array2D<Color64> buffer, in BitmapDataConfig cfg)
+        internal ManagedBitmapData64PArgb(Array2D<PColor64> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
         {
         }
@@ -65,10 +65,10 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override Color32 DoGetPixel(int x, int y) => Buffer[y, x].ToStraight().ToColor32();
+        protected override Color32 DoGetPixel(int x, int y) => Buffer[y, x].ToColor32();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override void DoSetPixel(int x, int y, Color32 c) => Buffer[y, x] = new Color64(c).ToPremultiplied();
+        protected override void DoSetPixel(int x, int y, Color32 c) => Buffer[y, x] = new PColor64(c);
 
         #endregion
     }

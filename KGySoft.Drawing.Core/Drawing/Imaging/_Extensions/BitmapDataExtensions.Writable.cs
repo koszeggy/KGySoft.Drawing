@@ -271,10 +271,10 @@ namespace KGySoft.Drawing.Imaging
                 // writing as longs
                 if (longWidth > 0)
                 {
-                    Color64 rawColor = new Color64(color);
-                    if (bitmapData.PixelFormat.AsKnownPixelFormatInternal == KnownPixelFormat.Format64bppPArgb)
-                        rawColor = rawColor.ToPremultiplied();
-                    ClearRaw(context, bitmapData, longWidth, rawColor);
+                    ulong value = bitmapData.PixelFormat.AsKnownPixelFormatInternal is KnownPixelFormat.Format64bppArgb
+                        ? new Color64(color).Value
+                        : new PColor64(color).Value;
+                    ClearRaw(context, bitmapData, longWidth, value);
                 }
 
                 // handling the rest (can be even the whole content if RowSize is 0)
@@ -291,14 +291,13 @@ namespace KGySoft.Drawing.Imaging
                 // writing as longs
                 if (longWidth > 0)
                 {
-                    Color32 rawColor = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
+                    uint argb = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
                     {
-                        KnownPixelFormat.Format32bppPArgb => color.ToPremultiplied(),
-                        KnownPixelFormat.Format32bppRgb => color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.LinearBlending()),
-                        _ => color,
+                        KnownPixelFormat.Format32bppPArgb => color.ToPremultiplied().Value,
+                        KnownPixelFormat.Format32bppRgb => (color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.LinearBlending())).Value,
+                        _ => color.Value,
                     };
 
-                    uint argb = (uint)rawColor.ToArgb();
                     ClearRaw(context, bitmapData, longWidth, ((ulong)argb << 32) | argb);
                 }
 

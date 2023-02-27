@@ -95,8 +95,8 @@ namespace KGySoft.Drawing.Imaging
             public void DoWriteRaw<T>(int x, T data) where T : unmanaged => writableBitmapDataRow.WriteRaw(x, data);
             public int DoGetColorIndex(int x) => readableBitmapDataRow.GetColorIndex(x);
             public void DoSetColorIndex(int x, int colorIndex) => writableBitmapDataRow.SetColorIndex(x, colorIndex);
-            public Color32 DoGetColor32Premultiplied(int x) => DoGetColor32(x).ToPremultiplied();
-            public void DoSetColor32Premultiplied(int x, Color32 c) => DoSetColor32(x, c.ToStraight());
+            public PColor32 DoGetColor32Premultiplied(int x) => DoGetColor32(x).ToPremultiplied();
+            public void DoSetColor32Premultiplied(int x, PColor32 c) => DoSetColor32(x, c.ToStraight());
 
             #endregion
         }

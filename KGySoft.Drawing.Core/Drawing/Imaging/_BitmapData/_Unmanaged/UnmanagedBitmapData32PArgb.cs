@@ -33,19 +33,19 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe Color32 DoGetColor32(int x) => ((Color32*)Row)[x].ToStraight();
+            public override unsafe Color32 DoGetColor32(int x) => ((PColor32*)Row)[x].ToStraight();
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe void DoSetColor32(int x, Color32 c) => ((Color32*)Row)[x] = c.ToPremultiplied();
+            public override unsafe void DoSetColor32(int x, Color32 c) => ((PColor32*)Row)[x] = c.ToPremultiplied();
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe Color32 DoGetColor32Premultiplied(int x) => ((Color32*)Row)[x];
+            public override unsafe PColor32 DoGetColor32Premultiplied(int x) => ((PColor32*)Row)[x];
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe void DoSetColor32Premultiplied(int x, Color32 c) => ((Color32*)Row)[x] = c;
+            public override unsafe void DoSetColor32Premultiplied(int x, PColor32 c) => ((PColor32*)Row)[x] = c;
 
             #endregion
         }
@@ -65,11 +65,11 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe Color32 DoGetPixel(int x, int y) => GetPixelAddress<Color32>(y, x)->ToStraight();
+        protected override unsafe Color32 DoGetPixel(int x, int y) => GetPixelAddress<PColor32>(y, x)->ToStraight();
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetPixel(int x, int y, Color32 c) => *GetPixelAddress<Color32>(y, x) = c.ToPremultiplied();
+        protected override unsafe void DoSetPixel(int x, int y, Color32 c) => *GetPixelAddress<PColor32>(y, x) = c.ToPremultiplied();
 
         #endregion
     }
