@@ -80,14 +80,46 @@ namespace KGySoft.Drawing.Imaging
         /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
         /// <returns>A <see cref="byte">byte</see> value where 0 represents the darkest and 255 represents the brightest possible value.</returns>
         /// <remarks>
-        /// <para>As this method returns brightness based on human perception the result is always gamma corrected,
-        /// even if <paramref name="colorSpace"/> is <see cref="WorkingColorSpace.Linear"/>.</para>
+        /// <note>This method always returns a gamma corrected result, even if <paramref name="colorSpace"/> is <see cref="WorkingColorSpace.Linear"/>.
+        /// To get the brightness in the linear color space use the <see cref="GetBrightness(ColorF, WorkingColorSpace)"/> method instead.</note>
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte GetBrightness(this Color32 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
-            // Note: using gamma correction even for linear color space because we need a result based of human perception
+            // Note: using gamma correction even for linear color space because we the source is an sRGB color
             ? ColorSpaceHelper.LinearToSrgb8Bit(c.ToColorF().GetBrightness())
             : GetBrightness(c);
+
+        /// <summary>
+        /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="float">float</see> value based on human perception.
+        /// The <see cref="Color32.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color32"/> instance to get the brightness of.</param>
+        /// <returns>A <see cref="float">float</see> value where 0 represents the darkest and 1 represents the brightest possible value.</returns>
+        /// <remarks>
+        /// <note>This method always returns a gamma corrected result.
+        /// To get the brightness in the linear color space use the <see cref="GetBrightness(ColorF)"/> method instead.</note>
+        /// </remarks>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static float GetBrightnessF(this Color32 c)
+            => c.R * RLumSrgb / Byte.MaxValue + c.G * GLumSrgb / Byte.MaxValue + c.B * BLumSrgb / Byte.MaxValue;
+
+        /// <summary>
+        /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="float">float</see> value based on human perception.
+        /// The <see cref="Color32.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color32"/> instance to get the brightness of.</param>
+        /// <param name="colorSpace">The color space to be used for determining the brightness. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns>A <see cref="float">float</see> value where 0 represents the darkest and 1 represents the brightest possible value.</returns>
+        /// <remarks>
+        /// <note>This method always returns a gamma corrected result, even if <paramref name="colorSpace"/> is <see cref="WorkingColorSpace.Linear"/>.
+        /// To get the brightness in the linear color space use the <see cref="GetBrightness(ColorF, WorkingColorSpace)"/> method instead.</note>
+        /// </remarks>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static float GetBrightnessF(this Color32 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
+            // Note: using gamma correction even for linear color space because we need a result based of human perception
+            ? ColorSpaceHelper.LinearToSrgb(c.ToColorF().GetBrightness())
+            : GetBrightnessF(c);
 
         /// <summary>
         /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
@@ -143,14 +175,29 @@ namespace KGySoft.Drawing.Imaging
             return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
         }
 
+        /// <summary>
+        /// Converts this straight <see cref="Color32"/> value to a premultiplied <see cref="PColor32"/> value.
+        /// </summary>
+        /// <param name="color">The <see cref="Color32"/> value to convert.</param>
+        /// <returns>A premultiplied <see cref="PColor32"/> value.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static PColor32 ToPremultiplied(this Color32 c) => new PColor32(c);
+        public static PColor32 ToPremultiplied(this Color32 color) => new PColor32(color);
 
+        /// <summary>
+        /// Converts this premultiplied <see cref="PColor32"/> value to a straight <see cref="Color32"/> value.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor32"/> value to convert.</param>
+        /// <returns>A straight <see cref="Color32"/> value.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static Color32 ToStraight(this PColor32 c) => c.ToColor32();
+        public static Color32 ToStraight(this PColor32 color) => color.ToColor32();
 
+        /// <summary>
+        /// Converts this premultiplied <see cref="PColor32"/> instance containing possibly invalid RGB values to a straight <see cref="Color32"/> value.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor32"/> value to convert.</param>
+        /// <returns>A straight <see cref="Color32"/> value.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static Color32 ToStraightSafe(this PColor32 c) => c.Clip().ToColor32();
+        public static Color32 ToStraightSafe(this PColor32 color) => color.Clip().ToColor32();
 
         #endregion
 
@@ -158,8 +205,6 @@ namespace KGySoft.Drawing.Imaging
 
         internal static ColorF ToColorF(this Color32 c) => new ColorF(c);
         internal static PColorF ToPColorF(this Color32 c) => new PColorF(c);
-
-        //internal static Color32 ToColor32(this PColorF c, bool adjustColorSpaceToSrgb) => c.ToStraight().ToColor32(adjustColorSpaceToSrgb);
 
         internal static PColor64 ToPremultiplied(this Color64 c) => new PColor64(c);
         internal static Color64 ToStraight(this PColor64 c) => c.ToColor64();
@@ -295,6 +340,7 @@ namespace KGySoft.Drawing.Imaging
                 ? c.R
                 : (ushort)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
 
+        // Note: either do not make this public or 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static float GetBrightness(this ColorF c)
             => c.R.Equals(c.G) && c.R.Equals(c.B)
