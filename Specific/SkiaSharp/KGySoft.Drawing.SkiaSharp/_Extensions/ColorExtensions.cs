@@ -137,6 +137,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal static byte ToLinear(this byte b) => Cache8Bpp.LookupTableSrgbToLinear[b];
         internal static byte ToSrgb(this byte b) => Cache8Bpp.LookupTableLinearToSrgb[b];
+        internal static byte ToLinearByte(this float f) => ColorSpaceHelper.ToByte(ColorSpaceHelper.SrgbToLinear(f));
 
         #endregion
     }

@@ -308,30 +308,13 @@ namespace KGySoft.Drawing.SkiaSharp
                             : c.ToLinear().Blend(row.BitmapData.BackColor)), // TODO: new ColorRgba8888Linear(c.ToColorF().Blend(row.BitmapData.BackColorF))
                         workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
-                //// Gray8 - TODO: close, but strong quantization due to byte-byte conversion after GetBrightness. struct Gray8 from Color64/ColorF would be better?
-                //{ ColorType: SKColorType.Gray8 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
-                //    (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x).ToSrgb()),
-                //    (row, x, c) => row.UnsafeGetRefAs<byte>(x) =
-                //        (c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.GetLinearColorSpace()))
-                //        .GetBrightness(row.BitmapData.GetLinearColorSpace()).ToLinear(),
-                //    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
-
-                //// Gray8 - TODO: maybe the desired solution, test
-                //{ ColorType: SKColorType.Gray8 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
-                //    (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x).ToSrgb()),
-                //    (row, x, c) => row.UnsafeGetRefAs<byte>(x) =
-                //        (c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.GetPreferredColorSpace/*GetLinearColorSpace*/()))
-                //        .GetBrightnessF(/* TODO row.BitmapData.WorkingColorSpace*/).ToLinear(),
-                //    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
-
-                //// Gray8 - TODO: remove, wrong: GetBrightness after ToLinear is not correct. Bith linear and srgb are wrong
-                //{ ColorType: SKColorType.Gray8 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
-                //    (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x)).ToSrgb(),
-                //    (row, x, c) => row.UnsafeGetRefAs<byte>(x) = (c.A == Byte.MaxValue ? c.ToLinear()
-                //            : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? c.Blend(row.BitmapData.BackColor).ToLinear()
-                //            : c.ToLinear().Blend(row.BitmapData.BackColor))
-                //        .GetBrightness(),
-                //    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
+                // Gray8
+                { ColorType: SKColorType.Gray8 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x).ToSrgb()),
+                    (row, x, c) => row.UnsafeGetRefAs<byte>(x) =
+                        (c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.GetPreferredColorSpace/*GetLinearColorSpace*/()))
+                        .GetBrightnessF(row.BitmapData.GetPreferredColorSpace/*GetLinearColorSpace*/()).ToLinearByte(),
+                    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
                 //// Rgba16161616/Unpremul
                 //{ ColorType: SKColorType.Rgba16161616, AlphaType: SKAlphaType.Unpremul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
