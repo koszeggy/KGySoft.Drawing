@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Runtime.CompilerServices;
 
 #endregion
 
@@ -84,12 +85,13 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
-        
+
         /// <summary>
         /// Converts a <see cref="byte">byte</see> to a floating-point value between 0 and 1 without changing the color space.
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A floating-point value between 0 and 1.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float ToFloat(byte value) => (float)value / Byte.MaxValue;
 
         /// <summary>
@@ -98,6 +100,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="value">The value to convert.</param>
         /// <returns>A floating-point value between 0 and 1.</returns>
         [CLSCompliant(false)]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float ToFloat(ushort value) => (float)value / UInt16.MaxValue;
 
         /// <summary>
@@ -107,6 +110,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>The result of the conversion.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte ToByte(float value)
         {
             // Not using Math.Clamp because that does not convert NaN
@@ -117,6 +121,15 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
+        /// Converts a 16-bit color channel value to an 8-bit value representing the same intensity without changing the color space.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>The result of the conversion.</returns>
+        [CLSCompliant(false)]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static byte ToByte(ushort value) => (byte)(value >> 8);
+
+        /// <summary>
         /// Converts a floating-point value ranging from 0 to 1 to a <see cref="ushort"/> without changing the color space.
         /// Out-of-range values are allowed in which case the result will be clipped
         /// to <see cref="UInt16.MinValue">UInt16.MinValue</see> or <see cref="UInt16.MaxValue">UInt16.MaxValue</see>.
@@ -124,6 +137,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="value">The value to convert.</param>
         /// <returns>The result of the conversion.</returns>
         [CLSCompliant(false)]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ushort ToUInt16(float value)
         {
             // Not using Math.Clamp because that does not convert NaN
@@ -134,11 +148,21 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
+        /// Converts an 8-bit color channel value to a 16-bit value representing the same intensity without changing the color space.
+        /// </summary>
+        /// <param name="value">The value to convert.</param>
+        /// <returns>The result of the conversion.</returns>
+        [CLSCompliant(false)]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static ushort ToUInt16(byte value) => (ushort)(value * 257); // same as (ushort)((value << 8) | value)
+
+        /// <summary>
         /// Converts a <see cref="byte">byte</see> value representing an sRGB color component to a floating-point value between 0 and 1
         /// representing an RGB color component in the linear color space.
         /// </summary>
         /// <param name="value">The <see cref="byte">byte</see> value to convert.</param>
         /// <returns>A floating-point value between 0 and 1 representing an RGB color component in the linear color space.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float SrgbToLinear(byte value) => ByteToLinearCache.LookupTable[value];
 
         /// <summary>
@@ -148,6 +172,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="value">The <see cref="byte">byte</see> value to convert.</param>
         /// <returns>A floating-point value between 0 and 1 representing an RGB color component in the linear color space.</returns>
         [CLSCompliant(false)]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float SrgbToLinear(ushort value) => UInt16ToLinearCache.LookupTable[value];
 
         /// <summary>
@@ -155,6 +180,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A floating-point value between 0 and 1 representing an RGB color component in the linear color space.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float SrgbToLinear(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
@@ -171,6 +197,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A floating-point value between 0 and 1 representing an sRGB color component.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float LinearToSrgb(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
@@ -187,6 +214,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="value">The value to convert.</param>
         /// <returns>A <see cref="byte">byte</see> value representing an sRGB color component.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte LinearToSrgb8Bit(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
@@ -204,6 +232,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="value">The value to convert.</param>
         /// <returns>A <see cref="ushort"/> value representing an sRGB color component.</returns>
         [CLSCompliant(false)]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public static ushort LinearToSrgb16Bit(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB

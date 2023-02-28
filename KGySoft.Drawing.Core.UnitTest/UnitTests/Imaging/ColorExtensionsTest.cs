@@ -35,7 +35,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
 
             // ====== 32 vs. 32 =====
             // S32 -> P32 -> S32
-            Color32 p32 = s32.ToPremultiplied();
+            PColor32 p32 = s32.ToPremultiplied();
             Assert.AreEqual(s32, p32.ToStraight());
 
             // ====== From Straight 32 =====
@@ -44,7 +44,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Assert.AreEqual(s32, s64.ToColor32());
 
             // S32 -> (S64->) P64 -> (S64->) S32
-            Color64 p64m = s64.ToPremultiplied();
+            PColor64 p64m = s64.ToPremultiplied();
             Assert.AreEqual(s64, p64m.ToStraight());
             Assert.AreEqual(s32, p64m.ToStraight().ToColor32());
 
@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             Assert.AreEqual(p32, s64.ToColor32().ToPremultiplied());
 
             // P32 -> P64 -> P32
-            Assert.AreEqual(p64m, new Color64(p32));
+            Assert.AreEqual(p64m, new Color64(p32.ToColor32()));
             Assert.AreEqual(p32, p64m.ToColor32());
         }
 

@@ -176,6 +176,20 @@ namespace KGySoft.Drawing.Imaging
             A = ColorSpaceHelper.ToFloat(c.A);
         }
 
+        public ColorF(Color64 c)
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value field
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+            R = ColorSpaceHelper.SrgbToLinear(c.R);
+            G = ColorSpaceHelper.SrgbToLinear(c.G);
+            B = ColorSpaceHelper.SrgbToLinear(c.B);
+            A = ColorSpaceHelper.ToFloat(c.A);
+        }
+
         #endregion
 
         #region Internal Constructors
@@ -237,6 +251,12 @@ namespace KGySoft.Drawing.Imaging
             ColorSpaceHelper.LinearToSrgb8Bit(R),
             ColorSpaceHelper.LinearToSrgb8Bit(G),
             ColorSpaceHelper.LinearToSrgb8Bit(B));
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public Color64 ToColor64() => new Color64(ColorSpaceHelper.ToUInt16(A),
+            ColorSpaceHelper.LinearToSrgb16Bit(R),
+            ColorSpaceHelper.LinearToSrgb16Bit(G),
+            ColorSpaceHelper.LinearToSrgb16Bit(B));
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         [MethodImpl(MethodImpl.AggressiveInlining)]

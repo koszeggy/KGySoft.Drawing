@@ -27,26 +27,46 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a 32-bit premultiplied sRGB color.
+    /// Represents a 64-bit premultiplied sRGB color where every color channel is represented by a 16-bit integer.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
-    internal readonly struct PColor64 : IEquatable<PColor64>
+    public readonly struct PColor64 : IEquatable<PColor64>
     {
         #region Fields
 
         #region Public Fields
 
+        /// <summary>
+        /// Gets the alpha component value of this <see cref="PColor64"/> structure. This field is read-only.
+        /// </summary>
         [FieldOffset(6)]
+        [CLSCompliant(false)]
+        [NonSerialized]
         public readonly ushort A;
 
+        /// <summary>
+        /// Gets the red component value of this <see cref="PColor64"/> structure. This field is read-only.
+        /// </summary>
         [FieldOffset(4)]
+        [CLSCompliant(false)]
+        [NonSerialized]
         public readonly ushort R;
 
+        /// <summary>
+        /// Gets the green component value of this <see cref="PColor64"/> structure. This field is read-only.
+        /// </summary>
         [FieldOffset(2)]
+        [CLSCompliant(false)]
+        [NonSerialized]
         public readonly ushort G;
 
+        /// <summary>
+        /// Gets the blue component value of this <see cref="PColor64"/> structure. This field is read-only.
+        /// </summary>
         [FieldOffset(0)]
+        [CLSCompliant(false)]
+        [NonSerialized]
         public readonly ushort B;
 
         #endregion
@@ -104,13 +124,14 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColor64"/> struct from ARGB (alpha, red, green, and blue) values.
-        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColor64(ushort, ushort, ushort, ushort, bool)"/>,
+        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColor64(ushort, ushort, ushort, ushort, bool)"/> constructor,
         /// the <see cref="IsValid"/> property for validation or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
         /// <param name="a">The alpha component.</param>
         /// <param name="r">The red component.</param>
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
+        [CLSCompliant(false)]
         public PColor64(ushort a, ushort r, ushort g, ushort b)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
@@ -132,11 +153,12 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="r">The red component.</param>
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
-        /// <param name="validateRgb"><see langword="true"/> to validate the parameters; <see langword="false"/> to skip the validation.</param>
-        public PColor64(ushort a, ushort r, ushort g, ushort b, bool validateRgb)
+        /// <param name="validate"><see langword="true"/> to validate the parameters; <see langword="false"/> to skip the validation.</param>
+        [CLSCompliant(false)]
+        public PColor64(ushort a, ushort r, ushort g, ushort b, bool validate)
             : this(a, r, g, b)
         {
-            if (validateRgb && (r > a || g > a || b > a))
+            if (validate && (r > a || g > a || b > a))
                 ThrowInvalid();
         }
 
@@ -146,6 +168,7 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="r">The red component.</param>
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
+        [CLSCompliant(false)]
         public PColor64(ushort r, ushort g, ushort b)
             : this(UInt16.MaxValue, r, g, b)
         {
@@ -180,11 +203,19 @@ namespace KGySoft.Drawing.Imaging
             }
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PColor64"/> struct from a <see cref="Color32"/> instance.
+        /// </summary>
+        /// <param name="c">A <see cref="Color32"/> structure to initialize a new instance of <see cref="PColor64"/> from.</param>
         public PColor64(Color32 c)
             : this(new Color64(c))
         {
         }
 
+        /// <summary>
+        /// Initializes a new instance of the <see cref="PColor64"/> struct from a <see cref="PColor32"/> instance.
+        /// </summary>
+        /// <param name="c">A <see cref="PColor32"/> structure to initialize a new instance of <see cref="PColor64"/> from.</param>
         public PColor64(PColor32 c)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
@@ -193,10 +224,10 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
-            B = (ushort)((c.B << 8) | c.B);
-            G = (ushort)((c.G << 8) | c.G);
-            R = (ushort)((c.R << 8) | c.R);
-            A = (ushort)((c.A << 8) | c.A);
+            B = ColorSpaceHelper.ToUInt16(c.B);
+            G = ColorSpaceHelper.ToUInt16(c.G);
+            R = ColorSpaceHelper.ToUInt16(c.R);
+            A = ColorSpaceHelper.ToUInt16(c.A);
         }
 
         #endregion
@@ -225,6 +256,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Converts this <see cref="PColor64"/> instance to a <see cref="Color64"/> structure.
+        /// It's practically the same as calling the <see cref="ColorExtensions.ToStraight(PColor64)"/> method.
         /// </summary>
         /// <returns>A <see cref="Color64"/> structure converted from this <see cref="PColor64"/> instance.</returns>
         public Color64 ToColor64() => A switch
@@ -238,9 +270,9 @@ namespace KGySoft.Drawing.Imaging
         };
 
         /// <summary>
-        /// Converts this <see cref="PColor64"/> instance to a <see cref="Color64"/> structure.
+        /// Converts this <see cref="PColor64"/> instance to a <see cref="Color32"/> structure.
         /// </summary>
-        /// <returns>A <see cref="Color64"/> structure converted from this <see cref="PColor64"/> instance.</returns>
+        /// <returns>A <see cref="Color32"/> structure converted from this <see cref="PColor64"/> instance.</returns>
         public Color32 ToColor32() => A switch
         {
             UInt16.MaxValue => new Color32((byte)(A >> 8), (byte)(R >> 8), (byte)(G >> 8), (byte)(B >> 8)),
@@ -251,7 +283,14 @@ namespace KGySoft.Drawing.Imaging
                 (byte)(((uint)B * UInt16.MaxValue / A) >> 8))
         };
 
-        public PColor32 ToPColor32() => new PColor32((byte)(A >> 8), (byte)(R >> 8), (byte)(G >> 8), (byte)(B >> 8));
+        /// <summary>
+        /// Converts this <see cref="PColor64"/> instance to a <see cref="PColor32"/> structure.
+        /// </summary>
+        /// <returns>A <see cref="PColor32"/> structure converted from this <see cref="PColor64"/> instance.</returns>
+        public PColor32 ToPColor32() => new PColor32(ColorSpaceHelper.ToByte(A),
+            ColorSpaceHelper.ToByte(R),
+            ColorSpaceHelper.ToByte(G),
+            ColorSpaceHelper.ToByte(B));
 
         /// <summary>
         /// Determines whether the current <see cref="PColor64"/> instance is equal to another one.

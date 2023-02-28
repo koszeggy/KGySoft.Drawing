@@ -27,7 +27,8 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents the same 32-bit sRGB color as the <see cref="Color"/> structure does but in a more optimized way
+    /// Represents a 32-bit sRGB color where every color channel is represented by a 8-bit integer.
+    /// It represents the color space as the <see cref="Color"/> structure does but in a more optimized way
     /// for better performance and smaller memory consumption.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
@@ -56,28 +57,28 @@ namespace KGySoft.Drawing.Imaging
         #region Public Fields
 
         /// <summary>
-        /// Gets the alpha component value of this <see cref="Color32"/> structure.
+        /// Gets the alpha component value of this <see cref="Color32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(3)]
         [NonSerialized]
         public readonly byte A;
 
         /// <summary>
-        /// Gets the red component value of this <see cref="Color32"/> structure.
+        /// Gets the red component value of this <see cref="Color32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(2)]
         [NonSerialized]
         public readonly byte R;
 
         /// <summary>
-        /// Gets the green component value of this <see cref="Color32"/> structure.
+        /// Gets the green component value of this <see cref="Color32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(1)]
         [NonSerialized]
         public readonly byte G;
 
         /// <summary>
-        /// Gets the blue component value of this <see cref="Color32"/> structure.
+        /// Gets the blue component value of this <see cref="Color32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(0)]
         [NonSerialized]

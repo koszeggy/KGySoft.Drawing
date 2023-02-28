@@ -12,16 +12,22 @@
 * KGySoft.Drawing.Imaging namespace
 ===================================
 + New PColor32 struct
++ The Color64 struct has been made public
++ New PColor64 struct
 + ColorExtensions class:
-  + New GetBrightness overload
+  + New GetBrightness overloads
   + New GetBrightnessF methods
-  + New ToPremultiplied method
-  + New ToStraight method
+  + New ToPremultiplied methods
+  + New ToStraight methods
+  + New ToColor64 method
+  + New Blend overloads
+  + New TolerantEquals overload
 * ColorSpaceHelper class:
   + Adding new ToFloat overload from UInt16
-  + Adding new ToUInt16 method
+  + Adding new ToUInt16 methods
   + Adding new SrgbToLinear overload from UInt16
   + Adding new LinearToSrgb16Bit method
+  + Adding new ToByte overload from UInt16
   - Fixing float-float version of LinearToSrgb for some out-of-bounds values
 * Palette class:
   * Grayscale256 method: improving grayscale mapping when working in the linear color space

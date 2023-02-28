@@ -28,7 +28,7 @@ using System.Runtime.CompilerServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Contains extension methods for the <see cref="Color"/> and <see cref="Color32"/> types.
+    /// Contains extension methods for various color types representing colors.
     /// </summary>
     public static class ColorExtensions
     {
@@ -60,6 +60,13 @@ namespace KGySoft.Drawing.Imaging
         public static Color32 ToColor32(this Color color) => new Color32(color);
 
         /// <summary>
+        /// Converts this <see cref="Color32"/> to a <see cref="Color64"/> instance.
+        /// </summary>
+        /// <param name="color">The <see cref="Color32"/> to convert.</param>
+        /// <returns>A <see cref="Color64"/> instance that represents the original <see cref="Color32"/> instance.</returns>
+        public static Color64 ToColor64(this Color32 color) => new Color64(color);
+
+        /// <summary>
         /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="byte">byte</see> based on human perception.
         /// The <see cref="Color32.A"/> component of the specified value is ignored.
         /// </summary>
@@ -85,6 +92,38 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte GetBrightness(this Color32 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
+            // Note: using gamma correction even for linear color space because we the source is an sRGB color
+            ? ColorSpaceHelper.LinearToSrgb8Bit(c.ToColorF().GetBrightness())
+            : GetBrightness(c);
+
+        /// <summary>
+        /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="short"/> based on human perception.
+        /// The <see cref="Color64.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color64"/> instance to get the brightness of.</param>
+        /// <returns>A <see cref="ushort"/> value where 0 represents the darkest and 65535 represents the brightest possible value.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [CLSCompliant(false)]
+        public static ushort GetBrightness(this Color64 c)
+            => c.R == c.G && c.R == c.B
+                ? c.R
+                : (ushort)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+
+        /// <summary>
+        /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="ushort"/> based on human perception.
+        /// The <see cref="Color64.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color64"/> instance to get the brightness of.</param>
+        /// <param name="colorSpace">The color space to be used for determining the brightness. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns>A <see cref="ushort"/> value where 0 represents the darkest and 65535 represents the brightest possible value.</returns>
+        /// <remarks>
+        /// <note>This method always returns a gamma corrected result, even if <paramref name="colorSpace"/> is <see cref="WorkingColorSpace.Linear"/>.
+        /// To get the brightness in the linear color space use the <see cref="GetBrightness(ColorF, WorkingColorSpace)"/> method instead.</note>
+        /// </remarks>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [CLSCompliant(false)]
+        public static ushort GetBrightness(this Color64 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
             // Note: using gamma correction even for linear color space because we the source is an sRGB color
             ? ColorSpaceHelper.LinearToSrgb8Bit(c.ToColorF().GetBrightness())
             : GetBrightness(c);
@@ -122,6 +161,38 @@ namespace KGySoft.Drawing.Imaging
             : GetBrightnessF(c);
 
         /// <summary>
+        /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="float">float</see> value based on human perception.
+        /// The <see cref="Color64.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color64"/> instance to get the brightness of.</param>
+        /// <returns>A <see cref="float">float</see> value where 0 represents the darkest and 1 represents the brightest possible value.</returns>
+        /// <remarks>
+        /// <note>This method always returns a gamma corrected result.
+        /// To get the brightness in the linear color space use the <see cref="GetBrightness(ColorF)"/> method instead.</note>
+        /// </remarks>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static float GetBrightnessF(this Color64 c)
+            => c.R * RLumSrgb / UInt16.MaxValue + c.G * GLumSrgb / UInt16.MaxValue + c.B * BLumSrgb / UInt16.MaxValue;
+
+        /// <summary>
+        /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="float">float</see> value based on human perception.
+        /// The <see cref="Color64.A"/> component of the specified value is ignored.
+        /// </summary>
+        /// <param name="c">The <see cref="Color64"/> instance to get the brightness of.</param>
+        /// <param name="colorSpace">The color space to be used for determining the brightness. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns>A <see cref="float">float</see> value where 0 represents the darkest and 1 represents the brightest possible value.</returns>
+        /// <remarks>
+        /// <note>This method always returns a gamma corrected result, even if <paramref name="colorSpace"/> is <see cref="WorkingColorSpace.Linear"/>.
+        /// To get the brightness in the linear color space use the <see cref="GetBrightness(ColorF, WorkingColorSpace)"/> method instead.</note>
+        /// </remarks>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static float GetBrightnessF(this Color64 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
+            // Note: using gamma correction even for linear color space because we need a result based of human perception
+            ? ColorSpaceHelper.LinearToSrgb(c.ToColorF().GetBrightness())
+            : GetBrightnessF(c);
+
+        /// <summary>
         /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
         /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color32.A"/> is 255); otherwise, the result of the blending.
         /// </summary>
@@ -154,6 +225,38 @@ namespace KGySoft.Drawing.Imaging
                 : foreColor.BlendWith(backColor, colorSpace);
 
         /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color64.A"/> is 65535); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color64 Blend(this Color64 foreColor, Color64 backColor)
+            => foreColor.A == Byte.MaxValue ? foreColor
+                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
+                : foreColor.BlendWithSrgb(backColor);
+
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the specified <paramref name="colorSpace"/>.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color64.A"/> is 65535); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <param name="colorSpace">The color space to be used for the blending. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color64 Blend(this Color64 foreColor, Color64 backColor, WorkingColorSpace colorSpace)
+            => foreColor.A == Byte.MaxValue ? foreColor
+                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor, colorSpace)
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
+                : foreColor.BlendWith(backColor, colorSpace);
+
+        /// <summary>
         /// Gets whether two <see cref="Color32"/> instances are equal using a specified <paramref name="tolerance"/>.
         /// </summary>
         /// <param name="c1">The first color to compare.</param>
@@ -176,12 +279,42 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
+        /// Gets whether two <see cref="Color32"/> instances are equal using a specified <paramref name="tolerance"/>.
+        /// </summary>
+        /// <param name="c1">The first color to compare.</param>
+        /// <param name="c2">The second color to compare.</param>
+        /// <param name="tolerance">The allowed tolerance for ARGB components.</param>
+        /// <param name="alphaThreshold">Specifies a threshold under which colors are considered transparent. If both colors have lower <see cref="Color64.A"/> value than the threshold, then they are considered equal.
+        /// If only one of the specified colors has lower <see cref="Color64.A"/> value than the threshold, then the colors are considered different.
+        /// If both colors' <see cref="Color64.A"/> value are equal to or greater than this value, then <paramref name="tolerance"/> is applied to the <see cref="Color64.A"/> value, too. This parameter is optional.
+        /// <br/>Default value: 0.</param>
+        /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [CLSCompliant(false)]
+        public static bool TolerantEquals(this Color64 c1, Color64 c2, ushort tolerance, ushort alphaThreshold = 0)
+        {
+            if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
+                return true;
+            if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
+                return false;
+            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+        }
+
+        /// <summary>
         /// Converts this straight <see cref="Color32"/> value to a premultiplied <see cref="PColor32"/> value.
         /// </summary>
         /// <param name="color">The <see cref="Color32"/> value to convert.</param>
         /// <returns>A premultiplied <see cref="PColor32"/> value.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static PColor32 ToPremultiplied(this Color32 color) => new PColor32(color);
+
+        /// <summary>
+        /// Converts this straight <see cref="Color64"/> value to a premultiplied <see cref="PColor64"/> value.
+        /// </summary>
+        /// <param name="color">The <see cref="Color64"/> value to convert.</param>
+        /// <returns>A premultiplied <see cref="PColor64"/> value.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColor64 ToPremultiplied(this Color64 color) => new PColor64(color);
 
         /// <summary>
         /// Converts this premultiplied <see cref="PColor32"/> value to a straight <see cref="Color32"/> value.
@@ -192,6 +325,14 @@ namespace KGySoft.Drawing.Imaging
         public static Color32 ToStraight(this PColor32 color) => color.ToColor32();
 
         /// <summary>
+        /// Converts this premultiplied <see cref="PColor64"/> value to a straight <see cref="Color64"/> value.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor64"/> value to convert.</param>
+        /// <returns>A straight <see cref="Color64"/> value.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color64 ToStraight(this PColor64 color) => color.ToColor64();
+
+        /// <summary>
         /// Converts this premultiplied <see cref="PColor32"/> instance containing possibly invalid RGB values to a straight <see cref="Color32"/> value.
         /// </summary>
         /// <param name="color">The <see cref="PColor32"/> value to convert.</param>
@@ -199,16 +340,21 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static Color32 ToStraightSafe(this PColor32 color) => color.Clip().ToColor32();
 
+        /// <summary>
+        /// Converts this premultiplied <see cref="PColor64"/> instance containing possibly invalid RGB values to a straight <see cref="Color64"/> value.
+        /// </summary>
+        /// <param name="color">The <see cref="PColor64"/> value to convert.</param>
+        /// <returns>A straight <see cref="Color64"/> value.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Color64 ToStraightSafe(this PColor64 color) => color.Clip().ToColor64();
+
         #endregion
 
         #region Internal Methods
 
         internal static ColorF ToColorF(this Color32 c) => new ColorF(c);
+        internal static ColorF ToColorF(this Color64 c) => new ColorF(c);
         internal static PColorF ToPColorF(this Color32 c) => new PColorF(c);
-
-        internal static PColor64 ToPremultiplied(this Color64 c) => new PColor64(c);
-        internal static Color64 ToStraight(this PColor64 c) => c.ToColor64();
-        internal static Color64 ToStraightSafe(this PColor64 c) => c.Clip().ToColor64();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackground(this Color32 c, Color32 backColor, bool linear)
@@ -219,23 +365,46 @@ namespace KGySoft.Drawing.Imaging
             => colorSpace == WorkingColorSpace.Linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 BlendWithBackground(this Color64 c, Color64 backColor, WorkingColorSpace colorSpace)
+            => colorSpace == WorkingColorSpace.Linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithBackgroundSrgb(this Color32 c, Color32 backColor)
         {
-            Debug.Assert(c.A != 255, "Partially transparent fore color is expected. Call Blend for better performance.");
-            Debug.Assert(backColor.A == 255, "Totally opaque back color is expected.");
+            Debug.Assert(c.A != Byte.MaxValue, "Partially transparent fore color is expected. Call Blend for better performance.");
+            Debug.Assert(backColor.A == Byte.MaxValue, "Totally opaque back color is expected.");
 
             // The blending is applied only to the color and not the resulting alpha, which will always be opaque
             if (c.A == 0)
                 return backColor;
-            int inverseAlpha = 255 - c.A;
+            int inverseAlpha = Byte.MaxValue - c.A;
             return new Color32(Byte.MaxValue,
                 (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
                 (byte)((c.G * c.A + backColor.G * inverseAlpha) >> 8),
                 (byte)((c.B * c.A + backColor.B * inverseAlpha) >> 8));
         }
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 BlendWithBackgroundSrgb(this Color64 c, Color64 backColor)
+        {
+            Debug.Assert(c.A != UInt16.MaxValue, "Partially transparent fore color is expected. Call Blend for better performance.");
+            Debug.Assert(backColor.A == UInt16.MaxValue, "Totally opaque back color is expected.");
+
+            // The blending is applied only to the color and not the resulting alpha, which will always be opaque
+            if (c.A == 0)
+                return backColor;
+            int inverseAlpha = UInt16.MaxValue - c.A;
+            return new Color64(UInt16.MaxValue,
+                (ushort)((c.R * c.A + backColor.R * inverseAlpha) >> 16),
+                (ushort)((c.G * c.A + backColor.G * inverseAlpha) >> 16),
+                (ushort)((c.B * c.A + backColor.B * inverseAlpha) >> 16));
+        }
+
         internal static Color32 BlendWithBackgroundLinear(this Color32 c, Color32 backColor)
             => c.A == 0 ? backColor : c.ToColorF().BlendWithBackground(backColor.ToColorF()).ToColor32();
+
+        internal static Color64 BlendWithBackgroundLinear(this Color64 c, Color64 backColor)
+            => c.A == 0 ? backColor : c.ToColorF().BlendWithBackground(backColor.ToColorF()).ToColor64();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWith(this Color32 src, Color32 dst, bool linear)
@@ -243,6 +412,10 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWith(this Color32 src, Color32 dst, WorkingColorSpace colorSpace)
+            => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 BlendWith(this Color64 src, Color64 dst, WorkingColorSpace colorSpace)
             => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -255,7 +428,7 @@ namespace KGySoft.Drawing.Imaging
             float inverseAlphaSrc = 1f - alphaSrc;
             float alphaOut = alphaSrc + alphaDst * inverseAlphaSrc;
 
-            return new Color32((byte)(alphaOut * 255),
+            return new Color32((byte)(alphaOut * Byte.MaxValue),
                 (byte)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
                 (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
@@ -271,10 +444,33 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 BlendWithSrgb(this Color64 src, Color64 dst)
+        {
+            Debug.Assert(src.A != 0 && src.A != 65535 && dst.A != 0 && dst.A != 65535, "Partially transparent colors are expected");
+
+            float alphaSrc = src.A / 65535f;
+            float alphaDst = dst.A / 65535f;
+            float inverseAlphaSrc = 1f - alphaSrc;
+            float alphaOut = alphaSrc + alphaDst * inverseAlphaSrc;
+
+            return new Color64((ushort)(alphaOut * UInt16.MaxValue),
+                (ushort)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
+                (ushort)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
+                (ushort)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithLinear(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
             return src.ToColorF().BlendWith(dst.ToColorF()).ToColor32();
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 BlendWithLinear(this Color64 src, Color64 dst)
+        {
+            Debug.Assert(src.A != 0 && src.A != 65535 && dst.A != 0 && dst.A != 65535, "Partially transparent colors are expected");
+            return src.ToColorF().BlendWith(dst.ToColorF()).ToColor64();
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -333,12 +529,6 @@ namespace KGySoft.Drawing.Imaging
                 src.B + dst.B * inverseAlphaSrc);
 #endif
         }
-
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static ushort GetBrightness(this Color64 c)
-            => c.R == c.G && c.R == c.B
-                ? c.R
-                : (ushort)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
 
         // Note: either do not make this public or 
         [MethodImpl(MethodImpl.AggressiveInlining)]

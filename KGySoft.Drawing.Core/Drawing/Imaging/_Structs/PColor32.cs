@@ -27,7 +27,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     /// <summary>
-    /// Represents a 32-bit premultiplied sRGB color.
+    /// Represents a 32-bit premultiplied sRGB color where every color channel is represented by a 8-bit integer.
     /// </summary>
     [StructLayout(LayoutKind.Explicit)]
     [Serializable]
@@ -38,28 +38,28 @@ namespace KGySoft.Drawing.Imaging
         #region Public Fields
 
         /// <summary>
-        /// Gets the alpha component value of this <see cref="PColor32"/> structure.
+        /// Gets the alpha component value of this <see cref="PColor32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(3)]
         [NonSerialized]
         public readonly byte A;
 
         /// <summary>
-        /// Gets the red component value of this <see cref="PColor32"/> structure.
+        /// Gets the red component value of this <see cref="PColor32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(2)]
         [NonSerialized]
         public readonly byte R;
 
         /// <summary>
-        /// Gets the green component value of this <see cref="PColor32"/> structure.
+        /// Gets the green component value of this <see cref="PColor32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(1)]
         [NonSerialized]
         public readonly byte G;
 
         /// <summary>
-        /// Gets the blue component value of this <see cref="PColor32"/> structure.
+        /// Gets the blue component value of this <see cref="PColor32"/> structure. This field is read-only.
         /// </summary>
         [FieldOffset(0)]
         [NonSerialized]
@@ -120,7 +120,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColor32"/> struct from ARGB (alpha, red, green, and blue) values.
-        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColor32(byte, byte, byte, byte, bool)"/>,
+        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColor32(byte, byte, byte, byte, bool)"/> constructor,
         /// the <see cref="IsValid"/> property for validation or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
         /// <param name="a">The alpha component.</param>
@@ -148,11 +148,11 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="r">The red component.</param>
         /// <param name="g">The green component.</param>
         /// <param name="b">The blue component.</param>
-        /// <param name="validateRgb"><see langword="true"/> to validate the parameters; <see langword="false"/> to skip the validation.</param>
-        public PColor32(byte a, byte r, byte g, byte b, bool validateRgb)
+        /// <param name="validate"><see langword="true"/> to validate the parameters; <see langword="false"/> to skip the validation.</param>
+        public PColor32(byte a, byte r, byte g, byte b, bool validate)
             : this(a, r, g, b)
         {
-            if (validateRgb && (r > a || g > a || b > a))
+            if (validate && (r > a || g > a || b > a))
                 ThrowInvalid();
         }
 
@@ -222,6 +222,7 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Converts this <see cref="PColor32"/> instance to a <see cref="Color32"/> structure.
+        /// It's practically the same as calling the <see cref="ColorExtensions.ToStraight(PColor32)"/> method.
         /// </summary>
         /// <returns>A <see cref="Color32"/> structure converted from this <see cref="PColor32"/> instance.</returns>
         public Color32 ToColor32() => A switch
