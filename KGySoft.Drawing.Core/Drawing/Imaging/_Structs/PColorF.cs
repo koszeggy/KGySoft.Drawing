@@ -157,8 +157,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
-        // TODO: PColor32
-        internal PColorF(/*P*/Color32 c, bool adjustGamma)
+        internal PColorF(PColor32 c)
 #if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value field
 #endif
@@ -166,12 +165,6 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
-            Debug.Assert(!adjustGamma);
-            //if (adjustGamma)
-            //{
-            //    this = c.ToStraight().ToPColorF();
-            //    return;
-            //}
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             Rgba = new Vector4(c.R, c.G, c.B, c.A) / max8Bpp;
@@ -236,7 +229,7 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Methods
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal /*P*/Color32 ToPColor32(bool adjustGamma)
+        internal PColor32 ToPColor32(bool adjustGamma)
         {
             Debug.Assert(!adjustGamma);
             //if (adjustGamma)
@@ -245,14 +238,14 @@ namespace KGySoft.Drawing.Imaging
 #if NET35 || NET40 || NET45 || NETSTANDARD2_0
             PColorF result = this * Byte.MaxValue + 0.5f;
             byte a = result.A.ClipToByte();
-            return new Color32(a,
+            return new PColor32(a,
                 result.R.ClipToByte(a),
                 result.G.ClipToByte(a),
                 result.B.ClipToByte(a));
 #else
             Vector4 result = Rgba * max8Bpp + half;
             result = Vector4.Clamp(result, Vector4.Zero, new Vector4(Math.Min(result.W, Byte.MaxValue)));
-            return new Color32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
+            return new PColor32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
 #endif
         }
 

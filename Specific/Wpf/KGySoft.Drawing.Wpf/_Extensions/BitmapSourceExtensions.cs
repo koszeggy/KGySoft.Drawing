@@ -180,7 +180,8 @@ namespace KGySoft.Drawing.Wpf
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(8) { Grayscale = true },
                     (row, x) => Color32.FromGray(row.UnsafeGetRefAs<byte>(x)),
                     (row, x, c) => row.UnsafeGetRefAs<byte>(x) =
-                        (c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)).GetBrightness(),
+                        (c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace))
+                        .GetBrightness(row.BitmapData.WorkingColorSpace),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Gray32Float)

@@ -96,6 +96,12 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        internal uint Value => value;
+
+        #endregion
+
         #region Operators
 
         /// <summary>

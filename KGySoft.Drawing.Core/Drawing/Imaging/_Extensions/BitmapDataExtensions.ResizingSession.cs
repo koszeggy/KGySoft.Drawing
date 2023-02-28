@@ -212,7 +212,7 @@ namespace KGySoft.Drawing.Imaging
                     int targetWidth = targetRectangle.Width;
                     for (int x = 0; x < targetWidth; x++)
                     {
-                        Color32 colorSrc = rowSrc.DoGetColor32Premultiplied((int)(x * widthFactor + sourceLeft));
+                        PColor32 colorSrc = rowSrc.DoGetColor32Premultiplied((int)(x * widthFactor + sourceLeft));
 
                         // fully solid source: overwrite
                         if (colorSrc.A == Byte.MaxValue)
@@ -227,7 +227,7 @@ namespace KGySoft.Drawing.Imaging
 
                         // source here has a partial transparency: we need to read the target color
                         int pos = x + targetLeft;
-                        Color32 colorDst = rowDst.DoGetColor32Premultiplied(pos);
+                        PColor32 colorDst = rowDst.DoGetColor32Premultiplied(pos);
 
                         // non-transparent target: blending
                         if (colorDst.A != 0)
@@ -643,7 +643,7 @@ namespace KGySoft.Drawing.Imaging
                             if (colorF.A <= 0f)
                                 continue;
 
-                            Color32 colorSrc = colorF.ToPColor32(false);
+                            PColor32 colorSrc = colorF.ToPColor32(false);
 
                             // fully solid source: overwrite
                             if (colorSrc.A == Byte.MaxValue)
@@ -657,9 +657,9 @@ namespace KGySoft.Drawing.Imaging
                                 continue;
 
                             // source here has a partial transparency: we need to read the target color
-                            Debug.Assert(colorSrc == colorSrc.AsValidPremultiplied());
+                            Debug.Assert(colorSrc == colorSrc.Clip());
                             int targetX = x + targetLeft;
-                            Color32 colorDst = row.DoGetColor32Premultiplied(targetX);
+                            PColor32 colorDst = row.DoGetColor32Premultiplied(targetX);
 
                             // non-transparent target: blending
                             if (colorDst.A != 0)
@@ -694,7 +694,7 @@ namespace KGySoft.Drawing.Imaging
                     else
                     {
                         for (int x = 0; x < sourceRectangle.Width; x++)
-                            sourceRowBuffer.GetElementReference(x) = new PColorF(sourceRow.DoGetColor32Premultiplied(x + sourceRectangle.Left), false);
+                            sourceRowBuffer.GetElementReference(x) = new PColorF(sourceRow.DoGetColor32Premultiplied(x + sourceRectangle.Left));
                     }
 
                     int firstPassBaseIndex = y - currentWindow.Top;

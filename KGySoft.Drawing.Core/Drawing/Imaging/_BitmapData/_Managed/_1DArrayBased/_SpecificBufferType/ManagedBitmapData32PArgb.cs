@@ -23,11 +23,11 @@ using KGySoft.Collections;
 
 namespace KGySoft.Drawing.Imaging
 {
-    internal sealed class ManagedBitmapData32PArgb : ManagedBitmapData1DArrayBase<Color32, ManagedBitmapData32PArgb.Row>
+    internal sealed class ManagedBitmapData32PArgb : ManagedBitmapData1DArrayBase<PColor32, ManagedBitmapData32PArgb.Row>
     {
         #region Row class
 
-        internal sealed class Row : ManagedBitmapDataRowBase<Color32>
+        internal sealed class Row : ManagedBitmapDataRowBase<PColor32>
         {
             #region Methods
 
@@ -38,10 +38,10 @@ namespace KGySoft.Drawing.Imaging
             public override void DoSetColor32(int x, Color32 c) => Row[x] = c.ToPremultiplied();
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override Color32 DoGetColor32Premultiplied(int x) => Row[x];
+            public override PColor32 DoGetColor32Premultiplied(int x) => Row[x];
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override void DoSetColor32Premultiplied(int x, Color32 c) => Row[x] = c;
+            public override void DoSetColor32Premultiplied(int x, PColor32 c) => Row[x] = c;
 
             #endregion
         }
@@ -55,7 +55,7 @@ namespace KGySoft.Drawing.Imaging
         {
         }
 
-        internal ManagedBitmapData32PArgb(Array2D<Color32> buffer, in BitmapDataConfig cfg)
+        internal ManagedBitmapData32PArgb(Array2D<PColor32> buffer, in BitmapDataConfig cfg)
             : base(buffer, cfg)
         {
         }

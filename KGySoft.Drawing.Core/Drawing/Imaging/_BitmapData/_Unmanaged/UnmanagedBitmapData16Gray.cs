@@ -37,8 +37,9 @@ namespace KGySoft.Drawing.Imaging
 
             [SecurityCritical]
             [MethodImpl(MethodImpl.AggressiveInlining)]
-            public override unsafe void DoSetColor32(int x, Color32 c)
-                => ((Color16Gray*)Row)[x] = new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BitmapData.BackColor, BitmapData.LinearBlending));
+            public override unsafe void DoSetColor32(int x, Color32 c) => ((Color16Gray*)Row)[x] = BitmapData.LinearWorkingColorSpace
+                ? new Color16Gray(c.ToColorF().BlendWithBackground(BitmapData.BackColor.ToColorF()))
+                : new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BitmapData.BackColor));
 
             #endregion
         }
@@ -62,8 +63,9 @@ namespace KGySoft.Drawing.Imaging
 
         [SecurityCritical]
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        protected override unsafe void DoSetPixel(int x, int y, Color32 c)
-            => *GetPixelAddress<Color16Gray>(y, x) = new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackground(BackColor, LinearBlending));
+        protected override unsafe void DoSetPixel(int x, int y, Color32 c) => *GetPixelAddress<Color16Gray>(y, x) = LinearWorkingColorSpace
+            ? new Color16Gray(c.ToColorF().BlendWithBackground(BackColor.ToColorF()))
+            : new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BackColor));
 
         #endregion
     }

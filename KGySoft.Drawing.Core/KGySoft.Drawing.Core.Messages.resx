@@ -168,6 +168,9 @@
   <data name="Imaging_IndexedPixelFormatTooLarge" xml:space="preserve">
     <value>An indexed pixel format should not be larger than 16 bits per pixel.</value>
   </data>
+  <data name="Imaging_InvalidPremultipliedValues" xml:space="preserve">
+    <value>For a premultiplied color the alpha value should not be smaller than the color components.</value>
+  </data>
   <data name="Imaging_PaletteTooLargeFormat" xml:space="preserve">
     <value>Palette must not have more than {0} colors for a pixel format of {1} bits per pixel.</value>
   </data>

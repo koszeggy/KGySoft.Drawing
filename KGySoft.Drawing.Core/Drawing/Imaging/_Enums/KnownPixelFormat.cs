@@ -45,11 +45,13 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Represents the indexed 1 bit per pixel format. The corresponding color palette can have up to 2 colors.
+        /// <br/>Bit order: bits are filled up from the most significant bit to the least significant bit within a byte.
         /// </summary>
         Format1bppIndexed = PixelFormatInfo.Format1bppIndexed,
 
         /// <summary>
         /// Represents the indexed 4 bit per pixel format. The corresponding color palette can have up to 16 colors.
+        /// <br/>Bit order: even pixels occupy the high bits of a byte, whereas odd pixels are in the low bits.
         /// </summary>
         Format4bppIndexed = PixelFormatInfo.Format4bppIndexed,
 
@@ -59,59 +61,69 @@ namespace KGySoft.Drawing.Imaging
         Format8bppIndexed = PixelFormatInfo.Format8bppIndexed,
 
         /// <summary>
-        /// Represents the 16 bit per pixel grayscale format. The color information specifies 65536 shades of gray.
+        /// Represents a 16 bit per pixel grayscale format. The color information specifies 65536 shades of gray.
         /// </summary>
         Format16bppGrayScale = PixelFormatInfo.Format16bppGrayScale,
 
         /// <summary>
-        /// Represents a 16 bit per pixel color format where red, green and blue channels use 5 bits per pixel. The remaining bit is not used.
+        /// Represents a 16 bit per pixel RGB color format where red, green and blue channels use 5 bits per pixel and 1 bit is unused.
+        /// <br/>Bit order from LSB to MSB: 5 blue, 5 green, 5 red bits and 1 unused bit.
         /// </summary>
         Format16bppRgb555 = PixelFormatInfo.Format16bppRgb555,
 
         /// <summary>
-        /// Represents a 16 bit per pixel color format where red, green and blue channels use 5, 6 and 5 bits per pixel, respectively.
+        /// Represents a 16 bit per pixel RGB color format where red, green and blue channels use 5, 6 and 5 bits per pixel, respectively.
+        /// <br/>Bit order from LSB to MSB: 5 blue, 6 green and 5 red bits.
         /// </summary>
         Format16bppRgb565 = PixelFormatInfo.Format16bppRgb565,
 
         /// <summary>
-        /// Represents a 16 bit per pixel color format where red, green and blue channels use 5 bits per pixel along with 1 bit for alpha.
+        /// Represents a 16 bit per pixel ARGB color format where red, green and blue channels use 5 bits per pixel along with 1 bit for alpha.
+        /// <br/>Bit order from LSB to MSB: 5 blue, 5 green, 5 red bits and 1 alpha bit.
         /// </summary>
         Format16bppArgb1555 = PixelFormatInfo.Format16bppArgb1555,
 
         /// <summary>
-        /// Represents a 16 bit per pixel color format where red, green and blue channels use 8 bits per pixel.
+        /// Represents a 24 bit per pixel RGB color format where red, green and blue channels use 8 bits per pixel.
+        /// <br/>Bit order from LSB to MSB: 8 blue, 8 green and 8 red bits.
         /// </summary>
         Format24bppRgb = PixelFormatInfo.Format24bppRgb,
 
         /// <summary>
-        /// Represents a 32 bit per pixel color format where red, green and blue channels use 8 bits per pixel. The remaining 8 bits are not used.
+        /// Represents a 32 bit per pixel RGB color format where red, green and blue channels use 8 bits per pixel. The remaining 8 bits are not used.
+        /// <br/>Bit order from LSB to MSB: 8 blue, 8 green, 8 red and 8 unused bits.
         /// </summary>
         Format32bppRgb = PixelFormatInfo.Format32bppRgb,
 
         /// <summary>
-        /// Represents a 32 bit per pixel color format where alpha, red, green and blue channels use 8 bits per pixel.
+        /// Represents a 32 bit per pixel ARGB color format where alpha, red, green and blue channels use 8 bits per pixel.
+        /// <br/>Bit order from LSB to MSB: 8 blue, 8 green, 8 red and 8 alpha bits.
         /// </summary>
         Format32bppArgb = PixelFormatInfo.Format32bppArgb,
 
         /// <summary>
-        /// Represents a 32 bit per pixel color format where alpha, red, green and blue channels use 8 bits per pixel.
+        /// Represents a 32 bit per pixel ARGB color format where alpha, red, green and blue channels use 8 bits per pixel.
         /// The red, green, and blue components are premultiplied, according to the alpha component.
+        /// <br/>Bit order from LSB to MSB: 8 blue, 8 green, 8 red and 8 alpha bits.
         /// </summary>
         Format32bppPArgb = PixelFormatInfo.Format32bppPArgb,
 
         /// <summary>
-        /// Represents a 48 bit per pixel color format where red, green and blue channels use 16 bits per pixel.
+        /// Represents a 48 bit per pixel RGB color format where red, green and blue channels use 16 bits per pixel.
+        /// <br/>Bit order from LSB to MSB: 16 blue, 16 green and 16 red bits.
         /// </summary>
         Format48bppRgb = PixelFormatInfo.Format48bppRgb,
 
         /// <summary>
-        /// Represents a 32 bit per pixel color format where alpha, red, green and blue channels use 16 bits per pixel.
+        /// Represents a 32 bit per pixel ARGB color format where alpha, red, green and blue channels use 16 bits per pixel.
+        /// <br/>Bit order from LSB to MSB: 16 blue, 16 green, 16 red and 16 alpha bits.
         /// </summary>
         Format64bppArgb = PixelFormatInfo.Format64bppArgb,
 
         /// <summary>
-        /// Represents a 32 bit per pixel color format where alpha, red, green and blue channels use 8 bits per pixel.
+        /// Represents a 32 bit per pixel ARGB color format where alpha, red, green and blue channels use 16 bits per pixel.
         /// The red, green, and blue components are premultiplied, according to the alpha component.
+        /// <br/>Bit order from LSB to MSB: 16 blue, 16 green, 16 red and 16 alpha bits.
         /// </summary>
         Format64bppPArgb = PixelFormatInfo.Format64bppPArgb
     }

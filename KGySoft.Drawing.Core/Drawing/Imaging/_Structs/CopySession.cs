@@ -373,7 +373,7 @@ namespace KGySoft.Drawing.Imaging
 
                 for (int x = 0; x < width; x++)
                 {
-                    Color32 colorSrc = rowSrc.DoGetColor32Premultiplied(x + offsetSrc);
+                    PColor32 colorSrc = rowSrc.DoGetColor32Premultiplied(x + offsetSrc);
 
                     // fully solid source: overwrite
                     if (colorSrc.A == Byte.MaxValue)
@@ -388,7 +388,7 @@ namespace KGySoft.Drawing.Imaging
 
                     // source here has a partial transparency: we need to read the target color
                     int pos = x + offsetDst;
-                    Color32 colorDst = rowDst.DoGetColor32Premultiplied(pos);
+                    PColor32 colorDst = rowDst.DoGetColor32Premultiplied(pos);
 
                     // non-transparent target: blending
                     if (colorDst.A != 0)

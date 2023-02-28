@@ -66,7 +66,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Properties
 
-        internal bool LinearBlending { get; }
+        internal bool LinearWorkingColorSpace { get; }
 
         #endregion
 
@@ -146,7 +146,7 @@ namespace KGySoft.Drawing.Imaging
             AlphaThreshold = cfg.AlphaThreshold;
             PixelFormat = cfg.PixelFormat;
             WorkingColorSpace = cfg.WorkingColorSpace;
-            LinearBlending = this.GetPreferredColorSpace() == WorkingColorSpace.Linear;
+            LinearWorkingColorSpace = this.GetPreferredColorSpace() == WorkingColorSpace.Linear;
             if (!cfg.PixelFormat.Indexed)
                 return;
 
@@ -156,7 +156,7 @@ namespace KGySoft.Drawing.Imaging
                 if (cfg.Palette.Count > 1 << bpp)
                     throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), nameof(cfg.Palette).ToLowerInvariant());
                 Palette = cfg.Palette;
-                LinearBlending = Palette.WorkingColorSpace == WorkingColorSpace.Linear;
+                LinearWorkingColorSpace = Palette.WorkingColorSpace == WorkingColorSpace.Linear;
                 return;
             }
 

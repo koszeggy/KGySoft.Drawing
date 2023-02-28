@@ -173,10 +173,10 @@ namespace KGySoft.Drawing.Imaging
         public virtual void DoSetColorIndex(int x, int colorIndex) => throw new InvalidOperationException(Res.ImagingInvalidOperationIndexedOnly);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public virtual Color32 DoGetColor32Premultiplied(int x) => DoGetColor32(x).ToPremultiplied();
+        public virtual PColor32 DoGetColor32Premultiplied(int x) => DoGetColor32(x).ToPremultiplied();
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public virtual void DoSetColor32Premultiplied(int x, Color32 c) => DoSetColor32(x, c.ToStraight());
+        public virtual void DoSetColor32Premultiplied(int x, PColor32 c) => DoSetColor32(x, c.ToStraight());
 
         #endregion
 

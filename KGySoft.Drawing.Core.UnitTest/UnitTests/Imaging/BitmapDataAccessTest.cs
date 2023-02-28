@@ -100,7 +100,7 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             new object[] { "16 bit ARGB1555 sRGB", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 123), WorkingColorSpace.Srgb, 0b1_00000_00000_01111 },
             new object[] { "16 bit ARGB1555 Linear", KnownPixelFormat.Format16bppArgb1555, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 189), WorkingColorSpace.Linear, 0b1_00000_00000_10111 },
             new object[] { "16 bit Gray sRGB", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(14, 14, 14), WorkingColorSpace.Srgb, 0x0E88 },
-            new object[] { "16 bit Gray Linear", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(21, 21, 21), WorkingColorSpace.Linear, 0x1584 },
+            new object[] { "16 bit Gray Linear", KnownPixelFormat.Format16bppGrayScale, Color.FromArgb(128, Color.Blue), Color.FromArgb(53, 53, 53), WorkingColorSpace.Linear, 0x35B5 },
             new object[] { "8 bit Indexed sRGB", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), WorkingColorSpace.Srgb, 4 },
             new object[] { "8 bit Indexed Linear", KnownPixelFormat.Format8bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 204), WorkingColorSpace.Linear, 44 },
             new object[] { "4 bit Indexed sRGB", KnownPixelFormat.Format4bppIndexed, Color.FromArgb(128, Color.Blue), Color.FromArgb(0, 0, 128), WorkingColorSpace.Srgb, 4 },

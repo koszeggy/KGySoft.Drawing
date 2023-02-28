@@ -67,11 +67,17 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+        internal ulong Value => value;
+
+        #endregion
+
         #region Operators
 
-        public static bool operator ==(Color64 a, Color64 b) => a.Equals(b);
+        public static bool operator ==(Color64 left, Color64 right) => left.Equals(right);
 
-        public static bool operator !=(Color64 a, Color64 b) => !a.Equals(b);
+        public static bool operator !=(Color64 left, Color64 right) => !left.Equals(right);
 
         #endregion
 
@@ -102,18 +108,9 @@ namespace KGySoft.Drawing.Imaging
             A = a;
         }
 
-        internal Color64(ushort r, ushort g, ushort b)
-#if !NET5_0_OR_GREATER
-            : this() // so the compiler does not complain about not initializing value
-#endif
+        public Color64(ushort r, ushort g, ushort b)
+            : this(UInt16.MaxValue, r, g, b)
         {
-#if NET5_0_OR_GREATER
-            Unsafe.SkipInit(out this);
-#endif
-            B = b;
-            G = g;
-            R = r;
-            A = UInt16.MaxValue;
         }
 
         internal Color64(Color32 c)
@@ -136,14 +133,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
-        public static Color64 FromArgb32(int argb) => new Color64(Color32.FromArgb(argb));
-
         public static Color64 FromArgb(long argb) => new Color64((ulong)argb);
 
         public static Color64 FromArgb(ushort a, Color64 baseColor)
             => new Color64(((ulong)a << 48) | (baseColor.value & rgbMask));
-
-        public static Color64 FromRgb32(int rgb) => new Color64(Color32.FromRgb(rgb));
 
         public static Color64 FromRgb(long rgb) => new Color64(alphaMask | (ulong)rgb);
 
@@ -157,11 +150,7 @@ namespace KGySoft.Drawing.Imaging
 
         public long ToArgb() => (long)value;
 
-        public int ToArgb32() => ToColor32().ToArgb();
-
         public long ToRgb() => (long)(~alphaMask & value);
-
-        public int ToRgb32() => ToColor32().ToRgb();
 
         public bool Equals(Color64 other) => value == other.value;
 
