@@ -14,6 +14,9 @@
 + New PColor32 struct
 + ColorExtensions class:
   + New GetBrightness overload
+  + New GetBrightnessF methods
+  + New ToPremultiplied method
+  + New ToStraight method
 * ColorSpaceHelper class:
   + Adding new ToFloat overload from UInt16
   + Adding new ToUInt16 method
