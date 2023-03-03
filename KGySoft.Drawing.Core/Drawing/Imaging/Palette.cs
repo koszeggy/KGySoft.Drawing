@@ -1134,7 +1134,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // Blending also the current palette color
-                        current = current.BlendWithBackground(backColor ??= BackColor.ToColorF());
+                        current = current.BlendWithBackgroundLinear(backColor ??= BackColor.ToColorF());
 
                         // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
                         if (current == colorF)
@@ -1169,7 +1169,7 @@ namespace KGySoft.Drawing.Imaging
                             continue;
 
                         // Blending also the current palette color
-                        current = current.BlendWithBackground(backColor ??= BackColor.ToColorF());
+                        current = current.BlendWithBackgroundLinear(backColor ??= BackColor.ToColorF());
 
                         // Exact match. Since the cache was checked before calling this method this can occur only after alpha blending.
                         if (current == colorF)

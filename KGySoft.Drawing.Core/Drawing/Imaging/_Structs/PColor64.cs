@@ -124,8 +124,8 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColor64"/> struct from ARGB (alpha, red, green, and blue) values.
-        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColor64(ushort, ushort, ushort, ushort, bool)"/> constructor,
-        /// the <see cref="IsValid"/> property for validation or the <see cref="Clip">Clip</see> method to return a valid instance.
+        /// For performance reasons this overload does not validate the parameters but you can use the <see cref="PColor64(ushort, ushort, ushort, ushort, bool)"/> constructor
+        /// or the <see cref="IsValid"/> property for validation, or the <see cref="Clip">Clip</see> method to return a valid instance.
         /// </summary>
         /// <param name="a">The alpha component.</param>
         /// <param name="r">The red component.</param>

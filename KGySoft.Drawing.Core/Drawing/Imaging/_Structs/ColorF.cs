@@ -491,6 +491,16 @@ namespace KGySoft.Drawing.Imaging
 #endif
         }
 
+        internal ColorF ToSrgb() => new ColorF(A,
+            ColorSpaceHelper.LinearToSrgb(R),
+            ColorSpaceHelper.LinearToSrgb(G),
+            ColorSpaceHelper.LinearToSrgb(B));
+
+        internal ColorF ToLinear() => new ColorF(A,
+            ColorSpaceHelper.SrgbToLinear(R),
+            ColorSpaceHelper.SrgbToLinear(G),
+            ColorSpaceHelper.SrgbToLinear(B));
+
         #endregion
 
         #endregion
