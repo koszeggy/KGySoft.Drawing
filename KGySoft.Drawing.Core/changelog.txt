@@ -11,9 +11,11 @@
 
 * KGySoft.Drawing.Imaging namespace
 ===================================
-+ New PColor32 struct
 + The Color64 struct has been made public
++ The ColorF struct has been made public
++ New PColor32 struct
 + New PColor64 struct
++ New PColorF struct
 + ColorExtensions class:
   + New GetBrightness overloads
   + New GetBrightnessF methods

@@ -89,6 +89,9 @@ namespace KGySoft
         /// <summary>For a premultiplied color the alpha value should not be smaller than the color components.</summary>
         internal static string ImagingInvalidPremultipliedValues => Get("Imaging_InvalidPremultipliedValues");
 
+        /// <summary>One or more color components are out of range.</summary>
+        internal static string ImagingInvalidArgbValues => Get("Imaging_InvalidArgbValues");
+
         #endregion
 
         #region GifEncoder
