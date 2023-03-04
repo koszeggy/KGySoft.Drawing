@@ -620,8 +620,8 @@ namespace KGySoft.Drawing.Imaging
         /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static Color64 Blend(this Color64 foreColor, Color64 backColor)
-            => foreColor.A == Byte.MaxValue ? foreColor
-                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
+            => foreColor.A == UInt16.MaxValue ? foreColor
+                : backColor.A == UInt16.MaxValue ? foreColor.BlendWithBackgroundSrgb(backColor)
                 : foreColor.A == 0 ? backColor
                 : backColor.A == 0 ? foreColor
                 : foreColor.BlendWithSrgb(backColor);
@@ -637,8 +637,8 @@ namespace KGySoft.Drawing.Imaging
         /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static Color64 Blend(this Color64 foreColor, Color64 backColor, WorkingColorSpace colorSpace)
-            => foreColor.A == Byte.MaxValue ? foreColor
-                : backColor.A == Byte.MaxValue ? foreColor.BlendWithBackground(backColor, colorSpace)
+            => foreColor.A == UInt16.MaxValue ? foreColor
+                : backColor.A == UInt16.MaxValue ? foreColor.BlendWithBackground(backColor, colorSpace)
                 : foreColor.A == 0 ? backColor
                 : backColor.A == 0 ? foreColor
                 : foreColor.BlendWith(backColor, colorSpace);
@@ -671,16 +671,104 @@ namespace KGySoft.Drawing.Imaging
         public static ColorF Blend(this ColorF foreColor, ColorF backColor, WorkingColorSpace colorSpace)
             => foreColor.A >= 1f ? foreColor
                 : backColor.A >= 1f ? foreColor.BlendWithBackground(backColor, colorSpace)
+                : foreColor.A <= 0f ? backColor
+                : backColor.A <= 0f ? foreColor
+                : foreColor.BlendWith(backColor, colorSpace);
+
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="PColor32.A"/> is 255); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColor32 Blend(this PColor32 foreColor, PColor32 backColor)
+            => foreColor.A == Byte.MaxValue ? foreColor
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
+                : foreColor.BlendWithSrgb(backColor);
+
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the specified <paramref name="colorSpace"/>.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="PColor32.A"/> is 255); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <param name="colorSpace">The color space to be used for the blending. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColor32 Blend(this PColor32 foreColor, PColor32 backColor, WorkingColorSpace colorSpace)
+            => foreColor.A == Byte.MaxValue ? foreColor
                 : foreColor.A == 0 ? backColor
                 : backColor.A == 0 ? foreColor
                 : foreColor.BlendWith(backColor, colorSpace);
 
-        // TODO: Blend for premultiplied
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the sRGB color space.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="PColor64.A"/> is 65535); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColor64 Blend(this PColor64 foreColor, PColor64 backColor)
+            => foreColor.A == UInt16.MaxValue ? foreColor
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
+                : foreColor.BlendWithSrgb(backColor);
+
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the specified <paramref name="colorSpace"/>.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="Color64.A"/> is 65535); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <param name="colorSpace">The color space to be used for the blending. If <see cref="WorkingColorSpace.Default"/>, then the sRGB color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the sRGB color space will be used as well.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColor64 Blend(this PColor64 foreColor, PColor64 backColor, WorkingColorSpace colorSpace)
+            => foreColor.A == UInt16.MaxValue ? foreColor
+                : foreColor.A == 0 ? backColor
+                : backColor.A == 0 ? foreColor
+                : foreColor.BlendWith(backColor, colorSpace);
+
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the linear color space.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="PColorF.A"/> is greater than or equal to 1); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColorF Blend(this PColorF foreColor, PColorF backColor)
+            => foreColor.A >= 1f ? foreColor
+                : foreColor.A <= 0f ? backColor
+                : backColor.A <= 0f ? foreColor
+                : foreColor.BlendWithLinear(backColor);
+
+        /// <summary>
+        /// Blends the specified <paramref name="foreColor"/> and <paramref name="backColor"/> in the specified <paramref name="colorSpace"/>.
+        /// It returns <paramref name="foreColor"/> if it has no transparency (that is, when <see cref="PColorF.A"/> is greater than or equal to 1); otherwise, the result of the blending.
+        /// </summary>
+        /// <param name="foreColor">The covering color to blend with <paramref name="backColor"/>.</param>
+        /// <param name="backColor">The background color to be covered with <paramref name="foreColor"/>.</param>
+        /// <param name="colorSpace">The color space to be used for the blending. If <see cref="WorkingColorSpace.Default"/>, then the linear color space will be used.
+        /// For performance reasons this method does not validate this parameter. For undefined values the linear color space will be used as well.</param>
+        /// <returns><paramref name="foreColor"/> if it has no transparency; otherwise, the result of the blending.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static PColorF Blend(this PColorF foreColor, PColorF backColor, WorkingColorSpace colorSpace)
+            => foreColor.A >= 1f ? foreColor
+                : foreColor.A <= 0f ? backColor
+                : backColor.A <= 0f ? foreColor
+                : foreColor.BlendWith(backColor, colorSpace);
 
         #endregion
 
         #region Tolerant Equality
-        
+
         /// <summary>
         /// Gets whether two <see cref="Color32"/> instances are equal using a specified <paramref name="tolerance"/>.
         /// </summary>
@@ -704,7 +792,7 @@ namespace KGySoft.Drawing.Imaging
         }
 
         /// <summary>
-        /// Gets whether two <see cref="Color32"/> instances are equal using a specified <paramref name="tolerance"/>.
+        /// Gets whether two <see cref="Color64"/> instances are equal using a specified <paramref name="tolerance"/>.
         /// </summary>
         /// <param name="c1">The first color to compare.</param>
         /// <param name="c2">The second color to compare.</param>
@@ -739,6 +827,75 @@ namespace KGySoft.Drawing.Imaging
         /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static bool TolerantEquals(this ColorF c1, ColorF c2, float tolerance, float alphaThreshold = 0f)
+        {
+            if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
+                return true;
+            if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
+                return false;
+            return c1.R.TolerantEquals(c2.R, tolerance)
+                && c1.G.TolerantEquals(c2.G, tolerance)
+                && c1.B.TolerantEquals(c2.B, tolerance)
+                && c1.A.TolerantEquals(c2.A, tolerance);
+        }
+
+        /// <summary>
+        /// Gets whether two <see cref="PColor32"/> instances are equal using a specified <paramref name="tolerance"/>.
+        /// </summary>
+        /// <param name="c1">The first color to compare.</param>
+        /// <param name="c2">The second color to compare.</param>
+        /// <param name="tolerance">The allowed tolerance for ARGB components.</param>
+        /// <param name="alphaThreshold">Specifies a threshold under which colors are considered transparent. If both colors have lower <see cref="PColor32.A"/> value than the threshold, then they are considered equal.
+        /// If only one of the specified colors has lower <see cref="PColor32.A"/> value than the threshold, then the colors are considered different.
+        /// If both colors' <see cref="PColor32.A"/> value are equal to or greater than this value, then <paramref name="tolerance"/> is applied to the <see cref="PColor32.A"/> value, too. This parameter is optional.
+        /// <br/>Default value: 0.</param>
+        /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [SuppressMessage("ReSharper", "MethodOverloadWithOptionalParameter", Justification = "False alarm, the 'hiding' method is internal so 3rd party consumers call always this method.")]
+        public static bool TolerantEquals(this PColor32 c1, PColor32 c2, byte tolerance, byte alphaThreshold = 0)
+        {
+            if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
+                return true;
+            if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
+                return false;
+            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+        }
+
+        /// <summary>
+        /// Gets whether two <see cref="PColor64"/> instances are equal using a specified <paramref name="tolerance"/>.
+        /// </summary>
+        /// <param name="c1">The first color to compare.</param>
+        /// <param name="c2">The second color to compare.</param>
+        /// <param name="tolerance">The allowed tolerance for ARGB components.</param>
+        /// <param name="alphaThreshold">Specifies a threshold under which colors are considered transparent. If both colors have lower <see cref="PColor64.A"/> value than the threshold, then they are considered equal.
+        /// If only one of the specified colors has lower <see cref="PColor64.A"/> value than the threshold, then the colors are considered different.
+        /// If both colors' <see cref="PColor64.A"/> value are equal to or greater than this value, then <paramref name="tolerance"/> is applied to the <see cref="PColor64.A"/> value, too. This parameter is optional.
+        /// <br/>Default value: 0.</param>
+        /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        [CLSCompliant(false)]
+        public static bool TolerantEquals(this PColor64 c1, PColor64 c2, ushort tolerance, ushort alphaThreshold = 0)
+        {
+            if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
+                return true;
+            if ((c1.A < alphaThreshold) ^ (c2.A < alphaThreshold))
+                return false;
+            return Math.Abs(c1.R - c2.R) <= tolerance && Math.Abs(c1.G - c2.G) <= tolerance && Math.Abs(c1.B - c2.B) <= tolerance && Math.Abs(c1.A - c2.A) <= tolerance;
+        }
+
+        /// <summary>
+        /// Gets whether two <see cref="PColorF"/> instances are equal using a specified <paramref name="tolerance"/>.
+        /// </summary>
+        /// <param name="c1">The first color to compare.</param>
+        /// <param name="c2">The second color to compare.</param>
+        /// <param name="tolerance">The allowed tolerance for ARGB components. For performance reasons this parameter is not validated.</param>
+        /// <param name="alphaThreshold">Specifies a threshold under which colors are considered transparent. If both colors have lower <see cref="PColorF.A"/> value than the threshold, then they are considered equal.
+        /// If only one of the specified colors has lower <see cref="PColorF.A"/> value than the threshold, then the colors are considered different.
+        /// If both colors' <see cref="PColorF.A"/> value are equal to or greater than this value, then <paramref name="tolerance"/> is applied to the <see cref="PColorF.A"/> value, too.
+        /// For performance reasons this parameter is not validated. This parameter is optional.
+        /// <br/>Default value: 0.</param>
+        /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static bool TolerantEquals(this PColorF c1, PColorF c2, float tolerance, float alphaThreshold = 0f)
         {
             if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
                 return true;
@@ -847,6 +1004,18 @@ namespace KGySoft.Drawing.Imaging
             => colorSpace == WorkingColorSpace.Srgb ? src.BlendWithSrgb(dst) : src.BlendWithLinear(dst);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColor32 BlendWith(this PColor32 src, PColor32 dst, WorkingColorSpace colorSpace)
+            => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColor64 BlendWith(this PColor64 src, PColor64 dst, WorkingColorSpace colorSpace)
+            => colorSpace == WorkingColorSpace.Linear ? src.BlendWithLinear(dst) : src.BlendWithSrgb(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColorF BlendWith(this PColorF src, PColorF dst, WorkingColorSpace colorSpace)
+            => colorSpace == WorkingColorSpace.Srgb ? src.BlendWithSrgb(dst) : src.BlendWithLinear(dst);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithSrgb(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
@@ -895,6 +1064,35 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColor32 BlendWithSrgb(this PColor32 src, PColor32 dst)
+        {
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
+            int inverseAlphaSrc = Byte.MaxValue - src.A;
+            return new PColor32(dst.A == Byte.MaxValue ? Byte.MaxValue : (byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
+                (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
+                (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
+                (byte)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColor64 BlendWithSrgb(this PColor64 src, PColor64 dst)
+        {
+            Debug.Assert(src.A != 0 && src.A != 65535 && dst.A != 0, "Partially transparent colors are expected");
+            int inverseAlphaSrc = UInt16.MaxValue - src.A;
+            return new PColor64(dst.A == UInt16.MaxValue ? UInt16.MaxValue : (ushort)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
+                (ushort)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
+                (ushort)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
+                (ushort)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColorF BlendWithSrgb(this PColorF src, PColorF dst)
+        {
+            Debug.Assert(src.A is > 0f and < 1f && dst.A is > 0f and < 1f, "Partially transparent colors are expected");
+            return src.ToStraight().ToSrgb().BlendWithLinear(dst.ToStraight().ToSrgb()).ToLinear().ToPremultiplied();
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color32 BlendWithLinear(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
@@ -925,18 +1123,21 @@ namespace KGySoft.Drawing.Imaging
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static PColor32 BlendWithPremultipliedSrgb(this PColor32 src, PColor32 dst)
+        internal static PColor32 BlendWithLinear(this PColor32 src, PColor32 dst)
         {
-            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
-            int inverseAlphaSrc = 255 - src.A;
-            return new PColor32(dst.A == Byte.MaxValue ? Byte.MaxValue : (byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
-                (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
-                (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
-                (byte)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
+            return src.ToColorF().BlendWithLinear(dst.ToColorF()).ToPColor32();
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal static PColorF BlendWith(this PColorF src, PColorF dst)
+        internal static PColor64 BlendWithLinear(this PColor64 src, PColor64 dst)
+        {
+            Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
+            return src.ToColorF().BlendWithLinear(dst.ToColorF()).ToPColor64();
+        }
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static PColorF BlendWithLinear(this PColorF src, PColorF dst)
         {
             float inverseAlphaSrc = 1f - src.A;
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
