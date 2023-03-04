@@ -372,8 +372,37 @@ namespace KGySoft.Drawing.Imaging
 
         #region Static Methods
 
+        #region Public Methods
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Creates a <see cref="PColorF"/> structure from a <see cref="Vector4"/> instance mapping <see cref="Vector4.X"/> to <see cref="R"/>,
+        /// <see cref="Vector4.Y"/> to <see cref="G"/>, <see cref="Vector4.Z"/> to <see cref="B"/> and <see cref="Vector4.W"/> to <see cref="A"/>.
+        /// </summary>
+        /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated but
+        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// <returns>A <see cref="PColorF"/> structure converted from the specified <see cref="Vector4"/>.</returns>
+
+        public static PColorF FromRgba(Vector4 vector) => new PColorF(vector);
+
+        /// <summary>
+        /// Creates a <see cref="PColorF"/> structure from a <see cref="Vector3"/> instance mapping <see cref="Vector3.X"/> to <see cref="R"/>,
+        /// <see cref="Vector3.Y"/> to <see cref="G"/> and <see cref="Vector3.Z"/> to <see cref="B"/>. The <see cref="A"/> component of the result will be 1.
+        /// </summary>
+        /// <param name="vector">A <see cref="Vector3"/> representing the RGB color components. The parameter is not validated but
+        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// <returns>A <see cref="PColorF"/> structure converted from the specified <see cref="Vector3"/>.</returns>
+        public static PColorF FromRgb(Vector3 vector) => new PColorF(new Vector4(vector, 1f));
+#endif
+
+        #endregion
+
+        #region Private Methods
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         private static void ThrowInvalid() => throw new ArgumentOutOfRangeException(null, Res.ImagingInvalidArgbValues);
+
+        #endregion
 
         #endregion
 
@@ -394,6 +423,24 @@ namespace KGySoft.Drawing.Imaging
             float a = A.Clip(0f, 1f);
             return new PColorF(a, R.Clip(0f, a), G.Clip(0f, a), B.Clip(0f, a));
         }
+#endif
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Converts this <see cref="PColorF"/> instance to a <see cref="Vector4"/> structure
+        /// mapping <see cref="R"/> to <see cref="Vector4.X"/>, <see cref="G"/> to <see cref="Vector4.Y"/>,
+        /// <see cref="B"/> to <see cref="Vector4.Z"/> and <see cref="A"/> to <see cref="Vector4.W"/>.
+        /// </summary>
+        /// <returns>A <see cref="Vector4"/> structure converted from this <see cref="PColorF"/> instance.</returns>
+        public Vector4 ToRgba() => Rgba;
+
+        /// <summary>
+        /// Converts this <see cref="PColorF"/> instance to a <see cref="Vector3"/> structure
+        /// mapping <see cref="R"/> to <see cref="Vector3.X"/>, <see cref="G"/> to <see cref="Vector3.Y"/>
+        /// and <see cref="B"/> to <see cref="Vector3.Z"/>.
+        /// </summary>
+        /// <returns>A <see cref="Vector3"/> structure converted from this <see cref="PColorF"/> instance.</returns>
+        public Vector3 ToRgb() => Rgb;
 #endif
 
         /// <summary>
