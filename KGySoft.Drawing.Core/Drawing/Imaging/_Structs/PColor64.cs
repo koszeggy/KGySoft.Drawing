@@ -121,6 +121,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
+        
+        #region Public Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColor64"/> struct from ARGB (alpha, red, green, and blue) values.
@@ -232,13 +234,46 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Constructors
+
+        internal PColor64(ulong argb)
+#if !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+            value = argb;
+        }
+
+        #endregion
+
+        #endregion
+
         #region Methods
 
         #region Static Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Creates a <see cref="PColor64"/> structure from a 64-bit ARGB value.
+        /// </summary>
+        /// <param name="argb">A value specifying the 64-bit ARGB value. As a hex value it can be specified as <c>AAAARRRRGGGGBBBB</c>
+        /// where <c>AAAA</c> is the highest couple of bytes and <c>BBBB</c> is the lowest couple of bytes.</param>
+        /// <returns>A <see cref="PColor64"/> structure from the specified 64-bit ARGB value.</returns>
+        public static PColor64 FromArgb(long argb) => new PColor64((ulong)argb);
+
+        #endregion
+
+        #region Private Methods
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         [SuppressMessage("ReSharper", "NotResolvedInText", Justification = "Parameter of the caller method")]
         private static void ThrowInvalid() => throw new ArgumentOutOfRangeException("a", Res.ImagingInvalidPremultipliedValues);
+
+        #endregion
 
         #endregion
 
@@ -291,6 +326,12 @@ namespace KGySoft.Drawing.Imaging
             ColorSpaceHelper.ToByte(R),
             ColorSpaceHelper.ToByte(G),
             ColorSpaceHelper.ToByte(B));
+
+        /// <summary>
+        /// Gets the 64-bit ARGB value of this <see cref="PColor64"/> instance.
+        /// </summary>
+        /// <returns>The 64-bit ARGB value of this <see cref="PColor64"/> instance</returns>
+        public long ToArgb() => (long)value;
 
         /// <summary>
         /// Determines whether the current <see cref="PColor64"/> instance is equal to another one.

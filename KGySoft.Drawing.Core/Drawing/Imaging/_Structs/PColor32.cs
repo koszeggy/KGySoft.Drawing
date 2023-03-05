@@ -117,6 +117,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
+        
+        #region Public Constructors
 
         /// <summary>
         /// Initializes a new instance of the <see cref="PColor32"/> struct from ARGB (alpha, red, green, and blue) values.
@@ -189,6 +191,9 @@ namespace KGySoft.Drawing.Imaging
                     break;
                 default:
                     A = c.A;
+                    //R = (byte)((c.R * c.A) >> 8);
+                    //G = (byte)((c.G * c.A) >> 8);
+                    //B = (byte)((c.B * c.A) >> 8);
                     R = (byte)(c.R * c.A / Byte.MaxValue);
                     G = (byte)(c.G * c.A / Byte.MaxValue);
                     B = (byte)(c.B * c.A / Byte.MaxValue);
@@ -198,13 +203,47 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Internal Constructors
+
+        internal PColor32(uint argb)
+#if !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+            value = argb;
+        }
+
+        #endregion
+
+        #endregion
+
         #region Methods
 
         #region Static Methods
 
+        #region Public Methods
+
+        /// <summary>
+        /// Creates a <see cref="PColor32"/> structure from a 32-bit ARGB value.
+        /// </summary>
+        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>AARRGGBB</c> where <c>AA</c>
+        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated but
+        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
+        public static PColor32 FromArgb(int argb) => new PColor32((uint)argb);
+
+        #endregion
+
+        #region Private Methods
+
         [MethodImpl(MethodImplOptions.NoInlining)]
         [SuppressMessage("ReSharper", "NotResolvedInText", Justification = "Parameter of the caller method")]
         private static void ThrowInvalid() => throw new ArgumentOutOfRangeException("a", Res.ImagingInvalidPremultipliedValues);
+
+        #endregion
 
         #endregion
 
@@ -230,7 +269,17 @@ namespace KGySoft.Drawing.Imaging
             Byte.MaxValue => new Color32(value),
             Byte.MinValue => default,
             _ => new Color32(A, (byte)(R * Byte.MaxValue / A), (byte)(G * Byte.MaxValue / A), (byte)(B * Byte.MaxValue / A))
+            //_ => new Color32(A,
+            //    (byte)((R << 8) / A),
+            //    (byte)((G << 8) / A),
+            //    (byte)((B << 8) / A))
         };
+
+        /// <summary>
+        /// Gets the 32-bit ARGB value of this <see cref="PColor32"/> instance.
+        /// </summary>
+        /// <returns>The 32-bit ARGB value of this <see cref="PColor32"/> instance</returns>
+        public int ToArgb() => (int)value;
 
         /// <summary>
         /// Determines whether the current <see cref="PColor32"/> instance is equal to another one.
