@@ -196,9 +196,9 @@ namespace KGySoft.Drawing.Imaging
                     break;
                 default:
                     A = c.A;
-                    R = (ushort)(c.R * c.A / UInt16.MaxValue);
-                    G = (ushort)(c.G * c.A / UInt16.MaxValue);
-                    B = (ushort)(c.B * c.A / UInt16.MaxValue);
+                    R = (ushort)((uint)c.R * c.A / UInt16.MaxValue);
+                    G = (ushort)((uint)c.G * c.A / UInt16.MaxValue);
+                    B = (ushort)((uint)c.B * c.A / UInt16.MaxValue);
                     break;
             }
         }
