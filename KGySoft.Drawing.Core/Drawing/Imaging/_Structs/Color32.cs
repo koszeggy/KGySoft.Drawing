@@ -205,7 +205,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a <see cref="Color32"/> structure from a 32-bit ARGB value.
         /// </summary>
-        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>AARRGGBB</c> where <c>AA</c>
+        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
         /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB).</param>
         /// <returns>A <see cref="Color32"/> structure from the specified 32-bit ARGB value.</returns>
         public static Color32 FromArgb(int argb) => new Color32((uint)argb);

@@ -17,10 +17,12 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
-#endif
 using System.Runtime.InteropServices;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.Intrinsics.X86;
+using System.Runtime.Intrinsics;
+#endif
 
 #endregion
 
@@ -79,7 +81,7 @@ namespace KGySoft.Drawing.Imaging
         #region Properties
 
         #region Public Properties
-        
+
         /// <summary>
         /// Gets whether this <see cref="PColor32"/> instance represents a valid premultiplied color.
         /// That is, when <see cref="A"/> is greater than or equal to <see cref="R"/>, <see cref="G"/> and <see cref="B"/>.
@@ -117,7 +119,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
-        
+
         #region Public Constructors
 
         /// <summary>
@@ -173,6 +175,7 @@ namespace KGySoft.Drawing.Imaging
         /// Initializes a new instance of the <see cref="PColor32"/> struct from a <see cref="Color32"/> instance.
         /// </summary>
         /// <param name="c">A <see cref="Color32"/> structure to initialize a new instance of <see cref="PColor32"/> from.</param>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public PColor32(Color32 c)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
@@ -190,13 +193,55 @@ namespace KGySoft.Drawing.Imaging
                     value = 0u;
                     break;
                 default:
-                    A = c.A;
-                    //R = (byte)((c.R * c.A) >> 8);
-                    //G = (byte)((c.G * c.A) >> 8);
-                    //B = (byte)((c.B * c.A) >> 8);
-                    R = (byte)(c.R * c.A / Byte.MaxValue);
-                    G = (byte)(c.G * c.A / Byte.MaxValue);
+#if NETCOREAPP3_0_OR_GREATER
+                    // Using vectorization if possible. It is faster even with the floating-point conversion than using non-accelerated integer divisions,
+                    // but only with hardware intrinsics (so not using Vector3/Vector4 here because it is much slower for some reason).
+                    // Using bit-shifting could prevent using floating point calculations but the result would be less accurate.
+                    if (Sse2.IsSupported)
+                    {
+                        // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
+                        Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
+                            ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte())
+                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            : Vector128.Create(c.B, c.G, c.R, default));
+
+                        // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
+                        bgraF = Sse.Multiply(bgraF, Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            ? Sse41.ConvertToVector128Int32(Vector128.Create(c.A))
+                            : Vector128.Create((int)c.A)));
+
+                        // Instead of division we use a multiplication with the reciprocal of max value
+                        bgraF = Sse.Multiply(bgraF, Vector128.Create(1f / 255f));
+
+                        // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
+                        // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
+                        // Unfortunately there is no direct vectorized conversion to byte so we need to pack the result if possible.
+                        Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
+
+                        // Initializing directly from uint if it is supported to shuffle the ints as packed bytes
+                        if (Ssse3.IsSupported)
+                        {
+                            // Compressing 32-bit values to 8 bit ones and initializing value from the first 32 bit
+                            value = Ssse3.Shuffle(bgraI32.AsByte().WithElement(12, c.A),
+                                // Taking the low byte of every 32-bit value, ignoring the rest. Inlining the mask is actually faster than caching a field.
+                                Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt32().ToScalar();
+                        }
+
+                        // Casting from the int results one by one. It's still faster than
+                        // converting the components from floats without the ConvertToVector128Int32 call.
+                        B = (byte)bgraI32.GetElement(0);
+                        G = (byte)bgraI32.GetElement(1);
+                        R = (byte)bgraI32.GetElement(2);
+                        A = c.A;
+                    }
+#endif
+
+                    // The non-accelerated version. Bit-shifting, eg. R = (byte)((c.R * c.A) >> 8) would be faster but less accurate.
                     B = (byte)(c.B * c.A / Byte.MaxValue);
+                    G = (byte)(c.G * c.A / Byte.MaxValue);
+                    R = (byte)(c.R * c.A / Byte.MaxValue);
+                    A = c.A;
                     break;
             }
         }
@@ -229,7 +274,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a <see cref="PColor32"/> structure from a 32-bit ARGB value.
         /// </summary>
-        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>AARRGGBB</c> where <c>AA</c>
+        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
         /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated but
         /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
@@ -264,16 +309,56 @@ namespace KGySoft.Drawing.Imaging
         /// It's practically the same as calling the <see cref="ColorExtensions.ToStraight(PColor32)"/> method.
         /// </summary>
         /// <returns>A <see cref="Color32"/> structure converted from this <see cref="PColor32"/> instance.</returns>
-        public Color32 ToColor32() => A switch
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public Color32 ToColor32()
         {
-            Byte.MaxValue => new Color32(value),
-            Byte.MinValue => default,
-            _ => new Color32(A, (byte)(R * Byte.MaxValue / A), (byte)(G * Byte.MaxValue / A), (byte)(B * Byte.MaxValue / A))
-            //_ => new Color32(A,
-            //    (byte)((R << 8) / A),
-            //    (byte)((G << 8) / A),
-            //    (byte)((B << 8) / A))
-        };
+            switch (A)
+            {
+                case Byte.MaxValue:
+                    return new Color32(value);
+                case Byte.MinValue:
+                    return default;
+                default:
+#if NETCOREAPP3_0_OR_GREATER
+                    // Using vectorization if possible. It is faster even with the floating-point conversion than using non-accelerated integer divisions,
+                    // but only with hardware intrinsics (so not using Vector3/Vector4 here because it is much slower for some reason).
+                    if (Sse2.IsSupported)
+                    {
+                        // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
+                        Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
+                            ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(value).AsByte())
+                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            : Vector128.Create(B, G, R, default));
+
+                        bgraF = Sse.Multiply(bgraF, Vector128.Create(255f));
+
+                        // Unlike in the constructor  multiplication with reciprocal is not that fast because 1f/A is not a constant.
+                        // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
+                        bgraF = Sse.Divide(bgraF, Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            ? Sse41.ConvertToVector128Int32(Vector128.Create(A))
+                            : Vector128.Create((int)A)));
+
+                        // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
+                        // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
+                        // Unfortunately there is no direct vectorized conversion to byte so we need to pack the result if possible.
+                        Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
+
+                        // Initializing directly from uint if it is supported to shuffle the ints as packed bytes
+                        if (Ssse3.IsSupported)
+                            return new Color32(Ssse3.Shuffle(bgraI32.AsByte().WithElement(12, A),
+                                // Taking the low byte of every 32-bit value, ignoring the rest. Inlining the mask is actually faster than caching a field.
+                                Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt32().ToScalar());
+                    }
+#endif
+
+                    // The non-accelerated version. Bit-shifting, eg. r:(byte)((R << 8) / A) would not be much faster because it still contains a division.
+                    return new Color32(A,
+                        (byte)(R * Byte.MaxValue / A),
+                        (byte)(G * Byte.MaxValue / A),
+                        (byte)(B * Byte.MaxValue / A));
+            }
+        }
 
         /// <summary>
         /// Gets the 32-bit ARGB value of this <see cref="PColor32"/> instance.

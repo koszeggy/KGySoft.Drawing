@@ -17,10 +17,11 @@
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-#if NET5_0_OR_GREATER
 using System.Runtime.CompilerServices;
-#endif
 using System.Runtime.InteropServices;
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+using System.Security;
 
 #endregion
 
@@ -180,6 +181,7 @@ namespace KGySoft.Drawing.Imaging
         /// Initializes a new instance of the <see cref="PColor64"/> struct from a <see cref="Color64"/> instance.
         /// </summary>
         /// <param name="c">A <see cref="Color64"/> structure to initialize a new instance of <see cref="PColor64"/> from.</param>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public PColor64(Color64 c)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
@@ -197,10 +199,63 @@ namespace KGySoft.Drawing.Imaging
                     value = 0ul;
                     break;
                 default:
-                    A = c.A;
-                    R = (ushort)((uint)c.R * c.A / UInt16.MaxValue);
-                    G = (ushort)((uint)c.G * c.A / UInt16.MaxValue);
+#if NETCOREAPP3_0_OR_GREATER
+                    // Using vectorization if possible. It is faster even with the floating-point conversion than using non-accelerated integer divisions,
+                    // but only with hardware intrinsics (so not using Vector3/Vector4 here because it is much slower for some reason).
+                    // Using bit-shifting could prevent using floating point calculations but the result would be less accurate.
+                    if (Sse2.IsSupported)
+                    {
+                        // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as ushorts if supported)
+                        Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            // Reinterpreting the ulong value as ushorts and converting them to ints in one step is still faster than converting them separately
+                            ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16())
+                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            : Vector128.Create(c.B, c.G, c.R, default));
+
+                        // Instead of division we use a multiplication with the reciprocal of max value
+                        bgraF = Sse.Multiply(bgraF, Vector128.Create(1f / 65535));
+
+                        // Doing the ushort -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
+                        bgraF = Sse.Multiply(bgraF, Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            ? Sse41.ConvertToVector128Int32(Vector128.Create(c.A))
+                            : Vector128.Create((int)c.A)));
+
+                        // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
+                        // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
+                        // Unfortunately there is no direct vectorized conversion to ushort so we need to pack the result if possible.
+                        Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
+
+                        // Initializing directly from ulong if it is supported to pack the ints to ushorts
+                        if (Ssse3.IsSupported)
+                        {
+                            // Setting A from the original color
+                            bgraI32 = bgraI32.AsUInt16().WithElement(6, c.A).AsInt32();
+
+                            // Compressing 32-bit values to 16 bit ones and initializing value from the first 64 bit
+                            value = (Sse41.IsSupported
+                                    ? Sse41.PackUnsignedSaturate(bgraI32, bgraI32).AsUInt64()
+                                    : Ssse3.Shuffle(bgraI32.AsByte(),
+                                        // Taking the low word of every 32-bit value, ignoring the high half. Inlining is actually faster than caching a field.
+                                        Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt64())
+                                .ToScalar();
+                            return;
+                        }
+
+                        // Casting from the int results one by one. It's still faster than
+                        // converting the components from floats without the ConvertToVector128Int32 call.
+                        B = (ushort)bgraI32.GetElement(0);
+                        G = (ushort)bgraI32.GetElement(1);
+                        R = (ushort)bgraI32.GetElement(2);
+                        A = c.A;
+                        return;
+                    }
+#endif
+
+                    // The non-accelerated version. Bit-shifting, eg. R = (ushort)(((uint)c.R * c.A) >> 16) would be faster but less accurate.
                     B = (ushort)((uint)c.B * c.A / UInt16.MaxValue);
+                    G = (ushort)((uint)c.G * c.A / UInt16.MaxValue);
+                    R = (ushort)((uint)c.R * c.A / UInt16.MaxValue);
+                    A = c.A;
                     break;
             }
         }
@@ -218,6 +273,7 @@ namespace KGySoft.Drawing.Imaging
         /// Initializes a new instance of the <see cref="PColor64"/> struct from a <see cref="PColor32"/> instance.
         /// </summary>
         /// <param name="c">A <see cref="PColor32"/> structure to initialize a new instance of <see cref="PColor64"/> from.</param>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         public PColor64(PColor32 c)
 #if !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value
@@ -226,6 +282,20 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
+#if NETCOREAPP3_0_OR_GREATER
+            // Using the same vectorization as in the Color64(Color32) ctor. See more comments there.
+            if (Sse2.IsSupported)
+            {
+                Vector128<ushort> bgraU16 = Sse41.IsSupported
+                    ? Sse41.ConvertToVector128Int16(Vector128.CreateScalarUnsafe(c.Value).AsByte()).AsUInt16()
+                    : Vector128.Create((ushort)c.B, c.G, c.R, c.A, 0, 0, 0, 0);
+
+                bgraU16 = Sse2.MultiplyLow(bgraU16, Vector128.Create((ushort)257));
+                value = bgraU16.AsUInt64().ToScalar();
+                return;
+            }
+#endif
+
             B = ColorSpaceHelper.ToUInt16(c.B);
             G = ColorSpaceHelper.ToUInt16(c.G);
             R = ColorSpaceHelper.ToUInt16(c.R);
@@ -260,8 +330,8 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Creates a <see cref="PColor64"/> structure from a 64-bit ARGB value.
         /// </summary>
-        /// <param name="argb">A value specifying the 64-bit ARGB value. As a hex value it can be specified as <c>AAAARRRRGGGGBBBB</c>
-        /// where <c>AAAA</c> is the highest couple of bytes and <c>BBBB</c> is the lowest couple of bytes.</param>
+        /// <param name="argb">A value specifying the 64-bit ARGB value. As a hex value it can be specified as <c>0xAAAA_RRRR_GGGG_BBBB</c>
+        /// where <c>AAAA</c> is the highest word and <c>BBBB</c> is the lowest word.</param>
         /// <returns>A <see cref="PColor64"/> structure from the specified 64-bit ARGB value.</returns>
         public static PColor64 FromArgb(long argb) => new PColor64((ulong)argb);
 
@@ -289,43 +359,158 @@ namespace KGySoft.Drawing.Imaging
             Math.Min(A, G),
             Math.Min(A, B));
 
+        
         /// <summary>
         /// Converts this <see cref="PColor64"/> instance to a <see cref="Color64"/> structure.
         /// It's practically the same as calling the <see cref="ColorExtensions.ToStraight(PColor64)"/> method.
         /// </summary>
         /// <returns>A <see cref="Color64"/> structure converted from this <see cref="PColor64"/> instance.</returns>
-        public Color64 ToColor64() => A switch
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public Color64 ToColor64()
         {
-            UInt16.MaxValue => new Color64(value),
-            UInt16.MinValue => default,
-            _ => new Color64(A,
-                (ushort)((uint)R * UInt16.MaxValue / A),
-                (ushort)((uint)G * UInt16.MaxValue / A),
-                (ushort)((uint)B * UInt16.MaxValue / A))
-        };
+            switch (A)
+            {
+                case UInt16.MaxValue:
+                    return new Color64(value);
+                case UInt16.MinValue:
+                    return default;
+                default:
+#if NETCOREAPP3_0_OR_GREATER
+                    // Using vectorization if possible. It is faster even with the floating-point conversion than using non-accelerated integer divisions,
+                    // but only with hardware intrinsics (so not using Vector3/Vector4 here because it is much slower for some reason).
+                    if (Sse2.IsSupported)
+                    {
+                        // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as ushorts if supported)
+                        Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            // Reinterpreting the ulong value as ushorts and converting them to ints in one step is still faster than converting them separately
+                            ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(value).AsUInt16())
+                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            : Vector128.Create(B, G, R, default));
+
+                        // Doing the division first to prevent running out of the integer-precision of float, which is 24 bit
+                        // Unlike in case of Color64 -> PColor64 conversion multiplication with reciprocal is not that fast because 1f/A is not a constant,
+                        // and cannot use Sse.Reciprocal because it has only 1.5*2^-12 precision.
+                        // Doing the ushort -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
+                        bgraF = Sse.Divide(bgraF, Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            ? Sse41.ConvertToVector128Int32(Vector128.Create(A))
+                            : Vector128.Create((int)A)));
+
+                        bgraF = Sse.Multiply(bgraF, Vector128.Create(65535f));
+
+                        // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
+                        // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
+                        // Unfortunately there is no direct vectorized conversion to ushort so we need to pack the result if possible.
+                        Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
+
+                        // Initializing directly from ulong if it is supported to pack the ints to ushorts
+                        if (Ssse3.IsSupported)
+                        {
+                            // Setting A from the original color
+                            bgraI32 = bgraI32.AsUInt16().WithElement(6, A).AsInt32();
+
+                            // Compressing 32-bit values to 16 bit ones and initializing value from the first 64 bit
+                            return new Color64((Sse41.IsSupported
+                                    ? Sse41.PackUnsignedSaturate(bgraI32, bgraI32).AsUInt64()
+                                    : Ssse3.Shuffle(bgraI32.AsByte(),
+                                        // Taking the low word of every 32-bit value, ignoring the high half. Inlining is actually faster than caching a field.
+                                        Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt64())
+                                .ToScalar());
+                        }
+
+                        // Casting from the int results one by one. It's still faster than
+                        // converting the components from floats without the ConvertToVector128Int32 call.
+                        return new Color64(A,
+                            (ushort)bgraI32.GetElement(2),
+                            (ushort)bgraI32.GetElement(1),
+                            (ushort)bgraI32.GetElement(0));
+                    }
+#endif
+
+                    // The non-accelerated version. Bit-shifting, eg. r:(ushort)(((uint)R << 16) / A) would not be much faster because it still contains a division.
+                    return new Color64(A,
+                        (ushort)((uint)R * UInt16.MaxValue / A),
+                        (ushort)((uint)G * UInt16.MaxValue / A),
+                        (ushort)((uint)B * UInt16.MaxValue / A));
+            }
+        }
 
         /// <summary>
         /// Converts this <see cref="PColor64"/> instance to a <see cref="Color32"/> structure.
         /// </summary>
         /// <returns>A <see cref="Color32"/> structure converted from this <see cref="PColor64"/> instance.</returns>
-        public Color32 ToColor32() => A switch
+        [SecuritySafeCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public unsafe Color32 ToColor32()
         {
-            UInt16.MaxValue => new Color32((byte)(A >> 8), (byte)(R >> 8), (byte)(G >> 8), (byte)(B >> 8)),
-            UInt16.MinValue => default,
-            _ => new Color32((byte)(A >> 8),
-                (byte)(((uint)R * UInt16.MaxValue / A) >> 8),
-                (byte)(((uint)G * UInt16.MaxValue / A) >> 8),
-                (byte)(((uint)B * UInt16.MaxValue / A) >> 8))
-        };
+            // The simplest solution could be just returning ToColor64().ToColor32 but by a direct implementation we can spare a few steps
+            switch (A)
+            {
+                case UInt16.MaxValue:
+                    // Shortcut: no premultiplied -> straight conversion is needed.
+                    // This is the same as Color64.ToColor32. See more comments there.
+                    ulong bgraU16 = value;
+                    byte* bytes = (byte*)&bgraU16;
+                    return new Color32(bytes[7], bytes[5], bytes[3], bytes[1]);
+
+                case UInt16.MinValue:
+                    return default;
+
+                default:
+#if NETCOREAPP3_0_OR_GREATER
+                    // Using vectorization if possible. The fist part is very similar to ToColor64, see more comments there.
+                    if (Sse2.IsSupported)
+                    {
+                        Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(value).AsUInt16())
+                            : Vector128.Create(B, G, R, default));
+
+                        bgraF = Sse.Divide(bgraF, Sse2.ConvertToVector128Single(Sse41.IsSupported
+                            ? Sse41.ConvertToVector128Int32(Vector128.Create(A))
+                            : Vector128.Create((int)A)));
+
+                        bgraF = Sse.Multiply(bgraF, Vector128.Create(65535f));
+
+                        Vector128<byte> bgraI32 = Sse2.ConvertToVector128Int32(bgraF).AsUInt16().WithElement(6, A).AsByte();
+
+                        // Up to this point everything is almost the same as in ToColor64.
+                        // But now we need to create a 4x8-bit result from our 4x32-bit vector containing 16-bit values.
+                        if (Ssse3.IsSupported)
+                        {
+                            // Taking the 2nd byte of every 32-bit value (high byte of the 16-bit values), ignoring the rest.
+                            return new Color32(Ssse3.Shuffle(bgraI32,
+                                Vector128.Create(1, 5, 9, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt32().ToScalar());
+                        }
+
+                        // Casting from the int results one by one. It's still faster than
+                        // converting the components from floats without the ConvertToVector128Int32 call.
+                        return new Color32(bgraI32.GetElement(13),
+                            bgraI32.GetElement(9),
+                            bgraI32.GetElement(5),
+                            bgraI32.GetElement(1));
+                    }
+#endif
+                    
+                    // The non-accelerated version. Almost the same as in ToColor64 except that we use only the high bytes in the result.
+                    return new Color32((byte)(A >> 8), 
+                        (byte)(((uint)R * UInt16.MaxValue / A) >> 8),
+                        (byte)(((uint)G * UInt16.MaxValue / A) >> 8),
+                        (byte)(((uint)B * UInt16.MaxValue / A) >> 8));
+            }
+        }
 
         /// <summary>
         /// Converts this <see cref="PColor64"/> instance to a <see cref="PColor32"/> structure.
         /// </summary>
         /// <returns>A <see cref="PColor32"/> structure converted from this <see cref="PColor64"/> instance.</returns>
-        public PColor32 ToPColor32() => new PColor32(ColorSpaceHelper.ToByte(A),
-            ColorSpaceHelper.ToByte(R),
-            ColorSpaceHelper.ToByte(G),
-            ColorSpaceHelper.ToByte(B));
+        [SecuritySafeCritical]
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public unsafe PColor32 ToPColor32()
+        {
+            // The same conversion as in Color64.ToColor32. See more comments there.
+            ulong bgraU16 = value;
+            byte* bytes = (byte*)&bgraU16;
+            return new PColor32(bytes[7], bytes[5], bytes[3], bytes[1]);
+        }
 
         /// <summary>
         /// Gets the 64-bit ARGB value of this <see cref="PColor64"/> instance.
