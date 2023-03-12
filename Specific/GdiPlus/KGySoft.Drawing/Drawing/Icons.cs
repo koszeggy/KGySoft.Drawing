@@ -912,7 +912,7 @@ namespace KGySoft.Drawing
             User32.DestroyIcon(largeHandle);
 
             IntPtr smallHandle = Shell32.GetStockIconHandle(id, SystemIconSize.Small);
-            if (largeHandle == IntPtr.Zero)
+            if (smallHandle == IntPtr.Zero)
                 return result;
 
             result.Add(Icon.FromHandle(smallHandle));
