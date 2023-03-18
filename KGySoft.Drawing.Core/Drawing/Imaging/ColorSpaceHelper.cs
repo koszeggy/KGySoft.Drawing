@@ -16,7 +16,11 @@
 #region Usings
 
 using System;
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+using System.Numerics;
+#endif
 using System.Runtime.CompilerServices;
+using System.Runtime.Intrinsics;
 
 #endregion
 
@@ -85,6 +89,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Methods
+        
+        #region Public Methods
 
         /// <summary>
         /// Converts a <see cref="byte">byte</see> to a floating-point value between 0 and 1 without changing the color space.
@@ -175,6 +181,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float SrgbToLinear(ushort value) => UInt16ToLinearCache.LookupTable[value];
 
+
         /// <summary>
         /// Converts a floating-point value representing an sRGB color component to a value representing an RGB color component in the linear color space.
         /// </summary>
@@ -184,12 +191,26 @@ namespace KGySoft.Drawing.Imaging
         public static float SrgbToLinear(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
-            <= 0f => 0f,
-            <= 0.04045f => value / 12.92f,
-            < 1f => MathF.Pow((value + 0.055f) / 1.055f, 2.4f),
             >= 1f => 1f,
-            _ => 0 // NaN
+            > 0.04045f => MathF.Pow((value + 0.055f) / 1.055f, 2.4f),
+            > 0f => value / 12.92f,
+            _ => 0f // <= 0 or NaN
         };
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Converts a vector of four floating-point values representing RGBA color components in the sRGB color space
+        /// to a vector representing linear color components.
+        /// </summary>
+        /// <param name="value">The vector to convert.</param>
+        /// <returns>A vector of floating-point values between 0 and 1 representing a linear color with RGBA color components.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Vector4 SrgbToLinearVectorRgba(Vector4 value) => new Vector4(
+            SrgbToLinear(value.X),
+            SrgbToLinear(value.Y),
+            SrgbToLinear(value.Z),
+            value.W.ClipF());
+#endif
 
         /// <summary>
         /// Converts a floating-point value representing a color component in the linear color space
@@ -201,11 +222,10 @@ namespace KGySoft.Drawing.Imaging
         public static float LinearToSrgb(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
-            <= 0f => 0f,
-            <= 0.0031308f => value * 12.92f,
-            < 1f => (1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f,
             >= 1f => 1f,
-            _ => 0 // NaN
+            > 0.0031308f => (1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f,
+            > 0f => value * 12.92f,
+            _ => 0 // <= 0 or NaN
         };
 
         /// <summary>
@@ -218,11 +238,10 @@ namespace KGySoft.Drawing.Imaging
         public static byte LinearToSrgb8Bit(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
-            <= 0f => Byte.MinValue,
-            <= 0.0031308f => (byte)((Byte.MaxValue * value * 12.92f) + 0.5f),
-            < 1f => (byte)((Byte.MaxValue * ((1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f)) + 0.5f),
             >= 1f => Byte.MaxValue,
-            _ => 0 // NaN
+            > 0.0031308f => (byte)((Byte.MaxValue * ((1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f)) + 0.5f),
+            > 0f => (byte)((Byte.MaxValue * value * 12.92f) + 0.5f),
+            _ => 0 // <= 0 or NaN
         };
 
         /// <summary>
@@ -236,12 +255,48 @@ namespace KGySoft.Drawing.Imaging
         public static ushort LinearToSrgb16Bit(float value) => value switch
         {
             // formula is taken from here: https://en.wikipedia.org/wiki/SRGB
-            <= 0f => UInt16.MinValue,
-            <= 0.0031308f => (ushort)((UInt16.MaxValue * value * 12.92f) + 0.5f),
-            < 1f => (ushort)((UInt16.MaxValue * ((1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f)) + 0.5f),
             >= 1f => UInt16.MaxValue,
-            _ => 0 // NaN
+            > 0.0031308f => (ushort)((UInt16.MaxValue * ((1.055f * MathF.Pow(value, 1f / 2.4f)) - 0.055f)) + 0.5f),
+            > 0f => (ushort)((UInt16.MaxValue * value * 12.92f) + 0.5f),
+            _ => 0 // <= 0 or NaN
         };
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+        /// <summary>
+        /// Converts a vector of four floating-point values representing RGBA color components in the linear color space
+        /// to a vector representing sRGB color components.
+        /// </summary>
+        /// <param name="value">The vector to convert.</param>
+        /// <returns>A vector of floating-point values between 0 and 1 representing an sRGB color with RGBA color components.</returns>
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        public static Vector4 LinearToSrgbVectorRgba(Vector4 value) => new Vector4(
+            LinearToSrgb(value.X),
+            LinearToSrgb(value.Y),
+            LinearToSrgb(value.Z),
+            value.W.ClipF());
+#endif
+
+        #endregion
+
+        #region Internal Methods
+
+#if NETCOREAPP3_0_OR_GREATER
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> SrgbToLinearVectorRgba(Vector128<float> value) => Vector128.Create(
+            SrgbToLinear(value.GetElement(0)),
+            SrgbToLinear(value.GetElement(1)),
+            SrgbToLinear(value.GetElement(2)),
+            value.GetElement(3).ClipF());
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Vector128<float> LinearToSrgbVectorRgba(Vector128<float> value) => Vector128.Create(
+            LinearToSrgb(value.GetElement(0)),
+            LinearToSrgb(value.GetElement(1)),
+            LinearToSrgb(value.GetElement(2)),
+            value.GetElement(3).ClipF());
+#endif
+
+        #endregion
 
         #endregion
     }

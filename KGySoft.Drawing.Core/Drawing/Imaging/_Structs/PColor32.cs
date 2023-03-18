@@ -80,6 +80,19 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Static Properties
+
+#if NET5_0_OR_GREATER
+        // Inlining Vector128.Create is faster on .NET 5 and above than caching a static field
+        private static Vector128<byte> PackLowBytesMask => Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#elif NETCOREAPP3_0_OR_GREATER
+        private static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#endif
+
+        #endregion
+
+        #region Instance Properties
+
         #region Public Properties
 
         /// <summary>
@@ -93,6 +106,8 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Properties
 
         internal uint Value => value;
+
+        #endregion
 
         #endregion
 
@@ -203,7 +218,7 @@ namespace KGySoft.Drawing.Imaging
                         Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
                             // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
                             ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte())
-                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
                             : Vector128.Create(c.B, c.G, c.R, default));
 
                         // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
@@ -223,9 +238,7 @@ namespace KGySoft.Drawing.Imaging
                         if (Ssse3.IsSupported)
                         {
                             // Compressing 32-bit values to 8 bit ones and initializing value from the first 32 bit
-                            value = Ssse3.Shuffle(bgraI32.AsByte().WithElement(12, c.A),
-                                // Taking the low byte of every 32-bit value, ignoring the rest. Inlining the mask is actually faster than caching a field.
-                                Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt32().ToScalar();
+                            value = Ssse3.Shuffle(bgraI32.AsByte().WithElement(12, c.A), PackLowBytesMask).AsUInt32().ToScalar();
                         }
 
                         // Casting from the int results one by one. It's still faster than
@@ -328,7 +341,7 @@ namespace KGySoft.Drawing.Imaging
                         Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
                             // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
                             ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(value).AsByte())
-                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
                             : Vector128.Create(B, G, R, default));
 
                         bgraF = Sse.Multiply(bgraF, Vector128.Create(255f));
@@ -344,11 +357,13 @@ namespace KGySoft.Drawing.Imaging
                         // Unfortunately there is no direct vectorized conversion to byte so we need to pack the result if possible.
                         Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
 
+#if NET5_0_OR_GREATER
                         // Initializing directly from uint if it is supported to shuffle the ints as packed bytes
                         if (Ssse3.IsSupported)
                             return new Color32(Ssse3.Shuffle(bgraI32.AsByte().WithElement(12, A),
-                                // Taking the low byte of every 32-bit value, ignoring the rest. Inlining the mask is actually faster than caching a field.
+                                // Taking the low byte of every 32-bit value, ignoring the rest. Inlining the mask in .NET >=5 is faster than caching a field.
                                 Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt32().ToScalar());
+#endif
                     }
 #endif
 

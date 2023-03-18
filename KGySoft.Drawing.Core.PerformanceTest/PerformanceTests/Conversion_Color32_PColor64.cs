@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if NETCOREAPP3_0_OR_GREATER
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Conversion_Color32_PColor64.cs
@@ -133,3 +134,5 @@ namespace KGySoft.Drawing.PerformanceTests
         #endregion
     }
 }
+
+#endif

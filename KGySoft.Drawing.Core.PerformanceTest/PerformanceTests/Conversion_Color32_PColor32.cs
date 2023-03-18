@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if NETCOREAPP3_0_OR_GREATER
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Conversion_Color32_PColor32.cs
@@ -54,8 +55,8 @@ namespace KGySoft.Drawing.PerformanceTests
             DoAssert(_ => testColor32.ToPColor32_0_Div().ToColor32_0_Div());
             DoAssert(_ => testColor32.ToPColor32_1_DivVector3().ToColor32_1_DivVector3());
             DoAssert(_ => testColor32.ToPColor32_2_DivVectorTSpan().ToColor32_2_DivVectorTSpan());
-            DoAssert(_ => testColor32.ToPColor32_3_DivVectorTWiden().ToColor32_3_DivVectorTWiden());
-            DoAssert(_ => testColor32.ToPColor32_4_DivVector64().ToColor32_4_DivVector64());
+            //DoAssert(_ => testColor32.ToPColor32_3_DivVectorTWiden().ToColor32_3_DivVectorTWiden());
+            //DoAssert(_ => testColor32.ToPColor32_4_DivVector64().ToColor32_4_DivVector64());
             DoAssert(_ => testColor32.ToPColor32_5_DivIntrinsicsFloat().ToColor32_5_DivIntrinsicsFloat());
             DoAssert(_ => testColor32.ToPColor32_6_Final().ToColor32_6_Final());
 
@@ -97,19 +98,19 @@ namespace KGySoft.Drawing.PerformanceTests
             var testPColor32 = testColor32.ToPColor32_0_Shift();
 
             var expected = testColor32.ToPColor32_0_Shift().ToColor32_0_Shift();
-            Assert.AreEqual(expected, testColor32.ToPColor32_1_ShiftVector64().ToColor32_1_ShiftVector64());
+            //Assert.AreEqual(expected, testColor32.ToPColor32_1_ShiftVector64().ToColor32_1_ShiftVector64());
             Assert.AreEqual(expected, testColor32.ToPColor32_2_ShiftIntrinsics().ToColor32_2_ShiftIntrinsics());
 
             new PerformanceTest<PColor32> { TestName = "Color32 -> PColor32", TestTime = 500, Iterations = 10_000_000, Repeat = 3 }
                 .AddCase(() => testColor32.ToPColor32_0_Shift(), nameof(Extensions.ToPColor32_0_Shift))
-                .AddCase(() => testColor32.ToPColor32_1_ShiftVector64(), nameof(Extensions.ToPColor32_1_ShiftVector64))
+                //.AddCase(() => testColor32.ToPColor32_1_ShiftVector64(), nameof(Extensions.ToPColor32_1_ShiftVector64))
                 .AddCase(() => testColor32.ToPColor32_2_ShiftIntrinsics(), nameof(Extensions.ToPColor32_2_ShiftIntrinsics))
                 .DoTest()
                 .DumpResults(Console.Out);
 
             new PerformanceTest<Color32> { TestName = "PColor32 -> Color32", TestTime = 500, Iterations = 10_000_000, Repeat = 3 }
                 .AddCase(() => testPColor32.ToColor32_0_Shift(), nameof(Extensions.ToColor32_0_Shift))
-                .AddCase(() => testPColor32.ToColor32_1_ShiftVector64(), nameof(Extensions.ToColor32_1_ShiftVector64))
+                //.AddCase(() => testPColor32.ToColor32_1_ShiftVector64(), nameof(Extensions.ToColor32_1_ShiftVector64))
                 .AddCase(() => testPColor32.ToColor32_2_ShiftIntrinsics(), nameof(Extensions.ToColor32_2_ShiftIntrinsics))
                 .DoTest()
                 .DumpResults(Console.Out);
@@ -212,65 +213,65 @@ namespace KGySoft.Drawing.PerformanceTests
             }
         }
 
-        internal static PColor32 ToPColor32_3_DivVectorTWiden(this Color32 c)
-        {
-            switch (c.A)
-            {
-                case 255:
-                    return new PColor32(c.Value);
-                case 0:
-                    return default;
-                default:
-                    Vector.Widen(new Vector<uint>(c.Value).As<uint, byte>(), out Vector<ushort> v, out var _);
-                    v = v * c.A / new Vector<ushort>(255);
-                    return new PColor32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
-            }
-        }
+        //internal static PColor32 ToPColor32_3_DivVectorTWiden(this Color32 c)
+        //{
+        //    switch (c.A)
+        //    {
+        //        case 255:
+        //            return new PColor32(c.Value);
+        //        case 0:
+        //            return default;
+        //        default:
+        //            Vector.Widen(new Vector<uint>(c.Value).As<uint, byte>(), out Vector<ushort> v, out var _);
+        //            v = v * c.A / new Vector<ushort>(255);
+        //            return new PColor32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
+        //    }
+        //}
 
-        internal static Color32 ToColor32_3_DivVectorTWiden(this PColor32 c)
-        {
-            switch (c.A)
-            {
-                case 255:
-                    return new Color32(c.Value);
-                case 0:
-                    return default;
-                default:
-                    Vector.Widen(new Vector<uint>(c.Value).As<uint, byte>(), out Vector<ushort> v, out var _);
-                    v = v * 255 / new Vector<ushort>(c.A);
-                    return new Color32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
-            }
-        }
+        //internal static Color32 ToColor32_3_DivVectorTWiden(this PColor32 c)
+        //{
+        //    switch (c.A)
+        //    {
+        //        case 255:
+        //            return new Color32(c.Value);
+        //        case 0:
+        //            return default;
+        //        default:
+        //            Vector.Widen(new Vector<uint>(c.Value).As<uint, byte>(), out Vector<ushort> v, out var _);
+        //            v = v * 255 / new Vector<ushort>(c.A);
+        //            return new Color32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
+        //    }
+        //}
 
-        internal static PColor32 ToPColor32_4_DivVector64(this Color32 c)
-        {
-            switch (c.A)
-            {
-                case 255:
-                    return new PColor32(c.Value);
-                case 0:
-                    return default;
-                default:
-                    Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
-                    v = v * c.A / Vector64.Create((ushort)255);
-                    return new PColor32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
-            }
-        }
+        //internal static PColor32 ToPColor32_4_DivVector64(this Color32 c)
+        //{
+        //    switch (c.A)
+        //    {
+        //        case 255:
+        //            return new PColor32(c.Value);
+        //        case 0:
+        //            return default;
+        //        default:
+        //            Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
+        //            v = v * c.A / Vector64.Create((ushort)255);
+        //            return new PColor32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
+        //    }
+        //}
 
-        internal static Color32 ToColor32_4_DivVector64(this PColor32 c)
-        {
-            switch (c.A)
-            {
-                case 255:
-                    return new Color32(c.Value);
-                case 0:
-                    return default;
-                default:
-                    Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
-                    v = v * 255 / Vector64.Create((ushort)c.A);
-                    return new Color32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
-            }
-        }
+        //internal static Color32 ToColor32_4_DivVector64(this PColor32 c)
+        //{
+        //    switch (c.A)
+        //    {
+        //        case 255:
+        //            return new Color32(c.Value);
+        //        case 0:
+        //            return default;
+        //        default:
+        //            Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
+        //            v = v * 255 / Vector64.Create((ushort)c.A);
+        //            return new Color32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
+        //    }
+        //}
 
         internal static PColor32 ToPColor32_5_DivIntrinsicsFloat(this Color32 c)
         {
@@ -405,37 +406,37 @@ namespace KGySoft.Drawing.PerformanceTests
                 (byte)(((uint)c.B << 8) / c.A)),
         };
 
-        internal static PColor32 ToPColor32_1_ShiftVector64(this Color32 c)
-        {
-            switch (c.A)
-            {
-                case 255:
-                    return new PColor32(c.Value);
-                case 0:
-                    return default;
-                default:
-                    Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
-                    v *= c.A;
-                    v = Vector64.ShiftRightLogical(v, 8);
-                    return new PColor32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
-            }
-        }
+        //internal static PColor32 ToPColor32_1_ShiftVector64(this Color32 c)
+        //{
+        //    switch (c.A)
+        //    {
+        //        case 255:
+        //            return new PColor32(c.Value);
+        //        case 0:
+        //            return default;
+        //        default:
+        //            Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
+        //            v *= c.A;
+        //            v = Vector64.ShiftRightLogical(v, 8);
+        //            return new PColor32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
+        //    }
+        //}
 
-        internal static Color32 ToColor32_1_ShiftVector64(this PColor32 c)
-        {
-            switch (c.A)
-            {
-                case 255:
-                    return new Color32(c.Value);
-                case 0:
-                    return default;
-                default:
-                    Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
-                    v = Vector64.ShiftLeft(v, 8);
-                    v /= Vector64.Create((ushort)c.A);
-                    return new Color32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
-            }
-        }
+        //internal static Color32 ToColor32_1_ShiftVector64(this PColor32 c)
+        //{
+        //    switch (c.A)
+        //    {
+        //        case 255:
+        //            return new Color32(c.Value);
+        //        case 0:
+        //            return default;
+        //        default:
+        //            Vector64<ushort> v = Vector64.Create(c.R, c.G, c.B, (ushort)0);
+        //            v = Vector64.ShiftLeft(v, 8);
+        //            v /= Vector64.Create((ushort)c.A);
+        //            return new Color32(c.A, (byte)v[0], (byte)v[1], (byte)v[2]);
+        //    }
+        //}
 
         internal static PColor32 ToPColor32_2_ShiftIntrinsics(this Color32 c)
         {
@@ -477,3 +478,5 @@ namespace KGySoft.Drawing.PerformanceTests
         #endregion
     }
 }
+
+#endif

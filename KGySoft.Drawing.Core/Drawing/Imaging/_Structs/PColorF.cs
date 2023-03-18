@@ -21,6 +21,10 @@ using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
 
 #endregion
 
@@ -34,17 +38,6 @@ namespace KGySoft.Drawing.Imaging
     public readonly struct PColorF : IEquatable<PColorF>
     {
         #region Fields
-
-        #region Static Fields
-
-#if !(NET35 || NET40 || NET45 || NETSTANDARD2_0)
-        private static readonly Vector4 max8Bpp = new Vector4(Byte.MaxValue);
-        private static readonly Vector4 half = new Vector4(0.5f);
-#endif
-
-        #endregion
-
-        #region Instance Fields
 
         #region Public Fields
 
@@ -75,8 +68,8 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Internal Fields
-
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+
         [FieldOffset(0)]
         [NonSerialized]
         internal readonly Vector4 Rgba;
@@ -84,15 +77,36 @@ namespace KGySoft.Drawing.Imaging
         [FieldOffset(0)]
         [NonSerialized]
         internal readonly Vector3 Rgb;
+
+#if NETCOREAPP3_0_OR_GREATER
+        [FieldOffset(0)]
+        [NonSerialized]
+        internal readonly Vector128<float> RgbaV128;
 #endif
 
-        #endregion
-
+#endif
         #endregion
 
         #endregion
 
         #region Properties
+
+        #region Static Properties
+
+#if NET5_0_OR_GREATER
+        // In .NET 5.0 and above these perform better as inlined rather than caching a static field
+        private static Vector4 Max8Bpp => Vector128.Create(255f).AsVector4();
+        private static Vector4 Half => Vector128.Create(0.5f).AsVector4();
+        private static Vector128<byte> PackRgbaAsPColor32Mask => Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#elif NETCOREAPP3_0_OR_GREATER
+        private static Vector4 Max8Bpp { get; } = new Vector4(Byte.MaxValue);
+        private static Vector4 Half { get; } = new Vector4(0.5f);
+        private static Vector128<byte> PackRgbaAsPColor32Mask { get; } = Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#endif
+
+        #endregion
+
+        #region Instance Properties
 
         /// <summary>
         /// Gets whether this <see cref="PColorF"/> instance represents a valid color.
@@ -104,6 +118,8 @@ namespace KGySoft.Drawing.Imaging
 #else
         public bool IsValid => Clip() == this;
 #endif
+
+        #endregion
 
         #endregion
 
@@ -244,10 +260,16 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
             Unsafe.SkipInit(out this);
 #endif
+#if NETCOREAPP3_0_OR_GREATER
+            RgbaV128 = Vector128.Create(r, g, b, a);
+#elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Rgba = new Vector4(r, g, b, a);
+#else
             R = r;
             G = g;
             B = b;
             A = a;
+#endif
         }
 
         /// <summary>
@@ -332,6 +354,10 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
+        /// <summary>
+        /// NOTE: This ctor is not public because it does not adjust gamma.
+        /// Used by operations that need floating-point premultiplied colors but in the sRGB color space.
+        /// </summary>
         internal PColorF(PColor32 c)
 #if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
             : this() // so the compiler does not complain about not initializing value field
@@ -341,8 +367,27 @@ namespace KGySoft.Drawing.Imaging
             Unsafe.SkipInit(out this);
 #endif
 
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                // Converting the ARGB values to float
+                if (Sse41.IsSupported)
+                {
+                    // Order is BGRA because we reinterpret the original value as bytes if supported
+                    Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
+
+                    // Swapping R and G in the final result
+                    RgbaV128 = Sse.Shuffle(bgraF, bgraF, 0b_10_01_00_11);
+                    return;
+                }
+
+                // Cannot do the conversion in one step. 4x byte to int + 1x ints to floats is still faster than 4x byte to float in separate steps.
+                RgbaV128 = Sse2.ConvertToVector128Single(Vector128.Create(c.R, c.G, c.B, c.A));
+                return;
+            }
+#endif
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            Rgba = new Vector4(c.R, c.G, c.B, c.A) / max8Bpp;
+            Rgba = new Vector4(c.R, c.G, c.B, c.A) / Max8Bpp;
 #else
             R = ColorSpaceHelper.ToFloat(c.R);
             G = ColorSpaceHelper.ToFloat(c.G);
@@ -382,7 +427,6 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="vector">A <see cref="Vector4"/> representing the RGBA color components. The parameter is not validated but
         /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
         /// <returns>A <see cref="PColorF"/> structure converted from the specified <see cref="Vector4"/>.</returns>
-
         public static PColorF FromRgba(Vector4 vector) => new PColorF(vector);
 #endif
 
@@ -407,11 +451,11 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>A valid <see cref="ColorF"/> instance by clipping the possibly exceeding ARGB values.</returns>
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-        public PColorF Clip() => new PColorF(Vector4.Clamp(Rgba, Vector4.Zero, new Vector4(A.Clip(0f, 1f))));
+        public PColorF Clip() => new PColorF(Rgba.Clip(Vector4.Zero, new Vector4(A.ClipF())));
 #else
         public PColorF Clip()
         {
-            float a = A.Clip(0f, 1f);
+            float a = A.ClipF();
             return new PColorF(a, R.Clip(0f, a), G.Clip(0f, a), B.Clip(0f, a));
         }
 #endif
@@ -443,7 +487,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the string representation of this <see cref="PColorF"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="PColorF"/> instance.</returns>
-        public override string ToString() => $"[A={A:N4}; R={R:N4}; G={G:N4}; B={B:N4}]";
+        public override string ToString() => $"[A={A:N6}; R={R:N6}; G={G:N6}; B={B:N6}]";
 
         /// <summary>
         /// Determines whether the current <see cref="PColorF"/> instance is equal to another one.
@@ -485,17 +529,29 @@ namespace KGySoft.Drawing.Imaging
             //if (adjustGamma)
             //    return ToColor32().ToPremultiplied();
 
-#if NET35 || NET40 || NET45 || NETSTANDARD2_0
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Vector4 result = Rgba * Max8Bpp + Half;
+            result = result.Clip(Vector4.Zero, new Vector4(result.W.Clip(0f, Byte.MaxValue)));
+
+#if NETCOREAPP3_0_OR_GREATER
+            // Using vectorization also for the float -> int conversion if possible.
+            if (Sse2.IsSupported)
+            {
+                // Using Sse2.ConvertToVector128Int32WithTruncation here because above we already added +0.5
+                Vector128<byte> rgbaI32 = Sse2.ConvertToVector128Int32WithTruncation(result.AsVector128()).AsByte();
+                return Ssse3.IsSupported
+                    ? new PColor32(Ssse3.Shuffle(rgbaI32, PackRgbaAsPColor32Mask).AsUInt32().ToScalar())
+                    : new PColor32(rgbaI32.GetElement(12), rgbaI32.GetElement(0), rgbaI32.GetElement(4), rgbaI32.GetElement(8));
+            }
+#endif
+            return new PColor32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
+#else
             PColorF result = this * Byte.MaxValue + 0.5f;
             byte a = result.A.ClipToByte();
             return new PColor32(a,
                 result.R.ClipToByte(a),
                 result.G.ClipToByte(a),
                 result.B.ClipToByte(a));
-#else
-            Vector4 result = Rgba * max8Bpp + half;
-            result = Vector4.Clamp(result, Vector4.Zero, new Vector4(Math.Min(result.W, Byte.MaxValue)));
-            return new PColor32((byte)result.W, (byte)result.X, (byte)result.Y, (byte)result.Z);
 #endif
         }
 

@@ -49,6 +49,13 @@ namespace KGySoft.Drawing.Imaging
                 : value >= min ? value
                 : min;
 
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static float ClipF(this float value)
+            // Unlike Math.Clamp/Min/Max this returns min for NaN
+            => value >= 1f ? 1f
+                : value >= 0f ? value
+                : 0f;
+
         #endregion
     }
 }

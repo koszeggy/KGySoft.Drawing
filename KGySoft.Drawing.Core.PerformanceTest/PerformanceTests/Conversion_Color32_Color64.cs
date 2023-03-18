@@ -1,4 +1,5 @@
-﻿#region Copyright
+﻿#if NETCOREAPP3_0_OR_GREATER
+#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
 //  File: Conversion_Color32_Color64.cs
@@ -40,7 +41,7 @@ namespace KGySoft.Drawing.PerformanceTests
 
             var expected = testColor32.ToColor64_0_ShiftOr().ToColor32_0_Shift_Truncate();
             Assert.AreEqual(expected, testColor64.ToColor32_1_Division());
-            Assert.AreEqual(expected, testColor64.ToColor32_2_Vector64());
+            //Assert.AreEqual(expected, testColor64.ToColor32_2_Vector64());
             Assert.AreEqual(expected, testColor64.ToColor32_3_Vector128Intrinsics());
             Assert.AreEqual(expected, testColor64.ToColor32_4_Vector128Cast());
             Assert.AreEqual(expected, testColor64.ToColor32_5_Vector64Cast());
@@ -49,7 +50,7 @@ namespace KGySoft.Drawing.PerformanceTests
             new PerformanceTest<Color64> { TestName = "Color32 -> Color64", TestTime = 500, Iterations = 10_000_000, Repeat = 3 }
                 .AddCase(() => testColor32.ToColor64_0_ShiftOr(), nameof(Extensions.ToColor64_0_ShiftOr))
                 .AddCase(() => testColor32.ToColor64_1_Multiplication(), nameof(Extensions.ToColor64_1_Multiplication))
-                .AddCase(() => testColor32.ToColor64_2_Vector64(), nameof(Extensions.ToColor64_2_Vector64))
+                //.AddCase(() => testColor32.ToColor64_2_Vector64(), nameof(Extensions.ToColor64_2_Vector64))
                 .AddCase(() => testColor32.ToColor64_3_Vector128Intrinsics(), nameof(Extensions.ToColor64_3_Vector128Intrinsics))
                 .DoTest()
                 .DumpResults(Console.Out);
@@ -85,12 +86,12 @@ namespace KGySoft.Drawing.PerformanceTests
             ColorSpaceHelper.ToUInt16(c.G),
             ColorSpaceHelper.ToUInt16(c.B));
 
-        internal static Color64 ToColor64_2_Vector64(this Color32 c)
-        {
-            var v = Vector64.Create((ushort)c.B, c.G, c.R, c.A);
-            v *= 257;
-            return new Color64(v.As<ushort, ulong>()[0]);
-        }
+        //internal static Color64 ToColor64_2_Vector64(this Color32 c)
+        //{
+        //    var v = Vector64.Create((ushort)c.B, c.G, c.R, c.A);
+        //    v *= 257;
+        //    return new Color64(v.As<ushort, ulong>()[0]);
+        //}
 
         internal static Color64 ToColor64_3_Vector128Intrinsics(this Color32 c)
         {
@@ -113,15 +114,15 @@ namespace KGySoft.Drawing.PerformanceTests
             (byte)(c.G * 255 / 65535),
             (byte)(c.B * 255 / 65535));
 
-        internal static Color32 ToColor32_2_Vector64(this Color64 c)
-        {
-            var v = Vector64.ShiftRightLogical(Vector64.CreateScalar(c.Value).As<ulong, ushort>(), 8);
-            return new Color32(
-                (byte)v.GetElement(3),
-                (byte)v.GetElement(2),
-                (byte)v.GetElement(1),
-                (byte)v.GetElement(0));
-        }
+        //internal static Color32 ToColor32_2_Vector64(this Color64 c)
+        //{
+        //    var v = Vector64.ShiftRightLogical(Vector64.CreateScalar(c.Value).As<ulong, ushort>(), 8);
+        //    return new Color32(
+        //        (byte)v.GetElement(3),
+        //        (byte)v.GetElement(2),
+        //        (byte)v.GetElement(1),
+        //        (byte)v.GetElement(0));
+        //}
 
         internal static Color32 ToColor32_3_Vector128Intrinsics(this Color64 c)
         {
@@ -151,3 +152,5 @@ namespace KGySoft.Drawing.PerformanceTests
         #endregion
     }
 }
+
+#endif

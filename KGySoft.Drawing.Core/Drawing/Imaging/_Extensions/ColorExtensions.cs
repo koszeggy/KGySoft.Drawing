@@ -255,7 +255,7 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="color">The <see cref="PColor32"/> to convert.</param>
         /// <returns>A <see cref="PColorF"/> instance converted from this <see cref="PColor32"/> instance.</returns>
-        public static PColorF ToPColorF(this PColor32 color) => new PColorF(color);
+        public static PColorF ToPColorF(this PColor32 color) => new PColorF(color.ToStraight());
 
         #endregion
 
@@ -818,7 +818,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="c1">The first color to compare.</param>
         /// <param name="c2">The second color to compare.</param>
-        /// <param name="tolerance">The allowed tolerance for ARGB components. For performance reasons this parameter is not validated.</param>
+        /// <param name="tolerance">The allowed tolerance for ARGB components. For performance reasons this parameter is not validated. This parameter is optional.
+        /// <br/>Default value: <c>0.000001</c> (10<sup>-6</sup>).</param>
         /// <param name="alphaThreshold">Specifies a threshold under which colors are considered transparent. If both colors have lower <see cref="ColorF.A"/> value than the threshold, then they are considered equal.
         /// If only one of the specified colors has lower <see cref="ColorF.A"/> value than the threshold, then the colors are considered different.
         /// If both colors' <see cref="ColorF.A"/> value are equal to or greater than this value, then <paramref name="tolerance"/> is applied to the <see cref="ColorF.A"/> value, too.
@@ -826,7 +827,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: 0.</param>
         /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static bool TolerantEquals(this ColorF c1, ColorF c2, float tolerance, float alphaThreshold = 0f)
+        public static bool TolerantEquals(this ColorF c1, ColorF c2, float tolerance = 1e-6f, float alphaThreshold = 0f)
         {
             if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
                 return true;
@@ -887,7 +888,8 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <param name="c1">The first color to compare.</param>
         /// <param name="c2">The second color to compare.</param>
-        /// <param name="tolerance">The allowed tolerance for ARGB components. For performance reasons this parameter is not validated.</param>
+        /// <param name="tolerance">The allowed tolerance for ARGB components. For performance reasons this parameter is not validated. This parameter is optional.
+        /// <br/>Default value: <c>0.000001</c> (10<sup>-6</sup>).</param>
         /// <param name="alphaThreshold">Specifies a threshold under which colors are considered transparent. If both colors have lower <see cref="PColorF.A"/> value than the threshold, then they are considered equal.
         /// If only one of the specified colors has lower <see cref="PColorF.A"/> value than the threshold, then the colors are considered different.
         /// If both colors' <see cref="PColorF.A"/> value are equal to or greater than this value, then <paramref name="tolerance"/> is applied to the <see cref="PColorF.A"/> value, too.
@@ -895,7 +897,7 @@ namespace KGySoft.Drawing.Imaging
         /// <br/>Default value: 0.</param>
         /// <returns><see langword="true"/>, if the colors are considered equal with the specified <paramref name="tolerance"/>; otherwise, <see langword="false"/>.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        public static bool TolerantEquals(this PColorF c1, PColorF c2, float tolerance, float alphaThreshold = 0f)
+        public static bool TolerantEquals(this PColorF c1, PColorF c2, float tolerance = 1e-6f, float alphaThreshold = 0f)
         {
             if (c1 == c2 || c1.A < alphaThreshold && c2.A < alphaThreshold)
                 return true;
@@ -939,6 +941,10 @@ namespace KGySoft.Drawing.Imaging
             if (c.A == 0)
                 return backColor;
             int inverseAlpha = Byte.MaxValue - c.A;
+            //return new Color32(Byte.MaxValue,
+            //    (byte)((c.R * c.A + backColor.R * inverseAlpha) / 255),
+            //    (byte)((c.G * c.A + backColor.G * inverseAlpha) / 255),
+            //    (byte)((c.B * c.A + backColor.B * inverseAlpha) / 255));
             return new Color32(Byte.MaxValue,
                 (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
                 (byte)((c.G * c.A + backColor.G * inverseAlpha) >> 8),

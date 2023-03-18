@@ -19,8 +19,10 @@ using System;
 using System.Diagnostics.CodeAnalysis;
 using System.Runtime.CompilerServices;
 using System.Runtime.InteropServices;
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
 using System.Runtime.Intrinsics.X86;
+#endif
 using System.Security;
 
 #endregion
@@ -83,6 +85,21 @@ namespace KGySoft.Drawing.Imaging
 
         #region Properties
 
+        #region Static Properties
+
+#if NET5_0_OR_GREATER
+        // Inlining Vector128.Create is faster on .NET 5 and above than caching a static field
+        private static Vector128<byte> PackLowWordsMask => Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        private static Vector128<byte> PackHighBytesOfLowWordsMask => Vector128.Create(1, 5, 9, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#elif NETCOREAPP3_0_OR_GREATER
+        private static Vector128<byte> PackLowWordsMask { get; } = Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        private static Vector128<byte> PackHighBytesOfLowWordsMask { get; } = Vector128.Create(1, 5, 9, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#endif
+            
+        #endregion
+
+        #region Instance Properties
+
         #region Public Properties
 
         /// <summary>
@@ -96,6 +113,8 @@ namespace KGySoft.Drawing.Imaging
         #region Internal Properties
 
         internal ulong Value => value;
+
+        #endregion
 
         #endregion
 
@@ -122,7 +141,7 @@ namespace KGySoft.Drawing.Imaging
         #endregion
 
         #region Constructors
-        
+
         #region Public Constructors
 
         /// <summary>
@@ -209,7 +228,7 @@ namespace KGySoft.Drawing.Imaging
                         Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
                             // Reinterpreting the ulong value as ushorts and converting them to ints in one step is still faster than converting them separately
                             ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16())
-                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
                             : Vector128.Create(c.B, c.G, c.R, default));
 
                         // Instead of division we use a multiplication with the reciprocal of max value
@@ -234,9 +253,7 @@ namespace KGySoft.Drawing.Imaging
                             // Compressing 32-bit values to 16 bit ones and initializing value from the first 64 bit
                             value = (Sse41.IsSupported
                                     ? Sse41.PackUnsignedSaturate(bgraI32, bgraI32).AsUInt64()
-                                    : Ssse3.Shuffle(bgraI32.AsByte(),
-                                        // Taking the low word of every 32-bit value, ignoring the high half. Inlining is actually faster than caching a field.
-                                        Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt64())
+                                    : Ssse3.Shuffle(bgraI32.AsByte(), PackLowWordsMask).AsUInt64())
                                 .ToScalar();
                             return;
                         }
@@ -359,7 +376,7 @@ namespace KGySoft.Drawing.Imaging
             Math.Min(A, G),
             Math.Min(A, B));
 
-        
+
         /// <summary>
         /// Converts this <see cref="PColor64"/> instance to a <see cref="Color64"/> structure.
         /// It's practically the same as calling the <see cref="ColorExtensions.ToStraight(PColor64)"/> method.
@@ -384,7 +401,7 @@ namespace KGySoft.Drawing.Imaging
                         Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
                             // Reinterpreting the ulong value as ushorts and converting them to ints in one step is still faster than converting them separately
                             ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(value).AsUInt16())
-                            // Cannot to the conversion in one step. Sparing one conversion because A is actually not needed here.
+                            // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
                             : Vector128.Create(B, G, R, default));
 
                         // Doing the division first to prevent running out of the integer-precision of float, which is 24 bit
@@ -411,9 +428,7 @@ namespace KGySoft.Drawing.Imaging
                             // Compressing 32-bit values to 16 bit ones and initializing value from the first 64 bit
                             return new Color64((Sse41.IsSupported
                                     ? Sse41.PackUnsignedSaturate(bgraI32, bgraI32).AsUInt64()
-                                    : Ssse3.Shuffle(bgraI32.AsByte(),
-                                        // Taking the low word of every 32-bit value, ignoring the high half. Inlining is actually faster than caching a field.
-                                        Vector128.Create(0, 1, 4, 5, 8, 9, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt64())
+                                    : Ssse3.Shuffle(bgraI32.AsByte(), PackLowWordsMask).AsUInt64())
                                 .ToScalar());
                         }
 
@@ -477,8 +492,7 @@ namespace KGySoft.Drawing.Imaging
                         if (Ssse3.IsSupported)
                         {
                             // Taking the 2nd byte of every 32-bit value (high byte of the 16-bit values), ignoring the rest.
-                            return new Color32(Ssse3.Shuffle(bgraI32,
-                                Vector128.Create(1, 5, 9, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt32().ToScalar());
+                            return new Color32(Ssse3.Shuffle(bgraI32, PackHighBytesOfLowWordsMask).AsUInt32().ToScalar());
                         }
 
                         // Casting from the int results one by one. It's still faster than
@@ -489,9 +503,9 @@ namespace KGySoft.Drawing.Imaging
                             bgraI32.GetElement(1));
                     }
 #endif
-                    
+
                     // The non-accelerated version. Almost the same as in ToColor64 except that we use only the high bytes in the result.
-                    return new Color32((byte)(A >> 8), 
+                    return new Color32((byte)(A >> 8),
                         (byte)(((uint)R * UInt16.MaxValue / A) >> 8),
                         (byte)(((uint)G * UInt16.MaxValue / A) >> 8),
                         (byte)(((uint)B * UInt16.MaxValue / A) >> 8));
