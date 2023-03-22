@@ -22,6 +22,10 @@ using System.Drawing;
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
+#if NETCOREAPP3_0_OR_GREATER
+using System.Runtime.Intrinsics;
+using System.Runtime.Intrinsics.X86;
+#endif
 
 using KGySoft.CoreLibraries;
 
@@ -421,9 +425,35 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="byte">byte</see> value where 0 represents the darkest and 255 represents the brightest possible value.</returns>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte GetBrightness(this Color32 c)
-            => c.R == c.G && c.R == c.B
-                ? c.R
-                : (byte)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+        {
+            if (c.R == c.G && c.R == c.B)
+                return c.R;
+
+#if NET5_0_OR_GREATER
+            // Actually it would be supported even in .NET Core 3.0 but it's not performant enough below .NET 5.0
+            if (Sse2.IsSupported)
+            {
+                // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                    // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
+                    ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte())
+                    // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
+                    : Vector128.Create(c.B, c.G, c.R, default));
+
+                // Multiplying the RGB components with the sRGB grayscale coefficients and returning the sum
+                // NOTE: this is actually the dot product with the grayscale coefficients but Vector128.Dot is slower than the explicit Multiply + Sum
+                var result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb, GLumSrgb, RLumSrgb, default));
+
+#if NET7_0_OR_GREATER
+                return (byte)Vector128.Sum(result);
+#else
+                return (byte)(result.GetElement(0) + result.GetElement(1) + result.GetElement(2));
+#endif
+            }
+#endif
+
+            return (byte)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+        }
 
         /// <summary>
         /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="byte">byte</see> based on human perception.
@@ -452,9 +482,35 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         [CLSCompliant(false)]
         public static ushort GetBrightness(this Color64 c)
-            => c.R == c.G && c.R == c.B
-                ? c.R
-                : (ushort)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+        {
+            if (c.R == c.G && c.R == c.B)
+                return c.R;
+
+#if NET5_0_OR_GREATER
+            // Actually it would be supported even in .NET Core 3.0 but it's not performant enough below .NET 5.0
+            if (Sse2.IsSupported)
+            {
+                // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as ushorts if supported)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                    // Reinterpreting the ulong value as ushorts and converting them to ints in one step is still faster than converting them separately
+                    ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16())
+                    // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
+                    : Vector128.Create(c.B, c.G, c.R, default));
+
+                // Multiplying the RGB components with the sRGB grayscale coefficients and returning the sum.
+                // NOTE: this is actually the dot product with the grayscale coefficients but Vector128.Dot is slower than the explicit Multiply + Sum
+                var result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb, GLumSrgb, RLumSrgb, default));
+
+#if NET7_0_OR_GREATER
+                return (ushort)Vector128.Sum(result);
+#else
+                return (ushort)(result.GetElement(0) + result.GetElement(1) + result.GetElement(2));
+#endif
+            }
+#endif
+
+            return (ushort)(c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb);
+        }
 
         /// <summary>
         /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="ushort"/> based on human perception.
@@ -490,7 +546,11 @@ namespace KGySoft.Drawing.Imaging
         public static float GetBrightness(this ColorF c)
             => c.R.Equals(c.G) && c.R.Equals(c.B)
                 ? c.R
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                : Vector3.Dot(c.Rgb, new Vector3(RLumLinear, GLumLinear, BLumLinear));
+#else
                 : c.R * RLumLinear + c.G * GLumLinear + c.B * BLumLinear;
+#endif
 
         /// <summary>
         /// Gets the brightness of a <see cref="ColorF"/> instance as a <see cref="float">float</see> value in the linear color space.
@@ -523,7 +583,28 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float GetBrightnessF(this Color32 c)
-            => c.R * RLumSrgb / Byte.MaxValue + c.G * GLumSrgb / Byte.MaxValue + c.B * BLumSrgb / Byte.MaxValue;
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                    // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
+                    ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte())
+                    // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
+                    : Vector128.Create(c.B, c.G, c.R, default));
+
+                //// SSE 4.1 dot product is a bit slower for some reason (maybe due to the optional broadcasting feature where we just put the result in the first element only)
+                //if (Sse41.IsSupported)
+                //    return Sse41.DotProduct(bgrF, Vector128.Create(BLumSrgb / Byte.MaxValue, GLumSrgb / Byte.MaxValue, RLumSrgb / Byte.MaxValue, default), 0b_0111_0001).ToScalar();
+
+                Vector128<float> result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb / Byte.MaxValue, GLumSrgb / Byte.MaxValue, RLumSrgb / Byte.MaxValue, default));
+                return result.GetElement(0) + result.GetElement(1) + result.GetElement(2);
+            }
+#endif
+
+            return c.R * RLumSrgb / Byte.MaxValue + c.G * GLumSrgb / Byte.MaxValue + c.B * BLumSrgb / Byte.MaxValue;
+        }
 
         /// <summary>
         /// Gets the brightness of a <see cref="Color32"/> instance as a <see cref="float">float</see> value based on human perception.
@@ -555,7 +636,28 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float GetBrightnessF(this Color64 c)
-            => c.R * RLumSrgb / UInt16.MaxValue + c.G * GLumSrgb / UInt16.MaxValue + c.B * BLumSrgb / UInt16.MaxValue;
+        {
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as ushorts if supported)
+                Vector128<float> bgrF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                    // Reinterpreting the ulong value as ushorts and converting them to ints in one step is still faster than converting them separately
+                    ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16())
+                    // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
+                    : Vector128.Create(c.B, c.G, c.R, default));
+
+                //// SSE 4.1 dot product is a bit slower for some reason (maybe due to the optional broadcasting feature where we just put the result in the first element only)
+                //if (Sse41.IsSupported)
+                //    return Sse41.DotProduct(bgrF, Vector128.Create(BLumSrgb / UInt16.MaxValue, GLumSrgb / UInt16.MaxValue, RLumSrgb / UInt16.MaxValue, default), 0b_0111_0001).ToScalar();
+
+                Vector128<float> result = Sse.Multiply(bgrF, Vector128.Create(BLumSrgb / UInt16.MaxValue, GLumSrgb / UInt16.MaxValue, RLumSrgb / UInt16.MaxValue, default));
+                return result.GetElement(0) + result.GetElement(1) + result.GetElement(2);
+            }
+#endif
+
+            return c.R * RLumSrgb / UInt16.MaxValue + c.G * GLumSrgb / UInt16.MaxValue + c.B * BLumSrgb / UInt16.MaxValue;
+        }
 
         /// <summary>
         /// Gets the brightness of a <see cref="Color64"/> instance as a <see cref="float">float</see> value based on human perception.

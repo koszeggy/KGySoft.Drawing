@@ -32,8 +32,8 @@ namespace KGySoft.Drawing.Imaging
         #region Methods
 
 #if NETCOREAPP3_0
-        internal static ref Vector128<float> AsVector128(this in Vector4 v) => ref Unsafe.As<Vector4, Vector128<float>>(ref Unsafe.AsRef(v));
-        internal static ref Vector4 AsVector4(this in Vector128<float> v) => ref Unsafe.As<Vector128<float>, Vector4>(ref Unsafe.AsRef(v));
+        internal static Vector128<float> AsVector128(this Vector4 v) => Unsafe.As<Vector4, Vector128<float>>(ref v);
+        internal static Vector4 AsVector4(this Vector128<float> v) => Unsafe.As<Vector128<float>, Vector4>(ref v);
 #endif
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
