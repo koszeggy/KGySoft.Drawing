@@ -43,13 +43,13 @@ namespace KGySoft.Drawing.PerformanceTests
             //var testColor64 = new Color64(0xFFFE, 0xFFFF, 0xFFFE, 0xFFFD);
             var testPColor64 = testColor64.ToPColor64();
 
-            Console.WriteLine($"{"Test color:",-80} {testColor64}");
+            Console.WriteLine($"{"Test color:",-40} {testColor64}");
             void DoAssert(Expression<Func<Color64, Color64>> e)
             {
                 var m2 = (MethodCallExpression)e.Body;
                 var m1 = (MethodCallExpression)m2.Arguments[0];
                 Color64 actual = e.Compile().Invoke(testColor64);
-                Console.WriteLine($"{$"{m1.Method.Name}.{m2.Method.Name}:",-80} {actual}");
+                Console.WriteLine($"{$"{m1.Method.Name}.{m2.Method.Name}:",-40} {actual}");
                 Assert.IsTrue(testColor64.TolerantEquals(actual, 1), $"{m1.Method.Name}.{m2.Method.Name}: {testColor64} vs. {actual}");
             }
 

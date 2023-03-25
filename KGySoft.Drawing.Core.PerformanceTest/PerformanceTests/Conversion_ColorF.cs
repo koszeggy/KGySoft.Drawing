@@ -46,12 +46,12 @@ namespace KGySoft.Drawing.PerformanceTests
             var linear = new ColorF(r, g, b, a);
             var srgb = new ColorF(r, g, b, a).ToSrgb();
 
-            Console.WriteLine($"{"Expected color:",-80} {srgb}");
+            Console.WriteLine($"{"Expected color:",-40} {srgb}");
             void DoAssert(Expression<Func<ColorF, ColorF>> e)
             {
                 var m = (MethodCallExpression)e.Body;
                 ColorF actual = e.Compile().Invoke(linear);
-                Console.WriteLine($"{$"{m.Method.Name}:",-80} {actual}");
+                Console.WriteLine($"{$"{m.Method.Name}:",-40} {actual}");
                 Assert.IsTrue(srgb.TolerantEquals(actual), $"{m.Method.Name}: {srgb} vs. {actual}");
             }
 
@@ -79,13 +79,13 @@ namespace KGySoft.Drawing.PerformanceTests
         {
             var testColor32 = new Color32(128, 128, 64, 32);
 
-            Console.WriteLine($"{"Test color:",-80} {testColor32}");
+            Console.WriteLine($"{"Test color:",-40} {testColor32}");
             void DoAssert(Expression<Func<Color32, Color32>> e)
             {
                 var m2 = (MethodCallExpression)e.Body;
                 var m1 = (MethodCallExpression)m2.Arguments[0];
                 Color32 actual = e.Compile().Invoke(testColor32);
-                Console.WriteLine($"{$"{m1.Method.Name}.{m2.Method.Name}:",-80} {actual}");
+                Console.WriteLine($"{$"{m1.Method.Name}.{m2.Method.Name}:",-40} {actual}");
                 Assert.IsTrue(testColor32.TolerantEquals(actual, 1, 0), $"{m1.Method.Name}.{m2.Method.Name}: {testColor32} vs. {actual}");
             }
 
@@ -108,12 +108,12 @@ namespace KGySoft.Drawing.PerformanceTests
             var testColorF = new ColorF(a, r, g, b);
             var testColor32 = testColorF.ToColor32();
 
-            Console.WriteLine($"{"Expected color:",-80} {testColor32}");
+            Console.WriteLine($"{"Expected color:",-40} {testColor32}");
             void DoAssert(Expression<Func<ColorF, Color32>> e)
             {
                 var m = (MethodCallExpression)e.Body;
                 Color32 actual = e.Compile().Invoke(testColorF);
-                Console.WriteLine($"{$"{m.Method.Name}:",-80} {actual}");
+                Console.WriteLine($"{$"{m.Method.Name}:",-40} {actual}");
                 Assert.IsTrue(testColor32.Equals(actual), $"{m.Method.Name}: {testColor32} vs. {actual}");
             }
 
@@ -144,12 +144,12 @@ namespace KGySoft.Drawing.PerformanceTests
             //var testColor32 = new Color32(128, 1, 2, 3);
             var testColorF = testColor64.ToColorF();
 
-            Console.WriteLine($"{"Expected color:",-80} {testColor64}");
+            Console.WriteLine($"{"Expected color:",-40} {testColor64}");
             void DoAssert(Expression<Func<ColorF, Color64>> e)
             {
                 var m = (MethodCallExpression)e.Body;
                 Color64 actual = e.Compile().Invoke(testColorF);
-                Console.WriteLine($"{$"{m.Method.Name}:",-80} {actual}");
+                Console.WriteLine($"{$"{m.Method.Name}:",-40} {actual}");
                 Assert.IsTrue(testColor64.Equals(actual), $"{m.Method.Name}: {testColor64} vs. {actual}");
             }
 

@@ -214,38 +214,52 @@ namespace KGySoft.Drawing.Imaging
                     // Using bit-shifting could prevent using floating point calculations but the result would be less accurate.
                     if (Sse2.IsSupported)
                     {
-                        // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
-                        Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                        // Converting the [A]RGB values to float (order is BGR[A] because we reinterpret the original value as bytes if supported)
+                        Vector128<float> bgrxF = Sse2.ConvertToVector128Single(Sse41.IsSupported
                             // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
                             ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte())
                             // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
                             : Vector128.Create(c.B, c.G, c.R, default));
 
-                        // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
-                        bgraF = Sse.Multiply(bgraF, Sse2.ConvertToVector128Single(Sse41.IsSupported
-                            ? Sse41.ConvertToVector128Int32(Vector128.Create(c.A))
-                            : Vector128.Create((int)c.A)));
+                        Vector128<int> aI32;
+                        if (Sse41.IsSupported)
+                        {
+                            // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
+                            aI32 = Sse41.ConvertToVector128Int32(Vector128.Create(c.A));
+                        }
+                        else
+                        {
+#if NET8_0_OR_GREATER
+                            aI32 = Vector128.Create((int)c.A);
+#else
+                            // Workaround for bug: https://github.com/dotnet/runtime/issues/83387
+                            int a = c.A;
+                            aI32 = Vector128.Create(a);
+#endif
+                        }
+
+                        bgrxF = Sse.Multiply(bgrxF, Sse2.ConvertToVector128Single(aI32));
 
                         // Instead of division we use a multiplication with the reciprocal of max value
-                        bgraF = Sse.Multiply(bgraF, Vector128.Create(1f / 255f));
+                        bgrxF = Sse.Multiply(bgrxF, Vector128.Create(1f / 255f));
 
                         // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
                         // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
                         // Unfortunately there is no direct vectorized conversion to byte so we need to pack the result if possible.
-                        Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
+                        Vector128<int> bgrxI32 = Sse2.ConvertToVector128Int32(bgrxF);
 
                         // Initializing directly from uint if it is supported to shuffle the ints as packed bytes
                         if (Ssse3.IsSupported)
                         {
                             // Compressing 32-bit values to 8 bit ones and initializing value from the first 32 bit
-                            value = Ssse3.Shuffle(bgraI32.AsByte().WithElement(12, c.A), PackLowBytesMask).AsUInt32().ToScalar();
+                            value = Ssse3.Shuffle(bgrxI32.AsByte().WithElement(12, c.A), PackLowBytesMask).AsUInt32().ToScalar();
                         }
 
                         // Casting from the int results one by one. It's still faster than
                         // converting the components from floats without the ConvertToVector128Int32 call.
-                        B = (byte)bgraI32.GetElement(0);
-                        G = (byte)bgraI32.GetElement(1);
-                        R = (byte)bgraI32.GetElement(2);
+                        B = (byte)bgrxI32.GetElement(0);
+                        G = (byte)bgrxI32.GetElement(1);
+                        R = (byte)bgrxI32.GetElement(2);
                         A = c.A;
                     }
 #endif
@@ -337,37 +351,53 @@ namespace KGySoft.Drawing.Imaging
                     // but only with hardware intrinsics (so not using Vector3/Vector4 here because it is much slower for some reason).
                     if (Sse2.IsSupported)
                     {
-                        // Converting the [A]RGB values to float (order is BGRA because we reinterpret the original value as bytes if supported)
-                        Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.IsSupported
+                        // Converting the [A]RGB values to float (order is BGR[A] because we reinterpret the original value as bytes if supported)
+                        Vector128<float> bgrxF = Sse2.ConvertToVector128Single(Sse41.IsSupported
                             // Reinterpreting the uint value as bytes and converting them to ints in one step is still faster than converting them separately
                             ? Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(value).AsByte())
                             // Cannot do the conversion in one step. Sparing one conversion because A is actually not needed here.
                             : Vector128.Create(B, G, R, default));
 
-                        bgraF = Sse.Multiply(bgraF, Vector128.Create(255f));
+                        bgrxF = Sse.Multiply(bgrxF, Vector128.Create(255f));
+
+                        Vector128<int> aI32;
+                        if (Sse41.IsSupported)
+                        {
+                            // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
+                            aI32 = Sse41.ConvertToVector128Int32(Vector128.Create(A));
+                        }
+                        else
+                        {
+#if NET8_0_OR_GREATER
+                            aI32 = Vector128.Create((int)A);
+#else
+                            // Workaround for bug: https://github.com/dotnet/runtime/issues/83387
+                            int a = A;
+                            aI32 = Vector128.Create(a);
+#endif
+                        }
 
                         // Unlike in the constructor  multiplication with reciprocal is not that fast because 1f/A is not a constant.
-                        // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion
-                        bgraF = Sse.Divide(bgraF, Sse2.ConvertToVector128Single(Sse41.IsSupported
-                            ? Sse41.ConvertToVector128Int32(Vector128.Create(A))
-                            : Vector128.Create((int)A)));
+                        bgrxF = Sse.Divide(bgrxF, Sse2.ConvertToVector128Single(aI32));
 
                         // Sse2.ConvertToVector128Int32 performs actual rounding instead of the truncating conversion of the
                         // non-accelerated version so the results can be different by 1 shade, but this provides the more correct result.
                         // Unfortunately there is no direct vectorized conversion to byte so we need to pack the result if possible.
-                        Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(bgraF);
+                        Vector128<int> bgrxI32 = Sse2.ConvertToVector128Int32(bgrxF);
 
-#if NET5_0_OR_GREATER
                         // Initializing directly from uint if it is supported to shuffle the ints as packed bytes
                         if (Ssse3.IsSupported)
-                            return new Color32(Ssse3.Shuffle(bgraI32.AsByte().WithElement(12, A),
-                                // Taking the low byte of every 32-bit value, ignoring the rest. Inlining the mask in .NET >=5 is faster than caching a field.
-                                Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)).AsUInt32().ToScalar());
-#endif
+                            return new Color32(Ssse3.Shuffle(bgrxI32.AsByte().WithElement(12, A), PackLowBytesMask).AsUInt32().ToScalar());
+                        
+                        return new Color32(A,
+                            (byte)bgrxI32.GetElement(2),
+                            (byte)bgrxI32.GetElement(1),
+                            (byte)bgrxI32.GetElement(0));
                     }
 #endif
 
-                    // The non-accelerated version. Bit-shifting, eg. r:(byte)((R << 8) / A) would not be much faster because it still contains a division.
+                    // The non-accelerated version. Bit-shifting, eg. r:(byte)((R << 8) / A) would be neither faster (because it still contains a division)
+                    // nor accurate enough (because the result of the division can be 256).
                     return new Color32(A,
                         (byte)(R * Byte.MaxValue / A),
                         (byte)(G * Byte.MaxValue / A),

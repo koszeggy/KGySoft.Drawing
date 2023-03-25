@@ -24,8 +24,6 @@ using System.Runtime.Intrinsics.X86;
 
 using KGySoft.Drawing.Imaging;
 
-using Newtonsoft.Json.Linq;
-
 using NUnit.Framework;
 
 #endregion
@@ -43,14 +41,14 @@ namespace KGySoft.Drawing.PerformanceTests
             var testColor32 = new Color32(128, 255, 128, 64);
             //var testColor32 = new Color32(254, 255, 254, 253);
             var testPColor64 = testColor32.ToPColor64();
-            Console.WriteLine($"{"Test color:",-80} {testColor32}");
+            Console.WriteLine($"{"Test color:",-40} {testColor32}");
 
             void DoAssert(Expression<Func<Color32, Color32>> e)
             {
                 var m2 = (MethodCallExpression)e.Body;
                 var m1 = (MethodCallExpression)m2.Arguments[0];
                 Color32 actual = e.Compile().Invoke(testColor32);
-                Console.WriteLine($"{$"{m1.Method.Name}.{m2.Method.Name}:",-80} {actual}");
+                Console.WriteLine($"{$"{m1.Method.Name}.{m2.Method.Name}:",-40} {actual}");
                 Assert.IsTrue(testColor32.TolerantEquals(actual, 1), $"{m1.Method.Name}.{m2.Method.Name}: {testColor32} vs. {actual}");
             }
 
