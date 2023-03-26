@@ -48,12 +48,12 @@ namespace KGySoft.Drawing.PerformanceTests
             var linear = Vector128.Create(r, g, b, a);
             var srgb = ColorSpaceHelper.LinearToSrgbVectorRgba(Vector128.Create(r, g, b, a));
 
-            Console.WriteLine($"{"Expected color:",-80} {srgb}");
+            Console.WriteLine($"{"Expected color:",-40} {srgb}");
             void DoAssert(Expression<Func<Vector128<float>, Vector128<float>>> e)
             {
                 var m = (MethodCallExpression)e.Body;
                 Vector128<float> actual = e.Compile().Invoke(linear);
-                Console.WriteLine($"{$"{m.Method.Name}:",-80} {actual}");
+                Console.WriteLine($"{$"{m.Method.Name}:",-40} {actual}");
                 Assert.IsTrue(new ColorF(srgb).TolerantEquals(new ColorF(actual)), $"{m.Method.Name}: {srgb} vs. {actual}");
             }
 

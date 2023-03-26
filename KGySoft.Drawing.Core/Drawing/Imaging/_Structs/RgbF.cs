@@ -167,7 +167,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Methods
 
-        public override string ToString() => $"[R={R:N4}; G={G:N4}; B={B:N4}]";
+        public override string ToString() => $"[R={R:N8}; G={G:N8}; B={B:N8}]";
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public bool Equals(RgbF other) => other.Rgb == Rgb;

@@ -54,6 +54,16 @@ namespace KGySoft.Drawing.Imaging
 
         #endregion
 
+        #region Properties
+
+#if NET5_0_OR_GREATER
+        private static Vector128<byte> PackLowBytesMask => Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#elif NETCOREAPP3_0_OR_GREATER
+        private static Vector128<byte> PackLowBytesMask { get; } = Vector128.Create(0, 4, 8, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#endif
+
+        #endregion
+
         #region Methods
 
         #region Public Methods
@@ -1043,10 +1053,31 @@ namespace KGySoft.Drawing.Imaging
             if (c.A == 0)
                 return backColor;
             int inverseAlpha = Byte.MaxValue - c.A;
-            //return new Color32(Byte.MaxValue,
-            //    (byte)((c.R * c.A + backColor.R * inverseAlpha) / 255),
-            //    (byte)((c.G * c.A + backColor.G * inverseAlpha) / 255),
-            //    (byte)((c.B * c.A + backColor.B * inverseAlpha) / 255));
+
+#if NETCOREAPP3_0_OR_GREATER
+            // Using vectorization if possible. Without division everything can be performed on integers.
+            // And the bit-shifting version at least always produces the exact same results regardless of acceleration.
+            if (Sse41.IsSupported)
+            {
+                // Order is BGRA because we reinterpret the original value as bytes before converting to int
+                // bgraI32 = (int)c.RGB * (int)c.A
+                Vector128<int> bgraI32 = Sse41.MultiplyLow(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()),
+                    Sse41.ConvertToVector128Int32(Vector128.Create(c.A)));
+
+                // resultI32 = (int)backColor.RGB * inverseAlpha
+                Vector128<int> resultI32 = Sse41.MultiplyLow(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(backColor.Value).AsByte()),
+                    Vector128.Create(inverseAlpha));
+
+                // resultI32 = (bgraI32 + resultI32) >> 8 | a:0xFF
+                resultI32 = Sse2.ShiftRightLogical(Sse2.Add(bgraI32, resultI32), 8).WithElement(3, Byte.MaxValue);
+
+                // Initializing directly from uint by packing the bytes of resultI32
+                return new Color32(Ssse3.Shuffle(resultI32.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+            }
+#endif
+
+            // The non-accelerated version. Division, eg. r:(byte)((c.R * c.A + backColor.R * inverseAlpha) / 255) would be more accurate
+            // but unlike for premultiplication we use the faster bit shifting because there is no inverse operation for blending.
             return new Color32(Byte.MaxValue,
                 (byte)((c.R * c.A + backColor.R * inverseAlpha) >> 8),
                 (byte)((c.G * c.A + backColor.G * inverseAlpha) >> 8),
@@ -1062,11 +1093,36 @@ namespace KGySoft.Drawing.Imaging
             // The blending is applied only to the color and not the resulting alpha, which will always be opaque
             if (c.A == 0)
                 return backColor;
-            int inverseAlpha = UInt16.MaxValue - c.A;
+            uint inverseAlpha = (uint)UInt16.MaxValue - c.A;
+
+#if NETCOREAPP3_0_OR_GREATER
+            // Using vectorization if possible. Without division everything can be performed on integers.
+            // And the bit-shifting version at least always produces the exact same results regardless of acceleration.
+            if (Sse41.IsSupported)
+            {
+                // Order is BGRA because we reinterpret the original value as ushorts before converting to int
+                // bgraU32 = (uint)c.RGB * (uint)c.A
+                Vector128<uint> bgraU32 = Sse41.MultiplyLow(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsUInt16()).AsUInt32(),
+                    Sse41.ConvertToVector128Int32(Vector128.Create(c.A)).AsUInt32());
+
+                // resultU32 = (uint)backColor.RGB * inverseAlpha
+                Vector128<uint> resultU32 = Sse41.MultiplyLow(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(backColor.Value).AsUInt16()).AsUInt32(),
+                    Vector128.Create(inverseAlpha));
+
+                // resultU32 = (bgraU32 + result) >> 16 | a:0xFFFF;
+                resultU32 = Sse2.ShiftRightLogical(Sse2.Add(bgraU32, resultU32), 16).WithElement(3, UInt16.MaxValue);
+
+                // Initializing directly from ulong by packing the words of resultU32
+                return new Color64(Sse41.PackUnsignedSaturate(resultU32.AsInt32(), resultU32.AsInt32()).AsUInt64().ToScalar());
+            }
+#endif
+
+            // The non-accelerated version. Division, eg. r:(ushort)(((uint)c.R * c.A + backColor.R * inverseAlpha) / 65535) would be more accurate
+            // but unlike for premultiplication we use the faster bit shifting because there is no inverse operation for blending.
             return new Color64(UInt16.MaxValue,
-                (ushort)((c.R * c.A + backColor.R * inverseAlpha) >> 16),
-                (ushort)((c.G * c.A + backColor.G * inverseAlpha) >> 16),
-                (ushort)((c.B * c.A + backColor.B * inverseAlpha) >> 16));
+                (ushort)(((uint)c.R * c.A + backColor.R * inverseAlpha) >> 16),
+                (ushort)(((uint)c.G * c.A + backColor.G * inverseAlpha) >> 16),
+                (ushort)(((uint)c.B * c.A + backColor.B * inverseAlpha) >> 16));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1084,10 +1140,25 @@ namespace KGySoft.Drawing.Imaging
         {
             if (c.A <= 0)
                 return backColor;
-            float inverseAlpha = 1f - c.A;
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return new ColorF(new Vector4(c.Rgb * c.A + backColor.Rgb * inverseAlpha, 1f));
+#if NETCOREAPP3_0_OR_GREATER
+            // Using native vectorization if possible.
+            if (Sse.IsSupported)
+            {
+                // rgbaResultF = c.RGBA * c.A
+                Vector128<float> rgbaResultF = Sse.Multiply(c.RgbaV128, Vector128.Create(c.A));
+
+                // rgbaResultF += backColor.RGBA * (1f - c.A)
+                rgbaResultF = Sse.Add(rgbaResultF, Sse.Multiply(backColor.RgbaV128, Vector128.Create(c.A * (1f - c.A))));
+
+                return new ColorF(rgbaResultF.WithElement(3, 1f));
+            }
+#endif
+            // The possibly still accelerated auto vectorization
+            return new ColorF(new Vector4(c.Rgb * c.A + backColor.Rgb * (1f - c.A), 1f));
 #else
+            // The non-accelerated version
+            float inverseAlpha = 1f - c.A;
             return new ColorF(1f,
                 c.R * c.A + backColor.R * inverseAlpha,
                 c.G * c.A + backColor.G * inverseAlpha,
@@ -1127,41 +1198,102 @@ namespace KGySoft.Drawing.Imaging
         internal static Color32 BlendWithSrgb(this Color32 src, Color32 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0 && dst.A != 255, "Partially transparent colors are expected");
+            float inverseAlphaSrc;
+            float alphaOut;
 
+#if NETCOREAPP3_0_OR_GREATER
+            // Using vectorization if possible. We cannot spare the floating point operations due to the division by output alpha.
+            if (Sse41.IsSupported)
+            {
+                // Doing the byte -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion.
+                // In fact, it's so much faster that the SSE2 compatible solution would be even slower than the fallback version, especially with the workaround for https://github.com/dotnet/runtime/issues/83387
+                // srcAF = (float)src.A / 255f
+                // dstAF = (float)dst.A / 255f
+                Vector128<float> srcAF = Sse.Multiply(Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(src.A))), Vector128.Create(1f / 255f));
+                Vector128<float> dstAF = Sse.Multiply(Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(dst.A))), Vector128.Create(1f / 255f));
+                inverseAlphaSrc = 1f - srcAF.ToScalar();
+                alphaOut = srcAF.ToScalar() + dstAF.ToScalar() * inverseAlphaSrc;
+
+                // Order is BGR[A] because we reinterpret the original value as bytes before converting to float
+                // srcBgrxF = (float)src.RGB * srcAF
+                Vector128<float> srcBgrxF = Sse.Multiply(Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(src.Value).AsByte())), srcAF);
+
+                // dstBgrxF = (float)dst.RGB * dstAF * (1f - srcAF)
+                Vector128<float> dstBgrxF = Sse.Multiply(Sse.Multiply(
+                    Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(dst.Value).AsByte())), dstAF), Vector128.Create(inverseAlphaSrc));
+
+                // bgraI32 = {rgb: (srcBgrxF + dstBgrxF) / alphaOut, a: (alphaOut * 255)} as int
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(
+                    Sse.Divide(Sse.Add(srcBgrxF, dstBgrxF), Vector128.Create(alphaOut)).WithElement(3, alphaOut * Byte.MaxValue));
+
+                // Initializing directly from uint by packing the bytes of bgraI32
+                return new Color32(Ssse3.Shuffle(bgraI32.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+            }
+#endif
+
+            // The non-accelerated version. Bit-shifting, eg. r:(byte)((src.R * src.A + ((dst.R * dst.A * inverseAlphaSrc) >> 8)) / alphaOut)
+            // would not be faster because it still contains a division
             float alphaSrc = src.A / 255f;
             float alphaDst = dst.A / 255f;
-            float inverseAlphaSrc = 1f - alphaSrc;
-            float alphaOut = alphaSrc + alphaDst * inverseAlphaSrc;
+            inverseAlphaSrc = 1f - alphaSrc;
+            alphaOut = alphaSrc + alphaDst * inverseAlphaSrc;
+            float alphaOutRecip = 1f / alphaOut;
 
             return new Color32((byte)(alphaOut * Byte.MaxValue),
-                (byte)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
-                (byte)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
-                (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
-
-            // This would be the floating point free version but in practice it's not faster at all (at least on my computer):
-            //int inverseAlphaSrc = 255 - src.A;
-            //int alphaOut = src.A + ((dst.A * inverseAlphaSrc) >> 8);
-
-            //return new Color32((byte)alphaOut,
-            //    (byte)((src.R * src.A + ((dst.R * dst.A * inverseAlphaSrc) >> 8)) / alphaOut),
-            //    (byte)((src.G * src.A + ((dst.G * dst.A * inverseAlphaSrc) >> 8)) / alphaOut),
-            //    (byte)((src.B * src.A + ((dst.B * dst.A * inverseAlphaSrc) >> 8)) / alphaOut));
+                (byte)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) * alphaOutRecip),
+                (byte)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) * alphaOutRecip),
+                (byte)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) * alphaOutRecip));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static Color64 BlendWithSrgb(this Color64 src, Color64 dst)
         {
             Debug.Assert(src.A != 0 && src.A != 65535 && dst.A != 0 && dst.A != 65535, "Partially transparent colors are expected");
+            float inverseAlphaSrc;
+            float alphaOut;
 
+#if NETCOREAPP3_0_OR_GREATER
+            // Using vectorization if possible. We cannot spare the floating point operations due to the division by output alpha.
+            if (Sse41.IsSupported)
+            {
+                // Doing the ushort -> int conversion by SSE 4.1 is faster for some reason even if there is only one conversion.
+                // In fact, it's so much faster that the SSE2 compatible solution would be even slower than the fallback version, especially with the workaround for https://github.com/dotnet/runtime/issues/83387
+                // srcAF = (float)src.A / 65535f
+                // dstAF = (float)dst.A / 65535f
+                Vector128<float> srcAF = Sse.Multiply(Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(src.A))), Vector128.Create(1f / 65535f));
+                Vector128<float> dstAF = Sse.Multiply(Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.Create(dst.A))), Vector128.Create(1f / 65535f));
+                inverseAlphaSrc = 1f - srcAF.ToScalar();
+                alphaOut = srcAF.ToScalar() + dstAF.ToScalar() * inverseAlphaSrc;
+
+                // Order is BGR[A] because we reinterpret the original value as ushorts before converting to float
+                // srcBgrxF = (float)src.RGB * srcAF
+                Vector128<float> srcBgrxF = Sse.Multiply(Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(src.Value).AsUInt16())), srcAF);
+
+                // dstBgrxF = (float)dst.RGB * dstAF * (1f - srcAF)
+                Vector128<float> dstBgrxF = Sse.Multiply(Sse.Multiply(
+                    Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(dst.Value).AsUInt16())), dstAF), Vector128.Create(inverseAlphaSrc));
+
+                // bgraI32 = {rgb: (srcBgrxF + dstBgrxF) / alphaOut, a: (alphaOut * 65535)} as int
+                Vector128<int> bgraI32 = Sse2.ConvertToVector128Int32(
+                    Sse.Divide(Sse.Add(srcBgrxF, dstBgrxF), Vector128.Create(alphaOut)).WithElement(3, alphaOut * UInt16.MaxValue));
+
+                // Initializing directly from ulong by packing the words of bgraI32
+                return new Color64(Sse41.PackUnsignedSaturate(bgraI32, bgraI32).AsUInt64().ToScalar());
+            }
+#endif
+
+            // The non-accelerated version. Bit-shifting, eg. r:(ushort)(((ulong)src.R * src.A + (((ulong)dst.R * dst.A * inverseAlphaSrc) >> 16)) / alphaOut)
+            // would not be faster because it still contains a division
             float alphaSrc = src.A / 65535f;
             float alphaDst = dst.A / 65535f;
-            float inverseAlphaSrc = 1f - alphaSrc;
-            float alphaOut = alphaSrc + alphaDst * inverseAlphaSrc;
+            inverseAlphaSrc = 1f - alphaSrc;
+            alphaOut = alphaSrc + alphaDst * inverseAlphaSrc;
+            float alphaOutRecip = 1f / alphaOut;
 
             return new Color64((ushort)(alphaOut * UInt16.MaxValue),
-                (ushort)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) / alphaOut),
-                (ushort)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) / alphaOut),
-                (ushort)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) / alphaOut));
+                (ushort)((src.R * alphaSrc + dst.R * alphaDst * inverseAlphaSrc) * alphaOutRecip),
+                (ushort)((src.G * alphaSrc + dst.G * alphaDst * inverseAlphaSrc) * alphaOutRecip),
+                (ushort)((src.B * alphaSrc + dst.B * alphaDst * inverseAlphaSrc) * alphaOutRecip));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1176,6 +1308,33 @@ namespace KGySoft.Drawing.Imaging
         {
             Debug.Assert(src.A != 0 && src.A != 255 && dst.A != 0, "Partially transparent colors are expected");
             int inverseAlphaSrc = Byte.MaxValue - src.A;
+
+#if NETCOREAPP3_0_OR_GREATER
+            // Using vectorization if possible.
+            if (Sse41.IsSupported)
+            {
+                // Order is BGRA because we reinterpret the original value as bytes before converting to int
+                // bgraI32 = (int)dst.ARGB * inverseAlphaSrc
+                Vector128<int> bgraI32 = Sse41.MultiplyLow(
+                    Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(dst.Value).AsByte()), Vector128.Create(inverseAlphaSrc));
+
+                // bgraI32 >>= 8
+                bgraI32 = Sse2.ShiftRightLogical(bgraI32, 8);
+
+                // bgraI32 += (int)src.ARGB
+                bgraI32 = Sse2.Add(bgraI32, Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(src.Value).AsByte()));
+
+                // Due to the bit shifting (division by 256 instead of 255) we must adjust the alpha because it could be 254 even if dst is completely opaque
+                if (dst.A == Byte.MaxValue)
+                    bgraI32 = bgraI32.AsByte().WithElement(12, Byte.MaxValue).AsInt32();
+
+                // Initializing directly from uint by packing the bytes of bgraI32
+                return new PColor32(Ssse3.Shuffle(bgraI32.AsByte(), PackLowBytesMask).AsUInt32().ToScalar());
+            }
+#endif
+
+            // The non-accelerated version. Division, eg. r:(byte)(src.R + (dst.R * inverseAlphaSrc) / 255) would be more accurate
+            // but unlike for premultiplication we use the faster bit shifting because there is no inverse operation for blending.
             return new PColor32(dst.A == Byte.MaxValue ? Byte.MaxValue : (byte)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
                 (byte)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
                 (byte)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
@@ -1187,10 +1346,36 @@ namespace KGySoft.Drawing.Imaging
         {
             Debug.Assert(src.A != 0 && src.A != 65535 && dst.A != 0, "Partially transparent colors are expected");
             int inverseAlphaSrc = UInt16.MaxValue - src.A;
-            return new PColor64(dst.A == UInt16.MaxValue ? UInt16.MaxValue : (ushort)(src.A + ((dst.A * inverseAlphaSrc) >> 8)),
-                (ushort)(src.R + ((dst.R * inverseAlphaSrc) >> 8)),
-                (ushort)(src.G + ((dst.G * inverseAlphaSrc) >> 8)),
-                (ushort)(src.B + ((dst.B * inverseAlphaSrc) >> 8)));
+
+#if NETCOREAPP3_0_OR_GREATER
+            // Using vectorization if possible.
+            if (Sse41.IsSupported)
+            {
+                // Order is BGRA because we reinterpret the original value as ushorts before converting to int
+                // bgraI32 = (int)dst.ARGB * inverseAlphaSrc
+                Vector128<int> bgraI32 = Sse41.MultiplyLow(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(dst.Value).AsUInt16()), Vector128.Create(inverseAlphaSrc));
+
+                // bgraI32 >>= 16
+                bgraI32 = Sse2.ShiftRightLogical(bgraI32, 16);
+
+                // bgraI32 += (int)src.ARGB
+                bgraI32 = Sse2.Add(bgraI32, Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(src.Value).AsUInt16()));
+
+                // Due to the bit shifting (division by 65536 instead of 65535) we must adjust the alpha because it could be 65534 even if dst is completely opaque
+                if (dst.A == UInt16.MaxValue)
+                    bgraI32 = bgraI32.AsUInt16().WithElement(6, UInt16.MaxValue).AsInt32();
+
+                // Initializing directly from ulong by packing the bytes of bgraI32
+                return new PColor64(Sse41.PackUnsignedSaturate(bgraI32, bgraI32).AsUInt64().ToScalar());
+            }
+#endif
+
+            // The non-accelerated version. Division, eg. r:(ushort)(src.R + dst.R * inverseAlphaSrc / 65535) would be more accurate
+            // but unlike for premultiplication we use the faster bit shifting because there is no inverse operation for blending.
+            return new PColor64(dst.A == UInt16.MaxValue ? UInt16.MaxValue : (ushort)(src.A + ((dst.A * inverseAlphaSrc) >> 16)),
+                (ushort)(src.R + ((dst.R * inverseAlphaSrc) >> 16)),
+                (ushort)(src.G + ((dst.G * inverseAlphaSrc) >> 16)),
+                (ushort)(src.B + ((dst.B * inverseAlphaSrc) >> 16)));
         }
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
@@ -1221,12 +1406,30 @@ namespace KGySoft.Drawing.Imaging
             float alphaOut = src.A + dst.A * inverseAlphaSrc;
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * inverseAlphaSrc) / alphaOut, alphaOut));
+#if NETCOREAPP3_0_OR_GREATER
+            // Using native vectorization if possible.
+            if (Sse.IsSupported)
+            {
+                // rgbaResultF = src.RGBA * src.A
+                Vector128<float> rgbaResultF = Sse.Multiply(src.RgbaV128, Vector128.Create(src.A));
+
+                // rgbaResultF += dst.RGBA * dst.A * inverseAlphaSrc
+                rgbaResultF = Sse.Add(rgbaResultF, Sse.Multiply(dst.RgbaV128, Vector128.Create(dst.A * inverseAlphaSrc)));
+
+                // (rgbaResultF /=  alphaOut) with A:alphaOut
+                return new ColorF(Sse.Divide(rgbaResultF, Vector128.Create(alphaOut)).WithElement(3, alphaOut));
+            }
+#endif
+            // The possibly still accelerated auto vectorization
+            return new ColorF(new Vector4((src.Rgb * src.A + dst.Rgb * (dst.A * inverseAlphaSrc)) / alphaOut, alphaOut));
 #else
+            // The non-accelerated version
+            float alphaDst = dst.A * inverseAlphaSrc;
+            float alphaOutRecip = 1f / alphaOut;
             return new ColorF(alphaOut,
-                (src.R * src.A + dst.R * dst.A * inverseAlphaSrc) / alphaOut,
-                (src.G * src.A + dst.G * dst.A * inverseAlphaSrc) / alphaOut,
-                (src.B * src.A + dst.B * dst.A * inverseAlphaSrc) / alphaOut);
+                (src.R * src.A + dst.R * alphaDst) * alphaOutRecip,
+                (src.G * src.A + dst.G * alphaDst) * alphaOutRecip,
+                (src.B * src.A + dst.B * alphaDst) * alphaOutRecip);
 #endif
         }
 
@@ -1247,10 +1450,14 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static PColorF BlendWithLinear(this PColorF src, PColorF dst)
         {
-            float inverseAlphaSrc = 1f - src.A;
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            return new PColorF(new Vector4(src.Rgb + dst.Rgb * inverseAlphaSrc, dst.A >= 1f ? 1f : src.A + dst.A * inverseAlphaSrc));
+            // The possibly accelerated auto vectorization.
+            // Note: not using native vectorization here because according to the performance tests
+            //       this can be perfectly optimized by auto vectorization
+            return new PColorF(src.Rgba + dst.Rgba * (1f - src.A));
 #else
+            // The non-accelerated version
+            float inverseAlphaSrc = 1f - src.A;
             return new PColorF(dst.A >= 1f ? 1f : src.A + dst.A * inverseAlphaSrc,
                 src.R + dst.R * inverseAlphaSrc,
                 src.G + dst.G * inverseAlphaSrc,

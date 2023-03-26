@@ -409,6 +409,19 @@ namespace KGySoft.Drawing.Imaging
         }
 #endif
 
+#if NETCOREAPP3_0_OR_GREATER
+        internal PColorF(Vector128<float> vector)
+#if !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing ARGB fields
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+            RgbaV128 = vector;
+        }
+#endif
+
         #endregion
 
         #endregion
@@ -487,7 +500,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets the string representation of this <see cref="PColorF"/> instance.
         /// </summary>
         /// <returns>A <see cref="string"/> that represents this <see cref="PColorF"/> instance.</returns>
-        public override string ToString() => $"[A={A:N6}; R={R:N6}; G={G:N6}; B={B:N6}]";
+        public override string ToString() => $"[A={A:N8}; R={R:N8}; G={G:N8}; B={B:N8}]";
 
         /// <summary>
         /// Determines whether the current <see cref="PColorF"/> instance is equal to another one.
