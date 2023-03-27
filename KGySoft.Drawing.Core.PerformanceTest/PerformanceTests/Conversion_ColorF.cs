@@ -224,7 +224,7 @@ namespace KGySoft.Drawing.PerformanceTests
             }
             else if (c.Rgb.GreaterThanAll(0f))
             {
-                return new ColorF(new Vector4(c.Rgb * 12.95f, c.A));
+                return new ColorF(new Vector4(c.Rgb * 12.92f, c.A));
             }
 
             return c.ToSrgb_0_Vanilla();
@@ -249,7 +249,7 @@ namespace KGySoft.Drawing.PerformanceTests
             //else if (c.Rgb.GreaterThanAll(0f))
             else if (Vector128.GreaterThanAll(rgbx, Vector128<float>.Zero))
             {
-                return new ColorF(new Vector4(c.Rgb * 12.95f, c.A));
+                return new ColorF(new Vector4(c.Rgb * 12.92f, c.A));
             }
 
             return c.ToSrgb_0_Vanilla();
@@ -341,7 +341,7 @@ namespace KGySoft.Drawing.PerformanceTests
             }
             else if (c.Rgb.GreaterThanAll(0f))
             {
-                Vector3 result = c.Rgb * (Byte.MaxValue * 12.95f) + new Vector3(0.5f);
+                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + new Vector3(0.5f);
                 return new Color32(ColorSpaceHelper.ToByte(c.A), (byte)result.X, (byte)result.Y, (byte)result.Z);
             }
 
@@ -479,7 +479,7 @@ namespace KGySoft.Drawing.PerformanceTests
             }
             else if (c.Rgb.GreaterThanAll(0f))
             {
-                Vector3 result = c.Rgb * (Byte.MaxValue * 12.95f) + new Vector3(0.5f);
+                Vector3 result = c.Rgb * (Byte.MaxValue * 12.92f) + new Vector3(0.5f);
                 return new Color64(ColorSpaceHelper.ToUInt16(c.A), (ushort)result.X, (ushort)result.Y, (ushort)result.Z);
             }
 
