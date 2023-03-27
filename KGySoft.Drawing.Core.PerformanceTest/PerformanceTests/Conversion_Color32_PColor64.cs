@@ -48,7 +48,7 @@ namespace KGySoft.Drawing.PerformanceTests
                 var m1 = (MethodCallExpression)m2.Arguments[0];
                 Color32 actual = e.Compile().Invoke(testColor32);
                 Console.WriteLine($"{$"{m1.Method.Name}.{m2.Method.Name}:",-40} {actual}");
-                Assert.IsTrue(testColor32.TolerantEquals(actual, 1), $"{m1.Method.Name}.{m2.Method.Name}: {testColor32} vs. {actual}");
+                Assert.IsTrue(testColor32.TolerantEquals(actual, 1, 0), $"{m1.Method.Name}.{m2.Method.Name}: {testColor32} vs. {actual}");
             }
 
             DoAssert(_ => testColor32.ToPColor64().ToColor32_0_VanillaIndirect());

@@ -16,6 +16,9 @@
 #region Usings
 
 using System;
+#if NETFRAMEWORK && !NET46_OR_GREATER || NETSTANDARD2_0
+using System.Diagnostics.CodeAnalysis; 
+#endif
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
 using System.Numerics;
 #endif
@@ -96,12 +99,16 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
         // In .NET 5.0 and above these perform better as inlined rather than caching a static field
         private static Vector4 Max8Bpp => Vector128.Create(255f).AsVector4();
+        private static Vector4 Max8BppRecip => Vector128.Create(1f / 255f).AsVector4();
         private static Vector4 Half => Vector128.Create(0.5f).AsVector4();
         private static Vector128<byte> PackRgbaAsPColor32Mask => Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP3_0_OR_GREATER
+#elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         private static Vector4 Max8Bpp { get; } = new Vector4(Byte.MaxValue);
+        private static Vector4 Max8BppRecip { get; } = new Vector4(1f / Byte.MaxValue);
         private static Vector4 Half { get; } = new Vector4(0.5f);
+#if NETCOREAPP3_0_OR_GREATER
         private static Vector128<byte> PackRgbaAsPColor32Mask { get; } = Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#endif
 #endif
 
         #endregion
@@ -113,7 +120,7 @@ namespace KGySoft.Drawing.Imaging
         /// That is, when <see cref="A"/>, <see cref="R"/>, <see cref="G"/> and <see cref="B"/> fields are all between 0 and 1,
         /// and <see cref="A"/> is greater than or equal to <see cref="R"/>, <see cref="G"/> and <see cref="B"/>.
         /// </summary>
-#if !NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public bool IsValid => Clip().Rgba == Rgba;
 #else
         public bool IsValid => Clip() == this;
@@ -377,17 +384,20 @@ namespace KGySoft.Drawing.Imaging
                     Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
 
                     // Swapping R and G in the final result
-                    RgbaV128 = Sse.Shuffle(bgraF, bgraF, 0b_10_01_00_11);
-                    return;
+                    RgbaV128 = Sse.Shuffle(bgraF, bgraF, 0b_11_00_01_10);
+                }
+                else
+                {
+                    // Cannot do the conversion in one step. 4x byte to int + 1x ints to floats is still faster than 4x byte to float in separate steps.
+                    RgbaV128 = Sse2.ConvertToVector128Single(Vector128.Create(c.R, c.G, c.B, c.A));
                 }
 
-                // Cannot do the conversion in one step. 4x byte to int + 1x ints to floats is still faster than 4x byte to float in separate steps.
-                RgbaV128 = Sse2.ConvertToVector128Single(Vector128.Create(c.R, c.G, c.B, c.A));
+                RgbaV128 = Sse.Multiply(RgbaV128, Vector128.Create(1f / 255f));
                 return;
             }
 #endif
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-            Rgba = new Vector4(c.R, c.G, c.B, c.A) / Max8Bpp;
+            Rgba = new Vector4(c.R, c.G, c.B, c.A) * Max8BppRecip;
 #else
             R = ColorSpaceHelper.ToFloat(c.R);
             G = ColorSpaceHelper.ToFloat(c.G);

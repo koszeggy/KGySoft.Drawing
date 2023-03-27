@@ -1140,7 +1140,7 @@ namespace KGySoft.Drawing.Imaging
         {
             if (c.A <= 0)
                 return backColor;
-#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+
 #if NETCOREAPP3_0_OR_GREATER
             // Using native vectorization if possible.
             if (Sse.IsSupported)
@@ -1149,11 +1149,13 @@ namespace KGySoft.Drawing.Imaging
                 Vector128<float> rgbaResultF = Sse.Multiply(c.RgbaV128, Vector128.Create(c.A));
 
                 // rgbaResultF += backColor.RGBA * (1f - c.A)
-                rgbaResultF = Sse.Add(rgbaResultF, Sse.Multiply(backColor.RgbaV128, Vector128.Create(c.A * (1f - c.A))));
+                rgbaResultF = Sse.Add(rgbaResultF, Sse.Multiply(backColor.RgbaV128, Vector128.Create(1f - c.A)));
 
                 return new ColorF(rgbaResultF.WithElement(3, 1f));
             }
 #endif
+
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
             // The possibly still accelerated auto vectorization
             return new ColorF(new Vector4(c.Rgb * c.A + backColor.Rgb * (1f - c.A), 1f));
 #else

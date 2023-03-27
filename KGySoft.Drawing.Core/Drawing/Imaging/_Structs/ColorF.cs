@@ -99,14 +99,18 @@ namespace KGySoft.Drawing.Imaging
 #if NET5_0_OR_GREATER
         // In .NET 5.0 and above these perform better as inlined rather than caching a static field
         private static Vector4 Max8Bpp => Vector128.Create(255f).AsVector4();
+        private static Vector4 Max8BppRecip => Vector128.Create(1f / 255f).AsVector4();
         private static Vector4 Half => Vector128.Create(0.5f).AsVector4();
         private static Vector128<byte> PackRgbaAsColor32Mask => Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         private static Vector128<byte> PackRgbaAsColor64Mask => Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-#elif NETCOREAPP3_0_OR_GREATER
+#elif NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         private static Vector4 Max8Bpp { get; } = new Vector4(Byte.MaxValue);
+        private static Vector4 Max8BppRecip { get; } = new Vector4(1f / Byte.MaxValue);
         private static Vector4 Half { get; } = new Vector4(0.5f);
+#if NETCOREAPP3_0_OR_GREATER
         private static Vector128<byte> PackRgbaAsColor32Mask { get; } = Vector128.Create(8, 4, 0, 12, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
         private static Vector128<byte> PackRgbaAsColor64Mask { get; } = Vector128.Create(8, 9, 4, 5, 0, 1, 12, 13, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+#endif
 #endif
 
         #endregion
@@ -119,7 +123,7 @@ namespace KGySoft.Drawing.Imaging
         /// Gets whether this <see cref="ColorF"/> instance represents a valid color.
         /// That is, when <see cref="A"/>, <see cref="R"/>, <see cref="G"/> and <see cref="B"/> fields are all between 0 and 1.
         /// </summary>
-#if !NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public bool IsValid => Clip().Rgba == Rgba;
 #else
         public bool IsValid => Clip() == this;
@@ -372,29 +376,52 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Constructors
 
-//        internal ColorF(Color32 c, bool adjustGamma)
-//#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
-//            : this() // so the compiler does not complain about not initializing value field
-//#endif
-//        {
-//#if NET5_0_OR_GREATER
-//            Unsafe.SkipInit(out this);
-//#endif
-//            if (adjustGamma)
-//            {
-//                this = new ColorF(c);
-//                return;
-//            }
-//            // TODO: Intrinsics, see PColorF(PColor32) ctor
-//#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
-//            Rgba = new Vector4(c.R, c.G, c.B, c.A) / Max8Bpp;
-//#else
-//            R = ColorSpaceHelper.ToFloat(c.R);
-//            G = ColorSpaceHelper.ToFloat(c.G);
-//            B = ColorSpaceHelper.ToFloat(c.B);
-//            A = ColorSpaceHelper.ToFloat(c.A);
-//#endif
-//        }
+        internal ColorF(Color32 c, bool adjustGamma)
+#if (NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER) && !NET5_0_OR_GREATER
+            : this() // so the compiler does not complain about not initializing value field
+#endif
+        {
+#if NET5_0_OR_GREATER
+            Unsafe.SkipInit(out this);
+#endif
+            Debug.Assert(!adjustGamma);
+            //if (adjustGamma)
+            //{
+            //    this = new ColorF(c);
+            //    return;
+            //}
+
+#if NETCOREAPP3_0_OR_GREATER
+            if (Sse2.IsSupported)
+            {
+                // Converting the ARGB values to float
+                if (Sse41.IsSupported)
+                {
+                    // Order is BGRA because we reinterpret the original value as bytes if supported
+                    Vector128<float> bgraF = Sse2.ConvertToVector128Single(Sse41.ConvertToVector128Int32(Vector128.CreateScalarUnsafe(c.Value).AsByte()));
+
+                    // Swapping R and G in the final result
+                    RgbaV128 = Sse.Shuffle(bgraF, bgraF, 0b_11_00_01_10);
+                }
+                else
+                {
+                    // Cannot do the conversion in one step. 4x byte to int + 1x ints to floats is still faster than 4x byte to float in separate steps.
+                    RgbaV128 = Sse2.ConvertToVector128Single(Vector128.Create(c.R, c.G, c.B, c.A));
+                }
+
+                RgbaV128 = Sse.Multiply(RgbaV128, Vector128.Create(1f / 255f));
+                return;
+            }
+#endif
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+            Rgba = new Vector4(c.R, c.G, c.B, c.A) * Max8BppRecip;
+#else
+            R = ColorSpaceHelper.ToFloat(c.R);
+            G = ColorSpaceHelper.ToFloat(c.G);
+            B = ColorSpaceHelper.ToFloat(c.B);
+            A = ColorSpaceHelper.ToFloat(c.A);
+#endif
+        }
 
 
 #if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
@@ -473,7 +500,7 @@ namespace KGySoft.Drawing.Imaging
         /// If <see cref="IsValid"/> returns <see langword="true"/>, then the result is the same as the original instance.
         /// </summary>
         /// <returns>A valid <see cref="ColorF"/> instance by clipping the possibly exceeding ARGB values.</returns>
-#if NETCOREAPP3_0
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
         public ColorF Clip() => new ColorF(Rgba.ClipF());
 #else
         public ColorF Clip() => new ColorF(A.ClipF(), R.ClipF(), G.ClipF(), B.ClipF());

@@ -129,7 +129,7 @@ namespace KGySoft.Drawing.PerformanceTests
             }
             else if (rgb.GreaterThanAll(0f))
             {
-                rgb *= 12.95f;
+                rgb *= 12.92f;
                 return rgb.AsVector128().WithElement(3, c.GetElement(3));
             }
 
@@ -158,7 +158,7 @@ namespace KGySoft.Drawing.PerformanceTests
             //else if (c.Rgb.GreaterThanAll(0f))
             else if (Vector128.GreaterThanAll(rgbx, Vector128<float>.Zero))
             {
-                var result = rgbx.AsVector4() * 12.95f;
+                var result = rgbx.AsVector4() * 12.92f;
                 return result.AsVector128().WithElement(3, c.GetElement(3));
             }
 

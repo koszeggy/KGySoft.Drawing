@@ -20,7 +20,9 @@ using System;
 using System.Numerics;
 #endif
 using System.Runtime.CompilerServices;
+#if NETCOREAPP3_0_OR_GREATER
 using System.Runtime.Intrinsics;
+#endif
 
 #endregion
 
