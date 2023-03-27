@@ -111,7 +111,7 @@ namespace KGySoft.Drawing.Imaging
                         for (int i = 0; i < 256; i++)
                         {
                             lookupTable8To16Bpp[i] = *(ushort*)&row[i]; // row[i].B
-                            isSrgb = isSrgb && lookupTable8To16Bpp[i] == ((i << 8) | i);
+                            isSrgb = isSrgb && lookupTable8To16Bpp[i] == ColorSpaceHelper.ToUInt16((byte)i);
                         }
 
                         if (isSrgb)

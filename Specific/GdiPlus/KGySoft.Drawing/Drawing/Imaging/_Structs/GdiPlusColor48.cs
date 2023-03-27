@@ -39,14 +39,8 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal GdiPlusColor48(Color32 c)
         {
-            ushort[]? lookupTable = ColorsHelper.GetLookupTable8To16Bpp();
-            if (lookupTable == null)
-            {
-                b = (ushort)((c.B << 8) | c.B);
-                g = (ushort)((c.G << 8) | c.G);
-                r = (ushort)((c.R << 8) | c.R);
-                return;
-            }
+            Debug.Assert(ColorsHelper.GetLookupTable8To16Bpp() != null);
+            ushort[] lookupTable = ColorsHelper.GetLookupTable8To16Bpp()!;
 
             b = lookupTable[c.B];
             g = lookupTable[c.G];
@@ -60,10 +54,9 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal Color32 ToColor32()
         {
-            byte[]? lookupTable = ColorsHelper.GetLookupTable16To8Bpp();
-            return lookupTable == null
-                ? new Color32((byte)(r >> 8), (byte)(g >> 8), (byte)(b >> 8))
-                : new Color32(lookupTable[r], lookupTable[g], lookupTable[b]);
+            Debug.Assert(ColorsHelper.GetLookupTable16To8Bpp() != null);
+            byte[] lookupTable = ColorsHelper.GetLookupTable16To8Bpp()!;
+            return new Color32(lookupTable[r], lookupTable[g], lookupTable[b]);
         }
 
         #endregion
