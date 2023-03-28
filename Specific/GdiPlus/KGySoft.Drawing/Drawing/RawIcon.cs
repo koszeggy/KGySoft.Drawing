@@ -521,7 +521,7 @@ namespace KGySoft.Drawing
                 {
                     // rawColor cannot be null here, see the first check
                     bmp = new Bitmap(new MemoryStream(rawColor!));
-                    if (bmp.GetBitsPerPixel().In(invalidIconFormats))
+                    if (!bmp.PixelFormat.In(validIconFormats))
                     {
                         // not very likely that we reach this point, at least on Windows PNG decoder does not return 16/48/64 BPP formats...
                         bmpColor = bmp.ConvertPixelFormat(PixelFormat.Format32bppArgb);
@@ -841,8 +841,15 @@ namespace KGySoft.Drawing
         #region Fields
 
         #region Static Fields
-        
-        private static readonly int[] invalidIconFormats = { 16, 48, 64 };
+
+        private static readonly PixelFormat[] validIconFormats =
+        {
+            PixelFormat.Format1bppIndexed,
+            PixelFormat.Format4bppIndexed,
+            PixelFormat.Format8bppIndexed,
+            PixelFormat.Format24bppRgb,
+            PixelFormat.Format32bppArgb
+        };
 
         #endregion
 
@@ -965,7 +972,7 @@ namespace KGySoft.Drawing
             PixelFormat pixelFormat = image.PixelFormat;
             Bitmap[] bitmaps;
 
-            if (pixelFormat.ToBitsPerPixel().In(invalidIconFormats) || pixelFormat == PixelFormatExtensions.Format32bppCmyk)
+            if (!pixelFormat.In(validIconFormats))
                 bitmaps = new[] { image.ConvertPixelFormat(PixelFormat.Format32bppArgb) };
             else if (image.RawFormat.Guid == ImageFormat.Icon.Guid)
                 bitmaps = image.ExtractIconImages();

@@ -13,6 +13,11 @@
 ================
 * Performance improvements
 
+- KGySoft.Drawing namespace
+===========================
+- ImageExtensions class:
+  - SaveAsIcon: Fixing alpha values when the source image has 32bpp PARGB pixel format.
+
 
 ~~~~~~~~~
 ! v7.1.0:
