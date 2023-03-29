@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorGrayF.cs
+//  File: ColorGray8.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -15,29 +15,32 @@
 
 #region Usings
 
+using System.Runtime.InteropServices;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
 
 namespace KGySoft.Drawing.Wpf
 {
-    internal struct ColorGrayF
+    [StructLayout(LayoutKind.Sequential, Size = 1)]
+    internal readonly struct ColorGray8
     {
         #region Fields
 
-        private readonly float value;
+        private readonly byte value;
 
         #endregion
 
         #region Constructors
 
-        internal ColorGrayF(float brightness) => value = brightness;
+        internal ColorGray8(byte brightness) => value = brightness;
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => Color32.FromGray(ColorSpaceHelper.LinearToSrgb8Bit(value));
+        internal Color32 ToColor32() => Color32.FromGray(value);
 
         #endregion
     }

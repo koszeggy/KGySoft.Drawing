@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorRgba64.cs
+//  File: ColorPrgba64.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -25,7 +25,7 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.Wpf
 {
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    internal readonly struct ColorRgba64
+    internal readonly struct ColorPrgba64
     {
         #region Fields
 
@@ -42,20 +42,26 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorRgba64(Color32 c)
+        internal ColorPrgba64(Color32 c)
         {
-            Color64 c64 = c.ToColor64();
-            r = c64.R;
-            g = c64.G;
-            b = c64.B;
-            a = c64.A;
+            if (c.A == 0)
+            {
+                this = default;
+                return;
+            }
+
+            var pc64 = c.ToPColor64();
+            r = pc64.R;
+            g = pc64.G;
+            b = pc64.B;
+            a = pc64.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color64(a, r, g, b).ToColor32();
+        internal Color32 ToColor32() => a == 0 ? default : new PColor64(a, r, g, b).ToColor32();
 
         #endregion
     }
