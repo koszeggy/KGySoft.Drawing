@@ -25,6 +25,7 @@ using System.Runtime.Versioning;
 #endif
 using System.Security;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 
 #endregion
@@ -67,6 +68,7 @@ namespace KGySoft.Drawing.Imaging
             BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
             Action dispose = () => bitmap.UnlockBits(bitmapData);
             KnownPixelFormat knownPixelFormat = bitmapDataPixelFormat.ToKnownPixelFormatInternal();
+            Debug.Assert(knownPixelFormat != KnownPixelFormat.Undefined && knownPixelFormat.IsDefined());
 
             switch (pixelFormat)
             {
@@ -105,8 +107,8 @@ namespace KGySoft.Drawing.Imaging
                             HasPremultipliedAlpha = true,
                             LinearGamma = true
                         },
-                        (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToStraight().ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c).ToPremultiplied(),
+                        (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
                         workingColorSpace, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format48bppRgb:
