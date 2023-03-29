@@ -16,13 +16,14 @@
 + New PColor32 struct
 + New PColor64 struct
 + New PColorF struct
-+ ColorExtensions class:
+* ColorExtensions class:
   + New ToColor/ToColor32/ToColor64/ToColorF/ToPColor32/ToPColor64/ToPColorF methods
   + New ToPremultiplied/ToStraight methods
   + New GetBrightness overloads
   + New GetBrightnessF methods
   + New Blend overloads
   + New TolerantEquals overloads
+  * Improving performance (Blend, GetBrightness and some internal conversion operations)
 * ColorSpaceHelper class:
   + Adding new ToFloat overload from UInt16
   + Adding new ToUInt16 methods
