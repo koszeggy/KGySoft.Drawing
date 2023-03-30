@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: GdiPlusColor64.cs
+//  File: GdiPlusPColor64.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -24,7 +24,7 @@ using System.Runtime.InteropServices;
 namespace KGySoft.Drawing.Imaging
 {
     [StructLayout(LayoutKind.Explicit, Size = 8)]
-    internal readonly struct GdiPlusColor64
+    internal readonly struct GdiPlusPColor64
     {
         #region Fields
 
@@ -38,26 +38,31 @@ namespace KGySoft.Drawing.Imaging
         #region Constructors
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal GdiPlusColor64(ushort a, ushort r, ushort g, ushort b)
+        internal GdiPlusPColor64(Color32 c)
         {
-            this.b = b;
-            this.g = g;
-            this.r = r;
-            this.a = a;
-        }
+            if (c.A == 0)
+            {
+                this = default;
+                return;
+            }
 
-        [MethodImpl(MethodImpl.AggressiveInlining)]
-        internal GdiPlusColor64(Color32 c)
-        {
             Debug.Assert(ColorsHelper.GetLookupTable8To16Bpp() != null);
             ushort[] lookupTable = ColorsHelper.GetLookupTable8To16Bpp()!;
             ushort max = ColorsHelper.Max16BppValue;
 
-            // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
-            b = lookupTable[c.B];
-            g = lookupTable[c.G];
-            r = lookupTable[c.R];
-            a = c.A == Byte.MaxValue ? max : (ushort)((uint)ColorSpaceHelper.ToUInt16(c.A) * max / UInt16.MaxValue);
+            if (c.A == Byte.MaxValue)
+            {
+                b = lookupTable[c.B];
+                g = lookupTable[c.G];
+                r = lookupTable[c.R];
+                a = max;
+                return;
+            }
+
+            a = (ushort)(ColorSpaceHelper.ToUInt16(c.A) * max / UInt16.MaxValue);
+            b = (ushort)((uint)lookupTable[c.B] * a / max);
+            g = (ushort)((uint)lookupTable[c.G] * a / max);
+            r = (ushort)((uint)lookupTable[c.R] * a / max);
         }
 
         #endregion
@@ -67,15 +72,21 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         internal Color32 ToColor32()
         {
+            if (a == 0)
+                return default;
+
             Debug.Assert(ColorsHelper.GetLookupTable16To8Bpp() != null);
             byte[] lookupTable = ColorsHelper.GetLookupTable16To8Bpp()!;
             ushort max = ColorsHelper.Max16BppValue;
 
+            if (a == max)
+                return new Color32(Byte.MaxValue, lookupTable[r], lookupTable[g], lookupTable[b]);
+
             // alpha is always scaled linearly whereas other components may have a gamma correction in the lookup table
-            return new Color32(a == max ? Byte.MaxValue : ColorSpaceHelper.ToByte((ushort)((uint)a * UInt16.MaxValue / max)),
-                lookupTable[r],
-                lookupTable[g],
-                lookupTable[b]);
+            return new Color32(ColorSpaceHelper.ToByte((ushort)((uint)a * UInt16.MaxValue / max)),
+                lookupTable[(uint)r * max / a],
+                lookupTable[(uint)g * max / a],
+                lookupTable[(uint)b * max / a]);
         }
 
         #endregion

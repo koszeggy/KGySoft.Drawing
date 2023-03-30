@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorGrayF.cs
+//  File: WorkingColorSpaceExtensions.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -13,31 +13,14 @@
 
 #endregion
 
-#region Usings
-
-using KGySoft.Drawing.Imaging;
-
-#endregion
-
-namespace KGySoft.Drawing.Wpf
+namespace KGySoft.Drawing.Imaging
 {
-    internal struct ColorGrayF
+    internal static class WorkingColorSpaceExtensions
     {
-        #region Fields
-
-        private readonly float value;
-
-        #endregion
-
-        #region Constructors
-
-        internal ColorGrayF(float brightness) => value = brightness;
-
-        #endregion
-
         #region Methods
 
-        internal Color32 ToColor32() => Color32.FromGray(ColorSpaceHelper.LinearToSrgb8Bit(value));
+        internal static WorkingColorSpace GetValueOrLinear(this WorkingColorSpace value)
+            => value == WorkingColorSpace.Srgb ? WorkingColorSpace.Srgb : WorkingColorSpace.Linear;
 
         #endregion
     }

@@ -98,7 +98,9 @@ namespace KGySoft.Drawing.Imaging
                 {
                     // Initializing the lookup table from the result of native SetPixel if that is supported on current operating system.
                     // It will be quite slow but it is executed only once and since it is OS dependent there is no other reliable way.
-                    // On Windows it transforms color channels into a 13 bit range with linear gamma.
+                    // - On Windows it transforms color channels into a 13 bit range with linear gamma
+                    // - On ReactOS the full 16-bit range is used with the same sRGB color space as in case of the 32-bit formats
+                    // - On Linux 64bpp formats are not even supported by the current version of libgdiplus but we try to be prepared for future changes
                     using var bmp64 = new Bitmap(256, 1, PixelFormat.Format64bppArgb);
                     for (int i = 0; i < 256; i++)
                         bmp64.SetPixel(i, 0, Color.FromArgb(i, i, i));
@@ -111,7 +113,7 @@ namespace KGySoft.Drawing.Imaging
                         for (int i = 0; i < 256; i++)
                         {
                             lookupTable8To16Bpp[i] = *(ushort*)&row[i]; // row[i].B
-                            isSrgb = isSrgb && lookupTable8To16Bpp[i] == ((i << 8) | i);
+                            isSrgb = isSrgb && lookupTable8To16Bpp[i] == ColorSpaceHelper.ToUInt16((byte)i);
                         }
 
                         if (isSrgb)

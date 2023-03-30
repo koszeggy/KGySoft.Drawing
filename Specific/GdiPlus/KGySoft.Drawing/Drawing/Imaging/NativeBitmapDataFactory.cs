@@ -25,6 +25,7 @@ using System.Runtime.Versioning;
 #endif
 using System.Security;
 
+using KGySoft.CoreLibraries;
 using KGySoft.Drawing.WinApi;
 
 #endregion
@@ -67,6 +68,7 @@ namespace KGySoft.Drawing.Imaging
             BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
             Action dispose = () => bitmap.UnlockBits(bitmapData);
             KnownPixelFormat knownPixelFormat = bitmapDataPixelFormat.ToKnownPixelFormatInternal();
+            Debug.Assert(knownPixelFormat != KnownPixelFormat.Undefined && knownPixelFormat.IsDefined());
 
             switch (pixelFormat)
             {
@@ -86,33 +88,36 @@ namespace KGySoft.Drawing.Imaging
                     return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, palette, bitmap.TrySetPalette, dispose);
 
                 case PixelFormat.Format64bppArgb:
-                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
-                        {
-                            HasAlpha = true,
-                            LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null
-                        },
-                        (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
-                        workingColorSpace, backColor, alphaThreshold, dispose);
+                    return ColorsHelper.GetLookupTable8To16Bpp() == null
+                        ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
+                        : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
+                            {
+                                HasAlpha = true,
+                                LinearGamma = true
+                            },
+                            (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToColor32(),
+                            (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c),
+                            workingColorSpace, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format64bppPArgb:
-                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
+                    return ColorsHelper.GetLookupTable8To16Bpp() == null
+                        ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
+                        : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(64)
                         {
                             HasPremultipliedAlpha = true,
-                            LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null
+                            LinearGamma = true
                         },
-                        (row, x) => row.UnsafeGetRefAs<GdiPlusColor64>(x).ToStraight().ToColor32(),
-                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor64>(x) = new GdiPlusColor64(c).ToPremultiplied(),
+                        (row, x) => row.UnsafeGetRefAs<GdiPlusPColor64>(x).ToColor32(),
+                        (row, x, c) => row.UnsafeGetRefAs<GdiPlusPColor64>(x) = new GdiPlusPColor64(c),
                         workingColorSpace, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format48bppRgb:
-                    return BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48)
-                        {
-                            LinearGamma = ColorsHelper.GetLookupTable8To16Bpp() != null
-                        },
+                    return ColorsHelper.GetLookupTable8To16Bpp() == null
+                        ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, knownPixelFormat, backColor, alphaThreshold, dispose)
+                        : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, size, bitmapData.Stride, new PixelFormatInfo(48) { LinearGamma = true },
                         (row, x) => row.UnsafeGetRefAs<GdiPlusColor48>(x).ToColor32(),
                         (row, x, c) => row.UnsafeGetRefAs<GdiPlusColor48>(x) =
-                            new GdiPlusColor48(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.GetPreferredColorSpace())),
+                            new GdiPlusColor48(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace.GetValueOrLinear())),
                         workingColorSpace, backColor, alphaThreshold, dispose);
 
                 case PixelFormat.Format16bppRgb565:

@@ -330,6 +330,8 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [TestCase(KnownPixelFormat.Format8bppIndexed)]
         [TestCase(KnownPixelFormat.Format16bppArgb1555)]
         [TestCase(KnownPixelFormat.Format32bppArgb)]
+        [TestCase(KnownPixelFormat.Format32bppPArgb)]
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
         public void DrawIntoNoResizeDirectTest(KnownPixelFormat pixelFormat)
         {
             foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
@@ -808,23 +810,23 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         }
 
         [Explicit]
-        [TestCase(WorkingColorSpace.Srgb)]
-        [TestCase(WorkingColorSpace.Linear)]
-        public void LinearVsSrgbBlendingAlphaGradient(WorkingColorSpace colorSpace)
+        //[TestCase(WorkingColorSpace.Srgb, KnownPixelFormat.Format24bppRgb)]
+        //[TestCase(WorkingColorSpace.Linear, KnownPixelFormat.Format24bppRgb)]
+        //[TestCase(WorkingColorSpace.Default, KnownPixelFormat.Format32bppArgb)]
+        [TestCase(WorkingColorSpace.Default, KnownPixelFormat.Format32bppPArgb)]
+        public void LinearVsSrgbBlendingAlphaGradient(WorkingColorSpace colorSpace, KnownPixelFormat pixelFormat)
         {
-            using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), KnownPixelFormat.Format24bppRgb, colorSpace))
+            using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), pixelFormat, colorSpace))
             {
                 GenerateAlphaGradient(target);
-
-                SaveBitmapData($"{colorSpace} Black", target);
+                SaveBitmapData($"{pixelFormat} {colorSpace} Black", target);
             }
 
-            using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), KnownPixelFormat.Format24bppRgb, colorSpace, Color.White))
-            {
-                GenerateAlphaGradient(target);
-
-                SaveBitmapData($"{colorSpace} White", target);
-            }
+            //using (var target = BitmapDataFactory.CreateBitmapData(new Size(512, 256), pixelFormat, colorSpace, Color.White))
+            //{
+            //    GenerateAlphaGradient(target);
+            //    SaveBitmapData($"{pixelFormat} {colorSpace} White", target);
+            //}
         }
 
         [Test]

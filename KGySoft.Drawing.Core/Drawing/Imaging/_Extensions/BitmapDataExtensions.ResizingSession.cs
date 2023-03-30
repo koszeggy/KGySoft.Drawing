@@ -231,7 +231,7 @@ namespace KGySoft.Drawing.Imaging
 
                         // non-transparent target: blending
                         if (colorDst.A != 0)
-                            colorSrc = colorSrc.BlendWithPremultipliedSrgb(colorDst);
+                            colorSrc = colorSrc.BlendWithSrgb(colorDst);
 
                         rowDst.DoSetColor32Premultiplied(pos, colorSrc);
                     }
@@ -663,7 +663,7 @@ namespace KGySoft.Drawing.Imaging
 
                             // non-transparent target: blending
                             if (colorDst.A != 0)
-                                colorSrc = colorSrc.BlendWithPremultipliedSrgb(colorDst);
+                                colorSrc = colorSrc.BlendWithSrgb(colorDst);
 
                             row.DoSetColor32Premultiplied(targetX, colorSrc);
                         }

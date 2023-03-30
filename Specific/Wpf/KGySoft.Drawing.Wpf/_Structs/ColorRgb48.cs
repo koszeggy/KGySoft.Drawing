@@ -41,16 +41,16 @@ namespace KGySoft.Drawing.Wpf
 
         internal ColorRgb48(Color32 c)
         {
-            r = (ushort)((c.R << 8) | c.R);
-            g = (ushort)((c.G << 8) | c.G);
-            b = (ushort)((c.B << 8) | c.B);
+            r = ColorSpaceHelper.ToUInt16(c.R);
+            g = ColorSpaceHelper.ToUInt16(c.G);
+            b = ColorSpaceHelper.ToUInt16(c.B);
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32((byte)(r >> 8), (byte)(g >> 8), (byte)(b >> 8));
+        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(r), ColorSpaceHelper.ToByte(g), ColorSpaceHelper.ToByte(b));
 
         #endregion
     }
