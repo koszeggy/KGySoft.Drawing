@@ -479,7 +479,7 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static byte GetBrightness(this Color32 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
-            // Note: using gamma correction even for linear color space because we the source is an sRGB color
+            // Note: using gamma correction even for linear color space because the source is an sRGB color
             ? ColorSpaceHelper.LinearToSrgb8Bit(c.ToColorF().GetBrightness())
             : GetBrightness(c);
 
@@ -537,7 +537,7 @@ namespace KGySoft.Drawing.Imaging
         [MethodImpl(MethodImpl.AggressiveInlining)]
         [CLSCompliant(false)]
         public static ushort GetBrightness(this Color64 c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Linear
-            // Note: using gamma correction even for linear color space because we the source is an sRGB color
+            // Note: using gamma correction even for linear color space because the source is an sRGB color
             ? ColorSpaceHelper.LinearToSrgb8Bit(c.ToColorF().GetBrightness())
             : GetBrightness(c);
 
@@ -577,8 +577,8 @@ namespace KGySoft.Drawing.Imaging
         /// </remarks>
         [MethodImpl(MethodImpl.AggressiveInlining)]
         public static float GetBrightness(this ColorF c, WorkingColorSpace colorSpace) => colorSpace == WorkingColorSpace.Srgb
-            // Note: removing gamma correction even for sRGB color space because we the source is a linear color
-            ? ColorSpaceHelper.SrgbToLinear(c.ToSrgb().GetBrightness())
+            // Note: removing gamma correction even for sRGB color space because the source is a linear color
+            ? ColorSpaceHelper.SrgbToLinear(c.ToSrgb().GetBrightnessSrgb())
             : GetBrightness(c);
 
         /// <summary>
@@ -1523,6 +1523,20 @@ namespace KGySoft.Drawing.Imaging
             else
                 bits |= (byte)mask;
         }
+
+        #endregion
+
+        #region Private Methods
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
+        private static float GetBrightnessSrgb(this ColorF c)
+            => c.R.Equals(c.G) && c.R.Equals(c.B)
+                ? c.R
+#if NETCOREAPP || NET46_OR_GREATER || NETSTANDARD2_1_OR_GREATER
+                : Vector3.Dot(c.Rgb, new Vector3(RLumSrgb, GLumSrgb, BLumSrgb));
+#else
+                : c.R * RLumSrgb + c.G * GLumSrgb + c.B * BLumSrgb;
+#endif
 
         #endregion
 
