@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorRgba8888.cs
+//  File: ColorPrgba16161616Srgb.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -24,40 +24,33 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.SkiaSharp
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal readonly struct ColorRgba8888
+    internal struct ColorPrgba16161616Srgb
     {
         #region Fields
 
-        [FieldOffset(0)]private readonly byte r;
-        [FieldOffset(1)]private readonly byte g;
-        [FieldOffset(2)]private readonly byte b;
-        [FieldOffset(3)]private readonly byte a;
+        [FieldOffset(0)]private readonly ushort r;
+        [FieldOffset(2)]private readonly ushort g;
+        [FieldOffset(4)]private readonly ushort b;
+        [FieldOffset(6)]private readonly ushort a;
 
         #endregion
 
         #region Constructors
 
-        internal ColorRgba8888(Color32 c)
+        internal ColorPrgba16161616Srgb(Color32 c)
         {
-            r = c.R;
-            g = c.G;
-            b = c.B;
-            a = c.A;
-        }
-
-        internal ColorRgba8888(byte r, byte g, byte b, byte a)
-        {
-            this.r = r;
-            this.g = g;
-            this.b = b;
-            this.a = a;
+            var pc32 = new PColor64(c);
+            r = pc32.R;
+            g = pc32.G;
+            b = pc32.B;
+            a = pc32.A;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(a, r, g, b);
+        internal Color32 ToColor32() => new PColor64(a, r, g, b).ToColor32();
 
         #endregion
     }

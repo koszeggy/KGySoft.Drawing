@@ -101,40 +101,6 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Methods
 
-        // TODO: remove
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Color32 ToStraight(this Color32 c) => c.A switch
-        {
-            Byte.MaxValue => c,
-            0 => default,
-            _ => new Color32(c.A,
-                (byte)((c.R << 8) / c.A),
-                (byte)((c.G << 8) / c.A),
-                (byte)((c.B << 8) / c.A))
-        };
-
-        // TODO: remove
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        internal static Color32 ToPremultiplied(this Color32 c) => c.A switch
-        {
-            Byte.MaxValue => c,
-            0 => default,
-            _ => new Color32(c.A,
-                (byte)((c.R * c.A) >> 8),
-                (byte)((c.G * c.A) >> 8),
-                (byte)((c.B * c.A) >> 8))
-        };
-
-        internal static Color32 ToLinear(this Color32 c) => new Color32(c.A,
-            c.R.ToLinear(),
-            c.G.ToLinear(),
-            c.B.ToLinear());
-
-        internal static Color32 ToSrgb(this Color32 c) => new Color32(c.A,
-            c.R.ToSrgb(),
-            c.G.ToSrgb(),
-            c.B.ToSrgb());
-
         internal static byte ToLinear(this byte b) => Cache8Bpp.LookupTableSrgbToLinear[b];
         internal static byte ToSrgb(this byte b) => Cache8Bpp.LookupTableLinearToSrgb[b];
         internal static byte ToLinearByte(this float f) => ColorSpaceHelper.ToByte(ColorSpaceHelper.SrgbToLinear(f));

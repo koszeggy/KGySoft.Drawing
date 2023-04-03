@@ -39,16 +39,6 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
         private static readonly object[] sourceDirectlySupportedSetGetPixelTest =
         {
-            //new object[] { SKColorType.Rgb565, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb((testColorBlended.R & 0b11111000) | (testColorBlended.R >> 5), (testColorBlended.G & 0b11111100) | (testColorBlended.G >> 6), (testColorBlended.B & 0b11111000) | (testColorBlended.B >> 5)) },
-
-            //new object[] { SKColorType.Rgba16161616, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.Rgba16161616, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.Rgba16161616, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-
-            //new object[] { SKColorType.Bgra1010102, SKAlphaType.Unpremul, testColorAlpha, new ColorBgra1010102(testColorAlpha).ToColor32().ToColor() },
-            //new object[] { SKColorType.Bgra1010102, SKAlphaType.Premul, testColorAlpha, new ColorBgra1010102(testColorAlpha).ToColor32().ToColor() },
-            //new object[] { SKColorType.Bgra1010102, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-
             //new object[] { SKColorType.Bgr101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
 
             //new object[] { SKColorType.Rgba1010102, SKAlphaType.Unpremul, testColorAlpha, new ColorRgba1010102(testColorAlpha).ToColor32().ToColor() },
@@ -100,15 +90,27 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
         //[TestCase(SKColorType.Rgb888x, SKAlphaType.Opaque)]
 
-        [TestCase(SKColorType.Gray8, SKAlphaType.Opaque)]
+        //[TestCase(SKColorType.Gray8, SKAlphaType.Opaque)]
+
+        //[TestCase(SKColorType.Rgb565, SKAlphaType.Opaque)]
+
+        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Unpremul)]
+        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Premul)]
+        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque)]
         public void DirectlySupportedSetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
-            foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), SKColorSpace.CreateSrgbLinear(), })
+            foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), /*TODO SKColorSpace.CreateSrgbLinear(),*/ })
             {
                 var info = new SKImageInfo(2, 2, colorType, alphaType, colorSpace);
                 var testColor = Color.FromArgb(0x80, 0x80, 0xFF, 0x40).ToColor32();
 
-                // Skia and KGy SOFT converts colors to gray a bit differently so pre-converting the color to avoid differences
+                // Skia and KGy SOFT convert colors to gray a bit differently so pre-converting the color to avoid differences
                 if (info.GetInfo().Grayscale)
                     testColor = testColor.ToGray();
                 bool linear = colorSpace.GammaIsLinear;
@@ -118,7 +120,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                 Assert.IsTrue(info.IsDirectlySupported(), $"Format is not supported directly: {colorType}/{alphaType}/{colorSpace.NamedGamma}");
 
-                Console.WriteLine($"{$"{colorType}/{alphaType}/{colorSpace.NamedGamma}",-32}- {testColor} -> {expectedResult}");
+                Console.WriteLine($"{$"{colorType}/{alphaType}/{colorSpace.NamedGamma}",-32}- {testColor}");
+                Console.WriteLine($"{"Expected result",-32}- {expectedResult}");
                 using var bitmap = new SKBitmap(info, info.RowBytes);
                 Assert.AreEqual(colorType, bitmap.ColorType);
                 Assert.AreEqual(alphaType, bitmap.AlphaType);
@@ -129,7 +132,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 using var bitmapData = bitmap.GetReadWriteBitmapData();
                 bitmapData.SetPixel(1, 1, testColor);
                 var actual = bitmapData.GetPixel(1, 1);
-                byte tolerance = (byte)(colorSpace.IsSrgb ? 1 : 3);
+                byte tolerance = (byte)(colorSpace.IsSrgb ? 1 : 2); // TODO: Rgb565: + 2?
 
                 var raw = new List<byte>();
                 for (int i = 0; i < colorType.GetBytesPerPixel(); i++)
@@ -155,12 +158,12 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [Test]
         public void SetGetPixelCompareTestSrgb()
         {
-            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Gray8 }*/)
+            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Bgra1010102 })
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /* new[] { SKAlphaType.Premul,*/)
+                foreach (SKAlphaType alphaType in /*Enum<SKAlphaType>.GetValues()*/ new[] { SKAlphaType.Opaque })
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -229,7 +232,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues()  /*new[] { SKAlphaType.Premul, }*/)
+                foreach (SKAlphaType alphaType in/* Enum<SKAlphaType>.GetValues()*/  new[] { SKAlphaType.Opaque, })
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -278,7 +281,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                             {
                                 // saving an example by SkiaSharp, only once because it has no different working color spaces
                                 GenerateAlphaGradient(bitmap);
-                                //SaveBitmap($"{colorType}_{alphaType}_Skia", bitmap);
+                                SaveBitmap($"{colorType}_{alphaType}_Skia", bitmap);
                                 skiaSaved = true;
                             }
 
@@ -289,7 +292,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                         try
                         {
-                            Assert.IsTrue(expected.TolerantEquals(actual, (byte)(alphaType is SKAlphaType.Premul ? 5 : 1)), $"{colorType}/{alphaType} - SkiaSharp: {expected} vs. KGySoft: {actual}");
+                            Assert.IsTrue(expected.TolerantEquals(actual, (byte)(/*alphaType is SKAlphaType.Premul ? 5 :*/ 1)), $"{colorType}/{alphaType} - SkiaSharp: {expected} vs. KGySoft: {actual}");
                         }
                         catch (AssertionException)
                         {
