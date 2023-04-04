@@ -36,14 +36,17 @@ namespace KGySoft.Drawing.Imaging
 
         #region Constructors
 
-        internal Color16Gray(Color32 c)
-            : this(new Color64(c))
+        internal Color16Gray(Color64 c)
         {
+            Debug.Assert(c.A == UInt16.MaxValue);
+            Value = c.GetBrightness();
         }
 
-        internal Color16Gray(Color64 c) => Value = c.GetBrightness();
-
-        internal Color16Gray(ColorF c) => Value = ColorSpaceHelper.LinearToSrgb16Bit(c.GetBrightness());
+        internal Color16Gray(ColorF c)
+        {
+            Debug.Assert(c.A >= 1f);
+            Value = ColorSpaceHelper.LinearToSrgb16Bit(c.GetBrightness());
+        }
 
         #endregion
 

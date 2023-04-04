@@ -1040,6 +1040,10 @@ namespace KGySoft.Drawing.Imaging
             => colorSpace == WorkingColorSpace.Linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
+        internal static Color64 BlendWithBackground(this Color64 c, Color64 backColor, bool linear)
+            => linear ? c.BlendWithBackgroundLinear(backColor) : c.BlendWithBackgroundSrgb(backColor);
+
+        [MethodImpl(MethodImpl.AggressiveInlining)]
         internal static ColorF BlendWithBackground(this ColorF c, ColorF backColor, WorkingColorSpace colorSpace)
             => colorSpace == WorkingColorSpace.Srgb ? c.BlendWithBackgroundSrgb(backColor) : c.BlendWithBackgroundLinear(backColor);
 

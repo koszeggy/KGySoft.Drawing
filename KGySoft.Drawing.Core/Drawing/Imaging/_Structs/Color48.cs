@@ -49,6 +49,7 @@ namespace KGySoft.Drawing.Imaging
 
         internal Color48(Color64 c)
         {
+            Debug.Assert(c.A == UInt16.MaxValue);
             B = c.B;
             G = c.G;
             R = c.R;
