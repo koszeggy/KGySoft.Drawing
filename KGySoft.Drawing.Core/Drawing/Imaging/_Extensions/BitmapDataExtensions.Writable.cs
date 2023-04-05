@@ -317,10 +317,15 @@ namespace KGySoft.Drawing.Imaging
                 {
                     ushort shortValue = bitmapData.PixelFormat.AsKnownPixelFormatInternal switch
                     {
-                        KnownPixelFormat.Format16bppArgb1555 => new Color16Argb1555(color).Value,
-                        KnownPixelFormat.Format16bppRgb565 => new Color16Rgb565(color).Value,
-                        KnownPixelFormat.Format16bppRgb555 => new Color16Rgb555(color).Value,
-                        _ => new Color16Gray(color).Value
+                        KnownPixelFormat.Format16bppArgb1555 => new Color16Argb1555(
+                            color.A == Byte.MaxValue ? color
+                            : color.A >= bitmapData.AlphaThreshold ? color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)
+                            : default).Value,
+                        KnownPixelFormat.Format16bppRgb565 => new Color16Rgb565(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
+                        KnownPixelFormat.Format16bppRgb555 => new Color16Rgb555(color.A == Byte.MaxValue ? color : color.BlendWithBackground(bitmapData.BackColor, bitmapData.WorkingColorSpace)).Value,
+                        _ => (bitmapData.WorkingColorSpace == WorkingColorSpace.Linear
+                            ? new Color16Gray(color.A == Byte.MaxValue ? color.ToColorF() : color.ToColorF().BlendWithBackgroundLinear(bitmapData.BackColor.ToColorF()))
+                            : new Color16Gray(color.A == Byte.MaxValue ? color.ToColor64() : color.ToColor64().BlendWithBackgroundSrgb(bitmapData.BackColor.ToColor64()))).Value
                     };
 
                     uint uintValue = (uint)((shortValue << 16) | shortValue);

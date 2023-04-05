@@ -49,14 +49,7 @@ namespace KGySoft.Drawing.Imaging
 
         #region Public Properties
 
-        public int Height { get; protected set; }
-        public int Width { get; protected set; }
         public Size Size => new Size(Width, Height);
-        public PixelFormatInfo PixelFormat { get; }
-        public Color32 BackColor { get; }
-        public byte AlphaThreshold { get; }
-        public Palette? Palette { get; private set; }
-        public int RowSize { get; protected set; }
         public bool IsDisposed { get; private set; }
         public bool CanSetPalette => PixelFormat.Indexed && Palette != null && AllowSetPalette;
         public virtual bool IsCustomPixelFormat => PixelFormat.IsCustomFormat;
@@ -66,6 +59,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Properties
 
+        internal int Height { get; private protected set; }
+        internal int Width { get; private protected set; }
+        internal Color32 BackColor { get; }
+        internal byte AlphaThreshold { get; }
+        internal Palette? Palette { get; private set; }
+        internal PixelFormatInfo PixelFormat { get; }
+        internal int RowSize { get; private protected set; }
         internal bool LinearWorkingColorSpace { get; }
 
         #endregion
@@ -81,6 +81,16 @@ namespace KGySoft.Drawing.Imaging
         IReadableBitmapDataRowMovable IReadableBitmapData.FirstRow => GetFirstRow();
         IWritableBitmapDataRowMovable IWritableBitmapData.FirstRow => GetFirstRow();
         IReadWriteBitmapDataRowMovable IReadWriteBitmapData.FirstRow => GetFirstRow();
+
+        // The following properties are implemented explicitly so their underlying actual property
+        // can be accessed faster internally than implicit interface implementations, which are always virtual members.
+        int IBitmapData.Height => Height;
+        int IBitmapData.Width => Width;
+        byte IBitmapData.AlphaThreshold => AlphaThreshold;
+        Color32 IBitmapData.BackColor => BackColor;
+        Palette? IBitmapData.Palette => Palette;
+        PixelFormatInfo IBitmapData.PixelFormat => PixelFormat;
+        int IBitmapData.RowSize => RowSize;
 
         #endregion
 
@@ -157,20 +167,19 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), nameof(cfg.Palette).ToLowerInvariant());
                 Palette = cfg.Palette;
                 LinearWorkingColorSpace = Palette.WorkingColorSpace == WorkingColorSpace.Linear;
-                return;
             }
+            else
+                Palette = bpp switch
+                {
+                    > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold), bpp),
+                    8 => Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold),
+                    > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
+                    4 => Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor),
+                    > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
+                    _ => Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor)
+                };
 
-            Palette = cfg.Palette ?? bpp switch
-            {
-                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold), bpp),
-                8 => Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold),
-                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
-                4 => Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor),
-                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
-                _ => Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor)
-            };
-
-            AlphaThreshold = Palette.AlphaThreshold;
+            AlphaThreshold = Palette!.AlphaThreshold;
         }
 
         #endregion

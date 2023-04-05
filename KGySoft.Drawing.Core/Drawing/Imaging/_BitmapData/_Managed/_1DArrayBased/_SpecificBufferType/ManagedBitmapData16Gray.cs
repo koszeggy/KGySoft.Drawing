@@ -37,8 +37,9 @@ namespace KGySoft.Drawing.Imaging
 
             [MethodImpl(MethodImpl.AggressiveInlining)]
             public override void DoSetColor32(int x, Color32 c) => Row[x] = BitmapData.LinearWorkingColorSpace
-                ? new Color16Gray(c.ToColorF().BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()))
-                : new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BitmapData.BackColor));
+                ? new Color16Gray(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BitmapData.BackColor.ToColorF()))
+                : new Color16Gray(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(BitmapData.BackColor.ToColor64()));
+
 
             #endregion
         }
@@ -66,8 +67,8 @@ namespace KGySoft.Drawing.Imaging
 
         [MethodImpl(MethodImpl.AggressiveInlining)]
         protected override void DoSetPixel(int x, int y, Color32 c) => Buffer[y, x] = LinearWorkingColorSpace
-            ? new Color16Gray(c.ToColorF().BlendWithBackgroundLinear(BackColor.ToColorF()))
-            : new Color16Gray(c.A == Byte.MaxValue ? c : c.BlendWithBackgroundSrgb(BackColor));
+            ? new Color16Gray(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().BlendWithBackgroundLinear(BackColor.ToColorF()))
+            : new Color16Gray(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().BlendWithBackgroundSrgb(BackColor.ToColor64()));
 
         #endregion
     }

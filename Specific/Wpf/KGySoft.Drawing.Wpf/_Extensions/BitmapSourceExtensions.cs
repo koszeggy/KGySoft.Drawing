@@ -179,31 +179,31 @@ namespace KGySoft.Drawing.Wpf
             if (sourceFormat == PixelFormats.Gray8)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(8) { Grayscale = true },
                     (row, x) => row.UnsafeGetRefAs<ColorGray8>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorGray8>(x) =
-                        new ColorGray8((c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace))
-                            .GetBrightness(row.BitmapData.WorkingColorSpace)),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorGray8>(x) = row.BitmapData.WorkingColorSpace == WorkingColorSpace.Linear
+                        ? new ColorGray8(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()))
+                        : new ColorGray8(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor)),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Gray32Float)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32) { Grayscale = true, LinearGamma = true },
                     (row, x) => row.UnsafeGetRefAs<ColorGrayF>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorGrayF>(x) =
-                        new ColorGrayF((c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF(), row.BitmapData.WorkingColorSpace))
-                            .GetBrightness(row.BitmapData.WorkingColorSpace)),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorGrayF>(x) = row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
+                        ? new ColorGrayF(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor))
+                        : new ColorGrayF(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Bgr101010)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32),
                     (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010>(x) =
-                        new ColorBgr101010(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
+                        new ColorBgr101010(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace)),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Rgb48)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(48),
                     (row, x) => row.UnsafeGetRefAs<ColorRgb48>(x).ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorRgb48>(x) =
-                        new ColorRgb48(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor, row.BitmapData.WorkingColorSpace)),
+                        new ColorRgb48(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace)),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Rgba64)
@@ -237,7 +237,7 @@ namespace KGySoft.Drawing.Wpf
                         c.A == Byte.MaxValue
                             ? c.ToColorF()
                             : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
-                                ? c.Blend(row.BitmapData.BackColor).ToColorF() // fast but would be more accurate: c.ToColorF(adjustGamma:false).Blend(backColorF).ToLinear()
+                                ? c.Blend(row.BitmapData.BackColor).ToColorF()
                                 : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 

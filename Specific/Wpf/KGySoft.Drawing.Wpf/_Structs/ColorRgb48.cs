@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -39,11 +40,12 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorRgb48(Color32 c)
+        internal ColorRgb48(Color64 c)
         {
-            r = ColorSpaceHelper.ToUInt16(c.R);
-            g = ColorSpaceHelper.ToUInt16(c.G);
-            b = ColorSpaceHelper.ToUInt16(c.B);
+            Debug.Assert(c.A == UInt16.MaxValue);
+            r = c.R;
+            g = c.G;
+            b = c.B;
         }
 
         #endregion

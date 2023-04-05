@@ -15,6 +15,9 @@
 
 #region Usings
 
+using System;
+using System.Runtime.InteropServices;
+
 using KGySoft.Drawing.Imaging;
 
 #endregion
@@ -33,7 +36,7 @@ namespace KGySoft.Drawing.Wpf
 
         #region Fields
 
-        private readonly int value;
+        private readonly uint value;
 
         #endregion
 
@@ -47,10 +50,14 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorBgr101010(Color32 c) => value =
-            (((c.R << 2) | (c.R >> 6)) << 20)
-            | (((c.G << 2) | (c.G >> 6)) << 10)
-            | ((c.B << 2) | (c.B >> 6));
+        internal ColorBgr101010(Color64 c)
+        {
+            Debug.Assert(c.A == UInt16.MaxValue);
+            value = ((uint)(c.A >> 14) << 30)
+                | (uint)((c.R >> 6) << 20)
+                | (uint)((c.G >> 6) << 10)
+                | (uint)(c.B >> 6);
+        }
 
         #endregion
 

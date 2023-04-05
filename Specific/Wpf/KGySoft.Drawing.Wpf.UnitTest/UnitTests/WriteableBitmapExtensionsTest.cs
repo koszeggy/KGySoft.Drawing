@@ -147,7 +147,6 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         private static readonly object[] wpfBehaviorTestSource =
         {
-            PixelFormats.Default,
             PixelFormats.Indexed1,
             PixelFormats.Indexed2,
             PixelFormats.Indexed4,
@@ -240,16 +239,15 @@ namespace KGySoft.Drawing.Wpf.UnitTests
 
         [Explicit]
         [TestCaseSource(nameof(wpfBehaviorTestSource))]
-        public void WpfBehaviorTest(PixelFormat pixelFormat)
+        public void KGyVsWpfBehaviorTest(PixelFormat pixelFormat)
         {
             var source = GetBitmap(@"..\..\..\..\..\..\Help\Images\AlphaGradient.png");
-            var bmp = new WriteableBitmap(source);
             //var bmp = new WriteableBitmap(1, 1, 96, 96, pixelFormat, GetDefaultPalette(pixelFormat));
             //using (IReadWriteBitmapData bitmapData = bmp.GetReadWriteBitmapData())
             //    bitmapData[0][0] = Color32.FromGray(128);
 
-            var converted = new WriteableBitmap(new FormatConvertedBitmap(bmp, pixelFormat, GetDefaultPalette(pixelFormat), 0.5));
-            //var converted = new WriteableBitmap(16, 1, 100, 100, pixelFormat, null);
+            // WPF
+            var converted = new WriteableBitmap(new FormatConvertedBitmap(source, pixelFormat, GetDefaultPalette(pixelFormat), 0.5));
             Console.WriteLine($"{converted.Format}: {converted.Format.BitsPerPixel}bpp {Reflector.GetProperty(converted.Format, "FormatFlags")}");
             Console.WriteLine("Masks:");
             var masks = converted.Format.Masks;
@@ -276,7 +274,12 @@ namespace KGySoft.Drawing.Wpf.UnitTests
                 Console.WriteLine();
             }
 
-            SaveBitmap($"{pixelFormat}", converted);
+            SaveBitmap($"{pixelFormat} WPF", converted);
+
+            // KGySoft
+            using var bitmapData = source.GetReadableBitmapData();
+            converted = bitmapData.ToWriteableBitmap(pixelFormat);
+            SaveBitmap($"{pixelFormat} KGy", converted);
         }
 
         #endregion
