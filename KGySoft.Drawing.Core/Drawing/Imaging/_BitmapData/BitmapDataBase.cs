@@ -84,7 +84,7 @@ namespace KGySoft.Drawing.Imaging
 
         // The following properties are implemented explicitly so their underlying actual property
         // can be accessed faster internally than implicit interface implementations, which are always virtual members.
-        int IBitmapData.Height => Width;
+        int IBitmapData.Height => Height;
         int IBitmapData.Width => Width;
         byte IBitmapData.AlphaThreshold => AlphaThreshold;
         Color32 IBitmapData.BackColor => BackColor;
@@ -167,20 +167,19 @@ namespace KGySoft.Drawing.Imaging
                     throw new ArgumentException(Res.ImagingPaletteTooLarge(1 << bpp, bpp), nameof(cfg.Palette).ToLowerInvariant());
                 Palette = cfg.Palette;
                 LinearWorkingColorSpace = Palette.WorkingColorSpace == WorkingColorSpace.Linear;
-                return;
             }
+            else
+                Palette = bpp switch
+                {
+                    > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold), bpp),
+                    8 => Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold),
+                    > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
+                    4 => Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor),
+                    > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
+                    _ => Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor)
+                };
 
-            Palette = cfg.Palette ?? bpp switch
-            {
-                > 8 => ExpandPalette(Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold), bpp),
-                8 => Palette.SystemDefault8BppPalette(WorkingColorSpace, cfg.BackColor, cfg.AlphaThreshold),
-                > 4 => ExpandPalette(Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
-                4 => Palette.SystemDefault4BppPalette(WorkingColorSpace, cfg.BackColor),
-                > 1 => ExpandPalette(Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor), bpp),
-                _ => Palette.SystemDefault1BppPalette(WorkingColorSpace, cfg.BackColor)
-            };
-
-            AlphaThreshold = Palette.AlphaThreshold;
+            AlphaThreshold = Palette!.AlphaThreshold;
         }
 
         #endregion
