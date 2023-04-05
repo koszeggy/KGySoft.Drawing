@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -34,7 +35,17 @@ namespace KGySoft.Drawing.Wpf
 
         #region Constructors
 
-        internal ColorGray8(byte brightness) => value = brightness;
+        internal ColorGray8(Color32 c)
+        {
+            Debug.Assert(c.A == Byte.MaxValue);
+            value = c.GetBrightness();
+        }
+
+        internal ColorGray8(ColorF c)
+        {
+            Debug.Assert(c.A >= 1f);
+            value = ColorSpaceHelper.LinearToSrgb8Bit(c.GetBrightness());
+        }
 
         #endregion
 
