@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <!--<TargetFrameworks>net462;netcoreapp3.1;netcoreapp2.0</TargetFrameworks>-->
-    <TargetFrameworks>net6.0</TargetFrameworks>
+    <TargetFrameworks>net7.0</TargetFrameworks>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <RootNamespace>KGySoft.Drawing.SkiaSharp</RootNamespace>
     <SignAssembly>true</SignAssembly>

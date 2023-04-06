@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorPbgra1010102Srgb.cs
+//  File: ColorPrgba1010102Srgb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -23,14 +23,14 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
-    internal readonly struct ColorPbgra1010102Srgb
+    internal readonly struct ColorPrgba1010102Srgb
     {
         #region Constants
 
         private const uint alphaMask = 0b11000000_00000000_00000000_00000000;
-        private const uint redMask = 0b00111111_11110000_00000000_00000000;
+        private const uint redMask = 0b00000011_11111111;
         private const uint greenMask = 0b00001111_11111100_00000000;
-        private const uint blueMask = 0b00000011_11111111;
+        private const uint blueMask = 0b00111111_11110000_00000000_00000000;
 
         private const int maxAlpha = 3;
         private const int maxRgb = 1023;
@@ -46,9 +46,9 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Properties
 
         private uint A => (value & alphaMask) >> 30;
-        private uint R => (value & redMask) >> 20;
+        private uint B => (value & blueMask) >> 20;
         private uint G => (value & greenMask) >> 10;
-        private uint B => value & blueMask;
+        private uint R => value & redMask;
 
         #endregion
 
@@ -56,7 +56,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Constructors
 
-        internal ColorPbgra1010102Srgb(Color32 c)
+        internal ColorPrgba1010102Srgb(Color32 c)
         {
             if (c.A == Byte.MinValue)
             {
@@ -64,7 +64,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 return;
             }
 
-            var straight = new ColorBgra1010102Srgb(c);
+            var straight = new ColorRgba1010102Srgb(c);
             if (c.A == Byte.MaxValue)
             {
                 value = straight.Value;
@@ -72,7 +72,7 @@ namespace KGySoft.Drawing.SkiaSharp
             }
 
             uint a = straight.A;
-            this = new ColorPbgra1010102Srgb(a,
+            this = new ColorPrgba1010102Srgb(a,
                 straight.R * a / maxAlpha,
                 straight.G * a / maxAlpha,
                 straight.B * a / maxAlpha);
@@ -82,13 +82,13 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Private Constructors
 
-        private ColorPbgra1010102Srgb(uint a, uint r, uint g, uint b)
+        private ColorPrgba1010102Srgb(uint a, uint r, uint g, uint b)
         {
             Debug.Assert(a <= maxAlpha && r <= maxRgb && g <= maxRgb && b <= maxRgb);
             value = a << 30
-                | r << 20
+                | b << 20
                 | g << 10
-                | b;
+                | r;
         }
 
         #endregion
@@ -103,8 +103,8 @@ namespace KGySoft.Drawing.SkiaSharp
             return a switch
             {
                 0u => default,
-                maxAlpha => new ColorBgra1010102Srgb(value).ToColor32(),
-                _ => new ColorBgra1010102Srgb(a,
+                maxAlpha => new ColorRgba1010102Srgb(value).ToColor32(),
+                _ => new ColorRgba1010102Srgb(a,
                     R * maxAlpha / a,
                     G * maxAlpha / a,
                     B * maxAlpha / a).ToColor32()

@@ -275,12 +275,9 @@ namespace KGySoft.Drawing.Wpf
             if (sourceFormat == PixelFormats.Rgb128Float)
                 return BitmapDataFactory.CreateBitmapData(bitmap.BackBuffer, size, bitmap.BackBufferStride, new PixelFormatInfo(128) { LinearGamma = true },
                     (row, x) => row.UnsafeGetRefAs<ColorF>(x).ToColor32().ToOpaque(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorF>(x) =
-                        c.A == Byte.MaxValue
-                            ? c.ToColorF()
-                            : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
-                                ? c.Blend(row.BitmapData.BackColor).ToColorF() // fast but would be more accurate: c.ToColorF(adjustGamma:false).Blend(backColorF).ToLinear()
-                                : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorF>(x) = c.A == Byte.MaxValue ? c.ToColorF()
+                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? c.Blend(row.BitmapData.BackColor).ToColorF() // fast but would be more accurate: c.ToColorF(adjustGamma:false).Blend(backColorF).ToLinear()
+                        : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF()),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Cmyk32)

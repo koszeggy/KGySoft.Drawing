@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -34,7 +35,17 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Constructors
 
-        internal ColorGray8Linear(float brightness) => value = ColorSpaceHelper.ToByte(brightness);
+        internal ColorGray8Linear(Color32 c)
+        {
+            Debug.Assert(c.A == Byte.MaxValue);
+            value = c.GetBrightnessF().ToLinearByte();
+        }
+
+        internal ColorGray8Linear(ColorF c)
+        {
+            Debug.Assert(c.A >= 1f);
+            value = ColorSpaceHelper.ToByte(c.GetBrightness());
+        }
 
         #endregion
 

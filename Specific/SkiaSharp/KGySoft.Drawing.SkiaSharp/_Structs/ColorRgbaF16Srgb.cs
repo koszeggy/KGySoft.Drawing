@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorRgF16Srgb.cs
+//  File: ColorRgbaF16Srgb.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -24,44 +24,61 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
-    [StructLayout(LayoutKind.Explicit, Size = 4)]
-    internal readonly struct ColorRgF16Srgb
+    [StructLayout(LayoutKind.Explicit, Size = 8)]
+    internal readonly struct ColorRgbaF16Srgb
     {
         #region Fields
 
         [FieldOffset(0)]private readonly Half r;
         [FieldOffset(2)]private readonly Half g;
+        [FieldOffset(4)]private readonly Half b;
+        [FieldOffset(6)]private readonly Half a;
 
         #endregion
 
         #region Properties
 
+        private float A => (float)a;
         private float R => (float)r;
         private float G => (float)g;
+        private float B => (float)b;
 
         #endregion
 
         #region Constructors
 
-        internal ColorRgF16Srgb(Color32 c)
+        internal ColorRgbaF16Srgb(Color32 c)
         {
-            Debug.Assert(c.A == Byte.MaxValue);
             r = (Half)ColorSpaceHelper.ToFloat(c.R);
             g = (Half)ColorSpaceHelper.ToFloat(c.G);
+            b = (Half)ColorSpaceHelper.ToFloat(c.B);
+            a = (Half)ColorSpaceHelper.ToFloat(c.A);
         }
 
-        internal ColorRgF16Srgb(Color64 c)
+        internal ColorRgbaF16Srgb(Color64 c)
         {
-            Debug.Assert(c.A == UInt16.MaxValue);
             r = (Half)ColorSpaceHelper.ToFloat(c.R);
             g = (Half)ColorSpaceHelper.ToFloat(c.G);
+            b = (Half)ColorSpaceHelper.ToFloat(c.B);
+            a = (Half)ColorSpaceHelper.ToFloat(c.A);
         }
 
-    #endregion
+        internal ColorRgbaF16Srgb(ColorF c)
+        {
+            r = (Half)ColorSpaceHelper.LinearToSrgb(c.R);
+            g = (Half)ColorSpaceHelper.LinearToSrgb(c.G);
+            b = (Half)ColorSpaceHelper.LinearToSrgb(c.B);
+            a = (Half)c.A;
+        }
 
-    #region Methods
+        #endregion
 
-    internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(R), ColorSpaceHelper.ToByte(G), 0);
+        #region Methods
+
+        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(A),
+            ColorSpaceHelper.ToByte(R),
+            ColorSpaceHelper.ToByte(G),
+            ColorSpaceHelper.ToByte(B));
 
         #endregion
     }

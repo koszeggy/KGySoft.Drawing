@@ -1,9 +1,9 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorRg88.cs
+//  File: ColorAlpha16.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -15,7 +15,6 @@
 
 #region Usings
 
-using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -24,29 +23,24 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
-    [StructLayout(LayoutKind.Explicit)]
-    internal readonly struct ColorRg88
+    [StructLayout(LayoutKind.Sequential, Size = 2)]
+    internal readonly struct ColorAlpha16
     {
         #region Fields
 
-        [FieldOffset(0)]private readonly byte r;
-        [FieldOffset(1)]private readonly byte g;
+        private readonly ushort a;
 
         #endregion
 
         #region Constructors
 
-        internal ColorRg88(Color32 c)
-        {
-            r = c.R;
-            g = c.G;
-        }
+        internal ColorAlpha16(Color32 c) => a = ColorSpaceHelper.ToUInt16(c.A);
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color32(r, g, 0);
+        internal Color32 ToColor32() => Color32.FromArgb(ColorSpaceHelper.ToByte(a), default);
 
         #endregion
     }

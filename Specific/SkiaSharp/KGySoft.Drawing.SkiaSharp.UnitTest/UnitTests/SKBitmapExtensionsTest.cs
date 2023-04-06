@@ -3,7 +3,7 @@
 ///////////////////////////////////////////////////////////////////////////////
 //  File: SKBitmapExtensionsTest.cs
 ///////////////////////////////////////////////////////////////////////////////
-//  Copyright (C) KGy SOFT, 2005-2022 - All Rights Reserved
+//  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
 //  You should have received a copy of the LICENSE file at the top-level
 //  directory of this distribution.
@@ -35,74 +35,68 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
     [TestFixture]
     public class SKBitmapExtensionsTest : TestBase
     {
-        #region Fields
-
-        private static readonly object[] sourceDirectlySupportedSetGetPixelTest =
-        {
-            //new object[] { SKColorType.Bgr101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-
-            //new object[] { SKColorType.Rgba1010102, SKAlphaType.Unpremul, testColorAlpha, new ColorRgba1010102(testColorAlpha).ToColor32().ToColor() },
-            //new object[] { SKColorType.Rgba1010102, SKAlphaType.Premul, testColorAlpha, new ColorRgba1010102(testColorAlpha).ToColor32().ToColor() },
-            //new object[] { SKColorType.Rgba1010102, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-
-            //new object[] { SKColorType.Rgb101010x, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-
-            //new object[] { SKColorType.Argb4444, SKAlphaType.Unpremul, testColorAlpha, new ColorArgb4444(testColorAlpha).ToColor32().ToColor() },
-            //new object[] { SKColorType.Argb4444, SKAlphaType.Premul, testColorAlpha, new ColorArgb4444(testColorAlpha).ToPremultiplied().ToStraight().ToColor32().ToColor() },
-            //new object[] { SKColorType.Argb4444, SKAlphaType.Opaque, testColorAlpha, new ColorArgb4444(testColorBlended).ToColor32().ToColor() },
-
-            //new object[] { SKColorType.RgbaF32, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.RgbaF32, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.RgbaF32, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-
-            //new object[] { SKColorType.RgbaF16, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.RgbaF16, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.RgbaF16, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-            //new object[] { SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.RgbaF16Clamped, SKAlphaType.Premul, testColorAlpha, testColorAlpha },
-            //new object[] { SKColorType.RgbaF16Clamped, SKAlphaType.Opaque, testColorAlpha, testColorBlended },
-
-            //new object[] { SKColorType.Alpha8, SKAlphaType.Premul, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
-            //new object[] { SKColorType.Alpha8, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
-
-            //new object[] { SKColorType.Alpha16, SKAlphaType.Premul, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
-            //new object[] { SKColorType.Alpha16, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
-
-            //new object[] { SKColorType.AlphaF16, SKAlphaType.Premul, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
-            //new object[] { SKColorType.AlphaF16, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorAlpha.A, 0, 0, 0) },
-
-            //new object[] { SKColorType.Rg88, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorBlended.R, testColorBlended.G, 0) },
-            //new object[] { SKColorType.Rg1616, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorBlended.R, testColorBlended.G, 0) },
-            //new object[] { SKColorType.RgF16, SKAlphaType.Opaque, testColorAlpha, Color.FromArgb(testColorBlended.R, testColorBlended.G, 0) },
-        };
-
-        #endregion
-
         #region Methods
 
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgb888x, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgb888x, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Gray8, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Gray8, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgb565, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgb565, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgba16161616, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Rgba16161616, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Rgba16161616, SKAlphaType.Opaque)]
 
         [TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul)]
         [TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul)]
         [TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque)]
 
         [TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Rgba1010102, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Rgba1010102, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Rgba1010102, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Rgb101010x, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Argb4444, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Argb4444, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Argb4444, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.RgbaF32, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.RgbaF32, SKAlphaType.Premul)]
+        [TestCase(SKColorType.RgbaF32, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.RgbaF16, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.RgbaF16, SKAlphaType.Premul)]
+        [TestCase(SKColorType.RgbaF16, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Premul)]
+        [TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Opaque)]
+
+        //[TestCase(SKColorType.Alpha8, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Alpha8, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Alpha8, SKAlphaType.Opaque)]
+
+        //[TestCase(SKColorType.Alpha16, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Alpha16, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Alpha16, SKAlphaType.Opaque)]
+
+        //[TestCase(SKColorType.AlphaF16, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.AlphaF16, SKAlphaType.Premul)]
+        [TestCase(SKColorType.AlphaF16, SKAlphaType.Opaque)]
+
+        [TestCase(SKColorType.Rg88, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rg1616, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.RgF16, SKAlphaType.Opaque)]
         public void DirectlySupportedSetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
             foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), /*TODO SKColorSpace.CreateSrgbLinear(),*/ })
@@ -110,13 +104,20 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 var info = new SKImageInfo(2, 2, colorType, alphaType, colorSpace);
                 var testColor = Color.FromArgb(0x80, 0x80, 0xFF, 0x40).ToColor32();
 
-                // Skia and KGy SOFT convert colors to gray a bit differently so pre-converting the color to avoid differences
+                // Skia and KGy SOFT convert colors to gray a bit differently so pre-converting the color to avoid such differences
                 if (info.GetInfo().Grayscale)
                     testColor = testColor.ToGray();
                 bool linear = colorSpace.GammaIsLinear;
                 var expectedResult = testColor;
-                if (alphaType == SKAlphaType.Opaque)
+                if (colorType is SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16)
+                    expectedResult = Color32.FromArgb(expectedResult.A, Color.Black);
+                else if (alphaType == SKAlphaType.Opaque)
                     expectedResult = expectedResult.Blend(Color.Black, linear ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb);
+
+                if (colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102)
+                    expectedResult = new ColorBgra1010102Srgb(expectedResult).ToColor32();
+                else if (colorType is SKColorType.Rg88 or SKColorType.Rg1616 or SKColorType.RgF16)
+                    expectedResult = new Color32(expectedResult.R, expectedResult.G, 0);
 
                 Assert.IsTrue(info.IsDirectlySupported(), $"Format is not supported directly: {colorType}/{alphaType}/{colorSpace.NamedGamma}");
 
@@ -132,7 +133,9 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 using var bitmapData = bitmap.GetReadWriteBitmapData();
                 bitmapData.SetPixel(1, 1, testColor);
                 var actual = bitmapData.GetPixel(1, 1);
-                byte tolerance = (byte)(colorSpace.IsSrgb ? 1 : 2); // TODO: Rgb565: + 2?
+                byte tolerance = (byte)(colorSpace.IsSrgb
+                    ? colorType switch { SKColorType.Argb4444 => 17, SKColorType.Rgb565 => 5, _ => 1 } // allowing 1 shade difference
+                    : 2); // TODO: Rgb565: + 2?
 
                 var raw = new List<byte>();
                 for (int i = 0; i < colorType.GetBytesPerPixel(); i++)
@@ -148,7 +151,6 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                 // not comparing Skia result to KGySoft because they can be different and this is known:
                 // - if colorType supports alpha but alphaType is Opaque, Skia uses premultiplied pixel write and gets the raw value
-                // - Bgra1010102, Rgba1010102: Skia does not use blending
                 // - For non-sRGB color spaces GetPixel does not work: https://github.com/mono/SkiaSharp/issues/2354
 
                 Assert.IsTrue(expectedResult.TolerantEquals(actual.ToColor32(), tolerance), $"KGySoft: {expectedResult} vs. {actual.ToColor32()}");
@@ -158,12 +160,12 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [Test]
         public void SetGetPixelCompareTestSrgb()
         {
-            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Bgra1010102 })
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.RgF16 }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in /*Enum<SKAlphaType>.GetValues()*/ new[] { SKAlphaType.Opaque })
+                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Opaque }*/)
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
@@ -189,7 +191,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                         bitmap.SetPixel(2, 3, testColor.ToSKColor());
                         Color32 expected = bitmap.GetPixel(2, 3).ToColor32();
-                        Console.Write($"{colorType}/{alphaType}: {bitmap.Info.AlphaType} ===> {testColor} -> {expected} vs. ");
+                        Console.Write($"{colorType}/{alphaType}/{workingColorSpace}: {bitmap.Info.AlphaType} ===> {testColor} -> {expected} vs. ");
 
                         using IReadWriteBitmapData readWriteBitmapData = bitmap.GetReadWriteBitmapData(workingColorSpace, Color.Black.ToSKColor());
                         readWriteBitmapData.SetPixel(3, 4, testColor);
@@ -213,7 +215,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                         try
                         {
-                            Assert.IsTrue(expected.TolerantEquals(actual, 1), $"{colorType}/{alphaType} - SkiaSharp: {expected} vs. KGySoft: {actual}");
+                            Assert.IsTrue(expected.TolerantEquals(actual, 1), $"{colorType}/{alphaType}/{workingColorSpace} - SkiaSharp: {expected} vs. KGySoft: {actual}");
                         }
                         catch (AssertionException)
                         {
@@ -268,7 +270,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                             expected = temp.GetPixel(0, 0).ToColor32();
                         }
 
-                        Console.Write($"{colorType}/{alphaType}: {bitmap.Info.AlphaType} ===> {testColor} -> Skia vs. KGySoft: {expected} vs. ");
+                        Console.Write($"{colorType}/{alphaType}/{workingColorSpace}: {bitmap.Info.AlphaType} ===> {testColor} -> Skia vs. KGySoft: {expected} vs. ");
 
                         using IReadWriteBitmapData readWriteBitmapData = bitmap.GetReadWriteBitmapData(workingColorSpace, Color.Black.ToSKColor());
                         readWriteBitmapData.SetPixel(3, 4, testColor);
@@ -292,7 +294,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                         try
                         {
-                            Assert.IsTrue(expected.TolerantEquals(actual, (byte)(/*alphaType is SKAlphaType.Premul ? 5 :*/ 1)), $"{colorType}/{alphaType} - SkiaSharp: {expected} vs. KGySoft: {actual}");
+                            Assert.IsTrue(expected.TolerantEquals(actual, (byte)(/*alphaType is SKAlphaType.Premul ? 5 :*/ 1)), $"{colorType}/{alphaType}/{workingColorSpace} - SkiaSharp: {expected} vs. KGySoft: {actual}");
                         }
                         catch (AssertionException)
                         {

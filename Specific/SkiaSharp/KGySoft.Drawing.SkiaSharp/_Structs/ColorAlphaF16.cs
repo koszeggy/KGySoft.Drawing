@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorRgba16161616Srgb.cs
+//  File: ColorAlphaF16.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -23,38 +24,24 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
-    [StructLayout(LayoutKind.Explicit, Size = 8)]
-    internal readonly struct ColorRgba16161616Srgb
+    [StructLayout(LayoutKind.Sequential, Size = 2)]
+    internal readonly struct ColorAlphaF16
     {
         #region Fields
 
-        [FieldOffset(0)]private readonly ushort r;
-        [FieldOffset(2)]private readonly ushort g;
-        [FieldOffset(4)]private readonly ushort b;
-        [FieldOffset(6)]private readonly ushort a;
+        private readonly Half a;
 
         #endregion
 
         #region Constructors
 
-        internal ColorRgba16161616Srgb(Color32 c)
-            : this(new Color64(c))
-        {
-        }
-
-        internal ColorRgba16161616Srgb(Color64 c)
-        {
-            r = c.R;
-            g = c.G;
-            b = c.B;
-            a = c.A;
-        }
+        internal ColorAlphaF16(Color32 c) => a = (Half)ColorSpaceHelper.ToFloat(c.A);
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new Color64(a, r, g, b).ToColor32();
+        internal Color32 ToColor32() => Color32.FromArgb(ColorSpaceHelper.ToByte((float)a), default);
 
         #endregion
     }
