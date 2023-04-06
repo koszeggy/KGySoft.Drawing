@@ -195,8 +195,9 @@ namespace KGySoft.Drawing.Wpf
             if (sourceFormat == PixelFormats.Bgr101010)
                 return BitmapDataFactory.CreateBitmapData(buffer, size, stride, new PixelFormatInfo(32),
                     (row, x) => row.UnsafeGetRefAs<ColorBgr101010>(x).ToColor32(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010>(x) =
-                        new ColorBgr101010(c.A == Byte.MaxValue ? c.ToColor64() : c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace)),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorBgr101010>(x) = c.A == Byte.MaxValue
+                        ? new ColorBgr101010(c)
+                        : new ColorBgr101010(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64(), row.BitmapData.WorkingColorSpace)),
                     workingColorSpace, backColor32, alphaThreshold, dispose);
 
             if (sourceFormat == PixelFormats.Rgb48)

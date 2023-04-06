@@ -42,19 +42,26 @@ namespace KGySoft.Drawing.Wpf
 
         #region Properties
 
-        private int R => (value & redMask) >> 20;
-        private int G => (value & greenMask) >> 10;
-        private int B => value & blueMask;
+        private uint R => (value & redMask) >> 20;
+        private uint G => (value & greenMask) >> 10;
+        private uint B => value & blueMask;
 
         #endregion
 
         #region Constructors
 
+        internal ColorBgr101010(Color32 c)
+        {
+            Debug.Assert(c.A == Byte.MaxValue);
+            value = (uint)(((c.R << 2) | (c.R >> 6)) << 20)
+                | (uint)(((c.G << 2) | (c.G >> 6)) << 10)
+                | (uint)((c.B << 2) | (c.B >> 6));
+        }
+
         internal ColorBgr101010(Color64 c)
         {
             Debug.Assert(c.A == UInt16.MaxValue);
-            value = ((uint)(c.A >> 14) << 30)
-                | (uint)((c.R >> 6) << 20)
+            value = (uint)((c.R >> 6) << 20)
                 | (uint)((c.G >> 6) << 10)
                 | (uint)(c.B >> 6);
         }
