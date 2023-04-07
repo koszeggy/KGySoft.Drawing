@@ -65,6 +65,31 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #endregion
 
+        #region Cache16Bpp class
+
+        private static class Cache16Bpp
+        {
+            #region Fields
+
+            internal static readonly byte[] LookupTableSrgbToLinearByte = InitLookupTableSrgbToLinearByte();
+
+            #endregion
+
+            #region Methods
+
+            private static byte[] InitLookupTableSrgbToLinearByte()
+            {
+                var result = new byte[1 << 16];
+                for (int i = 0; i <= UInt16.MaxValue; i++)
+                    result[i] = ColorSpaceHelper.ToByte(ColorSpaceHelper.SrgbToLinear((ushort)i));
+                return result;
+            }
+
+            #endregion
+        }
+
+        #endregion
+
         #endregion
 
         #region Methods
@@ -103,6 +128,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal static byte ToLinear(this byte b) => Cache8Bpp.LookupTableSrgbToLinear[b];
         internal static byte ToSrgb(this byte b) => Cache8Bpp.LookupTableLinearToSrgb[b];
+        internal static byte ToLinearByte(this ushort b) => Cache16Bpp.LookupTableSrgbToLinearByte[b];
         internal static byte ToLinearByte(this float f) => ColorSpaceHelper.ToByte(ColorSpaceHelper.SrgbToLinear(f));
 
         #endregion

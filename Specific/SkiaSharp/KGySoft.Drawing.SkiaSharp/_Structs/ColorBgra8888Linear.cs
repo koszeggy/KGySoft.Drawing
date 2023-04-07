@@ -45,6 +45,14 @@ namespace KGySoft.Drawing.SkiaSharp
             a = c.A;
         }
 
+        internal ColorBgra8888Linear(Color64 c)
+        {
+            b = c.B.ToLinearByte();
+            g = c.G.ToLinearByte();
+            r = c.R.ToLinearByte();
+            a = ColorSpaceHelper.ToByte(c.A);
+        }
+
         internal ColorBgra8888Linear(ColorF c)
         {
             b = ColorSpaceHelper.ToByte(c.B);

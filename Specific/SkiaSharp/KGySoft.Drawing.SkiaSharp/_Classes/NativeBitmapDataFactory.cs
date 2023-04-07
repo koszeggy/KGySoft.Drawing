@@ -289,12 +289,9 @@ namespace KGySoft.Drawing.SkiaSharp
                 // Bgra8888/Opaque
                 { ColorType: SKColorType.Bgra8888, AlphaType: SKAlphaType.Opaque } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorBgra8888Linear>(x).ToColor32().ToOpaque(),
-                    (row, x, c) => row.UnsafeGetRefAs<ColorBgra8888Linear>(x) =
-                        c.A == Byte.MaxValue
-                            ? new ColorBgra8888Linear(c)
-                            : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
-                                ? new ColorBgra8888Linear(c.Blend(row.BitmapData.BackColor))
-                                : new ColorBgra8888Linear(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorBgra8888Linear>(x) = c.A == Byte.MaxValue ? new ColorBgra8888Linear(c)
+                        : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new ColorBgra8888Linear(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()))
+                        : new ColorBgra8888Linear(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
                     workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
                 // Rgba8888/Unpremul
@@ -313,12 +310,9 @@ namespace KGySoft.Drawing.SkiaSharp
                 { ColorType: SKColorType.Rgba8888, AlphaType: SKAlphaType.Opaque } or { ColorType: SKColorType.Rgb888x }
                     => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                         (row, x) => row.UnsafeGetRefAs<ColorRgba8888Linear>(x).ToColor32().ToOpaque(),
-                        (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888Linear>(x) =
-                            c.A == Byte.MaxValue
-                                ? new ColorRgba8888Linear(c)
-                                : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
-                                    ? new ColorRgba8888Linear(c.Blend(row.BitmapData.BackColor))
-                                    : new ColorRgba8888Linear(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
+                        (row, x, c) => row.UnsafeGetRefAs<ColorRgba8888Linear>(x) = c.A == Byte.MaxValue ? new ColorRgba8888Linear(c)
+                            : row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb ? new ColorRgba8888Linear(c.ToColor64().Blend(row.BitmapData.BackColor.ToColor64()))
+                            : new ColorRgba8888Linear(c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
                         workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
                 // Gray8
@@ -327,6 +321,14 @@ namespace KGySoft.Drawing.SkiaSharp
                     (row, x, c) => row.UnsafeGetRefAs<ColorGray8Linear>(x) = row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
                         ? new ColorGray8Linear(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor))
                         : new ColorGray8Linear(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
+                    workingColorSpace, backColor32, alphaThreshold, disposeCallback),
+
+                // Rgb565
+                { ColorType: SKColorType.Rgb565 } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
+                    (row, x) => row.UnsafeGetRefAs<ColorRgb565Linear>(x).ToColor32(),
+                    (row, x, c) => row.UnsafeGetRefAs<ColorRgb565Linear>(x) = row.BitmapData.WorkingColorSpace == WorkingColorSpace.Srgb
+                        ? new ColorRgb565Linear(c.A == Byte.MaxValue ? c : c.Blend(row.BitmapData.BackColor))
+                        : new ColorRgb565Linear(c.A == Byte.MaxValue ? c.ToColorF() : c.ToColorF().Blend(row.BitmapData.BackColor.ToColorF())),
                     workingColorSpace, backColor32, alphaThreshold, disposeCallback),
 
                 //// Rgba16161616/Unpremul
