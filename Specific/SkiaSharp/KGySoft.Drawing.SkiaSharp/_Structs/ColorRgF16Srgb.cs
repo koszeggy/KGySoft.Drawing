@@ -57,11 +57,11 @@ namespace KGySoft.Drawing.SkiaSharp
             g = (Half)ColorSpaceHelper.ToFloat(c.G);
         }
 
-    #endregion
+        #endregion
 
-    #region Methods
+        #region Methods
 
-    internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(R), ColorSpaceHelper.ToByte(G), 0);
+        internal Color32 ToColor32() => new Color32(ColorSpaceHelper.ToByte(R), ColorSpaceHelper.ToByte(G), 0);
 
         #endregion
     }

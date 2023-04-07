@@ -71,17 +71,26 @@ namespace KGySoft.Drawing.SkiaSharp
         {
             #region Fields
 
-            internal static readonly byte[] LookupTableSrgbToLinearByte = InitLookupTableSrgbToLinearByte();
+            internal static readonly ushort[] LookupTableSrgbToLinear = InitLookupTableSrgbToLinear();
+            internal static readonly ushort[] LookupTableLinearToSrgb = InitLookupTableLinearToSrgb();
 
             #endregion
 
             #region Methods
 
-            private static byte[] InitLookupTableSrgbToLinearByte()
+            private static ushort[] InitLookupTableSrgbToLinear()
             {
-                var result = new byte[1 << 16];
+                var result = new ushort[1 << 16];
                 for (int i = 0; i <= UInt16.MaxValue; i++)
-                    result[i] = ColorSpaceHelper.ToByte(ColorSpaceHelper.SrgbToLinear((ushort)i));
+                    result[i] = ColorSpaceHelper.ToUInt16(ColorSpaceHelper.SrgbToLinear((ushort)i));
+                return result;
+            }
+
+            private static ushort[] InitLookupTableLinearToSrgb()
+            {
+                var result = new ushort[1 << 16];
+                for (int i = 0; i <= UInt16.MaxValue; i++)
+                    result[i] = ColorSpaceHelper.LinearToSrgb16Bit(ColorSpaceHelper.ToFloat((ushort)i));
                 return result;
             }
 
@@ -127,9 +136,13 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Internal Methods
 
         internal static byte ToLinear(this byte b) => Cache8Bpp.LookupTableSrgbToLinear[b];
-        internal static byte ToSrgb(this byte b) => Cache8Bpp.LookupTableLinearToSrgb[b];
-        internal static byte ToLinearByte(this ushort b) => Cache16Bpp.LookupTableSrgbToLinearByte[b];
+        internal static byte ToLinearByte(this ushort b) => ColorSpaceHelper.ToByte(Cache16Bpp.LookupTableSrgbToLinear[b]);
         internal static byte ToLinearByte(this float f) => ColorSpaceHelper.ToByte(ColorSpaceHelper.SrgbToLinear(f));
+        internal static byte ToSrgb(this byte b) => Cache8Bpp.LookupTableLinearToSrgb[b];
+        internal static byte ToSrgbByte(this ushort b) => ColorSpaceHelper.ToByte(Cache16Bpp.LookupTableLinearToSrgb[b]);
+
+        internal static ushort ToLinear(this ushort b) => Cache16Bpp.LookupTableSrgbToLinear[b];
+        internal static ushort ToSrgb(this ushort b) => Cache16Bpp.LookupTableLinearToSrgb[b];
 
         #endregion
     }

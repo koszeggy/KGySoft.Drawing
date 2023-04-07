@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorPrgba1010102Srgb.cs
+//  File: ColorPbgra1010102Linear.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -23,14 +23,14 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
-    internal readonly struct ColorPrgba1010102Srgb
+    internal readonly struct ColorPbgra1010102Linear
     {
         #region Constants
 
         private const uint alphaMask = 0b11000000_00000000_00000000_00000000;
-        private const uint redMask = 0b00000011_11111111;
+        private const uint redMask = 0b00111111_11110000_00000000_00000000;
         private const uint greenMask = 0b00001111_11111100_00000000;
-        private const uint blueMask = 0b00111111_11110000_00000000_00000000;
+        private const uint blueMask = 0b00000011_11111111;
 
         private const int maxAlpha = 3;
         private const int maxRgb = 1023;
@@ -46,9 +46,9 @@ namespace KGySoft.Drawing.SkiaSharp
         #region Properties
 
         private uint A => (value & alphaMask) >> 30;
-        private uint B => (value & blueMask) >> 20;
+        private uint R => (value & redMask) >> 20;
         private uint G => (value & greenMask) >> 10;
-        private uint R => value & redMask;
+        private uint B => value & blueMask;
 
         // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
         // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
@@ -63,7 +63,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Constructors
 
-        internal ColorPrgba1010102Srgb(Color32 c)
+        internal ColorPbgra1010102Linear(Color32 c)
         {
             if (c.A == Byte.MinValue)
             {
@@ -71,7 +71,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 return;
             }
 
-            var straight = new ColorRgba1010102Srgb(c);
+            var straight = new ColorBgra1010102Linear(c);
             if (straight.A == maxAlpha)
             {
                 value = straight.Value;
@@ -79,7 +79,7 @@ namespace KGySoft.Drawing.SkiaSharp
             }
 
             uint a = straight.A;
-            this = new ColorPrgba1010102Srgb(a,
+            this = new ColorPbgra1010102Linear(a,
                 straight.R * a / maxAlpha,
                 straight.G * a / maxAlpha,
                 straight.B * a / maxAlpha);
@@ -90,13 +90,13 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Private Constructors
 
-        private ColorPrgba1010102Srgb(uint a, uint r, uint g, uint b)
+        private ColorPbgra1010102Linear(uint a, uint r, uint g, uint b)
         {
             Debug.Assert(a <= maxAlpha && r <= maxRgb && g <= maxRgb && b <= maxRgb);
             value = a << 30
-                | b << 20
+                | r << 20
                 | g << 10
-                | r;
+                | b;
             Debug.Assert(R16 <= A16 && G16 <= A16 && B16 <= A16);
         }
 
@@ -108,16 +108,9 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal Color32 ToColor32()
         {
-            uint a = A;
-            return a switch
-            {
-                0u => default,
-                maxAlpha => new ColorRgba1010102Srgb(value).ToColor32(),
-                _ => new ColorRgba1010102Srgb(a,
-                    Math.Min(maxRgb, R * maxAlpha / a),
-                    Math.Min(maxRgb, G * maxAlpha / a),
-                    Math.Min(maxRgb, B * maxAlpha / a)).ToColor32()
-            };
+            // Cheating: the temp PColor64/Color64 instances are actually in the linear color space
+            Color64 straight = new PColor64(A16, R16, G16, B16).Clip().ToStraight();
+            return new Color32(ColorSpaceHelper.ToByte(straight.A), straight.R.ToSrgbByte(), straight.G.ToSrgbByte(), straight.B.ToSrgbByte());
         }
 
         #endregion

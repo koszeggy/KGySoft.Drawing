@@ -50,6 +50,13 @@ namespace KGySoft.Drawing.SkiaSharp
         private uint G => (value & greenMask) >> 10;
         private uint B => value & blueMask;
 
+        // A * 85 is the same as (byte)((A << 6) | (A << 4) | (A << 2) | A),
+        // whereas * 257 is the same as ((value << 8) | value) for the 8 bit result
+        private ushort A16 => (ushort)(A * (85 * 257));
+        private ushort R16 => (ushort)((R << 6) | (R >> 2));
+        private ushort G16 => (ushort)((G << 6) | (G >> 2));
+        private ushort B16 => (ushort)((B << 6) | (B >> 2));
+
         #endregion
 
         #region Constructors
@@ -65,7 +72,7 @@ namespace KGySoft.Drawing.SkiaSharp
             }
 
             var straight = new ColorBgra1010102Srgb(c);
-            if (c.A == Byte.MaxValue)
+            if (straight.A == maxAlpha)
             {
                 value = straight.Value;
                 return;
@@ -76,6 +83,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 straight.R * a / maxAlpha,
                 straight.G * a / maxAlpha,
                 straight.B * a / maxAlpha);
+            Debug.Assert(R16 <= A16 && G16 <= A16 && B16 <= A16);
         }
 
         #endregion
@@ -89,6 +97,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 | r << 20
                 | g << 10
                 | b;
+            Debug.Assert(R16 <= A16 && G16 <= A16 && B16 <= A16);
         }
 
         #endregion
@@ -105,9 +114,9 @@ namespace KGySoft.Drawing.SkiaSharp
                 0u => default,
                 maxAlpha => new ColorBgra1010102Srgb(value).ToColor32(),
                 _ => new ColorBgra1010102Srgb(a,
-                    R * maxAlpha / a,
-                    G * maxAlpha / a,
-                    B * maxAlpha / a).ToColor32()
+                    Math.Min(maxRgb, R * maxAlpha / a),
+                    Math.Min(maxRgb, G * maxAlpha / a),
+                    Math.Min(maxRgb, B * maxAlpha / a)).ToColor32()
             };
         }
 

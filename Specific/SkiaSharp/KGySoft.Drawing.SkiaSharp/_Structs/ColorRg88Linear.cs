@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorPrgba16161616Srgb.cs
+//  File: ColorRg88Linear.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -24,33 +25,43 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing.SkiaSharp
 {
     [StructLayout(LayoutKind.Explicit)]
-    internal struct ColorPrgba16161616Srgb
+    internal readonly struct ColorRg88Linear
     {
         #region Fields
 
-        [FieldOffset(0)]private readonly ushort r;
-        [FieldOffset(2)]private readonly ushort g;
-        [FieldOffset(4)]private readonly ushort b;
-        [FieldOffset(6)]private readonly ushort a;
+        [FieldOffset(0)]private readonly byte r;
+        [FieldOffset(1)]private readonly byte g;
 
         #endregion
 
         #region Constructors
 
-        internal ColorPrgba16161616Srgb(Color32 c)
+        internal ColorRg88Linear(Color32 c)
         {
-            var pc64 = new PColor64(c);
-            r = pc64.R;
-            g = pc64.G;
-            b = pc64.B;
-            a = pc64.A;
+            Debug.Assert(c.A == Byte.MaxValue);
+            r = c.R.ToLinear();
+            g = c.G.ToLinear();
+        }
+
+        internal ColorRg88Linear(Color64 c)
+        {
+            Debug.Assert(c.A == UInt16.MaxValue);
+            r = c.R.ToLinearByte();
+            g = c.G.ToLinearByte();
+        }
+
+        internal ColorRg88Linear(ColorF c)
+        {
+            Debug.Assert(c.A >= 1f);
+            r = ColorSpaceHelper.ToByte(c.R);
+            g = ColorSpaceHelper.ToByte(c.G);
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new PColor64(a, r, g, b).ToColor32();
+        internal Color32 ToColor32() => new Color32(r.ToSrgb(), g.ToSrgb(), 0);
 
         #endregion
     }

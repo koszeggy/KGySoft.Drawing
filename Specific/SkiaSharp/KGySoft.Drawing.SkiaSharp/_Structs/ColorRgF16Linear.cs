@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorPrgba16161616Srgb.cs
+//  File: ColorRgF16Linear.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -15,6 +15,7 @@
 
 #region Usings
 
+using System;
 using System.Runtime.InteropServices;
 
 using KGySoft.Drawing.Imaging;
@@ -23,34 +24,47 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
-    [StructLayout(LayoutKind.Explicit)]
-    internal struct ColorPrgba16161616Srgb
+    [StructLayout(LayoutKind.Explicit, Size = 4)]
+    internal readonly struct ColorRgF16Linear
     {
         #region Fields
 
-        [FieldOffset(0)]private readonly ushort r;
-        [FieldOffset(2)]private readonly ushort g;
-        [FieldOffset(4)]private readonly ushort b;
-        [FieldOffset(6)]private readonly ushort a;
+        [FieldOffset(0)]private readonly Half r;
+        [FieldOffset(2)]private readonly Half g;
+
+        #endregion
+
+        #region Properties
+
+        private float R => (float)r;
+        private float G => (float)g;
 
         #endregion
 
         #region Constructors
 
-        internal ColorPrgba16161616Srgb(Color32 c)
+        internal ColorRgF16Linear(Color32 c)
+            : this(c.ToColorF())
         {
-            var pc64 = new PColor64(c);
-            r = pc64.R;
-            g = pc64.G;
-            b = pc64.B;
-            a = pc64.A;
+        }
+
+        internal ColorRgF16Linear(Color64 c)
+            : this(c.ToColorF())
+        {
+        }
+
+        internal ColorRgF16Linear(ColorF c)
+        {
+            Debug.Assert(c.A >= 1f);
+            r = (Half)c.R;
+            g = (Half)c.G;
         }
 
         #endregion
 
         #region Methods
 
-        internal Color32 ToColor32() => new PColor64(a, r, g, b).ToColor32();
+        internal Color32 ToColor32() => new ColorF(R, G, 0f).ToColor32();
 
         #endregion
     }

@@ -1,7 +1,7 @@
 ﻿#region Copyright
 
 ///////////////////////////////////////////////////////////////////////////////
-//  File: ColorPargb4444Srgb.cs
+//  File: ColorPargb4444Linear.cs
 ///////////////////////////////////////////////////////////////////////////////
 //  Copyright (C) KGy SOFT, 2005-2023 - All Rights Reserved
 //
@@ -23,7 +23,7 @@ using KGySoft.Drawing.Imaging;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
-    internal readonly struct ColorPargb4444Srgb
+    internal readonly struct ColorPargb4444Linear
     {
         #region Constants
 
@@ -55,10 +55,13 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Constructors
 
-        internal ColorPargb4444Srgb(Color32 c)
+        internal ColorPargb4444Linear(Color32 c)
         {
-            PColor32 pc32 = c.ToPremultiplied();
-            this = new ColorPargb4444Srgb((byte)(pc32.A >> 4), (byte)(pc32.R >> 4), (byte)(pc32.G >> 4), (byte)(pc32.B >> 4));
+            PColorF pF = c.ToPColorF();
+            this = new ColorPargb4444Linear((byte)(c.A >> 4),
+                (byte)(ColorSpaceHelper.ToByte(pF.R) >> 4),
+                (byte)(ColorSpaceHelper.ToByte(pF.G) >> 4),
+                (byte)(ColorSpaceHelper.ToByte(pF.B) >> 4));
 
             //// Premultiplication after quantization (results are more like the non-premultiplied format):
             //if (c.A == Byte.MinValue)
@@ -67,7 +70,7 @@ namespace KGySoft.Drawing.SkiaSharp
             //    return;
             //}
 
-            //var straight = new ColorArgb4444Srgb(c);
+            //var straight = new ColorArgb4444Linear(c);
             //if (c.A == Byte.MaxValue)
             //{
             //    value = straight.Value;
@@ -75,7 +78,7 @@ namespace KGySoft.Drawing.SkiaSharp
             //}
 
             //byte a = straight.A;
-            //this = new ColorPargb4444Srgb(a,
+            //this = new ColorPargb4444Linear(a,
             //    (byte)(straight.R * a / maxArgb),
             //    (byte)(straight.G * a / maxArgb),
             //    (byte)(straight.B * a / maxArgb));
@@ -85,7 +88,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Private Constructors
 
-        private ColorPargb4444Srgb(byte a, byte r, byte g, byte b)
+        private ColorPargb4444Linear(byte a, byte r, byte g, byte b)
         {
             Debug.Assert(a <= maxArgb && r <= a && g <= a && b <= a);
             value = (ushort)(a
@@ -106,8 +109,8 @@ namespace KGySoft.Drawing.SkiaSharp
             return a switch
             {
                 0 => default,
-                maxArgb => new ColorArgb4444Srgb(value).ToColor32(),
-                _ => new ColorArgb4444Srgb(a,
+                maxArgb => new ColorArgb4444Linear(value).ToColor32(),
+                _ => new ColorArgb4444Linear(a,
                     (byte)(R * maxArgb / a),
                     (byte)(G * maxArgb / a),
                     (byte)(B * maxArgb / a)).ToColor32()

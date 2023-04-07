@@ -55,12 +55,8 @@ namespace KGySoft.Drawing.SkiaSharp
                 return;
             }
 
-#if NET7_0_OR_GREATER
-            a = (Half)ColorSpaceHelper.ToFloat(c.A);
-#else
             float aF = ColorSpaceHelper.ToFloat(c.A);
             a = (Half)aF;
-#endif
             if (c.A == Byte.MaxValue)
             {
                 r = (Half)ColorSpaceHelper.ToFloat(c.R);
@@ -69,15 +65,9 @@ namespace KGySoft.Drawing.SkiaSharp
                 return;
             }
 
-#if NET7_0_OR_GREATER
-            r = (Half)ColorSpaceHelper.ToFloat(c.R) * a;
-            g = (Half)ColorSpaceHelper.ToFloat(c.G) * a;
-            b = (Half)ColorSpaceHelper.ToFloat(c.B) * a; 
-#else
             r = (Half)(ColorSpaceHelper.ToFloat(c.R) * aF);
             g = (Half)(ColorSpaceHelper.ToFloat(c.G) * aF);
             b = (Half)(ColorSpaceHelper.ToFloat(c.B) * aF); 
-#endif
         }
 
         #endregion
@@ -86,11 +76,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal Color32 ToColor32()
         {
-#if NET7_0_OR_GREATER
-            if (a >= Half.One)
-#else
             if (A >= 1f)
-#endif
             {
                 return new Color32(ColorSpaceHelper.ToByte(A),
                     ColorSpaceHelper.ToByte(R),
@@ -98,11 +84,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     ColorSpaceHelper.ToByte(B));
             }
 
-#if NET7_0_OR_GREATER
-            if (a >= Half.Zero)
-#else
             if (A >= 0f)
-#endif
             {
                 return new Color32(ColorSpaceHelper.ToByte(A),
                     ColorSpaceHelper.ToByte(R / A),

@@ -19,6 +19,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
+using System.IO;
 using System.Linq;
 
 using KGySoft.CoreLibraries;
@@ -37,69 +38,69 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
     {
         #region Methods
 
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgb888x, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgb888x, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Gray8, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Gray8, SKAlphaType.Opaque)]
 
         [TestCase(SKColorType.Rgb565, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Rgba16161616, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgba16161616, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Rgba16161616, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Rgba16161616, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgba1010102, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Rgba1010102, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Rgba1010102, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgba1010102, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Rgba1010102, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Rgba1010102, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rgb101010x, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rgb101010x, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Argb4444, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Argb4444, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Argb4444, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Argb4444, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Argb4444, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Argb4444, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.RgbaF32, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.RgbaF32, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.RgbaF32, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.RgbaF32, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.RgbaF32, SKAlphaType.Premul)]
+        [TestCase(SKColorType.RgbaF32, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.RgbaF16, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.RgbaF16, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.RgbaF16, SKAlphaType.Opaque)]
-        //[TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.RgbaF16, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.RgbaF16, SKAlphaType.Premul)]
+        [TestCase(SKColorType.RgbaF16, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Premul)]
+        [TestCase(SKColorType.RgbaF16Clamped, SKAlphaType.Opaque)]
 
-        ////[TestCase(SKColorType.Alpha8, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Alpha8, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Alpha8, SKAlphaType.Opaque)]
+        //[TestCase(SKColorType.Alpha8, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Alpha8, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Alpha8, SKAlphaType.Opaque)]
 
-        ////[TestCase(SKColorType.Alpha16, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.Alpha16, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.Alpha16, SKAlphaType.Opaque)]
+        //[TestCase(SKColorType.Alpha16, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.Alpha16, SKAlphaType.Premul)]
+        [TestCase(SKColorType.Alpha16, SKAlphaType.Opaque)]
 
-        ////[TestCase(SKColorType.AlphaF16, SKAlphaType.Unpremul)]
-        //[TestCase(SKColorType.AlphaF16, SKAlphaType.Premul)]
-        //[TestCase(SKColorType.AlphaF16, SKAlphaType.Opaque)]
+        //[TestCase(SKColorType.AlphaF16, SKAlphaType.Unpremul)]
+        [TestCase(SKColorType.AlphaF16, SKAlphaType.Premul)]
+        [TestCase(SKColorType.AlphaF16, SKAlphaType.Opaque)]
 
-        //[TestCase(SKColorType.Rg88, SKAlphaType.Opaque)]
-        //[TestCase(SKColorType.Rg1616, SKAlphaType.Opaque)]
-        //[TestCase(SKColorType.RgF16, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rg88, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.Rg1616, SKAlphaType.Opaque)]
+        [TestCase(SKColorType.RgF16, SKAlphaType.Opaque)]
         public void DirectlySupportedSetGetPixelTest(SKColorType colorType, SKAlphaType alphaType)
         {
-            foreach (var colorSpace in new[] { /*SKColorSpace.CreateSrgb(),*/ SKColorSpace.CreateSrgbLinear(), })
+            foreach (var colorSpace in new[] { SKColorSpace.CreateSrgb(), SKColorSpace.CreateSrgbLinear(), })
             {
                 var info = new SKImageInfo(2, 2, colorType, alphaType, colorSpace);
                 var testColor = Color.FromArgb(0x80, 0x80, 0xFF, 0x40).ToColor32();
@@ -135,7 +136,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 var actual = bitmapData.GetPixel(1, 1);
                 byte tolerance = (byte)(colorSpace.IsSrgb
                     ? colorType switch { SKColorType.Argb4444 => 17, SKColorType.Rgb565 => 5, _ => 1 } // allowing 1 shade difference
-                    : colorType switch { SKColorType.Rgb565 => 45, _ => 2 }); // for 5 bit linear colors the first non-black shade is 49
+                    : colorType switch { SKColorType.Argb4444 => 64, SKColorType.Rgb565 => 45, _ => 2 }); // for 5 bit linear colors the first non-black shade is 48, for 4 bit it's 70
 
                 var raw = new List<byte>();
                 for (int i = 0; i < colorType.GetBytesPerPixel(); i++)
@@ -160,16 +161,25 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [Test]
         public void SetGetPixelCompareTestSrgb()
         {
-            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Rgb565 })
+            string? fileName = null;
+            //string? fileName = @"..\..\..\..\..\..\Help\Images\Information256.png";
+            //string? fileName = @"..\..\..\..\..\..\Help\Images\GrayShades.gif";
+            //string? fileName = @"D:\Dokumentumok\Képek\Formats\APNG-balls.png";
+            //string? fileName = @"D:\Dokumentumok\Képek\Formats\webp_losless.webp";
+            if (!File.Exists(fileName))
+                fileName = null;
+            SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
+
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.Argb4444 }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Opaque }*/)
+                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Premul }*/)
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
-                    using var bitmap = new SKBitmap(new SKImageInfo(512, 256, colorType, alphaType));
+                    using var bitmap = new SKBitmap(new SKImageInfo(size.Width, size.Height, colorType, alphaType));
                     if (bitmap.AlphaType != alphaType)
                         continue;
 
@@ -185,8 +195,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                         // Pre-blending the color for opaque types because Skia handles alpha for them oddly:
                         // alpha is preserved while color is premultiplied, but when getting the pixel, the raw value is not converted back to straight color.
-                        // Pre-blending also for types with discrete alpha because Skia ignores back color for them or uses an arbitrary transformation
-                        if (!info.HasAlpha || colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 or SKColorType.Argb4444)
+                        // Pre-blending also for types with discrete alpha because Skia uses an arbitrary transformation
+                        if (!info.HasAlpha)
                             testColor = testColor.Blend(Color.Black, WorkingColorSpace.Srgb);
 
                         bitmap.SetPixel(2, 3, testColor.ToSKColor());
@@ -203,19 +213,34 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                             if (!skiaSaved)
                             {
                                 // saving an example by SkiaSharp, only once because it has no different working color spaces
-                                GenerateAlphaGradient(bitmap);
+                                // saving an example by SkiaSharp, only once because it has no different working color spaces
+                                if (fileName == null)
+                                    GenerateAlphaGradient(bitmap);
+                                else
+                                    LoadInto(bitmap, fileName);
+
                                 SaveBitmap($"{colorType}_{alphaType}_Skia", bitmap);
                                 skiaSaved = true;
                             }
 
                             // saving an example by KGySoft
-                            GenerateAlphaGradient(readWriteBitmapData);
+                            if (fileName == null)
+                                GenerateAlphaGradient(readWriteBitmapData);
+                            else
+                                LoadInto(readWriteBitmapData, fileName);
                             SaveBitmap($"{colorType}_{alphaType}_KGy_{workingColorSpace}", bitmap);
                         }
 
+                        byte tolerance = colorType switch
+                        {
+                            SKColorType.Argb4444 => 17, // the increment of one shade in 8 bits (255/15)
+                            SKColorType.Bgra1010102 or SKColorType.Rgba1010102 => 85, // 255/3 due to A channel
+                            _ => 1
+                        };
+
                         try
                         {
-                            Assert.IsTrue(expected.TolerantEquals(actual, 1), $"{colorType}/{alphaType}/{workingColorSpace} - SkiaSharp: {expected} vs. KGySoft: {actual}");
+                            Assert.IsTrue(expected.TolerantEquals(actual, tolerance), $"{colorType}/{alphaType}/{workingColorSpace} - SkiaSharp: {expected} vs. KGySoft: {actual}");
                         }
                         catch (AssertionException)
                         {
@@ -229,16 +254,25 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         [Test]
         public void SetGetPixelCompareTestLinear()
         {
-            foreach (SKColorType colorType in /*Enum<SKColorType>.GetValues()*/ new[] { SKColorType.Rgb565 })
+            string? fileName = null;
+            //string? fileName = @"..\..\..\..\..\..\Help\Images\Information256.png";
+            //string? fileName = @"..\..\..\..\..\..\Help\Images\GrayShades.gif";
+            //string? fileName = @"D:\Dokumentumok\Képek\Formats\APNG-balls.png";
+            //string? fileName = @"D:\Dokumentumok\Képek\Formats\webp_losless.webp";
+            if (!File.Exists(fileName))
+                fileName = null;
+            SKSizeI size = fileName == null ? new SKSizeI(512, 256) : SKBitmap.DecodeBounds(fileName).Size;
+
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues() /*new[] { SKColorType.RgF16 }*/)
             {
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                foreach (SKAlphaType alphaType in/* Enum<SKAlphaType>.GetValues()*/  new[] { SKAlphaType.Opaque, })
+                foreach (SKAlphaType alphaType in Enum<SKAlphaType>.GetValues() /*new[] { SKAlphaType.Opaque, }*/)
                 {
                     if (alphaType == SKAlphaType.Unknown)
                         continue;
-                    using var bitmap = new SKBitmap(new SKImageInfo(512, 256, colorType, alphaType, SKColorSpace.CreateSrgbLinear()));
+                    using var bitmap = new SKBitmap(new SKImageInfo(size.Width, size.Height, colorType, alphaType, SKColorSpace.CreateSrgbLinear()));
                     if (bitmap.AlphaType != alphaType)
                         continue;
 
@@ -254,8 +288,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
 
                         // Pre-blending the color for opaque types because Skia handles alpha for them oddly:
                         // alpha is preserved while color is premultiplied, but when getting the pixel, the raw value is not converted back to straight color.
-                        // Pre-blending also for types with discrete alpha because Skia ignores back color for them or uses an arbitrary transformation
-                        if (!info.HasAlpha || colorType is SKColorType.Bgra1010102 or SKColorType.Rgba1010102 or SKColorType.Argb4444)
+                        // Pre-blending also for types with discrete alpha because Skia uses an arbitrary transformation
+                        if (!info.HasAlpha)
                             testColor = testColor.Blend(Color.Black, WorkingColorSpace.Linear);
 
                         bitmap.SetPixel(0, 0, testColor.ToSKColor());
@@ -282,19 +316,28 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                             if (!skiaSaved)
                             {
                                 // saving an example by SkiaSharp, only once because it has no different working color spaces
-                                GenerateAlphaGradient(bitmap);
+                                if (fileName == null)
+                                    GenerateAlphaGradient(bitmap);
+                                else
+                                    LoadInto(bitmap, fileName);
+
                                 SaveBitmap($"{colorType}_{alphaType}_Skia", bitmap);
                                 skiaSaved = true;
                             }
 
                             // saving an example by KGySoft
-                            GenerateAlphaGradient(readWriteBitmapData);
+                            if (fileName == null)
+                                GenerateAlphaGradient(readWriteBitmapData);
+                            else
+                                LoadInto(readWriteBitmapData, fileName);
                             SaveBitmap($"{colorType}_{alphaType}_KGy_{workingColorSpace}", bitmap);
                         }
 
                         byte tolerance = colorType switch
                         {
                             SKColorType.Rgb565 => 49, // for 5 bit linear colors the first non-black shade is 49
+                            SKColorType.Argb4444 => 68, // for 4 bit linear colors the first non-black shade is 68
+                            SKColorType.Bgra1010102 or SKColorType.Rgba1010102 => 85, // 255/3 due to A channel
                             _ => 2
                         };
 

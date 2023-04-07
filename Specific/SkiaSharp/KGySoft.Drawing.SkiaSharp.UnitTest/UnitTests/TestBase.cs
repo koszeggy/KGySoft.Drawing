@@ -131,6 +131,23 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
             }
         }
 
+        protected static void LoadInto(SKBitmap target, string fileName)
+        {
+            using SKBitmap source = SKBitmap.Decode(fileName);
+
+            using var canvas = new SKCanvas(target);
+            using var paint = new SKPaint { BlendMode = SKBlendMode.Src };
+            canvas.DrawBitmap(source, source.Info.Rect, target.Info.Rect, paint);
+        }
+
+        protected static void LoadInto(IReadWriteBitmapData target, string fileName)
+        {
+            using SKBitmap source = SKBitmap.Decode(fileName);
+            using var sourceBitmapData = source.GetReadableBitmapData();
+            target.Clear(default);
+            sourceBitmapData.DrawInto(target, new Rectangle(Point.Empty, sourceBitmapData.Size), new Rectangle(Point.Empty, target.Size));
+        }
+
         protected static void SaveBitmap(string imageName, SKBitmap bitmap, [CallerMemberName]string testName = null!)
         {
             if (!SaveToFile)
