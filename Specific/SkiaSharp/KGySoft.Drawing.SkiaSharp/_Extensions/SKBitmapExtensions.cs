@@ -33,13 +33,13 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Fields
 
-        private static SKPaint? _copySourcePaint;
+        private static SKPaint? copySourcePaint;
 
         #endregion
 
         #region Properties
 
-        private static SKPaint CopySourcePaint => _copySourcePaint ??= new SKPaint { BlendMode = SKBlendMode.Src };
+        private static SKPaint CopySourcePaint => copySourcePaint ??= new SKPaint { BlendMode = SKBlendMode.Src };
 
         #endregion
 

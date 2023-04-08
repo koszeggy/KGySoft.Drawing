@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.SkiaSharp</id>
-    <version>7.0.0-alpha.1</version>
+    <version>7.2.0-preview.1</version>
     <title>KGy SOFT Drawing Libraries for WPF</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -15,10 +15,11 @@
     <description xml:space="preserve">KGy SOFT Drawing Libraries for SkiaSkarp offer KGySoft.Drawing.Core features for SkiaSharp.SKBitmap.
 
 Among others:
-- Fast direct native SKBitmap data access
-...- Fast read-only access to any BitmapSource of any pixel format
-...- Supporting every PixelFormat
-...- Converting between various pixel formats preserving transparency if possible.
+- Fast direct native SKBitmap and SKPixmap data access of any pixel format
+- Read-only access to SKImage instances
+- Read-write access to SKSurface instances
+- Supporting every SKColorType and SKAlphaType
+- Converting between various pixel formats preserving transparency if possible.
 
 Demo Applications: https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples
 Real-Life Example and Debugger Visualizers: https://github.com/koszeggy/KGySoft.Drawing.Tools
@@ -27,6 +28,7 @@ Online Documentation: https://docs.kgysoft.net/drawing
 See Also:
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
 GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
+WPF specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
 UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
 WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt</releaseNotes>
@@ -36,13 +38,13 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/<
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework4.6.2">
-        <dependency id="KGySoft.Drawing.Core" version="7.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="7.2.0-preview.1" />
       </group>
       <group targetFramework=".NETStandard2.0">
-        <dependency id="KGySoft.Drawing.Core" version="7.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="7.2.0-preview.1" />
       </group>
       <group targetFramework="netcoreapp3.1" >
-        <dependency id="KGySoft.Drawing.Core" version="7.0.0" />
+        <dependency id="KGySoft.Drawing.Core" version="7.2.0-preview.1" />
       </group>
     </dependencies>
   </metadata>
