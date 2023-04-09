@@ -1,0 +1,30 @@
+﻿Legend:
+! Breaking change
+* Compatible change
+- Bugfix
++ New feature
+===============================================================================
+
+~~~~~~~~~
++ v7.2.0:
+~~~~~~~~~
+
++ KGySoft.Drawing.SkiaSharp namespace
+=====================================
+
++ New SKBitmapExtensions class:
+  + New GetReadableBitmapData method: to get an IReadableBitmapData data for an SKBitmap of any pixel format.
+  + New GetWritableBitmapData methods: to get an IWritableBitmapData data for an SKBitmap of any pixel format.
+  + New GetReadWriteBitmapData methods: to get an IReadWriteBitmapData data for an SKBitmap of any pixel format.
++ New SKPixmapExtensions class:
+  + New GetReadableBitmapData method: to get an IReadableBitmapData data for an SKPixmap of any pixel format.
+  + New GetWritableBitmapData methods: to get an IWritableBitmapData data for an SKPixmap of any pixel format.
+  + New GetReadWriteBitmapData methods: to get an IReadWriteBitmapData data for an SKPixmap of any pixel format.
++ New SKPixmapExtensions class:
+  + New GetReadableBitmapData method: to get an IReadableBitmapData data for an SKImage instance.
++ New SKSurfaceExtensions class:
+  + New GetReadableBitmapData method: to get an IReadableBitmapData data for an SKSurface of any pixel format.
+  + New GetWritableBitmapData methods: to get an IWritableBitmapData data for an SKSurface of any pixel format.
+  + New GetReadWriteBitmapData methods: to get an IReadWriteBitmapData data for an SKSurface of any pixel format.
++ New SKImageInfoExtensions class
++ New ColorExtensions class

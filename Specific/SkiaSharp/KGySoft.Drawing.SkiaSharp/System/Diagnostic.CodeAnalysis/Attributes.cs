@@ -1,4 +1,4 @@
-﻿#if NETSTANDARD2_0
+﻿#if NETSTANDARD2_0 || NETCOREAPP2_0 || NETFRAMEWORK
 // ReSharper disable once CheckNamespace
 namespace System.Diagnostics.CodeAnalysis
 {

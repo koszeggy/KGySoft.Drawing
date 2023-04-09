@@ -18,15 +18,15 @@ namespace KGySoft.Drawing.SkiaSharp.PerformanceTests
     {
         [TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul, true)]
         [TestCase(SKColorType.Bgra8888, SKAlphaType.Unpremul, false)]
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Premul, true)]
-        //[TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque, true)]
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul, true)]
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Premul, true)]
-        //[TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque, true)]
-        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul, true)]
-        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul, true)]
-        //[TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque, true)]
-        //[TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque, true)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Premul, true)]
+        [TestCase(SKColorType.Bgra8888, SKAlphaType.Opaque, true)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Unpremul, true)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Premul, true)]
+        [TestCase(SKColorType.Rgba8888, SKAlphaType.Opaque, true)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Unpremul, true)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Premul, true)]
+        [TestCase(SKColorType.Bgra1010102, SKAlphaType.Opaque, true)]
+        [TestCase(SKColorType.Bgr101010x, SKAlphaType.Opaque, true)]
         public void SetGetPixelTest(SKColorType colorType, SKAlphaType alphaType, bool srgb)
         {
             static int Argb(int a, int l) => (a << 24) | (l << 16) | (l << 8) | l;

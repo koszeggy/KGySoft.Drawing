@@ -103,6 +103,8 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Methods
 
+        #region Public Methods
+
         /// <summary>
         /// Converts an <see cref="SKColor"/> struct to <see cref="Color32">KGySoft.Drawing.Imaging.Color32</see>.
         /// </summary>
@@ -143,6 +145,8 @@ namespace KGySoft.Drawing.SkiaSharp
 
         internal static ushort ToLinear(this ushort b) => Cache16Bpp.LookupTableSrgbToLinear[b];
         internal static ushort ToSrgb(this ushort b) => Cache16Bpp.LookupTableLinearToSrgb[b];
+
+        #endregion
 
         #endregion
     }

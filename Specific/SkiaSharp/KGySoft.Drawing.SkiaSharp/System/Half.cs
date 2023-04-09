@@ -111,7 +111,11 @@ namespace System
                 {
                     return sign ? -0f : 0f; // Positive / Negative zero
                 }
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
                 (exp, sig) = NormSubnormalF16Sig(sig);
+#else
+                NormSubnormalF16Sig(ref sig, out exp);
+#endif
                 exp -= 1;
             }
 
@@ -188,11 +192,20 @@ namespace System
         internal static byte ExtractBiasedExponentFromBits(ushort bits) => (byte)((bits >> biasedExponentShift) & shiftedBiasedExponentMask);
         private static ushort ExtractTrailingSignificandFromBits(ushort bits) => (ushort)(bits & trailingSignificandMask);
 
+#if NET47_OR_GREATER || NETSTANDARD2_0_OR_GREATER || NETCOREAPP2_0_OR_GREATER
         private static (int Exp, uint Sig) NormSubnormalF16Sig(uint sig)
         {
             int shiftDist = LeadingZeroCount(sig) - 16 - 5;
             return (1 - shiftDist, sig << shiftDist);
         }
+#else
+        private static void NormSubnormalF16Sig(ref uint sig, out int exp)
+        {
+            int shiftDist = LeadingZeroCount(sig) - 16 - 5;
+            exp = 1 - shiftDist;
+            sig <<= shiftDist;
+        }
+#endif
 
         private static int LeadingZeroCount(uint value)
         {
