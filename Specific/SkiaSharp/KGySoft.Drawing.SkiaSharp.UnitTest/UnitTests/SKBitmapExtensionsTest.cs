@@ -348,8 +348,47 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         catch (AssertionException)
                         {
                             // To go on with the other tests. The test will fail anyway.
-                        } 
+                        }
                     }
+                }
+            }
+        }
+
+        [Test]
+        public void ConvertPixelFormatDirectTest()
+        {
+            SKSizeI size = new SKSizeI(512, 256);
+            using var bitmap = new SKBitmap(new SKImageInfo(size.Width, size.Height));
+            GenerateAlphaGradient(bitmap);
+
+            foreach (SKColorType colorType in Enum<SKColorType>.GetValues())
+            {
+                if (colorType == SKColorType.Unknown)
+                    continue;
+
+                using var result = bitmap.ConvertPixelFormat(colorType/*, backColor: SKColors.Green*/);
+                Assert.AreEqual(colorType, result.ColorType);
+                SaveBitmap($"{colorType}", result);
+            }
+        }
+
+        [Test]
+        public void ConvertPixelFormatWithDitheringTest()
+        {
+            SKSizeI size = new SKSizeI(512, 256);
+            using var bitmap = new SKBitmap(new SKImageInfo(size.Width, size.Height));
+            GenerateAlphaGradient(bitmap);
+
+            foreach (SKColorType colorType in new[]{ SKColorType.Argb4444, SKColorType.Rgb565, SKColorType.Rg88, SKColorType.Rgba8888 })
+            {
+                if (colorType == SKColorType.Unknown)
+                    continue;
+
+                foreach (var colorSpace in new[] { WorkingColorSpace.Srgb, WorkingColorSpace.Linear })
+                {
+                    using var result = bitmap.ConvertPixelFormat(null, ditherer: ErrorDiffusionDitherer.FloydSteinberg/*OrderedDitherer.BlueNoise*/, colorType, targetColorSpace: colorSpace);
+                    Assert.AreEqual(colorType, result.ColorType);
+                    SaveBitmap($"{colorType} {colorSpace}", result);
                 }
             }
         }
