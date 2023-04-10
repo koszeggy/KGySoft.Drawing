@@ -120,8 +120,13 @@
   <data name="General_InternalErrorFormat" xml:space="preserve">
     <value>Internal Error: {0}</value>
   </data>
+  <data name="Imaging_InvalidBitmapDataSize" xml:space="preserve">
+    <value>The bitmap data has an invalid size.</value>
+  </data>
+  <data name="ImageExtensions_QuantizerInitializeNull" xml:space="preserve">
+    <value>The IQuantizer.Initialize method returned a null reference.</value>
+  </data>
   <data name="General_ImageInfoInvalidFormat" xml:space="preserve">
     <value>The color type '{0}' and alpha type '{1}' do not represent a valid image info.</value>
   </data>
-
 </root>

@@ -28,3 +28,5 @@
   + New GetReadWriteBitmapData methods: to get an IReadWriteBitmapData data for an SKSurface of any pixel format.
 + New SKImageInfoExtensions class
 + New ColorExtensions class
++ ReadableBitmapDataExtensions:
+  + New ToSKBitmap methods

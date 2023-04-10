@@ -51,17 +51,11 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Properties
 
-        /// <summary>The bitmap must not be frozen.</summary>
-        internal static string BitmapFrozen => Get("BitmapFrozen");
+        /// <summary>The bitmap data has an invalid size.</summary>
+        internal static string ImagingInvalidBitmapDataSize => Get("Imaging_InvalidBitmapDataSize");
 
         /// <summary>The IQuantizer.Initialize method returned a null reference.</summary>
-        internal static string QuantizerInitializeNull => Get("QuantizerInitializeNull");
-
-        /// <summary>Could not perform a callback on the thread of the source bitmap. It can be due to a blocking wait on the returned task or async result, or because there is no running dispatcher.</summary>
-        internal static string DispatcherDeadlock => Get("DispatcherDeadlock");
-
-        /// <summary>The bitmap data has an invalid size.</summary>
-        internal static string InvalidBitmapDataSize => Get("InvalidBitmapDataSize");
+        internal static string ImageExtensionsQuantizerInitializeNull => Get("ImageExtensions_QuantizerInitializeNull");
 
         #endregion
 

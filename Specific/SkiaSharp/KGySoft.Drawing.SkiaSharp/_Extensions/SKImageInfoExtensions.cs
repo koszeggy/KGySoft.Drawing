@@ -107,8 +107,8 @@ namespace KGySoft.Drawing.SkiaSharp
             srgb = false;
             linear = false;
 
-            if (imageInfo.ColorType is <= SKColorType.Unknown or > SKColorType.Bgr101010x
-                || imageInfo.AlphaType is <= SKAlphaType.Unknown or > SKAlphaType.Unpremul)
+            if (imageInfo.ColorType is <= SKColorType.Unknown or > ColorExtensions.MaxColorType
+                || imageInfo.AlphaType is <= SKAlphaType.Unknown or > ColorExtensions.MaxAlphaType)
             {
                 return;
             }
@@ -120,9 +120,14 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         internal static bool IsDirectlySupported(this SKImageInfo imageInfo)
-            => imageInfo.ColorType is > SKColorType.Unknown and <= SKColorType.Bgr101010x
-                && imageInfo.AlphaType is > SKAlphaType.Unknown and <= SKAlphaType.Unpremul
+            => imageInfo.ColorType is > SKColorType.Unknown and <= ColorExtensions.MaxColorType
+                && imageInfo.AlphaType is > SKAlphaType.Unknown and <= ColorExtensions.MaxAlphaType
                 && (imageInfo.ColorSpace.IsDefaultSrgb() || imageInfo.ColorSpace.IsDefaultLinear());
+
+        internal static bool CanBeDithered(this SKImageInfo imageInfo)
+            => imageInfo.ColorType is SKColorType.Rgb565 or SKColorType.Argb4444 && imageInfo.IsDirectlySupported()
+                || imageInfo.ColorSpace.IsDefaultLinear() && imageInfo.ColorType
+                    is SKColorType.Rgba8888 or SKColorType.Rgb888x or SKColorType.Bgra8888 or SKColorType.Gray8 or SKColorType.Rg88;
 
         #endregion
 

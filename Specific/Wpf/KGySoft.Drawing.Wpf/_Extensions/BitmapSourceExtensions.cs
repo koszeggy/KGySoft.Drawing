@@ -275,7 +275,7 @@ namespace KGySoft.Drawing.Wpf
         /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
         /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the working color space automatically.
         /// To apply a specific color space use the <see cref="GetReadableBitmapData(BitmapSource, WorkingColorSpace, Color, byte)"/> on a <see cref="BitmapSource"/> instance,
-        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToBitmap</see> extension method.</item>
+        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToWriteableBitmap</see> extension method.</item>
         /// </list></note>
         /// <para>If <paramref name="newPixelFormat"/> is an indexed format, then this overload will either use the palette of the source <paramref name="bitmap"/> if applicable,
         /// or a default palette. To apply a custom palette use the of the <see cref="ConvertPixelFormat(BitmapSource,PixelFormat,Color[],Color,byte)"/> overload.</para>
@@ -366,7 +366,7 @@ namespace KGySoft.Drawing.Wpf
         /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, Color[], Color, byte, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
         /// <item>If <paramref name="newPixelFormat"/> requires blending with <paramref name="backColor"/>, then this method selects the working color space automatically.
         /// To apply a specific color space use the <see cref="GetReadableBitmapData(BitmapSource, WorkingColorSpace, Color, byte)"/> on a <see cref="BitmapSource"/> instance,
-        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToBitmap</see> extension method.</item>
+        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToWriteableBitmap</see> extension method.</item>
         /// </list></note>
         /// <para>If <paramref name="newPixelFormat"/> can represent fewer colors than the source format, then a default
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(BitmapSource,PixelFormat,IQuantizer,IDitherer)"/> overload.
@@ -410,7 +410,7 @@ namespace KGySoft.Drawing.Wpf
         /// or <see cref="ConvertPixelFormatAsync(BitmapSource, PixelFormat, IQuantizer?, IDitherer, TaskConfig)"/> (in .NET Framework 4.0 and above) methods for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</item>
         /// <item>If <paramref name="quantizer"/> is <see langword="null"/> and <paramref name="newPixelFormat"/> requires blending, then this method selects the working color space automatically.
         /// To apply a specific color space use the <see cref="GetReadableBitmapData(BitmapSource, WorkingColorSpace, Color, byte)"/> on a <see cref="BitmapSource"/> instance,
-        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToBitmap</see> extension method.</item>
+        /// and then call the <see cref="ReadableBitmapDataExtensions.ToWriteableBitmap(IReadableBitmapData, PixelFormat, IQuantizer, IDitherer)">ToWriteableBitmap</see> extension method.</item>
         /// </list></note>
         /// <para>An unmatching <paramref name="quantizer"/> and <paramref name="newPixelFormat"/> may cause undesired results.</para>
         /// <para>The <paramref name="ditherer"/> may have no effect if the <paramref name="quantizer"/> uses too many colors.</para>

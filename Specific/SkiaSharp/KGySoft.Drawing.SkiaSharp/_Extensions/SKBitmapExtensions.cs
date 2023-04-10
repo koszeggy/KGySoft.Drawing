@@ -90,7 +90,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 SKColorType.Rgba8888 => SKColorType.Bgra8888,
 
                 // Supported custom formats
-                > SKColorType.Unknown and <= SKColorType.Bgr101010x => info.ColorType,
+                > SKColorType.Unknown and ColorExtensions.MaxColorType => info.ColorType,
 
                 // Unsupported formats (future compatibility)
                 _ => info.ColorType.GetBytesPerPixel() switch
