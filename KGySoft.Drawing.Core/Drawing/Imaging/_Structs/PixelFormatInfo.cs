@@ -276,7 +276,8 @@ namespace KGySoft.Drawing.Imaging
             + $"{(HasAlpha ? $" | {nameof(HasAlpha)}" : null)}"
             + $"{(HasPremultipliedAlpha ? $" | {nameof(HasPremultipliedAlpha)}" : null)}"
             + $"{(HasSingleBitAlpha ? $" | {nameof(HasSingleBitAlpha)}" : null)}"
-            + $"{(Grayscale ? $" | {nameof(Grayscale)}" : null)}";
+            + $"{(Grayscale ? $" | {nameof(Grayscale)}" : null)}"
+            + $"{(LinearGamma ? $" | {nameof(LinearGamma)}" : null)}";
 
         #endregion
 
