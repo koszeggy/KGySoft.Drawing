@@ -57,6 +57,13 @@ namespace KGySoft.Drawing.Imaging
 
         #region Internal Methods
 
+        /// <summary>
+        /// Gets non-default color space if set, or sets linear if pixel format has linear gamma.
+        /// Unlike <see cref="GetPreferredColorSpace"/>, it can return Default.
+        /// </summary>
+        internal static WorkingColorSpace GetPreferredColorSpaceOrDefault(this IBitmapData bitmapData)
+            => bitmapData.WorkingColorSpace == WorkingColorSpace.Default && bitmapData.PixelFormat.LinearGamma ? WorkingColorSpace.Linear : bitmapData.WorkingColorSpace;
+
         internal static bool HasMultiLevelAlpha(this IBitmapData bitmapData)
         {
             PixelFormatInfo pixelFormat = bitmapData.PixelFormat;

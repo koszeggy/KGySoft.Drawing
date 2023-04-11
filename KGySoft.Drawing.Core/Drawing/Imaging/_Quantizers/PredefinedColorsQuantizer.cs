@@ -1603,7 +1603,7 @@ namespace KGySoft.Drawing.Imaging
                     : bitmapData.Palette is Palette palette ? FromCustomPalette(palette)
                     : bitmapData.HasAlpha() ? Argb8888(bitmapData.BackColor.ToColor(), bitmapData.AlphaThreshold)
                     : Rgb888(bitmapData.BackColor.ToColor())
-            }).ConfigureColorSpace(bitmapData.WorkingColorSpace);
+            }).ConfigureColorSpace(bitmapData.GetPreferredColorSpaceOrDefault());
         }
 
         /// <summary>

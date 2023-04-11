@@ -36,6 +36,8 @@
   + Grayscale16/Grayscale4 methods: special linear color space handling even if directMapping is true
 * BitmapDataFactory class:
   * Improving grayscale conversion for the known grayscale pixel format when working in the linear color space
+- BitmapDataExtensions class:
+  - Some Clone overloads did not preserve original back color and alpha threshold.
 
 
 ~~~~~~~~~
