@@ -297,26 +297,26 @@ namespace KGySoft.Drawing.UnitTests
 
         protected static IReadWriteBitmapData GetShieldIcon256() => GetBitmapData(@"..\..\..\..\Help\Images\Shield256.png");
 
-        protected static IReadWriteBitmapData ToBitmapData(Bitmap bmp, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        protected static IReadWriteBitmapData ToBitmapData(Bitmap bmp, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Color32 backColor = default)
         {
             Assert.IsTrue(bmp.PixelFormat.In(PixelFormat.Format32bppArgb, PixelFormat.Format8bppIndexed, PixelFormat.Format24bppRgb));
             Palette palette = ((int)bmp.PixelFormat & (int)PixelFormat.Indexed) != 0
-                ? new Palette(bmp.Palette.Entries.Select(c => c.ToColor32()), workingColorSpace)
+                ? new Palette(bmp.Palette.Entries.Select(c => c.ToColor32()), workingColorSpace, backColor)
                 : null;
             BitmapData bitmapData = bmp.LockBits(new Rectangle(Point.Empty, bmp.Size), ImageLockMode.ReadOnly, bmp.PixelFormat);
             using var src = palette == null
-                ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat, workingColorSpace, disposeCallback: () => bmp.UnlockBits(bitmapData))
+                ? BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat, workingColorSpace, backColor, disposeCallback: () => bmp.UnlockBits(bitmapData))
                 : BitmapDataFactory.CreateBitmapData(bitmapData.Scan0, bmp.Size, bitmapData.Stride, (KnownPixelFormat)bmp.PixelFormat, palette, disposeCallback: () => bmp.UnlockBits(bitmapData));
             return src.Clone();
         }
 
-        protected static IReadWriteBitmapData GetBitmapData(string fileName, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        protected static IReadWriteBitmapData GetBitmapData(string fileName, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default, Color32 backColor = default)
         {
 #if !WINDOWS
             fileName = fileName.Replace('\\', Path.DirectorySeparatorChar);
 #endif
             using var bmp = new Bitmap(Path.Combine(Files.GetExecutingPath(), fileName));
-            return ToBitmapData(bmp, workingColorSpace);
+            return ToBitmapData(bmp, workingColorSpace, backColor);
         }
 
         protected static void AssertAreEqual(IReadableBitmapData source, IReadableBitmapData target, bool allowDifferentPixelFormats = false, Rectangle sourceRectangle = default, Point targetLocation = default, int tolerance = 0)

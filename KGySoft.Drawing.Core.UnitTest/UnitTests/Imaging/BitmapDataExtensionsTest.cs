@@ -112,6 +112,33 @@ namespace KGySoft.Drawing.UnitTests.Imaging
             SaveBitmapData($"{pixelFormat} - Clipped", clone);
         }
 
+        [TestCase(KnownPixelFormat.Format24bppRgb)]
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        public void CloneDirectPreserveBackColorTest(KnownPixelFormat pixelFormat)
+        {
+            string file = @"..\..\..\..\Help\Images\Information256.png";
+            Color32 backColor = Color.Green;
+
+            using var bitmapData = GetBitmapData(file, backColor:backColor);
+            using var clone = bitmapData.Clone(pixelFormat, quantizer: null);
+
+            Assert.AreEqual(backColor, clone.GetColor32(0, 0));
+            SaveBitmapData($"{pixelFormat}", clone);
+        }
+
+        [TestCase(KnownPixelFormat.Format4bppIndexed)]
+        public void CloneByDitheringPreserveBackColorTest(KnownPixelFormat pixelFormat)
+        {
+            string file = @"..\..\..\..\Help\Images\Information256.png";
+            Color32 backColor = Color.Green;
+
+            using var bitmapData = GetBitmapData(file, backColor: backColor);
+            using var clone = bitmapData.Clone(pixelFormat, OrderedDitherer.Bayer4x4);
+
+            Assert.AreEqual(backColor, clone.GetColor32(0, 0));
+            SaveBitmapData($"{pixelFormat}", clone);
+        }
+
         [Test]
         public void CloneWithWrappedDataTest()
         {

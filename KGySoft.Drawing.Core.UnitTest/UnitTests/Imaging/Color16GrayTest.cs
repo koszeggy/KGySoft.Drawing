@@ -31,9 +31,9 @@ namespace KGySoft.Drawing.UnitTests.Imaging
         [Test]
         public void ConversionTest()
         {
-            Color32 c = Color32.FromArgb(0x11223344);
+            Color32 c = Color32.FromArgb(unchecked((int)0xFF112233));
 
-            Color16Gray c16 = new Color16Gray(c);
+            Color16Gray c16 = new Color16Gray(c.ToColor64());
             Assert.AreEqual(new Color64(c).GetBrightness(), c16.Value);
         }
 
