@@ -129,6 +129,15 @@ namespace KGySoft.Drawing.SkiaSharp
                 || imageInfo.ColorSpace.IsDefaultLinear() && imageInfo.ColorType
                     is SKColorType.Rgba8888 or SKColorType.Rgb888x or SKColorType.Bgra8888 or SKColorType.Gray8 or SKColorType.Rg88;
 
+        /// <summary>
+        /// NOTE: Gets Default both for null and unsupported color spaces whereas imageInfo.ColorSpace.IsDefaultSrgb would return true for null color space.
+        /// </summary>
+        internal static WorkingColorSpace GetWorkingColorSpace(this SKImageInfo imageInfo)
+            => imageInfo.ColorSpace is null ? WorkingColorSpace.Default
+                : imageInfo.ColorSpace.IsDefaultLinear() ? WorkingColorSpace.Linear
+                : imageInfo.ColorSpace.IsDefaultSrgb() ? WorkingColorSpace.Srgb
+                : WorkingColorSpace.Default;
+
         #endregion
 
         #endregion

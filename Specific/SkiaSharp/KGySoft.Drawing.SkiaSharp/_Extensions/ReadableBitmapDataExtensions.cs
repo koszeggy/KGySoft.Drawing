@@ -42,7 +42,7 @@ namespace KGySoft.Drawing.SkiaSharp
         public static SKBitmap ToSKBitmap(this IReadableBitmapData source)
         {
             ValidateArguments(source);
-            return DoConvertToSKBitmapDirect(AsyncHelper.DefaultContext, source, GetCompatibleImageInfo(source), source.BackColor.ToSKColor(), source.AlphaThreshold)!;
+            return DoConvertToSKBitmapDirect(AsyncHelper.DefaultContext, source, GetCompatibleImageInfo(source), source.BackColor, source.AlphaThreshold)!;
         }
 
         // TODO: overloads without alphaType/colorSpace
@@ -62,7 +62,7 @@ namespace KGySoft.Drawing.SkiaSharp
         public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertToSKBitmapDirect(ctx, source, GetCompatibleImageInfo(source), source.BackColor.ToSKColor(), source.AlphaThreshold), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertToSKBitmapDirect(ctx, source, GetCompatibleImageInfo(source), source.BackColor, source.AlphaThreshold), asyncConfig);
         }
 
         public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType = SKAlphaType.Unknown, WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
@@ -79,7 +79,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Methods
 
-        internal static SKBitmap? ToSKBitmap(this IReadableBitmapData source, IAsyncContext context, SKImageInfo imageInfo, SKColor backColor, byte alphaThreshold)
+        internal static SKBitmap? ToSKBitmap(this IReadableBitmapData source, IAsyncContext context, SKImageInfo imageInfo, Color32 backColor, byte alphaThreshold)
             => DoConvertToSKBitmapDirect(context, source, imageInfo, backColor, alphaThreshold);
 
         internal static SKBitmap? ToSKBitmap(this IReadableBitmapData source, IAsyncContext context, SKImageInfo imageInfo, IQuantizer? quantizer, IDitherer? ditherer)
@@ -109,7 +109,7 @@ namespace KGySoft.Drawing.SkiaSharp
         }
 
         [SuppressMessage("ReSharper", "AssignmentInConditionalExpression", Justification = "Intended")]
-        private static SKBitmap? DoConvertToSKBitmapDirect(IAsyncContext context, IReadableBitmapData source, SKImageInfo imageInfo, SKColor backColor, byte alphaThreshold)
+        private static SKBitmap? DoConvertToSKBitmapDirect(IAsyncContext context, IReadableBitmapData source, SKImageInfo imageInfo, Color32 backColor, byte alphaThreshold)
         {
             if (context.IsCancellationRequested)
                 return null;
@@ -119,7 +119,7 @@ namespace KGySoft.Drawing.SkiaSharp
             try
             {
                 result = new SKBitmap(imageInfo);
-                using (IWritableBitmapData target = result.GetWritableBitmapData(source.WorkingColorSpace, backColor, alphaThreshold))
+                using (IWritableBitmapData target = result.GetBitmapDataInternal(false, source.WorkingColorSpace, backColor, alphaThreshold))
                     source.CopyTo(target, context, new Rectangle(Point.Empty, source.Size), Point.Empty);
                 return (canceled = context.IsCancellationRequested) ? null : result;
             }
@@ -150,7 +150,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 {
                     // converting without using a quantizer (even if only a ditherer is specified for a high-bpp or not directly supported pixel format)
                     if (ditherer == null || !imageInfo.CanBeDithered())
-                        return DoConvertToSKBitmapDirect(context, source, imageInfo, source.BackColor.ToSKColor(), source.AlphaThreshold);
+                        return DoConvertToSKBitmapDirect(context, source, imageInfo, source.BackColor, source.AlphaThreshold);
 
                     // here we need to pick a quantizer for the dithering
                     KnownPixelFormat asKnown = imageInfo.AsKnownPixelFormat();
@@ -159,7 +159,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     else
                     {
                         using var tempBitmap = new SKBitmap(imageInfo.WithSize(1, 1));
-                        using var tempBitmapData = tempBitmap.GetReadableBitmapData();
+                        using var tempBitmapData = tempBitmap.GetBitmapDataInternal(true, imageInfo.GetWorkingColorSpace(), source.BackColor, source.AlphaThreshold);
                         quantizer = PredefinedColorsQuantizer.FromBitmapData(tempBitmapData);
                     }
                 }

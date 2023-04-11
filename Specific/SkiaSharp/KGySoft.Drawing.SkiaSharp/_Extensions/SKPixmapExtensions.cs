@@ -37,23 +37,23 @@ namespace KGySoft.Drawing.SkiaSharp
         public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
             => pixels.GetBitmapDataInternal(true, workingColorSpace);
 
-        public static IReadWriteBitmapData GetWritableBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold);
+        public static IWritableBitmapData GetWritableBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
+            => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
 
-        public static IReadWriteBitmapData GetWritableBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold);
+        public static IWritableBitmapData GetWritableBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => pixels.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold);
+            => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
-            => pixels.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold);
+            => pixels.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         #endregion
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKPixmap pixels, bool readOnly, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKPixmap pixels, bool readOnly, WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             if (pixels == null)
                 throw new ArgumentNullException(nameof(pixels), PublicResources.ArgumentNull);

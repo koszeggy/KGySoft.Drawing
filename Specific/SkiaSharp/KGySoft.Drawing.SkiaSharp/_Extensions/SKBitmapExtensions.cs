@@ -54,23 +54,23 @@ namespace KGySoft.Drawing.SkiaSharp
         public static IReadableBitmapData GetReadableBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => bitmap.GetBitmapDataInternal(true, workingColorSpace);
 
         public static IWritableBitmapData GetWritableBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold, bitmap.NotifyPixelsChanged);
 
         public static IWritableBitmapData GetWritableBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold, bitmap.NotifyPixelsChanged);
 
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold, bitmap.NotifyPixelsChanged);
 
         /// <param name="alphaThreshold">Relevant only when another bitmap is drawn into this one and this bitmap has no alpha support. See <see cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/></param>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
-            => bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, bitmap.NotifyPixelsChanged);
+            => bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold, bitmap.NotifyPixelsChanged);
 
         public static SKBitmap ConvertPixelFormat(this SKBitmap bitmap, SKColorType colorType, SKAlphaType alphaType = SKAlphaType.Unknown,
             WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, SKColor backColor = default, byte alphaThreshold = 128)
         {
             ValidateArguments(bitmap, colorType, alphaType, targetColorSpace);
-            return DoConvertPixelFormat(AsyncHelper.DefaultContext, bitmap, GetImageInfo(bitmap, colorType, alphaType, targetColorSpace), backColor, alphaThreshold)!;
+            return DoConvertPixelFormat(AsyncHelper.DefaultContext, bitmap, GetImageInfo(bitmap, colorType, alphaType, targetColorSpace), backColor.ToColor32(), alphaThreshold)!;
         }
 
         public static SKBitmap ConvertPixelFormat(this SKBitmap bitmap, IQuantizer? quantizer, IDitherer? ditherer = null,
@@ -84,7 +84,7 @@ namespace KGySoft.Drawing.SkiaSharp
             WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, SKColor backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(bitmap, colorType, alphaType, targetColorSpace);
-            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, bitmap, GetImageInfo(bitmap, colorType, alphaType, targetColorSpace), backColor, alphaThreshold), asyncConfig);
+            return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, bitmap, GetImageInfo(bitmap, colorType, alphaType, targetColorSpace), backColor.ToColor32(), alphaThreshold), asyncConfig);
         }
 
         public static Task<SKBitmap?> ConvertPixelFormatAsync(this SKBitmap bitmap, IQuantizer? quantizer, IDitherer? ditherer = null,
@@ -98,7 +98,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Internal Methods
 
-        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKBitmap bitmap, bool readOnly, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetBitmapDataInternal(this SKBitmap bitmap, bool readOnly, WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             if (bitmap == null)
                 throw new ArgumentNullException(nameof(bitmap), PublicResources.ArgumentNull);
@@ -111,7 +111,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 : bitmap.GetFallbackBitmapData(readOnly, workingColorSpace, backColor, alphaThreshold, disposeCallback);
         }
 
-        internal static IReadWriteBitmapData GetFallbackBitmapData(this SKBitmap bitmap, bool readOnly, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
+        internal static IReadWriteBitmapData GetFallbackBitmapData(this SKBitmap bitmap, bool readOnly, WorkingColorSpace workingColorSpace, Color32 backColor = default, byte alphaThreshold = 128, Action? disposeCallback = null)
         {
             Debug.Assert(!bitmap.Info.IsDirectlySupported() && bitmap.ColorSpace != null);
             SKImageInfo info = bitmap.Info;
@@ -174,7 +174,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 throw new ArgumentOutOfRangeException(nameof(targetColorSpace), PublicResources.EnumOutOfRange(targetColorSpace));
         }
 
-        private static SKBitmap? DoConvertPixelFormat(IAsyncContext context, SKBitmap bitmap, SKImageInfo imageInfo, SKColor backColor, byte alphaThreshold)
+        private static SKBitmap? DoConvertPixelFormat(IAsyncContext context, SKBitmap bitmap, SKImageInfo imageInfo, Color32 backColor, byte alphaThreshold)
         {
             if (context.IsCancellationRequested)
                 return null;

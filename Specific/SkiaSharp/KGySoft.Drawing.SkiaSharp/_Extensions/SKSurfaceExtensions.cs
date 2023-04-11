@@ -80,7 +80,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     pixels.Dispose();
                 };
 
-                return pixels.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, disposeCallback);
+                return pixels.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold, disposeCallback);
             }
 
             // Not a raster-based surface: taking a snapshot as an image, converting it to bitmap and doing the same as above
@@ -104,7 +104,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 bitmap.Dispose();
             };
 
-            return bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor, alphaThreshold, disposeCallback);
+            return bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold, disposeCallback);
         }
 
         #endregion
