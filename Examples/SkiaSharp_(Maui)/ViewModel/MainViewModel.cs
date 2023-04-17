@@ -332,6 +332,18 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             }
             finally
             {
+                // BUG WORKAROUND: SKBitmapImageSource handles linear color space incorrectly so copying the actual result into an sRGB bitmap
+                //                 just to display it correctly. We could also use KGy SOFT's BitmapDataExtensions.CopyTo, which could maybe even faster.
+                //                 Using the 100% Skia solution just to prove that the generated linear result was correct.
+                if (result?.ColorSpace?.GammaIsLinear == true)
+                {
+                    SKBitmap displayResult = new SKBitmap(result.Info.WithColorSpace(SKColorSpace.CreateSrgb()));
+                    using var canvas = new SKCanvas(displayResult);
+                    canvas.DrawBitmap(result, SKPoint.Empty);
+                    result.Dispose();
+                    result = displayResult;
+                }
+
                 generateTaskCompletion?.SetResult(default);
                 syncRoot.Release();
 
