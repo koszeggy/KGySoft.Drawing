@@ -1,0 +1,18 @@
+﻿<maui:MauiWinUIApplication
+    x:Class="KGySoft.Drawing.Examples.SkiaSharp.Maui.WinUI.App"
+    xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+    xmlns:maui="using:Microsoft.Maui"
+    xmlns:local="using:KGySoft.Drawing.Examples.SkiaSharp.Maui.WinUI">
+
+    <Application.Resources>
+
+        <!-- Turning off On/Off text on Windows-->
+        <Style TargetType="ToggleSwitch">
+            <Setter Property="OnContent" Value=""/>
+            <Setter Property="OffContent" Value=""/>
+            <Setter Property="Margin" Value="0,0,-100,0" />
+        </Style>
+    </Application.Resources>
+
+</maui:MauiWinUIApplication>
