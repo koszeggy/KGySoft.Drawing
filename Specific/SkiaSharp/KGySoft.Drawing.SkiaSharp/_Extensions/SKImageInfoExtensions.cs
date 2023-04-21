@@ -78,6 +78,60 @@ namespace KGySoft.Drawing.SkiaSharp
             return info;
         }
 
+        public static PredefinedColorsQuantizer GetMatchingQuantizer(this SKImageInfo imageInfo, SKColor backColor = default)
+        {
+            KnownPixelFormat asKnown = imageInfo.AsKnownPixelFormat();
+            if (asKnown != KnownPixelFormat.Undefined)
+                return PredefinedColorsQuantizer.FromPixelFormat(asKnown);
+
+            Color32 backColor32 = backColor.ToColor32();
+            return ((imageInfo.ColorType, imageInfo.AlphaType, imageInfo.GetWorkingColorSpace()) switch
+            {
+                // Rgba1010102/Bgra1010102: just to quantize alpha
+                (SKColorType.Bgra1010102 or SKColorType.Rgba1010102, not SKAlphaType.Opaque, _)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorBgra1010102Srgb(c).ToColor32()),
+
+                // Argb4444: considering all possible parameters
+                // NOTE: We could use explicit blending for the opaque formats for slightly better performance (especially in linear mode)
+                //       but letting the quantizer blending allows using a possibly changed working color space after the result is returned.
+                (SKColorType.Argb4444, SKAlphaType.Unpremul, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Linear(c).ToColor32()),
+                (SKColorType.Argb4444, SKAlphaType.Premul, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Linear(c).ToColor32()),
+                (SKColorType.Argb4444, SKAlphaType.Opaque, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Linear(c).ToColor32(), backColor32),
+                (SKColorType.Argb4444, SKAlphaType.Unpremul, _)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Srgb(c).ToColor32()),
+                (SKColorType.Argb4444, SKAlphaType.Premul, _)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPargb4444Srgb(c).ToColor32()),
+                (SKColorType.Argb4444, SKAlphaType.Opaque, _)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorArgb4444Srgb(c).ToColor32(), backColor32),
+
+                // Rgb565: only the linear one because the sRGB one is handled above as known format
+                (SKColorType.Rgb565, _, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorRgb565Linear(c).ToColor32(), backColor32),
+
+                // Bgra8888/Rgba8888 with linear color space as they get quantized during the sRGB -> linear conversion so ditherers can improve the result
+                (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Unpremul, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorBgra8888Linear(c).ToColor32()),
+                (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Premul, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorPbgra8888Linear(c).ToColor32()),
+
+                // Opaque RG[B] 8bpp/channel color types with linear color spaces: like above
+                // NOTE: using the same quantizer for RG88 so no extra compensation will occur for the blue channel
+                (SKColorType.Bgra8888 or SKColorType.Rgba8888, SKAlphaType.Opaque, WorkingColorSpace.Linear)
+                    or (SKColorType.Rgb888x or SKColorType.Rg88, _, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorBgra8888Linear(c).ToColor32(), backColor32),
+
+                // Gray8 with linear color space as it gets quantized during the sRGB -> linear conversion so ditherers can improve the result
+                (SKColorType.Gray8, _, WorkingColorSpace.Linear)
+                    => PredefinedColorsQuantizer.FromCustomFunction(c => new ColorGray8Linear(c).ToColor32(), backColor32, KnownPixelFormat.Format16bppGrayScale),
+
+                // Fallback: some default quantizer from the closest known pixel format
+                _ => PredefinedColorsQuantizer.FromPixelFormat(imageInfo.GetInfo().ToKnownPixelFormat(), backColor32, 0)
+            }).ConfigureColorSpace(imageInfo.GetWorkingColorSpace());
+        }
+
         #endregion
 
         #region Internal Methods

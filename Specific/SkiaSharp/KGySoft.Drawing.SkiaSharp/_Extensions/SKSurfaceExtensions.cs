@@ -29,7 +29,10 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Methods
 
-        public static IReadableBitmapData GetReadableBitmapData(this SKSurface surface, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
+        public static IReadableBitmapData GetReadableBitmapData(this SKSurface surface, SKColor backColor = default, byte alphaThreshold = 128)
+            => surface.GetReadableBitmapData(WorkingColorSpace.Default, backColor, alphaThreshold);
+
+        public static IReadableBitmapData GetReadableBitmapData(this SKSurface surface, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
         {
             if (surface == null)
                 throw new ArgumentNullException(nameof(surface), PublicResources.ArgumentNull);
@@ -45,7 +48,7 @@ namespace KGySoft.Drawing.SkiaSharp
             // TODO: This will use SKImage.ReadPixels internally, which is another allocation.
             //       Instead, use surface.ReadPixels directly if there will be a surface.Info or surface.Canvas.Info so no Snapshot will be needed: https://github.com/mono/SkiaSharp/issues/2281
             SKImage skImage = surface.Snapshot();
-            return skImage.GetBitmapDataInternal(workingColorSpace, skImage.Dispose);
+            return skImage.GetBitmapDataInternal(workingColorSpace, backColor.ToColor32(), alphaThreshold, skImage.Dispose);
         }
 
         public static IWritableBitmapData GetWritableBitmapData(this SKSurface surface, SKColor backColor = default, byte alphaThreshold = 128)

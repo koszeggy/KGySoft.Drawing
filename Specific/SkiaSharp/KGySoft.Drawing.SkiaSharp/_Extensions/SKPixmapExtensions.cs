@@ -34,8 +34,11 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
-            => pixels.GetBitmapDataInternal(true, workingColorSpace);
+        public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
+            => pixels.GetBitmapDataInternal(true, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
+
+        public static IReadableBitmapData GetReadableBitmapData(this SKPixmap pixels, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => pixels.GetBitmapDataInternal(true, workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         public static IWritableBitmapData GetWritableBitmapData(this SKPixmap pixels, SKColor backColor = default, byte alphaThreshold = 128)
             => pixels.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);

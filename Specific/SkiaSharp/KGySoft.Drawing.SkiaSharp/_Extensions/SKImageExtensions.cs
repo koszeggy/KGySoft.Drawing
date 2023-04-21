@@ -34,14 +34,17 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        public static IReadableBitmapData GetReadableBitmapData(this SKImage image, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default)
-            => image.GetBitmapDataInternal(workingColorSpace);
+        public static IReadableBitmapData GetReadableBitmapData(this SKImage image, SKColor backColor = default, byte alphaThreshold = 128)
+            => image.GetBitmapDataInternal(WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
+
+        public static IReadableBitmapData GetReadableBitmapData(this SKImage image, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => image.GetBitmapDataInternal(workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         #endregion
 
         #region Internal Methods
 
-        internal static IReadableBitmapData GetBitmapDataInternal(this SKImage image, WorkingColorSpace workingColorSpace, Action? disposeCallback = null)
+        internal static IReadableBitmapData GetBitmapDataInternal(this SKImage image, WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold, Action? disposeCallback = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);
@@ -52,7 +55,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
             // Raster-based image: We can simply get a bitmap data for its pixels
             if (pixels != null)
-                return pixels.GetBitmapDataInternal(true, workingColorSpace, disposeCallback: disposeCallback);
+                return pixels.GetBitmapDataInternal(true, workingColorSpace, backColor, alphaThreshold, disposeCallback: disposeCallback);
 
             // Other image: converting it to a bitmap
             // TODO: test if this works for GPU/vector images
@@ -73,7 +76,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     disposeCallback();
                 };
 
-            return bitmap.GetBitmapDataInternal(true, workingColorSpace, disposeCallback: disposeBitmap);
+            return bitmap.GetBitmapDataInternal(true, workingColorSpace, backColor, alphaThreshold, disposeCallback: disposeBitmap);
         }
 
         #endregion

@@ -16,6 +16,7 @@
 #region Usings
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 using System.Threading.Tasks;
 
@@ -50,8 +51,11 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        // TODO: add backColor/alphaThreshold. Used at PredefinedColorsQuantizer.FromBitmapData, for example.
-        public static IReadableBitmapData GetReadableBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace = WorkingColorSpace.Default) => bitmap.GetBitmapDataInternal(true, workingColorSpace);
+        public static IReadableBitmapData GetReadableBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
+            => bitmap.GetBitmapDataInternal(true, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold);
+
+        public static IReadableBitmapData GetReadableBitmapData(this SKBitmap bitmap, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => bitmap.GetBitmapDataInternal(true, workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         public static IWritableBitmapData GetWritableBitmapData(this SKBitmap bitmap, SKColor backColor = default, byte alphaThreshold = 128)
             => bitmap.GetBitmapDataInternal(false, WorkingColorSpace.Default, backColor.ToColor32(), alphaThreshold, bitmap.NotifyPixelsChanged);
@@ -162,6 +166,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Private Methods
 
+        [SuppressMessage("ReSharper", "ParameterOnlyUsedForPreconditionCheck.Local", Justification = "Validation method")]
         private static void ValidateArguments(SKBitmap bitmap, SKColorType colorType, SKAlphaType alphaType, WorkingColorSpace targetColorSpace)
         {
             if (bitmap == null)
