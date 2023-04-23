@@ -110,6 +110,7 @@ namespace KGySoft.Drawing.Imaging
         /// <summary>
         /// Gets or sets whether the represented pixel format has an alpha channel (transparency).
         /// For <see cref="Indexed"/> formats this property can be <see langword="false"/> because alpha support is determined by the current palette.
+        /// Setting this property to <see langword="false"/> resets also the <see cref="HasPremultipliedAlpha"/> and <see cref="HasSingleBitAlpha"/> properties.
         /// </summary>
         public bool HasAlpha
         {
@@ -121,7 +122,7 @@ namespace KGySoft.Drawing.Imaging
                 if (value)
                     this.value |= FlagHasAlpha;
                 else
-                    this.value &= ~FlagHasAlpha;
+                    this.value &= ~(FlagHasAlpha | hasPAlpha | hasSingleBitAlpha);
 
                 this.value |= isCustomFormat;
             }
@@ -183,10 +184,7 @@ namespace KGySoft.Drawing.Imaging
                 if (value == HasPremultipliedAlpha)
                     return;
                 if (value)
-                {
-                    this.value |= hasPAlpha;
-                    HasAlpha = true;
-                }
+                    this.value |= (hasPAlpha | FlagHasAlpha);
                 else
                     this.value &= ~hasPAlpha;
 
@@ -207,10 +205,7 @@ namespace KGySoft.Drawing.Imaging
                 if (value == HasSingleBitAlpha)
                     return;
                 if (value)
-                {
-                    this.value |= hasSingleBitAlpha;
-                    HasAlpha = true;
-                }
+                    this.value |= (hasSingleBitAlpha | FlagHasAlpha);
                 else
                     this.value &= ~hasSingleBitAlpha;
 
