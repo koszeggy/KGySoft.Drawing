@@ -52,10 +52,10 @@ namespace KGySoft.Drawing.SkiaSharp
             switch (imageInfo.AlphaType)
             {
                 case SKAlphaType.Premul:
-                    info.HasPremultipliedAlpha = true;
+                    info.HasPremultipliedAlpha = imageInfo.HasAlpha();
                     break;
                 case SKAlphaType.Unpremul:
-                    info.HasAlpha = true;
+                    info.HasAlpha = imageInfo.HasAlpha();
                     break;
             }
 
@@ -78,13 +78,20 @@ namespace KGySoft.Drawing.SkiaSharp
             return info;
         }
 
+        public static bool HasAlpha(this SKImageInfo imageInfo)
+            => (imageInfo.ColorType is SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16)
+                || ((imageInfo.AlphaType is SKAlphaType.Unpremul or SKAlphaType.Premul)
+                    && (imageInfo.ColorType is SKColorType.Bgra8888 or SKColorType.Rgba8888
+                        or SKColorType.Rgba1010102 or SKColorType.Bgra1010102 or SKColorType.Argb4444
+                        or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgbaF32 or SKColorType.Rgba16161616));
+
         public static PredefinedColorsQuantizer GetMatchingQuantizer(this SKImageInfo imageInfo, SKColor backColor = default)
         {
             KnownPixelFormat asKnown = imageInfo.AsKnownPixelFormat();
-            if (asKnown != KnownPixelFormat.Undefined)
-                return PredefinedColorsQuantizer.FromPixelFormat(asKnown);
-
             Color32 backColor32 = backColor.ToColor32();
+            if (asKnown != KnownPixelFormat.Undefined)
+                return PredefinedColorsQuantizer.FromPixelFormat(asKnown, backColor32).ConfigureColorSpace(imageInfo.GetWorkingColorSpace());
+
             return ((imageInfo.ColorType, imageInfo.AlphaType, imageInfo.GetWorkingColorSpace()) switch
             {
                 // Rgba1010102/Bgra1010102: just to quantize alpha
