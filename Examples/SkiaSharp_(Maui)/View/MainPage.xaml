@@ -68,7 +68,7 @@
             <Picker Grid.Row="2" Grid.Column="1"
                     ItemsSource="{Binding ColorSpaces, Mode=OneTime}"
                     SelectedItem="{Binding SelectedColorSpace}"
-                    ToolTipProperties.Text="The actual color space of the pixel format. Note that you can force working in the linear color space by the switch below even if the actual one is sRGB."/>
+                    ToolTipProperties.Text="The actual color space of the pixel format. Note that you can force working in the linear color space by the switch below even if the actual color space is sRGB.&#x0d;&#x0d;Some low bit-per-channel formats have better quality if their actual color space is sRGB and they are forced to work in the linear color space."/>
 
         </Grid>
 
@@ -91,8 +91,8 @@
         <StackLayout Grid.Row="3" Grid.Column="0" Grid.ColumnSpan="2"
                      Orientation="Horizontal">
             <Switch IsToggled="{Binding ForceLinearWorkingColorSpace, Mode=TwoWay}"
-                    ToolTipProperties.Text="Forces to use the linear color space even if the actual color space of the pixel format is sRGB. Affects color blending, quantizing and dithering.&#x0d;&#x0d;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0d;Use quantizers without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0d;&#x0d;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."/>
-            <Label Text="Force Linear Color Space" VerticalOptions="Center"/>
+                    ToolTipProperties.Text="Forces to use the linear color space for blending, quantizing and dithering even if the actual color space of the pixel format is sRGB.&#x0d;&#x0d;Please note though that if the result has transparency, the blending with the background is performed by the rendering engine.&#x0d;Use quantizers without alpha or set alpha threshold to zero to avoid mixing sRGB and linear blending.&#x0d;&#x0d;Similarly, resizing the preview image is also performed by the rendering engine, which is not affected by this option."/>
+            <Label Text="Force Linear Working Color Space" VerticalOptions="Center"/>
         </StackLayout>
 
         <!--Quantizer-->

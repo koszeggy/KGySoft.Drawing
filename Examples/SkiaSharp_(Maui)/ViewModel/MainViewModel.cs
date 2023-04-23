@@ -70,7 +70,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             #region Explicitly Implemented Interface Properties
 
             bool IQuantizerSettings.DirectMapping => false;
-            WorkingColorSpace IQuantizerSettings.WorkingColorSpace => ForceLinearWorkingColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
+            WorkingColorSpace IQuantizerSettings.WorkingColorSpace => ColorSpace == WorkingColorSpace.Linear || ForceLinearWorkingColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
             byte? IQuantizerSettings.BitLevel => null;
             System.Drawing.Color IQuantizerSettings.BackColor => BackColor.ToColor();
             float IDithererSettings.Strength => 0f;
@@ -260,6 +260,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
 
             // Using a manually completable task for the generateResultTask field. If this method had just one awaitable task we could simply assign that to the field.
             TaskCompletionSource<bool>? generateTaskCompletion = null;
+            CancellationToken token = default;
             SKBitmap? result = null;
 
             // This is essentially a lock. Achieved by a SemaphoreSlim because an actual lock cannot be used with awaits in the code.
@@ -285,9 +286,10 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                     ? WorkingColorSpace.Linear
                     : WorkingColorSpace.Srgb;
 
+                // Picking a quantizer even without a selected quantizer if we want to force working in the linear color space or a ditherer is selected.
                 IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg)
                     : ditherer == null && !cfg.ForceLinearWorkingColorSpace ? null
-                    : pixelFormat.GetMatchingQuantizer(cfg.BackColor.ToSKColor()).ConfigureColorSpace(workingColorSpace);
+                    : pixelFormat.GetMatchingQuantizer(cfg.BackColor.ToSKColor(), ditherer == null ? (byte)0 : cfg.AlphaThreshold).ConfigureColorSpace(workingColorSpace);
 
                 // Shortcut: displaying the base image only
                 if (!useQuantizer && !showOverlay && baseImage.ColorType == cfg.ColorType && baseImage.AlphaType == cfg.AlphaType
@@ -299,7 +301,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
 
                 generateTaskCompletion = new TaskCompletionSource<bool>();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
-                CancellationToken token = tokenSource.Token;
+                token = tokenSource.Token;
                 generateResultTask = generateTaskCompletion.Task;
 
                 var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
@@ -342,10 +344,27 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             }
             finally
             {
+                // special handling for Alpha images: turning them opaque grayscale so they are visible both with dark and light theme
+                if (result?.ColorType is SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16 && !token.IsCancellationRequested)
+                {
+                    SKBitmap displayResult = new SKBitmap(result.Info.WithColorType(SKColorType.Gray8).WithColorSpace(null));
+                    using IReadableBitmapData src = result.GetReadableBitmapData();
+                    using IWritableBitmapData dst = displayResult.GetWritableBitmapData();
+                    await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
+                        PredefinedColorsQuantizer.FromCustomFunction(c => Color32.FromGray(c.A)),
+                        asyncConfig: new TaskConfig(token) { ThrowIfCanceled = false });
+                    if (!token.IsCancellationRequested)
+                    {
+                        result.Dispose();
+                        result = displayResult;
+                    }
+                }
+
                 // BUG WORKAROUND: SKBitmapImageSource handles linear color space incorrectly so copying the actual result into an sRGB bitmap
-                //                 just to display it correctly. We could also use KGy SOFT's BitmapDataExtensions.CopyTo, which could maybe even faster.
+                //                 just to display it correctly. We could also use KGy SOFT's BitmapDataExtensions.CopyToAsync,
+                //                 which could maybe even faster (and cancellable).
                 //                 Using the 100% Skia solution just to prove that the generated linear result was correct.
-                if (result?.ColorSpace?.GammaIsLinear == true)
+                if (result?.ColorSpace?.GammaIsLinear == true && !token.IsCancellationRequested)
                 {
                     SKBitmap displayResult = new SKBitmap(result.Info.WithColorSpace(SKColorSpace.CreateSrgb()));
                     using var canvas = new SKCanvas(displayResult);
@@ -357,13 +376,18 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                 generateTaskCompletion?.SetResult(default);
                 syncRoot.Release();
 
-                // To make SKBitmapImageSource work .UseSkiaSharp() must be added to MauiProgram.CreateMauiApp
                 if (result != null)
                 {
-                    SKBitmap? previousBitmap = displayImageBitmap;
-                    DisplayImage = new SKBitmapImageSource { Bitmap = result };
-                    previousBitmap?.Dispose();
-                    displayImageBitmap = result;
+                    if (token.IsCancellationRequested)
+                        result.Dispose();
+                    else
+                    {
+                        // To make SKBitmapImageSource work .UseSkiaSharp() must be added to MauiProgram.CreateMauiApp
+                        SKBitmap? previousBitmap = displayImageBitmap;
+                        DisplayImage = new SKBitmapImageSource { Bitmap = result };
+                        previousBitmap?.Dispose();
+                        displayImageBitmap = result;
+                    }
                 }
             }
         }
@@ -371,12 +395,15 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
         private void SetEnabledAndVisibilities()
         {
             bool useQuantizer = UseQuantizer;
+            bool useDithering = UseDithering;
+            SKColorType colorType = SelectedColorType;
             QuantizerDescriptor quantizer = SelectedQuantizer;
-            bool isOpaque = SelectedAlphaType == SKAlphaType.Opaque
-                || SelectedColorType is SKColorType.Bgr101010x or SKColorType.Gray8 or SKColorType.Rgb565 or SKColorType.Rgb888x or SKColorType.Rgb101010x
+            bool isOpaque = (SelectedAlphaType == SKAlphaType.Opaque && colorType is not (SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16))
+                || colorType is SKColorType.Bgr101010x or SKColorType.Gray8 or SKColorType.Rgb565 or SKColorType.Rgb888x or SKColorType.Rgb101010x
                     or SKColorType.Rg88 or SKColorType.Rg1616 or SKColorType.RgF16;
-            IsBackColorEnabled = useQuantizer || isOpaque;
-            IsAlphaThresholdVisible = useQuantizer && quantizer.HasAlphaThreshold;
+            IsBackColorEnabled = useQuantizer || isOpaque || useDithering;
+            IsAlphaThresholdVisible = useQuantizer && quantizer.HasAlphaThreshold
+                || !useQuantizer && useDithering && !isOpaque;
             IsWhiteThresholdVisible = useQuantizer && quantizer.HasWhiteThreshold;
             IsMaxColorsVisible = useQuantizer && quantizer.HasMaxColors;
         }
