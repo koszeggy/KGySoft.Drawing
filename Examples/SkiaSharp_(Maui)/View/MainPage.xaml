@@ -172,7 +172,6 @@
         <StackLayout Grid.Row="8" Grid.Column="0"
                      Orientation="Horizontal">
             <Switch IsToggled="{Binding UseDithering, Mode=TwoWay}"
-                    IsEnabled="{Binding UseQuantizer}"
                     ToolTipProperties.Text="Turn on to use a ditherer."/>
             <Label Text="Ditherer:" VerticalOptions="Center"/>
         </StackLayout>
@@ -180,7 +179,7 @@
                 VerticalOptions="Center"
                 ItemsSource="{Binding Ditherers, Mode=OneTime}"
                 SelectedItem="{Binding SelectedDitherer, Mode=TwoWay}"
-                IsEnabled="{Binding DitheringEnabled}"
+                IsEnabled="{Binding UseDithering}"
                 ToolTipProperties.Text="The selected ditherer.&#x0d;Error diffusion ditherers do not support parallel processing but usually have high quality.&#x0d;Others support parallel processing but the strength auto-calibration might not be optimal for a palette with unevenly distributed colors."/>
 
         <!--Image-->

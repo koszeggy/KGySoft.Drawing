@@ -156,9 +156,9 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
         public WorkingColorSpace[] ColorSpaces { get; } = { WorkingColorSpace.Srgb, WorkingColorSpace.Linear };
 
         public bool ShowOverlay { get => Get<bool>(); set => Set(value); }
-        public SKColorType SelectedColorType { get => Get<SKColorType>(); set => Set(value); }
-        public SKAlphaType SelectedAlphaType { get => Get<SKAlphaType>(); set => Set(value); }
-        public WorkingColorSpace SelectedColorSpace { get => Get<WorkingColorSpace>(); set => Set(value); }
+        public SKColorType SelectedColorType { get => Get(SKColorType.Argb4444); set => Set(value); }
+        public SKAlphaType SelectedAlphaType { get => Get(SKAlphaType.Unpremul); set => Set(value); }
+        public WorkingColorSpace SelectedColorSpace { get => Get(WorkingColorSpace.Srgb); set => Set(value); }
         public bool ForceLinearWorkingColorSpace { get => Get<bool>(); set => Set(value); }
         public bool UseQuantizer { get => Get<bool>(); set => Set(value); }
         public QuantizerDescriptor[] Quantizers => QuantizerDescriptor.Quantizers;
@@ -174,7 +174,6 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
         public bool IsMaxColorsVisible { get => Get<bool>(); set => Set(value); }
         public int PaletteSize { get => Get(256); set => Set(value); }
         public bool UseDithering { get => Get<bool>(); set => Set(value); }
-        public bool DitheringEnabled { get => Get<bool>(); set => Set(value); }
         public DithererDescriptor[] Ditherers => DithererDescriptor.Ditherers;
         public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public ImageSource? DisplayImage { get => Get<ImageSource?>(); set => Set(value); }
@@ -186,9 +185,6 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
 
         public MainViewModel()
         {
-            SelectedColorType = SKColorType.Argb4444;
-            SelectedAlphaType = SKAlphaType.Unpremul;
-            SelectedColorSpace = WorkingColorSpace.Srgb;
             SetEnabledAndVisibilities();
             var _ = GenerateDisplayImage(Configuration.Capture(this));
         }
@@ -207,10 +203,6 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                 case nameof(UseQuantizer):
                 case nameof(UseDithering):
                 case nameof(SelectedQuantizer):
-                    DitheringEnabled = UseQuantizer && UseDithering;
-                    SetEnabledAndVisibilities();
-                    break;
-
                 case nameof(SelectedColorType):
                 case nameof(SelectedAlphaType):
                     SetEnabledAndVisibilities();
@@ -280,9 +272,22 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
 
                 bool useQuantizer = cfg.UseQuantizer;
                 bool showOverlay = cfg.ShowOverlay;
-                IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg) : null;
-                IDitherer? ditherer = useQuantizer && cfg.UseDithering ? cfg.SelectedDitherer!.Create(cfg) : null;
-                WorkingColorSpace workingColorSpace = cfg.ForceLinearWorkingColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Default;
+                IDitherer? ditherer = cfg.UseDithering ? cfg.SelectedDitherer!.Create(cfg) : null;
+                var pixelFormat = new SKImageInfo
+                {
+                    ColorType = cfg.ColorType,
+                    AlphaType = cfg.AlphaType,
+                    ColorSpace = cfg.ColorSpace == WorkingColorSpace.Linear ? SKColorSpace.CreateSrgbLinear() : SKColorSpace.CreateSrgb()
+                };
+
+                // Working color space can be different from actual color space and can be specified for creating IBitmapData, Palette and IQuantizer instances.
+                WorkingColorSpace workingColorSpace = cfg.ForceLinearWorkingColorSpace|| pixelFormat.GetInfo().LinearGamma
+                    ? WorkingColorSpace.Linear
+                    : WorkingColorSpace.Srgb;
+
+                IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg)
+                    : ditherer == null && !cfg.ForceLinearWorkingColorSpace ? null
+                    : pixelFormat.GetMatchingQuantizer(cfg.BackColor.ToSKColor()).ConfigureColorSpace(workingColorSpace);
 
                 // Shortcut: displaying the base image only
                 if (!useQuantizer && !showOverlay && baseImage.ColorType == cfg.ColorType && baseImage.AlphaType == cfg.AlphaType
@@ -309,26 +314,31 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                 }
 
                 // ===== b.) There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in SkiaSharp =====
-               
-                // Creating the temp 32 bpp bitmap data to work with. Will be converted back to Bitmap in the end.
-                // The Format32bppPArgb format is optimized for alpha blending in the sRGB color space but if linear color space is selected
-                // it would just cause an unnecessary overhead. So for working in the linear color space we use a non-premultiplied format.
-                // b.1.) Cloning the source bitmap first. blendedResult = BitmapDataFactory.Create and then baseImageBitmapData.CopyTo(blendedResult) would also work
-                using IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData(workingColorSpace);
-                using IReadWriteBitmapData? blendedResult = await baseImageBitmapData.CloneAsync(workingColorSpace, asyncConfig);
 
-                if (blendedResult == null || token.IsCancellationRequested)
+                // Creating the temp 32 bpp bitmap data to work with. Will be converted back to SKBitmap in the end.
+                // The Format32bppPArgb format is optimized for alpha blending in the sRGB color space but if linear working color space is selected
+                // it would just cause an unnecessary overhead. So for working in the linear color space we use a non-premultiplied format.
+                using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new System.Drawing.Size(baseImage.Width, baseImage.Height),
+                    workingColorSpace == WorkingColorSpace.Linear ? KnownPixelFormat.Format32bppArgb : KnownPixelFormat.Format32bppPArgb,
+                    workingColorSpace, cfg.BackColor, cfg.AlphaThreshold);
+
+                // b.1.) Drawing the source bitmap first. GetReadableBitmapData can be used for any SKBitmap with any actual pixel format.
+                //       Note that we don't need to specify working color space here because CopyTo/DrawInto respects the target's color space.
+                using (IReadableBitmapData baseImageBitmapData = baseImage.GetReadableBitmapData())
+                    await baseImageBitmapData.CopyToAsync(resultBitmapData, asyncConfig: asyncConfig);
+
+                if (token.IsCancellationRequested)
                     return;
 
                 // b.2.) Drawing the overlay. DrawInto supports alpha blending
-                overlayImageBitmapData ??= BitmapDataHelper.GenerateAlphaGradient(baseImageBitmapData.Size);
-                await overlayImageBitmapData.DrawIntoAsync(blendedResult, asyncConfig: asyncConfig);
+                overlayImageBitmapData ??= BitmapDataHelper.GenerateAlphaGradient(resultBitmapData.Size);
+                await overlayImageBitmapData.DrawIntoAsync(resultBitmapData, asyncConfig: asyncConfig);
 
                 if (token.IsCancellationRequested)
                     return;
 
                 // b.3.) Converting back to a Skia bitmap using the desired format, quantizer and ditherer
-                result = await blendedResult.ToSKBitmapAsync(cfg.ColorType, cfg.AlphaType, cfg.ColorSpace, quantizer, ditherer, asyncConfig);
+                result = await resultBitmapData.ToSKBitmapAsync(cfg.ColorType, cfg.AlphaType, cfg.ColorSpace, quantizer, ditherer, asyncConfig);
             }
             finally
             {
