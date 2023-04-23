@@ -34,10 +34,15 @@
 * Palette class:
   * Grayscale256 method: improving grayscale mapping when working in the linear color space
   + Grayscale16/Grayscale4 methods: special linear color space handling even if directMapping is true
++ PredefinedColorsQuantizer class:
+  + New FromCustomFunction overload
 * BitmapDataFactory class:
   * Improving grayscale conversion for the known grayscale pixel format when working in the linear color space
 - BitmapDataExtensions class:
   - Some Clone overloads did not preserve original back color and alpha threshold.
+- PixelFormatInfo struct:
+  - Setting HasAlpha to false did not reset also the HasPremultipliedAlpha and HasSingleBitAlpha properties, though
+    setting these properties to true did set also the HasAlpha property.
 
 
 ~~~~~~~~~

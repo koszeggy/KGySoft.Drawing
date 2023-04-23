@@ -84,11 +84,9 @@ namespace KGySoft.Drawing.Imaging
             }
 
             public Color32 GetQuantizedColor(Color32 c)
-                => c.A == Byte.MaxValue || !quantizer.blendAlphaBeforeQuantize
-                    ? quantizingFunction.Invoke(c)
-                    : c.A < AlphaThreshold
-                        ? default
-                        : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.WorkingColorSpace));
+                => c.A == Byte.MaxValue || !quantizer.blendAlphaBeforeQuantize && c.A >= AlphaThreshold ? quantizingFunction.Invoke(c)
+                    : c.A < AlphaThreshold ? default
+                    : quantizingFunction.Invoke(c.BlendWithBackground(BackColor, quantizer.WorkingColorSpace));
 
             #endregion
         }
@@ -454,7 +452,7 @@ namespace KGySoft.Drawing.Imaging
         /// </example>
         public static PredefinedColorsQuantizer Argb8888(Color backColor = default, byte alphaThreshold = 128)
         {
-            Color32 Quantize(Color32 c) => c.A < alphaThreshold ? default : c;
+            Color32 Quantize(Color32 c) => c;
 
             return new PredefinedColorsQuantizer(Quantize, KnownPixelFormat.Format32bppArgb, new Color32(backColor), alphaThreshold, false);
         }
@@ -1467,7 +1465,8 @@ namespace KGySoft.Drawing.Imaging
         /// uses up to 256 different colors, then create a <see cref="Imaging.Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Imaging.Palette)"/> method instead.</para>
         /// <para>This overload never calls the <paramref name="quantizingFunction"/> delegate with a color with alpha. Depending on <paramref name="alphaThreshold"/> either a completely
         /// transparent color will be returned or the color will be blended with <paramref name="backColor"/> before invoking the delegate.
-        /// In order to allow invoking <paramref name="quantizingFunction"/> with alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32},KnownPixelFormat)"/> overload instead.</para>
+        /// In order to allow invoking <paramref name="quantizingFunction"/> with alpha colors use the <see cref="FromCustomFunction(Func{Color32, Color32},KnownPixelFormat)"/>
+        /// or <see cref="FromCustomFunction(Func{Color32, Color32}, Color, byte, bool, KnownPixelFormat)"/> overloads instead.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1523,6 +1522,9 @@ namespace KGySoft.Drawing.Imaging
         /// uses up to 256 different colors, then create a <see cref="Imaging.Palette"/> instance specifying a custom function and call the <see cref="FromCustomPalette(Imaging.Palette)"/> method instead.</para>
         /// <para>This overload always calls the <paramref name="quantizingFunction"/> delegate without preprocessing the input colors.
         /// In order to pass only opaque colors to the <paramref name="quantizingFunction"/> delegate use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, KnownPixelFormat, byte)"/> overload instead.</para>
+        /// <para>This overload always creates a quantizer with black <see cref="BackColor"/> and zero <see cref="AlphaThreshold"/>. If <paramref name="quantizingFunction"/> can return colors with alpha,
+        /// then the background color and alpha threshold are relevant only when this quantizer is used together with an <see cref="IDitherer"/>, which does not support partial transparency.
+        /// Use the <see cref="FromCustomFunction(Func{Color32, Color32}, Color, byte, bool, KnownPixelFormat)"/> overload to specify the <see cref="BackColor"/> and <see cref="AlphaThreshold"/> properties.</para>
         /// </remarks>
         /// <example>
         /// The following example demonstrates how to use the quantizer returned by this method:
@@ -1560,6 +1562,28 @@ namespace KGySoft.Drawing.Imaging
         /// </example>
         public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format32bppArgb)
             => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint);
+
+        /// <summary>
+        /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.
+        /// </summary>
+        /// <param name="quantizingFunction">A delegate that specifies the custom quantization logic. It must be thread-safe for parallel invoking and it is expected to be fast.
+        /// The results returned by the delegate are not cached.</param>
+        /// <param name="backColor">Determines the <see cref="BackColor"/> property of the result. The <see cref="Color.A">Color.A</see> property of the background color is ignored.
+        /// <br/>If <paramref name="autoBlend"/> is <see langword="true"/>, then colors with alpha (transparency), whose <see cref="Color.A">Color.A</see> property
+        /// is equal to or greater than <paramref name="alphaThreshold"/> will be blended with this color before invoking the <paramref name="quantizingFunction"/> delegate.
+        /// <br/>If <paramref name="autoBlend"/> is <see langword="false"/>, then this parameter matters only if a consumer considers the <see cref="BackColor"/> property, such as an <see cref="IDitherer"/> instance that does not support partial transparency.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent without invoking <paramref name="quantizingFunction"/>.
+        /// <br/>If <paramref name="autoBlend"/> is <see langword="true"/>, then <paramref name="quantizingFunction"/> will never be invoked with colors with alpha. Instead, colors whose alpha
+        /// equal to or greater than this parameter will be blended with <paramref name="backColor"/> before invoking <paramref name="quantizingFunction"/>.
+        /// <br/>If <paramref name="autoBlend"/> is <see langword="false"/>, then colors with alpha equal to or greater than this parameter
+        /// are allowed to be passed to <paramref name="quantizingFunction"/> without blending with <paramref name="backColor"/>.</param>
+        /// <param name="autoBlend"><see langword="true"/> to always apply <paramref name="backColor"/> and <paramref name="alphaThreshold"/> to the input color before invoking <paramref name="quantizingFunction"/>.
+        /// <br/><see langword="false"/> to apply only <paramref name="alphaThreshold"/> to the input colors and allowing <paramref name="quantizingFunction"/> to be invoked with partially transparent colors.</param>
+        /// <param name="pixelFormatHint">The <see cref="KnownPixelFormat"/> value that the <see cref="PixelFormatHint"/> property of the returned instance will return. This parameter is optional.
+        /// <br/>Default value: <see cref="KnownPixelFormat.Format32bppArgb"/>.</param>
+        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that quantizes colors using the custom quantizer function specified in the <paramref name="quantizingFunction"/> parameter.</returns>
+        public static PredefinedColorsQuantizer FromCustomFunction(Func<Color32, Color32> quantizingFunction, Color backColor, byte alphaThreshold, bool autoBlend, KnownPixelFormat pixelFormatHint = KnownPixelFormat.Format32bppArgb)
+            => new PredefinedColorsQuantizer(quantizingFunction, pixelFormatHint, backColor, alphaThreshold, autoBlend);
 
         /// <summary>
         /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the <see cref="IBitmapData.PixelFormat"/> of the specified <paramref name="bitmapData"/>
