@@ -160,8 +160,6 @@ namespace KGySoft.Drawing.SkiaSharp
                     workingColorSpace, backColor, alphaThreshold, disposeCallback),
 
                 // Argb4444/Premul
-                // NOTE: Skia premultiplies the color _before_ converting the pixel format, which is optimal only for black background.
-                //       The KGySoft version premultiplies it _after_ converting, which removes finer gradients for black background but is better generally.
                 { ColorType: SKColorType.Argb4444, AlphaType: SKAlphaType.Premul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorPargb4444Srgb>(x).ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorPargb4444Srgb>(x) = new ColorPargb4444Srgb(c),
@@ -398,8 +396,6 @@ namespace KGySoft.Drawing.SkiaSharp
                     workingColorSpace, backColor, alphaThreshold, disposeCallback),
 
                 // Argb4444/Premul
-                // NOTE: Skia premultiplies the color _before_ converting the pixel format, which is optimal only for black background.
-                //       The KGySoft version premultiplies it _after_ converting, which removes finer gradients for black background but is better generally.
                 { ColorType: SKColorType.Argb4444, AlphaType: SKAlphaType.Premul } => BitmapDataFactory.CreateBitmapData(buffer, size, stride, pixelFormatInfo,
                     (row, x) => row.UnsafeGetRefAs<ColorPargb4444Linear>(x).ToColor32(),
                     (row, x, c) => row.UnsafeGetRefAs<ColorPargb4444Linear>(x) = new ColorPargb4444Linear(c),
