@@ -67,7 +67,7 @@ namespace KGySoft.Drawing.Wpf
             else if (pixelFormat.In(PixelFormats.Prgba64, PixelFormats.Prgba128Float))
                 result.HasPremultipliedAlpha = true;
 
-            if (pixelFormat.In(PixelFormats.Gray32Float, PixelFormats.Rgb128Float, PixelFormats.Rgba128Float, PixelFormats.Rgba128Float))
+            if (pixelFormat.HasLinearGamma())
                 result.LinearGamma = true;
 
             return result;
@@ -102,15 +102,16 @@ namespace KGySoft.Drawing.Wpf
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
         public static PredefinedColorsQuantizer GetMatchingQuantizer(this PixelFormat pixelFormat, Color backColor = default, byte alphaThreshold = 128)
-            => pixelFormat == PixelFormats.BlackWhite ? PredefinedColorsQuantizer.BlackAndWhite(backColor.ToDrawingColor())
+            => (pixelFormat == PixelFormats.BlackWhite ? PredefinedColorsQuantizer.BlackAndWhite(backColor.ToDrawingColor())
                 : pixelFormat == PixelFormats.Gray2 ? PredefinedColorsQuantizer.Grayscale4(backColor.ToDrawingColor())
                 : pixelFormat == PixelFormats.Gray4 ? PredefinedColorsQuantizer.Grayscale16(backColor.ToDrawingColor())
-                : pixelFormat == PixelFormats.Gray8 ? PredefinedColorsQuantizer.Grayscale(backColor.ToDrawingColor())
                 : pixelFormat == PixelFormats.Indexed1 ? PredefinedColorsQuantizer.SystemDefault1BppPalette(backColor.ToDrawingColor())
                 : pixelFormat == PixelFormats.Indexed2 ? PredefinedColorsQuantizer.FromCustomPalette(new Palette(indexedDefault2BppPalette, backColor.ToColor32(), alphaThreshold))
                 : pixelFormat == PixelFormats.Indexed4 ? PredefinedColorsQuantizer.SystemDefault4BppPalette(backColor.ToDrawingColor())
                 : pixelFormat == PixelFormats.Indexed8 ? PredefinedColorsQuantizer.SystemDefault8BppPalette(backColor.ToDrawingColor(), alphaThreshold)
-                : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat(), backColor.ToDrawingColor(), alphaThreshold);
+                : pixelFormat.In(PixelFormats.Gray8, PixelFormats.Gray16, PixelFormats.Gray32Float) ? PredefinedColorsQuantizer.Grayscale(backColor.ToDrawingColor())
+                : PredefinedColorsQuantizer.FromPixelFormat(pixelFormat.ToKnownPixelFormat(), backColor.ToDrawingColor(), alphaThreshold))
+                .ConfigureColorSpace(pixelFormat.HasLinearGamma() ? WorkingColorSpace.Linear : WorkingColorSpace.Default);
 
         /// <summary>
         /// Converts a <see cref="KnownPixelFormat"/> to the closest <see cref="PixelFormat"/>.
@@ -165,6 +166,13 @@ namespace KGySoft.Drawing.Wpf
                 : null;
             return result.ToBitmapPalette();
         }
+
+        #endregion
+
+        #region Private Methods
+
+        private static bool HasLinearGamma(this PixelFormat pixelFormat)
+            => pixelFormat.In(PixelFormats.Gray32Float, PixelFormats.Rgb128Float, PixelFormats.Rgba128Float, PixelFormats.Rgba128Float);
 
         #endregion
 

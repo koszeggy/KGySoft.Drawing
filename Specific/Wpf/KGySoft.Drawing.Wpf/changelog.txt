@@ -9,7 +9,15 @@
 * v7.2.0:
 ~~~~~~~~~
 
-* Performance improvements.
+* Common changes
+================
+* Performance improvements, especially for wide pixel formats.
+
+- KGySoft.Drawing.Wpf namespace
+===============================
+- PixelFormatExtensions class:
+  - GetMatchingQuantizer method: The WorkingColorSpace of the returned quantizer is set to Linear if source pixel
+    format uses the linear color space.
 
 
 ~~~~~~~~~
