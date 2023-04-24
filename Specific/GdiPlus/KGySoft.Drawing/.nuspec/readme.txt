@@ -1,7 +1,7 @@
-﻿Thank you for installing KGy SOFT Drawing Libraries 7.1.0
+﻿Thank you for installing KGy SOFT Drawing Libraries 7.2.0-preview.1
 KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types.
 
-⚠️ Warning: Version 7.0.0 introduces several breaking changes. Most importantly, the technology-agnostic and
+⚠️ Warning: Version 7.0.0 introduced several breaking changes. Most importantly, the technology-agnostic and
    platform independent APIs have been extracted into a separated package: KGySoft.Drawing.Core.
    Please find the KGySoft.Drawing.Core package at https://www.nuget.org/packages/KGySoft.Drawing.Core/.
 
@@ -48,3 +48,6 @@ Some Highlights of KGy SOFT Drawing Libraries:
   NuGet: https://www.nuget.org/packages/KGySoft.Drawing.Uwp
 - For dedicated WinUI support see the KGySoft.Drawing.WinUI package.
   NuGet: https://www.nuget.org/packages/KGySoft.Drawing.WinUI
+- For SkiaSharp specific solutions see the KGySoft.Drawing.SkiaSharp package. It makes possible to create managed,
+  fast accessible bitmap data for SKBitmap and SKPixmap instances of any pixel format.
+  NuGet: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp

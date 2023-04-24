@@ -4,7 +4,7 @@
 
 KGy SOFT Drawing Libraries offer advanced features for `System.Drawing` types such as `Bitmap`, `Metafile`, `Image`, `Icon`, `Graphics`.
 
-> ⚠️ _Warning_: Version 7.0.0 introduces several breaking changes. Most importantly, the technology-agnostic and platform independent APIs have been extracted into a separated package: [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core/).
+> ⚠️ _Warning_: Version 7.0.0 introduced several breaking changes. Most importantly, the technology-agnostic and platform independent APIs have been extracted into a separated package: [KGySoft.Drawing.Core](https://www.nuget.org/packages/KGySoft.Drawing.Core/).
 
 > 📝 _Note_: In .NET 7 and above this package can be used on Windows only. When targeting earlier versions, Unix/Linux based systems are also supported (if the libgdiplus library is installed).
 
@@ -27,4 +27,5 @@ See the [online help](https://docs.kgysoft.net/drawing) for the complete documen
 > * For WPF specific solutions see the [KGySoft.Drawing.Wpf](https://www.nuget.org/packages/KGySoft.Drawing.Wpf/) package. It makes possible to obtain a managed, fast accessible bitmap data for a `WriteableBitmap` instance of any pixel format, offering all features of an [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) for a `WriteableBitmap`.
 > * For dedicated UWP support see the [KGySoft.Drawing.Uwp](https://www.nuget.org/packages/KGySoft.Drawing.Uwp/) package.
 > * For dedicated WinUI support see the [KGySoft.Drawing.WinUI](https://www.nuget.org/packages/KGySoft.Drawing.WinUI/) package.
+> * For SkiaSharp specific solutions see the [KGySoft.Drawing.SkiaSharp](https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/) package. It makes possible to obtain managed, fast accessible bitmap data for `SKBitmap` and `SKPixmap` instances of any pixel format, offering all [`IReadWriteBitmapData`](https://docs.kgysoft.net/drawing/html/T_KGySoft_Drawing_Imaging_IReadWriteBitmapData.htm) features for them. It also offers extension methods for the `SKImage`, `SKSurface`, `SKBitmap`, `SKPixmap` and `SKImageInfo` classes.
 > * See also the [KGySoft.Drawing.Tools](https://github.com/koszeggy/KGySoft.Drawing.Tools) repository, which contains debugger visualizers built on the KGy SOFT Drawing Libraries as well as a test project, which demonstrates its features.
