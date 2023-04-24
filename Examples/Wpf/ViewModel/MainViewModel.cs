@@ -539,7 +539,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
 
                 // ===== b.) There is an image overlay: demonstrating how to work directly with IReadWriteBitmapData in WPF =====
 
-                // Creating the temp 32 bpp bitmap data to work with. Will be converted back to Bitmap in the end.
+                // Creating the temp 32 bpp bitmap data to work with. Will be converted back to WriteableBitmap in the end.
                 // The Format32bppPArgb format is optimized for alpha blending in the sRGB color space but if linear color space is selected
                 // it would just cause an unnecessary overhead. So for working in the linear color space we use a non-premultiplied format.
                 using IReadWriteBitmapData resultBitmapData = BitmapDataFactory.CreateBitmapData(new Size(cfg.Source.PixelWidth, cfg.Source.PixelHeight),

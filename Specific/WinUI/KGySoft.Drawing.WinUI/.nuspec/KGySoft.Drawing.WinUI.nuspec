@@ -24,7 +24,8 @@ See Also:
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
 GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
 WPF specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
-UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/</description>
+UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
+SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.WinUI/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
     <tags>KGySoft Drawing winui winrt extension writeable-bitmap writeablebitmap bitmapdata</tags>
@@ -32,7 +33,7 @@ UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/</des
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework="net5.0-windows10.0.17763" >
-        <dependency id="KGySoft.Drawing.Core" version="7.1.0" />
+        <dependency id="KGySoft.Drawing.Core" version="7.2.0" />
       </group>
     </dependencies>
   </metadata>
