@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Core</id>
-    <version>7.2.0-preview.1</version>
+    <version>7.2.0-preview.2</version>
     <title>KGy SOFT Drawing Core Libraries</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -30,7 +30,8 @@ See Also:
 GDI+ specific drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing/
 WPF specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Wpf/
 UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
-WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/</description>
+WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
+SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/KGySoft.Drawing.Core/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
     <tags>KGySoft Drawing Core extension gif animgif quantizing quantization dithering bitmapdata pixelformat bitmap image</tags>

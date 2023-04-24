@@ -6,3 +6,4 @@ KGySoft.Drawing: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specifi
 KGySoft.Drawing.Wpf: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt
 KGySoft.Drawing.Uwp: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Uwp/KGySoft.Drawing.Uwp/changelog.txt
 KGySoft.Drawing.WinUI: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/WinUI/KGySoft.Drawing.WinUI/changelog.txt
+KGySoft.Drawing.SkiaSharp: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/SkiaSharp/KGySoft.Drawing.SkiaSharp/changelog.txt
