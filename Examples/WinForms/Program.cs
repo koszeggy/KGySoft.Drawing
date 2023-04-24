@@ -35,7 +35,12 @@ namespace KGySoft.Drawing.Examples.WinForms
         [STAThread]
         static void Main()
         {
+#if NETFRAMEWORK
+            Application.EnableVisualStyles();
+            Application.SetCompatibleTextRenderingDefault(false);
+#else
             ApplicationConfiguration.Initialize();
+#endif
             using var viewModel = new MainViewModel();
             Application.Run(new MainForm(viewModel));
         }
