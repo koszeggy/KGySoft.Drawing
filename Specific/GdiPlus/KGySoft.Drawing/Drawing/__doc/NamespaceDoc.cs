@@ -26,7 +26,7 @@ using KGySoft.Drawing.Imaging;
 namespace KGySoft.Drawing
 {
     /// <summary>
-    /// The <see cref="N:KGySoft.Drawing"/> namespace contains extension methods and types built around the types of the <a href="https://docs.microsoft.com/en-us/dotnet/api/system.drawing" target="_blank">System.Drawing</a> namespace.
+    /// The <see cref="N:KGySoft.Drawing"/> namespace contains extension methods and types built around the types of the <a href="https://learn.microsoft.com/en-us/dotnet/api/system.drawing" target="_blank">System.Drawing</a> namespace.
     /// Among others, provides advanced support for the <see cref="Icon"/> type such as extracting, combining and converting multi-resolution icons, including hi-resolution ones,
     /// supports saving several <see cref="Image"/> formats, including formats without built-in encoders (eg. icons and <see cref="Metafile"/>s), provides methods for pixel format conversion, quantizing, dithering, etc.
     /// </summary>
@@ -47,23 +47,31 @@ namespace KGySoft.Drawing
     /// namespace, <see cref="ReadableBitmapDataExtensions"/>, which contains the extension methods that had to be removed from the <see cref="BitmapDataExtensions"/>
     /// class because they use the <see cref="Bitmap"/> type. Additionally, it defines also a single type converter in the <see cref="N:KGySoft.ComponentModel"/> namespace.</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Wpf/" target="_blank">KGySoft.Drawing.Wpf</a></term>
-    /// <description>This package provides dedicated support for the <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.WriteableBitmap" target="_blank">System.Windows.Media.Imaging.WriteableBitmap</a>
-    /// and <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.BitmapSource" target="_blank">System.Windows.Media.Imaging.BitmapSource</a> types.
+    /// <description>This package provides dedicated support for the <a href="https://learn.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.WriteableBitmap" target="_blank">System.Windows.Media.Imaging.WriteableBitmap</a>
+    /// and <a href="https://learn.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.BitmapSource" target="_blank">System.Windows.Media.Imaging.BitmapSource</a> types.
     /// Use the <see cref="M:KGySoft.Drawing.Wpf.WriteableBitmapExtensions.GetReadWriteBitmapData(System.Windows.Media.Imaging.WriteableBitmap,System.Windows.Media.Color,System.Byte)">WriteableBitmapExtensions.GetReadWriteBitmapData</see>
-    /// extension method to expose the underlying buffer of a <a href="https://docs.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.WriteableBitmap" target="_blank">WriteableBitmap</a> of any pixel format
-    /// as an <see cref="IReadWriteBitmapData"/> to be able to use all of the core operations and transformations for a bitmap data.</description></item>
+    /// extension method to expose the underlying buffer of a <a href="https://learn.microsoft.com/en-us/dotnet/api/System.Windows.Media.Imaging.WriteableBitmap" target="_blank">WriteableBitmap</a> of any pixel format
+    /// as an <see cref="IReadWriteBitmapData"/> instance to be able to use all of the core operations and transformations for a bitmap data.</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.WinUI/" target="_blank">KGySoft.Drawing.WinUI</a></term>
-    /// <description>Similarly to the WPF package, this one provides support for the <a href="https://docs.microsoft.com/en-us/uwp/api/microsoft.ui.xaml.media.imaging.writeablebitmap" target="_blank">Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap</a>,
-    /// which is used by <a href="https://docs.microsoft.com/en-us/windows/apps/windows-app-sdk/" target="_blank">Windows App SDK</a> in WinUI applications.
+    /// <description>Similarly to the WPF package, this one provides support for the <a href="https://learn.microsoft.com/en-us/windows/windows-app-sdk/api/winrt/microsoft.ui.xaml.media.imaging.writeablebitmap" target="_blank">Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap</a>,
+    /// which is used by <a href="https://learn.microsoft.com/en-us/windows/apps/windows-app-sdk/" target="_blank">Windows App SDK</a> in WinUI applications.
     /// It also has a <see cref="M:KGySoft.Drawing.WinUI.WriteableBitmapExtensions.GetReadWriteBitmapData(Microsoft.UI.Xaml.Media.Imaging.WriteableBitmap)">GetReadWriteBitmapData</see>
     /// extension method to obtain an <see cref="IReadWriteBitmapData"/> instance for the bitmap.
     /// This package requires targeting at least .NET 5 and Windows 10.0.17763.0 (October 2018 release, version 1809).</description></item>
     /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.Uwp/" target="_blank">KGySoft.Drawing.Uwp</a></term>
-    /// <description>Just like the WinUI package, this one provides support for the <a href="https://docs.microsoft.com/en-us/uwp/api/windows.ui.xaml.media.imaging.writeablebitmap" target="_blank">Windows.UI.Xaml.Media.Imaging.WriteableBitmap</a>
+    /// <description>Just like the WinUI package, this one provides support for the <a href="https://learn.microsoft.com/en-us/uwp/api/windows.ui.xaml.media.imaging.writeablebitmap" target="_blank">Windows.UI.Xaml.Media.Imaging.WriteableBitmap</a>
     /// used by the Universal Windows Platform (UWP) platform. Its documentation is not compiled to this combined documentation due to technical reasons
     /// but it provides exactly the same functionality as the WinUI package.
     /// This package requires targeting at least Windows 10.0.16299.0 (Fall Creators Update, version 1709) so it can reference the .NET Standard 2.0 version
     /// of the <a href="https://www.nuget.org/packages/KGySoft.Drawing.Core/" target="_blank">KGySoft.Drawing.Core</a> library.</description></item>
+    /// <item><term><a href="https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/" target="_blank">KGySoft.Drawing.SkiaSharp</a></term>
+    /// <description>This package provides dedicated support for the <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>,
+    /// <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skpixmap">SKPixmap</a>, <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skimag">SKImage</a>
+    /// and <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.sksurface">SKSurface</a> types. For example,
+    /// the <see cref="M:KGySoft.Drawing.SkiaSharp.SKBitmapExtensions.GetReadWriteBitmapData(SkiaSharp.SKBitmap,SkiaSharp.SKColor,System.Byte)">SKBitmapExtensions.GetReadWriteBitmapData</see>
+    /// method can be used to expose the underlying buffer of an <a href="https://learn.microsoft.com/en-us/dotnet/api/skiasharp.skbitmap">SKBitmap</a>
+    /// as an <see cref="IReadWriteBitmapData"/> instance to access its pixels directly regardless of its pixel format and color space and to be able to
+    /// perform all operations on it that are available for an <see cref="IReadWriteBitmapData"/> instance.</description></item>
     /// </list></para>
     /// </remarks>
     [CompilerGenerated]
