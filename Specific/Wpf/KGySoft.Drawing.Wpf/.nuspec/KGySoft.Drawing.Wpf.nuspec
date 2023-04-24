@@ -2,7 +2,7 @@
 <package >
   <metadata>
     <id>KGySoft.Drawing.Wpf</id>
-    <version>7.2.0-alpha.1</version>
+    <version>7.2.0-preview.1</version>
     <title>KGy SOFT Drawing Libraries for WPF</title>
     <authors>György Kőszeg</authors>
     <owners>György Kőszeg</owners>
@@ -28,7 +28,8 @@ See Also:
 Technology-agnostic core drawing libraries: https://www.nuget.org/packages/KGySoft.Drawing.Core/
 GDI+ specific libraries: https://www.nuget.org/packages/KGySoft.Drawing/
 UWP specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.Uwp/
-WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/</description>
+WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/
+SkiaSharp specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.SkiaSharp/</description>
     <releaseNotes>See the detailed release notes here: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/Wpf/KGySoft.Drawing.Wpf/changelog.txt</releaseNotes>
     <copyright>Copyright © KGy SOFT</copyright>
     <tags>KGySoft Drawing wpf extension writeable-bitmap writeablebitmap bitmapdata pixelformat</tags>
@@ -36,13 +37,13 @@ WinUI specific libraries: https://www.nuget.org/packages/KGySoft.Drawing.WinUI/<
     <repository type="git" url="https://github.com/koszeggy/KGySoft.Drawing" />
     <dependencies>
       <group targetFramework=".NETFramework3.5">
-        <dependency id="KGySoft.Drawing.Core" version="7.2.0-alpha.1" />
+        <dependency id="KGySoft.Drawing.Core" version="7.2.0-preview.2" />
       </group>
       <group targetFramework=".NETFramework4.0">
-        <dependency id="KGySoft.Drawing.Core" version="7.2.0-alpha.1" />
+        <dependency id="KGySoft.Drawing.Core" version="7.2.0-preview.2" />
       </group>
       <group targetFramework="netcoreapp3.0" >
-        <dependency id="KGySoft.Drawing.Core" version="7.2.0-alpha.1" />
+        <dependency id="KGySoft.Drawing.Core" version="7.2.0-preview.2" />
       </group>
     </dependencies>
   </metadata>
