@@ -11,12 +11,15 @@
 
 * Common changes
 ================
-* Performance improvements
+* Performance improvements, especially for wide pixel formats.
 
 - KGySoft.Drawing namespace
 ===========================
 - ImageExtensions class:
   - SaveAsIcon: Fixing alpha values when the source image has 32bpp PARGB pixel format.
+- PixelFormatExtensions class:
+  - GetMatchingQuantizer method: The WorkingColorSpace of the returned quantizer is set to Linear if source pixel
+    format uses the linear color space.
 
 
 ~~~~~~~~~
