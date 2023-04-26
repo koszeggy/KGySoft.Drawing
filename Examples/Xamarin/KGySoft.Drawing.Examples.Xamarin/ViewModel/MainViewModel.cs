@@ -123,6 +123,7 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
         private IReadableBitmapData? overlayImageBitmapData;
         private CancellationTokenSource? cancelGeneratingPreview;
         private Task? generateResultTask;
+        private SKBitmap? displayImageBitmap;
 
         #endregion
 
@@ -210,6 +211,7 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
                 syncRoot.Dispose();
                 baseImage?.Dispose();
                 overlayImageBitmapData?.Dispose();
+                displayImageBitmap?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -250,14 +252,6 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
                 IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg) : null;
                 IDitherer? ditherer = useQuantizer && cfg.UseDithering ? cfg.SelectedDitherer!.Create(cfg) : null;
                 WorkingColorSpace workingColorSpace = cfg.UseLinearColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
-
-                // Shortcut: displaying the base image only
-                if (!useQuantizer && !showOverlay)
-                {
-                    result = baseImage;
-                    return;
-                }
-
                 generateTaskCompletion = new TaskCompletionSource<bool>();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
                 CancellationToken token = tokenSource.Token;
@@ -296,7 +290,12 @@ namespace KGySoft.Drawing.Examples.Xamarin.ViewModel
                 generateTaskCompletion?.SetResult(default);
                 syncRoot.Release();
                 if (result != null)
+                {
+                    SKBitmap? previousBitmap = displayImageBitmap;
                     DisplayImage = new SKBitmapImageSource { Bitmap = result };
+                    previousBitmap?.Dispose();
+                    displayImageBitmap = result;
+                }
             }
         }
 

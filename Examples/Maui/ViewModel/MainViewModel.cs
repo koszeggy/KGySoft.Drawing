@@ -124,6 +124,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
         private IReadableBitmapData? overlayImageBitmapData;
         private CancellationTokenSource? cancelGeneratingPreview;
         private Task? generateResultTask;
+        private SKBitmap? displayImageBitmap;
 
         #endregion
 
@@ -151,7 +152,6 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
         public DithererDescriptor[] Ditherers => DithererDescriptor.Ditherers;
         public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public ImageSource? DisplayImage { get => Get<ImageSource?>(); set => Set(value); }
-        public SKBitmap? DisplayImageBitmap { get => Get<SKBitmap?>(); set => Set(value); }
 
         #endregion
 
@@ -206,6 +206,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 syncRoot.Dispose();
                 baseImage?.Dispose();
                 overlayImageBitmapData?.Dispose();
+                displayImageBitmap?.Dispose();
             }
 
             base.Dispose(disposing);
@@ -247,14 +248,6 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg) : null;
                 IDitherer? ditherer = useQuantizer && cfg.UseDithering ? cfg.SelectedDitherer!.Create(cfg) : null;
                 WorkingColorSpace workingColorSpace = cfg.UseLinearColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
-
-                // Shortcut: displaying the base image only
-                if (!useQuantizer && !showOverlay)
-                {
-                    result = baseImage;
-                    return;
-                }
-
                 generateTaskCompletion = new TaskCompletionSource<bool>();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
                 CancellationToken token = tokenSource.Token;
@@ -296,8 +289,10 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 // To make SKBitmapImageSource work .UseSkiaSharp() must be added to MauiProgram.CreateMauiApp
                 if (result != null)
                 {
+                    SKBitmap? previousBitmap = displayImageBitmap;
                     DisplayImage = new SKBitmapImageSource { Bitmap = result };
-                    DisplayImageBitmap = result;
+                    previousBitmap?.Dispose();
+                    displayImageBitmap = result;
                 }
             }
         }

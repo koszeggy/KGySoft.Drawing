@@ -177,7 +177,6 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
         public DithererDescriptor[] Ditherers => DithererDescriptor.Ditherers;
         public DithererDescriptor SelectedDitherer { get => Get(Ditherers[0]); set => Set(value); }
         public ImageSource? DisplayImage { get => Get<ImageSource?>(); set => Set(value); }
-        public SKBitmap? DisplayImageBitmap { get => Get<SKBitmap?>(); set => Set(value); }
 
         #endregion
 
@@ -290,14 +289,6 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                 IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg)
                     : ditherer == null && !cfg.ForceLinearWorkingColorSpace ? null
                     : pixelFormat.GetMatchingQuantizer(cfg.BackColor.ToSKColor(), ditherer == null ? (byte)0 : cfg.AlphaThreshold).ConfigureColorSpace(workingColorSpace);
-
-                // Shortcut: displaying the base image only
-                if (!useQuantizer && !showOverlay && baseImage.ColorType == cfg.ColorType && baseImage.AlphaType == cfg.AlphaType
-                    && baseImage.ColorSpace?.IsSrgb != false && cfg.ColorSpace == WorkingColorSpace.Srgb)
-                {
-                    result = baseImage;
-                    return;
-                }
 
                 generateTaskCompletion = new TaskCompletionSource<bool>();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
