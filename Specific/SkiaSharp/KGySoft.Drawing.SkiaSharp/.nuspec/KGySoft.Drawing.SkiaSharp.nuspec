@@ -12,7 +12,7 @@
     <icon>Icon64.png</icon>
     <requireLicenseAcceptance>false</requireLicenseAcceptance>
     <summary>Provides KGySoft.Drawing.Core features for SkiaSharp.SKBitmap/SKPixmap/SKImage/SKSurface such as fast and direct bitmap manipulation, quantizing and dithering for any pixel format.</summary>
-    <description xml:space="preserve">KGy SOFT Drawing Libraries for SkiaSkarp offer KGySoft.Drawing.Core features for SkiaSharp.SKBitmap.
+    <description xml:space="preserve">KGy SOFT Drawing Libraries for SkiaSkarp offer KGySoft.Drawing.Core features for SkiaSharp types.
 
 Among others:
 - Fast direct native SKBitmap and SKPixmap data access of any pixel format
