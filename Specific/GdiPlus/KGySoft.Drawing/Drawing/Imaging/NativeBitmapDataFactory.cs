@@ -54,7 +54,7 @@ namespace KGySoft.Drawing.Imaging
 
             // - On Windows Vista and above 8207 is used for CMYK images by JPEG/TIFF decoders but when accessing as its actual format
             //   the changes are not applied back to the original image so we access it as 24bpp bitmap data.
-            //   Even this works only if it wasn't accessed as the actual format before and when the bitmap was created by a decoder, not by Bitmap constructor.
+            //   Even this works only if it wasn't accessed as the actual format before and when the bitmap was created by a decoder, not by Bitmap constructor with pixel format parameter.
             // - On Linux with libgdiplus 16bpp formats can be accessed only via 24bpp bitmap data
             PixelFormat bitmapDataPixelFormat = OSUtils.IsWindows
                 ? pixelFormat is PixelFormatExtensions.Format32bppCmyk
@@ -66,7 +66,18 @@ namespace KGySoft.Drawing.Imaging
 
             Size size = bitmap.Size;
             BitmapData bitmapData = bitmap.LockBits(new Rectangle(Point.Empty, size), lockMode, bitmapDataPixelFormat);
-            Action dispose = () => bitmap.UnlockBits(bitmapData);
+            Action dispose = () =>
+            {
+                try
+                {
+                    bitmap.UnlockBits(bitmapData);
+                }
+                catch (ArgumentException)
+                {
+                    // An Invalid parameter error may be thrown here by GDI+ for CMYK bitmaps or when the bitmap was disposed first.
+                    // We just ignore these cases.
+                }
+            };
             KnownPixelFormat knownPixelFormat = bitmapDataPixelFormat.ToKnownPixelFormatInternal();
             Debug.Assert(knownPixelFormat != KnownPixelFormat.Undefined && knownPixelFormat.IsDefined());
 
