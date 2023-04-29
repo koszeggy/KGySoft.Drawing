@@ -192,7 +192,7 @@ namespace KGySoft.Drawing.Examples.WinForms.View
             // btnBackColor.Click -> OnPickBackColorCommand
             commandBindings.Add(OnPickBackColorCommand)
                 .AddSource(btnBackColor, nameof(btnBackColor.Click));
-            
+
             // timerProgress.Tick -> VM.UpdateProgressCommand
             commandBindings.Add(viewModel.UpdateProgressCommand)
                 .AddSource(timerProgress, nameof(timerProgress.Tick));
