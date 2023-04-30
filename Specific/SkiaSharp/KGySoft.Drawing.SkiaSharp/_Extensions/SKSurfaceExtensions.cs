@@ -77,7 +77,7 @@ namespace KGySoft.Drawing.SkiaSharp
                     {
                         bitmap.InstallPixels(pixels);
                         surface.Canvas.Clear();
-                        surface.Canvas.DrawBitmap(bitmap, SKPoint.Empty);
+                        surface.Canvas.DrawBitmap(bitmap, SKPoint.Empty, SKBitmapExtensions.CopySourcePaint);
                     }
 
                     pixels.Dispose();
@@ -103,7 +103,7 @@ namespace KGySoft.Drawing.SkiaSharp
             disposeCallback = () =>
             {
                 surface.Canvas.Clear();
-                surface.Canvas.DrawBitmap(bitmap, SKPoint.Empty);
+                surface.Canvas.DrawBitmap(bitmap, SKPoint.Empty, SKBitmapExtensions.CopySourcePaint);
                 bitmap.Dispose();
             };
 

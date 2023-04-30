@@ -299,8 +299,7 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                         using (var temp = new SKBitmap(bitmap.Info.WithColorSpace(SKColorSpace.CreateSrgb()).WithSize(1, 1)))
                         {
                             using var canvas = new SKCanvas(temp);
-                            using var paint = new SKPaint { BlendMode = SKBlendMode.Src };
-                            canvas.DrawBitmap(bitmap, new SKRect(0, 0, 1, 1), new SKRect(0, 0, 1, 1), paint);
+                            canvas.DrawBitmap(bitmap, new SKRect(0, 0, 1, 1), new SKRect(0, 0, 1, 1), SKBitmapExtensions.CopySourcePaint);
                             expected = temp.GetPixel(0, 0).ToColor32();
                         }
 
