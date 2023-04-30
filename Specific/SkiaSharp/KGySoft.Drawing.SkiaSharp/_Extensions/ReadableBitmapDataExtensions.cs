@@ -39,16 +39,58 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/>.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <returns>An <see cref="SKBitmap"/> instance that has the same content as the specified <paramref name="source"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="ToSKBitmapAsync(IReadableBitmapData, TaskConfig?)">ToSKBitmapAsync</see> for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// </remarks>
         public static SKBitmap ToSKBitmap(this IReadableBitmapData source)
         {
             ValidateArguments(source);
             return DoConvertToSKBitmapDirect(AsyncHelper.DefaultContext, source, GetCompatibleImageInfo(source), source.BackColor, source.AlphaThreshold)!;
         }
 
-        // TODO: overloads without alphaType/colorSpace
-        // targetColorSpace: not an SKColorSpace because only sRGB/Linear color spaces are supported directly and not SKColorSpaceRenderTargetGamma because it is obsolete.
-        //                   NOTE: It determines both the actual SKColorSpace of the result AND also the working color space.
-        //                         To create eg. an sRGB result while working with linear color space create the desired result, use GetWritableBitmapData + CopyTo
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> that has the specified <paramref name="colorType"/>, <paramref name="alphaType"/> and color space.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
+        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// and also the working color space if the <paramref name="quantizer"/> is <see langword="null"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="SKBitmap"/> converted from the specified <paramref name="source"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
+        /// <remarks>
+        /// <note>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress.
+        /// Use the <see cref="ToSKBitmapAsync(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?, TaskConfig?)">ToSKBitmapAsync</see>
+        /// method for asynchronous call and to adjust parallelization, set up cancellation and for reporting progress.</note>
+        /// <para>To produce an <see cref="SKBitmap"/> with the best matching pixel format to <paramref name="source"/>,
+        /// use the <see cref="ToSKBitmap(IReadableBitmapData)"/> overload instead.</para>
+        /// <para>The <paramref name="targetColorSpace"/> parameter is purposely not an <see cref="SKColorSpace"/> value because only sRGB and linear color spaces are supported directly.
+        /// If its value is <see cref="WorkingColorSpace.Linear"/>, then both the actual color space of the result and the working color space of the conversion operation will be in
+        /// the linear color space (unless <paramref name="quantizer"/> is specified, which determines the working color space).
+        /// To create a result with sRGB color space but perform the conversion in the linear color space either use a <paramref name="quantizer"/> and configure it
+        /// working in the linear color space, or create an <see cref="SKBitmap"/> manually, obtain an <see cref="IWritableBitmapData"/> for it by
+        /// the <see cref="SKBitmapExtensions.GetWritableBitmapData(SKBitmap, WorkingColorSpace, SKColor, byte)"/> method specifying the <see cref="WorkingColorSpace.Linear"/>
+        /// working color space, and use the <see cref="BitmapDataExtensions.CopyTo(IReadableBitmapData, IWritableBitmapData, Point, IQuantizer?, IDitherer?)"/>
+        /// method to copy <paramref name="source"/> into the manually created <see cref="SKBitmap"/>.</para>
+        /// </remarks>
         public static SKBitmap ToSKBitmap(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType = SKAlphaType.Unknown, WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, IQuantizer? quantizer = null, IDitherer? ditherer = null)
         {
             ValidateArguments(source, colorType, alphaType, targetColorSpace);
@@ -59,12 +101,97 @@ namespace KGySoft.Drawing.SkiaSharp
                 GetImageInfo(source, colorType, alphaType, targetColorSpace), quantizer, ditherer)!;
         }
 
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> that has the specified <paramref name="colorType"/> and <paramref name="alphaType"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ToSKBitmapAsync(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?, TaskConfig?)"/> overload for details.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
+        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="SKBitmap"/> converted from the specified <paramref name="source"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> or <paramref name="alphaType"/> does not specify a defined value.</exception>
+        public static SKBitmap ToSKBitmap(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType, IQuantizer? quantizer, IDitherer? ditherer = null)
+            => ToSKBitmap(source, colorType, alphaType, WorkingColorSpace.Default, quantizer, ditherer);
+
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> that has the specified <paramref name="colorType"/>.
+        /// <br/>See the <strong>Remarks</strong> section of the <see cref="ToSKBitmapAsync(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?, TaskConfig?)"/> overload for details.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>An <see cref="SKBitmap"/> converted from the specified <paramref name="source"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> does not specify a defined value.</exception>
+        public static SKBitmap ToSKBitmap(this IReadableBitmapData source, SKColorType colorType, IQuantizer? quantizer, IDitherer? ditherer = null)
+            => ToSKBitmap(source, colorType, SKAlphaType.Unknown, WorkingColorSpace.Default, quantizer, ditherer);
+
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance that has the same content as the specified <paramref name="source"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData)">ToSKBitmap</see> method for more details.</note>
+        /// </remarks>
         public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source);
             return AsyncHelper.DoOperationAsync(ctx => DoConvertToSKBitmapDirect(ctx, source, GetCompatibleImageInfo(source), source.BackColor, source.AlphaThreshold), asyncConfig);
         }
 
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format. This parameter is optional.
+        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// and also the working color space if the <paramref name="quantizer"/> is <see langword="null"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="source"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?)"/> method for more details.</note>
+        /// </remarks>
         public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType = SKAlphaType.Unknown, WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, IQuantizer? quantizer = null, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
         {
             ValidateArguments(source, colorType, alphaType, targetColorSpace);
@@ -74,6 +201,61 @@ namespace KGySoft.Drawing.SkiaSharp
             return AsyncHelper.DoOperationAsync(ctx => DoConvertToSKBitmapByQuantizer(ctx, source,
                 GetImageInfo(source, colorType, alphaType, targetColorSpace), quantizer, ditherer), asyncConfig);
         }
+
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to auto select an alpha type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="source"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> or <paramref name="alphaType"/> does not specify a defined value.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?)"/> method for more details.</note>
+        /// </remarks>
+        public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+            => ToSKBitmapAsync(source, colorType, alphaType, WorkingColorSpace.Default, quantizer, ditherer);
+
+        /// <summary>
+        /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
+        /// </summary>
+        /// <param name="source">The source <see cref="IReadableBitmapData"/> instance to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to auto select a color type that matches the <paramref name="source"/> pixel format.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="source"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <exception cref="ArgumentNullException"><paramref name="source"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/> does not specify a defined value.</exception>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?)"/> method for more details.</note>
+        /// </remarks>
+        public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, SKColorType colorType, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
+            => ToSKBitmapAsync(source, colorType, SKAlphaType.Unknown, WorkingColorSpace.Default, quantizer, ditherer);
 
         #endregion
 

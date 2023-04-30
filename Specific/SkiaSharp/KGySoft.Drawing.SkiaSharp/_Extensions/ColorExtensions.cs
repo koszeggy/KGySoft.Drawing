@@ -27,6 +27,9 @@ using SkiaSharp;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
+    /// <summary>
+    /// Provides extension methods for the <see cref="SKColor"/> type.
+    /// </summary>
     public static class ColorExtensions
     {
         #region Nested Classes
