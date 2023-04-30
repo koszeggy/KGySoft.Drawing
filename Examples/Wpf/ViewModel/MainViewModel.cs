@@ -379,6 +379,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             switch (e.PropertyName)
             {
                 case nameof(ImageFile):
+                    await CancelAndAwaitPendingGenerate();
                     cachedOverlay?.Dispose();
                     cachedOverlay = null;
                     ImageFileError = null;
@@ -399,6 +400,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                     break;
 
                 case nameof(OverlayFile):
+                    await CancelAndAwaitPendingGenerate();
                     OverlayFileError = null;
                     file = e.NewValue as string;
                     cachedOverlay?.Dispose();
@@ -452,6 +454,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
                 return;
             if (disposing)
             {
+                CancelAndAwaitPendingGenerate().GetAwaiter().GetResult();
                 progressUpdater.Dispose();
                 cachedOverlay?.Dispose();
                 cancelGeneratingPreview?.Dispose();
@@ -469,7 +472,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
         // in the generatePreviewTask field, which can be awaited after a cancellation before starting to generate a new result.
         private async Task GenerateResult(Configuration cfg)
         {
-            if (isInitializing || IsDisposed || cfg.Source == null)
+            if (isInitializing || IsDisposed)
                 return;
 
             if (!IsValid)
@@ -481,10 +484,7 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             // The awaits make this method reentrant, and a continuation can be spawn after any await at any time.
             // Therefore it is possible that despite of clearing generatePreviewTask in WaitForPendingGenerate it is not null upon starting the continuation.
             while (generateResultTask != null)
-            {
-                CancelRunningGenerate();
-                await WaitForPendingGenerate();
-            }
+                await CancelAndAwaitPendingGenerate();
 
             // Using a manually completable task for the generateResultTask field. If this method had just one awaitable task we could simply assign that to the field.
             TaskCompletionSource? generateTaskCompletion = null;
@@ -603,6 +603,12 @@ namespace KGySoft.Drawing.Examples.Wpf.ViewModel
             {
                 // pending generate is always awaited after cancellation so ignoring everything from here
             }
+        }
+
+        private async Task CancelAndAwaitPendingGenerate()
+        {
+            CancelRunningGenerate();
+            await WaitForPendingGenerate();
         }
 
         #endregion

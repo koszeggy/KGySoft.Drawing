@@ -48,16 +48,16 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
 
             #region Public Properties
 
-            public bool ShowOverlay { get; private set; }
-            public bool UseLinearColorSpace { get; private set; }
-            public bool UseQuantizer { get; private set; }
-            public QuantizerDescriptor? SelectedQuantizer { get; private set; }
-            public System.Drawing.Color BackColor { get; private set; }
-            public byte AlphaThreshold { get; private set; }
-            public byte WhiteThreshold { get; private set; }
-            public int PaletteSize { get; private set; }
-            public bool UseDithering { get; private set; }
-            public DithererDescriptor? SelectedDitherer { get; private set; }
+            public bool ShowOverlay { get; private init; }
+            public bool UseLinearColorSpace { get; private init; }
+            public bool UseQuantizer { get; private init; }
+            public QuantizerDescriptor? SelectedQuantizer { get; private init; }
+            public System.Drawing.Color BackColor { get; private init; }
+            public byte AlphaThreshold { get; private init; }
+            public byte WhiteThreshold { get; private init; }
+            public int PaletteSize { get; private init; }
+            public bool UseDithering { get; private init; }
+            public DithererDescriptor? SelectedDitherer { get; private init; }
 
             #endregion
 
@@ -232,7 +232,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
             }
 
             // Using a manually completable task for the generateResultTask field. If this method had just one awaitable task we could simply assign that to the field.
-            TaskCompletionSource<bool>? generateTaskCompletion = null;
+            TaskCompletionSource? generateTaskCompletion = null;
             SKBitmap? result = null;
 
             // This is essentially a lock. Achieved by a SemaphoreSlim because an actual lock cannot be used with awaits in the code.
@@ -248,7 +248,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
                 IQuantizer? quantizer = useQuantizer ? cfg.SelectedQuantizer!.Create(cfg) : null;
                 IDitherer? ditherer = useQuantizer && cfg.UseDithering ? cfg.SelectedDitherer!.Create(cfg) : null;
                 WorkingColorSpace workingColorSpace = cfg.UseLinearColorSpace ? WorkingColorSpace.Linear : WorkingColorSpace.Srgb;
-                generateTaskCompletion = new TaskCompletionSource<bool>();
+                generateTaskCompletion = new TaskCompletionSource();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
                 CancellationToken token = tokenSource.Token;
                 generateResultTask = generateTaskCompletion.Task;
@@ -283,7 +283,7 @@ namespace KGySoft.Drawing.Examples.Maui.ViewModel
             }
             finally
             {
-                generateTaskCompletion?.SetResult(default);
+                generateTaskCompletion?.SetResult();
                 syncRoot.Release();
 
                 // To make SKBitmapImageSource work .UseSkiaSharp() must be added to MauiProgram.CreateMauiApp

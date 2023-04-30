@@ -37,6 +37,8 @@ using KGySoft.CoreLibraries;
 using KGySoft.Drawing.Examples.SkiaSharp.Maui.Extensions;
 using KGySoft.Drawing.SkiaSharp;
 
+using Microsoft.Maui.Devices;
+
 #endregion
 
 namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
@@ -51,19 +53,19 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
 
             #region Public Properties
 
-            public bool ShowOverlay { get; private set; }
-            public SKColorType ColorType { get; private set; }
-            public SKAlphaType AlphaType { get; private set; }
-            public WorkingColorSpace ColorSpace { get; private set; }
-            public bool ForceLinearWorkingColorSpace { get; private set; }
-            public bool UseQuantizer { get; private set; }
-            public QuantizerDescriptor? SelectedQuantizer { get; private set; }
-            public Color32 BackColor { get; private set; }
-            public byte AlphaThreshold { get; private set; }
-            public byte WhiteThreshold { get; private set; }
-            public int PaletteSize { get; private set; }
-            public bool UseDithering { get; private set; }
-            public DithererDescriptor? SelectedDitherer { get; private set; }
+            public bool ShowOverlay { get; private init; }
+            public SKColorType ColorType { get; private init; }
+            public SKAlphaType AlphaType { get; private init; }
+            public WorkingColorSpace ColorSpace { get; private init; }
+            public bool ForceLinearWorkingColorSpace { get; private init; }
+            public bool UseQuantizer { get; private init; }
+            public QuantizerDescriptor? SelectedQuantizer { get; private init; }
+            public Color32 BackColor { get; private init; }
+            public byte AlphaThreshold { get; private init; }
+            public byte WhiteThreshold { get; private init; }
+            public int PaletteSize { get; private init; }
+            public bool UseDithering { get; private init; }
+            public DithererDescriptor? SelectedDitherer { get; private init; }
 
             #endregion
 
@@ -258,7 +260,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             }
 
             // Using a manually completable task for the generateResultTask field. If this method had just one awaitable task we could simply assign that to the field.
-            TaskCompletionSource<bool>? generateTaskCompletion = null;
+            TaskCompletionSource? generateTaskCompletion = null;
             CancellationToken token = default;
             SKBitmap? result = null;
 
@@ -290,7 +292,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                     : ditherer == null && !cfg.ForceLinearWorkingColorSpace ? null
                     : pixelFormat.GetMatchingQuantizer(cfg.BackColor.ToSKColor(), ditherer == null ? (byte)0 : cfg.AlphaThreshold).ConfigureColorSpace(workingColorSpace);
 
-                generateTaskCompletion = new TaskCompletionSource<bool>();
+                generateTaskCompletion = new TaskCompletionSource();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
                 token = tokenSource.Token;
                 generateResultTask = generateTaskCompletion.Task;
@@ -350,6 +352,20 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                         result = displayResult;
                     }
                 }
+                // BUG WORKAROUND: On Android ColorType.Argb4444 works incorrectly so copying the result into a new bitmap of platform color type
+                else if (DeviceInfo.Current.Platform == DevicePlatform.Android && result?.ColorType == SKColorType.Argb4444)
+                {
+                    SKBitmap displayResult = new SKBitmap(result.Info.WithColorType(SKImageInfo.PlatformColorType).WithColorSpace(SKColorSpace.CreateSrgb()));
+                    using IReadableBitmapData src = result.GetReadableBitmapData();
+                    using IWritableBitmapData dst = displayResult.GetWritableBitmapData();
+                    await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
+                        asyncConfig: new TaskConfig(token) { ThrowIfCanceled = false });
+                    if (!token.IsCancellationRequested)
+                    {
+                        result.Dispose();
+                        result = displayResult;
+                    }
+                }
 
                 // BUG WORKAROUND: SKBitmapImageSource handles linear color space incorrectly so copying the actual result into an sRGB bitmap
                 //                 just to display it correctly. We could also use KGy SOFT's BitmapDataExtensions.CopyToAsync,
@@ -364,7 +380,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                     result = displayResult;
                 }
 
-                generateTaskCompletion?.SetResult(default);
+                generateTaskCompletion?.SetResult();
                 syncRoot.Release();
 
                 if (result != null)

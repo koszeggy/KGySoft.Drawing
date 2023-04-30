@@ -156,7 +156,7 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Label Grid.Column="0" VerticalOptions="Center">Palette Size:</Label>
-            <Slider Grid.Column="1" x:Name="sliderPaletteSize"
+            <Slider Grid.Column="1"
                     VerticalOptions="Center"
                     Maximum="256"
                     Minimum="2"
