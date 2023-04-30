@@ -263,6 +263,7 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             TaskCompletionSource? generateTaskCompletion = null;
             CancellationToken token = default;
             SKBitmap? result = null;
+            var asyncConfig = new TaskConfig { ThrowIfCanceled = false };
 
             // This is essentially a lock. Achieved by a SemaphoreSlim because an actual lock cannot be used with awaits in the code.
             await syncRoot.WaitAsync();
@@ -294,10 +295,8 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
 
                 generateTaskCompletion = new TaskCompletionSource();
                 CancellationTokenSource tokenSource = cancelGeneratingPreview = new CancellationTokenSource();
-                token = tokenSource.Token;
+                asyncConfig.CancellationToken = token = tokenSource.Token;
                 generateResultTask = generateTaskCompletion.Task;
-
-                var asyncConfig = new TaskConfig { CancellationToken = token, ThrowIfCanceled = false };
 
                 // ===== a.) No overlay: ConvertPixelFormat does everything in a single step for us. =====
                 if (!showOverlay)
@@ -345,48 +344,46 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                     SKBitmap displayResult = new SKBitmap(result.Info
                         .WithColorType(isWindowsOrAndroid ? SKColorType.Gray8 : SKImageInfo.PlatformColorType)
                         .WithColorSpace(null));
-                    using IReadableBitmapData src = result.GetReadableBitmapData();
-                    using IWritableBitmapData dst = displayResult.GetWritableBitmapData();
-                    await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
-                        PredefinedColorsQuantizer.FromCustomFunction(c => Color32.FromGray(c.A)),
-                        asyncConfig: new TaskConfig(token) { ThrowIfCanceled = false });
+                    
+                    using (IReadableBitmapData src = result.GetReadableBitmapData())
+                    using (IWritableBitmapData dst = displayResult.GetWritableBitmapData())
+                    {
+                        await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
+                            PredefinedColorsQuantizer.FromCustomFunction(c => Color32.FromGray(c.A)), // the more opaque the more white
+                            asyncConfig: asyncConfig);
+                    }
+                    
                     if (!token.IsCancellationRequested)
                     {
                         result.Dispose();
                         result = displayResult;
                     }
                 }
-                // BUG WORKAROUND: - On Android displaying ColorType.Argb4444 works incorrectly so copying the result into a new bitmap of platform color type
-                //                 - On Mac/iOS displaying everything but Rgba8888/Unpremul works incorrectly. Actually using the workaround for all non-Windows/Android systems just for sure.
-                else if (result != null && (DeviceInfo.Current.Platform == DevicePlatform.Android && result.ColorType == SKColorType.Argb4444
-                    || !isWindowsOrAndroid && (result.ColorType != SKImageInfo.PlatformColorType || result.AlphaType == SKAlphaType.Unpremul)))
+                // BUG WORKAROUND: SKBitmapImageSource handles SKBitmap incorrectly under a lot of conditions, which are also platform dependent
+                // - Everywhere, including Windows: only sRGB color space is displayed correctly so results with linear actual color space must be converted to sRGB
+                // - On Android: ColorType.Argb4444 is displayed incorrectly
+                // - On Mac/iOS: Everything but Rgba8888/Premul works incorrectly. Actually applying the workaround for all non-Windows/Android systems just for sure.
+                else if (result != null && (result.ColorSpace?.GammaIsLinear == true
+                             || DeviceInfo.Current.Platform == DevicePlatform.Android && result.ColorType == SKColorType.Argb4444
+                             || !isWindowsOrAndroid && (result.ColorType != SKImageInfo.PlatformColorType || result.AlphaType == SKAlphaType.Unpremul)))
                 {
                     SKBitmap displayResult = new SKBitmap(result.Info
                         .WithColorType(SKImageInfo.PlatformColorType)
                         .WithAlphaType(SKAlphaType.Premul)
                         .WithColorSpace(SKColorSpace.CreateSrgb()));
-                    using IReadableBitmapData src = result.GetReadableBitmapData();
-                    using IWritableBitmapData dst = displayResult.GetWritableBitmapData();
-                    await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
-                        asyncConfig: new TaskConfig(token) { ThrowIfCanceled = false });
+
+                    using (IReadableBitmapData src = result.GetReadableBitmapData())
+                    using (IWritableBitmapData dst = displayResult.GetWritableBitmapData())
+                    {
+                        await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
+                            asyncConfig: asyncConfig);
+                    }
+
                     if (!token.IsCancellationRequested)
                     {
                         result.Dispose();
                         result = displayResult;
                     }
-                }
-
-                // BUG WORKAROUND: SKBitmapImageSource handles linear color space incorrectly so copying the actual result into an sRGB bitmap
-                //                 just to display it correctly. We could also use KGy SOFT's BitmapDataExtensions.CopyToAsync,
-                //                 which could maybe even faster (and cancellable).
-                //                 Using the 100% Skia solution just to prove that the generated linear result was correct.
-                if (result?.ColorSpace?.GammaIsLinear == true && !token.IsCancellationRequested)
-                {
-                    SKBitmap displayResult = new SKBitmap(result.Info.WithColorSpace(SKColorSpace.CreateSrgb()));
-                    using var canvas = new SKCanvas(displayResult);
-                    canvas.DrawBitmap(result, SKPoint.Empty);
-                    result.Dispose();
-                    result = displayResult;
                 }
 
                 generateTaskCompletion?.SetResult();
