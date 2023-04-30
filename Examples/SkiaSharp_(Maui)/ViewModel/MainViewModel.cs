@@ -337,10 +337,14 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
             }
             finally
             {
+                bool isWindowsOrAndroid = DeviceInfo.Current.Platform.In(DevicePlatform.WinUI, DevicePlatform.Android);
+
                 // special handling for Alpha images: turning them opaque grayscale so they are visible both with dark and light theme
                 if (result?.ColorType is SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16 && !token.IsCancellationRequested)
                 {
-                    SKBitmap displayResult = new SKBitmap(result.Info.WithColorType(SKColorType.Gray8).WithColorSpace(null));
+                    SKBitmap displayResult = new SKBitmap(result.Info
+                        .WithColorType(isWindowsOrAndroid ? SKColorType.Gray8 : SKImageInfo.PlatformColorType)
+                        .WithColorSpace(null));
                     using IReadableBitmapData src = result.GetReadableBitmapData();
                     using IWritableBitmapData dst = displayResult.GetWritableBitmapData();
                     await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
@@ -352,10 +356,15 @@ namespace KGySoft.Drawing.Examples.SkiaSharp.Maui.ViewModel
                         result = displayResult;
                     }
                 }
-                // BUG WORKAROUND: On Android ColorType.Argb4444 works incorrectly so copying the result into a new bitmap of platform color type
-                else if (DeviceInfo.Current.Platform == DevicePlatform.Android && result?.ColorType == SKColorType.Argb4444)
+                // BUG WORKAROUND: - On Android displaying ColorType.Argb4444 works incorrectly so copying the result into a new bitmap of platform color type
+                //                 - On Mac/iOS displaying everything but Rgba8888/Unpremul works incorrectly. Actually using the workaround for all non-Windows/Android systems just for sure.
+                else if (result != null && (DeviceInfo.Current.Platform == DevicePlatform.Android && result.ColorType == SKColorType.Argb4444
+                    || !isWindowsOrAndroid && (result.ColorType != SKImageInfo.PlatformColorType || result.AlphaType == SKAlphaType.Unpremul)))
                 {
-                    SKBitmap displayResult = new SKBitmap(result.Info.WithColorType(SKImageInfo.PlatformColorType).WithColorSpace(SKColorSpace.CreateSrgb()));
+                    SKBitmap displayResult = new SKBitmap(result.Info
+                        .WithColorType(SKImageInfo.PlatformColorType)
+                        .WithAlphaType(SKAlphaType.Premul)
+                        .WithColorSpace(SKColorSpace.CreateSrgb()));
                     using IReadableBitmapData src = result.GetReadableBitmapData();
                     using IWritableBitmapData dst = displayResult.GetWritableBitmapData();
                     await src.CopyToAsync(dst, new System.Drawing.Rectangle(System.Drawing.Point.Empty, src.Size), System.Drawing.Point.Empty,
