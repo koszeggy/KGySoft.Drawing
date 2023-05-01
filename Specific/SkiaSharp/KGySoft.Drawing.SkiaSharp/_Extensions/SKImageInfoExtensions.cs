@@ -27,12 +27,21 @@ using SkiaSharp;
 
 namespace KGySoft.Drawing.SkiaSharp
 {
+    /// <summary>
+    /// Contains extension methods for the <see cref="SKImageInfo"/> type.
+    /// </summary>
     public static class SKImageInfoExtensions
     {
         #region Methods
 
         #region Public Methods
 
+        /// <summary>
+        /// Gets a <see cref="PixelFormatInfo"/> for this <paramref name="imageInfo"/>.
+        /// </summary>
+        /// <param name="imageInfo">The <see cref="SKImageInfo"/> to retrieve a <see cref="PixelFormatInfo"/> for.</param>
+        /// <returns>A <see cref="PixelFormatInfo"/> that represents the specified <see cref="SKImageInfo"/>.</returns>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="imageInfo"/> must be a non-default valid value.</exception>
         public static PixelFormatInfo GetInfo(this SKImageInfo imageInfo)
         {
             KnownPixelFormat pixelFormat = imageInfo != SKImageInfo.Empty
@@ -78,6 +87,12 @@ namespace KGySoft.Drawing.SkiaSharp
             return info;
         }
 
+        /// <summary>
+        /// Gets whether this <see cref="SKImageInfo"/> instance represents a format with alpha (transparency) without checking
+        /// whether <paramref name="imageInfo"/> represents a valid value.
+        /// </summary>
+        /// <param name="imageInfo">The <see cref="SKImageInfo"/> to be checked.</param>
+        /// <returns><see langword="true"/>, if this <see cref="SKImageInfo"/> instance represents a format with alpha; otherwise, <see langword="false"/>.</returns>
         public static bool HasAlpha(this SKImageInfo imageInfo)
             => (imageInfo.ColorType is SKColorType.Alpha8 or SKColorType.Alpha16 or SKColorType.AlphaF16)
                 || ((imageInfo.AlphaType is SKAlphaType.Unpremul or SKAlphaType.Premul)
@@ -85,6 +100,17 @@ namespace KGySoft.Drawing.SkiaSharp
                         or SKColorType.Rgba1010102 or SKColorType.Bgra1010102 or SKColorType.Argb4444
                         or SKColorType.RgbaF16 or SKColorType.RgbaF16Clamped or SKColorType.RgbaF32 or SKColorType.Rgba16161616));
 
+        /// <summary>
+        /// Gets a <see cref="PredefinedColorsQuantizer"/> instance that fits for the specified <paramref name="imageInfo"/>.
+        /// </summary>
+        /// <param name="imageInfo">The <see cref="SKImageInfo"/> to get a quantizer for.</param>
+        /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
+        /// The <see cref="SKColor.Alpha"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="SKColor.Alpha"/> property,
+        /// under which a quantized color is considered completely transparent. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="imageInfo"/>.</returns>
         public static PredefinedColorsQuantizer GetMatchingQuantizer(this SKImageInfo imageInfo, SKColor backColor = default, byte alphaThreshold = 128)
         {
             KnownPixelFormat asKnown = imageInfo.AsKnownPixelFormat();

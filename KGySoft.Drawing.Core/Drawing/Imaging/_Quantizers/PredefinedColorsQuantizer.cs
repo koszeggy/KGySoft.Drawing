@@ -452,7 +452,7 @@ namespace KGySoft.Drawing.Imaging
         /// </example>
         public static PredefinedColorsQuantizer Argb8888(Color backColor = default, byte alphaThreshold = 128)
         {
-            Color32 Quantize(Color32 c) => c;
+            static Color32 Quantize(Color32 c) => c;
 
             return new PredefinedColorsQuantizer(Quantize, KnownPixelFormat.Format32bppArgb, new Color32(backColor), alphaThreshold, false);
         }
@@ -1638,8 +1638,8 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="backColor">Colors with alpha (transparency), which are considered opaque will be blended with this color before quantization.
         /// The <see cref="Color.A">Color.A</see> property of the background color is ignored. This parameter is optional.
         /// <br/>Default value: <see cref="Color.Empty"/>, which has the same RGB values as <see cref="Color.Black"/>.</param>
-        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property, under which a quantized color is considered transparent.
-        /// If 0, then the quantized colors will never be transparent. This parameter is optional.
+        /// <param name="alphaThreshold">Specifies a threshold value for the <see cref="Color.A">Color.A</see> property,
+        /// under which a quantized color is considered completely transparent. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>A <see cref="PredefinedColorsQuantizer"/> instance that is compatible with the specified <paramref name="pixelFormat"/>.</returns>
         /// <remarks>

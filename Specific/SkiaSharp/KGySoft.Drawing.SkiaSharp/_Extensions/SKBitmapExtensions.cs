@@ -51,7 +51,7 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region Public Methods
 
-        #region Obtaining IBitmapData
+        #region GetXXXBitmapData
 
         /// <summary>
         /// Gets a managed read-only accessor for an <see cref="SKBitmap"/> instance.
@@ -113,7 +113,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <param name="bitmap">An <see cref="SKBitmap"/> instance, whose data is about to be accessed.</param>
         /// <param name="backColor">Determines the <see cref="IBitmapData.BackColor"/> property of the result.
         /// When setting pixels of bitmaps without alpha support, specifies the color of the background.
-        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
+        /// Color values with alpha will be blended with this color before setting the pixel in the result bitmap data.
         /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
@@ -139,7 +139,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <br/>See the <strong>Remarks</strong> section of the <see cref="WorkingColorSpace"/> enumeration for more details.</param>
         /// <param name="backColor">Determines the <see cref="IBitmapData.BackColor"/> property of the result.
         /// When setting pixels of bitmaps without alpha support, specifies the color of the background.
-        /// Color values with alpha, which are considered opaque will be blended with this color before setting the pixel in the result bitmap data.
+        /// Color values with alpha will be blended with this color before setting the pixel in the result bitmap data.
         /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
@@ -165,8 +165,8 @@ namespace KGySoft.Drawing.SkiaSharp
         /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
-        /// Can be relevant is some operations such as when drawing an <see cref="IReadableBitmapData"/> instance with alpha in the returned instance
-        /// by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extensions and the specified <paramref name="bitmap"/>
+        /// Can be relevant in some operations such as when drawing another <see cref="IReadableBitmapData"/> instance with alpha into the returned bitmap data
+        /// by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods and the specified <paramref name="bitmap"/>
         /// has no alpha support. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.</returns>
@@ -192,8 +192,8 @@ namespace KGySoft.Drawing.SkiaSharp
         /// The <see cref="SKColor.Alpha"/> property of the specified background color is ignored. This parameter is optional.
         /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
         /// <param name="alphaThreshold">Determines the <see cref="IBitmapData.AlphaThreshold"/> property of the result.
-        /// Can be relevant is some operations such as when drawing an <see cref="IReadableBitmapData"/> instance with alpha in the returned instance
-        /// by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extensions and the specified <paramref name="bitmap"/>
+        /// Can be relevant in some operations such as when drawing another <see cref="IReadableBitmapData"/> instance with alpha into the returned bitmap data
+        /// by the <see cref="O:KGySoft.Drawing.Imaging.BitmapDataExtensions.DrawInto">DrawInto</see> extension methods and the specified <paramref name="bitmap"/>
         /// has no alpha support. This parameter is optional.
         /// <br/>Default value: <c>128</c>.</param>
         /// <returns>An <see cref="IReadWriteBitmapData"/> instance, which provides fast read-write access to the actual data of the specified <paramref name="bitmap"/>.</returns>
@@ -207,6 +207,47 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #region ConvertPixelFormat
 
+        /// <summary>
+        /// Converts the pixel format of this <paramref name="bitmap"/> using the specified <paramref name="colorType"/>, <paramref name="alphaType"/> and <paramref name="targetColorSpace"/>.
+        /// </summary>
+        /// <param name="bitmap">The original bitmap to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to use the original color type of the source <paramref name="bitmap"/>.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to use the original alpha type of the source <paramref name="bitmap"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// and also the working color space if the result does not support transparency and source pixels needed to be blended with <paramref name="backColor"/>.
+        /// Can be <see cref="WorkingColorSpace.Default"/> to preserve the original color space. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
+        /// <param name="backColor">If the result does not support alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="SKColor.Alpha"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// <param name="alphaThreshold">If the result supports alpha, then specifies a threshold value for the <see cref="SKColor.Alpha"/> property, under which
+        /// the color is considered completely transparent. If 0, then the converted colors attempt to preserve their original alpha value. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <returns>A new <see cref="SKBitmap"/> instance with the desired parameters.</returns>
+        /// <remarks>
+        /// <note><list type="bullet">
+        /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use
+        /// the <see cref="ConvertPixelFormatAsync(SKBitmap, SKColorType, SKAlphaType, WorkingColorSpace, SKColor, byte, TaskConfig?)"/> method for asynchronous call
+        /// and to adjust parallelization, set up cancellation and for reporting progress.</item>
+        /// <para>The <paramref name="targetColorSpace"/> parameter is purposely not an <see cref="SKColorSpace"/> value because only sRGB and linear color spaces are supported directly.
+        /// If its value is <see cref="WorkingColorSpace.Linear"/>, then both the actual color space of the result and the working color space of the conversion operation will be in
+        /// the linear color space. To create a result with sRGB color space but perform the conversion in the linear color space use
+        /// the <see cref="ConvertPixelFormat(SKBitmap, IQuantizer?, IDitherer?, SKColorType, SKAlphaType, WorkingColorSpace)"/> overload with an <see cref="IQuantizer"/>
+        /// configured to work in the linear color space.</para>
+        /// </list></note>
+        /// <para>If the result <see cref="SKBitmap"/> can represent fewer colors than the source <paramref name="bitmap"/>, then a default
+        /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(SKBitmap, IQuantizer?, IDitherer?, SKColorType, SKAlphaType, WorkingColorSpace)"/> overload.
+        /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
+        /// <seealso cref="ConvertPixelFormat(SKBitmap, IQuantizer?, IDitherer?, SKColorType, SKAlphaType, WorkingColorSpace)"/>
+        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, Color32, byte)"/>
         public static SKBitmap ConvertPixelFormat(this SKBitmap bitmap, SKColorType colorType, SKAlphaType alphaType = SKAlphaType.Unknown,
             WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, SKColor backColor = default, byte alphaThreshold = 128)
         {
@@ -214,6 +255,49 @@ namespace KGySoft.Drawing.SkiaSharp
             return DoConvertPixelFormat(AsyncHelper.DefaultContext, bitmap, GetImageInfo(bitmap, colorType, alphaType, targetColorSpace), backColor.ToColor32(), alphaThreshold)!;
         }
 
+        /// <summary>
+        /// Converts the pixel format of this <paramref name="bitmap"/> using the specified <paramref name="colorType"/>, <paramref name="alphaType"/> and <paramref name="targetColorSpace"/>.
+        /// </summary>
+        /// <param name="bitmap">The original bitmap to convert.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
+        /// Can be <see langword="null"/> to pick a quantizer automatically that matches the other parameters.
+        /// If no further parameters are specified, then the original pixel format is preserved while colors are optionally quantized.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to use the original color type of the source <paramref name="bitmap"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="SKColorType.Unknown"/>.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to use the original alpha type of the source <paramref name="bitmap"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// and also the working color space if <paramref name="quantizer"/> is <see langword="null"/>.
+        /// Can be <see cref="WorkingColorSpace.Default"/> to preserve the original color space. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
+        /// <returns>A new <see cref="SKBitmap"/> instance with the desired parameters.</returns>
+        /// <remarks>
+        /// <note><list type="bullet">
+        /// <item>This method adjusts the degree of parallelization automatically, blocks the caller, and does not support cancellation or reporting progress. Use
+        /// the <see cref="ConvertPixelFormatAsync(SKBitmap, SKColorType, SKAlphaType, WorkingColorSpace, SKColor, byte, TaskConfig?)"/> method for asynchronous call
+        /// and to adjust parallelization, set up cancellation and for reporting progress.</item>
+        /// <para>The <paramref name="targetColorSpace"/> parameter is purposely not an <see cref="SKColorSpace"/> value because only sRGB and linear color spaces are supported directly.
+        /// If its value is <see cref="WorkingColorSpace.Linear"/>, then both the actual color space of the result and the working color space of the conversion operation will be in
+        /// the linear color space (unless <paramref name="quantizer"/> is specified, which determines the working color space).
+        /// To create a result with sRGB color space but perform the conversion in the linear color space you can use
+        /// a <paramref name="quantizer"/> and configure it to work in the linear color space.</para>
+        /// </list></note>
+        /// <para>If the result <see cref="SKBitmap"/> can represent fewer colors than the source <paramref name="bitmap"/> and <paramref name="quantizer"/> is <see langword="null"/>,
+        /// then a default quantization will occur during the conversion. To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
+        /// <para>If only the <paramref name="quantizer"/> parameter is specified, then the original pixel format will be preserved but the actual colors
+        /// will be quantized. You can also specify the <paramref name="ditherer"/> parameter to preserve more details while reducing the colors.</para>
+        /// <para>Using a <paramref name="quantizer"/> that can represent more colors than the result <see cref="SKBitmap"/> may end up in a poor quality result.</para>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
+        /// <seealso cref="ConvertPixelFormat(SKBitmap, SKColorType, SKAlphaType, WorkingColorSpace, SKColor, byte)"/>
+        /// <seealso cref="BitmapDataExtensions.Clone(IReadableBitmapData, KnownPixelFormat, IQuantizer, IDitherer)"/>
         public static SKBitmap ConvertPixelFormat(this SKBitmap bitmap, IQuantizer? quantizer, IDitherer? ditherer = null,
             SKColorType colorType = SKColorType.Unknown, SKAlphaType alphaType = SKAlphaType.Unknown, WorkingColorSpace targetColorSpace = WorkingColorSpace.Default)
         {
@@ -221,6 +305,40 @@ namespace KGySoft.Drawing.SkiaSharp
             return DoConvertPixelFormat(AsyncHelper.DefaultContext, bitmap, GetImageInfo(bitmap, colorType, alphaType, targetColorSpace), quantizer, ditherer)!;
         }
 
+        /// <summary>
+        /// Converts the pixel format of this <paramref name="bitmap"/> asynchronously, using the specified <paramref name="colorType"/>, <paramref name="alphaType"/> and <paramref name="targetColorSpace"/>.
+        /// </summary>
+        /// <param name="bitmap">The original bitmap to convert.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to use the original color type of the source <paramref name="bitmap"/>.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to use the original alpha type of the source <paramref name="bitmap"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// and also the working color space if the result does not support transparency and source pixels needed to be blended with <paramref name="backColor"/>.
+        /// Can be <see cref="WorkingColorSpace.Default"/> to preserve the original color space. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
+        /// <param name="backColor">If the result does not support alpha, then specifies the color of the background.
+        /// Source pixels with alpha, which will be opaque in the result will be blended with this color.
+        /// The <see cref="SKColor.Alpha"/> property of the background color is ignored. This parameter is optional.
+        /// <br/>Default value: The bitwise zero instance of <see cref="SKColor"/>, which has the same RGB values as <see cref="SKColors.Black"/>.</param>
+        /// <param name="alphaThreshold">If the result supports alpha, then specifies a threshold value for the <see cref="SKColor.Alpha"/> property, under which
+        /// the color is considered completely transparent. If 0, then the converted colors attempt to preserve their original alpha value. This parameter is optional.
+        /// <br/>Default value: <c>128</c>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="bitmap"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(SKBitmap, SKColorType, SKAlphaType, WorkingColorSpace, SKColor, byte)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
         public static Task<SKBitmap?> ConvertPixelFormatAsync(this SKBitmap bitmap, SKColorType colorType, SKAlphaType alphaType = SKAlphaType.Unknown,
             WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, SKColor backColor = default, byte alphaThreshold = 128, TaskConfig? asyncConfig = null)
         {
@@ -228,6 +346,40 @@ namespace KGySoft.Drawing.SkiaSharp
             return AsyncHelper.DoOperationAsync(ctx => DoConvertPixelFormat(ctx, bitmap, GetImageInfo(bitmap, colorType, alphaType, targetColorSpace), backColor.ToColor32(), alphaThreshold), asyncConfig);
         }
 
+        /// <summary>
+        /// Converts the pixel format of this <paramref name="bitmap"/> asynchronously, using the specified <paramref name="colorType"/>, <paramref name="alphaType"/> and <paramref name="targetColorSpace"/>.
+        /// </summary>
+        /// <param name="bitmap">The original bitmap to convert.</param>
+        /// <param name="quantizer">An optional <see cref="IQuantizer"/> instance to determine the colors of the result.
+        /// Can be <see langword="null"/> to pick a quantizer automatically that matches the other parameters.
+        /// If no further parameters are specified, then the original pixel format is preserved while colors are optionally quantized.</param>
+        /// <param name="ditherer">The ditherer to be used. Might be ignored if <paramref name="quantizer"/> is not specified
+        /// and <paramref name="colorType"/> represents a higher bits-per-pixel per color channel format. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <param name="colorType">Determines the <see cref="SKBitmap.ColorType"/> property of the result <see cref="SKBitmap"/>.
+        /// Can be <see cref="SKColorType.Unknown"/> to use the original color type of the source <paramref name="bitmap"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="SKColorType.Unknown"/>.</param>
+        /// <param name="alphaType">Determines the <see cref="SKBitmap.AlphaType"/> property of the result <see cref="SKBitmap"/>.
+        /// It might be ignored if the <paramref name="colorType"/> cannot have the specified alpha type.
+        /// Can be <see cref="SKAlphaType.Unknown"/> to use the original alpha type of the source <paramref name="bitmap"/>. This parameter is optional.
+        /// <br/>Default value: <see cref="SKAlphaType.Unknown"/>.</param>
+        /// <param name="targetColorSpace">Determines both the <see cref="SKBitmap.ColorSpace"/> property of the result <see cref="SKBitmap"/>,
+        /// and also the working color space if <paramref name="quantizer"/> is <see langword="null"/>.
+        /// Can be <see cref="WorkingColorSpace.Default"/> to preserve the original color space. This parameter is optional.
+        /// <br/>Default value: <see cref="WorkingColorSpace.Default"/>.</param>
+        /// <param name="asyncConfig">The configuration of the asynchronous operation such as parallelization, cancellation, reporting progress, etc.
+        /// When <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_Progress.htm">Progress</a> is set in this parameter,
+        /// then this library always passes a <see cref="DrawingOperation"/> instance to the generic methods of
+        /// the <a href="https://docs.kgysoft.net/corelibraries/html/T_KGySoft_Threading_IAsyncProgress.htm">IAsyncProgress</a> interface. This parameter is optional.
+        /// <br/>Default value: <see langword="null"/>.</param>
+        /// <returns>A task that represents the asynchronous operation. Its result is an <see cref="SKBitmap"/> instance converted from the specified <paramref name="bitmap"/>,
+        /// or <see langword="null"/>, if the operation was canceled and the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_ThrowIfCanceled.htm">ThrowIfCanceled</a> property of the <paramref name="asyncConfig"/> parameter was <see langword="false"/>.</returns>
+        /// <remarks>
+        /// <para>This method is not a blocking call even if the <a href="https://docs.kgysoft.net/corelibraries/html/P_KGySoft_Threading_AsyncConfigBase_MaxDegreeOfParallelism.htm">MaxDegreeOfParallelism</a> property of the <paramref name="asyncConfig"/> parameter is 1.</para>
+        /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ConvertPixelFormat(SKBitmap, IQuantizer?, IDitherer?, SKColorType, SKAlphaType, WorkingColorSpace)"/> method for more details.</note>
+        /// </remarks>
+        /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
+        /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
         public static Task<SKBitmap?> ConvertPixelFormatAsync(this SKBitmap bitmap, IQuantizer? quantizer, IDitherer? ditherer = null,
             SKColorType colorType = SKColorType.Unknown, SKAlphaType alphaType = SKAlphaType.Unknown, WorkingColorSpace targetColorSpace = WorkingColorSpace.Default, TaskConfig? asyncConfig = null)
         {
@@ -265,7 +417,7 @@ namespace KGySoft.Drawing.SkiaSharp
                 SKColorType.Rgba8888 => SKColorType.Bgra8888,
 
                 // Supported custom formats
-                > SKColorType.Unknown and ColorExtensions.MaxColorType => info.ColorType,
+                > SKColorType.Unknown and <= ColorExtensions.MaxColorType => info.ColorType,
 
                 // Unsupported formats (future compatibility)
                 _ => info.ColorType.GetBytesPerPixel() switch
