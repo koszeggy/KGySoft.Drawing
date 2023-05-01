@@ -2870,8 +2870,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            if (session.Source == null)
-                session.Source = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            session.Source ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
             session.Target = target as IBitmapDataInternal ?? new BitmapDataWrapper(target, false, true);
 
             try
@@ -3028,8 +3027,7 @@ namespace KGySoft.Drawing.Imaging
                 }
             }
 
-            if (sessionSource == null)
-                sessionSource = source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
+            sessionSource ??= source as IBitmapDataInternal ?? new BitmapDataWrapper(source, true, false);
 
             try
             {

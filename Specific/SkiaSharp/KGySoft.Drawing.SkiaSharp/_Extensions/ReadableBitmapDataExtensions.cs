@@ -229,7 +229,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?)"/> method for more details.</note>
         /// </remarks>
         public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, SKColorType colorType, SKAlphaType alphaType, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
-            => ToSKBitmapAsync(source, colorType, alphaType, WorkingColorSpace.Default, quantizer, ditherer);
+            => ToSKBitmapAsync(source, colorType, alphaType, WorkingColorSpace.Default, quantizer, ditherer, asyncConfig);
 
         /// <summary>
         /// Converts the specified <paramref name="source"/> to an <see cref="SKBitmap"/> asynchronously.
@@ -255,7 +255,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <note type="tip">See the <strong>Remarks</strong> section of the <see cref="ToSKBitmap(IReadableBitmapData, SKColorType, SKAlphaType, WorkingColorSpace, IQuantizer?, IDitherer?)"/> method for more details.</note>
         /// </remarks>
         public static Task<SKBitmap?> ToSKBitmapAsync(this IReadableBitmapData source, SKColorType colorType, IQuantizer? quantizer, IDitherer? ditherer = null, TaskConfig? asyncConfig = null)
-            => ToSKBitmapAsync(source, colorType, SKAlphaType.Unknown, WorkingColorSpace.Default, quantizer, ditherer);
+            => ToSKBitmapAsync(source, colorType, SKAlphaType.Unknown, WorkingColorSpace.Default, quantizer, ditherer, asyncConfig);
 
         #endregion
 
