@@ -1390,6 +1390,18 @@
     <Content Include="Help\Images\GirlWithAPearlEarringDefault8bppDitheredB8Srgb.gif">
       <ImageId>GirlWithAPearlEarringDefault8bppDitheredB8Srgb</ImageId>
     </Content>
+    <Content Include="Help\Images\AlphaGradientRgb565LinearBlack.png">
+      <ImageId>AlphaGradientRgb565LinearBlack</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb4444Unpremul.png">
+      <ImageId>AlphaGradientArgb4444Unpremul</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb4444UnpremulDitheredB8.png">
+      <ImageId>AlphaGradientArgb4444UnpremulDitheredB8</ImageId>
+    </Content>
+    <Content Include="Help\Images\AlphaGradientArgb1555WhiteA16Dithered.png">
+      <ImageId>AlphaGradientArgb1555WhiteA16Dithered</ImageId>
+    </Content>
   </ItemGroup>
   <!-- This is required for documenting the WinUI package.
        Without this the build crashes saying cannot find WinRT.Runtime under the bin folder of the KGySoft.Drawing.WinUI project.

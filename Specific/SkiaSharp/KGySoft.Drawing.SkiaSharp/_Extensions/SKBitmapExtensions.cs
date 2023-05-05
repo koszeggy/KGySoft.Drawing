@@ -244,6 +244,24 @@ namespace KGySoft.Drawing.SkiaSharp
         /// quantization will occur during the conversion. To use a specific quantizer (and optionally a ditherer) use the <see cref="ConvertPixelFormat(SKBitmap, IQuantizer?, IDitherer?, SKColorType, SKAlphaType, WorkingColorSpace)"/> overload.
         /// To use a quantizer with a specific palette you can use the <see cref="PredefinedColorsQuantizer"/> class.</para>
         /// </remarks>
+        /// <example>
+        /// <para>The method may produce the following results:
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
+        /// <para><img src="../Help/Images/AlphaGradientArgb4444Unpremul.png" alt="Color hues with unpremultiplied ARGB4444 sRGB pixel format"/>
+        /// <br/><paramref name="colorType"/> = <see cref="SKColorType.Argb4444"/>, <paramref name="alphaType"/> = <see cref="SKAlphaType.Unpremul"/>, <paramref name="targetColorSpace"/> = <see cref="WorkingColorSpace.Srgb"/>, the other parameters have their default value.</para>
+        /// <para><img src="../Help/Images/AlphaGradientRgb565Black.png" alt="Color hues with RGB565 sRGB pixel format and black background"/>
+        /// <br/><paramref name="colorType"/> = <see cref="SKColorType.Rgb565"/>, <paramref name="targetColorSpace"/> = <see cref="WorkingColorSpace.Srgb"/>, the other parameters have their default value.</para>
+        /// <para><img src="../Help/Images/AlphaGradientRgb565LinearBlack.png" alt="Color hues with RGB565 linear pixel format and black background"/>
+        /// <br/><paramref name="colorType"/> = <see cref="SKColorType.Rgb565"/>, <paramref name="targetColorSpace"/> = <see cref="WorkingColorSpace.Linear"/>, the other parameters have their default value.</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
         /// <seealso cref="ConvertPixelFormat(SKBitmap, IQuantizer?, IDitherer?, SKColorType, SKAlphaType, WorkingColorSpace)"/>
@@ -294,6 +312,26 @@ namespace KGySoft.Drawing.SkiaSharp
         /// will be quantized. You can also specify the <paramref name="ditherer"/> parameter to preserve more details while reducing the colors.</para>
         /// <para>Using a <paramref name="quantizer"/> that can represent more colors than the result <see cref="SKBitmap"/> may end up in a poor quality result.</para>
         /// </remarks>
+        /// <example>
+        /// <para>The method may produce the following results:
+        /// <table class="table is-hoverable">
+        /// <thead><tr><th width="50%"><div style="text-align:center;">Original image</div></th><th width="50%"><div style="text-align:center;">Quantized image</div></th></tr></thead>
+        /// <tbody>
+        /// <tr><td><div style="text-align:center;">
+        /// <para><img src="../Help/Images/AlphaGradient.png" alt="Color hues with alpha gradient"/>
+        /// <br/>Color hues with alpha gradient</para></div></td>
+        /// <td><div style="text-align:center;">
+        /// <para><img src="../Help/Images/AlphaGradientArgb4444Unpremul.png" alt="Color hues with unpremultiplied ARGB4444 sRGB pixel format"/>
+        /// <br/>Converting without quantizing and dithering, <paramref name="colorType"/> = <see cref="SKColorType.Argb4444"/>, <paramref name="alphaType"/> = <see cref="SKAlphaType.Unpremul"/>.</para>
+        /// <para><img src="../Help/Images/AlphaGradientArgb4444UnpremulDitheredB8.png" alt="Color hues with unpremultiplied ARGB4444 sRGB pixel format dithered by Bayer 8x8 dithering and black back color."/>
+        /// <br/><paramref name="colorType"/> = <see cref="SKColorType.Argb4444"/>, using <see cref="OrderedDitherer.Bayer8x8">Bayer 8x8</see> dithering. No quantizer is specified so a default black back color was applied.
+        /// As this dithering does not support partial transparency, the alpha pixels were blended with black and the bottom 8 lines are fully transparent.</para>
+        /// <para><img src="../Help/Images/AlphaGradientArgb1555WhiteA16Dithered.png" alt="Color hues quantized to ARGB1555 color space with white background and dithered by dotted halftone dithering."/>
+        /// <br/>Using <see cref="PredefinedColorsQuantizer.Argb1555">Argb1555</see> quantizer with white background and alpha threshold = 16, and using <see cref="OrderedDitherer.DottedHalftone">Dotted Halftone</see> dithering.
+        /// All of the other parameters are the default so the result color type and alpha type are the same as the original, it's just the specified quantizer that reduced the number of colors and partial transparency.</para></div></td>
+        /// </tr>
+        /// </tbody></table></para>
+        /// </example>
         /// <exception cref="ArgumentNullException"><paramref name="bitmap"/> is <see langword="null"/>.</exception>
         /// <exception cref="ArgumentOutOfRangeException"><paramref name="colorType"/>, <paramref name="alphaType"/> or <paramref name="targetColorSpace"/> does not specify a defined value.</exception>
         /// <seealso cref="ConvertPixelFormat(SKBitmap, SKColorType, SKAlphaType, WorkingColorSpace, SKColor, byte)"/>
