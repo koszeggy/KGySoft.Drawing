@@ -358,7 +358,8 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
         public void ConvertPixelFormatDirectTest()
         {
             var size = new SKSizeI(512, 256);
-            using var bitmap = new SKBitmap(new SKImageInfo(size.Width, size.Height));
+            var info = new SKImageInfo(size.Width, size.Height)/*.WithColorSpace(SKColorSpace.CreateSrgbLinear())*/;
+            using var bitmap = new SKBitmap(info);
             GenerateAlphaGradient(bitmap);
 
             foreach (SKColorType colorType in Enum<SKColorType>.GetValues())
@@ -366,9 +367,17 @@ namespace KGySoft.Drawing.SkiaSharp.UnitTests
                 if (colorType == SKColorType.Unknown)
                     continue;
 
-                using var result = bitmap.ConvertPixelFormat(colorType/*, backColor: SKColors.Green*/);
+                // by KGySoft
+                using var result = bitmap.ConvertPixelFormat(colorType, backColor: SKColors.Green);
                 Assert.AreEqual(colorType, result.ColorType);
-                SaveBitmap($"{colorType}", result);
+                SaveBitmap($"{colorType} KGy", result);
+
+                // by SkiaSharp
+                using var resultSkia = new SKBitmap(bitmap.Info.WithColorType(colorType));
+                using var canvas = new SKCanvas(resultSkia);
+                canvas.DrawBitmap(bitmap, SKPoint.Empty);
+                Assert.AreEqual(colorType, resultSkia.ColorType);
+                SaveBitmap($"{colorType} Skia", resultSkia);
             }
         }
 

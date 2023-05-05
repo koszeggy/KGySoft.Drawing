@@ -89,9 +89,9 @@ namespace KGySoft.Drawing.SkiaSharp
 
         #endregion
 
-        #region Internal Methods
+        #region Private Methods
 
-        internal static IReadableBitmapData GetBitmapDataInternal(this SKImage image, WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold, Action? disposeCallback = null)
+        private static IReadableBitmapData GetBitmapDataInternal(this SKImage image, WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold, Action? disposeCallback = null)
         {
             if (image == null)
                 throw new ArgumentNullException(nameof(image), PublicResources.ArgumentNull);

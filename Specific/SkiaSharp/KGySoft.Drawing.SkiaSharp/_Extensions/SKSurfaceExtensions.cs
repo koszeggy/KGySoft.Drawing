@@ -33,6 +33,8 @@ namespace KGySoft.Drawing.SkiaSharp
     {
         #region Methods
 
+        #region Public Methods
+
         /// <summary>
         /// Gets a managed read-only accessor for an <see cref="SKSurface"/> instance.
         /// <br/>See the <strong>Remarks</strong> section of the <a href="https://docs.kgysoft.net/drawing/html/M_KGySoft_Drawing_BitmapExtensions_GetReadWriteBitmapData.htm">BitmapExtensions.GetReadWriteBitmapData</a>
@@ -83,23 +85,7 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <seealso cref="SKImageExtensions.GetReadableBitmapData(SKImage, WorkingColorSpace, SKColor, byte)"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
         public static IReadableBitmapData GetReadableBitmapData(this SKSurface surface, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
-        {
-            if (surface == null)
-                throw new ArgumentNullException(nameof(surface), PublicResources.ArgumentNull);
-            if (workingColorSpace is < WorkingColorSpace.Default or > WorkingColorSpace.Srgb)
-                throw new ArgumentOutOfRangeException(nameof(workingColorSpace), PublicResources.EnumOutOfRange(workingColorSpace));
-
-            // Raster-based surface: We can simply get a bitmap data for its pixels
-            SKPixmap? pixels = surface.PeekPixels();
-            if (pixels != null)
-                return pixels.GetReadableBitmapData(workingColorSpace);
-
-            // fallback: taking a snapshot as an SKImage, and obtaining the bitmap data for that
-            // TODO: This will use SKImage.ReadPixels internally, which is another allocation.
-            //       Instead, use surface.ReadPixels directly if there will be a surface.Info or surface.Canvas.Info so no Snapshot will be needed: https://github.com/mono/SkiaSharp/issues/2281
-            SKImage skImage = surface.Snapshot();
-            return skImage.GetBitmapDataInternal(workingColorSpace, backColor.ToColor32(), alphaThreshold, skImage.Dispose);
-        }
+            => surface.GetBitmapDataInternal(true, workingColorSpace, backColor.ToColor32(), alphaThreshold);
 
         /// <summary>
         /// Gets a managed write-only accessor for an <see cref="SKSurface"/> instance.
@@ -197,32 +183,24 @@ namespace KGySoft.Drawing.SkiaSharp
         /// <seealso cref="SKBitmapExtensions.GetReadWriteBitmapData(SKBitmap, WorkingColorSpace, SKColor, byte)"/>
         /// <seealso cref="BitmapDataFactory.CreateBitmapData(Size, KnownPixelFormat, WorkingColorSpace, Color32, byte)"/>
         public static IReadWriteBitmapData GetReadWriteBitmapData(this SKSurface surface, WorkingColorSpace workingColorSpace, SKColor backColor = default, byte alphaThreshold = 128)
+            => surface.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold);
+
+        #endregion
+
+        #region Private Methods
+
+        private static IReadWriteBitmapData GetBitmapDataInternal(this SKSurface surface, bool readOnly, WorkingColorSpace workingColorSpace, Color32 backColor, byte alphaThreshold)
         {
             if (surface == null)
                 throw new ArgumentNullException(nameof(surface), PublicResources.ArgumentNull);
 
-            Action disposeCallback;
             SKPixmap? pixels = surface.PeekPixels();
 
-            // Raster-based surface: getting the pixels directly, and on dispose drawing it back to the surface
+            // CPU-backed raster-based surface: getting the pixels directly
             if (pixels != null)
-            {
-                disposeCallback = () =>
-                {
-                    using (var bitmap = new SKBitmap())
-                    {
-                        bitmap.InstallPixels(pixels);
-                        surface.Canvas.Clear();
-                        surface.Canvas.DrawBitmap(bitmap, SKPoint.Empty, SKBitmapExtensions.CopySourcePaint);
-                    }
+                return pixels.GetBitmapDataInternal(readOnly, workingColorSpace, backColor, alphaThreshold, pixels.Dispose);
 
-                    pixels.Dispose();
-                };
-
-                return pixels.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold, disposeCallback);
-            }
-
-            // Not a raster-based surface: taking a snapshot as an image, converting it to bitmap and doing the same as above
+            // Fallback: taking a snapshot as an image, converting it to bitmap and drawing it back on dispose if needed
             // TODO: use surface.ReadPixels directly if there will be a surface.Info or surface.Canvas.Info so no Snapshot will be needed: https://github.com/mono/SkiaSharp/issues/2281
             SKBitmap bitmap;
             using (SKImage snapshot = surface.Snapshot())
@@ -236,15 +214,19 @@ namespace KGySoft.Drawing.SkiaSharp
                 }
             }
 
-            disposeCallback = () =>
-            {
-                surface.Canvas.Clear();
-                surface.Canvas.DrawBitmap(bitmap, SKPoint.Empty, SKBitmapExtensions.CopySourcePaint);
-                bitmap.Dispose();
-            };
+            Action disposeCallback = readOnly
+                ? bitmap.Dispose
+                : () =>
+                {
+                    surface.Canvas.Clear();
+                    surface.Canvas.DrawBitmap(bitmap, SKPoint.Empty, SKBitmapExtensions.CopySourcePaint);
+                    bitmap.Dispose();
+                };
 
-            return bitmap.GetBitmapDataInternal(false, workingColorSpace, backColor.ToColor32(), alphaThreshold, disposeCallback);
+            return bitmap.GetBitmapDataInternal(readOnly, workingColorSpace, backColor, alphaThreshold, disposeCallback);
         }
+
+        #endregion
 
         #endregion
     }
