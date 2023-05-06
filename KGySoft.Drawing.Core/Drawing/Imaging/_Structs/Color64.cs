@@ -225,6 +225,15 @@ namespace KGySoft.Drawing.Imaging
         public static Color64 FromArgb(long argb) => new Color64((ulong)argb);
 
         /// <summary>
+        /// Creates a <see cref="Color64"/> structure from a 64-bit ARGB value.
+        /// </summary>
+        /// <param name="argb">A value specifying the 64-bit ARGB value. As a hex value it can be specified as <c>0xAAAA_RRRR_GGGG_BBBB</c>
+        /// where <c>AAAA</c> is the highest word and <c>BBBB</c> is the lowest word.</param>
+        /// <returns>A <see cref="Color64"/> structure from the specified 64-bit ARGB value.</returns>
+        [CLSCompliant(false)]
+        public static Color64 FromArgb(ulong argb) => new Color64(argb);
+
+        /// <summary>
         /// Creates a <see cref="Color64"/> instance from the specified <see cref="Color64"/> structure, but with the new specified alpha value.
         /// </summary>
         /// <param name="a">The alpha value for the new <see cref="Color64"/> instance.</param>
@@ -236,11 +245,20 @@ namespace KGySoft.Drawing.Imaging
 
         /// <summary>
         /// Creates a <see cref="Color64"/> structure from a 48-bit RGB value. The highest two bytes of the specified integer are ignored
-        /// and the <see cref="A">A</see> property of the result will be 255.
+        /// and the <see cref="A">A</see> property of the result will be 65535.
         /// </summary>
         /// <param name="rgb">A value specifying the 48-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
         /// <returns>A <see cref="Color64"/> structure from a 48-bit RGB value.</returns>
         public static Color64 FromRgb(long rgb) => new Color64(alphaMask | (ulong)rgb);
+
+        /// <summary>
+        /// Creates a <see cref="Color64"/> structure from a 48-bit RGB value. The highest two bytes of the specified integer are ignored
+        /// and the <see cref="A">A</see> property of the result will be 65535.
+        /// </summary>
+        /// <param name="rgb">A value specifying the 48-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
+        /// <returns>A <see cref="Color64"/> structure from a 48-bit RGB value.</returns>
+        [CLSCompliant(false)]
+        public static Color64 FromRgb(ulong rgb) => new Color64(alphaMask | rgb);
 
         /// <summary>
         /// Creates a <see cref="Color64"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.
@@ -282,10 +300,24 @@ namespace KGySoft.Drawing.Imaging
         public long ToArgb() => (long)value;
 
         /// <summary>
-        /// Gets the 48-bit RGB value of this <see cref="Color32"/> instance. The highest two of bytes of the returned integer are zero.
+        /// Gets the 64-bit ARGB value of this <see cref="Color64"/> instance.
         /// </summary>
-        /// <returns>The 48-bit RGB value of this <see cref="Color32"/> instance. The highest two of bytes of the returned integer are zero.</returns>
+        /// <returns>The 64-bit ARGB value of this <see cref="Color64"/> instance</returns>
+        [CLSCompliant(false)]
+        public ulong ToArgbUInt64() => value;
+
+        /// <summary>
+        /// Gets the 48-bit RGB value of this <see cref="Color64"/> instance. The highest two of bytes of the returned integer are zero.
+        /// </summary>
+        /// <returns>The 48-bit RGB value of this <see cref="Color64"/> instance. The highest two of bytes of the returned integer are zero.</returns>
         public long ToRgb() => (long)(~alphaMask & value);
+
+        /// <summary>
+        /// Gets the 48-bit RGB value of this <see cref="Color64"/> instance. The highest two of bytes of the returned integer are zero.
+        /// </summary>
+        /// <returns>The 48-bit RGB value of this <see cref="Color64"/> instance. The highest two of bytes of the returned integer are zero.</returns>
+        [CLSCompliant(false)]
+        public ulong ToRgbUInt64() => ~alphaMask & value;
 
         /// <summary>
         /// Gets a <see cref="Color64"/> instance that represents the matching gray shade of this <see cref="Color64"/> instance based on human perception.

@@ -307,6 +307,16 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
         public static PColor32 FromArgb(int argb) => new PColor32((uint)argb);
 
+        /// <summary>
+        /// Creates a <see cref="PColor32"/> structure from a 32-bit ARGB value.
+        /// </summary>
+        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
+        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB). The parameter is not validated but
+        /// You can use the <see cref="IsValid"/> property or the <see cref="Clip">Clip</see> method on the created result.</param>
+        /// <returns>A <see cref="PColor32"/> structure from the specified 32-bit ARGB value.</returns>
+        [CLSCompliant(false)]
+        public static PColor32 FromArgb(uint argb) => new PColor32(argb);
+
         #endregion
 
         #region Private Methods
@@ -410,6 +420,13 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>The 32-bit ARGB value of this <see cref="PColor32"/> instance</returns>
         public int ToArgb() => (int)value;
+
+        /// <summary>
+        /// Gets the 32-bit ARGB value of this <see cref="PColor32"/> instance.
+        /// </summary>
+        /// <returns>The 32-bit ARGB value of this <see cref="PColor32"/> instance</returns>
+        [CLSCompliant(false)]
+        public uint ToArgbUInt32() => value;
 
         /// <summary>
         /// Determines whether the current <see cref="PColor32"/> instance is equal to another one.

@@ -211,6 +211,15 @@ namespace KGySoft.Drawing.Imaging
         public static Color32 FromArgb(int argb) => new Color32((uint)argb);
 
         /// <summary>
+        /// Creates a <see cref="Color32"/> structure from a 32-bit ARGB value.
+        /// </summary>
+        /// <param name="argb">A value specifying the 32-bit ARGB value. As a hex value it can be specified as <c>0xAA_RR_GG_BB</c> where <c>AA</c>
+        /// is the most significant byte (MSB) and <c>BB</c> is the least significant byte (LSB).</param>
+        /// <returns>A <see cref="Color32"/> structure from the specified 32-bit ARGB value.</returns>
+        [CLSCompliant(false)]
+        public static Color32 FromArgb(uint argb) => new Color32(argb);
+
+        /// <summary>
         /// Creates a <see cref="Color32"/> instance from the specified <see cref="Color32"/> structure, but with the new specified alpha value.
         /// </summary>
         /// <param name="a">The alpha value for the new <see cref="Color32"/> instance.</param>
@@ -226,6 +235,15 @@ namespace KGySoft.Drawing.Imaging
         /// <param name="rgb">A value specifying the 24-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
         /// <returns>A <see cref="Color32"/> structure from a 24-bit RGB value.</returns>
         public static Color32 FromRgb(int rgb) => new Color32(alphaMask | (uint)rgb);
+
+        /// <summary>
+        /// Creates a <see cref="Color32"/> structure from a 24-bit RGB value. The highest byte of the specified integer is ignored
+        /// and the <see cref="A">A</see> property of the result will be 255.
+        /// </summary>
+        /// <param name="rgb">A value specifying the 24-bit RGB value. The possibly nonzero alpha component will be ignored.</param>
+        /// <returns>A <see cref="Color32"/> structure from a 24-bit RGB value.</returns>
+        [CLSCompliant(false)]
+        public static Color32 FromRgb(uint rgb) => new Color32(alphaMask | rgb);
 
         /// <summary>
         /// Creates a <see cref="Color32"/> structure representing a grayscale color of the specified <paramref name="brightness"/>.
@@ -251,10 +269,24 @@ namespace KGySoft.Drawing.Imaging
         public int ToArgb() => (int)value;
 
         /// <summary>
+        /// Gets the 32-bit ARGB value of this <see cref="Color32"/> instance.
+        /// </summary>
+        /// <returns>The 32-bit ARGB value of this <see cref="Color32"/> instance</returns>
+        [CLSCompliant(false)]
+        public uint ToArgbUInt32() => value;
+
+        /// <summary>
         /// Gets the 24-bit RGB value of this <see cref="Color32"/> instance. The most significant byte of the returned integer is zero.
         /// </summary>
         /// <returns>The 24-bit RGB value of this <see cref="Color32"/> instance. The most significant byte of the returned integer is zero.</returns>
         public int ToRgb() => (int)(~alphaMask & value);
+
+        /// <summary>
+        /// Gets the 24-bit RGB value of this <see cref="Color32"/> instance. The most significant byte of the returned integer is zero.
+        /// </summary>
+        /// <returns>The 24-bit RGB value of this <see cref="Color32"/> instance. The most significant byte of the returned integer is zero.</returns>
+        [CLSCompliant(false)]
+        public uint ToRgbUInt32() => ~alphaMask & value;
 
         /// <summary>
         /// Gets a <see cref="Color32"/> instance that represents the matching gray shade of this <see cref="Color32"/> instance based on human perception.

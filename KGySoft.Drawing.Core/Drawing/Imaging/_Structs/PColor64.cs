@@ -367,6 +367,15 @@ namespace KGySoft.Drawing.Imaging
         /// <returns>A <see cref="PColor64"/> structure from the specified 64-bit ARGB value.</returns>
         public static PColor64 FromArgb(long argb) => new PColor64((ulong)argb);
 
+        /// <summary>
+        /// Creates a <see cref="PColor64"/> structure from a 64-bit ARGB value.
+        /// </summary>
+        /// <param name="argb">A value specifying the 64-bit ARGB value. As a hex value it can be specified as <c>0xAAAA_RRRR_GGGG_BBBB</c>
+        /// where <c>AAAA</c> is the highest word and <c>BBBB</c> is the lowest word.</param>
+        /// <returns>A <see cref="PColor64"/> structure from the specified 64-bit ARGB value.</returns>
+        [CLSCompliant(false)]
+        public static PColor64 FromArgb(ulong argb) => new PColor64(argb);
+
         #endregion
 
         #region Private Methods
@@ -573,6 +582,13 @@ namespace KGySoft.Drawing.Imaging
         /// </summary>
         /// <returns>The 64-bit ARGB value of this <see cref="PColor64"/> instance</returns>
         public long ToArgb() => (long)value;
+
+        /// <summary>
+        /// Gets the 64-bit ARGB value of this <see cref="PColor64"/> instance.
+        /// </summary>
+        /// <returns>The 64-bit ARGB value of this <see cref="PColor64"/> instance</returns>
+        [CLSCompliant(false)]
+        public ulong ToArgbUInt64() => value;
 
         /// <summary>
         /// Determines whether the current <see cref="PColor64"/> instance is equal to another one.

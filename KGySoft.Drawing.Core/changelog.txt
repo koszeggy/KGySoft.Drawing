@@ -16,6 +16,9 @@
 + New PColor32 struct
 + New PColor64 struct
 + New PColorF struct
++ Color32 struct:
+  + New ToArgbUInt32/ToRgbUInt32 methods
+  + New FromArgb/FromRgb overload from uint
 * ColorExtensions class:
   + New ToColor/ToColor32/ToColor64/ToColorF/ToPColor32/ToPColor64/ToPColorF methods
   + New ToPremultiplied/ToStraight methods
