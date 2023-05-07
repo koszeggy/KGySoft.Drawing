@@ -15,16 +15,19 @@
 
 #region Usings
 
+using System;
+using System.Runtime.InteropServices;
 #if NET
 using System.Runtime.Versioning;
 #endif
 
-#region Used Namespaces
-
-using System;
-using System.Runtime.InteropServices;
-
 #endregion
+
+#region Suppressions
+
+#if !NETCOREAPP3_0_OR_GREATER
+#pragma warning disable CS8602 // Dereference of a possibly null reference
+#endif
 
 #endregion
 
