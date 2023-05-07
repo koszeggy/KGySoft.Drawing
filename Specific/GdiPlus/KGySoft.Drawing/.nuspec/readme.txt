@@ -1,4 +1,4 @@
-﻿Thank you for installing KGy SOFT Drawing Libraries 7.2.0-preview.1
+﻿Thank you for installing KGy SOFT Drawing Libraries 7.2.0
 KGy SOFT Drawing Libraries offer advanced drawing features for System.Drawing types.
 
 ⚠️ Warning: Version 7.0.0 introduced several breaking changes. Most importantly, the technology-agnostic and
@@ -12,10 +12,12 @@ Release Notes: https://github.com/koszeggy/KGySoft.Drawing/blob/master/Specific/
 
                                                  ~~*~~
 
-+----------------------------------------------------------------------------------------------------------------+
-| Debugger Visualizers for System.Drawing types built on KGy SOFT Drawing Libraries along with demo application: |
-|                            https://github.com/koszeggy/KGySoft.Drawing.Tools                                   |
-+----------------------------------------------------------------------------------------------------------------+
+          +------------------------------------------------------------------------------------+
+          | Example applications for MAUI, UWP, WinForms, WinUI, WPF and Xamarin:              |
+          |   https://github.com/koszeggy/KGySoft.Drawing/tree/master/Examples                 |
+          | Debugger Visualizers for System.Drawing types built on KGy SOFT Drawing Libraries: |
+          |   https://github.com/koszeggy/KGySoft.Drawing.Tools                                |
+          +------------------------------------------------------------------------------------+
 
                                                  ~~*~~
 

@@ -1,11 +1,11 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <!--<TargetFrameworks>net462;netstandard2.0;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>-->
-    <TargetFrameworks>net7.0</TargetFrameworks>
-
+    <TargetFrameworks>net462;netcoreapp2.0;netcoreapp3.0;net5.0</TargetFrameworks>
+    <!--<TargetFrameworks>net7.0</TargetFrameworks>-->
+    <IsWindows Condition="'$([System.Runtime.InteropServices.RuntimeInformation]::IsOSPlatform($([System.Runtime.InteropServices.OSPlatform]::Windows)))' == 'true'">true</IsWindows> 
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
-	<RootNamespace>KGySoft.Drawing.SkiaSharp</RootNamespace>
+    <RootNamespace>KGySoft.Drawing.SkiaSharp</RootNamespace>
     <SignAssembly>true</SignAssembly>
     <AssemblyOriginatorKeyFile>..\..\..\KGySoft.snk</AssemblyOriginatorKeyFile>
     <LangVersion>latest</LangVersion>
@@ -18,6 +18,10 @@
 
     <!--Suppression NETSDK1138: The target framework 'netcoreapp3.1' is out of support - this is not an application but a library so targeting the lowest possible versions is intended -->
     <NoWarn>$(NoWarn);NETSDK1138</NoWarn>
+  </PropertyGroup>
+
+  <PropertyGroup Condition="'$(IsWindows)'=='true'">
+    <DefineConstants>WINDOWS</DefineConstants>
   </PropertyGroup>
 
   <!-- Common NuGet references -->
